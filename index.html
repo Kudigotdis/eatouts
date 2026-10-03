@@ -1,0 +1,3382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>The Yellow Giraffe Coffee Club</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#f0ece2}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#1a1a1a;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+button,input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;text-align:left}
+img{display:block;max-width:100%}
+
+#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#ffffff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+@media(min-width:520px){#shell{border-left:1px solid #e8e3d8;border-right:1px solid #e8e3d8}}
+
+/* ---------- HEADER (WHITE) ---------- */
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#ffffff;border-bottom:1px solid #ece7db;position:relative;z-index:40;padding-top:env(safe-area-inset-top)}
+#hdr.hide{display:none}
+.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden}
+.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+.hdr-right{margin-left:auto}
+.hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;border:1px solid #ece7db;border-radius:20px;padding:4px 9px;background:#faf8f2}
+
+/* ---------- VIEWPORT (WHITE) ---------- */
+#viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#ffffff}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#ffffff;color:#1a1a1a}
+.screen.anim{animation:sl .18s ease}
+@keyframes sl{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+.scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#ffffff}
+
+/* ---------- BOTTOM NAV (BLACK, WHITE ICONS, NO TEXT) ---------- */
+#nav{flex:0 0 auto;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
+.nav-btn{flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.42);transition:color .18s}
+.nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+.nav-btn.on{color:#ffffff}
+.nav-btn.on svg{transform:translateY(-1px);filter:drop-shadow(0 0 8px rgba(255,255,255,.35))}
+.nav-btn:active{color:rgba(255,255,255,.75)}
+
+/* ---------- CONTROL BAR ---------- */
+#cbar{flex:0 0 auto;display:none;background:#ffffff;border-top:1px solid #ece7db;position:relative}
+#cbar.on{display:block}
+
+/* ---------- FLOATING FILTER POPUP (lightweight overlay) ---------- */
+.fpop-scrim{position:fixed;inset:0;z-index:55}
+.fpop{position:absolute;left:8px;right:8px;bottom:calc(100% + 8px);background:#ffffff;border:1px solid #ece7db;border-radius:14px;box-shadow:0 -6px 26px -6px rgba(0,0,0,.2);overflow:hidden;z-index:60;animation:fpop .18s ease}
+@keyframes fpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fpop button{display:block;width:100%;padding:12px 14px;font-size:12.5px;font-weight:700;color:#3a3324;border-bottom:1px solid #f4efe4;text-align:left}
+.fpop button:last-child{border-bottom:0}
+.fpop button:active{background:#faf8f2}
+.fpop button.on{color:#8a6a0a;font-weight:900;background:#fdf9ef}
+
+/* ---------- COMMON ---------- */
+.pad{padding:14px}
+.subh{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#a89a7e;font-weight:800;margin:0 0 9px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 15px;border-radius:11px;font-size:12.5px;font-weight:800;background:#f7f4ec;border:1px solid #ece7db;color:#3a3324;letter-spacing:.02em;transition:background .15s}
+.btn:active{background:#efe9da}
+.btn.primary{background:linear-gradient(150deg,#d4a017,#8a6a0a);border-color:#d4a017;color:#ffffff}
+.btn.primary:active{background:linear-gradient(150deg,#bd8e0f,#745808)}
+.btn.wa{background:#dff5e4;border-color:#b8e6c1;color:#1c6b2e}
+.btn.wa:active{background:#c9ecd0}
+.btn.full{width:100%}
+.btn.sm{padding:8px 12px;font-size:11.5px;border-radius:9px}
+.btn.ghost{background:transparent;border-color:#e2dccd;color:#6f6754}
+
+/* ---------- ART TILES ---------- */
+.tile{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.tile-ico{font-size:26px;opacity:.55;filter:saturate(.75)}
+.tile-ico.lg{font-size:52px;opacity:.42}
+
+/* ---------- CALENDAR (STICKY) ---------- */
+.cal{flex:0 0 auto;background:#ffffff;border-bottom:1px solid #ece7db;padding:11px 0 10px;position:relative;z-index:5;box-shadow:0 4px 10px -8px rgba(0,0,0,.12)}
+.cal-title{padding:0 16px 10px;font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:#a89a7e;font-weight:800}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:0 16px;width:100%;box-sizing:border-box;overflow:visible}
+.day{width:100%;height:56px;min-width:0;border-radius:14px;border:1px solid #ece7db;background:#faf8f2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#a89a7e;transition:all .16s;padding:0}
+.day b{font-size:9.5px;font-weight:800;letter-spacing:.09em}
+.day span{font-size:15px;font-weight:900;color:#3a3324}
+.day.on{background:linear-gradient(160deg,#d4a017,#8a6a0a);border-color:#d4a017;color:#ffffff}
+.day.on span{color:#ffffff}
+.day.td:not(.on){border-color:#d4a017}
+
+/* ---------- PROMO CARD (ACCORDION, IMAGE-ONLY) ---------- */
+.pcard{margin:12px 14px;border-radius:16px;overflow:hidden;background:#ffffff;border:1px solid #ece7db;box-shadow:0 2px 8px -4px rgba(0,0,0,.06)}
+.pimg{position:relative;aspect-ratio:16/10;display:block;width:100%;padding:0;overflow:hidden;border:0}
+.pimg .tile{position:absolute;inset:0}
+.pimg .tile-ico{font-size:48px;opacity:.28}
+.pimg>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.pbody{padding:14px;border-top:1px solid #f1ece1;background:#ffffff}
+@keyframes fd{from{opacity:0}to{opacity:1}}
+.phead-btn{display:block;width:100%;padding:0;margin:0 0 10px}
+.phead-btn h3{margin:0 0 6px;font-size:17px;font-weight:900;color:#1a1a1a;line-height:1.2;letter-spacing:-.01em}
+.pprice{font-size:15px;font-weight:900;color:#8a6a0a;letter-spacing:-.01em}
+.pprice .pwas{font-size:11.5px;font-weight:700;color:#b5a888;text-decoration:line-through;margin-left:6px;letter-spacing:0}
+.phl{margin:0;padding:0;list-style:none}
+.phl li{font-size:12px;color:#5c5547;line-height:1.5;padding:7px 0 7px 14px;position:relative;border-bottom:1px solid #f4efe4}
+.phl li:last-child{border-bottom:0}
+.phl li::before{content:"";position:absolute;left:0;top:14px;width:5px;height:5px;border-radius:50%;background:#d4a017}
+
+/* ---------- EVENT CARD (ACCORDION) ---------- */
+.ecard{margin:12px 14px;border-radius:16px;overflow:hidden;background:#ffffff;border:1px solid #ece7db;box-shadow:0 2px 8px -4px rgba(0,0,0,.06)}
+/* image drives card height: full width, full height, nothing cropped */
+.ecard .pimg{aspect-ratio:auto;display:block}
+.ecard .pimg>img{position:relative;inset:auto;width:100%;height:auto;object-fit:cover;display:block}
+
+/* ---------- ACCORDION (smooth collapse/expand) ---------- */
+.acc-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
+.acc-wrap>.acc-in{overflow:hidden;min-height:0}
+.ecard.open>.acc-wrap,.mitem.open>.acc-wrap{grid-template-rows:1fr}
+@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}}
+
+/* ---------- COUNTERS ---------- */
+.ctr{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#faf8f2;border:1px solid #f1ece1;border-radius:12px;margin-bottom:7px}
+.ctr .lbl{font-size:12.5px;font-weight:700;color:#3a3324;display:flex;flex-direction:column}
+.ctr .lbl em{font-style:normal;font-size:10px;color:#a89a7e;font-weight:600;letter-spacing:.03em;margin-top:2px}
+.stp{display:flex;align-items:center;border:1px solid #e2dcc9;border-radius:10px;overflow:hidden;background:#ffffff}
+.stp button{width:34px;height:32px;font-size:16px;font-weight:800;color:#8a6a0a;display:flex;align-items:center;justify-content:center}
+.stp button:active{background:#f4efe4}
+.stp .val{min-width:30px;text-align:center;font-size:13.5px;font-weight:900;color:#1a1a1a;padding:0 3px}
+
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;margin:12px 0;border-radius:13px;background:linear-gradient(150deg,rgba(212,160,23,.12),rgba(212,160,23,.03));border:1px solid rgba(212,160,23,.3)}
+.tbar .tl{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#8a6a0a;font-weight:800}
+.tbar .tv{font-size:19px;font-weight:900;color:#8a6a0a;letter-spacing:-.01em}
+
+/* ---------- MENU ---------- */
+.cat-row{display:flex;align-items:center;gap:13px;padding:15px 16px;border-bottom:1px solid #f1ece1;background:#ffffff;width:100%}
+.cat-row:active{background:#faf8f2}
+.cat-ico{width:44px;height:44px;flex:0 0 auto;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid #f1ece1}
+.cat-name{font-size:14.5px;font-weight:800;color:#1a1a1a;letter-spacing:.01em}
+.cat-meta{font-size:10.5px;color:#a89a7e;margin-top:2px;letter-spacing:.03em;font-weight:600}
+
+.mitem{border-bottom:1px solid #f1ece1;background:#ffffff}
+.mrow{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%}
+.mrow:active{background:#faf8f2}
+.mthumb{width:54px;height:54px;flex:0 0 auto;border-radius:6px;overflow:hidden;border:1px solid #ece7db;position:relative}
+.mthumb .tile-ico{font-size:22px}
+.mthumb>img{width:100%;height:100%;object-fit:cover;display:block}
+.minfo{flex:1;min-width:0}
+.mtitle{font-size:13.5px;font-weight:800;color:#1a1a1a;line-height:1.28}
+.mprice{font-size:12.5px;font-weight:900;color:#8a6a0a;margin-top:3px;letter-spacing:.01em}
+.mbody{padding:0 14px 15px;animation:fd .2s ease;background:#faf8f2;border-top:1px solid #f1ece1}
+.mdesc{font-size:12px;color:#5c5547;line-height:1.55;margin:12px 0 12px}
+/* 3-up paging: each thumb is (100% - 2 gaps)/3 so exactly three fit,
+   and mandatory snapping always lands on a clean group of three. */
+.thumbs{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px;margin-bottom:13px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.thumbs .th{flex:0 0 auto;width:calc((100% - 14px)/3);height:auto;aspect-ratio:1/1;border-radius:6px;overflow:hidden;border:1px solid #ece7db;position:relative;scroll-snap-align:start;scroll-snap-stop:always}
+.thumbs .th .tile-ico{font-size:26px}
+.thumbs .th>img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ---------- CHECKOUT ---------- */
+.cbwrap{flex:0 0 auto;border-top:1px solid #ece7db;background:#ffffff}
+.cbar{display:flex;align-items:center;gap:12px;padding:11px 14px}
+.cbtot{flex:1;display:flex;flex-direction:column}
+.cbtot span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#a89a7e;font-weight:800}
+.cbtot b{font-size:17px;font-weight:900;color:#8a6a0a}
+.cbbtn{padding:13px 24px;border-radius:12px;font-size:12.5px;font-weight:900;letter-spacing:.04em;background:linear-gradient(150deg,#d4a017,#8a6a0a);color:#ffffff}
+.cbbtn:active{background:linear-gradient(150deg,#bd8e0f,#745808)}
+.cbbtn[disabled]{opacity:.35}
+
+/* cart summary strip: whole left block is a tap target for checkout */
+.cbtot{flex:1;display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:4px 0;border-radius:8px;transition:opacity .15s}
+button.cbtot{cursor:pointer;-webkit-tap-highlight-color:transparent}
+button.cbtot:active{opacity:.55}
+button.cbtot[disabled]{opacity:.4;cursor:default}
+
+/* ---------- CHECKOUT SUMMARY ---------- */
+.co-item{border:1px solid #f1ece1;border-radius:12px;background:#ffffff;margin-bottom:8px;overflow:hidden}
+.co-row{display:flex;align-items:center;gap:10px;padding:9px 10px;background:#faf8f2}
+.co-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.co-main:active{opacity:.6}
+.co-thumb{width:52px;height:52px;flex:0 0 auto;border-radius:7px;overflow:hidden;border:1px solid #ece7db;background:#f3efe4}
+.co-thumb>img{width:100%;height:100%;object-fit:cover;display:block}
+.co-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.co-name{font-size:12.5px;font-weight:800;color:#1a1a1a;line-height:1.3}
+.co-name em{font-style:normal;font-weight:700;color:#8a6a0a}
+.co-sub{font-size:10.5px;color:#8a6a0a;font-weight:800}
+.co-meta{font-size:10px;color:#a89a7e;font-weight:700}
+.co-edit{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#8a6a0a;flex:0 0 auto}
+.co-step{flex:0 0 auto}
+.co-open{border-top:1px solid #f1ece1;padding:11px 12px;background:#ffffff}
+.co-desc{margin:0 0 10px;font-size:11.5px;line-height:1.55;color:#5c5546}
+.co-ex{margin-bottom:6px}
+.co-exsum{font-size:10.5px;color:#8a8170;padding:2px 0 6px}
+.co-none{font-size:10.5px;color:#a89a7e;font-weight:700;padding:2px 0}
+.co-foot{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#a89a7e;margin-top:10px;padding-top:9px;border-top:1px solid #f4efe4}
+.co-foot b{font-size:13px;letter-spacing:-.01em;color:#8a6a0a}
+
+/* ---------- FORMS ---------- */
+.fld{margin-bottom:11px}
+.fld label{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#a89a7e;font-weight:800;margin-bottom:6px}
+.fld input,.fld textarea{width:100%;padding:12px 13px;background:#faf8f2;border:1px solid #ece7db;border-radius:11px;color:#1a1a1a;font-size:13px;outline:none;transition:border-color .16s}
+.fld input:focus,.fld textarea:focus{border-color:#d4a017;background:#ffffff}
+.fld textarea{resize:none;min-height:76px;line-height:1.5}
+
+/* ---------- LISTS ---------- */
+.lrow{display:flex;align-items:center;gap:11px;padding:15px 16px;border-bottom:1px solid #f1ece1;background:#ffffff;width:100%}
+.lrow:active{background:#faf8f2}
+.lrow .ln{font-size:13.5px;font-weight:700;color:#1a1a1a;flex:1}
+.lrow .lc{font-size:11px;color:#a89a7e;font-weight:700}
+
+/* ---------- GALLERY ---------- */
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:0 0 2px;background:#ffffff}
+.gal-cell{position:relative;aspect-ratio:1;overflow:hidden;background:#f4efe4;border:0;padding:0;display:block}
+.gal-cell .tile-ico{font-size:30px}
+.gal-cell>img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ---------- CONTROL BAR (GALLERY) ---------- */
+.cbar2{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.cbtn{font-size:12px;font-weight:800;letter-spacing:.03em;color:#3a3324;padding:9px 15px;border-radius:10px;background:#faf8f2;border:1px solid #ece7db}
+.cbtn:active{background:#f4efe4}
+.cbtn.ic{padding:9px 11px;display:flex;align-items:center;justify-content:center;background:#0a0a0a;border-color:#0a0a0a;color:#ffffff}
+.cbtn.ic svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cbtn.ic:active{background:#222}
+.cbtn.ic.on{background:#0a0a0a;border-color:#0a0a0a;color:#ffffff}
+.csearch{flex:1;display:flex;align-items:center;gap:8px;background:#faf8f2;border:1px solid #ece7db;border-radius:10px;padding:0 12px}
+.csearch input{flex:1;background:none;border:0;outline:none;padding:10px 0;font-size:13px;color:#1a1a1a}
+.csearch input::placeholder{color:#b5a888}
+
+/* ---------- SWIPER ---------- */
+.swiper{display:flex;flex-direction:column;flex:1 1 0%;min-height:0;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.swiper>.slide{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;height:100%;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.swiper>.slide .tile{position:absolute;inset:0}
+.swiper>.slide>img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block}
+.dots{display:flex;gap:5px;justify-content:center;padding:10px 0;flex:0 0 auto;z-index:5}
+.dots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.22);display:block}
+.dots i.on{background:#d4a017;width:16px;border-radius:3px}
+
+/* ---------- ABOUT ---------- */
+.about-hero{padding:26px 18px 20px;background:#ffffff;border-bottom:1px solid #ece7db}
+.about-hero h2{margin:0 0 6px;font-size:21px;font-weight:900;letter-spacing:-.015em;color:#1a1a1a}
+.about-hero p{margin:0;font-size:12px;color:#8a8170;letter-spacing:.02em}
+.about-logo{display:block;width:76%;max-width:290px;height:auto;max-height:150px;object-fit:contain;margin:0 auto 18px;border:0;box-shadow:none;background:none}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #f4efe4}
+.kv .k{font-size:11.5px;color:#a89a7e;font-weight:700}
+.kv .v{font-size:11.5px;color:#3a3324;font-weight:700;text-align:right}
+.tagwrap{display:flex;flex-wrap:wrap;gap:6px;padding-top:4px}
+.chip{font-size:10px;font-weight:800;letter-spacing:.05em;padding:5px 10px;border-radius:20px;background:#faf8f2;border:1px solid #ece7db;color:#5c5547}
+.chip.g{background:rgba(212,160,23,.12);border-color:rgba(212,160,23,.32);color:#8a6a0a}
+
+/* ---------- SOCIAL ICON ROW ---------- */
+.social-row{display:flex;gap:10px;margin:16px 0 4px;justify-content:center}
+.social-ico{flex:1 1 0;max-width:68px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:#faf8f2;border:1px solid #ece7db;border-radius:14px;padding:9px;text-decoration:none}
+.social-ico:active{background:#f4efe4}
+.social-ico img{width:100%;height:100%;object-fit:contain;display:block}
+
+/* ---------- CRUMB ---------- */
+.crumb{display:flex;align-items:center;gap:8px;padding:12px 16px 10px;flex-wrap:wrap;background:#ffffff}
+.crumb button{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#a89a7e;padding:4px 0}
+.crumb button:active{color:#8a6a0a}
+.crumb .sep{color:#e2dcc9;font-size:10px}
+.crumb .cur{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#8a6a0a}
+.phead{padding:4px 16px 16px}
+.phead h2{margin:0 0 4px;font-size:19px;font-weight:900;letter-spacing:-.01em;color:#1a1a1a}
+.phead p{margin:0;font-size:11.5px;color:#a89a7e;line-height:1.5}
+.empty{padding:44px 20px;text-align:center;color:#a89a7e;font-size:12.5px;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="hdr">
+    <div class="brand-mark"><img src="assets/logo/yellow_giraffe_logo.jpg" alt="The Yellow Giraffe"></div>
+    <div class="hdr-right"><span class="hdr-chip">Offline</span></div>
+  </header>
+  <div id="viewport"></div>
+  <div id="cbar"></div>
+  <nav id="nav"></nav>
+</div>
+
+<script>
+/* ================================================================
+   CONFIG & CONSTANTS
+   ================================================================ */
+const CONFIG = { whatsapp:"26777137847", displayNumber:"+267 77 137 847", entity:"the-yellow-giraffe-coffee-club", lastUpdated:"2026-10-02" };
+
+/* ================================================================
+   ASSET PATHS
+   ================================================================ */
+const IMG = {
+  logo:"assets/logo/yellow_giraffe_logo.jpg",
+  iconIG:"assets/icons/Instagram_icon.png",
+  iconFB:"assets/icons/facebook_icon.png",
+  iconWA:"assets/icons/whatsApp_icon_on.png",
+  poetry:"assets/images/events/poetry_nights.jpg",
+  dirEvents:"assets/images/events/",
+  dirFood:"assets/images/food/",
+  dirGallery:"assets/images/gallery/",
+  dirDemo:"assets/images/event_images_demo/",
+  demoImages:[
+    "Demo_Images_1.webp",
+    "Demo_Images_2.webp",
+    "Demo_Images_3.webp",
+    "Demo_Images_4.webp",
+    "Demo_Images_5.webp",
+    "Demo_Images_6.webp",
+    "Demo_Images_7.webp",
+    "Demo_Images_8.webp",
+    "Demo_Images_9.webp"
+  ],
+    events: [
+    "SaveClip.App_552610787_17919017118179023_4415879032808201075_n.jpg",
+    "SaveClip.App_755433031_17959207200179023_6807614737999532456_n_240.jpg",
+    "SaveClip.App_761669457_17960342310179023_6870308292769688604_n_320.jpg",
+    "Screenshot_20261002_170044_Instagram.jpg",
+    "Screenshot_20261002_170358_Instagram.jpg",
+    "Screenshot_20261002_170448_Instagram.jpg",
+    "Screenshot_20261002_171005_Instagram.jpg",
+    "Screenshot_20261002_171041_Instagram.jpg",
+    "Screenshot_20261002_171059_Instagram.jpg",
+    "Screenshot_20261002_171821_Instagram.jpg",
+    "Screenshot_20261002_171835_Instagram.jpg",
+    "Screenshot_20261002_171906_Instagram.jpg",
+    "Screenshot_20261002_172232_Instagram.jpg",
+    "poetry_nights.jpg"
+  ],
+  food: [
+    "SaveClip.App_764373293_17960851326179023_4992844234238441144_n_320.jpg",
+    "SaveClip.App_797646346_17969043003179023_5461576299575536273_n_320.jpg",
+    "SaveClip.App_817651173_17969043018179023_7992268830266937297_n_320.jpg",
+    "Screenshot_20261002_170532_Instagram.jpg",
+    "Screenshot_20261002_170555_Instagram.jpg",
+    "Screenshot_20261002_170919_Instagram.jpg",
+    "Screenshot_20261002_170936_Instagram.jpg",
+    "Screenshot_20261002_170949_Instagram.jpg",
+    "Screenshot_20261002_171604_Instagram.jpg",
+    "Screenshot_20261002_171622_Instagram.jpg",
+    "Screenshot_20261002_171709_Instagram.jpg",
+    "Screenshot_20261002_171757_Instagram.jpg",
+    "Screenshot_20261002_171829_Instagram.jpg",
+    "Screenshot_20261002_171851_Instagram.jpg",
+    "Screenshot_20261002_172435_Instagram.jpg",
+    "Screenshot_20261002_172455_Instagram.jpg",
+    "Screenshot_20261002_172512_Instagram.jpg",
+    "Screenshot_20261002_172530_Instagram.jpg",
+    "Screenshot_20261002_172545_Instagram.jpg"
+  ],
+  gallery: [
+    "SaveClip.App_825325832_17970179478179023_8679387693322426653_n.jpg",
+    "SaveClip.App_829098358_17970179457179023_3270172460172960896_n.jpg",
+    "SaveClip.App_832994420_17970179436179023_475588297880048406_n.jpg"
+  ]
+};
+/* Rotating event images exclude poetry_nights.jpg so the pinned
+   featured Poetry card never shares an image with the day event card. */
+const POETRY_FILE=IMG.poetry.split("/").pop();
+const EVENT_ROT=IMG.events.filter(function(f){return f!==POETRY_FILE;});
+function evImg(i){return IMG.dirEvents+IMG.events[((i%IMG.events.length)+IMG.events.length)%IMG.events.length];}
+function demoImg(i){const n=IMG.demoImages.length;return IMG.dirDemo+IMG.demoImages[((i%n)+n)%n];}
+function foodImg(i){return IMG.dirFood+IMG.food[((i%IMG.food.length)+IMG.food.length)%IMG.food.length];}
+function galImg(i){return IMG.dirGallery+IMG.gallery[((i%IMG.gallery.length)+IMG.gallery.length)%IMG.gallery.length];}
+
+/* ================================================================
+   INLINE DATA (embedded so the app runs offline from file://)
+   ================================================================ */
+/* src: the_yellow_giraffe_menu-master.json.json */
+const DATA_MENU = {
+  "happy_hour_info": "HEAD IN THE CLOUDS - HAPPY HOUR (HH) 17:00-19:00 EVERY THURS & FRI",
+  "menu": {
+    "beers_ciders": [
+      {
+        "item": "Castle Lite",
+        "price": "P30"
+      },
+      {
+        "item": "St Louis",
+        "price": "P30"
+      },
+      {
+        "item": "Black Label",
+        "price": "P32"
+      },
+      {
+        "item": "Heineken",
+        "price": "P40"
+      },
+      {
+        "item": "Savana Dry",
+        "price": "P40"
+      },
+      {
+        "item": "Corona",
+        "price": "P40"
+      },
+      {
+        "item": "Brutal Fruit",
+        "price": "P40"
+      },
+      {
+        "item": "Bernini Blush",
+        "price": "P45"
+      },
+      {
+        "item": "Stella Artois",
+        "price": "P40 | P45"
+      },
+      {
+        "item": "Windhoek Lager",
+        "price": "P40"
+      },
+      {
+        "item": "Windhoek Draught",
+        "price": "P40"
+      },
+      {
+        "item": "Belgravia 440ml",
+        "price": "P45"
+      }
+    ],
+    "spirits": {
+      "tequila": [
+        {
+          "item": "Olmeca Gold",
+          "price": "P30"
+        },
+        {
+          "item": "Olmeca Silver",
+          "price": "P30"
+        }
+      ],
+      "gin": [
+        {
+          "item": "Tanqueray",
+          "price": "P35"
+        },
+        {
+          "item": "Gordons",
+          "price": "P25"
+        },
+        {
+          "item": "Okavango Gin",
+          "price": "P35"
+        },
+        {
+          "item": "Beefeater Pink",
+          "price": "P35"
+        }
+      ],
+      "vodka": [
+        {
+          "item": "Absolut",
+          "price": "P32"
+        },
+        {
+          "item": "Smirnoff",
+          "price": "P25"
+        }
+      ],
+      "whisky": [
+        {
+          "item": "Jameson",
+          "price": "P42"
+        }
+      ],
+      "rum": [
+        {
+          "item": "Captain Morgan SG",
+          "price": "P25"
+        },
+        {
+          "item": "Red Heart",
+          "price": "P25"
+        },
+        {
+          "item": "Malibu",
+          "price": "P30"
+        }
+      ],
+      "brandy": [
+        {
+          "item": "KWV 3 YEAR",
+          "price": "P25"
+        },
+        {
+          "item": "Klipdrift",
+          "price": "P25"
+        }
+      ],
+      "shots": [
+        {
+          "item": "Tequila",
+          "price": "P30"
+        },
+        {
+          "item": "Jägermeister",
+          "price": "P30"
+        },
+        {
+          "item": "Blow Job",
+          "price": "P40"
+        },
+        {
+          "item": "Jager Bomb",
+          "price": "P70"
+        }
+      ]
+    },
+    "cocktails": [
+      {
+        "item": "Long Neck Island",
+        "price": "P105",
+        "happy_hour_price": "P95"
+      },
+      {
+        "item": "Cosmopolitan",
+        "price": "P65",
+        "happy_hour_price": "P55"
+      },
+      {
+        "item": "Sex on the rocks",
+        "price": "P70",
+        "happy_hour_price": "P60"
+      },
+      {
+        "item": "Tequila Sunrise",
+        "price": "P80",
+        "happy_hour_price": "P70"
+      },
+      {
+        "item": "Mojito",
+        "price": "P80",
+        "happy_hour_price": "P70"
+      },
+      {
+        "item": "Strawberry Daiquiri",
+        "price": "P95",
+        "happy_hour_price": "P85"
+      },
+      {
+        "item": "Pina Colada",
+        "price": "P85",
+        "happy_hour_price": "P75"
+      },
+      {
+        "item": "Grapefruit Crush",
+        "price": "P75",
+        "happy_hour_price": "P65"
+      },
+      {
+        "category": "Margarita",
+        "description": "Shaken/frozen - Olmeca Blanco",
+        "options": [
+          {
+            "item": "OG",
+            "price": "P95",
+            "happy_hour_price": "P85",
+            "addons": "Make it spicy + P2"
+          },
+          {
+            "item": "Strawberry | Passion Fruit",
+            "price": "P110",
+            "happy_hour_price": "P100"
+          }
+        ]
+      }
+    ],
+    "sparkling_wine": [
+      {
+        "item": "KWV Brut",
+        "glass_price": "P90",
+        "bottle_price": "P270"
+      },
+      {
+        "item": "Mimosa",
+        "glass_price": "P70",
+        "bottle_price": null
+      },
+      {
+        "item": "Simonsig Brut",
+        "glass_price": null,
+        "bottle_price": "P380"
+      },
+      {
+        "item": "Simonsig Nectar",
+        "glass_price": null,
+        "bottle_price": "P380"
+      }
+    ],
+    "wine_list": {
+      "white_wine": [
+        {
+          "item": "House White - Sauvignon Blanc",
+          "glass_price": "P45",
+          "bottle_price": "P140"
+        },
+        {
+          "item": "Du Toitskloof Chardonnay",
+          "glass_price": "P65",
+          "bottle_price": "P200"
+        },
+        {
+          "item": "Du Toitskloof Chenin Blanc",
+          "glass_price": "P65",
+          "bottle_price": "P200"
+        },
+        {
+          "item": "Fat Bastard Chardonnay",
+          "glass_price": null,
+          "bottle_price": "P320"
+        }
+      ],
+      "red_wine": [
+        {
+          "item": "House Red - Cab Merlot",
+          "glass_price": "P45",
+          "bottle_price": "P140"
+        },
+        {
+          "item": "Du Toitskloof Merlot",
+          "glass_price": "P80",
+          "bottle_price": "P240"
+        },
+        {
+          "item": "Du Toitskloof Cab Sauv",
+          "glass_price": "P80",
+          "bottle_price": "P240"
+        },
+        {
+          "item": "Landskroon Pinotage",
+          "glass_price": "P100",
+          "bottle_price": "P300"
+        }
+      ]
+    },
+    "specials": [
+      {
+        "item": "Brandy Special",
+        "price": "P105"
+      },
+      {
+        "item": "G&T Special",
+        "price": "P55"
+      }
+    ],
+    "coffee_safari": {
+      "note": "*Decaf Available",
+      "items": [
+        {
+          "item": "Espresso Shot",
+          "single_price": "P20",
+          "double_price": "P26",
+          "grande_price": "P32"
+        },
+        {
+          "item": "Americano",
+          "single_price": null,
+          "double_price": "P30",
+          "grande_price": "P32"
+        },
+        {
+          "item": "Cortado",
+          "single_price": null,
+          "double_price": "P28",
+          "grande_price": null
+        },
+        {
+          "item": "Cappuccino",
+          "single_price": "P30",
+          "double_price": "P35",
+          "grande_price": "P42"
+        },
+        {
+          "item": "Flat White",
+          "single_price": null,
+          "double_price": "P30",
+          "grande_price": null
+        },
+        {
+          "item": "Mocha",
+          "single_price": null,
+          "double_price": "P40",
+          "grande_price": "P45"
+        },
+        {
+          "item": "Hot Chocolate",
+          "single_price": "P30",
+          "double_price": "P35",
+          "grande_price": "P40"
+        },
+        {
+          "item": "Red Cappuccino",
+          "single_price": "P30",
+          "double_price": "P35",
+          "grande_price": "P40"
+        },
+        {
+          "item": "Tea - Five roses | Rooibos | Earl Grey",
+          "single_price": "P25",
+          "double_price": null,
+          "grande_price": null
+        },
+        {
+          "item": "Hot Honey Lemon",
+          "single_price": "P14",
+          "double_price": null,
+          "grande_price": null
+        }
+      ]
+    },
+    "giraffe_lattes": [
+      {
+        "item": "Latte",
+        "single_price": "P32",
+        "double_price": "P36",
+        "grande_price": "P40"
+      },
+      {
+        "item": "Iced Latte",
+        "single_price": "P35",
+        "double_price": "P40",
+        "grande_price": null
+      },
+      {
+        "item": "Vanilla | Salted Caramel | Chocolate Cookie | Hazelnut",
+        "single_price": null,
+        "double_price": "P45",
+        "grande_price": null
+      },
+      {
+        "item": "Chai Latte",
+        "single_price": null,
+        "double_price": "P40",
+        "grande_price": null
+      },
+      {
+        "item": "Dirty Chai Latte",
+        "single_price": null,
+        "double_price": "P50",
+        "grande_price": "P55"
+      },
+      {
+        "item": "Matcha Latte",
+        "single_price": null,
+        "double_price": "P40",
+        "grande_price": "P45"
+      },
+      {
+        "item": "Matcha Iced Latte",
+        "single_price": null,
+        "double_price": "P45",
+        "grande_price": null
+      },
+      {
+        "item": "Strawberry Matcha Iced Latte",
+        "single_price": null,
+        "double_price": "P55",
+        "grande_price": null
+      },
+      {
+        "item": "COFFEE / CHOC FRAPPE",
+        "single_price": null,
+        "double_price": "P50",
+        "grande_price": null
+      }
+    ],
+    "milk_alternatives": [
+      {
+        "item": "Almond",
+        "price": "P12"
+      },
+      {
+        "item": "Oat",
+        "price": "P12"
+      },
+      {
+        "item": "Lactose Free",
+        "price": "P12"
+      }
+    ],
+    "immuno_booster_shot": [
+      {
+        "item": "Ted's Immuno Booster",
+        "description": "Fresh ginger, turmeric, lemon juice, organic honey, cayenne pepper & cinnamon",
+        "price": "P10"
+      }
+    ],
+    "other_cool_sips": {
+      "note": "Please ask your waiter about our assorted drinks available",
+      "items": [
+        {
+          "item": "Malawi Shandy",
+          "price": "P40"
+        },
+        {
+          "item": "Rock Shandy",
+          "price": "P40"
+        },
+        {
+          "item": "Mint & Lemon Frozen Crusher",
+          "price": "P50"
+        },
+        {
+          "item": "Cordials",
+          "description": "Passionfruit, lime, kola tonic served with lemonade or soda",
+          "price": "P32"
+        },
+        {
+          "item": "Mazoe Juice",
+          "price": "P8"
+        },
+        {
+          "item": "Water: Still | Sparkling",
+          "price": "P20"
+        }
+      ]
+    },
+    "milkshakes": {
+      "price": "P45",
+      "flavors": [
+        "Vanilla",
+        "Strawberry",
+        "Chocolate"
+      ],
+      "kiddies_milkshakes": {
+        "price": "P30"
+      }
+    },
+    "smoothies": [
+      {
+        "item": "Peanut Butter Tower",
+        "price": "P60"
+      },
+      {
+        "item": "Berry Tall",
+        "price": "P65"
+      }
+    ],
+    "mocktails": {
+      "price": "P50",
+      "options": [
+        "Sex on the rocks",
+        "Mojito",
+        "Strawberry Daiquiri",
+        "Pina Colada"
+      ]
+    },
+    "extras": [
+      {
+        "item": "Vanilla | Salted Caramel | Chocolate | Hazelnut Syrup",
+        "price": "P12"
+      },
+      {
+        "item": "Whipped Cream",
+        "price": "P12"
+      }
+    ],
+    "breakfast_jungle": [
+      {
+        "name": "Plain Jane",
+        "price": "P30",
+        "description": "A slice of sourdough, served with butter, cheese & jam"
+      },
+      {
+        "name": "Classic Breakfast",
+        "price": "P50",
+        "description": "Two eggs, two crispy bacon rashers, grilled tomato, and a slice of toast (Swop out bacon for chicken or beef mince)"
+      },
+      {
+        "name": "Eggcellent Avocado",
+        "price": "P60",
+        "description": "Creamy smashed avocado, two eggs, basil pesto served on a slice of toasted sourdough"
+      },
+      {
+        "name": "Smashed Avo on Toast",
+        "price": "P55",
+        "description": "Creamy smashed avocado topped with feta cheese & basil pesto served on sourdough"
+      },
+      {
+        "name": "Breakfast Sandwich",
+        "price": "P75",
+        "description": "Toasted sourdough filled with two fluffy eggs & crispy bacon"
+      },
+      {
+        "name": "Bacon, Egg & Cheese Sandwich",
+        "price": "P85",
+        "description": "Fluffy omelette egg, crispy bacon, and melted cheese"
+      },
+      {
+        "name": "Golden Veg Omelette",
+        "price": "P75",
+        "description": "Fluffy eggs with melted cheese and your choice of two veggies",
+        "veggie_options": [
+          "Onion & Tomato",
+          "Mushroom",
+          "Spring Onion",
+          "Peppers",
+          "Spinach",
+          "Sweet Corn"
+        ]
+      },
+      {
+        "name": "Top Ups",
+        "pricing": {
+          "Bacon, Chicken, Salami, Mince, Cheese (Mozzarella/Cheddar)": "P30",
+          "Avo": "P25",
+          "Egg, Veggies": "P10"
+        }
+      },
+      {
+        "name": "The Morning Moo",
+        "price": "P70",
+        "description": "Two eggs, juicy beef patty, sautéed mushrooms, and fried tomato"
+      },
+      {
+        "name": "TYG Breakfast",
+        "price": "P80",
+        "description": "Two eggs, three rashers of crispy bacon, sautéed mushrooms, fried tomato, and baked beans"
+      },
+      {
+        "name": "Bacon & Cheese Omelette",
+        "price": "P95",
+        "description": "Fluffy eggs folded with crispy bacon and melted cheese"
+      },
+      {
+        "name": "DBL Breakfast Tower Burger",
+        "price": "P110",
+        "description": "Two beef patties, melted cheese, and a fried egg stacked high served on a roll with chips"
+      },
+      {
+        "name": "Fluffy Pancake Stack",
+        "price": "P50",
+        "description": "Fluffy pancakes served with our homemade berry sauce",
+        "add_ons": [
+          {
+            "item": "Bacon",
+            "price": "P30"
+          }
+        ]
+      }
+    ],
+    "sourdough_sandwiches": [
+      {
+        "name": "Grilled Cheese",
+        "price": "P50",
+        "description": "Crispy sourdough loaded with gooey melted cheddar and mozzarella"
+      },
+      {
+        "name": "Chicken Mayo",
+        "price": "P65",
+        "description": "Tender shredded chicken mixed with creamy mayo",
+        "add_ons": [
+          {
+            "item": "Add Cheese",
+            "price": "P75"
+          }
+        ]
+      },
+      {
+        "name": "Pesto & Avo Mozzarella",
+        "price": "P70",
+        "description": "Creamy avocado, basil pesto, and melted mozzarella on toasted sourdough"
+      },
+      {
+        "name": "Cheesy Chicken",
+        "price": "P75",
+        "description": "Pan-fried chicken, roasted peppers, and melted mozzarella cheese"
+      },
+      {
+        "name": "Tuna Mayo Mozzarella",
+        "price": "P85",
+        "description": "Tuna mayo topped with melted mozzarella on toasted sourdough"
+      },
+      {
+        "name": "Bacon & Avocado",
+        "price": "P85",
+        "description": "Crispy bacon, fresh avocado, and juicy tomato layered on toasted sourdough"
+      },
+      {
+        "name": "Salami, Pesto & Mozzarella",
+        "price": "P105",
+        "description": "Savory salami with basil pesto and melted mozzarella"
+      },
+      {
+        "name": "TYG Club",
+        "price": "P110",
+        "description": "A classic triple-layer sandwich with chicken, bacon, fresh salad, and creamy mayo"
+      },
+      {
+        "name": "Beef Fillet & Caramelised Onion",
+        "price": "P115",
+        "description": "Beef fillet, caramelised onion, fresh tomato & dijon mustard on toasted sourdough"
+      }
+    ],
+    "breakfast_and_melts": [
+      {
+        "name": "Classic Steak & Eggs",
+        "price": "P110",
+        "description": "Grilled beef sirloin served with two eggs cooked your way & caramelised onion"
+      },
+      {
+        "name": "Mediterranean Chicken Melt",
+        "price": "P140",
+        "description": "Grilled chicken, crispy bacon, feta, mozzarella, sun-dried tomatoes, and basil pesto on toasted sourdough"
+      }
+    ],
+    "tall_orders_burgers_and_mains": [
+      {
+        "name": "TYG SGL Cheese Tower",
+        "price": "P80",
+        "description": "Single beef patty, cheese, lettuce, tomato, house sauce served with chips."
+      },
+      {
+        "name": "The Giraffe Tower DBL Cheese",
+        "price": "P100",
+        "description": "Double beef patty, double cheese, lettuce, tomato, house sauce served with chips."
+      },
+      {
+        "name": "Chicken Burger",
+        "price": "P80",
+        "description": "Homemade chicken patty, lettuce, tomato, peri mayo served with chips."
+      },
+      {
+        "name": "Shroom Melt",
+        "price": "P85",
+        "description": "Juicy beef patty smothered in creamy mushroom sauce served with chips."
+      },
+      {
+        "name": "The Big G Burger",
+        "price": "P125",
+        "description": "200g Beef Patty, Bacon & DBL Cheese Served with Chips"
+      }
+    ],
+    "greens_and_grazing": {
+      "salads": [
+        {
+          "name": "Chicken Salad",
+          "price": "P105",
+          "description": "Lettuce, grilled chicken, Tomato, Avocado (Seasonal), peppers and feta."
+        },
+        {
+          "name": "Beef Salad",
+          "price": "P115",
+          "description": "Seared sirloin, lettuce, cucumber, tomato, onions, feta, Avocado (Seasonal) and peppers."
+        }
+      ],
+      "on_the_side_trail": [
+        {
+          "item": "Chips",
+          "price": "P20"
+        },
+        {
+          "item": "Side Salad Bowl",
+          "price": "P35"
+        },
+        {
+          "item": "Kimchi",
+          "price": "P15"
+        }
+      ]
+    },
+    "mains_and_bowls": [
+      {
+        "name": "TYG Taco Bowl",
+        "description": "Fresh salsa, creamy guacamole, couscous with feta, cheddar, crisp lettuce, and crunchy Doritos",
+        "options": [
+          {
+            "protein": "Chicken",
+            "price": "P95"
+          },
+          {
+            "protein": "Beef Sirloin",
+            "price": "P120"
+          },
+          {
+            "protein": "Lean Beef Mince",
+            "price": "P100"
+          }
+        ]
+      },
+      {
+        "name": "TYG Tacos",
+        "description": "Soft tortilla tacos filled with seasoned chicken or beef, fresh toppings, creamy guacamole and a punchy house sauce",
+        "options": [
+          {
+            "protein": "Chicken",
+            "price": "P85"
+          },
+          {
+            "protein": "Beef Seswaa",
+            "price": "P95"
+          }
+        ]
+      },
+      {
+        "name": "TYG Noodles",
+        "description": "Wok stir-fried noodles with your choice of tender chicken or beef, tossed with crisp peppers in a savoury soy-garlic sauce.",
+        "options": [
+          {
+            "protein": "Chicken",
+            "price": "P85"
+          },
+          {
+            "protein": "Beef",
+            "price": "P105"
+          }
+        ]
+      },
+      {
+        "name": "Loaded Nachos",
+        "description": "Crispy Doritos topped with your choice of savoury beef mince or served plain, finished with fresh salsa and creamy guacamole. Perfect for sharing (or not!)",
+        "options": [
+          {
+            "variant": "Plain",
+            "price": "P95"
+          },
+          {
+            "variant": "Beef",
+            "price": "P120"
+          }
+        ]
+      },
+      {
+        "name": "Tuscan Fettuccine Chicken Pasta",
+        "price": "P130",
+        "description": "Tender chicken, sautéed mushrooms, and sun-dried tomatoes tossed in a rich, creamy sauce, served on fettuccine."
+      }
+    ],
+    "tyg_grills": {
+      "note": "Served with a choice of chips, mash potatoes or salad | Mushroom or Pepper Sauce",
+      "items": [
+        {
+          "name": "Rump 200g",
+          "price": "P155"
+        },
+        {
+          "name": "Rump 300g",
+          "price": "P195"
+        },
+        {
+          "name": "Grilled Ribeye",
+          "price": "P250",
+          "description": "300g ribeye steak with creamy mash, green beans, seasonal vegetables, garlic butter, and peppercorn sauce."
+        }
+      ]
+    }
+  }
+};
+
+/* src: promos&events-demo-info.json */
+const DATA_PROMOS = {
+  "app_section": "Promos & Events",
+  "country": "Botswana",
+  "currency": "BWP",
+  "notes": [
+    "All prices are in Botswana Pula (BWP).",
+    "Alcohol is served only to persons 18 years and older.",
+    "Promos are subject to availability and may not be combined with other offers unless stated.",
+    "Menu item numbers refer to the 200-item menu provided.",
+    "Promo prices are valid for the stated day and time only."
+  ],
+  "promos_by_day": [
+    {
+      "day": "Monday",
+      "promos": [
+        {
+          "promo_id": "MON-FOOD-01",
+          "type": "Food Type Promo",
+          "title": "Monday Comfort Beef Stew",
+          "description": "Classic Beef Stew with carrots and rich brown gravy, served with rice or mash. Includes free Pap/Palichi substitution.",
+          "menu_items": [
+            "Item 96: Monday Special 1: Classic Beef Stew"
+          ],
+          "original_value": "BWP 85.00",
+          "promo_price": "BWP 75.00",
+          "savings": "BWP 10.00",
+          "valid": "Monday 11:00–22:00"
+        },
+        {
+          "promo_id": "MON-BEV-02",
+          "type": "Beverage + Food Promo",
+          "title": "St Louis Lager Bucket + 12 Sticky Wings",
+          "description": "6 x St Louis Lager (340ml) served ice-cold with a large bucket of 12 Sticky Chicken Wings in honey-soy sauce and fresh chips.",
+          "menu_items": [
+            "Item 176: St Louis Lager (340ml Bottle)",
+            "Item 55: Sticky Chicken Wings Large (12pcs)"
+          ],
+          "original_value": "BWP 265.00",
+          "promo_price": "BWP 220.00",
+          "savings": "BWP 45.00",
+          "valid": "Monday 12:00–22:00"
+        },
+        {
+          "promo_id": "MON-PLAT-03",
+          "type": "Platter Special Without Beer/Cider",
+          "title": "Monday Family Braai Platter (No Alcohol)",
+          "description": "Half Roasted Chicken, 300g BBQ Pork Ribs, 6 Sticky Chicken Wings, Fresh Chips, Savory Rice, and Coleslaw. Perfect for sharing.",
+          "menu_items": [
+            "Item 69: Half Roasted Chicken",
+            "Item 67: BBQ Pork Ribs Medium (300g)",
+            "Item 55: Sticky Chicken Wings Medium (6pcs)",
+            "Item 26: Fresh Chips",
+            "Item 26: Savory Rice",
+            "Item 33: Coleslaw"
+          ],
+          "original_value": "BWP 385.00",
+          "promo_price": "BWP 320.00",
+          "savings": "BWP 65.00",
+          "valid": "Monday 12:00–22:00"
+        },
+        {
+          "promo_id": "MON-PLAT-04",
+          "type": "Platter Special With Beer/Cider",
+          "title": "Monday Family Braai Platter + 4 St Louis Lagers",
+          "description": "The Monday Family Braai Platter plus 4 x St Louis Lager (340ml). Choice of St Louis Lager or Savanna Dry available on request.",
+          "menu_items": [
+            "Item 69: Half Roasted Chicken",
+            "Item 67: BBQ Pork Ribs Medium (300g)",
+            "Item 55: Sticky Chicken Wings Medium (6pcs)",
+            "Item 26: Fresh Chips",
+            "Item 26: Savory Rice",
+            "Item 33: Coleslaw",
+            "Item 176: St Louis Lager (340ml Bottle) x4"
+          ],
+          "original_value": "BWP 485.00",
+          "promo_price": "BWP 399.00",
+          "savings": "BWP 86.00",
+          "valid": "Monday 12:00–22:00"
+        },
+        {
+          "promo_id": "MON-BONUS-05",
+          "type": "Bonus Pasta & Wine Promo",
+          "title": "Monday Pasta & Wine Pairing",
+          "description": "Spinach & Cheese Cannelloni served with Garlic Bread and a glass of Chenin Blanc.",
+          "menu_items": [
+            "Item 98: Monday Special 3: Spinach & Cheese Cannelloni",
+            "Item 60: Garlic Bread",
+            "Item 188: Chenin Blanc (Glass)"
+          ],
+          "original_value": "BWP 128.00",
+          "promo_price": "BWP 110.00",
+          "savings": "BWP 18.00",
+          "valid": "Monday 17:00–22:00"
+        }
+      ],
+      "event": {
+        "event_id": "MON-EVT-01",
+        "event_name": "Monday Night Football on Wide Screen TV",
+        "description": "All Premier League, La Liga, and Serie A matches live on the wide screen TV. Half-time beer specials and wing platters available.",
+        "highlights": [
+          "Wide screen TV with surround sound",
+          "Half-time St Louis Lager specials",
+          "Sticky Chicken Wings platters",
+          "Football commentary in English and Setswana"
+        ],
+        "time": "18:00–00:00",
+        "sponsored_by": "St Louis Lager"
+      }
+    },
+    {
+      "day": "Tuesday",
+      "promos": [
+        {
+          "promo_id": "TUE-FOOD-01",
+          "type": "Food Type Promo",
+          "title": "Beef Quesadilla + Chips + Guacamole",
+          "description": "Toasted tortilla filled with spiced ground beef, corn, and cheddar, served with fresh chips and guacamole.",
+          "menu_items": [
+            "Item 99: Tuesday Special 1: Beef Quesadilla",
+            "Item 26: Fresh Chips",
+            "Item 43: Guacamole"
+          ],
+          "original_value": "BWP 123.00",
+          "promo_price": "BWP 105.00",
+          "savings": "BWP 18.00",
+          "valid": "Tuesday 11:00–22:00"
+        },
+        {
+          "promo_id": "TUE-BEV-02",
+          "type": "Beverage + Food Promo",
+          "title": "Castle Lite Bucket + Beef Slider Trio",
+          "description": "6 x Castle Lite (330ml) served ice-cold with a Beef Slider Trio: mushroom cheese, bacon cheddar, and spicy jalapeno, with fresh chips.",
+          "menu_items": [
+            "Item 178: Castle Lite (330ml Bottle)",
+            "Item 54: Beef Slider Trio"
+          ],
+          "original_value": "BWP 256.00",
+          "promo_price": "BWP 210.00",
+          "savings": "BWP 46.00",
+          "valid": "Tuesday 12:00–22:00"
+        },
+        {
+          "promo_id": "TUE-PLAT-03",
+          "type": "Platter Special Without Beer/Cider",
+          "title": "Taco Tuesday Fiesta Platter (No Alcohol)",
+          "description": "4 Crispy Fish Tacos, 1 Beef Quesadilla, Guacamole, Fresh Chips, and Jalapenos. Great for sharing.",
+          "menu_items": [
+            "Item 100: Tuesday Special 2: Crispy Fish Tacos x2",
+            "Item 99: Tuesday Special 1: Beef Quesadilla",
+            "Item 43: Guacamole",
+            "Item 26: Fresh Chips",
+            "Item 43: Jalapenos"
+          ],
+          "original_value": "BWP 303.00",
+          "promo_price": "BWP 255.00",
+          "savings": "BWP 48.00",
+          "valid": "Tuesday 12:00–22:00"
+        },
+        {
+          "promo_id": "TUE-PLAT-04",
+          "type": "Platter Special With Beer/Cider",
+          "title": "Taco Tuesday Fiesta Platter + 4 Savanna Dry",
+          "description": "The Taco Tuesday Fiesta Platter plus 4 x Savanna Dry Cider (330ml). Choice of Savanna Dry or Hunter's Dry available.",
+          "menu_items": [
+            "Item 100: Tuesday Special 2: Crispy Fish Tacos x2",
+            "Item 99: Tuesday Special 1: Beef Quesadilla",
+            "Item 43: Guacamole",
+            "Item 26: Fresh Chips",
+            "Item 43: Jalapenos",
+            "Item 166: Savanna Dry Cider (330ml Bottle) x4"
+          ],
+          "original_value": "BWP 431.00",
+          "promo_price": "BWP 365.00",
+          "savings": "BWP 66.00",
+          "valid": "Tuesday 12:00–22:00"
+        },
+        {
+          "promo_id": "TUE-BONUS-05",
+          "type": "Bonus Mocktail & Dessert Promo",
+          "title": "Tuesday Mocktail & Waffle",
+          "description": "Virgin Strawberry Mojito served with a Sweet Berry Waffle topped with strawberries, blueberries, ice cream, and chocolate sauce.",
+          "menu_items": [
+            "Item 161: Virgin Strawberry Mojito (Mocktail)",
+            "Item 19: Sweet Berry Waffle"
+          ],
+          "original_value": "BWP 110.00",
+          "promo_price": "BWP 95.00",
+          "savings": "BWP 15.00",
+          "valid": "Tuesday 14:00–22:00"
+        }
+      ],
+      "event": {
+        "event_id": "TUE-EVT-01",
+        "event_name": "Taco & Tequila Product Launch Night",
+        "description": "Launch of the new Fitch & Leedes Pink Tonic cocktail range. Taco specials, live acoustic music, and cocktail tastings.",
+        "highlights": [
+          "New Fitch & Leedes Pink Tonic cocktails",
+          "Taco and tequila pairing menu",
+          "Live acoustic performance",
+          "Complimentary cocktail sample for first 50 guests"
+        ],
+        "time": "18:00–23:00",
+        "sponsored_by": "Fitch & Leedes"
+      }
+    },
+    {
+      "day": "Wednesday",
+      "promos": [
+        {
+          "promo_id": "WED-FOOD-01",
+          "type": "Food Type Promo",
+          "title": "Honey Glazed Pork Ribs + Chips",
+          "description": "300g tender pork ribs basted in honey-garlic glaze, served with fresh chips.",
+          "menu_items": [
+            "Item 102: Wednesday Special 1: Honey Glazed Pork Ribs (300g)",
+            "Item 26: Fresh Chips"
+          ],
+          "original_value": "BWP 145.00",
+          "promo_price": "BWP 125.00",
+          "savings": "BWP 20.00",
+          "valid": "Wednesday 11:00–22:00"
+        },
+        {
+          "promo_id": "WED-BEV-02",
+          "type": "Beverage + Food Promo",
+          "title": "Heineken Bucket + Meat Lovers Pizza",
+          "description": "6 x Heineken Premium Lager (330ml) with a Medium Meat Lovers Pizza topped with ground beef, bacon, pepperoni, ham, and BBQ drizzle.",
+          "menu_items": [
+            "Item 180: Heineken Premium Lager (330ml Bottle)",
+            "Item 92: Meat Lovers Pizza Medium (20cm)"
+          ],
+          "original_value": "BWP 299.00",
+          "promo_price": "BWP 249.00",
+          "savings": "BWP 50.00",
+          "valid": "Wednesday 12:00–22:00"
+        },
+        {
+          "promo_id": "WED-PLAT-03",
+          "type": "Platter Special Without Beer/Cider",
+          "title": "Rib & Wing Combo Platter (No Alcohol)",
+          "description": "300g BBQ Pork Ribs, 6 Sticky Chicken Wings, Fresh Chips, Coleslaw, and Onion Rings.",
+          "menu_items": [
+            "Item 67: BBQ Pork Ribs Medium (300g)",
+            "Item 55: Sticky Chicken Wings Medium (6pcs)",
+            "Item 26: Fresh Chips",
+            "Item 33: Coleslaw",
+            "Item 27: Onion Rings"
+          ],
+          "original_value": "BWP 248.00",
+          "promo_price": "BWP 210.00",
+          "savings": "BWP 38.00",
+          "valid": "Wednesday 12:00–22:00"
+        },
+        {
+          "promo_id": "WED-PLAT-04",
+          "type": "Platter Special With Beer/Cider",
+          "title": "Rib & Wing Combo Platter + 4 Windhoek Lagers",
+          "description": "The Rib & Wing Combo Platter plus 4 x Windhoek Lager (330ml). Choice of Windhoek Lager or Savanna Dry available.",
+          "menu_items": [
+            "Item 67: BBQ Pork Ribs Medium (300g)",
+            "Item 55: Sticky Chicken Wings Medium (6pcs)",
+            "Item 26: Fresh Chips",
+            "Item 33: Coleslaw",
+            "Item 27: Onion Rings",
+            "Item 182: Windhoek Lager (330ml Bottle) x4"
+          ],
+          "original_value": "BWP 368.00",
+          "promo_price": "BWP 315.00",
+          "savings": "BWP 53.00",
+          "valid": "Wednesday 12:00–22:00"
+        },
+        {
+          "promo_id": "WED-BONUS-05",
+          "type": "Bonus Ladies Night Drink Promo",
+          "title": "Bernini 2-for-1",
+          "description": "2-for-1 on Bernini Blush or Bernini Classic Sparkling Drink (275ml bottles).",
+          "menu_items": [
+            "Item 173: Bernini Blush Sparkling Drink (275ml Bottle)",
+            "Item 174: Bernini Classic Sparkling Drink (275ml Bottle)"
+          ],
+          "original_value": "BWP 52.00",
+          "promo_price": "BWP 26.00",
+          "savings": "BWP 26.00",
+          "valid": "Wednesday 19:00–00:00"
+        }
+      ],
+      "event": {
+        "event_id": "WED-EVT-01",
+        "event_name": "Ladies Night sponsored by Bernini",
+        "description": "Ladies Night with 2-for-1 Bernini Blush and Bernini Classic, half-price selected cocktails, and a live DJ.",
+        "highlights": [
+          "2-for-1 Bernini Blush and Bernini Classic",
+          "Half-price Classic Mojito, Strawberry Daiquiri, and Cosmopolitan",
+          "Free welcome drink for ladies before 21:00",
+          "Live DJ and dance floor"
+        ],
+        "time": "19:00–02:00",
+        "sponsored_by": "Bernini"
+      }
+    },
+    {
+      "day": "Thursday",
+      "promos": [
+        {
+          "promo_id": "THU-FOOD-01",
+          "type": "Food Type Promo",
+          "title": "Slow-Braised Beef Oxtail",
+          "description": "Tender oxtail braised with butter beans, served with rice or mashed potatoes.",
+          "menu_items": [
+            "Item 105: Thursday Special 1: Slow-Braised Beef Oxtail"
+          ],
+          "original_value": "BWP 140.00",
+          "promo_price": "BWP 125.00",
+          "savings": "BWP 15.00",
+          "valid": "Thursday 11:00–22:00"
+        },
+        {
+          "promo_id": "THU-BEV-02",
+          "type": "Beverage + Food Promo",
+          "title": "Savanna Dry Bucket + 6 Sticky Wings",
+          "description": "6 x Savanna Dry Cider (330ml) with 6 Sticky Chicken Wings in honey-soy sauce and fresh chips.",
+          "menu_items": [
+            "Item 166: Savanna Dry Cider (330ml Bottle)",
+            "Item 55: Sticky Chicken Wings Medium (6pcs)"
+          ],
+          "original_value": "BWP 257.00",
+          "promo_price": "BWP 210.00",
+          "savings": "BWP 47.00",
+          "valid": "Thursday 12:00–22:00"
+        },
+        {
+          "promo_id": "THU-PLAT-03",
+          "type": "Platter Special Without Beer/Cider",
+          "title": "Lamb & Oxtail Curry Platter (No Alcohol)",
+          "description": "Lamb Curry and Slow-Braised Beef Oxtail served with Basmati Rice, Naan Bread, and Sambals & Chutney.",
+          "menu_items": [
+            "Item 106: Thursday Special 2: Lamb Curry",
+            "Item 105: Thursday Special 1: Slow-Braised Beef Oxtail",
+            "Item 106: Naan Bread",
+            "Item 106: Sambals & Chutney"
+          ],
+          "original_value": "BWP 300.00",
+          "promo_price": "BWP 260.00",
+          "savings": "BWP 40.00",
+          "valid": "Thursday 12:00–22:00"
+        },
+        {
+          "promo_id": "THU-PLAT-04",
+          "type": "Platter Special With Beer/Cider",
+          "title": "Lamb & Oxtail Curry Platter + 4 Savanna Dry",
+          "description": "The Lamb & Oxtail Curry Platter plus 4 x Savanna Dry Cider (330ml).",
+          "menu_items": [
+            "Item 106: Thursday Special 2: Lamb Curry",
+            "Item 105: Thursday Special 1: Slow-Braised Beef Oxtail",
+            "Item 106: Naan Bread",
+            "Item 106: Sambals & Chutney",
+            "Item 166: Savanna Dry Cider (330ml Bottle) x4"
+          ],
+          "original_value": "BWP 428.00",
+          "promo_price": "BWP 365.00",
+          "savings": "BWP 63.00",
+          "valid": "Thursday 12:00–22:00"
+        },
+        {
+          "promo_id": "THU-BONUS-05",
+          "type": "Bonus Curry & Wine Promo",
+          "title": "Butter Chicken Curry & Sauvignon Blanc",
+          "description": "Butter Chicken Curry with rice and naan bread, paired with a glass of Sauvignon Blanc.",
+          "menu_items": [
+            "Item 107: Thursday Special 3: Butter Chicken Curry",
+            "Item 186: Sauvignon Blanc (Glass)"
+          ],
+          "original_value": "BWP 157.00",
+          "promo_price": "BWP 135.00",
+          "savings": "BWP 22.00",
+          "valid": "Thursday 17:00–22:00"
+        }
+      ],
+      "event": {
+        "event_id": "THU-EVT-01",
+        "event_name": "International Night & UEFA Champions League Screening",
+        "description": "International Night with UEFA Champions League matches on the wide screen TV, commentary in English and Setswana, and international beer specials.",
+        "highlights": [
+          "UEFA Champions League live on wide screen TV",
+          "Commentary in English and Setswana",
+          "International beer bucket specials",
+          "Curry and oxtail platters available"
+        ],
+        "time": "19:00–00:00",
+        "sponsored_by": "Heineken"
+      }
+    },
+    {
+      "day": "Friday",
+      "promos": [
+        {
+          "promo_id": "FRI-FOOD-01",
+          "type": "Food Type Promo",
+          "title": "Seafood Combo + Chips",
+          "description": "Fried hake fillet and crispy calamari strips served with tartar sauce and fresh chips.",
+          "menu_items": [
+            "Item 108: Friday Special 1: Seafood Combo",
+            "Item 26: Fresh Chips"
+          ],
+          "original_value": "BWP 175.00",
+          "promo_price": "BWP 150.00",
+          "savings": "BWP 25.00",
+          "valid": "Friday 11:00–22:00"
+        },
+        {
+          "promo_id": "FRI-BEV-02",
+          "type": "Beverage + Food Promo",
+          "title": "Corona Extra Bucket + Triple Stack Burger",
+          "description": "6 x Corona Extra (355ml) served with a Triple Stack Burger: three smashed beef patties, triple cheddar, and fresh chips.",
+          "menu_items": [
+            "Item 185: Corona Extra (355ml Bottle)",
+            "Item 109: Friday Special 2: Triple Stack Burger"
+          ],
+          "original_value": "BWP 338.00",
+          "promo_price": "BWP 285.00",
+          "savings": "BWP 53.00",
+          "valid": "Friday 12:00–22:00"
+        },
+        {
+          "promo_id": "FRI-PLAT-03",
+          "type": "Platter Special Without Beer/Cider",
+          "title": "Seafood & Wings Platter (No Alcohol)",
+          "description": "Seafood Platter for One with Grilled Hake, Calamari Tubes, and 3 King Prawns, plus 6 Sticky Chicken Wings, Fresh Chips, Savory Rice, and Tartar Sauce.",
+          "menu_items": [
+            "Item 73: Seafood Platter for One",
+            "Item 55: Sticky Chicken Wings Medium (6pcs)",
+            "Item 26: Fresh Chips",
+            "Item 26: Savory Rice",
+            "Item 41: Tartar Sauce"
+          ],
+          "original_value": "BWP 350.00",
+          "promo_price": "BWP 299.00",
+          "savings": "BWP 51.00",
+          "valid": "Friday 12:00–22:00"
+        },
+        {
+          "promo_id": "FRI-PLAT-04",
+          "type": "Platter Special With Beer/Cider",
+          "title": "Seafood & Wings Platter + 4 Corona Extras",
+          "description": "The Seafood & Wings Platter plus 4 x Corona Extra (355ml). Choice of Corona Extra or Savanna Dry available.",
+          "menu_items": [
+            "Item 73: Seafood Platter for One",
+            "Item 55: Sticky Chicken Wings Medium (6pcs)",
+            "Item 26: Fresh Chips",
+            "Item 26: Savory Rice",
+            "Item 41: Tartar Sauce",
+            "Item 185: Corona Extra (355ml Bottle) x4"
+          ],
+          "original_value": "BWP 502.00",
+          "promo_price": "BWP 425.00",
+          "savings": "BWP 77.00",
+          "valid": "Friday 12:00–22:00"
+        },
+        {
+          "promo_id": "FRI-BONUS-05",
+          "type": "Bonus Cocktail & Dessert Promo",
+          "title": "Espresso Martini & Sweet Berry Waffle",
+          "description": "Espresso Martini served with a Sweet Berry Waffle topped with strawberries, blueberries, ice cream, and chocolate sauce.",
+          "menu_items": [
+            "Item 156: Espresso Martini",
+            "Item 19: Sweet Berry Waffle"
+          ],
+          "original_value": "BWP 150.00",
+          "promo_price": "BWP 125.00",
+          "savings": "BWP 25.00",
+          "valid": "Friday 17:00–23:00"
+        }
+      ],
+      "event": {
+        "event_id": "FRI-EVT-01",
+        "event_name": "Friday Night Live: Seafood & Salsa",
+        "description": "Live band, salsa dancing, seafood platters, and cocktail specials to kick off the weekend.",
+        "highlights": [
+          "Live band from 20:00",
+          "Salsa dancing and dance floor",
+          "Seafood and wings platters",
+          "Corona Extra and cocktail specials"
+        ],
+        "time": "18:00–02:00",
+        "sponsored_by": "Corona Extra"
+      }
+    },
+    {
+      "day": "Saturday",
+      "promos": [
+        {
+          "promo_id": "SAT-FOOD-01",
+          "type": "Food Type Promo",
+          "title": "Mixed Grill Platter",
+          "description": "150g steak, lamb chop, sausage, and quarter chicken served with fresh chips.",
+          "menu_items": [
+            "Item 111: Saturday Special 1: Mixed Grill Platter"
+          ],
+          "original_value": "BWP 195.00",
+          "promo_price": "BWP 175.00",
+          "savings": "BWP 20.00",
+          "valid": "Saturday 11:00–22:00"
+        },
+        {
+          "promo_id": "SAT-BEV-02",
+          "type": "Beverage + Food Promo",
+          "title": "St Louis Lager Bucket + BBQ Pork Ribs",
+          "description": "6 x St Louis Lager (340ml) with 300g BBQ Pork Ribs in smoky house BBQ sauce and fresh chips.",
+          "menu_items": [
+            "Item 176: St Louis Lager (340ml Bottle)",
+            "Item 67: BBQ Pork Ribs Medium (300g)"
+          ],
+          "original_value": "BWP 275.00",
+          "promo_price": "BWP 225.00",
+          "savings": "BWP 50.00",
+          "valid": "Saturday 12:00–22:00"
+        },
+        {
+          "promo_id": "SAT-PLAT-03",
+          "type": "Platter Special Without Beer/Cider",
+          "title": "Saturday Braai Platter (No Alcohol)",
+          "description": "400g T-Bone Steak, 300g BBQ Pork Ribs, Half Roasted Chicken, 6 Sticky Chicken Wings, Fresh Chips, and Pap/Palichi & Chakalaka.",
+          "menu_items": [
+            "Item 61: Grilled T-Bone Steak (400g)",
+            "Item 67: BBQ Pork Ribs Medium (300g)",
+            "Item 69: Half Roasted Chicken",
+            "Item 55: Sticky Chicken Wings Medium (6pcs)",
+            "Item 26: Fresh Chips",
+            "Item 61: Pap/Palichi & Chakalaka"
+          ],
+          "original_value": "BWP 560.00",
+          "promo_price": "BWP 475.00",
+          "savings": "BWP 85.00",
+          "valid": "Saturday 12:00–22:00"
+        },
+        {
+          "promo_id": "SAT-PLAT-04",
+          "type": "Platter Special With Beer/Cider",
+          "title": "Saturday Braai Platter + 6 St Louis Lagers",
+          "description": "The Saturday Braai Platter plus 6 x St Louis Lager (340ml). Choice of St Louis Lager or Savanna Dry available.",
+          "menu_items": [
+            "Item 61: Grilled T-Bone Steak (400g)",
+            "Item 67: BBQ Pork Ribs Medium (300g)",
+            "Item 69: Half Roasted Chicken",
+            "Item 55: Sticky Chicken Wings Medium (6pcs)",
+            "Item 26: Fresh Chips",
+            "Item 61: Pap/Palichi & Chakalaka",
+            "Item 176: St Louis Lager (340ml Bottle) x6"
+          ],
+          "original_value": "BWP 710.00",
+          "promo_price": "BWP 599.00",
+          "savings": "BWP 111.00",
+          "valid": "Saturday 12:00–22:00"
+        },
+        {
+          "promo_id": "SAT-BONUS-05",
+          "type": "Bonus Family Pizza & Mocktail Promo",
+          "title": "2 Large Meat Lovers Pizzas + 4 Virgin Pina Coladas",
+          "description": "Two Large Meat Lovers Pizzas (30cm) with four Virgin Pina Colada mocktails.",
+          "menu_items": [
+            "Item 92: Meat Lovers Pizza Large (30cm) x2",
+            "Item 162: Virgin Pina Colada (Mocktail) x4"
+          ],
+          "original_value": "BWP 450.00",
+          "promo_price": "BWP 380.00",
+          "savings": "BWP 70.00",
+          "valid": "Saturday 12:00–22:00"
+        }
+      ],
+      "event": {
+        "event_id": "SAT-EVT-01",
+        "event_name": "Soccer Match on Wide Screen TV: Premier League / CAF Champions League",
+        "description": "Catch all the Premier League and CAF Champions League action on the wide screen TV. Half-time beer and wing specials.",
+        "highlights": [
+          "Premier League and CAF Champions League live",
+          "Wide screen TV with surround sound",
+          "Half-time St Louis Lager and wing specials",
+          "Family-friendly seating available"
+        ],
+        "time": "14:00–22:00",
+        "sponsored_by": "St Louis Lager"
+      }
+    },
+    {
+      "day": "Sunday",
+      "promos": [
+        {
+          "promo_id": "SUN-FOOD-01",
+          "type": "Food Type Promo",
+          "title": "Roast Beef & Yorkshire Pudding",
+          "description": "Sliced roast beef served with roast potatoes, vegetables, gravy, and Yorkshire pudding.",
+          "menu_items": [
+            "Item 114: Sunday Special 1: Roast Beef & Yorkshire Pudding"
+          ],
+          "original_value": "BWP 135.00",
+          "promo_price": "BWP 120.00",
+          "savings": "BWP 15.00",
+          "valid": "Sunday 12:00–20:00"
+        },
+        {
+          "promo_id": "SUN-BEV-02",
+          "type": "Beverage + Food Promo",
+          "title": "Windhoek Draught Bucket + Large Meat Lovers Pizza",
+          "description": "6 x Windhoek Draught (440ml) with a Large Meat Lovers Pizza (30cm) topped with ground beef, bacon, pepperoni, ham, and BBQ drizzle.",
+          "menu_items": [
+            "Item 183: Windhoek Draught (440ml Can)",
+            "Item 92: Meat Lovers Pizza Large (30cm)"
+          ],
+          "original_value": "BWP 351.00",
+          "promo_price": "BWP 295.00",
+          "savings": "BWP 56.00",
+          "valid": "Sunday 12:00–20:00"
+        },
+        {
+          "promo_id": "SUN-PLAT-03",
+          "type": "Platter Special Without Beer/Cider",
+          "title": "Sunday Family Roast Platter (No Alcohol)",
+          "description": "Roast Beef & Yorkshire Pudding, Roast Half Chicken, Fresh Chips, Pap/Palichi, and Extra Gravy.",
+          "menu_items": [
+            "Item 114: Sunday Special 1: Roast Beef & Yorkshire Pudding",
+            "Item 115: Sunday Special 2: Roast Half Chicken",
+            "Item 26: Fresh Chips",
+            "Item 61: Pap/Palichi",
+            "Item 114: Extra Gravy"
+          ],
+          "original_value": "BWP 310.00",
+          "promo_price": "BWP 265.00",
+          "savings": "BWP 45.00",
+          "valid": "Sunday 12:00–20:00"
+        },
+        {
+          "promo_id": "SUN-PLAT-04",
+          "type": "Platter Special With Beer/Cider",
+          "title": "Sunday Family Roast Platter + 4 Windhoek Lagers",
+          "description": "The Sunday Family Roast Platter plus 4 x Windhoek Lager (330ml). Choice of Windhoek Lager or Savanna Dry available.",
+          "menu_items": [
+            "Item 114: Sunday Special 1: Roast Beef & Yorkshire Pudding",
+            "Item 115: Sunday Special 2: Roast Half Chicken",
+            "Item 26: Fresh Chips",
+            "Item 61: Pap/Palichi",
+            "Item 114: Extra Gravy",
+            "Item 182: Windhoek Lager (330ml Bottle) x4"
+          ],
+          "original_value": "BWP 430.00",
+          "promo_price": "BWP 365.00",
+          "savings": "BWP 65.00",
+          "valid": "Sunday 12:00–20:00"
+        },
+        {
+          "promo_id": "SUN-BONUS-05",
+          "type": "Bonus Breakfast & Bubbles Promo",
+          "title": "Full Vegetarian Breakfast + Appletiser",
+          "description": "Full Vegetarian Breakfast with two eggs, grilled halloumi, roasted tomatoes, baked beans, sautéed spinach, and toast, served with an Appletiser.",
+          "menu_items": [
+            "Item 9: Full Vegetarian Breakfast",
+            "Item 125: Appletiser (275ml Glass Bottle)"
+          ],
+          "original_value": "BWP 101.00",
+          "promo_price": "BWP 88.00",
+          "savings": "BWP 13.00",
+          "valid": "Sunday 09:00–13:00"
+        }
+      ],
+      "event": {
+        "event_id": "SUN-EVT-01",
+        "event_name": "Sunday Family Funday: Live Jazz & Kids Entertainment",
+        "description": "Live jazz, kids entertainment, family roast platters, and wide screen TV for sports. A relaxed Sunday for locals and foreigners.",
+        "highlights": [
+          "Live jazz band from 13:00",
+          "Kids play area and entertainment",
+          "Family roast platters and pizza specials",
+          "Wide screen TV for sports",
+          "Windhoek Lager and mocktail specials"
+        ],
+        "time": "12:00–20:00",
+        "sponsored_by": "Windhoek Lager"
+      }
+    }
+  ]
+};
+
+/* src: masa_poetry_nights_artists.json.json */
+const DATA_ARTISTS = [
+  {
+    "id": "meredith-ms-b",
+    "name": "Meredith Ms B",
+    "type": "Poet & Vocalist",
+    "genre": "Contemporary Spoken Word / Soul",
+    "bio": "Meredith 'Ms B' brings a captivating mix of rhythmic spoken word and soul-infused vocal delivery. Known for exploring themes of personal identity, resilience, and urban modern life in Botswana, her performances create an intimate bond with the audience.",
+    "performance_time": "19:00",
+    "social_handle": "@meredith_msb"
+  },
+  {
+    "id": "amb-dr-ophadile-t-gofhamodimo",
+    "name": "AMB. Dr. Ophadile T Gofhamodimo",
+    "type": "Poet & Cultural Ambassador",
+    "genre": "Philosophical & Inspirational Spoken Word",
+    "bio": "Dr. Ophadile T Gofhamodimo is a global peace ambassador, cultural leader, and founder of The Urge Promotions. Her poetry focuses on leadership, community empowerment, spiritual depth, and the resilience of the human spirit.",
+    "performance_time": "19:15",
+    "social_handle": "@dr_ophadile_gofhamodimo"
+  },
+  {
+    "id": "mbali-bloom",
+    "name": "Mbali Bloom",
+    "type": "Poet & Storyteller",
+    "genre": "Afro-Fusion Poetry & Storytelling",
+    "bio": "Mbali Bloom weaves vivid narratives drawn from rich southern African traditions and modern youth experiences. Her expressive stage delivery blends lyrical poetry with subtle vocal harmonies.",
+    "performance_time": "19:30",
+    "social_handle": "@mbali_bloom"
+  },
+  {
+    "id": "george-extra",
+    "name": "George Extra",
+    "type": "Singer & Live Performer",
+    "genre": "Acoustic Soul / R&B",
+    "bio": "George Extra combines smooth R&B vocals with live acoustic arrangements. His performances bring romantic, heartfelt melodies that elevate the open-mic atmosphere.",
+    "performance_time": "19:45",
+    "social_handle": "@george_extra_bw"
+  },
+  {
+    "id": "phodiso-modirwa",
+    "name": "Phodiso Modirwa",
+    "type": "Poet & Author",
+    "genre": "Literary Spoken Word",
+    "bio": "Phodiso Modirwa is an internationally published Motswana poet and writer, author of 'Speaking In Code' and resident of the International Writing Program. Her poetry explores vulnerability, identity, memory, and social observation.",
+    "performance_time": "20:00",
+    "social_handle": "@phodiso_modirwa"
+  },
+  {
+    "id": "soulstress",
+    "name": "Soulstress",
+    "type": "Singer & Vocalist",
+    "genre": "Neo-Soul / Jazz Fusion",
+    "bio": "Living up to her stage moniker, Soulstress delivers powerful, emotion-packed vocal performances rooted in jazz and neo-soul, exploring themes of healing, love, and self-discovery.",
+    "performance_time": "20:15",
+    "social_handle": "@soulstress_bw"
+  },
+  {
+    "id": "tony-t",
+    "name": "Tony-T",
+    "type": "Poet & Rapper",
+    "genre": "Spoken Word / Hip-Hop",
+    "bio": "Tony-T sits at the intersection of conscious street poetry and classic hip-hop cadence. His fast-paced rhythm and sharp commentary address social realities and youth culture.",
+    "performance_time": "20:30",
+    "social_handle": "@tonyt_poetry"
+  },
+  {
+    "id": "thekalatswene-poet-bw",
+    "name": "Thekalatswene poet bw 🐒",
+    "type": "Traditional & Contemporary Poet",
+    "genre": "Setswana Praise & Modern Poetry",
+    "bio": "Celebrated for preserving cultural heritage through verse, Thekalatswene poet bw blends traditional Setswana praise poetry with modern, witty stage banter and energetic delivery.",
+    "performance_time": "20:45",
+    "social_handle": "@thekalatswene_poet_bw"
+  },
+  {
+    "id": "benzepoet",
+    "name": "BENZEPOET",
+    "type": "Spoken Word Artist",
+    "genre": "Urban Spoken Word",
+    "bio": "BENZEPOET delivers energetic and raw commentary on modern relationships, ambition, and life in Gaborone. His sharp delivery makes him an audience favorite.",
+    "performance_time": "21:00",
+    "social_handle": "@benzepoet"
+  },
+  {
+    "id": "alfred-wa-katara",
+    "name": "Alfred wa katara 🇧🇼",
+    "type": "Poet & Acoustic Guitarist",
+    "genre": "Acoustic Folk Poetry",
+    "bio": "Alfred wa Katara combines spoken word poetry with soulful acoustic guitar ('katara'). Known for his warm, humorous storytelling and social commentary, he honors Botswana's acoustic traditions.",
+    "performance_time": "21:15",
+    "social_handle": "@alfred_wa_katara"
+  },
+  {
+    "id": "bubbles",
+    "name": "Bubbles",
+    "type": "Singer & Vocalist",
+    "genre": "Afro-Pop / Soul",
+    "bio": "Bubbles brings vibrant energy and soulful melodies to the stage. Her lighthearted yet deep vocal performances touch on romantic themes and joyful living.",
+    "performance_time": "21:30",
+    "social_handle": "@bubbles_music_bw"
+  },
+  {
+    "id": "kalprit-jones",
+    "name": "Kalprit Jones",
+    "type": "Poet & Storyteller",
+    "genre": "Experimental Spoken Word",
+    "bio": "Kalprit Jones explores abstract themes, existential thought, and emotional resonance through rhythm-driven spoken word, challenging traditional verse structures.",
+    "performance_time": "21:45",
+    "social_handle": "@kalprit_jones"
+  },
+  {
+    "id": "bekifeels",
+    "name": "BekiFeels",
+    "type": "Singer & Songwriter",
+    "genre": "Alternative Soul",
+    "bio": "BekiFeels creates atmospheric soundscapes paired with vulnerable lyricism. Her music dives deep into themes of personal growth, love, and introspective emotion.",
+    "performance_time": "22:00",
+    "social_handle": "@bekifeels"
+  },
+  {
+    "id": "motshwarateu",
+    "name": "Motshwarateu",
+    "type": "Traditional Poet",
+    "genre": "Cultural Setswana Poetry (Meboko)",
+    "bio": "Motshwarateu is a master of traditional Setswana praise poetry (*leboko*). With command over metaphor and cultural idioms, his performances evoke pride, ancestral memory, and nationhood.",
+    "performance_time": "22:15",
+    "social_handle": "@motshwarateu_poet"
+  },
+  {
+    "id": "britney-kakuru",
+    "name": "Britney kakuru",
+    "type": "Poet & Vocalist",
+    "genre": "Contemporary Youth Poetry",
+    "bio": "Britney Kakuru captures the dreams, struggles, and voices of the younger generation. Her expressive stage presence mixes spoken word with subtle melodic undertones.",
+    "performance_time": "22:30",
+    "social_handle": "@britney_kakuru"
+  },
+  {
+    "id": "twenty1secrets",
+    "name": "twenty1secrets",
+    "type": "Spoken Word Collective / Artist",
+    "genre": "Conscious Spoken Word",
+    "bio": "twenty1secrets delivers introspective, layered poetry exploring hidden emotions, mental wellness, and personal truths that are rarely voiced aloud.",
+    "performance_time": "22:45",
+    "social_handle": "@twenty1secrets"
+  },
+  {
+    "id": "tlharantlhope",
+    "name": "Tlharantlhope!!!",
+    "type": "Performance Poet",
+    "genre": "High-Energy Spoken Word",
+    "bio": "Known for dramatic flair and uninhibited stage presence, Tlharantlhope!!! brings intense emotional range, dynamic movement, and bold social critiques to the stage.",
+    "performance_time": "23:00",
+    "social_handle": "@tlharantlhope_official"
+  },
+  {
+    "id": "pj-mophuting",
+    "name": "P.J Mophuting",
+    "type": "Poet & Storyteller",
+    "genre": "Lyrical & Narrative Poetry",
+    "bio": "P.J Mophuting crafts reflective, story-driven poetry that paints rich character portraits and explores everyday human interactions across Botswana.",
+    "performance_time": "23:15",
+    "social_handle": "@pj_mophuting"
+  },
+  {
+    "id": "ms-jay",
+    "name": "Ms Jay",
+    "type": "Singer & Performer",
+    "genre": "Acoustic Afro-Soul",
+    "bio": "Ms Jay commands the stage with smooth, velvet-like vocals and acoustic accompaniment, sharing stories of womanhood, resilience, and romantic beauty.",
+    "performance_time": "23:30",
+    "social_handle": "@msjay_music"
+  },
+  {
+    "id": "caroline-nonhle",
+    "name": "Caroline Nonhle",
+    "type": "Poet & Lyricist",
+    "genre": "Slam Poetry / Spoken Word",
+    "bio": "Caroline Nonhle delivers punchy, thought-provoking slam poetry centered around gender equity, empowerment, and self-love.",
+    "performance_time": "23:45",
+    "social_handle": "@caroline_nonhle"
+  },
+  {
+    "id": "poetess-kayen",
+    "name": "Poetess Kayen",
+    "type": "Poet & Storyteller",
+    "genre": "Afro-Centric Poetry",
+    "bio": "Poetess Kayen brings a soulful, ancestral voice to the stage, celebrating heritage, womanhood, and community harmony through rhythm-infused verse.",
+    "performance_time": "00:00",
+    "social_handle": "@poetess_kayen"
+  },
+  {
+    "id": "paris-kamodi",
+    "name": "Paris Kamodi",
+    "type": "Singer & Musician",
+    "genre": "Indie Pop / Afro-R&B",
+    "bio": "Paris Kamodi blends indie pop sensibilities with contemporary Afro-R&B, captivating crowds with melodic hooks and charismatic stage energy.",
+    "performance_time": "00:15",
+    "social_handle": "@paris_kamodi"
+  },
+  {
+    "id": "loyiso",
+    "name": "Loyiso",
+    "type": "Spoken Word Artist & Vocalist",
+    "genre": "Soulful Spoken Word",
+    "bio": "Closing out the night, Loyiso delivers a grounded, soulful combination of spoken poetry and live vocal improvisation, leaving a lasting impression on the audience.",
+    "performance_time": "00:30",
+    "social_handle": "@loyiso_bw"
+  }
+];
+
+/* src: Masa_Poetry Nights_info.txt */
+const DATA_POETRY_TXT = "Masa Poetry Nights is a highly popular open-mic spoken word, poetry, and live music event series hosted in Gaborone, Botswana. Managed by Think Tanks Advertising, the event serves as a prominent platform bringing together diverse local artists, musicians, and storyteller voices under the tagline \"One stage. Countless voices.\"\nEvent Details & Structure\nThe sessions run as periodic evening events—often themed around cultural milestones—bringing high energy, storytelling, and deep creative expression to the city's nightlife.\n• The Venue: Hosted in the vibrant Masa Square precinct in central Gaborone.\n• Pricing Structure:\n• Standard Ticket / Early Bird: P100\n• At the Door: P150\n• Students: P50\n• Double Tickets: P150\n• Ticketing Platform: Official digital ticketing is usually processed locally online via Ticketlinc Botswana.\nThe most recent landmark edition occurred on September 25, 2026, celebrating Botswana's heritage and independence spirit with the theme \"Celebrating Botswana Through Words.\"";
+
+
+const PROFILE = {
+  "name":"The Yellow Giraffe Coffee Club",
+  "category":"Cafe & Bar",
+  "location":{"street":"Tshukudu Road","city":"Gaborone","country":"Botswana","formatted_address":"Tshukudu Rd, Gaborone, Botswana"},
+  "attributes":{
+    "ambience":["Cozy","Trendy","Aesthetic","Laptop-Friendly"],
+    "amenities":["Free Wi-Fi","Table Service","Dedicated Parking","Kid-Friendly"]
+  },
+  "operating_hours":{
+    "weekday_early":{"days":["Monday","Tuesday","Wednesday"],"open":"07:30","close":"17:30"},
+    "weekday_late":{"days":["Thursday","Friday"],"open":"07:30","close":"21:00","happy_hour":{"start":"17:30","end":"19:30","offerings":["Cocktails","Wine","Beer","Liquor"]}},
+    "weekend":{"days":["Saturday"],"open":"08:00","close":"16:00"},
+    "closed":{"days":["Sunday"]}
+  },
+  "menu_tags":["Specialty Coffee","Breakfast","Brunch","Lunch","Desserts"]
+};
+
+/* ================================================================
+   ICONS (inline SVG, white flat)
+   ================================================================ */
+const ICON = {
+  tag:'<svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+  book:'<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  img:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+  info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+  search:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  close:'<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+};
+
+/* ================================================================
+   MENU — normalised from DATA_MENU (the_yellow_giraffe_menu-master)
+   Internal item shape: [id, name, desc, price, extras]
+     price  = number                       (single price)
+            = [[label, price, happyHourPrice], ...]   (size / option variants)
+     extras = [[label, price], ...]
+   ================================================================ */
+function money(v){
+  if(v===null||v===undefined) return null;
+  if(typeof v==="number") return isFinite(v)?v:null;
+  const m=String(v).replace(/[^\d.]/g,"");
+  if(!m) return null;
+  const n=parseFloat(m);
+  return isFinite(n)?n:null;
+}
+function variants(slots){
+  const out=[];
+  (slots||[]).forEach(function(s){
+    if(!s) return;
+    const p=money(s[1]);
+    const hh=money(s[2]);
+    if(p===null&&hh===null) return;
+    out.push([s[0]===undefined?null:s[0], p, hh]);
+  });
+  return out;
+}
+function collapsePrice(price){
+  if(!price||!price.length) return 0;
+  if(price.length===1&&price[0][0]===null&&price[0][2]===null) return price[0][1]===null?0:price[0][1];
+  return price;
+}
+function rowVariants(o){
+  if(o.glass_price!==undefined||o.bottle_price!==undefined)
+    return variants([["Glass",o.glass_price],["Bottle",o.bottle_price]]);
+  if(o.single_price!==undefined||o.double_price!==undefined||o.grande_price!==undefined)
+    return variants([["Single",o.single_price],["Double",o.double_price],["Grande",o.grande_price]]);
+  if(Array.isArray(o.options)){
+    if(!o.options.length) return [];
+    if(typeof o.options[0]==="string")
+      return variants(o.options.map(function(n){return [n,o.price];}));
+    return variants(o.options.map(function(op){
+      return [op.item||op.protein||op.variant||op.name, op.price, op.happy_hour_price];
+    }));
+  }
+  if(Array.isArray(o.flavors)&&o.flavors.length)
+    return variants(o.flavors.map(function(n){return [n,o.price];}));
+  if(typeof o.price==="string"&&o.price.indexOf("|")>-1){
+    const parts=o.price.split("|").map(function(s){return s.trim();}).filter(Boolean);
+    return variants(parts.map(function(p,i){return ["Option "+(i+1),p];}));
+  }
+  if(o.price!==undefined) return variants([[null,o.price,o.happy_hour_price]]);
+  return [];
+}
+function rowExtras(o){
+  const out=[];
+  if(Array.isArray(o.add_ons)){
+    o.add_ons.forEach(function(a){
+      const p=money(a.price);
+      if(a&&a.item&&p!==null) out.push([a.item,p]);
+    });
+  }
+  if(Array.isArray(o.addons)){
+    o.addons.forEach(function(a){
+      if(!a||!a.item) return;
+      const p=money(a.price);
+      const hh=money(a.happy_hour_price);
+      if(p===null&&hh===null) return;
+      out.push([a.addons?(a.item+" ("+a.addons+")"):a.item, p!==null?p:(hh||0)]);
+    });
+  }
+  return out;
+}
+function rowDesc(o,groupLabel){
+  const bits=[];
+  if(groupLabel) bits.push(groupLabel);
+  if(o.description) bits.push(o.description);
+  if(Array.isArray(o.veggie_options)&&o.veggie_options.length)
+    bits.push("("+o.veggie_options.join(", ")+")");
+  if(o.pricing) bits.push("Add to any breakfast above.");
+  if(Array.isArray(o.options)){
+    const notes=[];
+    o.options.forEach(function(op){ if(op&&op.addons) notes.push(op.addons); });
+    if(notes.length) bits.push("("+notes.join("; ")+")");
+  }
+  return bits.join(" ");
+}
+const GROUP_LABEL={
+  tequila:"Tequila",gin:"Gin",vodka:"Vodka",whisky:"Whisky",rum:"Rum",brandy:"Brandy",
+  shots:"Shots",white_wine:"White Wine",red_wine:"Red Wine",
+  salads:"Salads",on_the_side_trail:"On The Side Trail"
+};
+function addRow(out,o,groupLabel){
+  if(!o||typeof o!=="object") return;
+  const name=o.item||o.name||o.category;
+  if(!name) return;
+  let price;
+  if(o.pricing&&typeof o.pricing==="object"){
+    price=variants(Object.keys(o.pricing).map(function(k){return [k,o.pricing[k]];}));
+  } else {
+    price=rowVariants(o);
+  }
+  if(!price||!price.length) return;
+  out.push({name:name, desc:rowDesc(o,groupLabel), price:price, extras:rowExtras(o)});
+}
+function collectRows(value){
+  const out=[];
+  if(value===null||value===undefined) return out;
+  if(Array.isArray(value)){ value.forEach(function(r){addRow(out,r,null);}); return out; }
+  if(Array.isArray(value.items)){ value.items.forEach(function(r){addRow(out,r,null);}); return out; }
+  Object.keys(value).forEach(function(g){
+    const sub=value[g];
+    const label=GROUP_LABEL[g]||g;
+    if(Array.isArray(sub)) sub.forEach(function(r){addRow(out,r,label);});
+    else addRow(out,sub,label);
+  });
+  return out;
+}
+function catNote(key){
+  const raw=DATA_MENU.menu[key];
+  if(raw&&typeof raw==="object"&&!Array.isArray(raw)&&typeof raw.note==="string") return raw.note;
+  return "";
+}
+
+const MENU_CATS=[
+  ["breakfast_jungle","breakfast","Breakfast Jungle","\u{1F373}"],
+  ["sourdough_sandwiches","sandwiches","Sourdough Sandwiches","\u{1F96A}"],
+  ["breakfast_and_melts","melts","Breakfast & Melts","\u{1F373}"],
+  ["tall_orders_burgers_and_mains","burgers","Tall Orders Burgers & Mains","\u{1F354}"],
+  ["greens_and_grazing","greens","Greens & Grazing","\u{1F957}"],
+  ["mains_and_bowls","bowls","Mains & Bowls","\u{1F372}"],
+  ["tyg_grills","grills","TYG Grills","\u{1F356}"],
+  ["coffee_safari","coffee","Coffee Safari","\u{2615}"],
+  ["giraffe_lattes","lattes","Giraffe Lattes","\u{1F95B}"],
+  ["milkshakes","shakes","Milkshakes","\u{1F366}",function(raw){
+    const out=[];
+    if(raw.flavors&&raw.price)
+      out.push({name:"Milkshake",desc:"Flavours: "+raw.flavors.join(", ")+".",
+        price:variants(raw.flavors.map(function(f){return [f,raw.price];})),extras:[]});
+    if(raw.kiddies_milkshakes)
+      out.push({name:"Kiddies Milkshake",desc:"",
+        price:variants([[null,raw.kiddies_milkshakes.price]]),extras:[]});
+    return out;
+  }],
+  ["smoothies","smoothies","Smoothies","\u{1F964}"],
+  ["mocktails","mocktails","Mocktails","\u{1F379}",function(raw){
+    const labels=Array.isArray(raw.options)?raw.options:[];
+    if(!labels.length) return [];
+    return [{name:"Mocktail",desc:"Choose: "+labels.join(", ")+".",
+      price:variants(labels.map(function(l){return [l,raw.price];})),extras:[]}];
+  }],
+  ["other_cool_sips","sips","Other Cool Sips","\u{1F9CA}"],
+  ["immuno_booster_shot","booster","Immuno Booster Shot","\u{1F6E1}"],
+  ["specials","specials","Specials","\u{2B50}"],
+  ["beers_ciders","beers","Beers & Ciders","\u{1F37A}"],
+  ["spirits","spirits","Spirits","\u{1F943}"],
+  ["cocktails","cocktails","Cocktails","\u{1F378}"],
+  ["sparkling_wine","sparkling","Sparkling Wine","\u{1F942}"],
+  ["wine_list","wines","Wine List","\u{1F377}"],
+  ["milk_alternatives","milk","Milk Alternatives","\u{1F95B}"],
+  ["extras","extras","Extras","\u{2795}"]
+];
+
+const MENU=[];
+let _menuId=0;
+MENU_CATS.forEach(function(spec){
+  const key=spec[0];
+  const rows=spec[4]?spec[4](DATA_MENU.menu[key]):collectRows(DATA_MENU.menu[key]);
+  if(!rows.length) return;
+  const items=[];
+  rows.forEach(function(r){
+    items.push([++_menuId, r.name, r.desc||"", collapsePrice(r.price), r.extras||[]]);
+  });
+  MENU.push({id:spec[1], name:spec[2], icon:spec[3], note:catNote(key), items:items});
+});
+const MENU_ITEM_COUNT=MENU.reduce(function(s,c){return s+c.items.length;},0);
+const HH_INFO=DATA_MENU.happy_hour_info||"";
+/* ================================================================
+   PROMOS & EVENTS — normalised from DATA_PROMOS
+   ================================================================ */
+const PROMO_ADDONS = [
+  {name:"Mixed Grill Platter",price:95},
+  {name:"Bucket of 6 Beers",price:150},
+  {name:"Bottle of House Wine",price:165},
+  {name:"Dessert Platter",price:85}
+];
+const PROMOS = {};
+const EVENTS = {};
+DATA_PROMOS.promos_by_day.forEach(function(d){
+  PROMOS[d.day] = (d.promos||[]).map(function(p){
+    const price = money(p.promo_price);
+    const was   = money(p.original_value);
+    const save  = money(p.savings);
+    return {
+      id:p.promo_id,
+      type:p.type||"Promo",
+      title:p.title||"",
+      desc:p.description||"",
+      items:p.menu_items||[],
+      was:was===null?0:was,
+      price:price===null?0:price,
+      save:save===null?Math.max(0,(was||0)-(price||0)):save,
+      valid:p.valid||""
+    };
+  });
+  const e=d.event;
+  if(e) EVENTS[d.day]={
+    id:e.event_id,
+    name:e.event_name||"",
+    desc:e.description||"",
+    highlights:e.highlights||[],
+    time:e.time||"",
+    sponsor:e.sponsored_by||""
+  };
+});
+const PROMO_NOTES = DATA_PROMOS.notes||[];
+
+/* ================================================================
+   FEATURED PROMO — Masa Poetry Nights (pinned first card)
+   Sources: assets/images/events/poetry_nights.jpg
+           Masa_Poetry Nights_info.txt
+           masa_poetry_nights_artists.json
+   ================================================================ */
+const POETRY = {
+  id:"POETRY-NIGHT-01",
+  title:"Masa Poetry Nights",
+  tag:"One Stage. Countless Voices.",
+  tagline:"Open-mic spoken word, poetry & live music in central Gaborone."
+};
+function renderPoetryInfo(){
+  const lines=String(DATA_POETRY_TXT).split("\n");
+  let h="",buf=null;
+  const flush=function(){
+    if(!buf) return;
+    h+='<ul class="phl">'+buf.map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+"</ul>";
+    buf=null;
+  };
+  lines.forEach(function(raw){
+    const line=String(raw).trim();
+    if(!line) return;
+    if(/^[•\-\u2022]\s*/.test(line)){
+      if(!buf){h+='<div style="height:8px"></div>';}
+      buf=buf||[];
+      buf.push(line.replace(/^[•\-\u2022]\s*/,""));
+      return;
+    }
+    flush();
+    if(line.length<42&&line.split(/\s+/).length<=5) h+='<div class="subh" style="margin:14px 0 8px">'+esc(line)+'</div>';
+    else h+='<p class="mdesc" style="margin:8px 0">'+esc(line)+'</p>';
+  });
+  flush();
+  return h;
+}
+function renderPoetryLineup(limit){
+  const list=limit?DATA_ARTISTS.slice(0,limit):DATA_ARTISTS;
+  return list.map(function(a){
+    return '<div class="ctr" style="flex-direction:column;align-items:flex-start;gap:3px">'+
+      '<div style="display:flex;width:100%;align-items:baseline;gap:8px">'+
+        '<b style="color:#8a6a0a;font-size:11px;min-width:44px;flex:0 0 auto">'+esc(a.performance_time||"")+'</b>'+
+        '<span class="lbl" style="flex:1"><b style="font-size:12.5px;color:#1a1a1a">'+esc(a.name)+'</b>'+
+        '<em>'+esc(a.type||"")+'</em></span>'+
+      '</div>'+
+      '<div style="font-size:11px;color:#a89a7e;padding-left:52px">'+esc(a.genre||"")+' · '+esc(a.social_handle||"")+'</div>'+
+    '</div>';
+  }).join("");
+}
+/* ================================================================
+   GALLERY — every image from assets/images/{events,food,gallery}
+   ================================================================ */
+const GALLERY=[];
+(function(){
+  const pad=function(n){return n<10?"0"+n:""+n;};
+  const add=function(cat,list,dir,prefix){
+    list.forEach(function(f,i){
+      GALLERY.push({id:cat+"_"+i, cat:cat, src:dir+f, label:prefix+" "+pad(i+1), file:f});
+    });
+  };
+  add("Events",IMG.events,IMG.dirEvents,"Event");
+  add("Food",IMG.food,IMG.dirFood,"Dish");
+  add("Gallery",IMG.gallery,IMG.dirGallery,"Gallery");
+})();
+const GALLERY_CATS=["All","Events","Food","Gallery"];
+function filteredGallery(){
+  let items=GALLERY;
+  if(state.galleryFilter!=="All") items=items.filter(function(g){return g.cat===state.galleryFilter;});
+  const q=state.gallerySearch.trim().toLowerCase();
+  if(q) items=items.filter(function(g){return (g.label+" "+g.cat+" "+g.file).toLowerCase().indexOf(q)>-1;});
+  return items;
+}
+function galleryCount(cat){
+  if(cat==="All") return GALLERY.length;
+  return GALLERY.filter(function(g){return g.cat===cat;}).length;
+}
+/* ================================================================
+   RESERVE CATEGORIES
+   ================================================================ */
+const RESERVE = [
+{id:"corporate",name:"Corporate Events",icon:"💼",subs:["Conferences","Seminars","Workshops","Product Launches","Trade Shows","Expos","Team-Building Events","Networking Events","Annual General Meetings","Corporate Galas","Award Ceremonies","Press Conferences","Board Meetings","Shareholder Meetings","Executive Retreats","Company Milestones","Corporate Dinners","Recruiting Events","Job Fairs","Incentive Trips","VIP Events"]},
+{id:"social",name:"Social & Celebrations",icon:"🎉",subs:["Weddings","Engagement Parties","Rehearsal Dinners","Bridal Showers","Baby Showers","Gender Reveal Parties","Birthday Parties","Quinceañeras","Sweet Sixteens","Anniversaries","Family Reunions","Housewarming Parties","Retirement Parties","Graduation Parties","Proms","Formals","Dinner Parties","Cocktail Parties","Holiday Parties"]},
+{id:"arts",name:"Arts & Performances",icon:"🎭",subs:["Music Festivals","Concerts","Gigs","Art Exhibitions","Gallery Openings","Fashion Shows","Runway Events","Theatre Performances","Stage Plays","Stand-Up Comedy Shows","Talent Shows","Poetry Slams"]},
+{id:"film",name:"Film & Media",icon:"🎬",subs:["Film Festivals","Movie Premieres","Film Screenings","Livestreams","Digital Summits"]},
+{id:"food",name:"Food & Drink",icon:"🍽️",subs:["Food Festivals","Drink Festivals","Wine Tastings","Craft Beer Expos","Culinary Pop-ups","Cultural Festivals","Historic Reenactments"]},
+{id:"community",name:"Community & Causes",icon:"🤝",subs:["Charity Galas","Fundraising Auctions","Awareness Walks","Awareness Runs","Benefit Concerts","Food Drives","Community Markets","Farmers Markets","Block Parties","Neighborhood Cleanups","Town Halls","Civic Rallies","Parades","Holiday Festivals","Cultural Celebrations","Religious Ceremonies","Baptisms","Bar Mitzvahs","Bat Mitzvahs","Memorial Services"]},
+{id:"sports",name:"Sports & Fitness",icon:"🏆",subs:["Tournaments","Sports Meets","Matches","Games","Marathons","Triathlons","Fun Runs","Fitness Bootcamps","Wellness Retreats","Yoga Workshops","Meditation Seminars"]},
+{id:"tech",name:"Tech & Learning",icon:"💡",subs:["Esports Tournaments","Gaming Conventions","Academic Lectures","Debates","Panels","Hackathons","Codefests","Science Fairs","School Graduations","Commencements","Alumni Reunions","Orientation Days","Convocation Ceremonies","Continuing Education Classes","Webinars","Virtual Conferences","Online Workshops","Hybrid Conferences"]},
+{id:"mega",name:"Mega Events",icon:"🌍",subs:["Mega-Events","Olympic Games","World Expos","Hallmark Events","Carnivals","Themed Conventions"]}
+];
+
+/* ================================================================
+   STATE
+   ================================================================ */
+const state = {
+  tab:"promos",
+  promoDay:new Date().getDay(),
+  promoExpanded:null,
+  poetryAll:false,
+  promoView:"feed",
+  promoId:null,
+  promoGalleryId:null,
+  promoLinkIdx:null,
+  promoSeats:{},
+  promoAddons:{},
+  menuCat:null,
+  menuOpen:null,
+  cart:{},
+  checkoutView:false,
+  checkoutOpen:null,
+  orderName:"",
+  orderContact:"",
+  orderNotes:"",
+  reserveCat:null,
+  reserveSub:null,
+  galleryView:"grid",
+  galleryPhoto:null,
+  galleryFilter:"All",
+  gallerySearch:"",
+  filterOpen:false,
+  searchOpen:false,
+  aboutView:"main"
+};
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+const PAL = [
+  ["#3b2a12","#8a5410"],["#2c1a10","#7a3a18"],["#1f2c1a","#3f7a2a"],
+  ["#2c1a24","#7a2c4a"],["#1a2434","#2c6288"],["#342a18","#9a761c"],
+  ["#241c2e","#62407e"],["#2c2014","#8a4a2a"],["#142c2e","#2c8a76"],
+  ["#2c2618","#767628"],["#341c1c","#96302c"],["#1c1c30","#40408a"],
+  ["#2a2216","#7a5a1a"],["#1e2418","#4a6b30"],["#2a1a18","#7a3a30"]
+];
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h);}
+function artStyle(seed){const h=hash(seed);const p=PAL[h%PAL.length];const a=118+(h%96);return "background:linear-gradient("+a+"deg,"+p[0]+","+p[1]+");";}
+function tile(seed,ico,cls){return '<div class="tile" style="'+artStyle(seed)+'"><span class="tile-ico '+(cls||"")+'">'+ico+'</span></div>';}
+function fmt(n){return "P"+(Number(n)||0).toFixed(2);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function waLink(text){return "whatsapp://send?phone="+CONFIG.whatsapp+"&text="+encodeURIComponent(text);}
+const DAY_NAMES=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const DAY_SHORT=["S","M","T","W","T","F","S"];
+
+function getMenuItem(id){for(const cat of MENU){for(const it of cat.items){if(it[0]===id)return {cat:cat.id,id:it[0],name:it[1],desc:it[2],price:it[3],extras:it[4]};}}return null;}
+function variantPrice(v){const p=v[1];return (p!==null&&p!==undefined)?p:((v[2]!==null&&v[2]!==undefined)?v[2]:0);}
+function itemSizes(it){
+  /* accepts a normalised row object (getMenuItem) or a raw tuple [id,name,desc,price,extras] */
+  const raw=Array.isArray(it)?it[3]:it.price;
+  const v=Array.isArray(raw)?raw:[[null,raw]];
+  return v.map(function(x){return [x[0],variantPrice(x),(x[2]===undefined?null:x[2])];});
+}
+
+function cartKey(itemId,sizeIdx){return "i"+itemId+"_"+sizeIdx;}
+function cartLine(itemId,sizeIdx){
+  const k=cartKey(itemId,sizeIdx);
+  if(!state.cart[k]) state.cart[k]={itemId:itemId,sizeIdx:sizeIdx,qty:0,extras:{}};
+  return state.cart[k];
+}
+function cartTotal(){
+  let t=0;
+  Object.keys(state.cart).forEach(k=>{
+    const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length)return;
+    const it=getMenuItem(l.itemId);if(!it)return;
+    const sz=itemSizes(it)[l.sizeIdx];if(!sz)return;
+    t+=sz[1]*l.qty;
+    Object.keys(l.extras||{}).forEach(ei=>{
+      const ex=it.extras[ei];if(!ex)return;
+      t+=ex[1]*l.extras[ei];
+    });
+  });
+  return t;
+}
+function cartCount(){let c=0;Object.keys(state.cart).forEach(k=>{c+=(state.cart[k].qty||0);});return c;}
+function clearEmptyCart(){Object.keys(state.cart).forEach(k=>{const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length) delete state.cart[k];});}
+function cartTotalForItem(itemId,sizeIdx){
+  const l=state.cart[cartKey(itemId,sizeIdx)];if(!l)return 0;
+  const it=getMenuItem(itemId);const sz=itemSizes(it)[sizeIdx];if(!sz)return 0;
+  let t=sz[1]*l.qty;
+  Object.keys(l.extras||{}).forEach(ei=>{const ex=it.extras[ei];if(ex)t+=ex[1]*l.extras[ei];});
+  return t;
+}
+function promoListFor(dayIdx){return PROMOS[DAY_NAMES[dayIdx]]||[];}
+function promoById(id){for(const d in PROMOS){const p=PROMOS[d].find(x=>x.id===id);if(p)return {promo:p,day:d};}return null;}
+function eventFor(dayIdx){return EVENTS[DAY_NAMES[dayIdx]];}
+function getWeekDays(){
+  const today=new Date();
+  const day=today.getDay();
+  const monday=new Date(today);
+  monday.setDate(today.getDate()-((day+6)%7));
+  const arr=[];
+  for(let i=0;i<7;i++){const d=new Date(monday);d.setDate(monday.getDate()+i);arr.push(d);}
+  return arr;
+}
+function weekLabel(){
+  const days=getWeekDays();
+  const first=days[0];
+  const month=first.toLocaleString("en",{month:"long"});
+  const weekNum=Math.ceil(first.getDate()/7);
+  return month+" – Week "+weekNum;
+}
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+
+/* ================================================================
+   ACCORDION SYNC — toggles .open in place so the CSS transition runs
+   (a full re-render would rebuild the DOM and kill the animation)
+   ================================================================ */
+function syncAccordions(){
+  const vp=document.getElementById("viewport");
+  if(!vp) return;
+  const cards=vp.querySelectorAll("[data-acc]");
+  let opened=null;
+  Array.prototype.forEach.call(cards,function(c){
+    const on=(state.promoExpanded===c.getAttribute("data-acc"));
+    c.classList.toggle("open",on);
+    const btn=c.querySelector(".pimg[data-act=\"togglePromo\"]");
+    if(btn) btn.setAttribute("aria-expanded",on?"true":"false");
+    if(on) opened=c;
+  });
+  if(opened && opened.scrollIntoView) opened.scrollIntoView({block:"nearest"});
+}
+function syncMenuAccordions(){
+  const vp=document.getElementById("viewport");
+  if(!vp) return;
+  const rows=vp.querySelectorAll("[data-macc]");
+  Array.prototype.forEach.call(rows,function(r){
+    const on=state.menuOpen===parseInt(r.getAttribute("data-macc"),10);
+    r.classList.toggle("open", on);
+    const b=r.querySelector('[data-act="toggleItem"]');
+    if(b) b.setAttribute("aria-expanded",on?"true":"false");
+  });
+}
+
+/* Cart quantities are patched in place rather than re-rendered, so the
+   scroll container, open accordions and focus all survive a +/- tap. */
+function cartLineTotal(itemId,sizeIdx){
+  const l=state.cart[cartKey(itemId,sizeIdx)];
+  if(!l) return 0;
+  const it=getMenuItem(itemId); if(!it) return 0;
+  const sz=itemSizes(it)[sizeIdx]; if(!sz) return 0;
+  let t=sz[1]*l.qty;
+  Object.keys(l.extras||{}).forEach(ei=>{
+    const ex=(it.extras||[])[ei];
+    if(ex&&l.extras[ei]>0) t+=ex[1]*l.extras[ei];
+  });
+  return t;
+}
+
+function syncCart(){
+  const vp=document.getElementById("viewport");
+  if(!vp) return;
+
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-qkey]"),function(el){
+    const p=el.getAttribute("data-qkey").split(":");
+    const l=state.cart[cartKey(parseInt(p[0],10),parseInt(p[1],10))];
+    el.textContent=(l&&l.qty)||0;
+  });
+
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-ekey]"),function(el){
+    /* menu keys are "id:ei" (size 0); checkout keys are "id:sizeIdx:ei" */
+    const p=el.getAttribute("data-ekey").split(":");
+    const itemId=parseInt(p[0],10);
+    const si=p.length>2?parseInt(p[1],10):0;
+    const ei=parseInt(p.length>2?p[2]:p[1],10);
+    const l=state.cart[cartKey(itemId,si)];
+    el.textContent=(l&&l.extras&&l.extras[ei])||0;
+  });
+
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-itotal]"),function(el){
+    const id=parseInt(el.getAttribute("data-itotal"),10);
+    const tot=cartTotalForItem(id,0);
+    const bar=el.closest?el.closest(".tbar"):null;
+    if(bar) bar.style.display=tot>0?"":"none";
+    el.textContent=fmt(tot);
+  });
+
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-linetotal]"),function(el){
+    const p=el.getAttribute("data-linetotal").split(":");
+    el.textContent=fmt(cartLineTotal(parseInt(p[0],10),parseInt(p[1],10)));
+  });
+
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-exsum]"),function(el){
+    const p=el.getAttribute("data-exsum").split(":");
+    const itemId=parseInt(p[0],10), si=parseInt(p[1],10), ei=parseInt(p[2],10);
+    const l=state.cart[cartKey(itemId,si)];
+    const it=getMenuItem(itemId);
+    const ex=it&&(it.extras||[])[ei];
+    const q=(l&&l.extras&&l.extras[ei])||0;
+    const row=el.closest?el.closest(".co-exsum"):null;
+    if(row) row.style.display=q>0?"":"none";
+    el.textContent=q+" × "+((ex&&ex[0])||"")+"  "+fmt((ex?ex[1]:0)*q);
+  });
+
+  const n=cartCount(), tot=cartTotal();
+  const cs=vp.querySelector("[data-cartcount]");
+  if(cs) cs.textContent="Cart · "+n+" item"+(n===1?"":"s");
+  const ct=vp.querySelector("[data-carttotal]");
+  if(ct) ct.textContent=fmt(tot);
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-act='openCheckout']"),function(b){
+    if(tot>0) b.removeAttribute("disabled"); else b.setAttribute("disabled","");
+  });
+  /* an emptied cart would leave stale checkout rows behind */
+  if(state.checkoutView && n===0) render();
+}
+
+/* ================================================================
+   RENDER: Shell
+   ================================================================ */
+function renderHeader(){
+  const hdr=document.getElementById("hdr");
+  if(state.tab==="gallery" || (state.tab==="about" && state.aboutView==="gallery")){hdr.classList.add("hide");}
+  else{hdr.classList.remove("hide");}
+}
+function renderNav(){
+  const tabs=[
+    {id:"promos",icon:ICON.tag},
+    {id:"menu",icon:ICON.book},
+    {id:"reserve",icon:ICON.cal},
+    {id:"gallery",icon:ICON.img},
+    {id:"about",icon:ICON.info}
+  ];
+  document.getElementById("nav").innerHTML=tabs.map(t=>
+    '<button class="nav-btn'+(state.tab===t.id?" on":"")+'" data-tab="'+t.id+'" aria-label="'+t.id+'">'+t.icon+'</button>'
+  ).join("");
+}
+function renderControlBar(){
+  const cb=document.getElementById("cbar");
+  if(state.tab!=="gallery"){cb.classList.remove("on");cb.innerHTML="";state.filterOpen=false;return;}
+  cb.classList.add("on");
+  if(state.searchOpen){
+    cb.innerHTML='<div class="cbar2">'+
+      '<div class="csearch">'+
+      '<input id="gsearch" type="text" placeholder="Search photos..." value="'+esc(state.gallerySearch)+'">'+
+      '<button class="cbtn ic on" data-act="closeSearch" aria-label="Close">'+ICON.close+'</button>'+
+      '</div></div>';
+    return;
+  }
+  let h='<div class="cbar2">'+
+    '<button class="cbtn" data-act="cycleFilter" aria-haspopup="listbox" aria-expanded="'+(state.filterOpen?"true":"false")+'">'+
+      esc(state.galleryFilter)+'</button>'+
+    '<div style="flex:1"></div>'+
+    '<button class="cbtn ic" data-act="openSearch" aria-label="Search">'+ICON.search+'</button></div>';
+  if(state.filterOpen){
+    h+='<div class="fpop-scrim" data-act="closeFilter"></div>';
+    h+='<div class="fpop" role="listbox">'+GALLERY_CATS.map(function(c){
+      return '<button role="option" aria-selected="'+(c===state.galleryFilter?"true":"false")+'" class="'+(c===state.galleryFilter?"on":"")+'"'+
+        ' data-act="pickFilter" data-val="'+c+'">'+esc(c)+
+        '<span style="float:right;color:#a89a7e;font-weight:700">'+galleryCount(c)+'</span></button>';
+    }).join("")+'</div>';
+  }
+  cb.innerHTML=h;
+}
+function renderViewport(){
+  const vp=document.getElementById("viewport");
+  vp.innerHTML='<div class="screen anim">'+renderScreen()+'</div>';
+  renderHeader();
+  renderNav();
+  renderControlBar();
+  if(state.galleryView==="photo") scrollPhotoTo();
+}
+function renderScreen(){
+  if(state.tab==="promos"){
+    if(state.promoView==="feed")return renderPromosFeed();
+    if(state.promoView==="detail")return renderPromoDetail();
+    if(state.promoView==="gallery")return renderPromoGallery();
+    if(state.promoView==="link")return renderPromoLink();
+  }
+  if(state.tab==="menu"){
+    if(state.checkoutView)return renderCheckout();
+    if(state.menuCat)return renderMenuCategory();
+    return renderMenuCategories();
+  }
+  if(state.tab==="reserve"){
+    if(state.reserveSub)return renderReserveForm();
+    if(state.reserveCat)return renderReserveSubs();
+    return renderReserveCats();
+  }
+  if(state.tab==="gallery"){
+    if(state.galleryView==="photo")return renderPhoto();
+    return renderGalleryGrid();
+  }
+  if(state.tab==="about"){
+    if(state.aboutView==="gallery")return renderRestaurantGallery();
+    return renderAbout();
+  }
+  return "";
+}
+
+/* ================================================================
+   TAB 1: PROMOS — sticky calendar + accordion cards (real images)
+   ================================================================ */
+function accWrap(open,inner){
+  return '<div class="acc-wrap"><div class="acc-in">'+(inner||"")+'</div></div>';
+}
+function promoImage(p){
+  const f=promoById(p&&p.id);
+  if(!f) return foodImg(0);
+  const dayIdx=DAY_NAMES.indexOf(f.day);
+  const list=promoListFor(dayIdx);
+  let idx=list.findIndex(function(x){return x.id===p.id;});
+  if(idx<0) idx=0;
+  return foodImg(dayIdx*7+idx*3);
+}
+function eventImage(dayIdx){
+  const n=EVENT_ROT.length;
+  return IMG.dirEvents+EVENT_ROT[((dayIdx*3+1)%n+n)%n];
+}
+function imgTag(src,alt){
+  return '<img src="'+esc(src)+'" alt="'+esc(alt||"")+'" loading="lazy" decoding="async">';
+}
+
+function renderPoetryCard(){
+  const open=state.promoExpanded===POETRY.id;
+  const total=DATA_ARTISTS.length;
+  const shown=state.poetryAll?total:Math.min(8,total);
+  let inner='<div class="pbody">';
+  inner+='<div class="phead-btn" style="cursor:default">'+
+    '<h3>'+esc(POETRY.title)+'</h3>'+
+    '<div style="font-size:12px;font-weight:700;color:#a89a7e;letter-spacing:.02em">'+esc(POETRY.tagline)+'</div>'+
+    '</div>';
+
+  inner+='<div class="subh">Event Images</div><div class="thumbs">';
+  for(let i=0;i<IMG.demoImages.length;i++) inner+='<div class="th">'+imgTag(demoImg(i),"Masa Poetry Nights")+'</div>';
+  inner+='</div>';
+
+  inner+='<div class="subh">Ticket Info</div>'+renderPoetryInfo();
+
+  inner+='<div class="subh">Artist Lineup &middot; '+shown+' of '+total+'</div>'+renderPoetryLineup(shown);
+  if(total>8){
+    inner+='<button class="btn full sm" style="margin-top:10px" data-act="togglePoetryAll">'+
+      (state.poetryAll?"Show fewer artists":"Show all "+total+" artists")+'</button>';
+  }
+  inner+='<button class="btn wa full" style="margin-top:12px" data-act="waPoetry">Send via WhatsApp</button>';
+  inner+='</div>';
+
+  return '<div class="ecard'+(open?" open":"")+'" data-acc="'+POETRY.id+'">'+
+    '<button class="pimg" data-act="togglePromo" data-id="'+POETRY.id+'" aria-expanded="'+(open?"true":"false")+'">'+
+      imgTag(IMG.poetry,POETRY.title)+'</button>'+
+    accWrap(open,inner)+'</div>';
+}
+
+function renderEventCard(ev,dayIdx){
+  const key="evt_"+ev.id;
+  const open=state.promoExpanded===key;
+  let inner='<div class="pbody">';
+  inner+='<h3 style="margin:0 0 6px;font-size:17px;font-weight:900;line-height:1.2;color:#1a1a1a">'+esc(ev.name)+'</h3>';
+  inner+='<div class="pprice" style="margin-bottom:10px">'+esc(ev.time)+' &middot; Sponsored by '+esc(ev.sponsor)+'</div>';
+  inner+='<p class="mdesc" style="margin:0 0 10px">'+esc(ev.desc)+'</p>';
+  inner+='<ul class="phl">'+ev.highlights.map(function(h){return '<li>'+esc(h)+'</li>';}).join("")+'</ul>';
+  inner+='<div class="subh">Event Images</div><div class="thumbs">';
+  for(let i=0;i<IMG.demoImages.length;i++) inner+='<div class="th">'+imgTag(demoImg(i),ev.name)+'</div>';
+  inner+='</div>';
+  inner+='<button class="btn wa full" style="margin-top:12px" data-act="waEvent" data-day="'+dayIdx+'">Send via WhatsApp</button>';
+  inner+='</div>';
+  return '<div class="ecard'+(open?" open":"")+'" data-acc="'+key+'">'+
+    '<button class="pimg" data-act="togglePromo" data-id="'+key+'" aria-expanded="'+(open?"true":"false")+'">'+
+      imgTag(eventImage(dayIdx),ev.name)+'</button>'+
+    accWrap(open,inner)+'</div>';
+}
+
+function renderPromoCard(p,dayIdx,idx){
+  const open=state.promoExpanded===p.id;
+  let inner='<div class="pbody">';
+  inner+='<button class="phead-btn" data-act="openPromo" data-id="'+p.id+'">'+
+    '<h3>'+esc(p.title)+'</h3>'+
+    '<div class="pprice">'+fmt(p.price)+' <span class="pwas">'+fmt(p.was)+'</span></div>'+
+    '</button>';
+  inner+='<div style="font-size:11px;color:#a89a7e;font-weight:700;letter-spacing:.03em;margin:-4px 0 10px">'+
+    esc(DAY_NAMES[dayIdx])+' &middot; '+esc(p.valid)+'</div>';
+  inner+='<ul class="phl">'+p.items.slice(0,5).map(function(it){return '<li>'+esc(it)+'</li>';}).join("")+'</ul>';
+  inner+='<button class="btn full sm" style="margin-top:12px" data-act="openPromo" data-id="'+p.id+'">View &amp; Reserve</button>';
+  inner+='</div>';
+  return '<div class="ecard'+(open?" open":"")+'" data-acc="'+p.id+'">'+
+    '<button class="pimg" data-act="togglePromo" data-id="'+p.id+'" aria-expanded="'+(open?"true":"false")+'">'+
+      imgTag(foodImg(dayIdx*7+idx*3),p.title)+'</button>'+
+    accWrap(open,inner)+'</div>';
+}
+
+function renderPromosFeed(){
+  const days=getWeekDays();
+  const dayIdx=state.promoDay;
+  const ev=eventFor(dayIdx);
+  const promos=promoListFor(dayIdx);
+
+  let cal='<div class="cal">';
+  cal+='<div class="cal-title">'+esc(weekLabel())+'</div>';
+  cal+='<div class="cal-days">';
+  days.forEach(function(d){
+    const idx=d.getDay();
+    const on=idx===dayIdx;
+    const td=sameDay(d,new Date());
+    cal+='<button class="day'+(on?" on":"")+(td?" td":"")+'" data-act="pickDay" data-day="'+idx+'" aria-label="'+DAY_NAMES[idx]+'">'+
+      '<b>'+DAY_SHORT[idx]+'</b><span>'+d.getDate()+'</span></button>';
+  });
+  cal+='</div></div>';
+
+  let body='<div class="scroll">';
+  body+=renderPoetryCard();
+  if(ev) body+=renderEventCard(ev,dayIdx);
+  promos.forEach(function(p,i){ body+=renderPromoCard(p,dayIdx,i); });
+  if(!promos.length && !ev){
+    body+='<div class="empty">No promos scheduled for '+DAY_NAMES[dayIdx]+'.<br>Choose another day above.</div>';
+  }
+  body+='<div style="height:24px"></div></div>';
+  return cal+body;
+}
+
+function renderPromoDetail(){
+  const found=promoById(state.promoId);
+  if(!found)return '<div class="empty">Promo not found.</div>';
+  const p=found.promo;
+  const day=found.day;
+  const dayIdx=DAY_NAMES.indexOf(day);
+  const ev=eventFor(dayIdx);
+  const seats=state.promoSeats[p.id]||1;
+  const addons=state.promoAddons[p.id]||{};
+  let addonsTotal=0;
+  PROMO_ADDONS.forEach(function(a,i){addonsTotal+=a.price*(addons[i]||0);});
+  const total=p.price*seats+addonsTotal;
+
+  let links='';
+  links+='<button class="btn full" style="margin-bottom:8px" data-act="openPromoGallery" data-id="'+p.id+'">View Image Gallery</button>';
+  if(ev){
+    links+='<button class="btn full" data-act="openPromoLink" data-id="'+p.id+'" data-idx="0">Event Lineup &amp; Details</button>';
+  }
+
+  let addonRows='';
+  PROMO_ADDONS.forEach(function(a,i){
+    const q=addons[i]||0;
+    addonRows+='<div class="ctr"><div class="lbl">'+esc(a.name)+'<em>'+fmt(a.price)+' each</em></div>'+
+      '<div class="stp"><button data-act="addonMinus" data-id="'+p.id+'" data-idx="'+i+'">&minus;</button>'+
+      '<span class="val">'+q+'</span>'+
+      '<button data-act="addonPlus" data-id="'+p.id+'" data-idx="'+i+'">+</button></div></div>';
+  });
+
+  return '<div class="scroll">'+
+    '<div class="crumb"><button data-act="backPromo">Back</button><span class="sep">/</span><span class="cur">'+esc(p.type)+'</span></div>'+
+    '<div class="pcard" style="margin-top:0">'+
+    '<div class="pimg" style="aspect-ratio:16/10">'+imgTag(promoImage(p),p.title)+'</div>'+
+    '<div class="pbody">'+
+    '<h3 style="margin:0 0 6px;font-size:19px;font-weight:900;line-height:1.2;color:#1a1a1a">'+esc(p.title)+'</h3>'+
+    '<div style="font-size:11.5px;color:#a89a7e;font-weight:700;margin-bottom:10px">'+esc(day)+' &middot; '+esc(p.valid)+'</div>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
+    '<span class="chip g">'+fmt(p.price)+'</span>'+
+    '<span class="chip">was '+fmt(p.was)+'</span>'+
+    '<span class="chip">Save '+fmt(p.save)+'</span>'+
+    '</div>'+
+    '<p class="mdesc">'+esc(p.desc)+'</p>'+
+    '<div class="subh">Includes</div>'+
+    p.items.map(function(it){return '<div class="ctr"><div class="lbl">'+esc(it)+'</div></div>';}).join("")+
+    '<div class="subh" style="margin-top:16px">Gallery &amp; Links</div>'+
+    links+
+    '<div class="subh" style="margin-top:16px">Reserve Your Spot</div>'+
+    '<div class="ctr"><div class="lbl">Seats<em>'+fmt(p.price)+' per seat</em></div>'+
+    '<div class="stp"><button data-act="seatMinus" data-id="'+p.id+'">&minus;</button>'+
+    '<span class="val">'+seats+'</span>'+
+    '<button data-act="seatPlus" data-id="'+p.id+'">+</button></div></div>'+
+    '<div class="subh" style="margin-top:14px">Add Menu Items</div>'+
+    addonRows+
+    '<div class="tbar"><span class="tl">Estimated Total</span><span class="tv">'+fmt(total)+'</span></div>'+
+    '<button class="btn wa full" data-act="waPromo" data-id="'+p.id+'">Send via WhatsApp</button>'+
+    '</div></div>'+
+    '<div style="height:24px"></div></div>';
+}
+
+function renderPromoGallery(){
+  const found=promoById(state.promoGalleryId);
+  if(!found)return '<div class="empty">Gallery not found.</div>';
+  const p=found.promo;
+  const dayIdx=DAY_NAMES.indexOf(found.day);
+  const imgs=[];
+  imgs.push(promoImage(p));
+  for(let i=0;i<3;i++) imgs.push(evImg(dayIdx*3+i));
+  for(let i=0;i<2;i++) imgs.push(foodImg(dayIdx*7+i*3));
+  return '<div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#0a0a0a">'+
+    '<div class="crumb" style="background:#ffffff"><button data-act="backPromoGallery">Back to Promo</button><span class="cur">Gallery</span></div>'+
+    '<div class="swiper">'+imgs.map(function(src){
+      return '<div class="slide">'+imgTag(src,p.title)+'</div>';
+    }).join("")+'</div>'+
+    '<div class="dots">'+imgs.map(function(_,i){return '<i class="'+(i===0?"on":"")+'"></i>';}).join("")+'</div></div>';
+}
+
+function renderPromoLink(){
+  const found=promoById(state.promoId);
+  if(!found)return '<div class="empty">Not found.</div>';
+  const ev=eventFor(DAY_NAMES.indexOf(found.day));
+  if(!ev)return '<div class="empty">No link details.</div>';
+  const dayIdx=DAY_NAMES.indexOf(found.day);
+  return '<div class="scroll">'+
+    '<div class="crumb"><button data-act="backPromoLink">Back to Promo</button><span class="cur">Lineup</span></div>'+
+    '<div class="pcard" style="margin-top:0">'+
+    '<div class="pimg" style="aspect-ratio:16/10">'+imgTag(eventImage(dayIdx),ev.name)+'</div>'+
+    '<div class="pbody">'+
+    '<h3 style="margin:0 0 6px;font-size:17px;font-weight:900;color:#1a1a1a">'+esc(ev.name)+'</h3>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
+    '<span class="chip g">'+esc(ev.time)+'</span>'+
+    '<span class="chip">Sponsored by '+esc(ev.sponsor)+'</span>'+
+    '</div>'+
+    '<p class="mdesc">'+esc(ev.desc)+'</p>'+
+    '<div class="subh">Highlights</div>'+
+    '<ul class="phl">'+ev.highlights.map(function(h){return '<li>'+esc(h)+'</li>';}).join("")+'</ul>'+
+    '<button class="btn wa full" style="margin-top:14px" data-act="waEvent" data-day="'+dayIdx+'">Send via WhatsApp</button>'+
+    '</div></div><div style="height:24px"></div></div>';
+}
+
+/* ================================================================
+   TAB 2: MENU
+   ================================================================ */
+function renderMenuCategories(){
+  let h='<div class="scroll">';
+  h+='<div class="phead"><h2>Menu</h2><p>'+MENU.length+' categories · '+MENU_ITEM_COUNT+' items · '+(cartCount()>0?cartCount()+" in cart":"Tap a category to explore")+'</p></div>';
+  MENU.forEach(c=>{
+    h+='<button class="cat-row" data-act="openCat" data-id="'+c.id+'">'+
+      '<div class="cat-ico" style="'+artStyle(c.id)+'">'+c.icon+'</div>'+
+      '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div>'+
+      '<div class="cat-meta">'+c.items.length+' items</div></div></button>';
+  });
+  h+='<div style="height:24px"></div></div>';
+  return h;
+}
+
+function renderMenuCategory(){
+  const cat=MENU.find(c=>c.id===state.menuCat);
+  if(!cat)return '<div class="empty">Category not found.</div>';
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="backCats">Menu</button><span class="sep">/</span><span class="cur">'+esc(cat.name)+'</span></div>';
+  h+='<div class="phead" style="padding-top:0"><h2>'+esc(cat.name)+'</h2><p>'+cat.items.length+' items</p></div>';
+  if(cat.note) h+='<div class="pad" style="padding-top:0;padding-bottom:0"><div class="ctr"><div class="lbl"><em style="margin:0">'+esc(cat.note)+'</em></div></div></div>';
+  cat.items.forEach(it=>{
+    const open=state.menuOpen===it[0];
+    const sizes=itemSizes(it);
+    h+='<div class="mitem'+(open?" open":"")+'" data-macc="'+it[0]+'">';
+    h+='<button class="mrow" data-act="toggleItem" data-id="'+it[0]+'" aria-expanded="'+(open?"true":"false")+'">'+
+      '<div class="mthumb">'+imgTag(foodImg(it[0]-1),it[1])+'</div>'+
+      '<div class="minfo"><div class="mtitle">'+esc(it[1])+'</div>'+
+      '<div class="mprice">'+(sizes.length>1?"From ":"")+fmt(sizes[0][1])+
+      (sizes[0][2]?' <span style="font-size:10.5px;color:#a89a7e;font-weight:700">HH '+fmt(sizes[0][2])+'</span>':'')+
+      '</div></div></button>';
+
+    h+='<div class="acc-wrap"><div class="acc-in"><div class="mbody">';
+    if(it[2]) h+='<p class="mdesc">'+esc(it[2])+'</p>';
+
+    h+='<div class="subh">Photos</div><div class="thumbs">';
+    for(let pi=0;pi<IMG.demoImages.length;pi++) h+='<div class="th">'+imgTag(demoImg(pi),it[1])+'</div>';
+    h+='</div>';
+
+    if(it[4]&&it[4].length){
+      h+='<div class="subh">Extras</div>';
+      it[4].forEach(function(ex,ei){
+        const l=cartLine(it[0],0);
+        const q=(l.extras&&l.extras[ei])||0;
+        h+='<div class="ctr"><div class="lbl">'+esc(ex[0])+'<em>'+fmt(ex[1])+'</em></div>'+
+          '<div class="stp"><button data-act="exMinus" data-id="'+it[0]+'" data-ei="'+ei+'">&minus;</button>'+
+          '<span class="val" data-ekey="'+it[0]+':'+ei+'">'+q+'</span>'+
+          '<button data-act="exPlus" data-id="'+it[0]+'" data-ei="'+ei+'">+</button></div></div>';
+      });
+    }
+    h+='<div class="subh" style="margin-top:14px">'+(sizes.length>1?"Choose Size":"Item")+'</div>';
+    sizes.forEach(function(sz,si){
+      const l=cartLine(it[0],si);
+      const label=sz[0]||it[1];
+      h+='<div class="ctr"><div class="lbl">'+esc(label)+
+        '<em>'+fmt(sz[1])+(sz[2]?' &middot; HH '+fmt(sz[2]):'')+'</em></div>'+
+        '<div class="stp"><button data-act="szMinus" data-id="'+it[0]+'" data-si="'+si+'">&minus;</button>'+
+        '<span class="val" data-qkey="'+it[0]+':'+si+'">'+(l.qty||0)+'</span>'+
+        '<button data-act="szPlus" data-id="'+it[0]+'" data-si="'+si+'">+</button></div></div>';
+    });
+    const tot=cartTotalForItem(it[0],0);
+    h+='<div class="tbar" style="'+(tot>0?"":"display:none")+'"><span class="tl">Item Total</span>'+
+      '<span class="tv" data-itotal="'+it[0]+'">'+fmt(tot)+'</span></div>';
+    h+='</div></div></div>';
+    h+='</div>';
+  });
+  h+='<div style="height:110px"></div></div>';
+
+  const total=cartTotal();
+  const count=cartCount();
+  h+='<div class="cbwrap"><div class="cbar">'+
+    '<button class="cbtot" data-act="openCheckout"'+(total>0?"":" disabled")+'>'+
+    '<span data-cartcount>Cart &middot; '+count+' item'+(count===1?"":"s")+'</span>'+
+    '<b data-carttotal>'+fmt(total)+'</b></button>'+
+    '<button class="cbbtn" data-act="openCheckout" data-cbbtn'+(total>0?"":" disabled")+'>Checkout</button>'+
+    '</div></div>';
+  return h;
+}
+
+function renderCheckout(){
+  clearEmptyCart();
+  const lines=[];
+  Object.keys(state.cart).forEach(k=>{
+    const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length)return;
+    const it=getMenuItem(l.itemId);if(!it)return;
+    const sz=itemSizes(it)[l.sizeIdx];
+    lines.push({itemId:l.itemId,sizeIdx:l.sizeIdx,it:it,name:it.name,desc:it.desc,
+      size:sz[0]||null,price:sz[1],qty:l.qty,extras:l.extras||{},hasEx:!!(it.extras&&it.extras.length)});
+  });
+  const total=cartTotal();
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="backFromCheckout">Menu</button><span class="cur">Checkout</span></div>';
+  h+='<div class="phead" style="padding-top:0"><h2>Order Summary</h2><p>Review your items and send your order via WhatsApp</p></div>';
+  if(!lines.length){
+    h+='<div class="empty">Your cart is empty.</div>';
+    h+='<div class="pad"><button class="btn ghost full" data-act="backFromCheckout">Back to Menu</button></div>';
+  } else {
+    h+='<div class="pad" style="padding-top:0">';
+    lines.forEach(function(l){
+      const key=l.itemId+":"+l.sizeIdx;
+      const open=state.checkoutOpen===key;
+      const exN=Object.keys(l.extras).filter(ei=>l.extras[ei]>0).length;
+      h+='<div class="co-item">';
+      h+='<div class="co-row">';
+      h+='<button class="co-main" data-act="toggleCheckoutRow" data-key="'+key+'">'+
+         '<div class="co-thumb">'+imgTag(foodImg(l.itemId-1),l.name)+'</div>'+
+         '<div class="co-info">'+
+           '<div class="co-name">'+esc(l.name)+(l.size?' <em>('+esc(l.size)+')</em>':'')+'</div>'+
+           '<div class="co-sub">'+fmt(cartLineTotal(l.itemId,l.sizeIdx))+'</div>'+
+           (exN?'<div class="co-meta">+ '+exN+' extra'+(exN===1?"":"s")+'</div>':'')+
+         '</div><span class="co-edit">'+(open?"Close":"Details")+'</span></button>';
+      h+='<div class="co-step"><div class="stp">'+
+         '<button data-act="szMinus" data-id="'+l.itemId+'" data-si="'+l.sizeIdx+'">&minus;</button>'+
+         '<span class="val" data-qkey="'+key+'">'+l.qty+'</span>'+
+         '<button data-act="szPlus" data-id="'+l.itemId+'" data-si="'+l.sizeIdx+'">+</button></div></div>';
+      h+='</div>';
+      if(open){
+        h+='<div class="co-open">';
+        if(l.desc) h+='<p class="co-desc">'+esc(l.desc)+'</p>';
+        if(l.hasEx){
+          l.it.extras.forEach(function(ex,ei){
+            const q=l.extras[ei]||0;
+            h+='<div class="co-exsum" data-exsum="'+key+':'+ei+'"'+(q?"":" style=\"display:none\"")+'>'+q+' × '+esc(ex[0])+'  '+fmt(ex[1]*q)+'</div>';
+            h+='<div class="co-ex"><div class="lbl" style="flex:1">'+esc(ex[0])+'<em>'+fmt(ex[1])+'</em></div>'+
+               '<div class="stp">'+
+               '<button data-act="exMinus" data-id="'+l.itemId+'" data-si="'+l.sizeIdx+'" data-ei="'+ei+'">&minus;</button>'+
+               '<span class="val" data-ekey="'+key+':'+ei+'">'+q+'</span>'+
+               '<button data-act="exPlus" data-id="'+l.itemId+'" data-si="'+l.sizeIdx+'" data-ei="'+ei+'">+</button></div></div>';
+          });
+        }
+        h+='<div class="co-foot"><span>Item Total</span><b data-linetotal="'+key+'">'+fmt(cartLineTotal(l.itemId,l.sizeIdx))+'</b></div>';
+        h+='</div>';
+      }
+      h+='</div>';
+    });
+    h+='</div>';
+    h+='<div class="tbar" style="margin:12px 14px"><span class="tl">Total</span><span class="tv">'+fmt(total)+'</span></div>';
+    h+='<div class="pad">';
+    h+='<div class="fld"><label>Your Name</label><input id="orderName" type="text" placeholder="e.g. Kagiso M." value="'+esc(state.orderName)+'"></div>';
+    h+='<div class="fld"><label>Contact Number</label><input id="orderContact" type="tel" placeholder="e.g. +267 71 234 567" value="'+esc(state.orderContact)+'"></div>';
+    h+='<div class="fld"><label>Notes</label><textarea id="orderNotes" rows="3" placeholder="e.g. extra spicy, pickup time, table number">'+esc(state.orderNotes)+'</textarea></div>';
+    h+='<button class="btn ghost full" style="margin-bottom:9px" data-act="backFromCheckout">Back to Menu</button>';
+    h+='<button class="btn wa full" data-act="waOrder">Send via WhatsApp</button>';
+    h+='</div>';
+  }
+  h+='<div style="height:24px"></div></div>';
+  return h;
+}
+
+/* ================================================================
+   TAB 3: RESERVE
+   ================================================================ */
+function renderReserveCats(){
+  let h='<div class="scroll">';
+  h+='<div class="phead"><h2>Reserve a Space</h2><p>From corporate galas to poetry slams — '+RESERVE.reduce((s,c)=>s+c.subs.length,0)+' event types across '+RESERVE.length+' categories</p></div>';
+  RESERVE.forEach(c=>{
+    h+='<button class="cat-row" data-act="openResCat" data-id="'+c.id+'">'+
+      '<div class="cat-ico" style="'+artStyle(c.id)+'">'+c.icon+'</div>'+
+      '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div>'+
+      '<div class="cat-meta">'+c.subs.length+' types</div></div></button>';
+  });
+  h+='<div style="height:24px"></div></div>';
+  return h;
+}
+function renderReserveSubs(){
+  const cat=RESERVE.find(c=>c.id===state.reserveCat);
+  if(!cat)return '<div class="empty">Category not found.</div>';
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="backResCats">Reserve</button><span class="sep">/</span><span class="cur">'+esc(cat.name)+'</span></div>';
+  h+='<div class="phead" style="padding-top:0"><h2>'+esc(cat.name)+'</h2><p>'+cat.subs.length+' event types</p></div>';
+  cat.subs.forEach(s=>{
+    h+='<button class="lrow" data-act="openResSub" data-id="'+esc(s)+'">'+
+      '<div class="ln">'+esc(s)+'</div><div class="lc">Inquire</div></button>';
+  });
+  h+='<div style="height:24px"></div></div>';
+  return h;
+}
+function renderReserveForm(){
+  const cat=RESERVE.find(c=>c.id===state.reserveCat);
+  const sub=state.reserveSub;
+  if(!cat||!sub)return '<div class="empty">Not found.</div>';
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="backResSubs">'+esc(cat.name)+'</button><span class="sep">/</span><span class="cur">'+esc(sub)+'</span></div>';
+  h+='<div class="phead" style="padding-top:0"><h2>'+esc(sub)+'</h2><p>Tell us about your event and we\'ll confirm via WhatsApp</p></div>';
+  h+='<div class="pad" style="padding-top:0">';
+  h+='<div class="fld"><label>Preferred Date</label><input id="resDate" type="date"></div>';
+  h+='<div class="fld"><label>Estimated Guests</label><input id="resPax" type="number" min="1" placeholder="e.g. 50"></div>';
+  h+='<div class="fld"><label>Notes</label><textarea id="resNotes" placeholder="Seating style, catering, AV needs, etc."></textarea></div>';
+  h+='<button class="btn wa full" data-act="waReserve">Send via WhatsApp</button>';
+  h+='</div><div style="height:24px"></div></div>';
+  return h;
+}
+
+/* ================================================================
+   TAB 4: GALLERY
+   ================================================================ */
+function renderGalleryGrid(){
+  const items=filteredGallery();
+  let h='<div class="scroll">';
+  h+='<div class="phead" style="padding-top:12px;padding-bottom:12px"><h2>Gallery</h2>'+
+    '<p>'+items.length+' of '+GALLERY.length+' photos &middot; '+esc(state.galleryFilter)+'</p></div>';
+  h+='<div class="gal-grid">';
+  items.forEach(function(g){
+    h+='<button class="gal-cell" data-act="openPhoto" data-id="'+g.id+'" aria-label="'+esc(g.cat+' '+g.label)+'">'+
+      imgTag(g.src,g.cat+' '+g.label)+'</button>';
+  });
+  h+='</div>';
+  if(!items.length) h+='<div class="empty">No photos match your filter.</div>';
+  h+='<div style="height:24px"></div></div>';
+  return h;
+}
+
+function renderPhoto(){
+  const items=filteredGallery();
+  if(!items.length) return '<div class="empty">No photos to show.</div>';
+  let start=0;
+  for(let i=0;i<items.length;i++){ if(items[i].id===state.galleryPhoto){ start=i; break; } }
+  return '<div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#0a0a0a">'+
+    '<div class="crumb" style="background:#ffffff"><button data-act="backAlbum">Gallery</button>'+
+    '<span class="sep">/</span><span class="cur">'+esc(items[start].cat)+'</span></div>'+
+    '<div class="swiper" id="photsw">'+items.map(function(g){
+      return '<div class="slide">'+imgTag(g.src,g.label)+'</div>';
+    }).join("")+'</div>'+
+    '<div class="dots">'+items.map(function(_,i){return '<i class="'+(i===start?"on":"")+'"></i>';}).join("")+'</div></div>';
+}
+
+function scrollPhotoTo(){
+  const sw=document.getElementById("photsw");
+  if(!sw||!sw.clientHeight) return;
+  const items=filteredGallery();
+  let start=0;
+  for(let i=0;i<items.length;i++){ if(items[i].id===state.galleryPhoto){ start=i; break; } }
+  sw.scrollTop=start*sw.clientHeight;
+}
+/* ================================================================
+   RESTAURANT GALLERY (dedicated page from About)
+   ================================================================ */
+function renderRestaurantGallery(){
+  const imgs=IMG.gallery.map(function(f,i){return {src:IMG.dirGallery+f,label:"Gallery "+((i+1<10?"0":"")+(i+1))};})
+    .concat(IMG.events.slice(0,4).map(function(f,i){return {src:IMG.dirEvents+f,label:"Event "+((i+1<10?"0":"")+(i+1))};}));
+  return '<div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#0a0a0a">'+
+    '<div class="crumb" style="background:#ffffff"><button data-act="backAboutGallery">About</button><span class="sep">/</span><span class="cur">Restaurant Gallery</span></div>'+
+    '<div class="swiper">'+imgs.map(function(im){
+      return '<div class="slide">'+imgTag(im.src,im.label)+'</div>';
+    }).join("")+'</div>'+
+    '<div class="dots">'+imgs.map(function(_,i){return '<i class="'+(i===0?"on":"")+'"></i>';}).join("")+'</div></div>';
+}
+
+/* ================================================================
+   TAB 5: ABOUT
+   ================================================================ */
+function renderAbout(){
+  let h='<div class="scroll">';
+
+  /* 1. Large logo */
+  h+='<div class="about-hero" style="padding-top:24px">'+
+    '<img class="about-logo" src="'+IMG.logo+'" alt="'+esc(PROFILE.name)+'">'+
+    '<div style="text-align:center"><h2>'+esc(PROFILE.name)+'</h2>'+
+    '<p>'+esc(PROFILE.category)+' &middot; '+esc(PROFILE.location.formatted_address)+'</p></div></div>';
+
+  h+='<div class="pad">';
+
+  /* 2. Primary button */
+  h+='<button class="btn primary full" data-act="openAboutGallery">Open Restaurant Gallery</button>';
+
+  /* 3. Social icon row */
+  h+='<div class="social-row">'+
+    '<a class="social-ico" href="https://www.instagram.com/theyellowgiraffebw?stkn=MWl3ZGQ4MGg5anJqag%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram">'+
+      '<img src="'+IMG.iconIG+'" alt="Instagram"></a>'+
+    '<a class="social-ico" href="https://www.facebook.com/p/The-Yellow-Giraffe-BW-61557884870901/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">'+
+      '<img src="'+IMG.iconFB+'" alt="Facebook"></a>'+
+    '<a class="social-ico" href="'+esc(waLink("*WHATSAPP ENQUIRY — "+PROFILE.name+"*\n\nHi! I'd like to know more about your venue."))+
+      '" aria-label="WhatsApp"><img src="'+IMG.iconWA+'" alt="WhatsApp"></a>'+
+    '</div>';
+
+  h+='<div class="subh">Location</div>';
+  h+='<div class="kv"><span class="k">Street</span><span class="v">'+esc(PROFILE.location.street)+'</span></div>';
+  h+='<div class="kv"><span class="k">City</span><span class="v">'+esc(PROFILE.location.city)+'</span></div>';
+  h+='<div class="kv"><span class="k">Country</span><span class="v">'+esc(PROFILE.location.country)+'</span></div>';
+  h+='<div class="kv"><span class="k">Formatted</span><span class="v">'+esc(PROFILE.location.formatted_address)+'</span></div>';
+
+  h+='<div class="subh" style="margin-top:20px">Operating Hours</div>';
+  h+='<div class="kv"><span class="k">Monday – Wednesday</span><span class="v">'+PROFILE.operating_hours.weekday_early.open+' – '+PROFILE.operating_hours.weekday_early.close+'</span></div>';
+  h+='<div class="kv"><span class="k">Thursday – Friday</span><span class="v">'+PROFILE.operating_hours.weekday_late.open+' – '+PROFILE.operating_hours.weekday_late.close+'</span></div>';
+  h+='<div class="kv"><span class="k">Happy Hour (Thu–Fri)</span><span class="v">'+PROFILE.operating_hours.weekday_late.happy_hour.start+' – '+PROFILE.operating_hours.weekday_late.happy_hour.end+'</span></div>';
+  h+='<div class="kv"><span class="k">Saturday</span><span class="v">'+PROFILE.operating_hours.weekend.open+' – '+PROFILE.operating_hours.weekend.close+'</span></div>';
+  h+='<div class="kv"><span class="k">Sunday</span><span class="v">Closed</span></div>';
+
+  h+='<div class="subh" style="margin-top:20px">Ambience</div>';
+  h+='<div class="tagwrap">'+PROFILE.attributes.ambience.map(a=>'<span class="chip">'+esc(a)+'</span>').join("")+'</div>';
+
+  h+='<div class="subh" style="margin-top:20px">Amenities</div>';
+  h+='<div class="tagwrap">'+PROFILE.attributes.amenities.map(a=>'<span class="chip">'+esc(a)+'</span>').join("")+'</div>';
+
+  h+='<div class="subh" style="margin-top:20px">Menu Tags</div>';
+  h+='<div class="tagwrap">'+PROFILE.menu_tags.map(t=>'<span class="chip g">'+esc(t)+'</span>').join("")+'</div>';
+
+  h+='<div class="subh" style="margin-top:20px">Capacity</div>';
+  h+='<div class="kv"><span class="k">Seated</span><span class="v">250</span></div>';
+  h+='<div class="kv"><span class="k">Standing</span><span class="v">400</span></div>';
+
+  h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waAbout">Send via WhatsApp</button></div>';
+
+  h+='</div><div style="height:34px"></div></div>';
+  return h;
+}
+
+/* ================================================================
+   MAIN RENDER
+   ================================================================ */
+function render(){renderViewport();}
+
+/* ================================================================
+   EVENT HANDLING
+   ================================================================ */
+document.addEventListener("click",function(e){
+  const nav=e.target.closest("[data-tab]");
+  if(nav){
+    state.tab=nav.getAttribute("data-tab");
+    if(state.tab==="promos"){state.promoView="feed";state.promoId=null;state.promoGalleryId=null;state.promoExpanded=null;}
+    if(state.tab==="menu"){state.menuCat=null;state.menuOpen=null;state.checkoutView=false;}
+    if(state.tab==="reserve"){state.reserveCat=null;state.reserveSub=null;}
+    if(state.tab==="gallery"){state.galleryView="grid";state.galleryPhoto=null;state.filterOpen=false;state.searchOpen=false;}
+    if(state.tab==="about"){state.aboutView="main";}
+    render();
+    return;
+  }
+  const t=e.target.closest("[data-act]");
+  if(!t)return;
+  const act=t.getAttribute("data-act");
+  const id=t.getAttribute("data-id");
+
+  /* PROMOS */
+  if(act==="pickDay"){state.promoDay=parseInt(t.getAttribute("data-day"),10);state.promoExpanded=null;render();return;}
+  if(act==="togglePromo"){state.promoExpanded=(state.promoExpanded===id)?null:id;syncAccordions();return;}
+  if(act==="togglePoetryAll"){state.poetryAll=!state.poetryAll;render();syncAccordions();return;}
+  if(act==="openPromo"){state.promoView="detail";state.promoId=id;if(!state.promoSeats[id])state.promoSeats[id]=1;render();return;}
+  if(act==="backPromo"){state.promoView="feed";state.promoId=null;render();return;}
+  if(act==="openPromoGallery"){state.promoView="gallery";state.promoGalleryId=id;render();return;}
+  if(act==="backPromoGallery"){state.promoView="detail";state.promoGalleryId=null;render();return;}
+  if(act==="openPromoLink"){state.promoView="link";state.promoId=id;render();return;}
+  if(act==="backPromoLink"){state.promoView="detail";render();return;}
+  if(act==="seatPlus"){state.promoSeats[id]=(state.promoSeats[id]||1)+1;render();return;}
+  if(act==="seatMinus"){state.promoSeats[id]=Math.max(1,(state.promoSeats[id]||1)-1);render();return;}
+  if(act==="addonPlus"){const i=parseInt(t.getAttribute("data-idx"),10);if(!state.promoAddons[id])state.promoAddons[id]={};state.promoAddons[id][i]=(state.promoAddons[id][i]||0)+1;render();return;}
+  if(act==="addonMinus"){const i=parseInt(t.getAttribute("data-idx"),10);if(!state.promoAddons[id])state.promoAddons[id]={};state.promoAddons[id][i]=Math.max(0,(state.promoAddons[id][i]||0)-1);render();return;}
+  if(act==="waPromo"){
+    const f=promoById(id);if(!f)return;
+    const p=f.promo;
+    const seats=state.promoSeats[p.id]||1;
+    const addons=state.promoAddons[p.id]||{};
+    let msg="*EVENT RESERVATION REQUEST*\nEvent: "+p.title+"\nDate: "+f.day+" ("+p.valid+")\nSeats: "+seats+"\n";
+    let extras=[];
+    PROMO_ADDONS.forEach((a,i)=>{if(addons[i])extras.push("- "+a.name+" ("+addons[i]+")");});
+    if(extras.length)msg+="Extras:\n"+extras.join("\n")+"\n";
+    let total=p.price*seats;
+    PROMO_ADDONS.forEach((a,i)=>{total+=a.price*(addons[i]||0);});
+    msg+="Estimated Total: P"+total.toFixed(2)+"\n\nPlease confirm seat availability.";
+    window.location.href=waLink(msg);
+    return;
+  }
+  if(act==="waPoetry"){
+    const seats=state.poetrySeats||2;
+    const msg="*POETRY NIGHT RESERVATION*\nEvent: "+POETRY.title+"\nVenue: Masa Square, central Gaborone\n"+
+      "Tagline: "+POETRY.tag+"\nTickets: "+seats+"\n\n"+
+      "Standard/Early Bird P100 | Door P150 | Students P50 | Double P150\n\n"+
+      "Please confirm availability and how to pay.";
+    window.location.href=waLink(msg);
+    return;
+  }
+  if(act==="waEvent"){
+    const dayIdx=parseInt(t.getAttribute("data-day"),10);
+    const ev=eventFor(dayIdx);if(!ev)return;
+    const msg="*EVENT INQUIRY*\nEvent: "+ev.name+"\nDay: "+DAY_NAMES[dayIdx]+"\nTime: "+ev.time+"\n\nPlease share more details.";
+    window.location.href=waLink(msg);
+    return;
+  }
+
+  /* MENU */
+  if(act==="openCat"){state.menuCat=id;state.menuOpen=null;render();return;}
+  if(act==="backCats"){state.menuCat=null;state.menuOpen=null;render();return;}
+  if(act==="toggleItem"){const nid=parseInt(id,10);state.menuOpen=(state.menuOpen===nid)?null:nid;syncMenuAccordions();return;}
+  if(act==="szPlus"){const si=parseInt(t.getAttribute("data-si"),10);const l=cartLine(parseInt(id,10),si);l.qty=(l.qty||0)+1;syncCart();return;}
+  if(act==="szMinus"){const si=parseInt(t.getAttribute("data-si"),10);const nid=parseInt(id,10);const l=cartLine(nid,si);l.qty=Math.max(0,(l.qty||0)-1);if(!l.qty&&!Object.keys(l.extras||{}).length)delete state.cart[cartKey(nid,si)];syncCart();return;}
+  if(act==="exPlus"){const ei=parseInt(t.getAttribute("data-ei"),10);const si=t.hasAttribute("data-si")?parseInt(t.getAttribute("data-si"),10):0;const nid=parseInt(id,10);const l=cartLine(nid,si);if(!l.extras)l.extras={};l.extras[ei]=(l.extras[ei]||0)+1;syncCart();return;}
+  if(act==="exMinus"){const ei=parseInt(t.getAttribute("data-ei"),10);const si=t.hasAttribute("data-si")?parseInt(t.getAttribute("data-si"),10):0;const nid=parseInt(id,10);const l=cartLine(nid,si);if(!l.extras)l.extras={};l.extras[ei]=Math.max(0,(l.extras[ei]||0)-1);if(!l.qty&&!Object.keys(l.extras).length)delete state.cart[cartKey(nid,si)];syncCart();return;}
+  if(act==="openCheckout"){if(cartTotal()<=0)return;state.checkoutView=true;render();return;}
+  if(act==="backFromCheckout"){state.checkoutView=false;state.checkoutOpen=null;render();return;}
+  if(act==="toggleCheckoutRow"){const k=t.getAttribute("data-key");state.checkoutOpen=(state.checkoutOpen===k?null:k);render();return;}
+  if(act==="waOrder"){
+    const nameEl=document.getElementById("orderName");
+    const contactEl=document.getElementById("orderContact");
+    const notesEl=document.getElementById("orderNotes");
+    if(nameEl)state.orderName=nameEl.value;
+    if(contactEl)state.orderContact=contactEl.value;
+    if(notesEl)state.orderNotes=notesEl.value;
+    if(!state.orderName.trim()||!state.orderContact.trim()){alert("Please enter your name and contact number.");return;}
+    let lines=[];
+    Object.keys(state.cart).forEach(k=>{
+      const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length)return;
+      const it=getMenuItem(l.itemId);if(!it)return;
+      const sz=itemSizes(it)[l.sizeIdx];
+      if(l.qty>0&&sz)lines.push(l.qty+"x "+it.name+(sz[0]?" ("+sz[0]+")":"")+" (P"+(sz[1]*l.qty).toFixed(2)+")");
+      Object.keys(l.extras||{}).forEach(ei=>{
+        if(l.extras[ei]>0&&it.extras[ei])lines.push(" + "+l.extras[ei]+"x "+it.extras[ei][0]+" (P"+(it.extras[ei][1]*l.extras[ei]).toFixed(2)+")");
+      });
+    });
+    let msg="*NEW MENU ORDER*\nName: "+state.orderName+"\nContact: "+state.orderContact+
+      (state.orderNotes.trim()?"\nNotes: "+state.orderNotes.trim():"")+
+      "\n\n*Order Summary:*\n"+lines.join("\n")+"\n\n*Total:* P"+cartTotal().toFixed(2);
+    window.location.href=waLink(msg);
+    return;
+  }
+
+  /* RESERVE */
+  if(act==="openResCat"){state.reserveCat=id;state.reserveSub=null;render();return;}
+  if(act==="backResCats"){state.reserveCat=null;state.reserveSub=null;render();return;}
+  if(act==="openResSub"){state.reserveSub=id;render();return;}
+  if(act==="backResSubs"){state.reserveSub=null;render();return;}
+  if(act==="waReserve"){
+    const cat=RESERVE.find(c=>c.id===state.reserveCat);
+    if(!cat)return;
+    const dateEl=document.getElementById("resDate");
+    const paxEl=document.getElementById("resPax");
+    const notesEl=document.getElementById("resNotes");
+    const date=dateEl?dateEl.value:"";
+    const pax=paxEl?paxEl.value:"";
+    const notes=notesEl?notesEl.value:"";
+    const msg="*VENUE BOOKING INQUIRY*\nCategory: "+cat.name+" ("+state.reserveSub+")\nEstimated Guests: "+(pax||"TBC")+"\nPreferred Date: "+(date||"TBC")+"\nNotes: "+(notes||"N/A");
+    window.location.href=waLink(msg);
+    return;
+  }
+
+  /* GALLERY */
+  if(act==="cycleFilter"){state.filterOpen=!state.filterOpen;renderControlBar();return;}
+  if(act==="pickFilter"){state.galleryFilter=t.getAttribute("data-val")||"All";state.filterOpen=false;state.galleryPhoto=null;state.galleryView="grid";render();return;}
+  if(act==="closeFilter"){if(!state.filterOpen)return;state.filterOpen=false;renderControlBar();return;}
+  if(act==="openPhoto"){state.galleryPhoto=id;state.galleryView="photo";render();return;}
+  if(act==="backAlbum"){state.galleryView="grid";state.galleryPhoto=null;render();return;}
+  if(act==="openSearch"){state.searchOpen=true;render();setTimeout(function(){const i=document.getElementById("gsearch");if(i)i.focus();},60);return;}
+  if(act==="closeSearch"){state.searchOpen=false;state.gallerySearch="";render();return;}
+
+  /* ABOUT */
+  if(act==="openAboutGallery"){state.aboutView="gallery";render();return;}
+  if(act==="backAboutGallery"){state.aboutView="main";render();return;}
+  if(act==="waAbout"){
+    const msg="*INQUIRY — "+PROFILE.name+"*\n\nHi! I'd like to know more about your venue.";
+    window.location.href=waLink(msg);
+    return;
+  }
+});
+
+/* Escape closes the filter popup */
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"||e.keyCode===27){
+    if(state.filterOpen){state.filterOpen=false;renderControlBar();}
+    else if(state.searchOpen){state.searchOpen=false;state.gallerySearch="";render();}
+  }
+});
+
+/* Live search input */
+document.addEventListener("input",function(e){
+  if(e.target.id==="gsearch"){
+    state.gallerySearch=e.target.value;
+    const val=state.gallerySearch;
+    render();
+    state.gallerySearch=val;
+    const inp=document.getElementById("gsearch");
+    if(inp){inp.value=val;inp.focus();inp.setSelectionRange(val.length,val.length);}
+  }
+if(e.target.id==="orderName")state.orderName=e.target.value;
+if(e.target.id==="orderContact")state.orderContact=e.target.value;
+if(e.target.id==="orderNotes")state.orderNotes=e.target.value;
+});
+
+/* Swiper dot indicator (vertical paging) */
+document.addEventListener("scroll",function(e){
+  const sw=e.target.closest?e.target.closest(".swiper"):null;
+  if(!sw)return;
+  const idx=Math.round(sw.scrollTop/sw.clientHeight);
+  const parent=sw.parentElement;
+  if(!parent)return;
+  const dots=parent.querySelectorAll(".dots i");
+  dots.forEach((d,i)=>d.classList.toggle("on",i===idx));
+},true);
+
+/* Boot */
+render();
+</script>
+</body>
+</html>
