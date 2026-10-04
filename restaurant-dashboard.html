@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard — Eatouts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--border:#e7e4dd;--ok:#17834b;--danger:#c43c3c;--radius:16px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5}
+.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:16px;color:var(--black)}.brand span{color:var(--gold)}
+.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.tabs{position:sticky;top:57px;z-index:49;background:#fff;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 8px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:12px 14px;font-size:12.5px;font-weight:800;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+.tab.active{color:var(--black);border-bottom-color:var(--gold)}
+.app{max-width:1180px;margin:0 auto;padding-bottom:60px}
+.hero{background:linear-gradient(160deg,#1a1a1a,#2c2c2c);color:#fff;padding:22px 18px;border-radius:0 0 22px 22px;margin-bottom:16px}
+.hero .grt{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.hero h1{margin:6px 0 4px;font-size:22px;font-weight:900;letter-spacing:-.02em}
+.hero .meta{font-size:12px;color:rgba(255,255,255,.7)}
+.hero .status{display:inline-flex;align-items:center;gap:6px;background:rgba(23,131,75,.18);color:#5fdf95;padding:4px 10px;border-radius:999px;font-size:10.5px;font-weight:800;margin-top:10px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;padding:14px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px}
+@media(min-width:700px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+.stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px}
+.stat .lbl{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.stat .val{font-size:24px;font-weight:900;color:var(--text);margin-top:6px;letter-spacing:-.02em}
+.stat .sub{font-size:11px;color:var(--ok);font-weight:700;margin-top:4px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px}
+@media(min-width:700px){.actions{grid-template-columns:repeat(4,1fr)}}
+.action-btn{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;text-align:left;cursor:pointer;font:inherit;color:inherit;display:block;text-decoration:none}
+.action-btn:hover{border-color:var(--gold)}
+.action-btn .ttl{font-weight:800;font-size:13px}
+.action-btn .sub{font-size:11.5px;color:var(--muted);margin-top:3px}
+.bar-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.bar-row{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.bar-row .nm{flex:1;font-weight:700}
+.bar-row .bar{width:120px;height:8px;background:#eee;border-radius:999px;overflow:hidden}
+.bar-row .bar i{display:block;height:100%;background:var(--gold)}
+.bar-row .v{font-weight:800;font-size:12px;min-width:44px;text-align:right}
+table{width:100%;border-collapse:collapse;margin-top:6px}
+th,td{padding:9px 4px;border-bottom:1px solid var(--border);text-align:left;font-size:12.5px}
+th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:800;text-transform:uppercase}
+.badge.on{background:#e3f5e9;color:var(--ok)}
+.badge.warn{background:#fdf3dc;color:#9a6a0a}
+.section-h{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 16px;margin:20px 0 4px}
+h2{font-size:16px;font-weight:900;letter-spacing:-.01em;margin:0 0 4px}
+.hint{font-size:12px;color:var(--muted)}
+.progress{height:8px;background:#eee;border-radius:999px;overflow:hidden;margin-top:8px}
+.progress i{display:block;height:100%;background:#0d0d0d}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">EAT<span>OUTS</span></div>
+  <div class="page">Dashboard</div>
+</header>
+<nav class="tabs">
+  <a class="tab" href="restaurant-onboarding.html">Restaurant</a>
+  <a class="tab" href="menu-onboarding.html">Menu</a>
+  <a class="tab" href="promo-onboarding.html">Promos</a>
+  <a class="tab" href="event-onboarding.html">Events</a>
+  <a class="tab" href="gallery-onboarding.html">Gallery</a>
+  <a class="tab active" href="restaurant-dashboard.html">Dashboard</a>
+</nav>
+
+<main id="app" class="app"></main>
+<div id="toast" class="toast"></div>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-owner-compat.js"></script>
+<script>
+/* Operator pages are only reachable through the About Us sign-in.
+   This runs before any page content paints. */
+if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
+else{EatoutsAuth.applyActive();}
+</script>
+<script>
+const DB_KEY=EatoutsDB.KEY;
+function dbLoad(){return EatoutsOwnerCompat.load();}
+function dbSave(d){EatoutsOwnerCompat.save(d);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
+const DB=dbLoad()||{restaurant:{identity:{name:'Untitled restaurant',status:'draft'},location:{city:'',area:''},contacts:[],socials:[],operatingHours:{weekly:[],customSchedules:[]},character:{options:[]},amenities:{options:[]},menuTags:{options:[]},capacity:[],payments:[],reservations:{},reservationServices:[],serviceStaff:[],users:[]},menuCategories:[],menuItems:[],promos:[],events:[],performers:[],galleryGroups:[],settings:{currencySymbol:'P'}};
+const money=v=>DB.settings.currencySymbol+(Number(v)||0).toFixed(2);
+
+/* ========== ANALYTICS SIMULATION ==========
+   For the prototype, we read counts from the local DB and
+   derive lightweight "engagement" numbers from content volume.
+   These will later be replaced by the analytics events emitted
+   by the customer-facing index.html.
+   ============================================ */
+function deriveAnalytics(){
+  const r=DB.restaurant||{};
+  const menuItems=(DB.menuItems||[]);
+  const promos=(DB.promos||[]);
+  const events=(DB.events||[]);
+  const groups=(DB.galleryGroups||[]);
+  const imgs=groups.reduce((s,g)=>s+(g.images||[]).length,0);
+  /* Deterministic pseudo-random derived from content counts,
+     so numbers feel alive but stable across reloads. */
+  const seed=menuItems.length*7+promos.length*11+events.length*13+imgs*3+17;
+  const rand=(n)=>{const x=Math.sin(seed*n)*10000;return Math.floor((x-Math.floor(x))*1000);};
+  return {
+    profileViews: 800+rand(1)%4200,
+    menuViews: 400+rand(2)%2600,
+    whatsapp: 40+rand(3)%380,
+    reservations: 6+rand(4)%90,
+    promoInteractions: promos.length*40+rand(5)%300,
+    eventInteractions: events.length*60+rand(6)%260,
+    menuBreakdown: menuItems.slice(0,5).map((it,i)=>({name:it.name,views:200+rand(10+i)%900})).sort((a,b)=>b.views-a.views),
+    whatsappTypes: [
+      {type:'Orders',v:Math.floor((40+rand(20)%180))},
+      {type:'Reservations',v:Math.floor((20+rand(21)%80))},
+      {type:'Delivery',v:Math.floor((10+rand(22)%60))},
+      {type:'Pickup',v:Math.floor((8+rand(23)%40))},
+      {type:'Event RSVP',v:Math.floor((5+rand(24)%30))},
+      {type:'Catering',v:Math.floor((2+rand(25)%12))},
+      {type:'Enquiries',v:Math.floor((10+rand(26)%40))}
+    ]
+  };
+}
+
+/* ========== COMPLETENESS ========== */
+function completeness(){
+  const r=DB.restaurant||{};const id=r.identity||{};
+  const checks=[
+    !!id.name, !!id.description, (id.types||[]).length>0,
+    !!(r.location&&r.location.city), !!(r.location&&r.location.area),
+    (r.contacts||[]).length>0,
+    !!(r.socials&&r.socials[0]&&Object.keys(r.socials[0]).length),
+    (r.operatingHours&&(r.operatingHours.weekly||[]).some(x=>x.open&&x.close)),
+    (r.character&&(r.character.options||[]).length>0),
+    (r.amenities&&(r.amenities.options||[]).length>0),
+    (r.menuTags&&(r.menuTags.options||[]).length>0),
+    (r.capacity||[]).length>0,
+    (r.payments||[]).length>0,
+    !!(r.reservations&&r.reservations.enabled),
+    (r.reservationServices||[]).length>0,
+    (r.serviceStaff||[]).length>0
+  ];
+  const passed=checks.filter(Boolean).length;
+  return Math.round(passed/checks.length*100);
+}
+
+function missingSuggestions(){
+  const r=DB.restaurant||{};const id=r.identity||{};
+  const out=[];
+  if(!(r.amenities&&(r.amenities.options||[]).some(o=>o.name==='Outdoor seating'))) out.push('Add outdoor seating');
+  if(!(r.socials&&r.socials[0]&&r.socials[0].instagram)) out.push('Add Instagram');
+  if(!(r.operatingHours&&(r.operatingHours.weekly||[]).some(x=>x.day==='Sunday'&&x.open))) out.push('Add Sunday hours');
+  if(!(r.identity&&r.identity.coverImage)) out.push('Upload a cover image');
+  if(!(DB.galleryGroups||[]).some(g=>(g.images||[]).length>2)) out.push('Add more photos');
+  return out.slice(0,3);
+}
+
+function render(){
+  const r=DB.restaurant||{};const id=r.identity||{};
+  const A=deriveAnalytics();
+  const C=completeness();
+  const miss=missingSuggestions();
+  const live=id.status==='published';
+  const plan=(DB.settings&&DB.settings.plan)||'starter';
+  const planLabel={starter:'Eatouts Starter',growth:'Eatouts Growth',pro:'Eatouts Pro'}[plan]||'Eatouts Starter';
+  const planPrice={starter:300,growth:500,pro:800}[plan]||300;
+  const next=(()=>{const d=new Date();d.setDate(d.getDate()+30);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});})();
+
+  let h=`
+  <div class="hero">
+    <div class="grt">${live?'Live profile':'Draft profile'}</div>
+    <h1>${esc(id.name||'Untitled restaurant')}</h1>
+    <div class="meta">${esc(r.location&&r.location.city||'—')}${r.location&&r.location.area?' · '+esc(r.location.area):''}</div>
+    <div class="status">● ${live?'LIVE':'DRAFT'}</div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+      <div style="flex:1">
+        <h2>Profile completeness</h2>
+        <div class="hint">${C}% complete</div>
+        <div class="progress"><i style="width:${C}%"></i></div>
+      </div>
+      <div style="font-size:24px;font-weight:900;color:var(--gold)">${C}%</div>
+    </div>
+    ${miss.length?`<div style="margin-top:12px">${miss.map(m=>`<div style="font-size:12.5px;color:var(--muted);padding:4px 0">+ ${esc(m)}</div>`).join('')}</div>`:''}
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn btn-primary" href="restaurant-onboarding.html" style="text-decoration:none">Complete Profile →</a>
+      <a class="btn btn-ghost" href="index.html" target="_blank" style="text-decoration:none">View as Customer</a>
+    </div>
+  </div>
+
+  <div class="section-h">This month</div>
+  <div class="stat-grid">
+    <div class="stat"><div class="lbl">Profile Views</div><div class="val">${A.profileViews.toLocaleString()}</div><div class="sub">+18% vs last month</div></div>
+    <div class="stat"><div class="lbl">Menu Views</div><div class="val">${A.menuViews.toLocaleString()}</div><div class="sub">+24% vs last month</div></div>
+    <div class="stat"><div class="lbl">WhatsApp Actions</div><div class="val">${A.whatsapp.toLocaleString()}</div><div class="sub">+11% vs last month</div></div>
+    <div class="stat"><div class="lbl">Reservation Requests</div><div class="val">${A.reservations.toLocaleString()}</div><div class="sub">+31% vs last month</div></div>
+  </div>
+
+  <div class="section-h">Quick actions</div>
+  <div class="actions">
+    <a class="action-btn" href="menu-onboarding.html"><div class="ttl">+ Menu Item</div><div class="sub">Add to menu</div></a>
+    <a class="action-btn" href="promo-onboarding.html"><div class="ttl">+ Promo</div><div class="sub">Launch a promotion</div></a>
+    <a class="action-btn" href="event-onboarding.html"><div class="ttl">+ Event</div><div class="sub">Schedule an event</div></a>
+    <a class="action-btn" href="gallery-onboarding.html"><div class="ttl">+ Gallery</div><div class="sub">Upload images</div></a>
+  </div>
+
+  <div class="section-h">Today</div>
+  <div class="stat-grid">
+    <div class="stat"><div class="lbl">Profile Views</div><div class="val">${Math.floor(A.profileViews/30)}</div></div>
+    <div class="stat"><div class="lbl">Menu Views</div><div class="val">${Math.floor(A.menuViews/28)}</div></div>
+    <div class="stat"><div class="lbl">WhatsApp</div><div class="val">${Math.floor(A.whatsapp/22)}</div></div>
+    <div class="stat"><div class="lbl">Reservations</div><div class="val">${Math.max(1,Math.floor(A.reservations/12))}</div></div>
+  </div>
+
+  <div class="section-h">Top menu items</div>
+  <div class="card">
+    ${A.menuBreakdown.length?A.menuBreakdown.map(m=>{
+      const max=A.menuBreakdown[0].views;
+      return `<div class="bar-row"><div class="nm">${esc(m.name)}</div><div class="bar"><i style="width:${Math.round(m.views/max*100)}%"></i></div><div class="v">${m.views}</div></div>`;
+    }).join(''):'<div class="hint">Add menu items to see this.</div>'}
+  </div>
+
+  <div class="section-h">WhatsApp activity</div>
+  <div class="card">
+    <table>
+      <tr><th>Type</th><th>Count</th></tr>
+      ${A.whatsappTypes.map(w=>`<tr><td>${esc(w.type)}</td><td><b>${w.v}</b></td></tr>`).join('')}
+    </table>
+  </div>
+
+  <div class="section-h">Active promos</div>
+  <div class="card">
+    ${(DB.promos||[]).length?(DB.promos||[]).slice(0,3).map(p=>`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border)"><div><b>${esc(p.title||'Untitled')}</b><div class="hint">${money(p.promoPrice)}${p.originalPrice?' → was '+money(p.originalPrice):''}</div></div><div style="font-size:12px;color:var(--muted)">${(40+((p.title||'x').length*7))%260} views</div></div>`).join(''):'<div class="hint">No promos yet. <a href="promo-onboarding.html">Create one →</a></div>'}
+  </div>
+
+  <div class="section-h">Upcoming events</div>
+  <div class="card">
+    ${(DB.events||[]).length?(DB.events||[]).slice(0,3).map(e=>`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border)"><div><b>${esc(e.name||'Untitled')}</b><div class="hint">${esc(e.startDate||'')}${e.startTime?' · '+esc(e.startTime):''}</div></div><div style="font-size:12px;color:var(--muted)">${(30+((e.name||'x').length*11))%220} views</div></div>`).join(''):'<div class="hint">No events yet. <a href="event-onboarding.html">Create one →</a></div>'}
+  </div>
+
+  <div class="section-h">Billing</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:900;font-size:16px">${planLabel}</div>
+        <div class="hint">P${planPrice} / month · Next billing ${next}</div>
+        <div style="margin-top:8px"><span class="badge on">● Active</span></div>
+      </div>
+      <button class="btn btn-ghost" id="btnChangePlan">Manage Subscription</button>
+    </div>
+    <div class="hint" style="margin-top:14px">Your month at a glance</div>
+    <div style="margin-top:8px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:12.5px">
+      <div><b>${A.profileViews.toLocaleString()}</b><div class="hint">Restaurant views</div></div>
+      <div><b>${A.menuViews.toLocaleString()}</b><div class="hint">Menu views</div></div>
+      <div><b>${A.whatsapp.toLocaleString()}</b><div class="hint">WhatsApp actions</div></div>
+      <div><b>${A.reservations.toLocaleString()}</b><div class="hint">Reservation requests</div></div>
+    </div>
+    <div style="margin-top:12px;font-weight:800;font-size:13px;color:var(--gold)">Eatouts helped generate ${A.whatsapp.toLocaleString()} customer actions this month.</div>
+  </div>
+
+  <div class="section-h">Reports</div>
+  <div class="card">
+    <button class="btn btn-ghost btn-full" id="btnWeekly">Weekly Report</button>
+    <button class="btn btn-ghost btn-full" id="btnMonthly" style="margin-top:8px">Monthly Report</button>
+    <div class="hint" style="margin-top:10px">Reports are generated from your local Eatouts data. Downloadable versions arrive with the live analytics engine.</div>
+  </div>
+  `;
+  document.getElementById('app').innerHTML=h;
+
+  document.getElementById('btnWeekly').onclick=()=>{
+    alert(`EATOUTS WEEKLY REPORT — ${id.name||'Restaurant'}\n\nProfile views: ${A.profileViews.toLocaleString()}\nMenu views: ${A.menuViews.toLocaleString()}\nWhatsApp actions: ${A.whatsapp.toLocaleString()}\nReservation requests: ${A.reservations.toLocaleString()}\n\nMost viewed menu item: ${A.menuBreakdown[0]?A.menuBreakdown[0].name:'—'}\n\nThis is a preview generated from local data.`);
+  };
+  document.getElementById('btnMonthly').onclick=()=>{
+    alert(`EATOUTS MONTHLY REPORT — ${id.name||'Restaurant'}\n\nProfile views: ${A.profileViews.toLocaleString()}\nMenu views: ${A.menuViews.toLocaleString()}\nWhatsApp actions: ${A.whatsapp.toLocaleString()}\nReservation requests: ${A.reservations.toLocaleString()}\nPromo interactions: ${A.promoInteractions}\nEvent interactions: ${A.eventInteractions}\n\nThis is a preview generated from local data.`);
+  };
+  document.getElementById('btnChangePlan').onclick=()=>{
+    const next={starter:'growth',growth:'pro',pro:'starter'}[plan];
+    DB.settings=DB.settings||{};DB.settings.plan=next;dbSave(DB);
+    toast('Plan changed to '+next);render();
+  };
+}
+
+render();
+</script>
+</body>
+</html>

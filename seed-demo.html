@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seed &amp; Verify — Eatouts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--border:#e7e4dd;--ok:#17834b;--warn:#9a6a0a;--bad:#c43c3c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5}
+.topbar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:16px}.brand span{color:var(--gold)}
+.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.wrap{max-width:960px;margin:0 auto;padding:20px 16px 80px}
+.hero{background:linear-gradient(160deg,#1a1a1a,#2c2c2c);color:#fff;padding:22px 18px;border-radius:0 0 22px 22px;margin-bottom:16px}
+.hero .grt{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.hero h1{margin:6px 0 4px;font-size:22px;font-weight:900;letter-spacing:-.02em}
+.hero p{margin:0;font-size:12.5px;color:rgba(255,255,255,.72)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+button{font:inherit;font-weight:800;cursor:pointer;border-radius:11px;padding:11px 18px;border:1px solid var(--border);background:#fff;color:var(--text)}
+button.pri{background:var(--black);color:#fff;border-color:var(--black)}
+button.bad{color:var(--bad);border-color:#f0c8c8}
+button:disabled{opacity:.5;cursor:default}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px}
+.card h2{margin:0 0 4px;font-size:15px;font-weight:900;letter-spacing:-.01em}
+.card .hint{font-size:12px;color:var(--muted);margin-bottom:10px}
+.res{margin-top:10px;font-size:13px}
+.res .row{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #f2efe8}
+.res .row:last-child{border-bottom:0}
+.res .k{color:var(--muted)}
+.res .v{font-weight:800;text-align:right}
+.pass{color:var(--ok);font-weight:800}
+.fail{color:var(--bad);font-weight:800}
+.warnc{color:var(--warn);font-weight:800}
+pre{margin:0;background:#faf8f2;border:1px solid var(--border);border-radius:11px;padding:11px;font-size:11.5px;line-height:1.55;overflow-x:auto;max-height:340px;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:6px 5px;border-bottom:1px solid var(--border);text-align:left}
+th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.scroll{max-height:330px;overflow-y:auto;border:1px solid var(--border);border-radius:11px}
+.pill{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;background:#f2efe8;color:var(--muted);letter-spacing:.04em}
+a{color:#1a1a1a;font-weight:800;text-decoration:none}
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:10px}
+.links a{border:1px solid var(--border);border-radius:11px;padding:10px 12px;background:#fff;font-size:12.5px;text-align:center}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.lnk{color:var(--muted);font-size:11.5px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">EAT<span>OUTS</span></div>
+  <div class="page">Bit 1 · Seed &amp; Verify</div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="grt">Developer harness</div>
+    <h1>Seed &amp; Verify</h1>
+    <p>Builds <code>eatouts_db_v2</code>, seeds the 133-restaurant roster, and checks the whole data layer.</p>
+  </div>
+
+  <div class="bar">
+    <button class="pri" id="btnSeed">Seed demo data</button>
+    <button id="btnVerify">Run verification</button>
+    <button class="bad" id="btnReset">Reset database</button>
+    <button id="btnMigrate">Test v1 migration</button>
+  </div>
+
+  <div class="links">
+    <a href="index.html">Customer app</a>
+    <a href="restaurant-dashboard.html">Owner dashboard</a>
+    <a href="restaurant-onboarding.html">Restaurant setup</a>
+    <a href="menu-onboarding.html">Menu editor</a>
+    <a href="promo-onboarding.html">Promos</a>
+    <a href="event-onboarding.html">Events</a>
+    <a href="gallery-onboarding.html">Gallery</a>
+  </div>
+  <div class="lnk">Run through Live Server (<code>http://127.0.0.1:5500</code>). Opening via <code>file://</code> isolates localStorage per page.</div>
+
+  <div class="card">
+    <h2>Result</h2>
+    <div class="hint">Every assertion below should read PASS.</div>
+    <div class="res" id="res">Nothing run yet.</div>
+  </div>
+
+  <div class="card">
+    <h2>Roster by town</h2>
+    <div class="hint">From the curated overlay in <code>js/eatouts-seed-data.js</code>.</div>
+    <div class="res" id="towns"></div>
+  </div>
+
+  <div class="card">
+    <h2>Thumbnail tiles</h2>
+    <div class="hint">Soya uses its real logo. Every other restaurant gets a letter tile on a 7-colour rotation.</div>
+    <div class="thumbs" id="thumbs"></div>
+  </div>
+
+  <div class="card">
+    <h2>Location mappings</h2>
+    <div class="hint">All 36 place-hinted restaurants. Every district / town / area below was validated against <code>botswana_locations.js</code>.</div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Restaurant</th><th>District</th><th>Town</th><th>Area</th><th>Landmark</th></tr></thead>
+        <tbody id="locs"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Log</h2>
+    <pre id="log">—</pre>
+  </div>
+</div>
+
+<script src="botswana_locations.js"></script>
+<script src="js/eatouts-locations.js"></script>
+<script src="js/eatouts-brand.js"></script>
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-seed-data.js"></script>
+<script src="js/eatouts-seed.js"></script>
+<script>
+var LOG = [];
+function log(m){ LOG.push(m); document.getElementById('log').textContent = LOG.join('\n'); }
+function fmtBytes(n){
+  if(n < 1024) return n + ' B';
+  if(n < 1048576) return (n/1024).toFixed(1) + ' KB';
+  return (n/1048576).toFixed(2) + ' MB';
+}
+var esc = EatoutsBrand.esc;
+
+function assert(rows, label, pass, detail){
+  rows.push({ label: label, pass: pass, detail: detail == null ? '' : String(detail) });
+}
+
+/* ============================ SEED ============================ */
+function doSeed(){
+  log('--- seeding ---');
+  var rep = EatoutsSeed.seed();
+  log('restaurants written : ' + rep.count);
+  log('rows in seed table : ' + rep.rows);
+  log('active restaurant   : ' + rep.activeId);
+  log('stored size         : ' + fmtBytes(rep.sizeBytes));
+  log('');
+  log('NOTE: the shared content template is empty right now.');
+  log('      index.html supplies the Yellow Giraffe bundle on boot');
+  log('      (that wiring lands in Bit 2). Nothing is lost.');
+  renderThumbs();
+  renderLocs();
+  renderTowns();
+  verify();
+}
+
+/* ========================= VERIFY =========================== */
+function verify(){
+  var db = EatoutsDB.load();
+  var rows = [];
+  var quota = 5 * 1024 * 1024;
+
+  /* --- roster --- */
+  assert(rows, 'Database key is eatouts_db_v2', EatoutsDB.KEY === 'eatouts_db_v2', EatoutsDB.KEY);
+  assert(rows, 'Schema version is 2', db.version === 2, db.version);
+  assert(rows, '141 raw names deduped to 133', db.restaurants.length === 133, db.restaurants.length);
+  assert(rows, 'Every restaurant has a slug', db.restaurants.every(function(r){ return !!r.slug; }));
+  assert(rows, 'Slugs are unique', (function(){
+    var s = {}; return db.restaurants.every(function(r){ if(s[r.slug]) return false; s[r.slug]=1; return true; });
+  })());
+  assert(rows, 'Every restaurant has a town', db.restaurants.every(function(r){ return !!r.location.town; }));
+  assert(rows, 'Every restaurant has a district', db.restaurants.every(function(r){ return !!r.location.district; }));
+  assert(rows, 'No restaurant has a guessed area', db.restaurants.every(function(r){
+    var a = r.location.area;
+    return !a || EatoutsLocations.areaExists(r.location.district, r.location.town, a);
+  }));
+
+  /* --- the shared template is genuinely shared --- */
+  var sharing = db.restaurants.filter(function(r){ return !r.ownContent; }).length;
+  assert(rows, 'All 133 share the content template', sharing === 133, sharing + ' sharing / ' + db.restaurants.length + ' total');
+  assert(rows, 'Only one content template exists', Object.keys(db.contentTemplates).length === 1,
+    Object.keys(db.contentTemplates).join(', '));
+
+  /* --- storage --- */
+  var bytes = EatoutsDB.sizeBytes();
+  assert(rows, 'Storage under the 5 MB quota', bytes < quota, fmtBytes(bytes) + ' of ~5 MB');
+
+  /* --- content resolution --- */
+  var first = db.restaurants[0];
+  var resolved = EatoutsDB.resolveContent(first.id, db);
+  assert(rows, 'resolveContent returns the template', !!resolved && !first.ownContent);
+  assert(rows, 'resolveContent is read-only until fork', EatoutsDB.isSharing(first.id, db));
+
+  /* --- fork behaviour: editing one must not touch the others --- */
+  var t0 = Date.now();
+  EatoutsDB.forkContent(first.id, db);
+  EatoutsDB.save(db);
+  db = EatoutsDB.load();
+  var forkedId = db.restaurants[0].id;
+  var before = JSON.stringify(db.restaurants[1]);
+  /* mutate the fork */
+  var fork = EatoutsDB.resolveContent(forkedId, db);
+  fork.promos.push({ id: 'probe', title: 'Probe Promo', status: 'active' });
+  fork.menuItems.push({ id: 'probe-item', name: 'Probe Item', basePrice: 1 });
+  EatoutsDB.save(db);
+  db = EatoutsDB.load();
+  var after = JSON.stringify(db.restaurants[1]);
+  assert(rows, 'Forking copies content, not references', db.restaurants[0].ownContent !== null);
+  assert(rows, 'Forked edit does NOT leak to other restaurants', before === after);
+  assert(rows, 'Forked edit is visible on the forked restaurant',
+    EatoutsDB.resolveContent(forkedId, db).promos.some(function(p){ return p.id === 'probe'; }));
+  /* --- revert. resetToShared must NOT wipe the shared template:
+       load() silently recreates tpl_shared when it is missing, so
+       comparing the key count is not enough — compare the content. --- */
+  var tplBefore = JSON.stringify(db.contentTemplates[EatoutsDB.SHARED_TEMPLATE]);
+  EatoutsDB.resetToShared(db);
+  EatoutsDB.save(db);
+  db = EatoutsDB.load();
+  assert(rows, 'resetToShared discards the fork', db.restaurants.every(function(r){ return !r.ownContent; }));
+  assert(rows, 'resetToShared PRESERVES the shared template',
+    JSON.stringify(db.contentTemplates[EatoutsDB.SHARED_TEMPLATE]) === tplBefore);
+  assert(rows, 'siblings still resolve content after reset', !!EatoutsDB.resolveContent(db.restaurants[1].id, db));
+
+  /* same hazard on the delete path */
+  var victimId = db.restaurants[0].id;
+  EatoutsDB.forkContent(victimId, db);
+  EatoutsDB.save(db);
+  EatoutsDB.removeRestaurant(victimId, db);
+  EatoutsDB.save(db);
+  db = EatoutsDB.load();
+  assert(rows, 'removeRestaurant drops the row', !db.restaurants.some(function(r){ return r.id === victimId; }));
+  assert(rows, 'removeRestaurant PRESERVES the shared template for the rest',
+    JSON.stringify(db.contentTemplates[EatoutsDB.SHARED_TEMPLATE]) === tplBefore);
+  assert(rows, 'remaining 132 still resolve content',
+    db.restaurants.every(function(r){ return !!EatoutsDB.resolveContent(r.id, db); }));
+  EatoutsSeed.seed();
+  db = EatoutsDB.load();
+  assert(rows, 're-seed restores the roster to 133', db.restaurants.length === 133, db.restaurants.length);
+  log('');
+  log('fork + delete tests completed in ' + (Date.now() - t0) + 'ms, reverted');
+
+  /* --- gazetteer --- */
+  var ls = EatoutsLocations.stats();
+  assert(rows, 'Gazetteer loaded (28 districts)', ls.loaded && ls.districts === 28, ls.districts + ' districts');
+  assert(rows, 'Gazetteer has 486 towns', ls.towns === 486, ls.towns);
+  assert(rows, 'Gazetteer has 5,964 areas', ls.areas === 5964, ls.areas);
+  assert(rows, 'Orapa correctly reports zero areas',
+    !EatoutsLocations.hasAreas('05','Orapa'), 'escapes to "' + EatoutsLocations.OTHER_LABEL + '"');
+  assert(rows, 'Zero-area town offers the escape hatch',
+    EatoutsLocations.areaOptions('05','Orapa').some(function(o){ return o.value === EatoutsLocations.OTHER_LABEL; }));
+
+  /* --- seed location validation --- */
+  var probs = EatoutsSeed.validateLocations();
+  assert(rows, 'All 133 seed locations validate', probs.length === 0, probs.length ? probs[0].name + ': ' + probs[0].msg : '0 problems');
+
+  /* --- brand --- */
+  var soya = db.restaurants.find(function(r){ return r.slug === 'soya'; });
+  assert(rows, 'Soya resolves to its real logo', soya && soya.logo === EatoutsBrand.LOGOS.soya, soya ? soya.logo : 'not found');
+  assert(rows, 'Other restaurants use letter tiles',
+    db.restaurants.filter(function(r){ return r.slug !== 'soya'; }).every(function(r){ return !r.logo; }));
+  var palette = new Set(EatoutsBrand.PALETTE.map(function(p){ return p.name; }));
+  assert(rows, 'Palette has the 7 requested colours', palette.size === 7, Array.from(palette).join(', '));
+  var swatches = new Set(db.restaurants.map(function(r){ return EatoutsBrand.swatchFor(r.slug).name; }));
+  assert(rows, 'All 7 swatches are actually used', swatches.size === 7, swatches.size + ' in use');
+  assert(rows, 'Tile colour is stable for a given slug',
+    EatoutsBrand.swatchFor('nandos-riverwalk').bg === EatoutsBrand.swatchFor('nandos-riverwalk').bg);
+
+  /* --- whatsapp --- */
+  assert(rows, 'WhatsApp number is 26771844129', db.settings.whatsapp === '26771844129', db.settings.whatsapp);
+
+  /* --- ordering --- */
+  var sorted = EatoutsDB.byLastActive(db);
+  assert(rows, 'byLastActive returns newest first',
+    sorted.every(function(r, i){ return i === 0 || sorted[i-1].lastActive >= r.lastActive; }));
+  assert(rows, 'byLastActive preserves the roster', sorted.length === 133, sorted.length);
+
+  /* --- render */
+  var passed = rows.filter(function(r){ return r.pass; }).length;
+  var html = '<div class="row" style="border-bottom:1px solid #e7e4dd;font-weight:900">' +
+    '<span class="k">' + passed + ' / ' + rows.length + ' checks passed</span>' +
+    '<span class="v ' + (passed === rows.length ? 'pass' : 'fail') + '">' +
+    (passed === rows.length ? 'ALL GREEN' : (rows.length - passed) + ' FAILED') + '</span></div>';
+  html += rows.map(function(r){
+    return '<div class="row"><span class="k">' + esc(r.label) +
+      (r.detail ? ' <span class="pill">' + esc(r.detail) + '</span>' : '') +
+      '</span><span class="v ' + (r.pass ? 'pass' : 'fail') + '">' + (r.pass ? 'PASS' : 'FAIL') + '</span></div>';
+  }).join('');
+  document.getElementById('res').innerHTML = html;
+
+  log('');
+  log('=== ' + passed + '/' + rows.length + ' checks passed ===');
+}
+
+/* ============================ V1 MIGRATION ============================ */
+function doMigrate(){
+  log('');
+  log('--- v1 -> v2 migration test ---');
+  var v1 = {
+    version: 1,
+    restaurant: {
+      id: 'rest_legacy',
+      identity: { name: 'Legacy Diner', types: ['Cafe'], status: 'published', logo: null },
+      location: { city: 'Gaborone', area: 'CBD' },
+      contacts: [{ id: 'c1', purpose: 'Orders', number: '71844129' }],
+      socials: []
+    },
+    menuCategories: [{ id: 'mc1', name: 'Coffee' }],
+    menuItems: [{ id: 'mi1', categoryId: 'mc1', name: 'Flat White', basePrice: 30 }],
+    promos: [{ id: 'p1', title: 'Legacy Promo' }],
+    events: [],
+    performers: [],
+    galleryGroups: [],
+    settings: { currency: 'BWP', currencySymbol: 'P', plan: 'growth' }
+  };
+  localStorage.setItem(EatoutsDB.LEGACY_KEY, JSON.stringify(v1));
+  EatoutsDB.reset();
+  log('wrote a v1 blob to ' + EatoutsDB.LEGACY_KEY + ', cleared v2');
+  log('calling load() — should migrate automatically…');
+  var db = EatoutsDB.load();
+  log('migrated            : ' + !!db.migratedFrom);
+  log('restaurants         : ' + db.restaurants.length);
+  log('name preserved      : ' + (db.restaurants[0] && db.restaurants[0].name));
+  log('menuItems preserved : ' + (db.restaurants[0] ? db.restaurants[0].ownContent.menuItems.length : 0));
+  log('restaurantId stamped: ' + (db.restaurants[0] ? db.restaurants[0].ownContent.menuItems[0].restaurantId : 'n/a'));
+  log('settings preserved  : plan=' + db.settings.plan);
+  var rows = [];
+  assert(rows, 'v1 blob was migrated', !!db.migratedFrom);
+  assert(rows, 'v1 restaurant became restaurants[0]', db.restaurants.length === 1 && db.restaurants[0].name === 'Legacy Diner');
+  assert(rows, 'v1 menu items preserved', db.restaurants[0].ownContent.menuItems.length === 1);
+  assert(rows, 'Entities stamped with restaurantId', db.restaurants[0].ownContent.menuItems[0].restaurantId === 'rest_legacy');
+  assert(rows, 'v1 settings preserved', db.settings.plan === 'growth');
+  assert(rows, 'Migrated restaurant keeps its content (forked)', !!db.restaurants[0].ownContent);
+  var passed = rows.filter(function(r){ return r.pass; }).length;
+  document.getElementById('res').innerHTML =
+    '<div class="row"><span class="k">' + passed + ' / ' + rows.length + ' migration checks passed</span>' +
+    '<span class="v ' + (passed === rows.length ? 'pass' : 'fail') + '">' +
+    (passed === rows.length ? 'ALL GREEN' : 'FAILED') + '</span></div>' +
+    rows.map(function(r){
+      return '<div class="row"><span class="k">' + esc(r.label) + '</span>' +
+        '<span class="v ' + (r.pass ? 'pass' : 'fail') + '">' + (r.pass ? 'PASS' : 'FAIL') + '</span></div>';
+    }).join('');
+  log('');
+  log('Re-seed to restore the 133-restaurant roster.');
+}
+
+/* ============================ RESET ============================ */
+function doReset(){
+  EatoutsDB.reset();
+  localStorage.removeItem(EatoutsDB.LEGACY_KEY);
+  log('cleared ' + EatoutsDB.KEY + ' and ' + EatoutsDB.LEGACY_KEY);
+  document.getElementById('res').innerHTML = 'Database cleared. Click <b>Seed demo data</b> to rebuild.';
+  document.getElementById('towns').innerHTML = '';
+  document.getElementById('locs').innerHTML = '';
+  document.getElementById('thumbs').innerHTML = '';
+}
+
+/* ============================ RENDERS ============================ */
+function renderTowns(){
+  var st = EatoutsSeed.rosterStats();
+  var L = EatoutsLocations;
+  var html = '';
+  Object.keys(st.byTown).sort().forEach(function(t){
+    var d = null;
+    L.allDistricts().forEach(function(x){
+      L.towns(x.code).forEach(function(tw){ if (tw.name === t) d = x.name; });
+    });
+    html += '<div class="row"><span class="k">' + esc(t) + ' <span class="pill">' + esc(d || '—') + '</span></span>' +
+            '<span class="v">' + st.byTown[t] + '</span></div>';
+  });
+  html += '<div class="row" style="border-top:1px solid #e7e4dd"><span class="k">with a validated gazetteer area</span><span class="v">' + st.withArea + '</span></div>';
+  html += '<div class="row"><span class="k">with a landmark instead of an area</span><span class="v">' + st.withLandmark + '</span></div>';
+  document.getElementById('towns').innerHTML = html;
+}
+
+function renderLocs(){
+  var rows = EatoutsSeed.ROWS
+    .map(function(r){ return { name:r[0], code:r[1], town:r[2], area:r[3], lm:r[4] }; })
+    .filter(function(r){ return r.area || r.lm || r.town !== 'Gaborone'; });
+  document.getElementById('locs').innerHTML = rows.map(function(r){
+    return '<tr><td><b>' + esc(r.name) + '</b></td><td>' + esc(r.code) + '</td><td>' + esc(r.town) +
+      '</td><td>' + (r.area ? esc(r.area) : '<span class="pill">not guessed</span>') +
+      '</td><td>' + (r.lm ? esc(r.lm) : '—') + '</td></tr>';
+  }).join('');
+}
+
+function renderThumbs(){
+  var db = EatoutsDB.load();
+  var picks = db.restaurants.slice(0, 21);
+  document.getElementById('thumbs').innerHTML = picks.map(function(r){
+    return '<div style="text-align:center;width:74px">' +
+      EatoutsBrand.thumbHtml(r) +
+      '<div style="font-size:9px;color:#7a7466;margin-top:4px;line-height:1.2;overflow:hidden;height:22px">' +
+      esc(r.name) + '</div></div>';
+  }).join('');
+}
+
+/* ============================ WIRING ============================ */
+document.getElementById('btnSeed').onclick = doSeed;
+document.getElementById('btnVerify').onclick = function(){ log('--- verify ---'); verify(); };
+document.getElementById('btnReset').onclick = doReset;
+document.getElementById('btnMigrate').onclick = doMigrate;
+
+log('modules loaded:');
+log('  EatoutsLocations  ' + (typeof EatoutsLocations));
+log('  EatoutsBrand      ' + (typeof EatoutsBrand));
+log('  EatoutsDB         ' + (typeof EatoutsDB));
+log('  EatoutsSeed       ' + (typeof EatoutsSeed));
+log('  seed rows         ' + EatoutsSeed.ROWS.length);
+log('');
+var ls = EatoutsLocations.stats();
+log('gazetteer: ' + ls.districts + ' districts, ' + ls.towns + ' towns, ' + ls.areas + ' areas');
+log('districts with zero areas: ' + ls.districtsWithNoAreas.join(', '));
+log('zero-area towns: ' + ls.townsWithNoAreas.join(', '));
+log('');
+log('Click "Seed demo data" to begin.');
+renderTowns();
+renderLocs();
+</script>
+</body>
+</html>

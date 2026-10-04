@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Menu Management — Eatouts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--border:#e7e4dd;--ok:#17834b;--danger:#c43c3c;--radius:16px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:16px;letter-spacing:-.02em;color:var(--black)}
+.brand span{color:var(--gold)}
+.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.tabs{position:sticky;top:57px;z-index:49;background:#fff;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 8px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:12px 14px;font-size:12.5px;font-weight:800;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+.tab.active{color:var(--black);border-bottom-color:var(--gold)}
+.app{max-width:1180px;margin:0 auto;padding-bottom:130px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;padding:14px}
+.cat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;overflow:hidden}
+.cat-hdr{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.cat-hdr .t{flex:1;font-weight:800;font-size:14.5px}
+.cat-hdr .m{font-size:11.5px;color:var(--muted);font-weight:700}
+.item-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--border)}
+.item-row .thumb{width:44px;height:44px;border-radius:10px;background:#f0eee8;display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;flex:0 0 auto}
+.item-row .thumb img{width:100%;height:100%;object-fit:cover}
+.item-row .info{flex:1;min-width:0}
+.item-row .nm{font-weight:800;font-size:13.5px}
+.item-row .pr{font-size:12.5px;color:var(--gold);font-weight:800;margin-top:2px}
+.item-row .st{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-top:2px}
+.empty{border:1.5px dashed var(--border);border-radius:14px;padding:22px 16px;text-align:center;color:var(--muted);font-size:13px}
+.btn{min-height:44px;border:0;border-radius:12px;padding:0 16px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:var(--black);color:#fff}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:#3a3324}
+.btn-danger{background:#fbeaea;color:var(--danger)}
+.btn-sm{min-height:34px;padding:0 11px;font-size:11.5px;border-radius:9px}
+.btn-full{width:100%}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.field{margin-bottom:14px}
+.field label{display:block;margin-bottom:7px;font-size:12.5px;font-weight:750;color:#3a3324}
+input,textarea,select{width:100%;min-height:46px;border:1px solid var(--border);border-radius:12px;padding:11px 13px;background:#fff;color:var(--text);font:inherit;font-size:13.5px;outline:0}
+textarea{min-height:80px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.action-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:1180px;background:#fff;border-top:1px solid var(--border);border-left:1px solid var(--border);border-right:1px solid var(--border);border-radius:16px 16px 0 0;padding:12px 16px;display:flex;gap:10px;z-index:40;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.action-bar .btn{flex:1}
+.modal-scrim{position:fixed;inset:0;background:rgba(20,18,14,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:701px){.modal-scrim{align-items:center;padding:20px}}
+.modal{background:#fff;width:100%;max-width:560px;max-height:92vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
+@media(min-width:701px){.modal{border-radius:20px}}
+.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.modal-hdr h3{margin:0;font-size:15px;font-weight:800;flex:1}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;background:#fafaf7}
+.modal-foot .btn{flex:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.variants .vrow,.mods .mrow{display:grid;grid-template-columns:1fr 90px 44px 44px;gap:6px;align-items:center;margin-bottom:6px}
+.variants .vrow input,.mods .mrow input{min-height:38px;font-size:13px}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.badge.available{background:#e3f5e9;color:#17834b}
+.badge.sold-out{background:#fbeaea;color:var(--danger)}
+.badge.hidden{background:#eee;color:#999}
+.badge.temp{background:#fdf3dc;color:#9a6a0a}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">EAT<span>OUTS</span></div>
+  <div class="page">Menu Management</div>
+</header>
+<nav class="tabs">
+  <a class="tab" href="restaurant-onboarding.html">Restaurant</a>
+  <a class="tab active" href="menu-onboarding.html">Menu</a>
+  <a class="tab" href="promo-onboarding.html">Promos</a>
+  <a class="tab" href="event-onboarding.html">Events</a>
+  <a class="tab" href="gallery-onboarding.html">Gallery</a>
+  <a class="tab" href="restaurant-dashboard.html">Dashboard</a>
+</nav>
+
+<main id="app" class="app"></main>
+<div class="action-bar">
+  <button class="btn btn-ghost" id="btnPreviewMenu">Preview Customer Menu</button>
+  <button class="btn btn-gold" id="btnAddCat">+ Add Category</button>
+</div>
+<div id="toast" class="toast"></div>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-owner-compat.js"></script>
+<script>
+/* Operator pages are only reachable through the About Us sign-in.
+   This runs before any page content paints. */
+if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
+else{EatoutsAuth.applyActive();}
+</script>
+<script>
+const DB_KEY=EatoutsDB.KEY;
+const EMPTY_DB={version:1,restaurant:{id:'rest_001',identity:{name:'',status:'draft'},location:{city:'',area:''}},menuCategories:[],menuItems:[],promos:[],events:[],performers:[],performances:[],galleryGroups:[],galleryImages:[],settings:{currency:'BWP',currencySymbol:'P'}};
+function dbLoad(){return EatoutsOwnerCompat.load();}
+function dbSave(d){EatoutsOwnerCompat.save(d);}
+function uid(p){return p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
+let DB=dbLoad();
+function save(){dbSave(DB);render();}
+
+/* ========== MODAL ========== */
+function openForm({title,fields,values,onSave,saveLabel,size}){
+  values=values||{};
+  const scrim=document.createElement('div');
+  scrim.className='modal-scrim';
+  scrim.innerHTML=`<div class="modal" ${size==='lg'?'style="max-width:640px"':''}>
+    <div class="modal-hdr"><h3>${esc(title)}</h3><button class="btn btn-ghost btn-sm" data-close>Close</button></div>
+    <div class="modal-body" id="modalBody">${fields.map(f=>renderField(f,values[f.key])).join('')}</div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close>Cancel</button>
+      <button class="btn btn-gold" data-save>${esc(saveLabel||'Save')}</button>
+    </div></div>`;
+  document.body.appendChild(scrim);
+  scrim.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>scrim.remove());
+  scrim.querySelector('[data-save]').onclick=()=>{
+    const out={};
+    scrim.querySelectorAll('[name]').forEach(el=>{
+      const k=el.getAttribute('name');
+      if(el.type==='checkbox')out[k]=el.checked;
+      else if(el.type==='number')out[k]=el.value===''?null:Number(el.value);
+      else out[k]=el.value;
+    });
+    onSave(out,scrim);
+  };
+  return scrim;
+}
+function renderField(f,v){
+  if(f.type==='html')return f.html;
+  if(f.type==='textarea')return `<div class="field"><label>${esc(f.label)}</label><textarea name="${f.key}">${esc(v||'')}</textarea>${f.hint?`<div class="hint" style="font-size:11px;color:var(--muted);margin-top:4px">${esc(f.hint)}</div>`:''}</div>`;
+  if(f.type==='select')return `<div class="field"><label>${esc(f.label)}</label><select name="${f.key}">${(f.options||[]).map(o=>{const val=typeof o==='string'?o:o.value;const lbl=typeof o==='string'?o:o.label;return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lbl)}</option>`;}).join('')}</select></div>`;
+  if(f.type==='checkbox')return `<label style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:13px;font-weight:700"><input type="checkbox" name="${f.key}" ${v?'checked':''}> ${esc(f.label)}</label>`;
+  return `<div class="field"><label>${esc(f.label)}</label><input type="${f.type||'text'}" name="${f.key}" value="${esc(v||'')}" placeholder="${esc(f.placeholder||'')}"></div>`;
+}
+
+/* ========== RENDER ========== */
+function render(){
+  const cats=DB.menuCategories;
+  const items=DB.menuItems;
+  let h=`<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+    <div><div style="font-weight:800;font-size:14.5px">Menu</div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:2px">${cats.length} categories · ${items.length} items</div></div>
+    <button class="btn btn-ghost btn-sm" id="btnAddCat2">+ Category</button>
+  </div>`;
+  if(!cats.length) h+=`<div class="empty">No categories yet. Tap <b>+ Add Category</b> to start building the menu.</div>`;
+  cats.forEach(c=>{
+    const cItems=items.filter(i=>i.categoryId===c.id);
+    h+=`<div class="cat-card">
+      <div class="cat-hdr" data-act="toggleCat" data-id="${c.id}">
+        <div style="width:40px;height:40px;border-radius:10px;background:#f0eee8;display:flex;align-items:center;justify-content:center;font-size:18px">${esc(c.icon||'📂')}</div>
+        <div class="t">${esc(c.name)}<div class="m">${cItems.length} item${cItems.length===1?'':'s'}${c.visible===false?' · Hidden':''}</div></div>
+        <button class="btn btn-ghost btn-sm" data-act="editCat" data-id="${c.id}">Edit</button>
+      </div>`;
+    if(OPEN[c.id]!==false){
+      cItems.forEach(it=>{
+        h+=`<div class="item-row">
+          <div class="thumb">${it.image?`<img src="${esc(it.image)}" alt="">`:'🍽'}</div>
+          <div class="info">
+            <div class="nm">${esc(it.name)}</div>
+            <div class="pr">${it.variants&&it.variants.length?('From '+money(it.variants[0].price)):money(it.basePrice)}</div>
+            <div class="st">${statusBadge(it.status)}</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" data-act="editItem" data-id="${it.id}">Edit</button>
+          <button class="btn btn-danger btn-sm" data-act="delItem" data-id="${it.id}">✕</button>
+        </div>`;
+      });
+      h+=`<div style="padding:12px 16px;border-top:1px solid var(--border)"><button class="btn btn-ghost btn-full" data-act="addItem" data-cat="${c.id}">+ Add Item</button></div>`;
+    }
+    h+=`</div>`;
+  });
+  document.getElementById('app').innerHTML=h;
+  document.getElementById('btnAddCat2').onclick=()=>addCategory();
+}
+const OPEN={};
+const money=v=>DB.settings.currencySymbol+(Number(v)||0).toFixed(2);
+function statusBadge(s){
+  const map={available:'available',"sold-out":'sold-out',"temporarily-unavailable":'temp',hidden:'hidden'};
+  const labels={available:'Available',"sold-out":'Sold Out',"temporarily-unavailable":'Temp. Unavailable',hidden:'Hidden'};
+  s=s||'available';
+  return `<span class="badge ${map[s]}">${labels[s]}</span>`;
+}
+
+/* ========== CATEGORY / ITEM LOGIC ========== */
+const ITEM_TYPES=['starter','main','side','dessert','snack','bakery','breakfast','soft-drink','juice','water','energy-drink','hot-beverage','coffee','tea','smoothie','milkshake','beer','cider','wine','spirit','cocktail','mocktail','other'];
+
+function addCategory(){
+  openForm({title:'Add Category',fields:[
+    {key:'name',label:'Category Name',placeholder:'e.g. Burgers'},
+    {key:'icon',label:'Icon (emoji)',placeholder:'🍔'},
+    {key:'description',label:'Description',type:'textarea'},
+    {key:'visible',label:'Visible to customers',type:'checkbox'}
+  ],values:{visible:true},onSave:v=>{
+    DB.menuCategories.push({id:uid('cat'),order:DB.menuCategories.length+1,visible:true,...v});
+    save();
+  }});
+}
+function editCategory(c){
+  openForm({title:'Edit Category',values:c,fields:[
+    {key:'name',label:'Category Name'},
+    {key:'icon',label:'Icon (emoji)'},
+    {key:'description',label:'Description',type:'textarea'},
+    {key:'visible',label:'Visible to customers',type:'checkbox'}
+  ],onSave:v=>{Object.assign(c,v);save();}});
+}
+
+function addItem(catId){
+  const cat=DB.menuCategories.find(c=>c.id===catId);
+  openForm({title:'Add Menu Item — '+(cat?cat.name:''),size:'lg',fields:[
+    {key:'name',label:'Item Name *'},
+    {key:'type',label:'Item Type',type:'select',options:ITEM_TYPES},
+    {key:'description',label:'Description',type:'textarea'},
+    {key:'image',label:'Image URL',placeholder:'assets/images/food/…'},
+    {key:'basePrice',label:'Base Price (P)',type:'number'},
+    {key:'preparationMinutes',label:'Preparation Time (minutes)',type:'number'},
+    {key:'status',label:'Status',type:'select',options:[
+      {value:'available',label:'Available'},
+      {value:'sold-out',label:'Sold Out'},
+      {value:'temporarily-unavailable',label:'Temporarily Unavailable'},
+      {value:'hidden',label:'Hidden'}
+    ]},
+    {key:'tags',label:'Tags (comma separated)',placeholder:'Popular, Spicy'}
+  ],values:{status:'available'},onSave:v=>{
+    const item={id:uid('item'),categoryId:catId,order:DB.menuItems.length+1,
+      name:v.name,type:v.type,description:v.description,image:v.image,
+      basePrice:v.basePrice||0,preparationMinutes:v.preparationMinutes||null,
+      status:v.status,tags:(v.tags||'').split(',').map(s=>s.trim()).filter(Boolean),
+      variants:[],modifierGroups:[]};
+    DB.menuItems.push(item);save();
+    setTimeout(()=>editItem(item),10);
+  }});
+}
+
+function editItem(it){
+  const sizes=it.variants||[];
+  const mods=it.modifierGroups||[];
+  const variantsHTML=sizes.map((v,i)=>`
+    <div class="vrow" data-vi="${i}">
+      <input data-v="name" value="${esc(v.name||'')}" placeholder="Size label">
+      <input data-v="price" type="number" value="${v.price||0}" placeholder="Price">
+      <button type="button" class="btn btn-ghost btn-sm" data-vdel="${i}">✕</button>
+      <span></span>
+    </div>`).join('');
+  const modsHTML=mods.map((g,i)=>`
+    <div class="mrow" data-mi="${i}" style="grid-template-columns:1fr 60px 44px 44px">
+      <input data-m="name" value="${esc(g.name||'')}" placeholder="Group name (e.g. Extras)">
+      <input data-m="required" type="checkbox" ${g.required?'checked':''} title="Required">
+      <button type="button" class="btn btn-ghost btn-sm" data-mopts="${i}">…</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-mdel="${i}">✕</button>
+    </div>`).join('');
+  const scrim=openForm({title:'Edit Item',size:'lg',fields:[
+    {key:'name',label:'Item Name',value:it.name},
+    {key:'type',label:'Item Type',type:'select',options:ITEM_TYPES,value:it.type},
+    {key:'description',label:'Description',type:'textarea',value:it.description},
+    {key:'image',label:'Image URL',value:it.image},
+    {key:'basePrice',label:'Base Price (P)',type:'number',value:it.basePrice},
+    {key:'status',label:'Status',type:'select',options:[
+      {value:'available',label:'Available'},{value:'sold-out',label:'Sold Out'},
+      {value:'temporarily-unavailable',label:'Temporarily Unavailable'},{value:'hidden',label:'Hidden'}],value:it.status},
+    {key:'__variants',type:'html',html:`<div class="field"><label>Variants</label><div class="variants" id="varList">${variantsHTML||'<div style="color:var(--muted);font-size:12px;margin-bottom:6px">No variants. Add Small / Medium / Large, etc.</div>'}</div><button type="button" class="btn btn-ghost btn-sm" id="addVar">+ Add Variant</button></div>`},
+    {key:'__mods',type:'html',html:`<div class="field"><label>Modifier Groups</label><div class="mods" id="modList">${modsHTML||'<div style="color:var(--muted);font-size:12px;margin-bottom:6px">No modifier groups. Add Extras / Choose your sauce.</div>'}</div><button type="button" class="btn btn-ghost btn-sm" id="addMod">+ Add Modifier Group</button></div>`}
+  ],values:it,saveLabel:'Save Item',onSave:v=>{
+    Object.assign(it,{name:v.name,type:v.type,description:v.description,image:v.image,
+      basePrice:v.basePrice||0,status:v.status,
+      variants:collectVariants(scrim),modifierGroups:collectMods(scrim)});
+    save();
+  }});
+  setTimeout(()=>{
+    scrim.querySelector('#addVar').onclick=()=>addVarRow(scrim,{name:'',price:0});
+    scrim.querySelector('#addMod').onclick=()=>addModRow(scrim,{name:'',required:false});
+    bindVariantBtns(scrim);
+    bindModBtns(scrim);
+    it.variants.forEach(v=>addVarRow(scrim,v,true));
+    it.modifierGroups.forEach(g=>addModRow(scrim,g,true));
+    scrim.querySelectorAll('#varList .vrow').forEach(r=>r.remove());
+    scrim.querySelectorAll('#modList .mrow').forEach(r=>r.remove());
+    (it.variants||[]).forEach(v=>addVarRow(scrim,v));
+    (it.modifierGroups||[]).forEach(g=>addModRow(scrim,g));
+  },10);
+}
+function collectVariants(scrim){
+  const out=[];
+  scrim.querySelectorAll('#varList .vrow').forEach(r=>{
+    const name=r.querySelector('[data-v="name"]').value.trim();
+    const price=Number(r.querySelector('[data-v="price"]').value)||0;
+    if(name) out.push({id:uid('var'),name,price,available:true});
+  });
+  return out;
+}
+function collectMods(scrim){
+  const out=[];
+  scrim.querySelectorAll('#modList .mrow').forEach(r=>{
+    const name=r.querySelector('[data-m="name"]').value.trim();
+    const required=r.querySelector('[data-m="required"]').checked;
+    if(name) out.push({id:uid('modgrp'),name,required,minSelections:0,maxSelections:10,modifiers:[]});
+  });
+  return out;
+}
+function addVarRow(scrim,v,skipInit){
+  const list=scrim.querySelector('#varList');if(!list)return;
+  const div=document.createElement('div');
+  div.className='vrow';
+  div.innerHTML=`<input data-v="name" value="${esc(v.name||'')}" placeholder="Size label">
+    <input data-v="price" type="number" value="${v.price||0}" placeholder="Price">
+    <button type="button" class="btn btn-ghost btn-sm" data-vdel>✕</button><span></span>`;
+  list.appendChild(div);
+  div.querySelector('[data-vdel]').onclick=()=>div.remove();
+}
+function addModRow(scrim,g,skipInit){
+  const list=scrim.querySelector('#modList');if(!list)return;
+  const div=document.createElement('div');
+  div.className='mrow';
+  div.innerHTML=`<input data-m="name" value="${esc(g.name||'')}" placeholder="Group name">
+    <input data-m="required" type="checkbox" ${g.required?'checked':''}>
+    <button type="button" class="btn btn-ghost btn-sm" data-mopts>…</button>
+    <button type="button" class="btn btn-ghost btn-sm" data-mdel>✕</button>`;
+  list.appendChild(div);
+  div.querySelector('[data-mdel]').onclick=()=>div.remove();
+  div.querySelector('[data-mopts]').onclick=()=>alert('Modifiers editor coming in the next iteration.');
+}
+function bindVariantBtns(){}
+function bindModBtns(){}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');if(!t)return;
+  const act=t.getAttribute('data-act');const id=t.getAttribute('data-id');
+  if(act==='toggleCat'){OPEN[id]=OPEN[id]===false?true:false;render();return;}
+  if(act==='editCat'){const c=DB.menuCategories.find(x=>x.id===id);if(c)editCategory(c);return;}
+  if(act==='addItem'){addItem(t.getAttribute('data-cat'));return;}
+  if(act==='editItem'){const it=DB.menuItems.find(x=>x.id===id);if(it)editItem(it);return;}
+  if(act==='delItem'){if(confirm('Remove this item?')){DB.menuItems=DB.menuItems.filter(x=>x.id!==id);save();}return;}
+});
+
+document.getElementById('btnAddCat').onclick=addCategory;
+document.getElementById('btnPreviewMenu').onclick=()=>window.open('index.html','_blank');
+
+render();
+</script>
+</body>
+</html>

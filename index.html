@@ -7,9 +7,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>The Yellow Giraffe Coffee Club</title>
+<title>EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
 <style>
 *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* Fallback so .fpop-scrim's clip-path stays valid before the first measurement
+   (and if the observer never runs): a 0px bottom inset just means the blur
+   reaches the screen edge. Layout never depends on this value. */
+:root{--navh:0px}
 html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#f0ece2}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#1a1a1a;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 ::-webkit-scrollbar{width:0;height:0;display:none}
@@ -22,7 +28,9 @@ img{display:block;max-width:100%}
 @media(min-width:520px){#shell{border-left:1px solid #e8e3d8;border-right:1px solid #e8e3d8}}
 
 /* ---------- HEADER (WHITE) ---------- */
-#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#ffffff;border-bottom:1px solid #ece7db;position:relative;z-index:40;padding-top:env(safe-area-inset-top)}
+/* z-index 58 keeps the header above .fpop-scrim (55) so it is never blurred,
+   while staying below .fpop (60) so an open menu still overlays it. */
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#ffffff;border-bottom:1px solid #ece7db;position:relative;z-index:58;padding-top:env(safe-area-inset-top)}
 #hdr.hide{display:none}
 .brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden}
 .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
@@ -37,7 +45,9 @@ img{display:block;max-width:100%}
 .scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#ffffff}
 
 /* ---------- BOTTOM NAV (BLACK, WHITE ICONS, NO TEXT) ---------- */
-#nav{flex:0 0 auto;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
+/* position:relative is load-bearing: without it the element is static and
+   z-index is inert, so the nav could never sit above .fpop-scrim. */
+#nav{flex:0 0 auto;position:relative;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
 .nav-btn{flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.42);transition:color .18s}
 .nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
 .nav-btn.on{color:#ffffff}
@@ -49,21 +59,33 @@ img{display:block;max-width:100%}
 #cbar.on{display:block}
 
 /* ---------- FLOATING FILTER POPUP (lightweight overlay) ---------- */
-.fpop-scrim{position:fixed;inset:0;z-index:55}
+/* Frosted backdrop for all 5 picker popups. The scrim sits above page content
+   but below .fpop (60) and .pfbtn (56), so the menu and its trigger stay sharp.
+   -webkit- prefix is required: Safari ignores the unprefixed form entirely.
+
+   clip-path confines the *paint* to the app column and to the band between
+   header and nav, so the header, the bottom nav and the grey gutters either
+   side of #shell stay crisp. It does NOT shrink the element's hit area, so
+   tap-to-dismiss still works anywhere on screen.
+
+   Insets: 58px clears #hdr (height:58px); the horizontal max(0px,...) pair
+   tracks #shell's max-width:460px (keep those two in sync); var(--navh) is
+   measured at runtime because it varies with env(safe-area-inset-bottom). */
+.fpop-scrim{position:fixed;inset:0;z-index:55;background:rgba(20,18,12,.28);backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);clip-path:inset(58px max(0px,calc((100% - 460px)/2)) var(--navh) max(0px,calc((100% - 460px)/2)))}
 .fpop{position:absolute;left:8px;right:8px;bottom:calc(100% + 8px);background:#ffffff;border:1px solid #ece7db;border-radius:14px;box-shadow:0 -6px 26px -6px rgba(0,0,0,.2);overflow:hidden;z-index:60;animation:fpop .18s ease}
 @keyframes fpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .fpop button{display:block;width:100%;padding:12px 14px;font-size:12.5px;font-weight:700;color:#3a3324;border-bottom:1px solid #f4efe4;text-align:left}
 .fpop button:last-child{border-bottom:0}
 .fpop button:active{background:#faf8f2}
-.fpop button.on{color:#8a6a0a;font-weight:900;background:#fdf9ef}
+.fpop button.on{color:#1a1a1a;font-weight:900;background:#f2f1ee}
 
 /* ---------- COMMON ---------- */
 .pad{padding:14px}
 .subh{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#a89a7e;font-weight:800;margin:0 0 9px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 15px;border-radius:11px;font-size:12.5px;font-weight:800;background:#f7f4ec;border:1px solid #ece7db;color:#3a3324;letter-spacing:.02em;transition:background .15s}
 .btn:active{background:#efe9da}
-.btn.primary{background:linear-gradient(150deg,#d4a017,#8a6a0a);border-color:#d4a017;color:#ffffff}
-.btn.primary:active{background:linear-gradient(150deg,#bd8e0f,#745808)}
+.btn.primary{background:#0d0d0d;border-color:#0d0d0d;color:#ffffff}
+.btn.primary:active{background:#000000}
 .btn.wa{background:#dff5e4;border-color:#b8e6c1;color:#1c6b2e}
 .btn.wa:active{background:#c9ecd0}
 .btn.full{width:100%}
@@ -82,9 +104,9 @@ img{display:block;max-width:100%}
 .day{width:100%;height:56px;min-width:0;border-radius:14px;border:1px solid #ece7db;background:#faf8f2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#a89a7e;transition:all .16s;padding:0}
 .day b{font-size:9.5px;font-weight:800;letter-spacing:.09em}
 .day span{font-size:15px;font-weight:900;color:#3a3324}
-.day.on{background:linear-gradient(160deg,#d4a017,#8a6a0a);border-color:#d4a017;color:#ffffff}
+.day.on{background:#0d0d0d;border-color:#0d0d0d;color:#ffffff}
 .day.on span{color:#ffffff}
-.day.td:not(.on){border-color:#d4a017}
+.day.td:not(.on){border-color:#1a1a1a}
 
 /* ---------- PROMO CARD (ACCORDION, IMAGE-ONLY) ---------- */
 .pcard{margin:12px 14px;border-radius:16px;overflow:hidden;background:#ffffff;border:1px solid #ece7db;box-shadow:0 2px 8px -4px rgba(0,0,0,.06)}
@@ -96,12 +118,12 @@ img{display:block;max-width:100%}
 @keyframes fd{from{opacity:0}to{opacity:1}}
 .phead-btn{display:block;width:100%;padding:0;margin:0 0 10px}
 .phead-btn h3{margin:0 0 6px;font-size:17px;font-weight:900;color:#1a1a1a;line-height:1.2;letter-spacing:-.01em}
-.pprice{font-size:15px;font-weight:900;color:#8a6a0a;letter-spacing:-.01em}
+.pprice{font-size:15px;font-weight:900;color:#1a1a1a;letter-spacing:-.01em}
 .pprice .pwas{font-size:11.5px;font-weight:700;color:#b5a888;text-decoration:line-through;margin-left:6px;letter-spacing:0}
 .phl{margin:0;padding:0;list-style:none}
 .phl li{font-size:12px;color:#5c5547;line-height:1.5;padding:7px 0 7px 14px;position:relative;border-bottom:1px solid #f4efe4}
 .phl li:last-child{border-bottom:0}
-.phl li::before{content:"";position:absolute;left:0;top:14px;width:5px;height:5px;border-radius:50%;background:#d4a017}
+.phl li::before{content:"";position:absolute;left:0;top:14px;width:5px;height:5px;border-radius:50%;background:#1a1a1a}
 
 /* ---------- EVENT CARD (ACCORDION) ---------- */
 .ecard{margin:12px 14px;border-radius:16px;overflow:hidden;background:#ffffff;border:1px solid #ece7db;box-shadow:0 2px 8px -4px rgba(0,0,0,.06)}
@@ -113,20 +135,20 @@ img{display:block;max-width:100%}
 .acc-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
 .acc-wrap>.acc-in{overflow:hidden;min-height:0}
 .ecard.open>.acc-wrap,.mitem.open>.acc-wrap{grid-template-rows:1fr}
-@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}}
+@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}}
 
 /* ---------- COUNTERS ---------- */
 .ctr{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#faf8f2;border:1px solid #f1ece1;border-radius:12px;margin-bottom:7px}
 .ctr .lbl{font-size:12.5px;font-weight:700;color:#3a3324;display:flex;flex-direction:column}
 .ctr .lbl em{font-style:normal;font-size:10px;color:#a89a7e;font-weight:600;letter-spacing:.03em;margin-top:2px}
 .stp{display:flex;align-items:center;border:1px solid #e2dcc9;border-radius:10px;overflow:hidden;background:#ffffff}
-.stp button{width:34px;height:32px;font-size:16px;font-weight:800;color:#8a6a0a;display:flex;align-items:center;justify-content:center}
+.stp button{width:34px;height:32px;font-size:16px;font-weight:800;color:#1a1a1a;display:flex;align-items:center;justify-content:center}
 .stp button:active{background:#f4efe4}
 .stp .val{min-width:30px;text-align:center;font-size:13.5px;font-weight:900;color:#1a1a1a;padding:0 3px}
 
-.tbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;margin:12px 0;border-radius:13px;background:linear-gradient(150deg,rgba(212,160,23,.12),rgba(212,160,23,.03));border:1px solid rgba(212,160,23,.3)}
-.tbar .tl{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#8a6a0a;font-weight:800}
-.tbar .tv{font-size:19px;font-weight:900;color:#8a6a0a;letter-spacing:-.01em}
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;margin:12px 0;border-radius:13px;background:#f4f4f2;border:1px solid #e4e4e0}
+.tbar .tl{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#1a1a1a;font-weight:800}
+.tbar .tv{font-size:19px;font-weight:900;color:#1a1a1a;letter-spacing:-.01em}
 
 /* ---------- MENU ---------- */
 .cat-row{display:flex;align-items:center;gap:13px;padding:15px 16px;border-bottom:1px solid #f1ece1;background:#ffffff;width:100%}
@@ -143,7 +165,7 @@ img{display:block;max-width:100%}
 .mthumb>img{width:100%;height:100%;object-fit:cover;display:block}
 .minfo{flex:1;min-width:0}
 .mtitle{font-size:13.5px;font-weight:800;color:#1a1a1a;line-height:1.28}
-.mprice{font-size:12.5px;font-weight:900;color:#8a6a0a;margin-top:3px;letter-spacing:.01em}
+.mprice{font-size:12.5px;font-weight:900;color:#1a1a1a;margin-top:3px;letter-spacing:.01em}
 .mbody{padding:0 14px 15px;animation:fd .2s ease;background:#faf8f2;border-top:1px solid #f1ece1}
 .mdesc{font-size:12px;color:#5c5547;line-height:1.55;margin:12px 0 12px}
 /* 3-up paging: each thumb is (100% - 2 gaps)/3 so exactly three fit,
@@ -158,9 +180,9 @@ img{display:block;max-width:100%}
 .cbar{display:flex;align-items:center;gap:12px;padding:11px 14px}
 .cbtot{flex:1;display:flex;flex-direction:column}
 .cbtot span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#a89a7e;font-weight:800}
-.cbtot b{font-size:17px;font-weight:900;color:#8a6a0a}
-.cbbtn{padding:13px 24px;border-radius:12px;font-size:12.5px;font-weight:900;letter-spacing:.04em;background:linear-gradient(150deg,#d4a017,#8a6a0a);color:#ffffff}
-.cbbtn:active{background:linear-gradient(150deg,#bd8e0f,#745808)}
+.cbtot b{font-size:17px;font-weight:900;color:#1a1a1a}
+.cbbtn{padding:13px 24px;border-radius:12px;font-size:12.5px;font-weight:900;letter-spacing:.04em;background:#0d0d0d;color:#ffffff}
+.cbbtn:active{background:#000000}
 .cbbtn[disabled]{opacity:.35}
 
 /* cart summary strip: whole left block is a tap target for checkout */
@@ -178,10 +200,10 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .co-thumb>img{width:100%;height:100%;object-fit:cover;display:block}
 .co-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .co-name{font-size:12.5px;font-weight:800;color:#1a1a1a;line-height:1.3}
-.co-name em{font-style:normal;font-weight:700;color:#8a6a0a}
-.co-sub{font-size:10.5px;color:#8a6a0a;font-weight:800}
+.co-name em{font-style:normal;font-weight:700;color:#1a1a1a}
+.co-sub{font-size:10.5px;color:#1a1a1a;font-weight:800}
 .co-meta{font-size:10px;color:#a89a7e;font-weight:700}
-.co-edit{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#8a6a0a;flex:0 0 auto}
+.co-edit{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#1a1a1a;flex:0 0 auto}
 .co-step{flex:0 0 auto}
 .co-open{border-top:1px solid #f1ece1;padding:11px 12px;background:#ffffff}
 .co-desc{margin:0 0 10px;font-size:11.5px;line-height:1.55;color:#5c5546}
@@ -189,13 +211,13 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .co-exsum{font-size:10.5px;color:#8a8170;padding:2px 0 6px}
 .co-none{font-size:10.5px;color:#a89a7e;font-weight:700;padding:2px 0}
 .co-foot{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#a89a7e;margin-top:10px;padding-top:9px;border-top:1px solid #f4efe4}
-.co-foot b{font-size:13px;letter-spacing:-.01em;color:#8a6a0a}
+.co-foot b{font-size:13px;letter-spacing:-.01em;color:#1a1a1a}
 
 /* ---------- FORMS ---------- */
 .fld{margin-bottom:11px}
 .fld label{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#a89a7e;font-weight:800;margin-bottom:6px}
 .fld input,.fld textarea{width:100%;padding:12px 13px;background:#faf8f2;border:1px solid #ece7db;border-radius:11px;color:#1a1a1a;font-size:13px;outline:none;transition:border-color .16s}
-.fld input:focus,.fld textarea:focus{border-color:#d4a017;background:#ffffff}
+.fld input:focus,.fld textarea:focus{border-color:#1a1a1a;background:#ffffff}
 .fld textarea{resize:none;min-height:76px;line-height:1.5}
 
 /* ---------- LISTS ---------- */
@@ -229,7 +251,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .swiper>.slide>img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block}
 .dots{display:flex;gap:5px;justify-content:center;padding:10px 0;flex:0 0 auto;z-index:5}
 .dots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.22);display:block}
-.dots i.on{background:#d4a017;width:16px;border-radius:3px}
+.dots i.on{background:#1a1a1a;width:16px;border-radius:3px}
 
 /* ---------- ABOUT ---------- */
 .about-hero{padding:26px 18px 20px;background:#ffffff;border-bottom:1px solid #ece7db}
@@ -239,53 +261,188 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #f4efe4}
 .kv .k{font-size:11.5px;color:#a89a7e;font-weight:700}
 .kv .v{font-size:11.5px;color:#3a3324;font-weight:700;text-align:right}
+/* ---------- ABOUT: stacked centred blocks ---------- */
+.about-sec{margin:26px 0 4px;font-size:12px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#8a8170;text-align:center}
+.about-sec::after{content:"";display:block;width:34px;height:2px;border-radius:2px;background:#1a1a1a;margin:9px auto 0}
+.ablock{padding:15px 2px;border-bottom:1px solid #f4efe4;text-align:center}
+.ablock:last-child{border-bottom:0}
+.ablock .abh{font-size:11px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:#a89a7e;margin:0 0 6px}
+.ablock .abv{font-size:13px;font-weight:600;line-height:1.55;color:#26221a;margin:0}
+/* ---------- FEATURE PILLS ---------- */
+/* .tagwrap stays left-aligned: it is shared with the venue and
+   restaurant-about tag rows. Opt into centring with .center. */
 .tagwrap{display:flex;flex-wrap:wrap;gap:6px;padding-top:4px}
+.tagwrap.center{justify-content:center}
 .chip{font-size:10px;font-weight:800;letter-spacing:.05em;padding:5px 10px;border-radius:20px;background:#faf8f2;border:1px solid #ece7db;color:#5c5547}
-.chip.g{background:rgba(212,160,23,.12);border-color:rgba(212,160,23,.32);color:#8a6a0a}
+.chip.pill{font-size:11px;font-weight:700;letter-spacing:.02em;padding:7px 14px;border-radius:999px}
+.chip.g{background:rgba(26,26,26,.06);border-color:rgba(26,26,26,.18);color:#1a1a1a}
 
-/* ---------- SOCIAL ICON ROW ---------- */
-.social-row{display:flex;gap:10px;margin:16px 0 4px;justify-content:center}
-.social-ico{flex:1 1 0;max-width:68px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:#faf8f2;border:1px solid #ece7db;border-radius:14px;padding:9px;text-decoration:none}
-.social-ico:active{background:#f4efe4}
+/* ---------- SOCIAL ICON ROW ----------
+   Bare icons only: the PNGs carry their own brand disc, so the anchor
+   stays a plain hit area (no border/background/radius). The row is
+   capped at 216px = 5 slots of 40px + 4 gaps of 4px, which is what
+   keeps it to a maximum of five icons per line. */
+.social-row{display:flex;flex-wrap:wrap;gap:4px;max-width:216px;margin:16px auto 4px;justify-content:center;align-items:center}
+.social-ico{flex:0 0 auto;width:40px;height:40px;display:flex;align-items:center;justify-content:center;padding:5px;border:none;border-radius:0;background:transparent;box-shadow:none;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.social-ico:active{opacity:.65}
 .social-ico img{width:100%;height:100%;object-fit:contain;display:block}
+/* an icon with no destination yet: shown for completeness, not clickable */
+.social-ico.inert{opacity:.3;pointer-events:none;cursor:default}
+/* the GPS pin is a bare glyph, so give it a touch more size than the discs */
+.social-ico.gps img{width:34px;height:34px}
 
 /* ---------- CRUMB ---------- */
 .crumb{display:flex;align-items:center;gap:8px;padding:12px 16px 10px;flex-wrap:wrap;background:#ffffff}
 .crumb button{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#a89a7e;padding:4px 0}
-.crumb button:active{color:#8a6a0a}
+.crumb button:active{color:#1a1a1a}
 .crumb .sep{color:#e2dcc9;font-size:10px}
-.crumb .cur{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#8a6a0a}
+.crumb .cur{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#1a1a1a}
 .phead{padding:4px 16px 16px}
 .phead h2{margin:0 0 4px;font-size:19px;font-weight:900;letter-spacing:-.01em;color:#1a1a1a}
 .phead p{margin:0;font-size:11.5px;color:#a89a7e;line-height:1.5}
 .empty{padding:44px 20px;text-align:center;color:#a89a7e;font-size:12.5px;line-height:1.6}
+
+/* ---------- PROMO FILTER BAR (rises above nav) ---------- */
+#filter-bar{flex:0 0 auto;background:#ffffff;border-top:1px solid #ece7db;position:relative;display:none}
+#filter-bar.on{display:block;animation:pfrise .22s ease}
+@keyframes pfrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.pfbar{display:flex;flex-direction:column;gap:8px;padding:10px 12px;position:relative}
+.pfrow{display:flex;gap:8px}
+.pfbtn{flex:1 1 0;display:flex;align-items:center;gap:6px;padding:10px 12px;background:#faf8f2;border:1px solid #ece7db;border-radius:10px;font-size:12px;font-weight:800;color:#3a3324;cursor:pointer;min-width:0;text-align:left;transition:background .15s;position:relative;z-index:56}
+.pfbtn:active{background:#f4efe4}
+.pfbtn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em}
+.pfbtn.pf-town{flex:1 1 100%;justify-content:center;text-align:center}
+.pfbtn.pf-area{justify-content:flex-start;text-align:left}
+.pfbtn.pf-type{justify-content:flex-end;text-align:right}
+.pfbtn[disabled]{opacity:.45;cursor:default}
+.pfbtn[disabled]:active{background:#faf8f2}
+.fpop{max-height:min(60vh,520px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.fpop.town-pop{left:8px;right:8px;width:auto}
+/* area/type popups must match the base .fpop insets so they sit symmetric
+   within #cbar instead of hugging one edge at a 300px cap */
+.fpop.area-pop{left:8px;right:8px;width:auto;max-width:none}
+.fpop.type-pop{left:8px;right:8px;width:auto;max-width:none}
+/* .fpop prefix is load-bearing: plain .loc-* is (0,1,0) and loses to
+   .fpop button's (0,1,0)+type, so the rows would fall back to display:block
+   and space-between would never push the count pill to the right edge. */
+.fpop .loc-all,.fpop .loc-town-main,.fpop .loc-area-option{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left}
+.fpop .loc-all{position:sticky;top:0;z-index:2;background:#fff;font-weight:900}
+.loc-district{padding:10px 14px 6px;background:#f7f6f3;color:#817766;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.fpop .loc-town-main{padding:11px 14px}
+.loc-town-main .lbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:700;color:#3a3324}
+.loc-count{flex:0 0 auto;min-width:26px;padding:3px 7px;border-radius:12px;background:#f3efe4;color:#645b48;font-size:10px;font-weight:900;text-align:center}
+/* min-width:0 lets these flex items shrink below content width; without it
+   min-width:auto keeps a long area name at full width and shoves the count
+   pill off the row. Matches the .lbl guards the town rows already had. */
+.fpop .loc-area-option>span:first-child,.fpop .loc-all>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fpop .loc-area-option{padding:11px 14px;border:0;background:transparent;font-size:11px}
+.fpop .loc-area-option.on{background:#fdf9ef}
+.fpop-note{padding:12px 14px;font-size:11px;color:#a89a7e}
+
+/* ---------- RESTAURANT LIST (Restaurants tab) ---------- */
+/* .ritem wraps the row + its options so the options can live OUTSIDE the
+   row button (interactive content inside a <button> is invalid) and still
+   animate via the shared .acc-wrap grid-rows transition. */
+.ritem{background:#ffffff}
+.ritem.open>.rrow{background:#faf8f2;border-bottom-color:#ece7db}
+.rrow{display:flex;align-items:center;gap:13px;padding:12px 14px;background:#ffffff;border-bottom:1px solid #f1ece1;width:100%;cursor:pointer;text-align:left}
+.rrow:active{background:#faf8f2}
+/* Layout box only. The square itself is painted by the injected
+   .eo-thumb styles (js/eatouts-brand.js) so there is a single border
+   and the colour fills the whole tile instead of hugging the letter. */
+.rthumb{width:56px;height:56px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.rthumb .eo-thumb{width:56px;height:56px}
+.rinfo{flex:1;min-width:0}
+/* Business title: bold serif, deep charcoal. Georgia-first because the app
+   ships no font files and runs offline from localhost. */
+.rname{font-family:Georgia,'Times New Roman',Times,serif;font-size:15px;font-weight:700;color:#141414;line-height:1.3;letter-spacing:0}
+/* Metadata: lighter, neutral sans so the serif name stays the focal point */
+.rmeta{font-size:11px;color:#8e8e8e;font-weight:500;margin-top:3px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Badges: bold sans inside soft neutral pills. font-family is pinned because
+   these render inside .rname, which is now serif. */
+.rnew,.rflag{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#1a1a1a;background:#f2f2f0;border:1px solid #e2e2df;border-radius:20px;padding:3px 8px;flex:0 0 auto}
+.rnew{margin-left:8px}
+.rflag{margin-left:6px;letter-spacing:.1em}
+
+/* cuisine group headers */
+.rgroup{padding:14px 14px 7px;background:#f7f6f3;border-bottom:1px solid #ece7db;position:sticky;top:0;z-index:2}
+.rgroup h3{margin:0;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#8a8170}
+.rgroup span{font-size:10.5px;font-weight:800;color:#a89a7e;margin-left:7px}
+
+/* pinned restaurants (featured) */
+.rgroup.pinned{background:#fffdf5;border-bottom-color:#f0e6c8}
+
+/* ---------- RESTAURANT 4-OPTION DROPDOWN ---------- */
+/* No fd animation here: the .acc-wrap height transition owns the motion,
+   and replaying a fade on freshly inserted markup is what made the old
+   dropdown flash open/close. */
+.ropts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;background:#faf8f2;border-bottom:1px solid #ece7db}
+.ropt{padding:11px 12px;background:#ffffff;border:1px solid #ece7db;border-radius:12px;font-size:12.5px;font-weight:800;color:#3a3324;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:all .15s}
+.ropt:active{background:#f4efe4;border-color:#1a1a1a;transform:translateY(1px)}
+.ropt em{font-style:normal;font-size:9px;color:#a89a7e;font-weight:800;letter-spacing:.08em;text-transform:uppercase;flex:0 0 auto}
+
+/* ---------- RESTAURANT PROMOS GRID (2-col) ---------- */
+.rpgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:12px}
+.rpcell{position:relative;aspect-ratio:4/5;border-radius:14px;overflow:hidden;background:#f4efe4;border:1px solid #ece7db;display:block;text-align:left;padding:0;cursor:pointer}
+.rpcell img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}
+.rpcell .rpbadge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.62);color:#fff;font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:20px}
+.rpcell .rplbl{position:absolute;left:0;right:0;bottom:0;padding:26px 10px 10px;background:linear-gradient(transparent,rgba(0,0,0,.78));color:#ffffff;line-height:1.25}
+.rpcell .rplbl b{display:block;font-size:12.5px;font-weight:900;letter-spacing:-.01em}
+.rpcell .rplbl em{font-style:normal;font-size:10.5px;font-weight:800;opacity:.9;display:block;margin-top:3px}
+.rpcell .rplbl s{font-size:10px;opacity:.7;font-weight:600;margin-left:6px}
+
+/* ---------- RESTAURANT ABOUT (compact) ---------- */
+/* logo sits between the crumb and the hero, in its own generous slot */
+.rabout-logo{padding:22px 18px;background:#ffffff;border-bottom:1px solid #ece7db;text-align:center}
+.rabout-logo img{width:100%;max-width:300px;height:auto;max-height:132px;object-fit:contain;display:block;margin:0 auto}
+.rabout-hero{padding:20px 18px 18px;background:#ffffff;border-bottom:1px solid #ece7db;text-align:center}
+.rabout-hero .rlogo{width:70%;max-width:240px;height:auto;max-height:120px;object-fit:contain;margin:0 auto 14px;display:block}
+.rabout-hero h2{margin:0 0 6px;font-size:20px;font-weight:900;letter-spacing:-.015em;color:#1a1a1a}
+.rabout-hero p{margin:0;font-size:12px;color:#8a8170;letter-spacing:.02em}
 </style>
 </head>
 <body>
 <div id="shell">
-  <header id="hdr">
-    <div class="brand-mark"><img src="assets/logo/yellow_giraffe_logo.jpg" alt="The Yellow Giraffe"></div>
+  <header id="hdr" data-act="closePickers">
+    <div class="brand-mark"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></div>
     <div class="hdr-right"><span class="hdr-chip">Offline</span></div>
   </header>
   <div id="viewport"></div>
   <div id="cbar"></div>
+  <div id="filter-bar"></div>
   <nav id="nav"></nav>
 </div>
 
+<script src="botswana_locations.js"></script>
+<script src="js/eatouts-locations.js"></script>
+<script src="js/eatouts-brand.js"></script>
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-seed-data.js"></script>
+<script src="js/eatouts-seed.js"></script>
+<script src="js/eatouts-bridge.js"></script>
 <script>
 /* ================================================================
    CONFIG & CONSTANTS
    ================================================================ */
-const CONFIG = { whatsapp:"26777137847", displayNumber:"+267 77 137 847", entity:"the-yellow-giraffe-coffee-club", lastUpdated:"2026-10-02" };
+const CONFIG = { whatsapp:"26771844129", displayNumber:"+267 71 844 129", entity:"the-yellow-giraffe-coffee-club", lastUpdated:"2026-10-02" };
 
 /* ================================================================
    ASSET PATHS
    ================================================================ */
 const IMG = {
   logo:"assets/logo/yellow_giraffe_logo.jpg",
+  /* the EatOuts brand mark - distinct from the venue logo above */
+  eatoutsLogo:"assets/logo/EatOuts_Logo.png",
   iconIG:"assets/icons/Instagram_icon.png",
   iconFB:"assets/icons/facebook_icon.png",
   iconWA:"assets/icons/whatsApp_icon_on.png",
+  iconTT:"assets/icons/TikTok_icon.png",
+  iconX:"assets/icons/Twitter_icon.png",
+  iconYT:"assets/icons/YouTube_icon.png",
+  iconWeb:"assets/icons/Website_icon.png",
+  iconCall:"assets/icons/Call_icon.png",
+  iconGPS:"assets/icons/GPS - icon.png",
   poetry:"assets/images/events/poetry_nights.jpg",
   dirEvents:"assets/images/events/",
   dirFood:"assets/images/food/",
@@ -2060,6 +2217,7 @@ const PROFILE = {
 const ICON = {
   tag:'<svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
   book:'<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  shop:'<svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg>',
   cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
   img:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
   info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
@@ -2324,7 +2482,7 @@ function renderPoetryLineup(limit){
   return list.map(function(a){
     return '<div class="ctr" style="flex-direction:column;align-items:flex-start;gap:3px">'+
       '<div style="display:flex;width:100%;align-items:baseline;gap:8px">'+
-        '<b style="color:#8a6a0a;font-size:11px;min-width:44px;flex:0 0 auto">'+esc(a.performance_time||"")+'</b>'+
+        '<b style="color:#1a1a1a;font-size:11px;min-width:44px;flex:0 0 auto">'+esc(a.performance_time||"")+'</b>'+
         '<span class="lbl" style="flex:1"><b style="font-size:12.5px;color:#1a1a1a">'+esc(a.name)+'</b>'+
         '<em>'+esc(a.type||"")+'</em></span>'+
       '</div>'+
@@ -2404,7 +2562,29 @@ const state = {
   gallerySearch:"",
   filterOpen:false,
   searchOpen:false,
-  aboutView:"main"
+  aboutView:"main",
+  operatorView:"about",
+
+  /* Promo filter bar */
+  promoTown:"Gaborone",
+  promoDistrict:"01",
+  promoDistrictName:"Gaborone",
+  promoArea:"All",
+  promoType:"All",
+  promoTownPicker:false,
+  promoAreaPicker:false,
+  promoTypePicker:false,
+  promoFilterOpen:false,
+
+  /* Restaurants tab */
+  restaurantOpen:null,
+  restaurantView:null,
+  restSearch:"",
+  restType:"All",
+  restSearchOpen:false,
+  /* the cbar (type filter + search) is hidden by default; tapping the
+     Restaurants nav button while already on the list toggles it */
+  restFilterOpen:false
 };
 
 /* ================================================================
@@ -2426,7 +2606,27 @@ function waLink(text){return "whatsapp://send?phone="+CONFIG.whatsapp+"&text="+e
 const DAY_NAMES=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const DAY_SHORT=["S","M","T","W","T","F","S"];
 
-function getMenuItem(id){for(const cat of MENU){for(const it of cat.items){if(it[0]===id)return {cat:cat.id,id:it[0],name:it[1],desc:it[2],price:it[3],extras:it[4]};}}return null;}
+/* ---------- per-restaurant viewing context ----------
+   curBundle() is the bundle for the restaurant currently open in the
+   Restaurants tab. When no restaurant is open it falls back to the
+   flagship bundle, then to index.html's own globals - so the app still
+   behaves correctly if the bridge is unavailable. */
+function curBundle(){
+  if(window.EatoutsBridge&&EatoutsBridge.activeBundle())return EatoutsBridge.activeBundle();
+  if(window.EatoutsBridge&&EatoutsBridge.sourceBundle())return EatoutsBridge.sourceBundle();
+  return {id:null,name:(PROFILE&&PROFILE.name)||"",menu:MENU,promos:PROMOS,events:EVENTS,profile:PROFILE,gallery:GALLERY,restaurant:null};
+}
+function curMenu(){const b=curBundle();return (b&&b.menu&&b.menu.length)?b.menu:MENU;}
+function curRestaurant(){const b=curBundle();return b?b.restaurant:null;}
+function curRestaurantName(){const b=curBundle();return (b&&b.name)||(PROFILE&&PROFILE.name)||"";}
+
+/* The cart is namespaced by restaurant id, so the same menu item id
+   (all 133 restaurants share one template) can be in two carts at once. */
+function activeRestId(){
+  const r=curRestaurant();
+  return r?r.id:"_tyg";
+}
+function getMenuItem(id){const m=curMenu();for(const cat of m){for(const it of cat.items){if(it[0]===id)return {cat:cat.id,id:it[0],name:it[1],desc:it[2],price:it[3],extras:it[4]};}}return null;}
 function variantPrice(v){const p=v[1];return (p!==null&&p!==undefined)?p:((v[2]!==null&&v[2]!==undefined)?v[2]:0);}
 function itemSizes(it){
   /* accepts a normalised row object (getMenuItem) or a raw tuple [id,name,desc,price,extras] */
@@ -2435,7 +2635,12 @@ function itemSizes(it){
   return v.map(function(x){return [x[0],variantPrice(x),(x[2]===undefined?null:x[2])];});
 }
 
-function cartKey(itemId,sizeIdx){return "i"+itemId+"_"+sizeIdx;}
+function cartKey(itemId,sizeIdx){return "i"+activeRestId()+":"+itemId+"_"+sizeIdx;}
+/* only the active restaurant's keys */
+function cartKeys(){
+  const p="i"+activeRestId()+":";
+  return Object.keys(state.cart).filter(function(k){return k.indexOf(p)===0;});
+}
 function cartLine(itemId,sizeIdx){
   const k=cartKey(itemId,sizeIdx);
   if(!state.cart[k]) state.cart[k]={itemId:itemId,sizeIdx:sizeIdx,qty:0,extras:{}};
@@ -2443,7 +2648,7 @@ function cartLine(itemId,sizeIdx){
 }
 function cartTotal(){
   let t=0;
-  Object.keys(state.cart).forEach(k=>{
+  cartKeys().forEach(k=>{
     const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length)return;
     const it=getMenuItem(l.itemId);if(!it)return;
     const sz=itemSizes(it)[l.sizeIdx];if(!sz)return;
@@ -2455,7 +2660,7 @@ function cartTotal(){
   });
   return t;
 }
-function cartCount(){let c=0;Object.keys(state.cart).forEach(k=>{c+=(state.cart[k].qty||0);});return c;}
+function cartCount(){let c=0;cartKeys().forEach(k=>{c+=(state.cart[k].qty||0);});return c;}
 function clearEmptyCart(){Object.keys(state.cart).forEach(k=>{const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length) delete state.cart[k];});}
 function cartTotalForItem(itemId,sizeIdx){
   const l=state.cart[cartKey(itemId,sizeIdx)];if(!l)return 0;
@@ -2464,9 +2669,21 @@ function cartTotalForItem(itemId,sizeIdx){
   Object.keys(l.extras||{}).forEach(ei=>{const ex=it.extras[ei];if(ex)t+=ex[1]*l.extras[ei];});
   return t;
 }
-function promoListFor(dayIdx){return PROMOS[DAY_NAMES[dayIdx]]||[];}
-function promoById(id){for(const d in PROMOS){const p=PROMOS[d].find(x=>x.id===id);if(p)return {promo:p,day:d};}return null;}
-function eventFor(dayIdx){return EVENTS[DAY_NAMES[dayIdx]];}
+/* Promos/events now live per-restaurant in the v2 database. These lookups
+   search every restaurant that owns promos, so the feed and the detail
+   views work no matter which venue a promo came from. */
+function promoLocation(){return {town:state.promoTown,district:state.promoDistrict,districtName:state.promoDistrictName,area:state.promoArea};}
+function promosOnDay(dayIdx){return hasBridge()?EatoutsBridge.promosForDay(dayIdx,state.promoTown,state.promoType,state.promoArea,state.promoDistrict,state.promoDistrictName):[];}
+function eventsOnDay(dayIdx){return hasBridge()?EatoutsBridge.eventsForDay(dayIdx,state.promoTown,state.promoArea,state.promoDistrict,state.promoDistrictName):[];}
+function promoListFor(dayIdx){const b=curBundle();return (b&&b.promos)?(b.promos[DAY_NAMES[dayIdx]]||[]):[];}
+function promoById(id){if(hasBridge())return EatoutsBridge.findPromoAnywhere(id);for(const d in PROMOS){const p=PROMOS[d].find(x=>x.id===id);if(p)return {promo:p,day:d};}return null;}
+function eventFor(dayIdx){
+  if(hasBridge()){
+    const list=EatoutsBridge.eventsForDay(dayIdx,state.promoTown,state.promoArea,state.promoDistrict,state.promoDistrictName);
+    return list.length?list[0].event:undefined;
+  }
+  return EVENTS[DAY_NAMES[dayIdx]];
+}
 function getWeekDays(){
   const today=new Date();
   const day=today.getDay();
@@ -2511,6 +2728,21 @@ function syncMenuAccordions(){
     const on=state.menuOpen===parseInt(r.getAttribute("data-macc"),10);
     r.classList.toggle("open", on);
     const b=r.querySelector('[data-act="toggleItem"]');
+    if(b) b.setAttribute("aria-expanded",on?"true":"false");
+  });
+}
+
+/* Restaurants list accordion. Flips .open on the .ritem wrappers so the
+   existing .acc-wrap grid-rows transition does the collapsing - no
+   innerHTML swap, so the panel animates shut instead of vanishing. */
+function syncRestAccordions(){
+  const vp=document.getElementById("viewport");
+  if(!vp) return;
+  const items=vp.querySelectorAll("[data-racc]");
+  Array.prototype.forEach.call(items,function(el){
+    const on=state.restaurantOpen===el.getAttribute("data-racc");
+    el.classList.toggle("open",on);
+    const b=el.querySelector('.rrow[data-act="toggleRestaurant"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
 }
@@ -2588,6 +2820,464 @@ function syncCart(){
 }
 
 /* ================================================================
+   MULTI-RESTAURANT — promo filter bar, Restaurants tab, sub-views
+   ================================================================ */
+function hasBridge(){return typeof EatoutsBridge!=="undefined"&&EatoutsBridge;}
+
+/* ---------- promo filter bar ---------- */
+function renderPromoFilterBar(){
+  const types=["All"].concat(hasBridge()?EatoutsBridge.promoTypes():[]);
+  const locations=window.EatoutsLocations;
+  const towns=locations?locations.allTowns():[];
+  const restaurants=hasBridge()?EatoutsBridge.all():[];
+  const countAt=function(town,districtCode,districtName,area){
+    return restaurants.filter(function(r){
+      const loc=r.location||{};
+      if(town&&town!=="All"&&String(loc.town||"Gaborone").toLowerCase()!==String(town).toLowerCase())return false;
+      const district=loc.district||loc.districtCode||"";
+      if(districtCode&&district&&String(district)!==String(districtCode)&&String(loc.districtName||"").toLowerCase()!==String(districtName||"").toLowerCase())return false;
+      if(area&&area!=="All"&&String(loc.area||"").toLowerCase()!==String(area).toLowerCase())return false;
+      return true;
+    }).length;
+  };
+  const townLabel=state.promoTown==="All"?"All Botswana":state.promoTown+((state.promoDistrictName&&state.promoDistrictName!==state.promoTown)?" · "+state.promoDistrictName:"");
+  const areaLabel=state.promoArea==="All"?"All areas":state.promoArea;
+  const areaEnabled=state.promoTown!=="All";
+
+  let h='<div class="pfbar">';
+  /* row 1 - town, centred and full width */
+  h+='<button class="pfbtn pf-town" data-act="openTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.promoTownPicker?"true":"false")+'">'+
+     '<span>'+esc(townLabel)+'</span></button>';
+  /* row 2 - area on the left, promo type on the right */
+  h+='<div class="pfrow">';
+  h+='<button class="pfbtn pf-area" data-act="openAreaPicker"'+(areaEnabled?"":" disabled")+' aria-haspopup="listbox" aria-expanded="'+(state.promoAreaPicker?"true":"false")+'">'+
+     '<span>'+esc(areaEnabled?areaLabel:"All areas")+'</span></button>';
+  h+='<button class="pfbtn pf-type" data-act="openPromoTypePicker" aria-haspopup="listbox" aria-expanded="'+(state.promoTypePicker?"true":"false")+'">'+
+     '<span>'+esc(state.promoType)+'</span></button>';
+  h+='</div>';
+
+  /* town popup - flat scrollable list, one row per town, no accordion */
+  if(state.promoTownPicker){
+    h+='<div class="fpop-scrim" data-act="closePickers"></div>';
+    h+='<div class="fpop town-pop" role="listbox">';
+    h+='<button class="loc-all'+(state.promoTown==="All"?" on":"")+'" data-act="pickTown" data-town="All" role="option" aria-selected="'+(state.promoTown==="All")+'"><span>All Botswana</span><span class="loc-count">'+restaurants.length+'</span></button>';
+    const districts={};
+    towns.forEach(function(t){(districts[t.districtName]=districts[t.districtName]||[]).push(t);});
+    Object.keys(districts).sort().forEach(function(districtName){
+      h+='<div class="loc-district">'+esc(districtName)+'</div>';
+      districts[districtName].forEach(function(t){
+        const count=countAt(t.label,t.districtCode,t.districtName,"All");
+        const selected=state.promoTown===t.label&&state.promoDistrict===t.districtCode;
+        h+='<button class="loc-town-main'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickTown" data-town="'+esc(t.label)+'" data-district="'+esc(t.districtCode)+'" data-district-name="'+esc(t.districtName)+'">'+
+          '<span class="lbl">'+esc(t.label)+'</span><span class="loc-count">'+count+'</span></button>';
+      });
+    });
+    h+='</div>';
+  }
+
+  /* area popup - neighbourhoods of the chosen town */
+  if(state.promoAreaPicker&&areaEnabled){
+    h+='<div class="fpop-scrim" data-act="closePickers"></div>';
+    h+='<div class="fpop area-pop" role="listbox">';
+    const areas=locations?locations.areas(state.promoDistrict,state.promoTown).slice().sort():[];
+    const townCount=countAt(state.promoTown,state.promoDistrict,state.promoDistrictName,"All");
+    h+='<button class="loc-area-option'+(state.promoArea==="All"?" on":"")+'" role="option" aria-selected="'+(state.promoArea==="All")+'" data-act="pickArea" data-town="'+esc(state.promoTown)+'" data-district="'+esc(state.promoDistrict)+'" data-district-name="'+esc(state.promoDistrictName)+'" data-area="All"><span>All areas</span><span class="loc-count">'+townCount+'</span></button>';
+    if(areas.length){
+      areas.forEach(function(area){
+        const areaCount=countAt(state.promoTown,state.promoDistrict,state.promoDistrictName,area);
+        const areaSelected=state.promoArea===area;
+        h+='<button class="loc-area-option'+(areaSelected?" on":"")+'" role="option" aria-selected="'+areaSelected+'" data-act="pickArea" data-town="'+esc(state.promoTown)+'" data-district="'+esc(state.promoDistrict)+'" data-district-name="'+esc(state.promoDistrictName)+'" data-area="'+esc(area)+'"><span>'+esc(area)+'</span><span class="loc-count">'+areaCount+'</span></button>';
+      });
+    }else{
+      h+='<div class="fpop-note">No neighbourhoods listed</div>';
+    }
+    h+='</div>';
+  }
+
+  /* promo type popup */
+  if(state.promoTypePicker){
+    h+='<div class="fpop-scrim" data-act="closePickers"></div>';
+    h+='<div class="fpop type-pop" role="listbox">';
+    types.forEach(function(c){
+      h+='<button role="option" aria-selected="'+(c===state.promoType)+'" class="'+(c===state.promoType?"on":"")+'" data-act="pickPromoType" data-val="'+esc(c)+'">'+esc(c)+'</button>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+/* ---------- Restaurants tab ---------- */
+function allRestaurants(){
+  return hasBridge()?EatoutsBridge.listing():[];
+}
+/* primary cuisine type, used for grouping + filtering */
+function restPrimaryType(r){return (r.types&&r.types.length)?r.types[0]:"Restaurant";}
+function restaurantTypes(){
+  const set={};
+  allRestaurants().forEach(function(r){set[restPrimaryType(r)]=1;});
+  return Object.keys(set).sort();
+}
+function filteredRestaurants(){
+  let rows=allRestaurants();
+  if(state.restType!=="All") rows=rows.filter(function(r){return restPrimaryType(r)===state.restType;});
+  const q=state.restSearch.trim().toLowerCase();
+  if(q) rows=rows.filter(function(r){
+    return (r.name+" "+r.category+" "+r.placeLabel).toLowerCase().indexOf(q)>-1;
+  });
+  return rows;
+}
+function restaurantCountByType(type){
+  if(type==="All") return allRestaurants().length;
+  return allRestaurants().filter(function(r){return restPrimaryType(r)===type;}).length;
+}
+
+/* Pinned to the top of the list, in this order. Matched on slug, not id -
+   ids are prefixed (rest_the-yellow-giraffe). Drawn from the FILTERED rows
+   so search and the cuisine filter still apply, then excluded from the
+   groups below so they never appear twice. */
+const PINNED_REST_SLUGS=["the-yellow-giraffe","soya"];
+function renderRestaurants(){
+  const rows=filteredRestaurants();
+  const now=Date.now();
+
+  /* pinned first, then everyone else grouped by cuisine */
+  const pinned=[];
+  const rest=[];
+  rows.forEach(function(r){
+    if(PINNED_REST_SLUGS.indexOf(r.slug)>-1) pinned.push(r);
+    else rest.push(r);
+  });
+
+  /* group by cuisine, preserving newest-first order inside each group */
+  const groups={};
+  const order=[];
+  rest.forEach(function(r){
+    const t=restPrimaryType(r);
+    if(!groups[t]){groups[t]=[];order.push(t);}
+    groups[t].push(r);
+  });
+
+  let h='<div class="scroll">';
+  h+='<div class="phead"><h2>Restaurants</h2><p>'+rows.length+' of '+allRestaurants().length+' places · newest first</p></div>';
+
+  if(!rows.length){
+    h+='<div class="empty">No restaurants match your search.</div>';
+    h+='</div>';
+    return h;
+  }
+
+  if(pinned.length){
+    h+='<div class="rgroup pinned"><h3>Featured<span>'+pinned.length+'</span></h3></div>';
+    pinned.forEach(function(r){ h+=restaurantItem(r,now); });
+  }
+
+  order.forEach(function(t){
+    h+='<div class="rgroup"><h3>'+esc(t)+'<span>'+groups[t].length+'</span></h3></div>';
+    groups[t].forEach(function(r){ h+=restaurantItem(r,now); });
+  });
+
+  h+='<div style="height:24px"></div></div>';
+  return h;
+}
+
+/* One row plus its always-present, collapsed options panel. The panel is
+   in the DOM even when closed so .acc-wrap can animate it open AND shut;
+   syncRestAccordions() flips .open without re-rendering the list. */
+function restaurantItem(r,now){
+  const open=state.restaurantOpen===r.id;
+  const isNew=(now-r.lastActive)<2*86400000;
+  let h='<div class="ritem'+(open?" open":"")+'" data-racc="'+esc(r.id)+'">';
+  h+='<button class="rrow" data-act="toggleRestaurant" data-id="'+esc(r.id)+'" aria-expanded="'+(open?"true":"false")+'">';
+  h+='<div class="rthumb">'+(r.thumbHtml||"")+'</div>';
+  h+='<div class="rinfo"><div class="rname">'+esc(r.name)+
+     (isNew?'<span class="rnew">New</span>':"")+
+     (r.isFlagship?'<span class="rflag">Flagship</span>':"")+'</div>';
+  h+='<div class="rmeta">'+esc(r.category)+' · '+esc(r.placeLabel||r.location.town||"")+'</div></div>';
+  h+='</button>';
+  h+='<div class="acc-wrap"><div class="acc-in">'+restaurantOptions(r)+'</div></div>';
+  h+='</div>';
+  return h;
+}
+
+function restaurantOptions(r){
+  const bundle=hasBridge()?EatoutsBridge.bundleOf(r.id):null;
+  let promoN=0;
+  if(bundle) for(const d in bundle.promos) promoN+=(bundle.promos[d]||[]).length;
+  let menuN=0;
+  if(bundle) bundle.menu.forEach(function(c){menuN+=c.items.length;});
+
+  return '<div class="ropts">'+
+    '<button class="ropt" data-act="openRestView" data-id="'+esc(r.id)+'" data-view="menu">'+
+      'Menu<em>'+menuN+' items</em></button>'+
+    '<button class="ropt" data-act="openRestView" data-id="'+esc(r.id)+'" data-view="venue">'+
+      'Book Venue<em>Reserve</em></button>'+
+    '<button class="ropt" data-act="openRestView" data-id="'+esc(r.id)+'" data-view="promos">'+
+      'Promos<em>'+(promoN?promoN+" active":"None yet")+'</em></button>'+
+    '<button class="ropt" data-act="openRestView" data-id="'+esc(r.id)+'" data-view="about">'+
+      'About<em>Details</em></button>'+
+    '</div>';
+}
+
+function renderRestaurantSubView(){
+  const rv=state.restaurantView;
+  const r=rv&&hasBridge()?EatoutsBridge.byId(rv.id):null;
+  if(!r){state.restaurantView=null;return renderRestaurants();}
+  EatoutsBridge.setActive(r.id);
+
+  const crumb='<div class="crumb"><button data-act="backFromRestView">Restaurants</button>'+
+              '<span class="sep">/</span><span class="cur">'+esc(r.name)+'</span></div>';
+
+  if(rv.view==="menu"){
+    /* renderMenuCategory supplies its own scroll + crumb */
+    if(state.checkoutView) return renderCheckout();
+    if(state.menuCat) return renderMenuCategory();
+    return '<div class="scroll">'+crumb+renderMenuCategories(true)+'<div style="height:24px"></div></div>';
+  }
+  let inner="";
+  if(rv.view==="venue")  inner=renderRestaurantVenue(r);
+  if(rv.view==="promos") inner=renderRestaurantPromos(r);
+  if(rv.view==="about")  inner=renderRestaurantAbout(r);
+  return '<div class="scroll">'+crumb+inner+'<div style="height:24px"></div></div>';
+}
+
+/* ---------- sub-view: Book Venue ---------- */
+function renderRestaurantVenue(r){
+  let h='<div class="pad" style="padding-top:0">';
+  h+='<div class="fld"><label>Event Type</label><input id="venueType" type="text" placeholder="e.g. Birthday, Corporate Dinner"></div>';
+  h+='<div class="fld"><label>Preferred Date</label><input id="venueDate" type="date"></div>';
+  h+='<div class="fld"><label>Estimated Guests</label><input id="venuePax" type="number" min="1" placeholder="e.g. 30"></div>';
+  h+='<div class="fld"><label>Notes</label><textarea id="venueNotes" placeholder="Seating, catering, AV needs..."></textarea></div>';
+  h+='<button class="btn wa full" data-act="waVenue" data-id="'+esc(r.id)+'">Send via WhatsApp</button>';
+  h+='</div>';
+  h+='<div class="pad" style="padding-top:0"><div class="subh">Popular Event Types</div><div class="tagwrap">'+
+     RESERVE.slice(0,6).map(function(c){return '<span class="chip">'+esc(c.name)+'</span>';}).join("")+
+     '</div></div>';
+  return h;
+}
+
+/* ---------- sub-view: Promos ---------- */
+function renderRestaurantPromos(r){
+  const bundle=EatoutsBridge.bundleOf(r.id);
+  const all=[];
+  if(bundle) for(const d in bundle.promos) (bundle.promos[d]||[]).forEach(function(p){all.push({promo:p,day:d});});
+  if(!all.length){
+    return '<div class="empty">No promos yet.<br><br>'+esc(r.name)+' has not published a promo. '+
+           'Their menu is live now — promos appear here as soon as they are added.</div>';
+  }
+  let h='<div class="pad" style="padding-top:0"><div class="subh">'+all.length+' active promo'+(all.length===1?"":"s")+'</div></div>';
+  h+='<div class="rpgrid">';
+  all.forEach(function(x){
+    const p=x.promo;
+    h+='<button class="rpcell" data-act="openRestPromo" data-id="'+esc(r.id)+'" data-promo="'+esc(p.id)+'">'+
+       imgTag(foodImg(hash(p.id)),p.title)+
+       '<span class="rpbadge">'+esc(x.day.slice(0,3))+'</span>'+
+       '<div class="rplbl"><b>'+esc(p.title)+'</b>'+
+       '<em>'+fmt(p.price)+'<s>'+fmt(p.was)+'</s></em></div></button>';
+  });
+  h+='</div>';
+  return h;
+}
+
+function renderRestaurantPromoDetail(r,promoId){
+  const bundle=EatoutsBridge.bundleOf(r.id);
+  let found=null;
+  if(bundle) for(const d in bundle.promos){
+    const hit=(bundle.promos[d]||[]).find(function(x){return x.id===promoId;});
+    if(hit){found={promo:hit,day:d};break;}
+  }
+  if(!found) return '<div class="empty">Promo not found.</div>';
+  const p=found.promo;
+  let h='<div class="pad" style="padding-top:0"><div class="crumb"><button data-act="backRestPromo">'+esc(r.name)+
+       '</button><span class="sep">/</span><span class="cur">'+esc(p.type||"Promo")+'</span></div></div>';
+  h+='<div class="pcard" style="margin-top:0"><div class="pimg" style="aspect-ratio:16/10">'+imgTag(foodImg(hash(p.id)),p.title)+'</div>'+
+     '<div class="pbody"><h3 style="margin:0 0 6px;font-size:19px;font-weight:900;line-height:1.2;color:#1a1a1a">'+esc(p.title)+'</h3>'+
+     '<div style="font-size:11.5px;color:#a89a7e;font-weight:700;margin-bottom:10px">'+esc(r.name)+' · '+esc(found.day)+' · '+esc(p.valid||"")+'</div>'+
+     '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
+       '<span class="chip g">'+fmt(p.price)+'</span><span class="chip">was '+fmt(p.was)+'</span>'+
+       '<span class="chip">Save '+fmt(p.save)+'</span></div>'+
+     '<p class="mdesc">'+esc(p.desc||"")+'</p>';
+  if(p.items&&p.items.length){
+    h+='<div class="subh">Includes</div>'+p.items.map(function(it){return '<div class="ctr"><div class="lbl">'+esc(it)+'</div></div>';}).join("");
+  }
+  h+='<button class="btn wa full" style="margin-top:14px" data-act="waRestPromo" data-id="'+esc(r.id)+'" data-promo="'+esc(p.id)+'">Send via WhatsApp</button>';
+  h+='</div></div>';
+  return h;
+}
+
+/* ---------- sub-view: About ---------- */
+/* Brand fallback so Soya and The Yellow Giraffe get their real logo even
+   when the DB record has no logo field of its own. */
+function restLogo(r){
+  if(window.EatoutsBrand) return EatoutsBrand.logoFor(r);
+  return (r&&r.logo)||null;
+}
+/* ---------- SOCIAL PLATFORMS ----------
+   One place that knows which icon a platform uses and how to turn a
+   stored value into a real link. Handles come in as bare text
+   ("theyellowgiraffebw"), so each builder normalises first. */
+const SOCIAL_ICON={
+  instagram:"iconIG", facebook:"iconFB", whatsapp:"iconWA", tiktok:"iconTT",
+  twitter:"iconX", youtube:"iconYT", website:"iconWeb", call:"iconCall", gps:"iconGPS"
+};
+const SOCIAL_LABEL={
+  instagram:"Instagram", facebook:"Facebook", whatsapp:"WhatsApp", tiktok:"TikTok",
+  twitter:"X (Twitter)", youtube:"YouTube", website:"Website", call:"Call", gps:"Location"
+};
+function socialHandle(v){
+  return String(v||"").trim().replace(/^https?:\/\//i,"").replace(/^www\./i,"").replace(/^@/,"").replace(/\/+$/,"");
+}
+/* value may already be a full URL; otherwise it is a handle for that platform */
+function socialUrl(platform,value){
+  const raw=String(value||"").trim();
+  if(!raw) return "";
+  if(/^(https?:|mailto:|tel:)/i.test(raw)) return raw;
+  const h=socialHandle(raw);
+  if(!h) return "";
+  if(platform==="whatsapp") return "https://wa.me/"+h.replace(/\D/g,"");
+  if(platform==="instagram") return "https://www.instagram.com/"+h+"/";
+  if(platform==="facebook") return "https://www.facebook.com/"+h;
+  if(platform==="tiktok") return "https://www.tiktok.com/@"+h;
+  if(platform==="youtube") return "https://www.youtube.com/@"+h;
+  if(platform==="twitter") return "https://x.com/"+h;
+  if(platform==="call") return "tel:+"+h.replace(/\D/g,"");
+  /* a bare word is not a host, so refuse to build a broken link */
+  if(/\s/.test(h)||!/\.[a-z]{2,}/i.test(h)) return "";
+  return "https://"+h;
+}
+/* no explicit platform field, so read it off the link itself */
+function socialPlatformFromUrl(url){
+  const u=String(url||"").toLowerCase();
+  if(/^(tel:|call)/.test(u)) return "call";
+  if(/(wa\.me|whatsapp)/.test(u)) return "whatsapp";
+  if(/instagram\.com/.test(u)) return "instagram";
+  if(/(facebook\.com|fb\.com)/.test(u)) return "facebook";
+  if(/tiktok\.com/.test(u)) return "tiktok";
+  if(/(youtube\.com|youtu\.be)/.test(u)) return "youtube";
+  if(/(twitter\.com|x\.com)/.test(u)) return "twitter";
+  if(/(maps\.app\.goo\.gl|google\.[a-z.]+\/maps|goo\.gl\/maps)/.test(u)) return "gps";
+  return "website";
+}
+/* socials[] is free-form in the DB: entries can be a plain URL string, a
+   {url,platform} record, or a {instagram:'handle',facebook:'…'} map keyed
+   by platform (what onboarding writes). Handle all three and drop anything
+   we cannot link to rather than rendering a dead icon. */
+function restSocialLinks(r){
+  const out=[];
+  const push=function(platform,value,label){
+    const raw=String(value||"").trim();
+    if(!raw) return;
+    const key=String(platform||"").toLowerCase().replace(/[^a-z]/g,"");
+    let id=SOCIAL_ICON[key]?key:null;
+    /* a bare number with no platform field is a phone number, not a site */
+    if(!id&&/^[+\d][\d\s()-]{6,}$/.test(raw)) id="call";
+    const url=socialUrl(id||"",raw);
+    if(!url) return;
+    id=id||socialPlatformFromUrl(url);
+    out.push({platform:id,url:url,label:label||SOCIAL_LABEL[id]||"Link"});
+  };
+  (r&&r.socials||[]).forEach(function(s){
+    if(!s) return;
+    if(typeof s==="string"){ push("",s,null); return; }
+    if(typeof s!=="object") return;
+    const url=s.url||s.link||s.href||null;
+    if(url){ push(s.platform||s.network||s.type||"",url,s.label||s.handle||""); return; }
+    /* keyed shape: one entry per platform, value is a handle or URL */
+    Object.keys(s).forEach(function(k){
+      if(k==="label"||k==="platform"||k==="network"||k==="type") return;
+      push(k,s[k],typeof s[k]==="object"?(s[k]&&s[k].label):null);
+    });
+  });
+  return out;
+}
+/* contact numbers live on the profile: prefer the primary one */
+function restCallHref(profile){
+  const list=(profile&&profile.contacts)||[];
+  const usable=list.filter(function(c){return c&&c.number&&c.active!==false;});
+  const pick=usable.filter(function(c){return c.primary;})[0]||usable[0];
+  if(!pick) return "";
+  return socialUrl("call",(pick.countryCode||"+267")+" "+pick.number);
+}
+function socialImg(platform,label){
+  return '<img src="'+IMG[SOCIAL_ICON[platform]||SOCIAL_ICON.website]+'" alt="'+esc(label||SOCIAL_LABEL[platform]||"Link")+'">';
+}
+function renderRestSocialRow(r,profile){
+  const links=restSocialLinks(r);
+  const seen={};
+  let row='<div class="social-row">';
+  links.forEach(function(l){
+    if(seen[l.platform]) return;          /* one icon per platform */
+    seen[l.platform]=1;
+    row+='<a class="social-ico" href="'+esc(l.url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(l.label)+'">'+socialImg(l.platform,l.label)+'</a>';
+  });
+  const call=restCallHref(profile);
+  if(call&&!seen.call){
+    seen.call=1;
+    row+='<a class="social-ico" href="'+esc(call)+'" aria-label="Call"><img src="'+IMG.iconCall+'" alt="Call"></a>';
+  }
+  /* WhatsApp always applies, and guarantees the row is never empty */
+  if(!seen.whatsapp){
+    row+='<a class="social-ico" href="'+esc(waLink("*"+(r.name||"this restaurant")+"*\n\nHi! I found you on EatOuts and would like to ask about your menu, promos or booking a venue."))+'">'+
+         '<img src="'+IMG.iconWA+'" alt="WhatsApp"></a>';
+  }
+  row+='</div>';
+  return row;
+}
+function renderRestaurantAbout(r){
+  const bundle=EatoutsBridge.bundleOf(r.id);
+  const p=(bundle&&bundle.profile)||{};
+  const oh=p.operating_hours||{};
+  const loc=p.location||{};
+  const logo=restLogo(r);
+
+  let h='';
+  /* logo gets its own roomy slot between the crumb and the hero */
+  if(logo) h+='<div class="rabout-logo"><img src="'+esc(logo)+'" alt="'+esc(r.name)+'"></div>';
+  h+='<div class="rabout-hero">';
+  h+='<h2>'+esc(p.name||r.name)+'</h2>';
+  h+='<p>'+esc(r.category)+' · '+esc(EatoutsBridge.placeLabel(r)||"")+'</p></div>';
+
+  h+='<div class="pad" style="padding-top:16px;padding-bottom:0">'+renderRestSocialRow(r,p)+'</div>';
+
+  h+='<div class="pad">';
+  h+='<div class="subh">Location</div>';
+  if(loc.street) h+='<div class="kv"><span class="k">Street</span><span class="v">'+esc(loc.street)+'</span></div>';
+  if(r.location.town) h+='<div class="kv"><span class="k">Town</span><span class="v">'+esc(r.location.town)+'</span></div>';
+  if(r.location.area) h+='<div class="kv"><span class="k">Area</span><span class="v">'+esc(r.location.area)+'</span></div>';
+  if(r.landmark) h+='<div class="kv"><span class="k">Landmark</span><span class="v">'+esc(r.landmark)+'</span></div>';
+
+  if(oh.weekday_early){
+    h+='<div class="subh" style="margin-top:20px">Operating Hours</div>';
+    h+='<div class="kv"><span class="k">'+(oh.weekday_early.days||[]).join(', ')+'</span><span class="v">'+esc(oh.weekday_early.open)+' – '+esc(oh.weekday_early.close)+'</span></div>';
+    if(oh.weekday_late) h+='<div class="kv"><span class="k">'+(oh.weekday_late.days||[]).join(', ')+'</span><span class="v">'+esc(oh.weekday_late.open)+' – '+esc(oh.weekday_late.close)+'</span></div>';
+    if(oh.weekend) h+='<div class="kv"><span class="k">'+(oh.weekend.days||[]).join(', ')+'</span><span class="v">'+esc(oh.weekend.open)+' – '+esc(oh.weekend.close)+'</span></div>';
+    if(oh.closed&&oh.closed.days&&oh.closed.days.length) h+='<div class="kv"><span class="k">'+oh.closed.days.join(', ')+'</span><span class="v">Closed</span></div>';
+  }
+  if(p.attributes&&p.attributes.ambience&&p.attributes.ambience.length){
+    h+='<div class="subh" style="margin-top:20px">Ambience</div><div class="tagwrap">'+
+       p.attributes.ambience.map(function(a){return '<span class="chip">'+esc(a)+'</span>';}).join("")+'</div>';
+  }
+  if(p.attributes&&p.attributes.amenities&&p.attributes.amenities.length){
+    h+='<div class="subh" style="margin-top:20px">Amenities</div><div class="tagwrap">'+
+       p.attributes.amenities.map(function(a){return '<span class="chip">'+esc(a)+'</span>';}).join("")+'</div>';
+  }
+  if(p.menu_tags&&p.menu_tags.length){
+    h+='<div class="subh" style="margin-top:20px">Menu Tags</div><div class="tagwrap">'+
+       p.menu_tags.map(function(t){return '<span class="chip g">'+esc(t)+'</span>';}).join("")+'</div>';
+  }
+  if(bundle&&bundle.isSharing){
+    h+='<div class="pad" style="padding-top:18px"><div class="ctr"><div class="lbl"><em style="margin:0">'+
+       'Showing the EatOuts standard menu. This venue has not published its own menu yet.</em></div></div></div>';
+  }
+  h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waRestAbout" data-id="'+esc(r.id)+'">Send via WhatsApp</button></div>';
+  /* Back sits under the WhatsApp button so the page can be left without
+     reaching for the crumb at the top */
+  h+='<div style="margin-top:10px"><button class="btn ghost full" data-act="backFromRestView">Back</button></div>';
+  h+='</div>';
+  return h;
+}
+
+/* ================================================================
    RENDER: Shell
    ================================================================ */
 function renderHeader(){
@@ -2595,20 +3285,123 @@ function renderHeader(){
   if(state.tab==="gallery" || (state.tab==="about" && state.aboutView==="gallery")){hdr.classList.add("hide");}
   else{hdr.classList.remove("hide");}
 }
+const NAV_TABS=[
+  {id:"promos",icon:ICON.tag},
+  {id:"restaurants",icon:ICON.shop},
+  {id:"reserve",icon:ICON.cal},
+  {id:"gallery",icon:ICON.img},
+  {id:"about",icon:ICON.info}
+];
 function renderNav(){
-  const tabs=[
-    {id:"promos",icon:ICON.tag},
-    {id:"menu",icon:ICON.book},
-    {id:"reserve",icon:ICON.cal},
-    {id:"gallery",icon:ICON.img},
-    {id:"about",icon:ICON.info}
-  ];
-  document.getElementById("nav").innerHTML=tabs.map(t=>
-    '<button class="nav-btn'+(state.tab===t.id?" on":"")+'" data-tab="'+t.id+'" aria-label="'+t.id+'">'+t.icon+'</button>'
-  ).join("");
+  const nav=document.getElementById("nav");
+  /* build once, then only flip the active class - rebuilding on every
+     render made the button under your finger repaint */
+  if(nav.childElementCount!==NAV_TABS.length){
+    nav.innerHTML=NAV_TABS.map(t=>
+      '<button class="nav-btn" data-tab="'+t.id+'" aria-label="'+t.id+'">'+t.icon+'</button>'
+    ).join("");
+  }
+  Array.prototype.forEach.call(nav.children,function(b){
+    b.classList.toggle("on", b.getAttribute("data-tab")===state.tab);
+  });
+  /* Operator sign-in is a focused portrait task - hide the tab bar
+     while it is open, and the filter bar that belongs to other tabs */
+  const onLogin=(state.tab==="about"&&state.operatorView==="login");
+  nav.style.display=onLogin?"none":"";
+  if(onLogin){
+    document.getElementById("cbar").classList.remove("on");
+    document.getElementById("filter-bar").classList.remove("on");
+  }
+  measureNav();
+}
+
+/* .fpop-scrim's clip-path needs the nav's height to stop the blur above it,
+   but that height is not a constant: .nav-btn padding plus
+   env(safe-area-inset-bottom) vary per device and change on rotation. So we
+   measure it into --navh rather than hardcoding an inset. The observer also
+   fires when the nav is hidden for operator sign-in, which is exactly when
+   the scrim is not on screen anyway. */
+function measureNav(){
+  const nav=document.getElementById("nav");
+  if(!nav) return;
+  document.documentElement.style.setProperty("--navh",nav.offsetHeight+"px");
+}
+if(window.ResizeObserver){
+  const navEl=document.getElementById("nav");
+  if(navEl){
+    new ResizeObserver(measureNav).observe(navEl);
+  }
+}
+/* Bumped on every bootEatoutsBridge() so that a cross-tab data write
+   (seed-demo, any dashboard) still refreshes the counts in this bar. */
+let cbarDataRev=0;
+/* Everything renderControlBar() actually reads. When none of it moved we
+   skip the rebuild, so an open .fpop keeps playing its 0.18s animation
+   instead of being destroyed and restarted on every render(). */
+let lastCbarKey=null;
+function cbarKey(){
+  return [cbarDataRev,state.tab,
+    state.promoFilterOpen,state.promoTownPicker,state.promoAreaPicker,state.promoTypePicker,
+    state.promoTown,state.promoArea,state.promoType,
+    state.promoDistrict,state.promoDistrictName,
+    state.restSearchOpen,state.restSearch,state.filterOpen,state.restType,
+    state.restFilterOpen,
+    state.searchOpen,state.gallerySearch,state.galleryFilter].join("~");
 }
 function renderControlBar(){
+  const key=cbarKey();
+  if(key===lastCbarKey) return;
+  lastCbarKey=key;
   const cb=document.getElementById("cbar");
+  const pf=document.getElementById("filter-bar");
+
+  /* ---- Promo filter bar ---- */
+  if(state.tab==="promos"){
+    pf.innerHTML=renderPromoFilterBar();
+    pf.classList.toggle("on", state.promoFilterOpen);
+  } else {
+    pf.innerHTML="";
+    pf.classList.remove("on");
+    state.promoFilterOpen=false;
+    state.promoTownPicker=false;
+    state.promoAreaPicker=false;
+    state.promoTypePicker=false;
+  }
+
+  /* ---- Restaurants: search + cuisine filter ---- */
+  if(state.tab==="restaurants"){
+    if(!state.restFilterOpen){
+      /* hidden by default - close the popups but keep any search text and
+         the chosen cuisine, so revealing the bar again restores it */
+      cb.classList.remove("on");cb.innerHTML="";state.filterOpen=false;return;
+    }
+    cb.classList.add("on");
+    if(state.restSearchOpen){
+      cb.innerHTML='<div class="cbar2">'+
+        '<div class="csearch">'+
+        '<input id="rsearch" type="text" placeholder="Search restaurants..." value="'+esc(state.restSearch)+'">'+
+        '<button class="cbtn ic on" data-act="closeRestSearch" aria-label="Close">'+ICON.close+'</button>'+
+        '</div></div>';
+    } else {
+      cb.innerHTML='<div class="cbar2">'+
+        '<button class="cbtn" data-act="cycleRestType" aria-haspopup="listbox" aria-expanded="'+(state.filterOpen?"true":"false")+'">'+
+          esc(state.restType)+'</button>'+
+        '<div style="flex:1"></div>'+
+        '<button class="cbtn ic" data-act="openRestSearch" aria-label="Search">'+ICON.search+'</button></div>';
+      if(state.filterOpen){
+        const types=["All"].concat(restaurantTypes());
+        cb.innerHTML+='<div class="fpop-scrim" data-act="closeRestFilter"></div>'+
+          '<div class="fpop" role="listbox">'+types.map(function(c){
+            return '<button role="option" aria-selected="'+(c===state.restType?"true":"false")+'" class="'+(c===state.restType?"on":"")+'"'+
+              ' data-act="pickRestType" data-val="'+esc(c)+'">'+esc(c)+
+              '<span style="float:right;color:#a89a7e;font-weight:700">'+restaurantCountByType(c)+'</span></button>';
+          }).join("")+'</div>';
+      }
+    }
+    return;
+  }
+
+  /* ---- Gallery control bar ---- */
   if(state.tab!=="gallery"){cb.classList.remove("on");cb.innerHTML="";state.filterOpen=false;return;}
   cb.classList.add("on");
   if(state.searchOpen){
@@ -2634,9 +3427,31 @@ function renderControlBar(){
   }
   cb.innerHTML=h;
 }
+/* Identity of what is on screen. When this does not change we re-render
+   silently: no .anim replay, and the scroll position is kept. */
+let lastViewKey=null;
+function viewKey(){
+  return [state.tab,state.promoView,state.restaurantView&&state.restaurantView.view,
+    state.reserveCat,state.reserveSub,state.galleryView,state.aboutView,
+    state.operatorView].join("|");
+}
 function renderViewport(){
   const vp=document.getElementById("viewport");
-  vp.innerHTML='<div class="screen anim">'+renderScreen()+'</div>';
+  /* remember where the user was before the DOM is replaced */
+  const prevScroller=vp.querySelector(".scroll");
+  const keepTop=prevScroller?prevScroller.scrollTop:0;
+  const key=viewKey();
+  const viewChanged=(key!==lastViewKey);
+  lastViewKey=key;
+
+  vp.innerHTML='<div class="screen'+(viewChanged?" anim":"")+'">'+renderScreen()+'</div>';
+
+  /* same view re-render -> put them back where they were */
+  if(!viewChanged&&keepTop){
+    const nextScroller=vp.querySelector(".scroll");
+    if(nextScroller) nextScroller.scrollTop=keepTop;
+  }
+
   renderHeader();
   renderNav();
   renderControlBar();
@@ -2649,10 +3464,16 @@ function renderScreen(){
     if(state.promoView==="gallery")return renderPromoGallery();
     if(state.promoView==="link")return renderPromoLink();
   }
-  if(state.tab==="menu"){
-    if(state.checkoutView)return renderCheckout();
-    if(state.menuCat)return renderMenuCategory();
-    return renderMenuCategories();
+  if(state.tab==="restaurants"){
+    if(state.restaurantView&&state.restaurantView.view==="promo"&&state.restaurantView.promoId){
+      const r=hasBridge()?EatoutsBridge.byId(state.restaurantView.id):null;
+      if(r){
+        EatoutsBridge.setActive(r.id);
+        return '<div class="scroll">'+renderRestaurantPromoDetail(r,state.restaurantView.promoId)+'<div style="height:24px"></div></div>';
+      }
+    }
+    if(state.restaurantView)return renderRestaurantSubView();
+    return renderRestaurants();
   }
   if(state.tab==="reserve"){
     if(state.reserveSub)return renderReserveForm();
@@ -2664,6 +3485,7 @@ function renderScreen(){
     return renderGalleryGrid();
   }
   if(state.tab==="about"){
+    if(state.operatorView==="login")return renderOperatorLogin();
     if(state.aboutView==="gallery")return renderRestaurantGallery();
     return renderAbout();
   }
@@ -2723,18 +3545,19 @@ function renderPoetryCard(){
     accWrap(open,inner)+'</div>';
 }
 
-function renderEventCard(ev,dayIdx){
+function renderEventCard(ev,dayIdx,r){
   const key="evt_"+ev.id;
   const open=state.promoExpanded===key;
+  const venue=r?r.name:(PROFILE&&PROFILE.name)||"";
   let inner='<div class="pbody">';
   inner+='<h3 style="margin:0 0 6px;font-size:17px;font-weight:900;line-height:1.2;color:#1a1a1a">'+esc(ev.name)+'</h3>';
-  inner+='<div class="pprice" style="margin-bottom:10px">'+esc(ev.time)+' &middot; Sponsored by '+esc(ev.sponsor)+'</div>';
+  inner+='<div class="pprice" style="margin-bottom:10px">'+esc(venue)+' &middot; '+esc(ev.time)+' &middot; Sponsored by '+esc(ev.sponsor)+'</div>';
   inner+='<p class="mdesc" style="margin:0 0 10px">'+esc(ev.desc)+'</p>';
-  inner+='<ul class="phl">'+ev.highlights.map(function(h){return '<li>'+esc(h)+'</li>';}).join("")+'</ul>';
+  inner+='<ul class="phl">'+(ev.highlights||[]).map(function(h){return '<li>'+esc(h)+'</li>';}).join("")+'</ul>';
   inner+='<div class="subh">Event Images</div><div class="thumbs">';
   for(let i=0;i<IMG.demoImages.length;i++) inner+='<div class="th">'+imgTag(demoImg(i),ev.name)+'</div>';
   inner+='</div>';
-  inner+='<button class="btn wa full" style="margin-top:12px" data-act="waEvent" data-day="'+dayIdx+'">Send via WhatsApp</button>';
+  inner+='<button class="btn wa full" style="margin-top:12px" data-act="waEvent" data-ev="'+esc(ev.id)+'">Send via WhatsApp</button>';
   inner+='</div>';
   return '<div class="ecard'+(open?" open":"")+'" data-acc="'+key+'">'+
     '<button class="pimg" data-act="togglePromo" data-id="'+key+'" aria-expanded="'+(open?"true":"false")+'">'+
@@ -2742,32 +3565,34 @@ function renderEventCard(ev,dayIdx){
     accWrap(open,inner)+'</div>';
 }
 
-function renderPromoCard(p,dayIdx,idx){
+function renderPromoCard(p,dayIdx,idx,r){
   const open=state.promoExpanded===p.id;
+  const venue=r?r.name:(PROFILE&&PROFILE.name)||"";
   let inner='<div class="pbody">';
   inner+='<button class="phead-btn" data-act="openPromo" data-id="'+p.id+'">'+
     '<h3>'+esc(p.title)+'</h3>'+
     '<div class="pprice">'+fmt(p.price)+' <span class="pwas">'+fmt(p.was)+'</span></div>'+
     '</button>';
   inner+='<div style="font-size:11px;color:#a89a7e;font-weight:700;letter-spacing:.03em;margin:-4px 0 10px">'+
-    esc(DAY_NAMES[dayIdx])+' &middot; '+esc(p.valid)+'</div>';
-  inner+='<ul class="phl">'+p.items.slice(0,5).map(function(it){return '<li>'+esc(it)+'</li>';}).join("")+'</ul>';
+    esc(venue)+' &middot; '+esc(DAY_NAMES[dayIdx])+' &middot; '+esc(p.valid)+'</div>';
+  inner+='<ul class="phl">'+(p.items||[]).slice(0,5).map(function(it){return '<li>'+esc(it)+'</li>';}).join("")+'</ul>';
   inner+='<button class="btn full sm" style="margin-top:12px" data-act="openPromo" data-id="'+p.id+'">View &amp; Reserve</button>';
   inner+='</div>';
   return '<div class="ecard'+(open?" open":"")+'" data-acc="'+p.id+'">'+
     '<button class="pimg" data-act="togglePromo" data-id="'+p.id+'" aria-expanded="'+(open?"true":"false")+'">'+
-      imgTag(foodImg(dayIdx*7+idx*3),p.title)+'</button>'+
+      imgTag(foodImg(hash(p.id)),p.title)+'</button>'+
     accWrap(open,inner)+'</div>';
 }
 
 function renderPromosFeed(){
   const days=getWeekDays();
   const dayIdx=state.promoDay;
-  const ev=eventFor(dayIdx);
-  const promos=promoListFor(dayIdx);
 
-  let cal='<div class="cal">';
-  cal+='<div class="cal-title">'+esc(weekLabel())+'</div>';
+  const dayPromos=promosOnDay(dayIdx);
+  const dayEvents=eventsOnDay(dayIdx);
+
+    let cal='<div class="cal">';
+    cal+='<div class="cal-title">'+esc(weekLabel())+'</div>';
   cal+='<div class="cal-days">';
   days.forEach(function(d){
     const idx=d.getDay();
@@ -2779,11 +3604,24 @@ function renderPromosFeed(){
   cal+='</div></div>';
 
   let body='<div class="scroll">';
-  body+=renderPoetryCard();
-  if(ev) body+=renderEventCard(ev,dayIdx);
-  promos.forEach(function(p,i){ body+=renderPromoCard(p,dayIdx,i); });
-  if(!promos.length && !ev){
-    body+='<div class="empty">No promos scheduled for '+DAY_NAMES[dayIdx]+'.<br>Choose another day above.</div>';
+  const matchingRestaurants=hasBridge()?EatoutsBridge.restaurantCountAt(promoLocation()):0;
+
+  if(matchingRestaurants===0){
+    body+='<div class="empty">No Foodies Here Sorry,</div>';
+    body+='<div style="height:24px"></div></div>';
+    return cal+body;
+  }
+
+  /* the poetry card is a Gaborone feature */
+  if(state.promoTown==='All'||state.promoTown==='Gaborone') body+=renderPoetryCard();
+
+  dayEvents.forEach(function(x){ body+=renderEventCard(x.event,dayIdx,x.restaurant); });
+  dayPromos.forEach(function(x,i){ body+=renderPromoCard(x.promo,dayIdx,i,x.restaurant); });
+
+  if(!dayPromos.length && !dayEvents.length){
+    body+='<div class="empty">No promos for '+DAY_NAMES[dayIdx]+'<br>'+
+            'in '+esc(state.promoTown)+(state.promoType!=='All'?' &middot; '+esc(state.promoType):'')+'.<br><br>'+
+            'Try a different day, town, or type.</div>';
   }
   body+='<div style="height:24px"></div></div>';
   return cal+body;
@@ -2795,7 +3633,14 @@ function renderPromoDetail(){
   const p=found.promo;
   const day=found.day;
   const dayIdx=DAY_NAMES.indexOf(day);
-  const ev=eventFor(dayIdx);
+  const venue=found.restaurant?found.restaurant.name:((PROFILE&&PROFILE.name)||"");
+  let ev=null;
+  if(found.restaurant&&hasBridge()){
+    const c=EatoutsDB.resolveContent(found.restaurant.id);
+    ev=(c&&c.events||[]).find(function(e){return e.day===day;})||null;
+  }else{
+    ev=eventFor(dayIdx);
+  }
   const seats=state.promoSeats[p.id]||1;
   const addons=state.promoAddons[p.id]||{};
   let addonsTotal=0;
@@ -2823,15 +3668,15 @@ function renderPromoDetail(){
     '<div class="pimg" style="aspect-ratio:16/10">'+imgTag(promoImage(p),p.title)+'</div>'+
     '<div class="pbody">'+
     '<h3 style="margin:0 0 6px;font-size:19px;font-weight:900;line-height:1.2;color:#1a1a1a">'+esc(p.title)+'</h3>'+
-    '<div style="font-size:11.5px;color:#a89a7e;font-weight:700;margin-bottom:10px">'+esc(day)+' &middot; '+esc(p.valid)+'</div>'+
+    '<div style="font-size:11.5px;color:#a89a7e;font-weight:700;margin-bottom:10px">'+esc(venue)+' &middot; '+esc(day)+' &middot; '+esc(p.valid||"")+'</div>'+
     '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
     '<span class="chip g">'+fmt(p.price)+'</span>'+
     '<span class="chip">was '+fmt(p.was)+'</span>'+
     '<span class="chip">Save '+fmt(p.save)+'</span>'+
     '</div>'+
-    '<p class="mdesc">'+esc(p.desc)+'</p>'+
+    '<p class="mdesc">'+esc(p.desc||"")+'</p>'+
     '<div class="subh">Includes</div>'+
-    p.items.map(function(it){return '<div class="ctr"><div class="lbl">'+esc(it)+'</div></div>';}).join("")+
+    (p.items||[]).map(function(it){return '<div class="ctr"><div class="lbl">'+esc(it)+'</div></div>';}).join("")+
     '<div class="subh" style="margin-top:16px">Gallery &amp; Links</div>'+
     links+
     '<div class="subh" style="margin-top:16px">Reserve Your Spot</div>'+
@@ -2867,9 +3712,16 @@ function renderPromoGallery(){
 function renderPromoLink(){
   const found=promoById(state.promoId);
   if(!found)return '<div class="empty">Not found.</div>';
-  const ev=eventFor(DAY_NAMES.indexOf(found.day));
+  let ev=null;
+  if(found.restaurant&&hasBridge()){
+    const c=EatoutsDB.resolveContent(found.restaurant.id);
+    ev=(c&&c.events||[]).find(function(e){return e.day===found.day;})||null;
+  }else{
+    ev=eventFor(DAY_NAMES.indexOf(found.day));
+  }
   if(!ev)return '<div class="empty">No link details.</div>';
   const dayIdx=DAY_NAMES.indexOf(found.day);
+  const venue=found.restaurant?found.restaurant.name:((PROFILE&&PROFILE.name)||"");
   return '<div class="scroll">'+
     '<div class="crumb"><button data-act="backPromoLink">Back to Promo</button><span class="cur">Lineup</span></div>'+
     '<div class="pcard" style="margin-top:0">'+
@@ -2877,37 +3729,41 @@ function renderPromoLink(){
     '<div class="pbody">'+
     '<h3 style="margin:0 0 6px;font-size:17px;font-weight:900;color:#1a1a1a">'+esc(ev.name)+'</h3>'+
     '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
-    '<span class="chip g">'+esc(ev.time)+'</span>'+
+    '<span class="chip g">'+esc(venue)+'</span>'+
+    '<span class="chip">'+esc(ev.time)+'</span>'+
     '<span class="chip">Sponsored by '+esc(ev.sponsor)+'</span>'+
     '</div>'+
     '<p class="mdesc">'+esc(ev.desc)+'</p>'+
     '<div class="subh">Highlights</div>'+
-    '<ul class="phl">'+ev.highlights.map(function(h){return '<li>'+esc(h)+'</li>';}).join("")+'</ul>'+
-    '<button class="btn wa full" style="margin-top:14px" data-act="waEvent" data-day="'+dayIdx+'">Send via WhatsApp</button>'+
+    '<ul class="phl">'+(ev.highlights||[]).map(function(h){return '<li>'+esc(h)+'</li>';}).join("")+'</ul>'+
+    '<button class="btn wa full" style="margin-top:14px" data-act="waEvent" data-ev="'+esc(ev.id)+'">Send via WhatsApp</button>'+
     '</div></div><div style="height:24px"></div></div>';
 }
 
 /* ================================================================
    TAB 2: MENU
    ================================================================ */
-function renderMenuCategories(){
-  let h='<div class="scroll">';
-  h+='<div class="phead"><h2>Menu</h2><p>'+MENU.length+' categories · '+MENU_ITEM_COUNT+' items · '+(cartCount()>0?cartCount()+" in cart":"Tap a category to explore")+'</p></div>';
-  MENU.forEach(c=>{
+function renderMenuCategories(noWrap){
+  const M=curMenu();
+  const itemCount=M.reduce(function(s,c){return s+c.items.length;},0);
+  let h=noWrap?"":'<div class="scroll">';
+  h+='<div class="phead"><h2>Menu</h2><p>'+esc(curRestaurantName())+' &middot; '+M.length+' categories · '+itemCount+' items · '+(cartCount()>0?cartCount()+" in cart":"Tap a category to explore")+'</p></div>';
+  M.forEach(c=>{
     h+='<button class="cat-row" data-act="openCat" data-id="'+c.id+'">'+
       '<div class="cat-ico" style="'+artStyle(c.id)+'">'+c.icon+'</div>'+
       '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div>'+
       '<div class="cat-meta">'+c.items.length+' items</div></div></button>';
   });
-  h+='<div style="height:24px"></div></div>';
+  h+='<div style="height:24px"></div>';
+  if(!noWrap) h+='</div>';
   return h;
 }
 
 function renderMenuCategory(){
-  const cat=MENU.find(c=>c.id===state.menuCat);
+  const cat=curMenu().find(c=>c.id===state.menuCat);
   if(!cat)return '<div class="empty">Category not found.</div>';
   let h='<div class="scroll">';
-  h+='<div class="crumb"><button data-act="backCats">Menu</button><span class="sep">/</span><span class="cur">'+esc(cat.name)+'</span></div>';
+  h+='<div class="crumb"><button data-act="backCats">'+esc(curRestaurantName())+'</button><span class="sep">/</span><span class="cur">'+esc(cat.name)+'</span></div>';
   h+='<div class="phead" style="padding-top:0"><h2>'+esc(cat.name)+'</h2><p>'+cat.items.length+' items</p></div>';
   if(cat.note) h+='<div class="pad" style="padding-top:0;padding-bottom:0"><div class="ctr"><div class="lbl"><em style="margin:0">'+esc(cat.note)+'</em></div></div></div>';
   cat.items.forEach(it=>{
@@ -2971,7 +3827,7 @@ function renderMenuCategory(){
 function renderCheckout(){
   clearEmptyCart();
   const lines=[];
-  Object.keys(state.cart).forEach(k=>{
+  cartKeys().forEach(k=>{
     const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length)return;
     const it=getMenuItem(l.itemId);if(!it)return;
     const sz=itemSizes(it)[l.sizeIdx];
@@ -2979,9 +3835,10 @@ function renderCheckout(){
       size:sz[0]||null,price:sz[1],qty:l.qty,extras:l.extras||{},hasEx:!!(it.extras&&it.extras.length)});
   });
   const total=cartTotal();
+  const restName=curRestaurantName();
   let h='<div class="scroll">';
-  h+='<div class="crumb"><button data-act="backFromCheckout">Menu</button><span class="cur">Checkout</span></div>';
-  h+='<div class="phead" style="padding-top:0"><h2>Order Summary</h2><p>Review your items and send your order via WhatsApp</p></div>';
+  h+='<div class="crumb"><button data-act="backFromCheckout">'+esc(restName)+'</button><span class="cur">Checkout</span></div>';
+  h+='<div class="phead" style="padding-top:0"><h2>Order Summary</h2><p>'+esc(restName)+' &middot; review your items and send your order via WhatsApp</p></div>';
   if(!lines.length){
     h+='<div class="empty">Your cart is empty.</div>';
     h+='<div class="pad"><button class="btn ghost full" data-act="backFromCheckout">Back to Menu</button></div>';
@@ -3141,57 +3998,101 @@ function renderRestaurantGallery(){
    TAB 5: ABOUT
    ================================================================ */
 function renderAbout(){
-  let h='<div class="scroll">';
+  const brandName = 'EatOuts';
+  const brandBlurb = 'Discover restaurants, food, promos and events across Botswana.';
+  const city = (PROFILE && PROFILE.location && PROFILE.location.city) || 'Gaborone';
+  const area = (PROFILE && PROFILE.location && PROFILE.location.formatted_address) || 'Gaborone, Botswana';
 
-  /* 1. Large logo */
-  h+='<div class="about-hero" style="padding-top:24px">'+
-    '<img class="about-logo" src="'+IMG.logo+'" alt="'+esc(PROFILE.name)+'">'+
-    '<div style="text-align:center"><h2>'+esc(PROFILE.name)+'</h2>'+
-    '<p>'+esc(PROFILE.category)+' &middot; '+esc(PROFILE.location.formatted_address)+'</p></div></div>';
+  let h='<div class="scroll">';
+  h+='<div class="about-hero">'+
+    '<img class="about-logo" src="'+IMG.eatoutsLogo+'" alt="'+esc(brandName)+'">'+
+    /* no wordmark text here: the logo above already spells out EatOuts */
+    '<div style="text-align:center">'+
+    '<p>'+esc(brandBlurb)+'<br><span style="opacity:.75">'+esc(city)+' · '+esc(area)+'</span></p></div></div>';
+
+  h+='<div class="pad">';
+  h+='<button class="btn primary full" data-act="openAboutGallery">Open Restaurant Gallery</button>';
+  /* every icon in assets/icons, five to a line; the four with no link yet
+     render dimmed so the full set is visible and easy to fill in later */
+  h+='<div class="social-row">'+
+    '<a class="social-ico" href="https://www.instagram.com/theyellowgiraffebw/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="'+IMG.iconIG+'" alt="Instagram"></a>'+
+    '<a class="social-ico" href="https://www.facebook.com/p/The-Yellow-Giraffe-BW-61557884870901/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="'+IMG.iconFB+'" alt="Facebook"></a>'+
+    '<a class="social-ico" href="'+esc(waLink("*WHATSAPP ENQUIRY — EatOuts*\n\nHi! I would like to know more about EatOuts and the venues available."))+'" aria-label="WhatsApp"><img src="'+IMG.iconWA+'" alt="WhatsApp"></a>'+
+    '<span class="social-ico inert" aria-disabled="true"><img src="'+IMG.iconTT+'" alt="TikTok"></span>'+
+    '<span class="social-ico inert" aria-disabled="true"><img src="'+IMG.iconX+'" alt="X (Twitter)"></span>'+
+    '<span class="social-ico inert" aria-disabled="true"><img src="'+IMG.iconYT+'" alt="YouTube"></span>'+
+    '<span class="social-ico inert" aria-disabled="true"><img src="'+IMG.iconWeb+'" alt="Website"></span>'+
+    '<a class="social-ico" href="tel:'+esc(String(CONFIG.displayNumber||"").replace(/[^\d+]/g,""))+'" aria-label="Call"><img src="'+IMG.iconCall+'" alt="Call"></a>'+
+    '<a class="social-ico gps" href="https://maps.app.goo.gl/ftCWbv24eRgmd3uYA" target="_blank" rel="noopener noreferrer" aria-label="Location"><img src="'+IMG.iconGPS+'" alt="Location"></a>'+
+    '</div>';
+
+  h+='<div class="about-sec">About EatOuts</div>';
+  h+=aboutBlock('Platform','EatOuts helps people discover great restaurants, promotions, events and venue-booking opportunities in Botswana.');
+  h+=aboutBlock('Focus','Curated food, nightlife, coffee culture, and local hospitality with easy booking and direct WhatsApp enquiries.');
+  h+=aboutBlock('Featured City',city);
+  h+=aboutBlock('Location',area);
+
+  h+='<div class="about-sec">Why It Works</div>';
+  h+='<div class="tagwrap center">'+["Restaurant discovery","Daily promos","Venue booking","Local events","Easy WhatsApp"]
+     .map(function(t){return '<span class="chip pill">'+esc(t)+'</span>';}).join("")+'</div>';
+
+  h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waAbout">Send via WhatsApp</button></div>';
+  /* Operator sign-in for restaurant owners, below the WhatsApp button */
+  h+='<div style="margin-top:10px"><button class="btn primary full" data-act="openOperatorLogin">Operator</button></div>';
+  h+='</div><div style="height:34px"></div></div>';
+  return h;
+}
+/* subheading above body, centred, divided by a hairline */
+function aboutBlock(head,body){
+  return '<div class="ablock"><p class="abh">'+esc(head)+'</p><p class="abv">'+esc(body)+'</p></div>';
+}
+
+/* ================================================================
+   OPERATOR LOGIN
+   Reached from About Us. Stays inside the portrait shell - no
+   sidebar, no separate page. On success it hands off to the
+   owner console, which is guarded by js/eatouts-auth.js.
+   ============================================================ */
+function renderOperatorLogin(){
+  const demo=window.EatoutsAuth&&EatoutsAuth.demoCredentials;
+  const insecure=!(window.EatoutsAuth&&EatoutsAuth.secureContextAvailable());
+
+  let h='<div class="scroll">';
+  h+='<div class="about-hero">'+
+    '<img class="about-logo" src="'+IMG.eatoutsLogo+'" alt="EatOuts">'+
+    '<div style="text-align:center"><h2>Operator Sign in</h2>'+
+    '<p>Manage your restaurant profile, menu, promotions<br>and events.</p></div></div>';
 
   h+='<div class="pad">';
 
-  /* 2. Primary button */
-  h+='<button class="btn primary full" data-act="openAboutGallery">Open Restaurant Gallery</button>';
+  if(insecure){
+    h+='<div class="kv" style="border-color:#e0c9c9;background:#fdf6f6;border-radius:10px;padding:11px 12px;margin-bottom:14px">'+
+      '<span class="v" style="color:#8a3a3a">Sign-in needs <b>http://127.0.0.1</b>. '+
+      'Start <b>run-eatouts.bat</b> and open the address it prints. '+
+      'Password hashing is unavailable on <b>file://</b>.</span></div>';
+  }
 
-  /* 3. Social icon row */
-  h+='<div class="social-row">'+
-    '<a class="social-ico" href="https://www.instagram.com/theyellowgiraffebw?stkn=MWl3ZGQ4MGg5anJqag%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram">'+
-      '<img src="'+IMG.iconIG+'" alt="Instagram"></a>'+
-    '<a class="social-ico" href="https://www.facebook.com/p/The-Yellow-Giraffe-BW-61557884870901/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">'+
-      '<img src="'+IMG.iconFB+'" alt="Facebook"></a>'+
-    '<a class="social-ico" href="'+esc(waLink("*WHATSAPP ENQUIRY — "+PROFILE.name+"*\n\nHi! I'd like to know more about your venue."))+
-      '" aria-label="WhatsApp"><img src="'+IMG.iconWA+'" alt="WhatsApp"></a>'+
-    '</div>';
+  h+='<div class="subh">Sign in</div>';
+  h+='<div class="fld"><label>WhatsApp number</label>'+
+    '<input id="opWhats" type="tel" inputmode="tel" autocomplete="username" placeholder="'+
+    esc(demo?demo.whatsapp:"267")+'" value="'+(demo?esc(demo.whatsapp):"")+'"></div>';
 
-  h+='<div class="subh">Location</div>';
-  h+='<div class="kv"><span class="k">Street</span><span class="v">'+esc(PROFILE.location.street)+'</span></div>';
-  h+='<div class="kv"><span class="k">City</span><span class="v">'+esc(PROFILE.location.city)+'</span></div>';
-  h+='<div class="kv"><span class="k">Country</span><span class="v">'+esc(PROFILE.location.country)+'</span></div>';
-  h+='<div class="kv"><span class="k">Formatted</span><span class="v">'+esc(PROFILE.location.formatted_address)+'</span></div>';
+  h+='<div class="fld"><label>Password</label>'+
+    '<input id="opPass" type="password" autocomplete="current-password" placeholder="'+
+    esc(demo?demo.password:"")+'" value="'+(demo?esc(demo.password):"")+'"></div>';
 
-  h+='<div class="subh" style="margin-top:20px">Operating Hours</div>';
-  h+='<div class="kv"><span class="k">Monday – Wednesday</span><span class="v">'+PROFILE.operating_hours.weekday_early.open+' – '+PROFILE.operating_hours.weekday_early.close+'</span></div>';
-  h+='<div class="kv"><span class="k">Thursday – Friday</span><span class="v">'+PROFILE.operating_hours.weekday_late.open+' – '+PROFILE.operating_hours.weekday_late.close+'</span></div>';
-  h+='<div class="kv"><span class="k">Happy Hour (Thu–Fri)</span><span class="v">'+PROFILE.operating_hours.weekday_late.happy_hour.start+' – '+PROFILE.operating_hours.weekday_late.happy_hour.end+'</span></div>';
-  h+='<div class="kv"><span class="k">Saturday</span><span class="v">'+PROFILE.operating_hours.weekend.open+' – '+PROFILE.operating_hours.weekend.close+'</span></div>';
-  h+='<div class="kv"><span class="k">Sunday</span><span class="v">Closed</span></div>';
+  h+='<div id="opErr" style="display:none;color:#8a3a3a;font-size:12px;font-weight:700;margin:-2px 0 10px"></div>';
 
-  h+='<div class="subh" style="margin-top:20px">Ambience</div>';
-  h+='<div class="tagwrap">'+PROFILE.attributes.ambience.map(a=>'<span class="chip">'+esc(a)+'</span>').join("")+'</div>';
+  h+='<button class="btn primary full" data-act="doOperatorLogin"'+(insecure?" disabled":"")+'>Log in</button>';
 
-  h+='<div class="subh" style="margin-top:20px">Amenities</div>';
-  h+='<div class="tagwrap">'+PROFILE.attributes.amenities.map(a=>'<span class="chip">'+esc(a)+'</span>').join("")+'</div>';
+  /* Demo is a real feature: one tap into The Yellow Giraffe */
+  h+='<div class="subh" style="margin-top:22px">Or preview as</div>';
+  h+='<button class="btn primary full" data-act="doOperatorDemo">Demo &mdash; The Yellow Giraffe</button>';
+  h+='<p style="font-size:11px;color:#a89a7e;text-align:center;margin:9px 0 0;line-height:1.5">'+
+    'Opens the owner console as The Yellow Giraffe so you can view and change its information. '+
+    'Credentials above are <b>'+esc(demo?demo.whatsapp:"0")+'</b> / <b>'+esc(demo?demo.password:"0")+'</b> &mdash; still a demo.</p>';
 
-  h+='<div class="subh" style="margin-top:20px">Menu Tags</div>';
-  h+='<div class="tagwrap">'+PROFILE.menu_tags.map(t=>'<span class="chip g">'+esc(t)+'</span>').join("")+'</div>';
-
-  h+='<div class="subh" style="margin-top:20px">Capacity</div>';
-  h+='<div class="kv"><span class="k">Seated</span><span class="v">250</span></div>';
-  h+='<div class="kv"><span class="k">Standing</span><span class="v">400</span></div>';
-
-  h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waAbout">Send via WhatsApp</button></div>';
-
+  h+='<div style="margin-top:20px"><button class="btn ghost full" data-act="backFromOperatorLogin">Back to About Us</button></div>';
   h+='</div><div style="height:34px"></div></div>';
   return h;
 }
@@ -3199,7 +4100,26 @@ function renderAbout(){
 /* ================================================================
    MAIN RENDER
    ================================================================ */
-function render(){renderViewport();}
+function bootEatoutsBridge(){
+  if(!window.EatoutsBridge || typeof window.EatoutsBridge.setSource !== "function") return;
+  const source={
+    profile: PROFILE || null,
+    menu: MENU || [],
+    gallery: GALLERY || [],
+    promos: PROMOS || {},
+    events: EVENTS || {},
+    performers: (window.PERFORMERS || [])
+  };
+  window.EatoutsBridge.setSource(source);
+  if(typeof window.EatoutsBridge.ensureSeeded === "function") window.EatoutsBridge.ensureSeeded();
+  if(typeof window.EatoutsBridge.setDayNames === "function") window.EatoutsBridge.setDayNames(DAY_NAMES);
+  cbarDataRev++;
+}
+
+function render(){
+  bootEatoutsBridge();
+  renderViewport();
+}
 
 /* ================================================================
    EVENT HANDLING
@@ -3207,9 +4127,32 @@ function render(){renderViewport();}
 document.addEventListener("click",function(e){
   const nav=e.target.closest("[data-tab]");
   if(nav){
-    state.tab=nav.getAttribute("data-tab");
+    const nextTab=nav.getAttribute("data-tab");
+    /* tapping Promos again while on Promos shows/hides the promo filter bar */
+    if(nextTab==="promos" && state.tab==="promos"){
+      state.promoFilterOpen=!state.promoFilterOpen;
+      if(!state.promoFilterOpen){state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;}
+      /* only the filter bar changes here - a full render() was flashing the
+         whole promo feed just to toggle one CSS class */
+      renderControlBar();return;
+    }
+    /* same deal on Restaurants, but only from the list itself - inside a
+       restaurant sub-view the tap means "take me back to the list" */
+    if(nextTab==="restaurants" && state.tab==="restaurants" && !state.restaurantView){
+      state.restFilterOpen=!state.restFilterOpen;
+      if(!state.restFilterOpen){state.filterOpen=false;}
+      renderControlBar();return;
+    }
+    state.tab=nextTab;
+    state.promoFilterOpen=false;
+    state.operatorView="about";
     if(state.tab==="promos"){state.promoView="feed";state.promoId=null;state.promoGalleryId=null;state.promoExpanded=null;}
     if(state.tab==="menu"){state.menuCat=null;state.menuOpen=null;state.checkoutView=false;}
+    if(state.tab==="restaurants"){
+      /* always land back on the list, and hide the filter bar again.
+         The cuisine choice and search text are kept deliberately. */
+      state.restaurantView=null;state.restaurantOpen=null;state.restFilterOpen=false;
+    }
     if(state.tab==="reserve"){state.reserveCat=null;state.reserveSub=null;}
     if(state.tab==="gallery"){state.galleryView="grid";state.galleryPhoto=null;state.filterOpen=false;state.searchOpen=false;}
     if(state.tab==="about"){state.aboutView="main";}
@@ -3260,12 +4203,55 @@ document.addEventListener("click",function(e){
     return;
   }
   if(act==="waEvent"){
-    const dayIdx=parseInt(t.getAttribute("data-day"),10);
-    const ev=eventFor(dayIdx);if(!ev)return;
-    const msg="*EVENT INQUIRY*\nEvent: "+ev.name+"\nDay: "+DAY_NAMES[dayIdx]+"\nTime: "+ev.time+"\n\nPlease share more details.";
+    const evId=t.getAttribute("data-ev") || t.getAttribute("data-day");
+    let evInfo = null;
+    if(evId){
+      evInfo = hasBridge() ? EatoutsBridge.findEventAnywhere(evId) : null;
+      if(!evInfo && evId!==null && evId!==undefined){
+        const dayIdx=parseInt(evId,10);
+        const ev=eventFor(dayIdx);
+        if(ev){
+          evInfo={event:ev, day:DAY_NAMES[dayIdx]||"Today", restaurant:{name:(PROFILE&&PROFILE.name)||"The Yellow Giraffe"}};
+        }
+      }
+    }
+    if(!evInfo || !evInfo.event) return;
+    const day=evInfo.day || (evInfo.event.day || "Today");
+    const venueName=(evInfo.restaurant && evInfo.restaurant.name) || (PROFILE && PROFILE.name) || "EatOuts";
+    const msg="*EVENT INQUIRY*\nEvent: "+(evInfo.event.name || evInfo.event.title || "Event")+"\nVenue: "+venueName+"\nDay: "+day+"\nTime: "+(evInfo.event.time || "TBC")+"\n\nPlease share more details.";
     window.location.href=waLink(msg);
     return;
   }
+  if(act==="pickTown"){
+    state.promoTown=t.getAttribute("data-town")||"All";
+    state.promoDistrict=t.getAttribute("data-district")||"";
+    state.promoDistrictName=t.getAttribute("data-district-name")||"";
+    state.promoArea="All";state.promoTownPicker=false;state.promoAreaPicker=false;render();return;
+  }
+  if(act==="pickArea"){
+    state.promoTown=t.getAttribute("data-town")||"All";
+    state.promoDistrict=t.getAttribute("data-district")||"";
+    state.promoDistrictName=t.getAttribute("data-district-name")||"";
+    state.promoArea=t.getAttribute("data-area")||"All";state.promoTownPicker=false;state.promoAreaPicker=false;render();return;
+  }
+  if(act==="pickPromoType"){state.promoType=t.getAttribute("data-val")||"All";state.promoTypePicker=false;render();return;}
+  if(act==="openTownPicker"){state.promoTownPicker=true;state.promoAreaPicker=false;state.promoTypePicker=false;renderControlBar();return;}
+  if(act==="openAreaPicker"){if(state.promoTown==="All")return;state.promoAreaPicker=true;state.promoTownPicker=false;state.promoTypePicker=false;renderControlBar();return;}
+  if(act==="openPromoTypePicker"){state.promoTypePicker=true;state.promoTownPicker=false;state.promoAreaPicker=false;renderControlBar();return;}
+  if(act==="closePickers"){state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;renderControlBar();return;}
+  if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;syncRestAccordions();return;}
+  if(act==="openRestView"){state.restaurantOpen=id;state.restaurantView={id:id,view:t.getAttribute("data-view")||"menu",promoId:null};if(hasBridge())EatoutsBridge.setActive(id);render();return;}
+  if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;render();return;}
+  if(act==="openRestPromo"){state.restaurantView={id:id,view:"promo",promoId:t.getAttribute("data-promo")||null};render();return;}
+  if(act==="backRestPromo"){if(state.restaurantView){state.restaurantView.view="promos";state.restaurantView.promoId=null;}render();return;}
+  if(act==="waVenue"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const venueType=document.getElementById("venueType")||{};const venueDate=document.getElementById("venueDate")||{};const venuePax=document.getElementById("venuePax")||{};const venueNotes=document.getElementById("venueNotes")||{};const msg="*VENUE BOOKING INQUIRY*\nVenue: "+venue+"\nEvent Type: "+(venueType.value||"TBC")+"\nDate: "+(venueDate.value||"TBC")+"\nGuests: "+(venuePax.value||"TBC")+"\nNotes: "+(venueNotes.value||"N/A");window.location.href=waLink(msg);return;}
+  if(act==="waRestPromo"){const r=hasBridge()?EatoutsBridge.byId(id):null;const promo=(r && EatoutsBridge.bundleOf(r.id)) ? ((function(){for(const d in EatoutsBridge.bundleOf(r.id).promos){const found=(EatoutsBridge.bundleOf(r.id).promos[d]||[]).find(x=>x.id===t.getAttribute("data-promo"));if(found)return found;}return null;})()) : null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const p=promo||{};const msg="*PROMO ENQUIRY*\nVenue: "+venue+"\nPromo: "+(p.title||"Promo")+"\nPrice: P"+(p.price||0)+"\nValid: "+(p.valid||"TBC")+"\n\nPlease confirm availability.";window.location.href=waLink(msg);return;}
+  if(act==="waRestAbout"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const msg="*VENUE INQUIRY*\nVenue: "+venue+"\n\nHi! I'd like to know more about this location.";window.location.href=waLink(msg);return;}
+  if(act==="cycleRestType"){state.filterOpen=!state.filterOpen;renderControlBar();return;}
+  if(act==="pickRestType"){state.restType=t.getAttribute("data-val")||"All";state.filterOpen=false;render();return;}
+  if(act==="closeRestFilter"){state.filterOpen=false;renderControlBar();return;}
+  if(act==="openRestSearch"){state.restSearchOpen=true;render();setTimeout(function(){const i=document.getElementById("rsearch");if(i)i.focus();},60);return;}
+  if(act==="closeRestSearch"){state.restSearchOpen=false;state.restSearch="";render();return;}
 
   /* MENU */
   if(act==="openCat"){state.menuCat=id;state.menuOpen=null;render();return;}
@@ -3287,7 +4273,7 @@ document.addEventListener("click",function(e){
     if(notesEl)state.orderNotes=notesEl.value;
     if(!state.orderName.trim()||!state.orderContact.trim()){alert("Please enter your name and contact number.");return;}
     let lines=[];
-    Object.keys(state.cart).forEach(k=>{
+    cartKeys().forEach(k=>{
       const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length)return;
       const it=getMenuItem(l.itemId);if(!it)return;
       const sz=itemSizes(it)[l.sizeIdx];
@@ -3296,7 +4282,8 @@ document.addEventListener("click",function(e){
         if(l.extras[ei]>0&&it.extras[ei])lines.push(" + "+l.extras[ei]+"x "+it.extras[ei][0]+" (P"+(it.extras[ei][1]*l.extras[ei]).toFixed(2)+")");
       });
     });
-    let msg="*NEW MENU ORDER*\nName: "+state.orderName+"\nContact: "+state.orderContact+
+    if(!lines.length){alert("Your cart is empty.");return;}
+    let msg="*NEW MENU ORDER*\nVenue: "+curRestaurantName()+"\nName: "+state.orderName+"\nContact: "+state.orderContact+
       (state.orderNotes.trim()?"\nNotes: "+state.orderNotes.trim():"")+
       "\n\n*Order Summary:*\n"+lines.join("\n")+"\n\n*Total:* P"+cartTotal().toFixed(2);
     window.location.href=waLink(msg);
@@ -3334,8 +4321,38 @@ document.addEventListener("click",function(e){
   /* ABOUT */
   if(act==="openAboutGallery"){state.aboutView="gallery";render();return;}
   if(act==="backAboutGallery"){state.aboutView="main";render();return;}
+
+  /* OPERATOR LOGIN */
+  if(act==="openOperatorLogin"){
+    if(state.tab!=="about"){state.tab="about";state.aboutView="main";}
+    state.operatorView="login";render();return;
+  }
+  if(act==="backFromOperatorLogin"){state.operatorView="about";state.aboutView="main";render();return;}
+  if(act==="doOperatorLogin"){
+    const wEl=document.getElementById("opWhats"), pEl=document.getElementById("opPass");
+    const errEl=document.getElementById("opErr");
+    const show=(msg)=>{if(errEl){errEl.textContent=msg;errEl.style.display="block";}};
+    const whats=wEl?wEl.value:"", pass=pEl?pEl.value:"";
+    if(!window.EatoutsAuth){show("Sign-in is unavailable.");return;}
+    setTimeout(function(){
+      EatoutsAuth.login(whats,pass).then(function(res){
+        if(res.ok){location.href="restaurant-dashboard.html";return;}
+        show(res.message||"Sign-in failed.");
+        if(pEl){pEl.value="";pEl.focus();}
+      }).catch(function(){show("Sign-in failed. Check the console.");});
+    },30);
+    return;
+  }
+  if(act==="doOperatorDemo"){
+    if(!window.EatoutsAuth){alert("Sign-in is unavailable.");return;}
+    EatoutsAuth.loginDemo().then(function(res){
+      if(res.ok){location.href="restaurant-dashboard.html";return;}
+      alert(res.message||"Demo login failed.");
+    });
+    return;
+  }
   if(act==="waAbout"){
-    const msg="*INQUIRY — "+PROFILE.name+"*\n\nHi! I'd like to know more about your venue.";
+    const msg="*INQUIRY — EatOuts*\n\nHi! I'd like to know more about EatOuts and the venues available.";
     window.location.href=waLink(msg);
     return;
   }
@@ -3359,9 +4376,15 @@ document.addEventListener("input",function(e){
     const inp=document.getElementById("gsearch");
     if(inp){inp.value=val;inp.focus();inp.setSelectionRange(val.length,val.length);}
   }
-if(e.target.id==="orderName")state.orderName=e.target.value;
-if(e.target.id==="orderContact")state.orderContact=e.target.value;
-if(e.target.id==="orderNotes")state.orderNotes=e.target.value;
+  if(e.target.id==="rsearch"){
+    state.restSearch=e.target.value;
+    render();
+    const inp=document.getElementById("rsearch");
+    if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}
+  }
+  if(e.target.id==="orderName")state.orderName=e.target.value;
+  if(e.target.id==="orderContact")state.orderContact=e.target.value;
+  if(e.target.id==="orderNotes")state.orderNotes=e.target.value;
 });
 
 /* Swiper dot indicator (vertical paging) */
@@ -3376,7 +4399,14 @@ document.addEventListener("scroll",function(e){
 },true);
 
 /* Boot */
+bootEatoutsBridge();
 render();
+window.addEventListener("storage",function(e){
+  if(e.key===EatoutsDB.KEY||e.key===null){
+    bootEatoutsBridge();
+    render();
+  }
+});
 </script>
 </body>
 </html>

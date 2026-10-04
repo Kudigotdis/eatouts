@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Restaurant Setup — Eatouts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--border:#e7e4dd;--ok:#17834b;--danger:#c43c3c;--radius:16px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:16px;letter-spacing:-.02em;color:var(--black)}
+.brand span{color:var(--gold)}
+.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.tabs{position:sticky;top:57px;z-index:49;background:#fff;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 8px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:12px 14px;font-size:12.5px;font-weight:800;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+.tab.active{color:var(--black);border-bottom-color:var(--gold)}
+.app{max-width:1180px;margin:0 auto;padding-bottom:130px}
+.section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;overflow:hidden}
+.section-hdr{min-height:58px;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;gap:12px}
+.section-title{font-weight:800;font-size:14.5px;flex:1}
+.section-title small{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.chev{color:var(--muted);transition:transform .2s;flex:0 0 auto;font-size:11px}
+.section.open .chev{transform:rotate(180deg)}
+.section-body{padding:0 16px 18px;display:none}
+.section.open .section-body{display:block}
+.field{margin-bottom:14px}
+.field label{display:block;margin-bottom:7px;font-size:12.5px;font-weight:750;color:#3a3324}
+.field .hint{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500}
+input,textarea,select{width:100%;min-height:46px;border:1px solid var(--border);border-radius:12px;padding:11px 13px;background:#fff;color:var(--text);font:inherit;font-size:13.5px;outline:0}
+textarea{min-height:96px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.btn{min-height:44px;border:0;border-radius:12px;padding:0 16px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:var(--black);color:#fff}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:#3a3324}
+.btn-danger{background:#fbeaea;color:var(--danger)}
+.btn-sm{min-height:34px;padding:0 11px;font-size:11.5px;border-radius:9px}
+.btn-full{width:100%}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;min-height:34px;padding:0 13px;border-radius:999px;background:#f0eee8;font-size:12px;font-weight:700;cursor:pointer;border:1px solid transparent;color:#5c5547}
+.chip.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.chip.add{background:#fff;border:1.5px dashed var(--border);color:var(--muted)}
+.record{border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:10px;background:#fff}
+.record-title{font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.record-meta{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.5}
+.record-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.empty{border:1.5px dashed var(--border);border-radius:14px;padding:22px 16px;text-align:center;color:var(--muted);font-size:13px}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.badge.draft{background:#f0eee8;color:#7a7466}
+.badge.published{background:#e3f5e9;color:#17834b}
+.badge.primary{background:#eef4ff;color:#3a5cff}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;box-shadow:0 8px 30px -8px rgba(0,0,0,.3)}
+.toast.on{opacity:1}
+.action-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:1180px;background:#fff;border-top:1px solid var(--border);border-left:1px solid var(--border);border-right:1px solid var(--border);border-radius:16px 16px 0 0;padding:12px 16px;display:flex;gap:10px;z-index:40;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.action-bar .btn{flex:1}
+.modal-scrim{position:fixed;inset:0;background:rgba(20,18,14,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:701px){.modal-scrim{align-items:center;padding:20px}}
+.modal{background:#fff;width:100%;max-width:520px;max-height:92vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
+@media(min-width:701px){.modal{border-radius:20px}}
+.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.modal-hdr h3{margin:0;font-size:15px;font-weight:800;flex:1}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;background:#fafaf7}
+.modal-foot .btn{flex:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.switch{display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;user-select:none}
+.switch input{display:none}
+.switch .track{width:44px;height:26px;background:#ddd;border-radius:999px;position:relative;transition:background .2s;flex:0 0 auto}
+.switch .track:after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.switch input:checked + .track{background:var(--gold)}
+.switch input:checked + .track:after{transform:translateX(18px)}
+.switch .lbl{font-size:13px;font-weight:700;flex:1}
+.completeness{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;margin:12px;display:flex;align-items:center;gap:14px}
+.completeness .bar{flex:1;height:8px;background:#eee;border-radius:999px;overflow:hidden}
+.completeness .bar i{display:block;height:100%;background:#0d0d0d;border-radius:999px}
+.completeness .pct{font-weight:900;font-size:18px;color:var(--gold)}
+.completeness .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.mini{font-size:11px;color:var(--muted);margin-top:4px}
+.mini b{color:#3a3324}
+.logo-preview{width:88px;height:88px;border-radius:14px;background:#fafaf7;border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;overflow:hidden;text-align:center;padding:6px}
+.logo-preview img{width:100%;height:100%;object-fit:contain}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">EAT<span>OUTS</span></div>
+  <div class="page">Restaurant Setup</div>
+  <span id="statusBadge" class="badge draft">Draft</span>
+</header>
+<nav class="tabs">
+  <a class="tab active" href="restaurant-onboarding.html">Restaurant</a>
+  <a class="tab" href="menu-onboarding.html">Menu</a>
+  <a class="tab" href="promo-onboarding.html">Promos</a>
+  <a class="tab" href="event-onboarding.html">Events</a>
+  <a class="tab" href="gallery-onboarding.html">Gallery</a>
+  <a class="tab" href="restaurant-dashboard.html">Dashboard</a>
+</nav>
+
+<main id="app" class="app"></main>
+
+<div class="action-bar">
+  <button class="btn btn-ghost" id="btnDraft">Save Draft</button>
+  <button class="btn btn-primary" id="btnPreview">Preview</button>
+  <button class="btn btn-gold" id="btnPublish">Publish</button>
+</div>
+<div id="toast" class="toast"></div>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-owner-compat.js"></script>
+<script>
+/* Operator pages are only reachable through the About Us sign-in.
+   This runs before any page content paints. */
+if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
+else{EatoutsAuth.applyActive();}
+</script>
+<script>
+/* ========== SHARED CORE ========== */
+const DB_KEY=EatoutsDB.KEY;
+const EMPTY_DB={version:1,
+  restaurant:{id:'rest_001',
+    identity:{name:'',description:'',logo:'',coverImage:'',types:[],status:'draft'},
+    location:{city:'',area:'',plotNumber:'',streetName:'',streetNumber:'',building:'',landmark:'',latitude:null,longitude:null},
+    contacts:[],socials:[],
+    operatingHours:{title:'Operating Hours',weekly:[],customSchedules:[]},
+    character:{title:'Restaurant Character',options:[]},
+    amenities:{title:'Amenities',options:[]},
+    menuTags:{title:'Menu Tags',options:[]},
+    capacity:[],payments:[],
+    reservations:{enabled:true,whatsappContactId:null,callContactId:null,minimumGuests:2,maximumGuests:12,sameDay:true,advanceBooking:true,cancellationNotes:'',notes:''},
+    reservationServices:[],serviceStaff:[],users:[]},
+  menuCategories:[],menuItems:[],promos:[],events:[],performers:[],performances:[],galleryGroups:[],galleryImages:[],
+  settings:{currency:'BWP',currencySymbol:'P',countryCode:'BW'}};
+
+function dbLoad(){return EatoutsOwnerCompat.load();}
+function dbSave(db){EatoutsOwnerCompat.save(db);}
+function uid(p){return p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
+function move(arr,id,dir){const i=arr.findIndex(x=>x.id===id);if(i<0)return;const j=i+dir;if(j<0||j>=arr.length)return;const tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;arr.forEach((x,k)=>x.order=k+1);}
+
+let DB=dbLoad();
+function save(silent){dbSave(DB);if(!silent)toast('Saved');render();}
+
+/* ========== MODAL SYSTEM ========== */
+function openForm({title,fields,values,onSave,saveLabel}){
+  values=values||{};
+  const scrim=document.createElement('div');
+  scrim.className='modal-scrim';
+  scrim.innerHTML=`<div class="modal">
+    <div class="modal-hdr"><h3>${esc(title)}</h3><button class="btn btn-ghost btn-sm" data-close>Close</button></div>
+    <div class="modal-body">${fields.map(f=>renderField(f,values[f.key])).join('')}</div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close>Cancel</button>
+      <button class="btn btn-gold" data-save>${esc(saveLabel||'Save')}</button>
+    </div></div>`;
+  document.body.appendChild(scrim);
+  scrim.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>scrim.remove());
+  scrim.querySelector('[data-save]').onclick=()=>{
+    const out={};
+    fields.forEach(f=>{
+      const el=scrim.querySelector(`[name="${f.key}"]`);if(!el)return;
+      if(f.type==='checkbox')out[f.key]=el.checked;
+      else if(f.type==='number')out[f.key]=el.value===''?null:Number(el.value);
+      else out[f.key]=el.value;
+    });
+    onSave(out);scrim.remove();
+  };
+}
+function renderField(f,v){
+  if(f.type==='textarea')return `<div class="field"><label>${esc(f.label)}</label><textarea name="${f.key}">${esc(v||'')}</textarea>${f.hint?`<div class="hint">${esc(f.hint)}</div>`:''}</div>`;
+  if(f.type==='select')return `<div class="field"><label>${esc(f.label)}</label><select name="${f.key}">${(f.options||[]).map(o=>{const val=typeof o==='string'?o:o.value;const lbl=typeof o==='string'?o:o.label;return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lbl)}</option>`;}).join('')}</select></div>`;
+  if(f.type==='checkbox')return `<label class="switch"><input type="checkbox" name="${f.key}"${v?' checked':''}><span class="track"></span><span class="lbl">${esc(f.label)}</span></label>`;
+  return `<div class="field"><label>${esc(f.label)}</label><input type="${f.type||'text'}" name="${f.key}" value="${esc(v||'')}" placeholder="${esc(f.placeholder||'')}">${f.hint?`<div class="hint">${esc(f.hint)}</div>`:''}</div>`;
+}
+
+/* ========== SECTION TOGGLES (persisted across renders) ========== */
+const OPEN={identity:1,location:1,contacts:1};
+function toggleSection(k){OPEN[k]=!OPEN[k];render();}
+
+/* ========== RENDER SECTIONS ========== */
+const R=()=>DB.restaurant;
+const money=v=>DB.settings.currencySymbol+(Number(v)||0).toFixed(2);
+
+function renderIdentity(){
+  const id=R().identity;
+  const TYPES=['Restaurant','Café','Fast Food','Takeaway','Bakery','Bar & Grill','Pub','Lounge','Bistro','Food Court','Coffee Shop','Steakhouse','Pizzeria','Family Restaurant','Fine Dining','Food Truck','Other'];
+  return `<div class="section ${OPEN.identity?'open':''}" data-sec="identity">
+    <div class="section-hdr" data-toggle="identity"><div class="section-title">01 · Restaurant Identity<small>Name, logo, cover, type</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      <div class="field"><label>Logo</label>
+        <div class="logo-preview" data-act="pickLogo">${id.logo?`<img src="${esc(id.logo)}" alt="">`:'+ Upload Logo'}</div>
+      </div>
+      <div class="field"><label>Cover Image</label>
+        <div class="logo-preview" data-act="pickCover" style="width:100%;height:120px">${id.coverImage?`<img src="${esc(id.coverImage)}" alt="" style="object-fit:cover">`:'+ Upload Cover'}</div>
+      </div>
+      <div class="field"><label>Restaurant Name *</label><input id="f_name" value="${esc(id.name)}" placeholder="e.g. The Yellow Giraffe Coffee Club"></div>
+      <div class="field"><label>Description</label><textarea id="f_desc" placeholder="A short description customers will read first.">${esc(id.description)}</textarea></div>
+      <div class="field"><label>Restaurant Type</label>
+        <div class="chips" id="typeChips">
+          ${TYPES.map(t=>`<span class="chip ${id.types.includes(t)?'active':''}" data-act="toggleType" data-val="${esc(t)}">${esc(t)}</span>`).join('')}
+          <span class="chip add" data-act="addType">+ Add custom type</span>
+        </div>
+      </div>
+      ${id.types.filter(t=>!TYPES.includes(t)).length?`
+        <div class="field"><label>Custom Types</label>
+          <div class="chips">${id.types.filter(t=>!TYPES.includes(t)).map(t=>`<span class="chip active" data-act="toggleType" data-val="${esc(t)}">${esc(t)} ✕</span>`).join('')}</div>
+        </div>`:''}
+    </div></div>`;
+}
+
+function renderLocation(){
+  const l=R().location;
+  return `<div class="section ${OPEN.location?'open':''}" data-sec="location">
+    <div class="section-hdr" data-toggle="location"><div class="section-title">02 · Location<small>Village / Town / City → Area</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      <div class="grid2">
+        <div class="field"><label>Village / Town / City *</label><input id="f_city" value="${esc(l.city)}" placeholder="Gaborone"></div>
+        <div class="field"><label>Area / Neighbourhood</label><input id="f_area" value="${esc(l.area)}" placeholder="CBD"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Plot Number</label><input id="f_plot" value="${esc(l.plotNumber)}"></div>
+        <div class="field"><label>Street Name</label><input id="f_street" value="${esc(l.streetName)}"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Street Number</label><input id="f_streetNo" value="${esc(l.streetNumber)}"></div>
+        <div class="field"><label>Building / Complex</label><input id="f_building" value="${esc(l.building)}"></div>
+      </div>
+      <div class="field"><label>Landmark</label><input id="f_landmark" value="${esc(l.landmark)}" placeholder="e.g. Opposite Airport Junction"></div>
+      <div class="grid2">
+        <div class="field"><label>Latitude</label><input id="f_lat" value="${l.latitude==null?'':l.latitude}"></div>
+        <div class="field"><label>Longitude</label><input id="f_lng" value="${l.longitude==null?'':l.longitude}"></div>
+      </div>
+      <div class="row">
+        <button class="btn btn-ghost btn-sm" data-act="useCurrent">Use Current Location</button>
+        <button class="btn btn-ghost btn-sm" data-act="previewMap">Preview Map</button>
+      </div>
+    </div></div>`;
+}
+
+function renderContacts(){
+  const cs=R().contacts;
+  const PURPOSES=['General enquiries','Orders','Reservations','Delivery','Catering','Events','Functions','Manager','Customer support','Other'];
+  return `<div class="section ${OPEN.contacts?'open':''}" data-sec="contacts">
+    <div class="section-hdr" data-toggle="contacts"><div class="section-title">03 · Contact Numbers<small>${cs.length} number${cs.length===1?'':'s'} · reused by promos, events, menus</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      ${cs.length?cs.map(c=>`
+        <div class="record">
+          <div class="record-title">${esc(c.title||'Number')}
+            ${c.primary?'<span class="badge primary">Primary</span>':''}
+            ${c.whatsapp?'<span class="badge published">WhatsApp</span>':''}
+            ${c.active===false?'<span class="badge draft">Inactive</span>':''}
+          </div>
+          <div class="record-meta">${esc(c.countryCode||'')} ${esc(c.number||'')}<br>Purpose: ${esc(c.purpose||'—')}</div>
+          <div class="record-actions">
+            <button class="btn btn-ghost btn-sm" data-act="editContact" data-id="${c.id}">Edit</button>
+            <button class="btn btn-ghost btn-sm" data-act="dupContact" data-id="${c.id}">Duplicate</button>
+            <button class="btn btn-ghost btn-sm" data-act="moveContact" data-id="${c.id}" data-dir="-1">↑</button>
+            <button class="btn btn-ghost btn-sm" data-act="moveContact" data-id="${c.id}" data-dir="1">↓</button>
+            <button class="btn btn-danger btn-sm" data-act="delContact" data-id="${c.id}">Remove</button>
+          </div>
+        </div>`).join(''):'<div class="empty">No contact numbers yet. Add at least one.</div>'}
+      <button class="btn btn-ghost btn-full" style="margin-top:10px" data-act="addContact">+ Add Contact Number</button>
+    </div></div>`;
+}
+
+function renderSocials(){
+  const s=R().socials[0]||{};
+  const PLATFORMS=['instagram','facebook','whatsapp','tiktok','youtube','twitter','website'];
+  return `<div class="section ${OPEN.socials?'open':''}" data-sec="socials">
+    <div class="section-hdr" data-toggle="socials"><div class="section-title">04 · Social Links</div><span class="chev">▾</span></div>
+    <div class="section-body">
+      ${PLATFORMS.map(p=>`<div class="field"><label>${p[0].toUpperCase()+p.slice(1)}</label><input data-social="${p}" value="${esc(s[p]||'')}"></div>`).join('')}
+    </div></div>`;
+}
+
+function renderHours(){
+  const h=R().operatingHours;
+  const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  return `<div class="section ${OPEN.hours?'open':''}" data-sec="hours">
+    <div class="section-hdr" data-toggle="hours"><div class="section-title">05 · Operating Hours<small>Standard weekly + custom schedules (Happy Hour, Brunch…)</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      <div class="field"><label>Section Title</label><input id="f_hours_title" value="${esc(h.title)}"></div>
+      ${DAYS.map(d=>{
+        const p=h.weekly.find(x=>x.day===d)||{day:d,open:'',close:'',closed:false};
+        return `<div class="grid2" style="grid-template-columns:90px 1fr 1fr;margin-bottom:8px">
+          <label class="mini" style="align-self:center"><b>${d.slice(0,3)}</b></label>
+          <input type="time" data-hr="${d}" data-k="open" value="${esc(p.open||'')}">
+          <input type="time" data-hr="${d}" data-k="close" value="${esc(p.close||'')}">
+        </div>`;
+      }).join('')}
+      <div class="row" style="margin-top:6px"><span class="mini">Tip: leave both empty to mark a day as <b>closed</b>.</span></div>
+
+      <div class="mini" style="margin:18px 0 8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em">Custom Schedules</div>
+      ${h.customSchedules.length?h.customSchedules.map(s=>`
+        <div class="record">
+          <div class="record-title">${esc(s.title||'Schedule')}</div>
+          <div class="record-meta">${esc(s.days||'')} · ${esc(s.start||'')}–${esc(s.end||'')}</div>
+          <div class="record-actions">
+            <button class="btn btn-ghost btn-sm" data-act="editSched" data-id="${s.id}">Edit</button>
+            <button class="btn btn-danger btn-sm" data-act="delSched" data-id="${s.id}">Remove</button>
+          </div>
+        </div>`).join(''):'<div class="empty">No custom schedules yet.</div>'}
+      <button class="btn btn-ghost btn-full" data-act="addSched">+ Add Operating Schedule</button>
+    </div></div>`;
+}
+
+function renderCharacter(){
+  const c=R().character;
+  const DEFAULTS=['Cozy','Trendy','Romantic','Family-friendly','Traditional','Modern','Rustic'];
+  return `<div class="section ${OPEN.character?'open':''}" data-sec="character">
+    <div class="section-hdr" data-toggle="character"><div class="section-title">06 · ${esc(c.title)}<small>Fully editable section title & options</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      <div class="field"><label>Section Title</label><input id="f_char_title" value="${esc(c.title)}" placeholder="e.g. What's Our Vibe?"></div>
+      <div class="chips">
+        ${[...DEFAULTS,...c.options.filter(o=>!DEFAULTS.includes(o.name))].map(n=>{
+          const existing=c.options.find(o=>o.name===n);
+          return `<span class="chip ${existing?'active':''}" data-act="toggleChar" data-val="${esc(n)}">${esc(n)}${existing?' ✕':''}</span>`;
+        }).join('')}
+        <span class="chip add" data-act="addChar">+ Add custom character</span>
+      </div>
+    </div></div>`;
+}
+
+function renderAmenities(){
+  const a=R().amenities;
+  const DEFAULTS=['Free Wi-Fi','Table service','Dedicated parking','Kids area','Outdoor seating','Indoor seating','Air conditioning','Charging points','Wheelchair accessible','Restrooms','Baby changing','Power backup','Smoking area','Non-smoking area','Pet friendly','Takeaway','Delivery','Catering','Private dining','Event space'];
+  return `<div class="section ${OPEN.amenities?'open':''}" data-sec="amenities">
+    <div class="section-hdr" data-toggle="amenities"><div class="section-title">07 · ${esc(a.title)}<small>${a.options.length} selected</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      <div class="field"><label>Section Title</label><input id="f_am_title" value="${esc(a.title)}" placeholder="e.g. What We Offer"></div>
+      <div class="chips">
+        ${[...DEFAULTS,...a.options.filter(o=>!DEFAULTS.includes(o.name))].map(n=>{
+          const on=a.options.find(o=>o.name===n);
+          return `<span class="chip ${on?'active':''}" data-act="toggleAmen" data-val="${esc(n)}">${esc(n)}${on&&!DEFAULTS.includes(n)?' ✕':''}</span>`;
+        }).join('')}
+        <span class="chip add" data-act="addAmen">+ Add custom amenity</span>
+      </div>
+    </div></div>`;
+}
+
+function renderMenuTags(){
+  const m=R().menuTags;
+  const GROUPS={
+    'Cuisine':['Setswana','Zimbabwean','African','South African','Indian','Chinese','Italian','American','Mexican','Mediterranean','Fusion'],
+    'Meal':['Breakfast','Brunch','Lunch','Dinner','Late Night','Dessert'],
+    'Dietary':['Vegetarian options','Vegan options','Halal','Gluten-free options','Dairy-free options']
+  };
+  return `<div class="section ${OPEN.menuTags?'open':''}" data-sec="menuTags">
+    <div class="section-hdr" data-toggle="menuTags"><div class="section-title">08 · ${esc(m.title)}<small>Cuisine · Meal · Dietary</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      <div class="field"><label>Section Title</label><input id="f_mt_title" value="${esc(m.title)}" placeholder="e.g. What We Serve"></div>
+      ${Object.keys(GROUPS).map(g=>`
+        <div class="mini" style="margin:12px 0 6px;font-weight:800;text-transform:uppercase;letter-spacing:.08em">${g}</div>
+        <div class="chips">
+          ${GROUPS[g].map(n=>{
+            const on=m.options.find(o=>o.name===n);
+            return `<span class="chip ${on?'active':''}" data-act="toggleMT" data-val="${esc(n)}">${esc(n)}</span>`;
+          }).join('')}
+        </div>`).join('')}
+      <div style="margin-top:10px"><span class="chip add" data-act="addMT">+ Add custom tag</span></div>
+    </div></div>`;
+}
+
+function renderCapacity(){
+  const c=R().capacity;
+  return `<div class="section ${OPEN.capacity?'open':''}" data-sec="capacity">
+    <div class="section-hdr" data-toggle="capacity"><div class="section-title">09 · Capacity<small>Indoor, outdoor, private room…</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      ${c.length?c.map(x=>`
+        <div class="record">
+          <div class="record-title">${esc(x.title)} — ${esc(x.value)}</div>
+          ${x.description?`<div class="record-meta">${esc(x.description)}</div>`:''}
+          <div class="record-actions">
+            <button class="btn btn-ghost btn-sm" data-act="editCap" data-id="${x.id}">Edit</button>
+            <button class="btn btn-danger btn-sm" data-act="delCap" data-id="${x.id}">Remove</button>
+          </div>
+        </div>`).join(''):'<div class="empty">No capacity entries yet.</div>'}
+      <button class="btn btn-ghost btn-full" data-act="addCap">+ Add Capacity</button>
+    </div></div>`;
+}
+
+function renderPayments(){
+  const p=R().payments;
+  const METHODS=['Cash','Visa','Mastercard','Orange Money','MyZaka','Bank Transfer'];
+  return `<div class="section ${OPEN.payments?'open':''}" data-sec="payments">
+    <div class="section-hdr" data-toggle="payments"><div class="section-title">10 · Payments</div><span class="chev">▾</span></div>
+    <div class="section-body">
+      <div class="chips">
+        ${METHODS.map(n=>`<span class="chip ${p.includes(n)?'active':''}" data-act="togglePay" data-val="${esc(n)}">${esc(n)}</span>`).join('')}
+      </div>
+    </div></div>`;
+}
+
+function renderReservations(){
+  const r=R().reservations;
+  const contacts=R().contacts;
+  return `<div class="section ${OPEN.reservations?'open':''}" data-sec="reservations">
+    <div class="section-hdr" data-toggle="reservations"><div class="section-title">11 · Reservations<small>Availability, WhatsApp, guest limits</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      <label class="switch"><input type="checkbox" id="f_res_on" ${r.enabled?'checked':''}><span class="track"></span><span class="lbl">Reservations available</span></label>
+      <div class="grid2">
+        <div class="field"><label>WhatsApp Number</label><select id="f_res_wa">${['<option value="">— choose contact —</option>',...contacts.map(c=>`<option value="${c.id}"${r.whatsappContactId===c.id?' selected':''}>${esc(c.title||c.number)}</option>`)].join('')}</select></div>
+        <div class="field"><label>Call Number</label><select id="f_res_call">${['<option value="">— choose contact —</option>',...contacts.map(c=>`<option value="${c.id}"${r.callContactId===c.id?' selected':''}>${esc(c.title||c.number)}</option>`)].join('')}</select></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Minimum Guests</label><input type="number" id="f_res_min" value="${r.minimumGuests}"></div>
+        <div class="field"><label>Maximum Guests</label><input type="number" id="f_res_max" value="${r.maximumGuests}"></div>
+      </div>
+      <label class="switch"><input type="checkbox" id="f_res_same" ${r.sameDay?'checked':''}><span class="track"></span><span class="lbl">Same-day reservations</span></label>
+      <label class="switch"><input type="checkbox" id="f_res_adv" ${r.advanceBooking?'checked':''}><span class="track"></span><span class="lbl">Advance booking required</span></label>
+      <div class="field"><label>Cancellation Notes</label><textarea id="f_res_cx">${esc(r.cancellationNotes)}</textarea></div>
+    </div></div>`;
+}
+
+function renderServices(){
+  const list=R().reservationServices;
+  return `<div class="section ${OPEN.services?'open':''}" data-sec="services">
+    <div class="section-hdr" data-toggle="services"><div class="section-title">12 · Reservation Services<small>${list.length} service${list.length===1?'':'s'}</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      ${list.length?list.map(s=>`
+        <div class="record">
+          <div class="record-title">${esc(s.name)}</div>
+          <div class="record-meta">${s.price?`${money(s.price)} · ${esc(s.pricingType||'')}`:'Custom quote'}${s.description?`<br>${esc(s.description)}`:''}</div>
+          <div class="record-actions">
+            <button class="btn btn-ghost btn-sm" data-act="editSvc" data-id="${s.id}">Edit</button>
+            <button class="btn btn-ghost btn-sm" data-act="dupSvc" data-id="${s.id}">Duplicate</button>
+            <button class="btn btn-ghost btn-sm" data-act="moveSvc" data-id="${s.id}" data-dir="-1">↑</button>
+            <button class="btn btn-ghost btn-sm" data-act="moveSvc" data-id="${s.id}" data-dir="1">↓</button>
+            <button class="btn btn-danger btn-sm" data-act="delSvc" data-id="${s.id}">Remove</button>
+          </div>
+        </div>`).join(''):'<div class="empty">No reservation services yet. Add waiter service, VIP booth, birthday setup…</div>'}
+      <button class="btn btn-ghost btn-full" data-act="addSvc">+ Add Service</button>
+    </div></div>`;
+}
+
+function renderStaff(){
+  const list=R().serviceStaff;
+  return `<div class="section ${OPEN.staff?'open':''}" data-sec="staff">
+    <div class="section-hdr" data-toggle="staff"><div class="section-title">13 · Service Staff<small>Waiters, hosts, chefs, MCs…</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      ${list.length?list.map(s=>`
+        <div class="record" style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:44px;height:44px;border-radius:50%;background:#f0eee8;display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--gold);font-size:16px">${esc((s.firstName||'?')[0])}</div>
+          <div style="flex:1;min-width:0">
+            <div class="record-title">${esc((s.firstName||'')+' '+(s.surname||''))}</div>
+            <div class="record-meta">${esc(s.role||'')}${s.price?` · ${money(s.price)} ${esc(s.pricingType||'')}`:' · No additional charge'}</div>
+            <div class="record-actions">
+              <button class="btn btn-ghost btn-sm" data-act="editStaff" data-id="${s.id}">Edit</button>
+              <button class="btn btn-ghost btn-sm" data-act="moveStaff" data-id="${s.id}" data-dir="-1">↑</button>
+              <button class="btn btn-ghost btn-sm" data-act="moveStaff" data-id="${s.id}" data-dir="1">↓</button>
+              <button class="btn btn-danger btn-sm" data-act="delStaff" data-id="${s.id}">Remove</button>
+            </div>
+          </div>
+        </div>`).join(''):'<div class="empty">No staff yet.</div>'}
+      <button class="btn btn-ghost btn-full" data-act="addStaff">+ Add Staff</button>
+    </div></div>`;
+}
+
+function renderUsers(){
+  const list=R().users;
+  const ROLES=['Owner','Manager','Menu Manager','Marketing Manager'];
+  return `<div class="section ${OPEN.users?'open':''}" data-sec="users">
+    <div class="section-hdr" data-toggle="users"><div class="section-title">14 · Restaurant Users<small>Team roles & permissions</small></div><span class="chev">▾</span></div>
+    <div class="section-body">
+      ${list.length?list.map(u=>`
+        <div class="record">
+          <div class="record-title">${esc(u.name||u.email)}</div>
+          <div class="record-meta">${esc(u.role||'')} · ${esc(u.email||'')}</div>
+          <div class="record-actions">
+            <button class="btn btn-ghost btn-sm" data-act="editUser" data-id="${u.id}">Edit</button>
+            <button class="btn btn-danger btn-sm" data-act="delUser" data-id="${u.id}">Remove</button>
+          </div>
+        </div>`).join(''):'<div class="empty">No users yet.</div>'}
+      <button class="btn btn-ghost btn-full" data-act="addUser">+ Add User</button>
+    </div></div>`;
+}
+
+/* ========== COMPLETENESS ========== */
+function completeness(){
+  const r=R();let score=0,total=0;
+  const check=(cond)=>{total++;if(cond)score++;};
+  check(!!r.identity.name);
+  check(!!r.identity.description);
+  check(r.identity.types.length>0);
+  check(!!r.location.city);
+  check(!!r.location.area);
+  check(r.contacts.length>0);
+  check(r.socials[0]&&Object.keys(r.socials[0]).length>0);
+  check(r.operatingHours.weekly.some(x=>x.open&&x.close));
+  check(r.character.options.length>0);
+  check(r.amenities.options.length>0);
+  check(r.menuTags.options.length>0);
+  check(r.capacity.length>0);
+  check(r.payments.length>0);
+  check(r.reservations.enabled);
+  check(r.reservationServices.length>0);
+  check(r.serviceStaff.length>0);
+  const pct=Math.round(score/total*100);
+  return {pct};
+}
+
+function render(){
+  const c=completeness();
+  const id=R().identity;
+  document.getElementById('statusBadge').className='badge '+(id.status||'draft');
+  document.getElementById('statusBadge').textContent=(id.status||'draft');
+  document.getElementById('app').innerHTML=`
+    <div class="completeness">
+      <div class="pct">${c.pct}%</div>
+      <div style="flex:1">
+        <div class="lbl">Profile Completeness</div>
+        <div class="bar"><i style="width:${c.pct}%"></i></div>
+      </div>
+      <div class="mini">${id.name?esc(id.name):'Untitled restaurant'}</div>
+    </div>
+    ${renderIdentity()}
+    ${renderLocation()}
+    ${renderContacts()}
+    ${renderSocials()}
+    ${renderHours()}
+    ${renderCharacter()}
+    ${renderAmenities()}
+    ${renderMenuTags()}
+    ${renderCapacity()}
+    ${renderPayments()}
+    ${renderReservations()}
+    ${renderServices()}
+    ${renderStaff()}
+    ${renderUsers()}
+  `;
+  // sync live text inputs → DB on change
+  bindLive();
+}
+
+function bindLive(){
+  const map={'f_name':['identity','name'],'f_desc':['identity','description'],
+    'f_city':['location','city'],'f_area':['location','area'],'f_plot':['location','plotNumber'],
+    'f_street':['location','streetName'],'f_streetNo':['location','streetNumber'],
+    'f_building':['location','building'],'f_landmark':['location','landmark'],
+    'f_lat':['location','latitude'],'f_lng':['location','longitude']};
+  Object.keys(map).forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.oninput=()=>{
+      const [g,k]=map[id];
+      if(g==='identity')R().identity[k]=el.value;
+      else R().location[k]=(k==='latitude'||k==='longitude')?(el.value===''?null:Number(el.value)):el.value;
+      dbSave(DB);
+    };
+  });
+  const bindTitle=(elId,pathKey)=>{const el=document.getElementById(elId);if(!el)return;el.oninput=()=>{if(pathKey==='hours')R().operatingHours.title=el.value;else if(pathKey==='char')R().character.title=el.value;else if(pathKey==='am')R().amenities.title=el.value;else if(pathKey==='mt')R().menuTags.title=el.value;dbSave(DB);};};
+  bindTitle('f_hours_title','hours');bindTitle('f_char_title','char');bindTitle('f_am_title','am');bindTitle('f_mt_title','mt');
+  document.querySelectorAll('[data-social]').forEach(el=>{
+    el.oninput=()=>{if(!R().socials[0])R().socials[0]={};R().socials[0][el.getAttribute('data-social')]=el.value;dbSave(DB);};
+  });
+  document.querySelectorAll('[data-hr]').forEach(el=>{
+    el.onchange=()=>{
+      const day=el.getAttribute('data-hr');const k=el.getAttribute('data-k');
+      let row=R().operatingHours.weekly.find(x=>x.day===day);
+      if(!row){row={day,open:'',close:''};R().operatingHours.weekly.push(row);}
+      row[k]=el.value;dbSave(DB);
+    };
+  });
+  ['f_res_on','f_res_same','f_res_adv'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.onchange=()=>{const m={'f_res_on':'enabled','f_res_same':'sameDay','f_res_adv':'advanceBooking'};R().reservations[m[id]]=el.checked;dbSave(DB);};});
+  const link=(id,k)=>{const el=document.getElementById(id);if(!el)return;el.onchange=()=>{R().reservations[k]=el.value||null;dbSave(DB);};};
+  link('f_res_wa','whatsappContactId');link('f_res_call','callContactId');
+  ['f_res_min','f_res_max'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.onchange=()=>{R().reservations[id==='f_res_min'?'minimumGuests':'maximumGuests']=Number(el.value)||0;dbSave(DB);};});
+  const cx=document.getElementById('f_res_cx');if(cx)cx.oninput=()=>{R().reservations.cancellationNotes=cx.value;dbSave(DB);};
+}
+
+/* ========== EVENT HANDLING ========== */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act],[data-toggle]');
+  if(!t)return;
+  if(t.hasAttribute('data-toggle')){toggleSection(t.getAttribute('data-toggle'));return;}
+  const act=t.getAttribute('data-act');const id=t.getAttribute('data-id');
+  const R_=R();
+  if(act==='toggleType'){const v=t.getAttribute('data-val');const i=R_.identity.types.indexOf(v);if(i>=0)R_.identity.types.splice(i,1);else R_.identity.types.push(v);save();return;}
+  if(act==='addType'){promptAdd('Add custom type',v=>{R_.identity.types.push(v);save();});return;}
+  if(act==='pickLogo'){promptUrl('Logo image URL',v=>{R_.identity.logo=v;save();});return;}
+  if(act==='pickCover'){promptUrl('Cover image URL',v=>{R_.identity.coverImage=v;save();});return;}
+  if(act==='useCurrent'){if(!navigator.geolocation){toast('Geolocation not available');return;}navigator.geolocation.getCurrentPosition(p=>{R_.location.latitude=+p.coords.latitude.toFixed(6);R_.location.longitude=+p.coords.longitude.toFixed(6);save();toast('Location set');},()=>toast('Permission denied'));return;}
+  if(act==='previewMap'){const l=R_.location;if(l.latitude==null){toast('Set GPS first');return;}window.open(`https://maps.google.com/?q=${l.latitude},${l.longitude}`,'_blank');return;}
+
+  /* CONTACTS */
+  if(act==='addContact'||act==='editContact'){
+    const c=act==='editContact'?R_.contacts.find(x=>x.id===id):{};
+    openForm({title:act==='editContact'?'Edit Contact':'Add Contact',values:c,fields:[
+      {key:'title',label:'Title',placeholder:'Reservations / Orders / Manager'},
+      {key:'countryCode',label:'Country Code',placeholder:'+267'},
+      {key:'number',label:'Number',placeholder:'71 234 567'},
+      {key:'purpose',label:'Purpose',type:'select',options:['General enquiries','Orders','Reservations','Delivery','Catering','Events','Functions','Manager','Customer support','Other']},
+      {key:'primary',label:'Primary number',type:'checkbox'},
+      {key:'whatsapp',label:'WhatsApp enabled',type:'checkbox'},
+      {key:'active',label:'Active',type:'checkbox'}
+    ],onSave:v=>{if(act==='editContact')Object.assign(c,v);else R_.contacts.push({id:uid('contact'),order:R_.contacts.length+1,active:true,...v});save();}});
+    return;
+  }
+  if(act==='dupContact'){const c=R_.contacts.find(x=>x.id===id);R_.contacts.push({...c,id:uid('contact'),primary:false});save();return;}
+  if(act==='delContact'){R_.contacts=R_.contacts.filter(x=>x.id!==id);save();return;}
+  if(act==='moveContact'){move(R_.contacts,id,parseInt(t.getAttribute('data-dir'),10));save();return;}
+
+  /* SCHEDULES */
+  if(act==='addSched'||act==='editSched'){
+    const s=act==='editSched'?R_.operatingHours.customSchedules.find(x=>x.id===id):{};
+    openForm({title:act==='editSched'?'Edit Schedule':'Add Operating Schedule',values:s,fields:[
+      {key:'title',label:'Title',placeholder:'Happy Hour Thursdays'},
+      {key:'days',label:'Days',placeholder:'Thursday, Friday'},
+      {key:'start',label:'Start time',type:'time'},
+      {key:'end',label:'End time',type:'time'}
+    ],onSave:v=>{if(act==='editSched')Object.assign(s,v);else R_.operatingHours.customSchedules.push({id:uid('sched'),...v});save();}});
+    return;
+  }
+  if(act==='delSched'){R_.operatingHours.customSchedules=R_.operatingHours.customSchedules.filter(x=>x.id!==id);save();return;}
+
+  /* CHARACTER */
+  if(act==='toggleChar'){const v=t.getAttribute('data-val');const i=R_.character.options.findIndex(o=>o.name===v);if(i>=0)R_.character.options.splice(i,1);else R_.character.options.push({id:uid('char'),name:v,order:R_.character.options.length+1});save();return;}
+  if(act==='addChar'){promptAdd('Add custom character',v=>{R_.character.options.push({id:uid('char'),name:v,order:R_.character.options.length+1});save();});return;}
+
+  /* AMENITIES */
+  if(act==='toggleAmen'){const v=t.getAttribute('data-val');const i=R_.amenities.options.findIndex(o=>o.name===v);if(i>=0)R_.amenities.options.splice(i,1);else R_.amenities.options.push({id:uid('amen'),name:v,order:R_.amenities.options.length+1});save();return;}
+  if(act==='addAmen'){promptAdd('Add custom amenity',v=>{R_.amenities.options.push({id:uid('amen'),name:v,order:R_.amenities.options.length+1});save();});return;}
+
+  /* MENU TAGS */
+  if(act==='toggleMT'){const v=t.getAttribute('data-val');const i=R_.menuTags.options.findIndex(o=>o.name===v);if(i>=0)R_.menuTags.options.splice(i,1);else R_.menuTags.options.push({id:uid('tag'),name:v,order:R_.menuTags.options.length+1});save();return;}
+  if(act==='addMT'){promptAdd('Add custom tag',v=>{R_.menuTags.options.push({id:uid('tag'),name:v,order:R_.menuTags.options.length+1});save();});return;}
+
+  /* CAPACITY */
+  if(act==='addCap'||act==='editCap'){
+    const c=act==='editCap'?R_.capacity.find(x=>x.id===id):{};
+    openForm({title:act==='editCap'?'Edit Capacity':'Add Capacity',values:c,fields:[
+      {key:'title',label:'Title',placeholder:'Indoor Seating'},
+      {key:'value',label:'Number',type:'number'},
+      {key:'description',label:'Description (optional)',type:'textarea'}
+    ],onSave:v=>{if(act==='editCap')Object.assign(c,v);else R_.capacity.push({id:uid('cap'),order:R_.capacity.length+1,...v});save();}});
+    return;
+  }
+  if(act==='delCap'){R_.capacity=R_.capacity.filter(x=>x.id!==id);save();return;}
+
+  /* PAYMENTS */
+  if(act==='togglePay'){const v=t.getAttribute('data-val');const i=R_.payments.indexOf(v);if(i>=0)R_.payments.splice(i,1);else R_.payments.push(v);save();return;}
+
+  /* SERVICES */
+  if(act==='addSvc'||act==='editSvc'){
+    const s=act==='editSvc'?R_.reservationServices.find(x=>x.id===id):{};
+    const contacts=R_.contacts;
+    openForm({title:act==='editSvc'?'Edit Service':'Add Reservation Service',values:s,fields:[
+      {key:'name',label:'Service name',placeholder:'Birthday Setup'},
+      {key:'description',label:'Description',type:'textarea'},
+      {key:'price',label:'Price',type:'number'},
+      {key:'pricingType',label:'Pricing type',type:'select',options:['Per person','Per table','Per hour','Per booking','Per item','Fixed price','Custom quote']},
+      {key:'whatsappContactId',label:'WhatsApp contact',type:'select',options:[{value:'',label:'— choose —'},...contacts.map(c=>({value:c.id,label:c.title||c.number}))]},
+      {key:'active',label:'Available',type:'checkbox'}
+    ],onSave:v=>{if(act==='editSvc')Object.assign(s,v);else R_.reservationServices.push({id:uid('svc'),order:R_.reservationServices.length+1,...v});save();}});
+    return;
+  }
+  if(act==='dupSvc'){const s=R_.reservationServices.find(x=>x.id===id);R_.reservationServices.push({...s,id:uid('svc'),order:R_.reservationServices.length+1});save();return;}
+  if(act==='delSvc'){R_.reservationServices=R_.reservationServices.filter(x=>x.id!==id);save();return;}
+  if(act==='moveSvc'){move(R_.reservationServices,id,parseInt(t.getAttribute('data-dir'),10));save();return;}
+
+  /* STAFF */
+  if(act==='addStaff'||act==='editStaff'){
+    const s=act==='editStaff'?R_.serviceStaff.find(x=>x.id===id):{};
+    openForm({title:act==='editStaff'?'Edit Staff':'Add Service Staff',values:s,fields:[
+      {key:'firstName',label:'First name'},
+      {key:'surname',label:'Surname'},
+      {key:'displayName',label:'Display name'},
+      {key:'role',label:'Role',type:'select',options:['Waiter','Waitress','Host','Bartender','Chef','Private chef','Sommelier','Event staff','Security','Photographer','Decorator','MC','Other']},
+      {key:'description',label:'Description',type:'textarea'},
+      {key:'price',label:'Price',type:'number'},
+      {key:'pricingType',label:'Pricing type',type:'select',options:['No additional charge','Per booking','Per hour','Per person','Per item']},
+      {key:'contact',label:'WhatsApp / contact'},
+      {key:'active',label:'Active',type:'checkbox'}
+    ],onSave:v=>{if(act==='editStaff')Object.assign(s,v);else R_.serviceStaff.push({id:uid('staff'),order:R_.serviceStaff.length+1,...v});save();}});
+    return;
+  }
+  if(act==='delStaff'){R_.serviceStaff=R_.serviceStaff.filter(x=>x.id!==id);save();return;}
+  if(act==='moveStaff'){move(R_.serviceStaff,id,parseInt(t.getAttribute('data-dir'),10));save();return;}
+
+  /* USERS */
+  if(act==='addUser'||act==='editUser'){
+    const u=act==='editUser'?R_.users.find(x=>x.id===id):{};
+    openForm({title:act==='editUser'?'Edit User':'Add User',values:u,fields:[
+      {key:'name',label:'Name'},
+      {key:'email',label:'Email',type:'email'},
+      {key:'role',label:'Role',type:'select',options:['Owner','Manager','Menu Manager','Marketing Manager']},
+      /* Credentials for the Operator sign-in. The password is hashed
+         with the account's salt and never stored as plaintext. */
+      {key:'whatsapp',label:'Login WhatsApp number',placeholder:'26771844129'},
+      {key:'password',label:'Login password',type:'password',placeholder:u.passwordHash?'•••••• (set)':'choose a password'}
+    ],onSave:v=>{
+      const pass=v.password||'';
+      delete v.password;
+      v.whatsapp=EatoutsAuth.normaliseWhatsapp(v.whatsapp||'');
+      const target=act==='editUser'?u:{id:uid('user'),...v};
+      Object.assign(target,v);
+      if(act!=='editUser')R_.users.push(target);
+      /* blank password = leave the existing hash alone */
+      if(!pass){save();toast('Saved');return;}
+      EatoutsAuth.hashPassword(pass,target.salt||(target.salt=EatoutsAuth.randomSalt())).then(h=>{
+        target.passwordHash=h;save();toast('Saved');
+      }).catch(()=>{
+        target.passwordHash=null;save();toast('Saved - password needs run-eatouts.bat');
+      });
+    }});
+    return;
+  }
+  if(act==='delUser'){R_.users=R_.users.filter(x=>x.id!==id);save();return;}
+});
+
+function promptAdd(title,cb){
+  openForm({title,fields:[{key:'value',label:'Name',placeholder:'e.g. Afrocentric'}],onSave:v=>{if(v.value&&v.value.trim())cb(v.value.trim());}});
+}
+function promptUrl(title,cb){
+  openForm({title,fields:[{key:'url',label:'Image URL',placeholder:'https://… or assets/…'}],onSave:v=>{cb(v.url||'');}});
+}
+
+/* ========== ACTION BAR ========== */
+document.getElementById('btnDraft').onclick=()=>{R().identity.status='draft';save();toast('Saved as draft');};
+document.getElementById('btnPublish').onclick=()=>{
+  if(!R().identity.name){toast('Restaurant name is required');return;}
+  if(!R().location.city){toast('Village / Town / City is required');return;}
+  if(!R().contacts.length){toast('Add at least one contact number');return;}
+  R().identity.status='published';save();toast('Published');
+};
+document.getElementById('btnPreview').onclick=()=>{
+  window.open('index.html','_blank');
+};
+
+/* ========== BOOT ========== */
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Events & Performers — Eatouts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--border:#e7e4dd;--danger:#c43c3c;--radius:16px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5}
+.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:16px;color:var(--black)}.brand span{color:var(--gold)}
+.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.tabs{position:sticky;top:57px;z-index:49;background:#fff;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 8px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:12px 14px;font-size:12.5px;font-weight:800;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+.tab.active{color:var(--black);border-bottom-color:var(--gold)}
+.app{max-width:1180px;margin:0 auto;padding-bottom:130px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;padding:14px}
+.ev-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;overflow:hidden}
+.ev-img{height:150px;background:#f0eee8 center/cover no-repeat}
+.ev-body{padding:14px 16px}
+.ev-title{font-weight:800;font-size:15.5px}
+.ev-meta{font-size:11.5px;color:var(--muted);margin-top:4px}
+.ev-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.btn{min-height:44px;border:0;border-radius:12px;padding:0 16px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:var(--black);color:#fff}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:#3a3324}
+.btn-danger{background:#fbeaea;color:var(--danger)}
+.btn-sm{min-height:34px;padding:0 11px;font-size:11.5px;border-radius:9px}
+.btn-full{width:100%}
+.empty{border:1.5px dashed var(--border);border-radius:14px;padding:22px 16px;text-align:center;color:var(--muted);font-size:13px}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.badge.draft{background:#f0eee8;color:#7a7466}
+.badge.published{background:#e3f5e9;color:#17834b}
+.badge.paused{background:#fdf3dc;color:#9a6a0a}
+.section{background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:12px}
+.section-hdr{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13.5px}
+.section-body{padding:0 14px 14px;display:none}
+.section.open .section-body{display:block}
+.field{margin-bottom:12px}
+.field label{display:block;margin-bottom:6px;font-size:12.5px;font-weight:750;color:#3a3324}
+input,textarea,select{width:100%;min-height:44px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fff;font:inherit;font-size:13.5px;outline:0}
+textarea{min-height:80px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.action-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:1180px;background:#fff;border-top:1px solid var(--border);border-left:1px solid var(--border);border-right:1px solid var(--border);border-radius:16px 16px 0 0;padding:12px 16px;display:flex;gap:10px;z-index:40;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.action-bar .btn{flex:1}
+.modal-scrim{position:fixed;inset:0;background:rgba(20,18,14,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:701px){.modal-scrim{align-items:center;padding:20px}}
+.modal{background:#fff;width:100%;max-width:560px;max-height:92vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
+@media(min-width:701px){.modal{border-radius:20px}}
+.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.modal-hdr h3{margin:0;font-size:15px;font-weight:800;flex:1}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;background:#fafaf7}
+.modal-foot .btn{flex:1}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">EAT<span>OUTS</span></div>
+  <div class="page">Events & Performers</div>
+</header>
+<nav class="tabs">
+  <a class="tab" href="restaurant-onboarding.html">Restaurant</a>
+  <a class="tab" href="menu-onboarding.html">Menu</a>
+  <a class="tab" href="promo-onboarding.html">Promos</a>
+  <a class="tab active" href="event-onboarding.html">Events</a>
+  <a class="tab" href="gallery-onboarding.html">Gallery</a>
+  <a class="tab" href="restaurant-dashboard.html">Dashboard</a>
+</nav>
+<main id="app" class="app"></main>
+<div class="action-bar">
+  <button class="btn btn-ghost" id="btnPerformers">Performers</button>
+  <button class="btn btn-gold" id="btnNewEvent">+ Create Event</button>
+</div>
+<div id="toast" class="toast"></div>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-owner-compat.js"></script>
+<script>
+/* Operator pages are only reachable through the About Us sign-in.
+   This runs before any page content paints. */
+if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
+else{EatoutsAuth.applyActive();}
+</script>
+<script>
+const DB_KEY=EatoutsDB.KEY;
+const EMPTY_DB={version:1,restaurant:{id:'rest_001',identity:{name:''},location:{city:'',area:''},contacts:[],capacity:[]},menuCategories:[],menuItems:[],promos:[],events:[],performers:[],performances:[],galleryGroups:[],galleryImages:[],settings:{currency:'BWP',currencySymbol:'P'}};
+function dbLoad(){return EatoutsOwnerCompat.load();}
+function dbSave(d){EatoutsOwnerCompat.save(d);}
+function uid(p){return p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
+let DB=dbLoad();function save(){dbSave(DB);render();}
+
+let VIEW={mode:'list',id:null};
+const OPEN={};
+
+function openForm({title,fields,values,onSave,saveLabel}){
+  values=values||{};
+  const scrim=document.createElement('div');scrim.className='modal-scrim';
+  scrim.innerHTML=`<div class="modal">
+    <div class="modal-hdr"><h3>${esc(title)}</h3><button class="btn btn-ghost btn-sm" data-close>Close</button></div>
+    <div class="modal-body">${fields.map(f=>field(f,values[f.key])).join('')}</div>
+    <div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button class="btn btn-gold" data-save>${esc(saveLabel||'Save')}</button></div></div>`;
+  document.body.appendChild(scrim);
+  scrim.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>scrim.remove());
+  scrim.querySelector('[data-save]').onclick=()=>{
+    const out={};
+    scrim.querySelectorAll('[name]').forEach(el=>{
+      const k=el.getAttribute('name');
+      if(el.type==='checkbox')out[k]=el.checked;
+      else if(el.type==='number')out[k]=el.value===''?null:Number(el.value);
+      else out[k]=el.value;
+    });
+    onSave(out,scrim);
+  };
+  return scrim;
+}
+function field(f,v){
+  if(f.type==='html')return f.html;
+  if(f.type==='textarea')return `<div class="field"><label>${esc(f.label)}</label><textarea name="${f.key}">${esc(v||'')}</textarea></div>`;
+  if(f.type==='select')return `<div class="field"><label>${esc(f.label)}</label><select name="${f.key}">${(f.options||[]).map(o=>{const val=typeof o==='string'?o:o.value;const lbl=typeof o==='string'?o:o.label;return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lbl)}</option>`;}).join('')}</select></div>`;
+  if(f.type==='checkbox')return `<label style="display:flex;gap:8px;align-items:center;padding:8px 0;font-weight:700;font-size:13px"><input type="checkbox" name="${f.key}" ${v?'checked':''}> ${esc(f.label)}</label>`;
+  return `<div class="field"><label>${esc(f.label)}</label><input type="${f.type||'text'}" name="${f.key}" value="${esc(v||'')}" placeholder="${esc(f.placeholder||'')}"></div>`;
+}
+
+/* ========== RENDER ========== */
+function statusOf(e){
+  if(e.status)return e.status;
+  const now=new Date();
+  if(e.startDate&&new Date(e.startDate)>now)return 'draft';
+  if(e.endDate&&new Date(e.endDate)<now)return 'expired';
+  return 'published';
+}
+function render(){
+  if(VIEW.mode==='edit'){renderEditor();return;}
+  if(VIEW.mode==='performers'){renderPerformers();return;}
+  const list=DB.events.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  let h=`<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+    <div><div style="font-weight:800;font-size:15px">Events</div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:2px">${list.length} event${list.length===1?'':'s'}</div></div>
+  </div>`;
+  if(!list.length)h+=`<div class="empty">No events yet.</div>`;
+  list.forEach(ev=>{
+    const s=statusOf(ev);
+    h+=`<div class="ev-card">
+      <div class="ev-img" ${ev.coverImage?`style="background-image:url('${esc(ev.coverImage)}')"`:''}></div>
+      <div class="ev-body">
+        <div class="ev-title">${esc(ev.name||'Untitled event')} <span class="badge ${s}">${s}</span></div>
+        <div class="ev-meta">${esc(ev.startDate||'')}${ev.startTime?' · '+esc(ev.startTime):''}${ev.endTime?'–'+esc(ev.endTime):''}<br>${esc(ev.location&&ev.location.city||'')}${ev.location&&ev.location.area?' · '+esc(ev.location.area):''}</div>
+        <div class="ev-actions">
+          <button class="btn btn-ghost btn-sm" data-act="edit" data-id="${ev.id}">Edit</button>
+          <button class="btn btn-ghost btn-sm" data-act="dup" data-id="${ev.id}">Duplicate</button>
+          <button class="btn btn-danger btn-sm" data-act="del" data-id="${ev.id}">Remove</button>
+        </div>
+      </div></div>`;
+  });
+  document.getElementById('app').innerHTML=h;
+}
+
+function renderEditor(){
+  const ev=DB.events.find(x=>x.id===VIEW.id);
+  if(!ev){VIEW={mode:'list',id:null};render();return;}
+  const contacts=DB.restaurant.contacts||[];
+  const performers=DB.performers||[];
+  const caps=DB.restaurant.capacity||[];
+  document.getElementById('app').innerHTML=`
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:800;font-size:15px">${esc(ev.name||'Edit Event')}</div>
+      <span class="badge ${statusOf(ev)}">${statusOf(ev)}</span>
+    </div>
+    ${sec('idn','01 · Identity',`
+      ${fld('Event Name *','name',ev.name)}
+      ${fld('Event Type','type',ev.type,['Live Music','DJ Night','Comedy','Poetry','Themed Night','Sports Screening','Family','Corporate'])}
+      ${fld('Cover Image URL','coverImage',ev.coverImage)}
+      ${fldArea('Description','description',ev.description)}
+      ${fld('Organizer','organizer',ev.organizer)}
+      ${fld('Sponsor','sponsor',ev.sponsor)}
+    `)}
+    ${sec('loc','02 · Location',`
+      <label style="display:flex;gap:8px;align-items:center;padding:6px 0;font-weight:700;font-size:13px">
+        <input type="checkbox" id="useRestLoc" ${ev.location&&ev.location.useRestaurantLocation?'checked':''}> Use restaurant location
+      </label>
+      <div class="grid2" style="margin-top:8px">
+        ${fld('Village / Town / City','locCity',ev.location&&ev.location.city)}
+        ${fld('Area / Neighbourhood','locArea',ev.location&&ev.location.area)}
+      </div>
+      ${fld('Building','locBuilding',ev.location&&ev.location.building)}
+      ${fld('Landmark','locLandmark',ev.location&&ev.location.landmark)}
+    `)}
+    ${sec('dt','03 · Date & Time',`
+      <div class="grid2">${fldDate('Start Date','startDate',ev.startDate)}${fldTime('Start Time','startTime',ev.startTime)}</div>
+      <div class="grid2">${fldDate('End Date','endDate',ev.endDate)}${fldTime('End Time','endTime',ev.endTime)}</div>
+      ${fldChk('Recurring','recurring',ev.recurring)}
+      ${fld('Recurrence (comma separated days)','recurrence',(ev.recurrence||[]).join(', '),null,'Monday, Friday')}
+    `)}
+    ${sec('att','04 · Attendance',`
+      ${fldNum('Expected Guests','expectedGuests',ev.expectedGuests)}
+      ${fldNum('Maximum Capacity','maxCapacity',ev.maxCapacity)}
+      ${caps.length?`<div class="field"><label>Use restaurant capacity</label><div style="display:flex;gap:6px;flex-wrap:wrap">${caps.map(c=>`<button type="button" class="btn btn-ghost btn-sm" data-cap="${c.value}">${esc(c.title)} (${c.value})</button>`).join('')}</div></div>`:''}
+    `)}
+    ${sec('adm','05 · Admission',`
+      ${fld('Admission','admission',ev.admission,['Free','RSVP required','Reservation required','Paid','Invite only'])}
+      ${fldNum('Ticket Price','ticketPrice',ev.ticketPrice)}
+      ${fld('Booking WhatsApp','bookingContactId',ev.bookingContactId,contacts.map(c=>({value:c.id,label:c.title||c.number})))}
+    `)}
+    ${sec('prf','06 · Performers',`
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Select existing performers or create a new one.</div>
+      <div id="perfList">
+        ${(ev.performances||[]).map((pf,i)=>{
+          const p=performers.find(x=>x.id===pf.performerId);
+          return `<div class="record" style="border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:8px">
+            <div style="font-weight:800">${esc(p?p.stageName:'Unknown')}</div>
+            <div style="font-size:12px;color:var(--muted)">${esc(pf.startTime||'')}–${esc(pf.endTime||'')} · ${esc(pf.title||'')}</div>
+            <button type="button" class="btn btn-danger btn-sm" data-perf-del="${i}" style="margin-top:6px">Remove</button>
+          </div>`;
+        }).join('')}
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" id="addPerf">+ Add Performer</button>
+    `)}
+    ${sec('srv','07 · Services',`
+      ${(ev.serviceIds||[]).length?`<div style="font-size:12.5px">${(ev.serviceIds||[]).map(id=>{const s=(DB.restaurant.reservationServices||[]).find(x=>x.id===id);return s?esc(s.name):'';}).filter(Boolean).join(', ')}</div>`:'<div style="font-size:12px;color:var(--muted)">No services linked.</div>'}
+      <button type="button" class="btn btn-ghost btn-sm" id="linkSvc" style="margin-top:6px">+ Add Service</button>
+    `)}
+    ${sec('rsvp','08 · RSVP / Booking',`
+      ${fldChk('RSVP enabled','rsvpEnabled',ev.rsvpEnabled)}
+      ${fld('RSVP WhatsApp','rsvpContactId',ev.rsvpContactId,contacts.map(c=>({value:c.id,label:c.title||c.number})))}
+      ${fldNum('Maximum RSVP guests','rsvpMax',ev.rsvpMax)}
+    `)}
+    <div style="display:flex;gap:10px;margin:12px 0 40px">
+      <button class="btn btn-ghost" style="flex:1" id="btnCancel">Cancel</button>
+      <button class="btn btn-gold" style="flex:1" id="btnSaveEv">Save Event</button>
+    </div>
+  `;
+  wireEditor(ev);
+}
+
+function sec(k,title,body){return `<div class="section ${OPEN[k]!==false?'open':''}" data-sec="${k}"><div class="section-hdr" data-sec-toggle="${k}"><span>${title}</span><span>▾</span></div><div class="section-body">${body}</div></div>`;}
+function fld(label,key,val,options,placeholder){
+  if(options)return `<div class="field"><label>${esc(label)}</label><select data-k="${key}">${['<option value="">—</option>',...options.map(o=>{const v=typeof o==='string'?o:o.value;const l=typeof o==='string'?o:o.label;return `<option value="${esc(v)}"${v===val?' selected':''}>${esc(l)}</option>`;})].join('')}</select></div>`;
+  return `<div class="field"><label>${esc(label)}</label><input data-k="${key}" value="${esc(val||'')}" placeholder="${esc(placeholder||'')}"></div>`;
+}
+function fldNum(label,key,val){return `<div class="field"><label>${esc(label)}</label><input type="number" data-k="${key}" value="${val==null?'':val}"></div>`;}
+function fldDate(l,k,v){return `<div class="field"><label>${esc(l)}</label><input type="date" data-k="${k}" value="${esc(v||'')}"></div>`;}
+function fldTime(l,k,v){return `<div class="field"><label>${esc(l)}</label><input type="time" data-k="${k}" value="${esc(v||'')}"></div>`;}
+function fldArea(l,k,v){return `<div class="field"><label>${esc(l)}</label><textarea data-k="${k}">${esc(v||'')}</textarea></div>`;}
+function fldChk(l,k,v){return `<label style="display:flex;gap:8px;align-items:center;padding:8px 0;font-weight:700;font-size:13px"><input type="checkbox" data-k="${k}" ${v?'checked':''}> ${esc(l)}</label>`;}
+
+function wireEditor(ev){
+  document.querySelectorAll('[data-sec-toggle]').forEach(el=>el.onclick=()=>{const k=el.getAttribute('data-sec-toggle');OPEN[k]=OPEN[k]===false?true:false;renderEditor();});
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    const k=el.getAttribute('data-k');
+    el.onchange=el.oninput=()=>{
+      let v=el.type==='checkbox'?el.checked:el.value;
+      if(el.type==='number')v=v===''?null:Number(v);
+      if(k==='locCity'||k==='locArea'||k==='locBuilding'||k==='locLandmark'){
+        ev.location=ev.location||{};
+        const map={locCity:'city',locArea:'area',locBuilding:'building',locLandmark:'landmark'};
+        ev.location[map[k]]=v;
+      } else if(k==='recurrence'){ev.recurrence=v.split(',').map(s=>s.trim()).filter(Boolean);}
+      else ev[k]=v;
+      dbSave(DB);
+    };
+  });
+  const useLoc=document.getElementById('useRestLoc');
+  if(useLoc)useLoc.onchange=()=>{ev.location=ev.location||{};ev.location.useRestaurantLocation=useLoc.checked;if(useLoc.checked){ev.location.city=DB.restaurant.location.city;ev.location.area=DB.restaurant.location.area;}dbSave(DB);renderEditor();};
+  document.querySelectorAll('[data-cap]').forEach(b=>b.onclick=()=>{ev.maxCapacity=Number(b.getAttribute('data-cap'));dbSave(DB);renderEditor();});
+  document.querySelectorAll('[data-perf-del]').forEach(b=>b.onclick=()=>{ev.performances.splice(Number(b.getAttribute('data-perf-del')),1);dbSave(DB);renderEditor();});
+  const addP=document.getElementById('addPerf');
+  if(addP)addP.onclick=()=>addPerformerToEvent(ev);
+  const linkS=document.getElementById('linkSvc');
+  if(linkS)linkS.onclick=()=>alert('Service linker coming next.');
+  document.getElementById('btnCancel').onclick=()=>{VIEW={mode:'list',id:null};render();};
+  document.getElementById('btnSaveEv').onclick=()=>{
+    if(!ev.name){toast('Event name is required');return;}
+    VIEW={mode:'list',id:null};save();toast('Event saved');
+  };
+}
+
+function addPerformerToEvent(ev){
+  const performers=DB.performers||[];
+  const listOptions=performers.map(p=>({value:p.id,label:p.stageName})).concat([{value:'__new',label:'+ Create new performer'}]);
+  const scrim=openForm({title:'Add Performer',fields:[
+    {key:'performerId',label:'Performer',type:'select',options:listOptions},
+    {key:'title',label:'Performance title',placeholder:'Sunset Afro House Set'},
+    {key:'startTime',label:'Start time',type:'time'},
+    {key:'endTime',label:'End time',type:'time'},
+    {key:'description',label:'Description',type:'textarea'}
+  ],onSave:v=>{
+    if(v.performerId==='__new'){createPerformer(ev,v);return;}
+    if(!v.performerId){toast('Choose a performer');return;}
+    ev.performances=ev.performances||[];
+    ev.performances.push({id:uid('perf'),performerId:v.performerId,title:v.title,startTime:v.startTime,endTime:v.endTime,description:v.description});
+    dbSave(DB);renderEditor();
+  }});
+}
+function createPerformer(ev,v){
+  openForm({title:'New Performer',fields:[
+    {key:'stageName',label:'Stage name *'},
+    {key:'fullName',label:'Full name'},
+    {key:'type',label:'Type',type:'select',options:['DJ','Solo Artist','Band','Singer','Rapper','Poet','MC','Comedian','Dancer','Producer','Live Music','Other']},
+    {key:'genre',label:'Genre'},
+    {key:'bio',label:'Short bio',type:'textarea'}
+  ],onSave:p=>{
+    if(!p.stageName){toast('Stage name required');return;}
+    const perf={id:uid('performer'),...p};
+    DB.performers.push(perf);
+    ev.performances=ev.performances||[];
+    ev.performances.push({id:uid('perf'),performerId:perf.id,title:v.title,startTime:v.startTime,endTime:v.endTime});
+    dbSave(DB);renderEditor();
+  }});
+}
+
+function renderPerformers(){
+  const list=DB.performers||[];
+  let h=`<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+    <div style="font-weight:800;font-size:15px">Performers</div>
+    <button class="btn btn-ghost btn-sm" id="btnNewPerf">+ New</button>
+  </div>`;
+  if(!list.length)h+=`<div class="empty">No performers yet.</div>`;
+  list.forEach(p=>{
+    h+=`<div class="card" style="display:flex;gap:12px;align-items:flex-start">
+      <div style="width:44px;height:44px;border-radius:50%;background:#f0eee8;display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--gold)">${esc((p.stageName||'?')[0])}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:800">${esc(p.stageName)}</div>
+        <div style="font-size:12px;color:var(--muted)">${esc(p.type||'')}${p.genre?' · '+esc(p.genre):''}</div>
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" data-perf-edit="${p.id}">Edit</button>
+          <button class="btn btn-danger btn-sm" data-perf-del2="${p.id}">Remove</button>
+        </div>
+      </div></div>`;
+  });
+  document.getElementById('app').innerHTML=h;
+  const nb=document.getElementById('btnNewPerf');if(nb)nb.onclick=()=>editPerformer(null);
+  document.querySelectorAll('[data-perf-edit]').forEach(b=>b.onclick=()=>editPerformer(DB.performers.find(x=>x.id===b.getAttribute('data-perf-edit'))));
+  document.querySelectorAll('[data-perf-del2]').forEach(b=>b.onclick=()=>{if(confirm('Remove performer?')){DB.performers=DB.performers.filter(x=>x.id!==b.getAttribute('data-perf-del2'));dbSave(DB);renderPerformers();}});
+}
+function editPerformer(p){
+  p=p||{};
+  openForm({title:p.id?'Edit Performer':'New Performer',values:p,fields:[
+    {key:'stageName',label:'Stage name *'},
+    {key:'fullName',label:'Full name'},
+    {key:'type',label:'Type',type:'select',options:['DJ','Solo Artist','Band','Singer','Rapper','Poet','MC','Comedian','Dancer','Producer','Live Music','Other']},
+    {key:'genre',label:'Genre'},
+    {key:'subGenre',label:'Sub-genre'},
+    {key:'bio',label:'Short bio',type:'textarea'},
+    {key:'description',label:'Full description',type:'textarea'},
+    {key:'yearsActive',label:'Years active',type:'number'},
+    {key:'location',label:'Location'},
+    {key:'instagram',label:'Instagram'},
+    {key:'tiktok',label:'TikTok'},
+    {key:'website',label:'Website'},
+    {key:'contact',label:'Contact'},
+    {key:'whatsapp',label:'WhatsApp'}
+  ],onSave:v=>{
+    if(!v.stageName){toast('Stage name required');return;}
+    if(p.id)Object.assign(p,v);else DB.performers.push({id:uid('performer'),...v});
+    dbSave(DB);VIEW={mode:'performers'};renderPerformers();
+  }});
+}
+
+function newEvent(){
+  const ev={id:uid('event'),name:'',type:'Live Music',coverImage:'',description:'',organizer:'',sponsor:'',
+    location:{useRestaurantLocation:true,city:DB.restaurant.location.city,area:DB.restaurant.location.area,building:'',landmark:''},
+    startDate:'',startTime:'',endDate:'',endTime:'',recurring:false,recurrence:[],
+    expectedGuests:null,maxCapacity:null,admission:'Free',ticketPrice:null,bookingContactId:null,
+    performances:[],serviceIds:[],rsvpEnabled:true,rsvpContactId:null,rsvpMax:null,
+    status:'draft',createdAt:Date.now()};
+  DB.events.push(ev);dbSave(DB);VIEW={mode:'edit',id:ev.id};render();
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');if(!t)return;
+  const act=t.getAttribute('data-act');const id=t.getAttribute('data-id');
+  if(act==='edit'){VIEW={mode:'edit',id};render();return;}
+  if(act==='dup'){const ev=DB.events.find(x=>x.id===id);if(!ev)return;const c=JSON.parse(JSON.stringify(ev));c.id=uid('event');c.name+=' (copy)';c.createdAt=Date.now();DB.events.push(c);save();return;}
+  if(act==='del'){if(confirm('Remove this event?')){DB.events=DB.events.filter(x=>x.id!==id);save();}return;}
+});
+document.getElementById('btnNewEvent').onclick=newEvent;
+document.getElementById('btnPerformers').onclick=()=>{VIEW={mode:'performers'};render();};
+
+render();
+</script>
+</body>
+</html>
