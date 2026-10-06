@@ -57,7 +57,7 @@ if not defined PORT (
 echo   [free] %PORT% - using it
 echo.
 
-rem ---- start the static server ----------------------------------
+rem ---- pick the runtime ----------------------------------------
 rem  python first (already installed), node as a fallback.
 set "SERVER="
 where python >nul 2>&1 && set "SERVER=python"
@@ -72,6 +72,18 @@ if not defined SERVER (
     echo.
     pause
     exit /b 1
+)
+
+rem ---- regenerate the directory before serving ------------------
+rem  Merges directory_data.db + listings_export.csv + the curated
+rem  JSON into assets\data\restaurant_listings\directory_runtime_data.json.
+rem  Idempotent: stable IDs, missing-only roster updates downstream.
+if "%SERVER%"=="python" (
+    echo   Building restaurant directory from SQLite, CSV, and curated data...
+    python "%~dp0scripts\build_restaurant_directory.py"
+    if errorlevel 1 echo   WARNING: directory generation failed; using the existing seed data.
+) else (
+    echo   WARNING: Python is unavailable; SQLite directory data cannot be refreshed.
 )
 
 rem  Bind the chosen port explicitly rather than letting the server

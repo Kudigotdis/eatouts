@@ -70,13 +70,16 @@
    * Row shape: [ name, districtCode, town, area, landmark ]
    */
   function toRestaurant(row, index, now) {
-    var name = row[0];
-    var code = row[1];
-    var town = row[2];
-    var area = row[3];
-    var landmark = row[4];
+    var source = Array.isArray(row) ? {
+      name: row[0], district: row[1], town: row[2], area: row[3], landmark: row[4]
+    } : (row || {});
+    var name = source.name || source.n || 'Untitled restaurant';
+    var code = source.district || source.c || '';
+    var town = source.town || source.t || '';
+    var area = source.area || source.a || (source.areas && source.areas[0]) || '';
+    var landmark = source.landmark || source.m || '';
 
-    var slug = slugify(name);
+    var slug = source.slug || slugify(name);
 
     /* Stagger activity so "newest first" is meaningful and stable.
        Row order is preserved as the newest-first ordering. */
@@ -84,18 +87,27 @@
     var lastActive = now - ageMinutes * 60000;
 
     return {
-      id: 'rest_' + slug,
+      id: source.id || 'rest_' + slug,
       slug: slug,
       name: name,
-      logo: (window.EatoutsBrand && window.EatoutsBrand.logoFor({ slug: slug, name: name })) || null,
+      logo: (window.EatoutsBrand && window.EatoutsBrand.logoFor({ slug: slug, name: name, logo: source.logo || null })) || null,
       landmark: landmark || '',
       location: {
         district: code || '',
-        districtName: districtName(code),
+        districtName: source.districtName || districtName(code),
         town: town || '',
         area: area || ''
       },
-      types: typesFor(name),
+      types: Array.isArray(source.types) && source.types.length ? source.types.slice() : typesFor(name),
+      directory: {
+        areas: source.areas || [],
+        addresses: source.addresses || [],
+        contacts: source.contacts || [],
+        socials: source.socials || [],
+        description: source.description || '',
+        website: source.website || '',
+        sources: source.sources || []
+      },
       status: 'published',
       templateId: (window.EatoutsDB && window.EatoutsDB.SHARED_TEMPLATE) || 'tpl_shared',
       ownContent: null,
@@ -104,6 +116,68 @@
       socials: [],
       createdAt: lastActive
     };
+  }
+
+  function mergeDirectory(payload) {
+    var DB = window.EatoutsDB;
+    if (!DB) return { added: 0, enriched: 0 };
+    var db = DB.load();
+    var added = 0;
+    var enriched = 0;
+    var now = Date.now();
+    var incomingRows = payload && Array.isArray(payload.restaurants) ? payload.restaurants : [];
+    var byId = {};
+    db.restaurants.forEach(function (restaurant) { byId[restaurant.id] = restaurant; });
+
+    function mergeList(target, source) {
+      var changed = false;
+      (source || []).forEach(function (value) {
+        var key = JSON.stringify(value);
+        if (!target.some(function (item) { return JSON.stringify(item) === key; })) {
+          target.push(value); changed = true;
+        }
+      });
+      return changed;
+    }
+
+    incomingRows.forEach(function (row, index) {
+      var incoming = toRestaurant(row, index, now);
+      var existing = byId[incoming.id];
+      if (!existing) {
+        db.restaurants.push(incoming);
+        byId[incoming.id] = incoming;
+        added++;
+        return;
+      }
+
+      var changed = false;
+      ['district', 'districtName', 'town', 'area'].forEach(function (field) {
+        if (!existing.location[field] && incoming.location[field]) {
+          existing.location[field] = incoming.location[field]; changed = true;
+        }
+      });
+      if ((!existing.logo || existing.logo === 'assets/logo/logo_placement_image.png') && incoming.logo && incoming.logo !== 'assets/logo/logo_placement_image.png') {
+        existing.logo = incoming.logo; changed = true;
+      }
+      if ((!existing.types || !existing.types.length) && incoming.types.length) {
+        existing.types = incoming.types.slice(); changed = true;
+      }
+      if (!existing.landmark && incoming.landmark) { existing.landmark = incoming.landmark; changed = true; }
+
+      existing.directory = existing.directory || { areas: [], addresses: [], contacts: [], socials: [], description: '', website: '', sources: [] };
+      var directory = existing.directory;
+      ['areas', 'addresses', 'contacts', 'socials', 'sources'].forEach(function (field) {
+        directory[field] = directory[field] || [];
+        if (mergeList(directory[field], incoming.directory[field])) changed = true;
+      });
+      ['description', 'website'].forEach(function (field) {
+        if (!directory[field] && incoming.directory[field]) { directory[field] = incoming.directory[field]; changed = true; }
+      });
+      if (changed) enriched++;
+    });
+
+    if (added || enriched) DB.save(db);
+    return { added: added, enriched: enriched };
   }
 
   /**
@@ -313,6 +387,7 @@
   window.EatoutsSeed = {
     ROWS: ROWS,
     seed: seed,
+    mergeDirectory: mergeDirectory,
     rosterStats: rosterStats,
     validateLocations: validateLocations,
     toRestaurant: toRestaurant,

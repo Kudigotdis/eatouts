@@ -89,6 +89,7 @@ img{display:block;max-width:100%}
 .btn.wa{background:#dff5e4;border-color:#b8e6c1;color:#1c6b2e}
 .btn.wa:active{background:#c9ecd0}
 .btn.full{width:100%}
+.btn.half{flex:1}
 .btn.sm{padding:8px 12px;font-size:11.5px;border-radius:9px}
 .btn.ghost{background:transparent;border-color:#e2dccd;color:#6f6754}
 
@@ -134,7 +135,7 @@ img{display:block;max-width:100%}
 /* ---------- ACCORDION (smooth collapse/expand) ---------- */
 .acc-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
 .acc-wrap>.acc-in{overflow:hidden;min-height:0}
-.ecard.open>.acc-wrap,.mitem.open>.acc-wrap{grid-template-rows:1fr}
+.ecard.open>.acc-wrap,.mitem.open>.acc-wrap,.ritem.open>.acc-wrap{grid-template-rows:1fr}
 @media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}}
 
 /* ---------- COUNTERS ---------- */
@@ -153,7 +154,8 @@ img{display:block;max-width:100%}
 /* ---------- MENU ---------- */
 .cat-row{display:flex;align-items:center;gap:13px;padding:15px 16px;border-bottom:1px solid #f1ece1;background:#ffffff;width:100%}
 .cat-row:active{background:#faf8f2}
-.cat-ico{width:44px;height:44px;flex:0 0 auto;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid #f1ece1}
+.cat-ico{width:44px;height:44px;flex:0 0 auto;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid #f1ece1;overflow:hidden}
+.cat-ico img{width:100%;height:100%;object-fit:cover;display:block;border-radius:0}
 .cat-name{font-size:14.5px;font-weight:800;color:#1a1a1a;letter-spacing:.01em}
 .cat-meta{font-size:10.5px;color:#a89a7e;margin-top:2px;letter-spacing:.03em;font-weight:600}
 
@@ -243,6 +245,24 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .csearch{flex:1;display:flex;align-items:center;gap:8px;background:#faf8f2;border:1px solid #ece7db;border-radius:10px;padding:0 12px}
 .csearch input{flex:1;background:none;border:0;outline:none;padding:10px 0;font-size:13px;color:#1a1a1a}
 .csearch input::placeholder{color:#b5a888}
+.rest-filter-row{display:flex;gap:8px;padding:0 12px 8px}
+.rest-filter-row .cbtn{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap}
+.rest-type-pop{left:8px;right:8px;width:auto;max-width:none;max-height:min(70vh,620px);padding:0;display:flex;flex-direction:column}
+.rest-type-top{flex:0 0 auto;padding:10px;background:#fff;border-bottom:1px solid #ece7db}
+.rest-type-top .csearch{min-height:38px}
+.rest-type-status{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px;font-size:11px;font-weight:800;color:#645b48}
+.rest-type-status span,.rest-type-status button{flex:0 0 auto;white-space:nowrap}
+.rest-type-status button{width:auto}
+.rest-type-status button,.rest-type-footer button{font-size:11px;font-weight:800;color:#3a3324;padding:8px 12px;border:1px solid #ece7db;border-radius:8px;background:#faf8f2}
+.rest-type-options{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.rest-type-group-title{padding:10px 14px 7px;background:#f7f6f3;color:#817766;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.rest-type-subgroup-title{padding:9px 14px 4px;color:#645b48;font-size:10px;font-weight:900}
+.rest-type-option{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-bottom:1px solid #f4efe4;text-align:left;font-size:12px;font-weight:700;color:#3a3324;cursor:pointer}
+.rest-type-option input{flex:0 0 18px;width:18px;height:18px;margin:0;accent-color:#1a1a1a}
+.rest-type-option .rest-type-count{margin-left:auto}
+.rest-type-footer{flex:0 0 auto;display:flex;justify-content:space-between;gap:8px;padding:10px;background:#fff;border-top:1px solid #ece7db}
+.rest-type-footer .apply{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
+.rest-type-note,.rest-type-empty{padding:12px 14px;color:#817766;font-size:11px;line-height:1.45}
 
 /* ---------- SWIPER ---------- */
 .swiper{display:flex;flex-direction:column;flex:1 1 0%;min-height:0;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -268,6 +288,8 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .ablock:last-child{border-bottom:0}
 .ablock .abh{font-size:11px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:#a89a7e;margin:0 0 6px}
 .ablock .abv{font-size:13px;font-weight:600;line-height:1.55;color:#26221a;margin:0}
+.legal-sec{font-size:13px;font-weight:700;letter-spacing:.03em;color:#1a1a1a;margin:18px 0 4px}
+.legal-para{font-size:13px;color:#3a3a3a;margin:0 0 8px;line-height:1.5}
 /* ---------- FEATURE PILLS ---------- */
 /* .tagwrap stays left-aligned: it is shared with the venue and
    restaurant-about tag rows. Opt into centring with .center. */
@@ -279,17 +301,15 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 
 /* ---------- SOCIAL ICON ROW ----------
    Bare icons only: the PNGs carry their own brand disc, so the anchor
-   stays a plain hit area (no border/background/radius). The row is
-   capped at 216px = 5 slots of 40px + 4 gaps of 4px, which is what
-   keeps it to a maximum of five icons per line. */
-.social-row{display:flex;flex-wrap:wrap;gap:4px;max-width:216px;margin:16px auto 4px;justify-content:center;align-items:center}
-.social-ico{flex:0 0 auto;width:40px;height:40px;display:flex;align-items:center;justify-content:center;padding:5px;border:none;border-radius:0;background:transparent;box-shadow:none;text-decoration:none;-webkit-tap-highlight-color:transparent}
+   stays a plain hit area (no border/background/radius). Every row is a
+   fixed 370px = 5 slots of 70px + 4 gaps of 5px on line one, which is
+   exactly what drops a 6th icon onto the second (centred) line. An
+   icon with no destination yet renders its _Off glyph, not a link. */
+.social-row{display:flex;flex-wrap:wrap;gap:5px;width:370px;max-width:100%;margin:16px auto 4px;justify-content:center;align-items:center}
+.social-ico{flex:0 0 auto;width:70px;height:70px;display:flex;align-items:center;justify-content:center;padding:8px;border:none;border-radius:0;background:transparent;box-shadow:none;text-decoration:none;-webkit-tap-highlight-color:transparent}
 .social-ico:active{opacity:.65}
 .social-ico img{width:100%;height:100%;object-fit:contain;display:block}
-/* an icon with no destination yet: shown for completeness, not clickable */
-.social-ico.inert{opacity:.3;pointer-events:none;cursor:default}
-/* the GPS pin is a bare glyph, so give it a touch more size than the discs */
-.social-ico.gps img{width:34px;height:34px}
+.social-ico.off{pointer-events:none;cursor:default}
 
 /* ---------- CRUMB ---------- */
 .crumb{display:flex;align-items:center;gap:8px;padding:12px 16px 10px;flex-wrap:wrap;background:#ffffff}
@@ -364,13 +384,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .rnew{margin-left:8px}
 .rflag{margin-left:6px;letter-spacing:.1em}
 
-/* cuisine group headers */
-.rgroup{padding:14px 14px 7px;background:#f7f6f3;border-bottom:1px solid #ece7db;position:sticky;top:0;z-index:2}
-.rgroup h3{margin:0;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#8a8170}
-.rgroup span{font-size:10.5px;font-weight:800;color:#a89a7e;margin-left:7px}
-
-/* pinned restaurants (featured) */
-.rgroup.pinned{background:#fffdf5;border-bottom-color:#f0e6c8}
+/* no cuisine group headers: the list is one flat filtered column */
 
 /* ---------- RESTAURANT 4-OPTION DROPDOWN ---------- */
 /* No fd animation here: the .acc-wrap height transition owns the motion,
@@ -399,6 +413,50 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .rabout-hero .rlogo{width:70%;max-width:240px;height:auto;max-height:120px;object-fit:contain;margin:0 auto 14px;display:block}
 .rabout-hero h2{margin:0 0 6px;font-size:20px;font-weight:900;letter-spacing:-.015em;color:#1a1a1a}
 .rabout-hero p{margin:0;font-size:12px;color:#8a8170;letter-spacing:.02em}
+
+/* ---------- SPLIT THE BILL ---------- */
+.split-people{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.split-person{display:inline-flex;align-items:center;gap:7px;padding:6px 8px 6px 9px;border:1px solid #ece7db;border-radius:999px;background:#faf8f2;font-size:12px;font-weight:800;color:#3a3324}
+.split-person i{width:8px;height:8px;border-radius:50%;display:block;flex:0 0 auto}
+.split-pname{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.split-ptot{color:#1a1a1a;font-weight:900}
+.split-px{width:18px;height:18px;border-radius:50%;background:transparent;color:#a89a7e;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;flex:0 0 auto}
+.split-px:active{background:#f1ece1;color:#1a1a1a}
+.split-add{display:flex;gap:8px;align-items:stretch}
+.split-add input{flex:1;padding:11px 13px;background:#faf8f2;border:1px solid #ece7db;border-radius:11px;font-size:13px;color:#1a1a1a;outline:none;min-width:0}
+.split-add input:focus{border-color:#1a1a1a;background:#ffffff}
+.split-add .btn{padding:11px 16px}
+.split-line{border:1px solid #f1ece1;border-radius:12px;background:#ffffff;padding:12px;margin-bottom:10px}
+.split-line-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.split-line-name{font-size:13px;font-weight:800;color:#1a1a1a;line-height:1.3;min-width:0}
+.split-line-name em{font-style:normal;color:#a89a7e;font-weight:700}
+.split-line-tot{font-size:13px;font-weight:900;color:#1a1a1a;flex:0 0 auto}
+.split-line-meta{font-size:11px;color:#8a8170;margin-top:3px}
+.split-line-unit{font-size:10.5px;color:#a89a7e;font-weight:700;margin:4px 0 8px;letter-spacing:.02em}
+.split-line-rows{display:flex;flex-direction:column;gap:6px}
+.split-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:9px;background:#faf8f2}
+.split-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.split-row-name{flex:1;font-size:12px;font-weight:800;color:#3a3324;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.split-row-sub{font-size:11.5px;font-weight:900;color:#1a1a1a;flex:0 0 auto;min-width:56px;text-align:right}
+.split-row .stp button{width:30px;height:28px;font-size:15px}
+.split-row .stp .val{min-width:24px;font-size:12.5px;padding:0 2px}
+.split-unrow{display:flex;align-items:center;gap:8px;padding:6px 8px;font-size:11.5px;color:#a89a7e}
+.split-unrow.zero{opacity:.35}
+.split-unrow .split-row-name{color:#a89a7e;font-weight:800}
+.split-unrow .split-row-sub{color:#8a8170;font-weight:800}
+.split-unrow .split-row-sub em{font-style:normal;font-weight:600;color:#a89a7e;margin-left:4px}
+.split-hint{font-size:11.5px;color:#a89a7e;padding:6px 0;font-style:italic}
+.split-sumrow{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-left:3px solid #1a1a1a;background:#faf8f2;border-radius:0 9px 9px 0;margin-bottom:6px;font-size:12.5px;font-weight:800;color:#3a3324}
+.split-sumrow b{font-size:14px;font-weight:900;color:#1a1a1a}
+.split-sumrow.muted{border-left-color:#d6cfbf;color:#a89a7e}
+.split-sumrow.muted b{color:#8a8170}
+.split-note{font-size:10.5px;color:#a89a7e;line-height:1.5;margin:8px 0 0}
+.split-actions{display:flex;flex-direction:column;gap:8px}
+.split-preview{margin:-2px 0 12px;padding:10px 12px;background:#faf8f2;border:1px solid #f1ece1;border-radius:12px}
+.split-preview .sp-row{display:flex;justify-content:space-between;font-size:11.5px;font-weight:800;color:#3a3324;padding:2px 0}
+.split-preview .sp-row b{color:#1a1a1a}
+.split-preview .sp-row.muted{color:#a89a7e}
+.split-preview .sp-row.muted b{color:#8a8170}
 </style>
 </head>
 <body>
@@ -413,6 +471,11 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
   <nav id="nav"></nav>
 </div>
 
+<script src="assets/data/restaurant_listings/restaurant_types_filter.js"></script>
+<script src="assets/data/restaurant_listings/directory_runtime_data.js"></script>
+<script src="assets/data/restaurant_listings/eatouts_manifest.js"></script>
+<script src="assets/data/eatouts_terms_of_service.js"></script>
+<script src="assets/data/eatouts_privacy_policy.js"></script>
 <script src="botswana_locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-brand.js"></script>
@@ -443,6 +506,15 @@ const IMG = {
   iconWeb:"assets/icons/Website_icon.png",
   iconCall:"assets/icons/Call_icon.png",
   iconGPS:"assets/icons/GPS - icon.png",
+  iconIGOff:"assets/icons/Instagram_Off.png",
+  iconFBOff:"assets/icons/facebook_icon_off.png",
+  iconWAOff:"assets/icons/whatsApp_icon_off.png",
+  iconTTOff:"assets/icons/TikTok_Off.png",
+  iconXOff:"assets/icons/Twitter_Off.png",
+  iconYTOff:"assets/icons/YouTube_Off.png",
+  iconWebOff:"assets/icons/Website_Off.png",
+  iconCallOff:"assets/icons/Call_Off.png",
+  iconGPSOff:"assets/icons/GPS - Off.png",
   poetry:"assets/images/events/poetry_nights.jpg",
   dirEvents:"assets/images/events/",
   dirFood:"assets/images/food/",
@@ -2401,6 +2473,286 @@ MENU_CATS.forEach(function(spec){
 });
 const MENU_ITEM_COUNT=MENU.reduce(function(s,c){return s+c.items.length;},0);
 const HH_INFO=DATA_MENU.happy_hour_info||"";
+
+/* ================================================================
+   IMPORTED DIRECTORY + MENUS (loaded at boot from
+   directory_runtime_data.json, which the Python generator builds from
+   SQLite + CSV + the curated JSON)
+
+   Imported menus are normalised into the SAME nested MENU shape as
+   index.html wires up above, so every existing renderer keeps working.
+   The bridge (EatoutsBridge.bundleOf) substitutes these for restaurants
+   still sharing the template; owner-edited restaurants and The Yellow
+   Giraffe keep their own menus.
+   ================================================================ */
+const DIRECTORY_DATA_PATH="assets/data/restaurant_listings/directory_runtime_data.json";
+const DEMO_MENU_PATH="demo_info_menu-items-food-beverages.json";
+const EATOUTS_MENUS={};
+let EATOUTS_IMAGE_INDEX={};
+let DIRECTORY_MERGE_REPORT={added:0,enriched:0};
+let DIRECTORY_LOADED=false;
+
+function slugish(s){
+  if(window.EatoutsBrand&&typeof window.EatoutsBrand.slugify==="function"){
+    const k=window.EatoutsBrand.slugify(s); if(k)return k;
+  }
+  return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+}
+function pickText(v){return v===null||v===undefined?"":String(v);}
+function iconForCat(name){
+  return /drink|beer|wine|cider|lager|spirit|cocktail|mocktail|shake|smoothie|coffee|tea|juice|soda|beverage|bar|vodka|gin|rum|whiskey|whisky|brandy|liqueur|shots|fizz/.test(String(name).toLowerCase())
+    ?"\u{1F379}":"\u{1F5C0}";
+}
+
+/* Pulls [{category,name,description,price,extras}] rows out of any of the
+   JSON shapes the directory ships (KFC/Nando's/etc grouped menus, the Game
+   Reserve's menus|sections, Zen Cafe's food_menu/bar_menu, the demo file). */
+function catRowsOf(payload){
+  const out=[];
+  function push(cat,note,items){if(items&&items.length)out.push({cat:cat||"Menu",note:note||"",items:items});}
+  function groupFlat(arr,fallback){
+    if(!Array.isArray(arr)||!arr.length)return;
+    const byCat={};
+    arr.forEach(function(g){
+      if(!g||typeof g!=="object")return;
+      const cat=g.category||fallback;
+      (byCat[cat]=byCat[cat]||[]).push(g);
+    });
+    Object.keys(byCat).forEach(function(cat){push(cat,"",byCat[cat]);});
+  }
+  const menu=payload.menu;
+  if(Array.isArray(menu)){
+    const structured=menu.every(function(g){return g&&(Array.isArray(g.items)||Array.isArray(g.subcategories));});
+    if(structured){
+      menu.forEach(function(g){
+        if(Array.isArray(g.items))push(g.category||g.name,g.note||"",g.items);
+        if(Array.isArray(g.subcategories))g.subcategories.forEach(function(sc){
+          if(sc&&Array.isArray(sc.items))push(sc.name||g.category,(sc&&sc.note)||"",sc.items);
+        });
+      });
+    }else{
+      groupFlat(menu,"Menu");
+    }
+  }
+  const menus=payload.menus;
+  if(menus&&typeof menus==="object"){
+    Object.keys(menus).forEach(function(k){
+      const m=menus[k];
+      if(!m||typeof m!=="object")return;
+      const label=m.category||capitalize(pickText(k).replace(/[_-]+/g," "))||"Menu";
+      if(Array.isArray(m.sections))m.sections.forEach(function(s){push((s&&s.section)||label,s&&s.note,s&&s.items||[]);});
+      else if(Array.isArray(m.items))push(label,m&&m.note,m.items);
+    });
+  }
+  if(Array.isArray(payload.food_menu))groupFlat(payload.food_menu,"Food & Coffee");
+  if(Array.isArray(payload.bar_menu))groupFlat(payload.bar_menu,"Bar & Cocktails");
+  return out;
+}
+function capitalize(s){return s.replace(/\b\w/g,function(c){return c.toUpperCase();});}
+
+/* price -> number | [[label,price,happyHourPrice],...] | null */
+function importedPrice(item){
+  if(Array.isArray(item.variants)&&item.variants.length){
+    const arr=[];
+    item.variants.forEach(function(v){
+      if(!v||typeof v!=="object")return;
+      const p=money(v.price);
+      if(p===null)return;
+      arr.push([pickText(v.name)||null,p,money(v.happy_hour_price)]);
+    });
+    return arr.length?arr:null;
+  }
+  if(Array.isArray(item.options)&&item.options.length){
+    const arr=[];
+    const firstHasPrice=item.options.some(function(o){return o&&typeof o==="object"&&o.price!==undefined&&o.price!==null;});
+    item.options.forEach(function(o,i){
+      if(typeof o==="string"){
+        const p=money(item.price);
+        if(p!==null)arr.push([o,p,null]);
+      }else if(o&&typeof o==="object"){
+        const p=money(firstHasPrice?o.price:item.price);
+        if(p!==null)arr.push([pickText(o.name||o.item||o.variant||o.protein)||null,p,money(o.happy_hour_price)]);
+      }else{
+        const p=money(item.price);
+        if(p!==null)arr.push(["Option "+(i+1),p,null]);
+      }
+    });
+    return arr.length?arr:null;
+  }
+  let base=item.price;
+  if(base===undefined||base===null)base=item.price_token;
+  const p=money(base);
+  if(p===null)return null;
+  return [[null,p,money(item.happy_hour_price)]];
+}
+function importedExtras(item){
+  const src=Array.isArray(item.extras)?item.extras
+    :Array.isArray(item.add_ons)?item.add_ons
+    :Array.isArray(item.addons)?item.addons:[];
+  const out=[];
+  src.forEach(function(a){
+    if(!a)return;
+    let label=a,price=item.price;
+    if(typeof a==="object"){label=a.name||a.item;price=a.price;}
+    const p=money(price);
+    const s=pickText(label);
+    if(s&&p!==null)out.push([s,p]);
+  });
+  const seen={};
+  return out.filter(function(x){if(seen[x[0]])return false;seen[x[0]]=1;return true;});
+}
+function importedItem(raw){
+  if(!raw||typeof raw!=="object")return null;
+  const name=pickText(raw.name||raw.item||raw.title);
+  if(!name)return null;
+  const price=importedPrice(raw);
+  if(!price||!price.length)return null;
+  return {name:name,desc:pickText(raw.description||raw.desc||raw.details||raw.pricing),price:collapsePrice(price),extras:importedExtras(raw)};
+}
+function normaliseImported(payload){
+  const rows=catRowsOf(payload);
+  const usedCat={};
+  const menu=[];
+  let seq=0;
+  rows.forEach(function(cr){
+    const items=[];
+    (cr.items||[]).forEach(function(raw){
+      const it=importedItem(raw);
+      if(it)items.push([++seq,it.name,it.desc,it.price,it.extras]);
+    });
+    if(!items.length)return;
+    let base=slugish(cr.cat)||"menu";
+    let catId=base,i=2;
+    while(usedCat[catId]){catId=base+"-"+(i++);}
+    usedCat[catId]=1;
+    menu.push({id:catId,name:cr.cat,icon:iconForCat(cr.cat),note:cr.note||"",items:items});
+  });
+  return menu;
+}
+
+/* photo manifest lookup (assets/images/menu_images/<brand>/<slug>.jpg) */ 
+function photoNormalize(s){
+  return slugish(s).replace(/pcs?/g,"pc").replace(/pieces?/g,"pc").replace(/-+$/,"");
+}
+function indexImages(){
+  EATOUTS_IMAGE_INDEX={};
+  const mf=(window.DIRECTORY_DATA&&window.DIRECTORY_DATA.menuImages)||{};
+  Object.keys(mf).forEach(function(key){
+    const list=mf[key]||[];
+    const byKey={};
+    const normSet={};
+    list.forEach(function(img){
+      if(!img||!img.key)return;
+      byKey[img.key]=img.path;
+      normSet[photoNormalize(img.key)]=img.path;
+    });
+    EATOUTS_IMAGE_INDEX[key]={list:list,byKey:byKey,normSet:normSet,paths:list.map(function(i){return i&&i.path;})};
+  });
+}
+function menuItemPhoto(itemName){
+  const r=curRestaurant();
+  if(!r)return null;
+  const idx=EATOUTS_IMAGE_INDEX[canonicalSlugKey(r.slug)];
+  if(!idx||!idx.list.length)return null;
+  const needle=photoNormalize(itemName);
+  if(!needle)return null;
+  if(idx.byKey[slugish(itemName)])return idx.byKey[slugish(itemName)];
+  if(idx.normSet[needle])return idx.normSet[needle];
+  for(let i=0;i<idx.list.length;i++){
+    const k=photoNormalize(idx.list[i].key);
+    if(k&&(k.indexOf(needle)>-1||needle.indexOf(k)>-1))return idx.list[i].path;
+  }
+  return null;
+}
+function menuPhoto(name,fallbackIdx){
+  const p=menuItemPhoto(name);
+  return p||foodImg(fallbackIdx);
+}
+function menuPhotoStrip(it){
+  const name=typeof it==="string"?it:(it?it[1]:"");
+  const found=menuItemPhoto(name);
+  let h="";
+  if(found)h+='<div class="th">'+imgTag(found,name)+'</div>';
+  for(let pi=0;pi<IMG.demoImages.length;pi++)h+='<div class="th">'+imgTag(demoImg(pi),name)+'</div>';
+  return h;
+}
+/* first photo-matched item in a menu category, or null - drives the
+   cat-ico thumbnail so a category card shows a real dish photo */
+function menuCatThumb(cat){
+  if(!cat||!cat.items) return null;
+  for(let i=0;i<cat.items.length;i++){
+    const it=cat.items[i];
+    const name=(typeof it==="string")?it:(it&&it[1]);
+    if(!name) continue;
+    const p=menuItemPhoto(name);
+    if(p) return p;
+  }
+  return null;
+}
+
+function loadMenus(payload){
+  const files=(payload&&payload.menuFiles)||{};
+  const raw=(payload&&payload.menusRaw)||window.EATOUTS_MENUS_RAW||null;
+  const tasks=Object.keys(files).map(function(key){
+    if(raw&&raw[key]){
+      const m=normaliseImported(raw[key]);
+      if(m.length)EATOUTS_MENUS[key]=m;
+      return Promise.resolve();
+    }
+    return fetch(files[key])
+      .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+      .then(function(data){const m=normaliseImported(data);if(m.length)EATOUTS_MENUS[key]=m;})
+      .catch(function(e){console.warn("[EatOuts] menu '"+key+"' unavailable: "+e);});
+  });
+  if(raw&&raw._demo){
+    const m=normaliseImported(raw._demo);
+    if(m.length)EATOUTS_MENUS._demo=m;
+  }else{
+    tasks.push(fetch(DEMO_MENU_PATH)
+      .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+      .then(function(data){const m=normaliseImported(data);if(m.length)EATOUTS_MENUS._demo=m;})
+      .catch(function(e){console.warn("[EatOuts] demo menu unavailable: "+e);}));
+  }
+  return Promise.all(tasks);
+}
+function loadDirectoryMenus(onReady){
+  if (window.DIRECTORY_RUNTIME_DATA) {
+    const directory = window.DIRECTORY_RUNTIME_DATA;
+    window.DIRECTORY_DATA=directory;
+    if(window.EatoutsSeed&&typeof window.EatoutsSeed.mergeDirectory==="function"){
+      DIRECTORY_MERGE_REPORT=window.EatoutsSeed.mergeDirectory(directory);
+    }
+    indexImages();
+    loadMenus(directory).then(function(){
+      DIRECTORY_LOADED=true;if(onReady)onReady();
+    });
+    return;
+  }
+  if(!window.fetch){if(onReady)onReady();return;}
+  fetch(DIRECTORY_DATA_PATH)
+    .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+    .then(function(directory){
+      window.DIRECTORY_DATA=directory;
+      if(window.EatoutsSeed&&typeof window.EatoutsSeed.mergeDirectory==="function"){
+        DIRECTORY_MERGE_REPORT=window.EatoutsSeed.mergeDirectory(directory);
+      }
+      indexImages();
+      return loadMenus(directory);
+    })
+    .then(function(){DIRECTORY_LOADED=true;if(onReady)onReady();})
+    .catch(function(e){console.warn("[EatOuts] directory/menus unavailable: "+e);if(onReady)onReady();});
+}
+
+window.EatoutsMenus={
+  menus:EATOUTS_MENUS,
+  isLoaded:function(){return DIRECTORY_LOADED;},
+  menuFor:function(slug){
+    const key=canonicalSlugKey(slug);
+    return EATOUTS_MENUS[key]||null;
+  },
+  get demo(){return EATOUTS_MENUS._demo||null;},
+  get report(){return DIRECTORY_MERGE_REPORT;}
+};
 /* ================================================================
    PROMOS & EVENTS — normalised from DATA_PROMOS
    ================================================================ */
@@ -2449,7 +2801,7 @@ const PROMO_NOTES = DATA_PROMOS.notes||[];
    ================================================================ */
 const POETRY = {
   id:"POETRY-NIGHT-01",
-  title:"Masa Poetry Nights",
+  title:"Poetry Nights",
   tag:"One Stage. Countless Voices.",
   tagline:"Open-mic spoken word, poetry & live music in central Gaborone."
 };
@@ -2554,6 +2906,10 @@ const state = {
   orderName:"",
   orderContact:"",
   orderNotes:"",
+  splitOpen:false,
+  splitPeople:[],
+  splitAssign:{},
+  splitNewName:"",
   reserveCat:null,
   reserveSub:null,
   galleryView:"grid",
@@ -2564,6 +2920,7 @@ const state = {
   searchOpen:false,
   aboutView:"main",
   operatorView:"about",
+  legalView:null,
 
   /* Promo filter bar */
   promoTown:"Gaborone",
@@ -2580,7 +2937,18 @@ const state = {
   restaurantOpen:null,
   restaurantView:null,
   restSearch:"",
-  restType:"All",
+  restTown:"All",
+  restDistrict:"",
+  restDistrictName:"",
+  restArea:"All",
+  restTypes:[],
+  restTownPicker:false,
+  restAreaPicker:false,
+  restTypePicker:false,
+  restTypeSearch:"",
+  restTownSearch:"",
+  restAreaSearch:"",
+  restTypeDraft:[],
   restSearchOpen:false,
   /* the cbar (type filter + search) is hidden by default; tapping the
      Restaurants nav button while already on the list toggles it */
@@ -2605,6 +2973,12 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 function waLink(text){return "whatsapp://send?phone="+CONFIG.whatsapp+"&text="+encodeURIComponent(text);}
 const DAY_NAMES=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const DAY_SHORT=["S","M","T","W","T","F","S"];
+
+/* bumped when the DB blob is written/reset so the in-memory caches below
+   (listing + restaurant list HTML) know their input moved */
+let dbEventRev=0;
+document.addEventListener("eatouts:db-saved",function(){dbEventRev++;});
+document.addEventListener("eatouts:db-reset",function(){dbEventRev++;});
 
 /* ---------- per-restaurant viewing context ----------
    curBundle() is the bundle for the restaurant currently open in the
@@ -2669,12 +3043,102 @@ function cartTotalForItem(itemId,sizeIdx){
   Object.keys(l.extras||{}).forEach(ei=>{const ex=it.extras[ei];if(ex)t+=ex[1]*l.extras[ei];});
   return t;
 }
+/* ================================================================
+   SPLIT THE BILL
+   Model: each cart line has `qty` units. The user assigns integer
+   quantities to people; anything not assigned is "unassigned".
+   The per-unit price includes the line's extras, averaged over its
+   qty, so a person who takes 1 of 2 burgers pays half the bacon too.
+   Names live only in this session — nothing about a person is stored.
+   ================================================================ */
+const SPLIT_COLORS=["#c2410c","#0369a1","#15803d","#7c3aed","#b91c1c","#a16207","#0f766e","#be185d"];
+let _splitSeq=0;
+
+function checkoutLines(){
+  clearEmptyCart();
+  const lines=[];
+  cartKeys().forEach(function(k){
+    const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length)return;
+    const it=getMenuItem(l.itemId);if(!it)return;
+    const sz=itemSizes(it)[l.sizeIdx];if(!sz)return;
+    lines.push({key:k,itemId:l.itemId,sizeIdx:l.sizeIdx,it:it,name:it.name,
+      size:sz[0]||null,price:sz[1],qty:l.qty,extras:l.extras||{},total:cartLineTotal(l.itemId,l.sizeIdx)});
+  });
+  return lines;
+}
+
+function addSplitPerson(name){
+  name=String(name||"").trim().slice(0,24);
+  if(!name) return null;
+  if(state.splitPeople.some(function(p){return p.name.toLowerCase()===name.toLowerCase();})) return null;
+  const id="p"+(++_splitSeq);
+  state.splitPeople.push({id:id,name:name,color:SPLIT_COLORS[state.splitPeople.length%SPLIT_COLORS.length]});
+  return id;
+}
+function removeSplitPerson(id){
+  state.splitPeople=state.splitPeople.filter(function(p){return p.id!==id;});
+  Object.keys(state.splitAssign).forEach(function(k){
+    if(state.splitAssign[k]&&state.splitAssign[k][id]!==undefined) delete state.splitAssign[k][id];
+  });
+}
+function splitQty(key,pid){const a=state.splitAssign[key];return (a&&a[pid])||0;}
+function setSplitQty(key,pid,q){if(!state.splitAssign[key])state.splitAssign[key]={};state.splitAssign[key][pid]=Math.max(0,q|0);}
+function lineAssignedQty(key){const a=state.splitAssign[key]||{};return Object.keys(a).reduce(function(s,p){return s+(a[p]||0);},0);}
+function lineUnassignedQty(line){return Math.max(0,line.qty-lineAssignedQty(line.key));}
+function lineUnitPrice(line){return line.qty>0?(line.total/line.qty):0;}
+function personLines(pid){
+  const out=[];
+  checkoutLines().forEach(function(line){
+    const q=splitQty(line.key,pid);
+    if(!q) return;
+    out.push({line:line,qty:q,subtotal:q*lineUnitPrice(line)});
+  });
+  return out;
+}
+function personTotal(pid){return personLines(pid).reduce(function(s,x){return s+x.subtotal;},0);}
+function unassignedTotal(){return checkoutLines().reduce(function(s,line){return s+lineUnassignedQty(line)*lineUnitPrice(line);},0);}
+function splitInUse(){return state.splitPeople.length>0;}
+/* if a cart qty drops below what has been assigned, clamp first-come-first-served */
+function normalizeSplitAssignments(){
+  checkoutLines().forEach(function(line){
+    const a=state.splitAssign[line.key];if(!a) return;
+    let sum=0;state.splitPeople.forEach(function(p){sum+=(a[p.id]||0);});
+    if(sum<=line.qty) return;
+    let remaining=line.qty;
+    state.splitPeople.forEach(function(p){
+      const q=a[p.id]||0;if(!q) return;
+      const take=Math.min(q,remaining);a[p.id]=take;remaining-=take;
+    });
+  });
+}
+/* every WhatsApp send in the app targets the flagship number */
+function restaurantContact(){
+  return {number:String(CONFIG.whatsapp||"").replace(/[^\d]/g,""),display:String(CONFIG.displayNumber||"")};
+}
+/* WhatsApp share link with no phone number -> opens the contact picker */
+function waShareLink(text){return "whatsapp://send?text="+encodeURIComponent(text);}
 /* Promos/events now live per-restaurant in the v2 database. These lookups
    search every restaurant that owns promos, so the feed and the detail
    views work no matter which venue a promo came from. */
 function promoLocation(){return {town:state.promoTown,district:state.promoDistrict,districtName:state.promoDistrictName,area:state.promoArea};}
-function promosOnDay(dayIdx){return hasBridge()?EatoutsBridge.promosForDay(dayIdx,state.promoTown,state.promoType,state.promoArea,state.promoDistrict,state.promoDistrictName):[];}
-function eventsOnDay(dayIdx){return hasBridge()?EatoutsBridge.eventsForDay(dayIdx,state.promoTown,state.promoArea,state.promoDistrict,state.promoDistrictName):[];}
+function promosOnDay(dayIdx){
+  if (hasBridge()) {
+    const res = EatoutsBridge.promosForDay(dayIdx,state.promoTown,state.promoType,state.promoArea,state.promoDistrict,state.promoDistrictName);
+    if (res.length > 0) return res;
+  }
+  const dayName = DAY_NAMES[dayIdx];
+  const pList = PROMOS[dayName] || [];
+  return pList.map(function(p){ return {promo: p, day: dayName, restaurant: null}; });
+}
+function eventsOnDay(dayIdx){
+  if (hasBridge()) {
+    const res = EatoutsBridge.eventsForDay(dayIdx,state.promoTown,state.promoArea,state.promoDistrict,state.promoDistrictName);
+    if (res.length > 0) return res;
+  }
+  const dayName = DAY_NAMES[dayIdx];
+  const e = EVENTS[dayName];
+  return e ? [{event: e, day: dayName, restaurant: null}] : [];
+}
 function promoListFor(dayIdx){const b=curBundle();return (b&&b.promos)?(b.promos[DAY_NAMES[dayIdx]]||[]):[];}
 function promoById(id){if(hasBridge())return EatoutsBridge.findPromoAnywhere(id);for(const d in PROMOS){const p=PROMOS[d].find(x=>x.id===id);if(p)return {promo:p,day:d};}return null;}
 function eventFor(dayIdx){
@@ -2824,6 +3288,57 @@ function syncCart(){
    ================================================================ */
 function hasBridge(){return typeof EatoutsBridge!=="undefined"&&EatoutsBridge;}
 
+let restaurantTypeFilterGroups=[];
+let restaurantTypeLoadState="loading";
+let restaurantTypeDataRev=0;
+const RESTAURANT_TYPE_ALIASES={
+  "bakery & deli":["bakery","deli"],
+  "burger bar":["burgers"],
+  "health & wellness":["health food"],
+  "indian & curry":["indian"],
+  "pub & bar":["pub","bar"],
+  "takeaway":["takeout"]
+};
+function normalizeRestType(type){
+  return String(type||"").trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+}
+function restTypeTokens(type){
+  const key=normalizeRestType(type);
+  return RESTAURANT_TYPE_ALIASES[key]||[key];
+}
+function loadRestaurantTypeFilters(){
+  if (window.RESTAURANT_TYPES_FILTER_DATA) {
+    const data = window.RESTAURANT_TYPES_FILTER_DATA;
+    if(!data||!Array.isArray(data.filterGroups)){
+      restaurantTypeLoadState="fallback";
+      restaurantTypeDataRev++;
+      console.warn("[EatOuts] Invalid restaurant type filter data");
+      renderControlBar();
+      return;
+    }
+    restaurantTypeFilterGroups=data.filterGroups;
+    restaurantTypeLoadState="ready";
+    restaurantTypeDataRev++;
+    renderControlBar();
+    return;
+  }
+  fetch("assets/data/restaurant_listings/restaurant_types_filter.json")
+    .then(function(response){if(!response.ok)throw new Error("HTTP "+response.status);return response.json();})
+    .then(function(data){
+      if(!data||!Array.isArray(data.filterGroups))throw new Error("Invalid restaurant type filter data");
+      restaurantTypeFilterGroups=data.filterGroups;
+      restaurantTypeLoadState="ready";
+      restaurantTypeDataRev++;
+      renderControlBar();
+    })
+    .catch(function(error){
+      restaurantTypeLoadState="fallback";
+      restaurantTypeDataRev++;
+      console.warn("[EatOuts] Restaurant type filters unavailable; using listing types",error);
+      renderControlBar();
+    });
+}
+
 /* ---------- promo filter bar ---------- */
 function renderPromoFilterBar(){
   const types=["All"].concat(hasBridge()?EatoutsBridge.promoTypes():[]);
@@ -2908,58 +3423,254 @@ function renderPromoFilterBar(){
 }
 
 /* ---------- Restaurants tab ---------- */
+let _listingRev=null;
+let _listingCache=null;
 function allRestaurants(){
-  return hasBridge()?EatoutsBridge.listing():[];
+  const rev=dbEventRev+"|"+(DIRECTORY_LOADED?1:0);
+  if(rev===_listingRev) return _listingCache;
+  _listingRev=rev;
+  _listingCache=hasBridge()?EatoutsBridge.listing():[];
+  return _listingCache;
 }
-/* primary cuisine type, used for grouping + filtering */
-function restPrimaryType(r){return (r.types&&r.types.length)?r.types[0]:"Restaurant";}
-function restaurantTypes(){
-  const set={};
-  allRestaurants().forEach(function(r){set[restPrimaryType(r)]=1;});
-  return Object.keys(set).sort();
+function restaurantMatchesType(r,type){
+  const selected=restTypeTokens(type).map(normalizeRestType);
+  const types=(r.types&&r.types.length)?r.types:["Restaurant"];
+  return types.some(function(value){
+    return restTypeTokens(value).some(function(token){return selected.indexOf(normalizeRestType(token))>-1;});
+  });
 }
-function filteredRestaurants(){
+function restaurantMatchesLocation(r,town,district,districtName,area){
+  const loc=r.location||{};
+  if(town&&town!=="All"&&normalizeRestType(loc.town)!==normalizeRestType(town))return false;
+  const recordDistrict=String(loc.district||loc.districtCode||"");
+  if(district&&recordDistrict&&recordDistrict!==String(district)&&normalizeRestType(loc.districtName)!==normalizeRestType(districtName))return false;
+  if(area&&area!=="All"&&normalizeRestType(loc.area)!==normalizeRestType(area))return false;
+  return true;
+}
+function restaurantMatchesSearch(r){
+  const query=state.restSearch.trim().toLowerCase();
+  return !query||(String(r.name||"")+" "+String(r.category||"")+" "+String(r.placeLabel||"")).toLowerCase().indexOf(query)>-1;
+}
+function restaurantBaseRows(){
   let rows=allRestaurants();
-  if(state.restType!=="All") rows=rows.filter(function(r){return restPrimaryType(r)===state.restType;});
-  const q=state.restSearch.trim().toLowerCase();
-  if(q) rows=rows.filter(function(r){
-    return (r.name+" "+r.category+" "+r.placeLabel).toLowerCase().indexOf(q)>-1;
+  rows=rows.filter(function(r){
+    return restaurantMatchesLocation(r,state.restTown,state.restDistrict,state.restDistrictName,state.restArea)&&restaurantMatchesSearch(r);
   });
   return rows;
 }
-function restaurantCountByType(type){
-  if(type==="All") return allRestaurants().length;
-  return allRestaurants().filter(function(r){return restPrimaryType(r)===type;}).length;
+function filteredRestaurants(){
+  const rows=restaurantBaseRows();
+  if(!state.restTypes.length)return rows;
+  return rows.filter(function(r){return state.restTypes.some(function(type){return restaurantMatchesType(r,type);});});
+}
+function restaurantCountByType(type,rows){
+  return (rows||restaurantBaseRows()).filter(function(r){return restaurantMatchesType(r,type);}).length;
+}
+function restaurantCountAt(town,district,districtName,area){
+  return allRestaurants().filter(function(r){
+    if(!restaurantMatchesLocation(r,town,district,districtName,area)||!restaurantMatchesSearch(r))return false;
+    return !state.restTypes.length||state.restTypes.some(function(type){return restaurantMatchesType(r,type);});
+  }).length;
+}
+function restaurantTownOptions(){
+  const locations=window.EatoutsLocations;
+  const options=locations?locations.allTowns():[];
+  const seen={};
+  options.forEach(function(t){seen[normalizeRestType(t.value)+"|"+String(t.districtCode||"")]=true;});
+  allRestaurants().forEach(function(r){
+    const loc=r.location||{};
+    const town=String(loc.town||"").trim();
+    if(!town)return;
+    const code=String(loc.district||loc.districtCode||"");
+    const key=normalizeRestType(town)+"|"+code;
+    if(seen[key])return;
+    seen[key]=true;
+    options.push({value:town,label:town,districtCode:code,districtName:loc.districtName||"Other / not listed",areaCount:0});
+  });
+  return options;
+}
+function restaurantAreaOptions(){
+  const locations=window.EatoutsLocations;
+  const options=locations&&state.restTown!=="All"?locations.areas(state.restDistrict,state.restTown):[];
+  const seen={};
+  options.forEach(function(area){seen[normalizeRestType(area)]=area;});
+  allRestaurants().forEach(function(r){
+    const loc=r.location||{};
+    if(normalizeRestType(loc.town)!==normalizeRestType(state.restTown))return;
+    const area=String(loc.area||"").trim();
+    if(area&&!seen[normalizeRestType(area)])seen[normalizeRestType(area)]=area;
+  });
+  return Object.keys(seen).map(function(key){return seen[key];}).sort();
+}
+function restaurantTypeCatalog(){
+  const seen={};
+  const groups=[];
+  function optionsFor(values){
+    return (values||[]).filter(function(value){
+      const label=String(value||"").trim();
+      const key=normalizeRestType(label);
+      if(!key||seen[key])return false;
+      seen[key]=true;
+      return true;
+    }).map(function(value){return {name:String(value).trim()};});
+  }
+  restaurantTypeFilterGroups.forEach(function(group){
+    const item={name:String(group.name||"Other types"),options:[],subgroups:[]};
+    item.options=optionsFor(group.options);
+    (group.subgroups||[]).forEach(function(subgroup){
+      const subOptions=optionsFor(subgroup.options);
+      if(subOptions.length)item.subgroups.push({name:String(subgroup.name||""),options:subOptions});
+    });
+    if(item.options.length||item.subgroups.length)groups.push(item);
+  });
+  const extras=[];
+  const typeNames={};
+  allRestaurants().forEach(function(r){
+    (r.types&&r.types.length?r.types:["Restaurant"]).forEach(function(type){
+      const label=String(type||"").trim();
+      const key=normalizeRestType(label);
+      if(!key||typeNames[key])return;
+      typeNames[key]=label;
+      if(!restTypeTokens(label).some(function(token){return seen[normalizeRestType(token)];}))extras.push(label);
+    });
+  });
+  if(restaurantTypeLoadState!=="ready"){
+    return [{name:restaurantTypeLoadState==="loading"?"Available types":"Listing types",options:optionsFor(Object.keys(typeNames).map(function(key){return typeNames[key];})),subgroups:[]}];
+  }
+  if(extras.length)groups.push({name:"Other listing types",options:optionsFor(extras),subgroups:[]});
+  return groups;
+}
+function renderRestaurantTownPicker(){
+  const query=normalizeRestType(state.restTownSearch);
+  const towns=restaurantTownOptions();
+  const groups={};
+  towns.forEach(function(t){
+    if(query && normalizeRestType(t.label).indexOf(query) === -1) return;
+    (groups[t.districtName||"Other / not listed"]|| (groups[t.districtName||"Other / not listed"]=[])).push(t);
+  });
+  let h='<div class="fpop-scrim" data-act="closeRestTownPicker"></div><div class="fpop town-pop rest-town-pop" role="listbox" aria-label="Choose town or city">';
+  h+='<div class="rest-type-top" style="border-bottom: 1px solid #ece7db; padding-bottom: 10px; margin-bottom: 10px;"><div class="csearch"><input id="restTownSearch" type="search" placeholder="Search towns..." value="'+esc(state.restTownSearch)+'" aria-label="Search towns"></div></div>';
+  if(!query) h+='<button class="loc-all'+(state.restTown==="All"?" on":"")+'" data-act="pickRestTown" data-town="All" role="option" aria-selected="'+(state.restTown==="All")+'"><span>All Botswana</span><span class="loc-count">'+restaurantCountAt("All","","","All")+'</span></button>';
+  Object.keys(groups).sort().forEach(function(name){
+    h+='<div class="loc-district">'+esc(name)+'</div>';
+    groups[name].forEach(function(t){
+      const code=String(t.districtCode||"");
+      const selected=state.restTown===t.value&&state.restDistrict===code;
+      h+='<button class="loc-town-main'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickRestTown" data-town="'+esc(t.value)+'" data-district="'+esc(code)+'" data-district-name="'+esc(t.districtName||name)+'"><span class="lbl">'+esc(t.label)+'</span><span class="loc-count">'+restaurantCountAt(t.value,code,t.districtName||name,"All")+'</span></button>';
+    });
+  });
+  return h+'</div>';
+}
+function renderRestaurantAreaPicker(){
+  const query=normalizeRestType(state.restAreaSearch);
+  const areas=restaurantAreaOptions();
+  const hasAreaData=allRestaurants().some(function(r){
+    return restaurantMatchesLocation(r,state.restTown,state.restDistrict,state.restDistrictName,"All")&&String((r.location||{}).area||"").trim();
+  });
+  let h='<div class="fpop-scrim" data-act="closeRestAreaPicker"></div><div class="fpop area-pop rest-area-pop" role="listbox" aria-label="Choose area or neighbourhood">';
+  h+='<div class="rest-type-top" style="border-bottom: 1px solid #ece7db; padding-bottom: 10px; margin-bottom: 10px;"><div class="csearch"><input id="restAreaSearch" type="search" placeholder="Search areas..." value="'+esc(state.restAreaSearch)+'" aria-label="Search areas"></div></div>';
+  if(!query) h+='<button class="loc-area-option'+(state.restArea==="All"?" on":"")+'" role="option" aria-selected="'+(state.restArea==="All")+'" data-act="pickRestArea" data-area="All"><span>All areas</span><span class="loc-count">'+restaurantCountAt(state.restTown,state.restDistrict,state.restDistrictName,"All")+'</span></button>';
+  if(areas.length&&!hasAreaData)h+='<div class="fpop-note">Current listings do not include neighbourhood details for this town.</div>';
+  if(areas.length){
+    let shown=0;
+    areas.forEach(function(area){
+      if(query && normalizeRestType(area).indexOf(query) === -1) return;
+      shown++;
+      const selected=normalizeRestType(state.restArea)===normalizeRestType(area);
+      h+='<button class="loc-area-option'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickRestArea" data-area="'+esc(area)+'"><span>'+esc(area)+'</span><span class="loc-count">'+restaurantCountAt(state.restTown,state.restDistrict,state.restDistrictName,area)+'</span></button>';
+    });
+    if(!shown && query) h+='<div class="fpop-note">No matching areas found.</div>';
+  }else h+='<div class="fpop-note">No neighbourhoods listed</div>';
+  return h+'</div>';
+}
+function renderRestaurantTypePicker(){
+  const query=normalizeRestType(state.restTypeSearch);
+  const groups=restaurantTypeCatalog();
+  const baseRows=restaurantBaseRows();
+  let h='<div class="fpop-scrim" data-act="closeRestTypePicker"></div><div class="fpop rest-type-pop" role="dialog" aria-label="Choose restaurant types">';
+  h+='<div class="rest-type-top"><div class="csearch"><input id="restTypeSearch" type="search" placeholder="Search types..." value="'+esc(state.restTypeSearch)+'" aria-label="Search restaurant types"></div>';
+  h+='<div class="rest-type-status"><span>'+state.restTypeDraft.length+' selected</span><button type="button" data-act="clearRestTypeDraft">Clear</button></div></div>';
+  h+='<div class="rest-type-options">';
+  let shown=0;
+  groups.forEach(function(group){
+    const groupMatch=query&&normalizeRestType(group.name).indexOf(query)>-1;
+    const direct=(group.options||[]).filter(function(option){return !query||groupMatch||normalizeRestType(option.name).indexOf(query)>-1;});
+    const nested=(group.subgroups||[]).map(function(subgroup){
+      const subMatch=query&&(groupMatch||normalizeRestType(subgroup.name).indexOf(query)>-1);
+      return {name:subgroup.name,options:subgroup.options.filter(function(option){return !query||subMatch||normalizeRestType(option.name).indexOf(query)>-1;})};
+    }).filter(function(subgroup){return subgroup.options.length;});
+    if(!direct.length&&!nested.length)return;
+    shown++;
+    h+='<section><div class="rest-type-group-title">'+esc(group.name)+'</div>';
+    direct.forEach(function(option){h+=renderRestaurantTypeOption(option,baseRows);});
+    nested.forEach(function(subgroup){
+      h+='<div class="rest-type-subgroup-title">'+esc(subgroup.name)+'</div>';
+      subgroup.options.forEach(function(option){h+=renderRestaurantTypeOption(option,baseRows);});
+    });
+    h+='</section>';
+  });
+  if(!shown)h+='<div class="rest-type-empty">No matching types</div>';
+  if(restaurantTypeLoadState==="fallback")h+='<div class="rest-type-note">Taxonomy unavailable; showing types found in restaurant listings.</div>';
+  h+='</div><div class="rest-type-footer"><button type="button" data-act="closeRestTypePicker">Cancel</button><button type="button" class="apply" data-act="applyRestTypeSelection">Apply</button></div></div>';
+  return h;
+}
+function renderRestaurantTypeOption(option,rows){
+  const selected=state.restTypeDraft.indexOf(option.name)>-1;
+  return '<label class="rest-type-option"><input type="checkbox" data-rest-type-option value="'+esc(option.name)+'"'+(selected?' checked':'')+'><span>'+esc(option.name)+'</span><span class="loc-count rest-type-count">'+restaurantCountByType(option.name,rows)+'</span></label>';
 }
 
-/* Pinned to the top of the list, in this order. Matched on slug, not id -
-   ids are prefixed (rest_the-yellow-giraffe). Drawn from the FILTERED rows
-   so search and the cuisine filter still apply, then excluded from the
-   groups below so they never appear twice. */
-const PINNED_REST_SLUGS=["the-yellow-giraffe","soya"];
+/* Pinned to the top of the list, in this order. Matched on canonical slug
+   (EatoutsBrand.canonicalKey), so Nando's -> nandos and zen-cafe-lounge ->
+   zen-cafe match. The photo-menu brands come first (chicken-licken, hungry-lion,
+   kfc, nandos, zen-cafe, the-yellow-giraffe, mozambik), then the other curated
+   brands with both a logo and a menu. Drawn from the FILTERED rows so search
+   and the cuisine filter still apply, then excluded from the tiers below (first
+   venue per brand only). The tiers below are partitioned logo-first. */
+const PINNED_REST_SLUGS=["chicken-licken","hungry-lion","kfc","nandos","zen-cafe","the-yellow-giraffe","mozambik","spur","rocomamas","pie-city","butter-chicken-indian-restaurant","the-game-reserve"];
+function canonicalSlugKey(slug){
+  const B=window.EatoutsBrand;
+  return B&&typeof B.canonicalKey==="function"?B.canonicalKey(slug):slug;
+}
+/* genuine logo test: the brand resolution (manifest -> record logo -> match)
+   decides whether a venue counts as logo'd for ordering */
+function usesGenuineLogo(r){
+  if(!r) return false;
+  const B=window.EatoutsBrand;
+  if(!B||typeof B.logoFor!=="function") return !!(r.logo&&String(r.logo).indexOf("assets/logo")===0&&r.logo.indexOf("logo_placement_image")===-1);
+  const p=B.logoFor(r);
+  return !!p&&!B.isPlaceholderLogo(p);
+}
+const _restList={sig:null,html:null};
 function renderRestaurants(){
+  const rowsLen=filteredRestaurants().length;
+  const allLen=allRestaurants().length;
+  const sig=[dbEventRev,state.restTown,state.restDistrict,state.restDistrictName,state.restArea,
+    state.restSearch,state.restTypes.join("|"),state.restaurantOpen||"",rowsLen,allLen].join("~");
+  if(sig===_restList.sig) return _restList.html;
+  _restList.sig=sig;
+  _restList.html=buildRestaurantsHTML();
+  return _restList.html;
+}
+function buildRestaurantsHTML(){
   const rows=filteredRestaurants();
   const now=Date.now();
 
-  /* pinned first, then everyone else grouped by cuisine */
+  /* Flat single column: the pinned featured venues come first (drawn from the
+     FILTERED rows so search and the cuisine filter still apply), then the
+     remaining venues partitioned logo-first - venues with a real logo above
+     the ones still on the placeholder. No section headers. */
   const pinned=[];
-  const rest=[];
+  const usedPinned={};
   rows.forEach(function(r){
-    if(PINNED_REST_SLUGS.indexOf(r.slug)>-1) pinned.push(r);
-    else rest.push(r);
+    const key=canonicalSlugKey(r.slug);
+    if(PINNED_REST_SLUGS.indexOf(key)>-1&&!usedPinned[key]){pinned.push(r);usedPinned[key]=1;}
   });
-
-  /* group by cuisine, preserving newest-first order inside each group */
-  const groups={};
-  const order=[];
-  rest.forEach(function(r){
-    const t=restPrimaryType(r);
-    if(!groups[t]){groups[t]=[];order.push(t);}
-    groups[t].push(r);
-  });
+  const rest=rows.filter(function(r){return !usedPinned[canonicalSlugKey(r.slug)];});
+  const withLogo=rest.filter(usesGenuineLogo);
+  const withoutLogo=rest.filter(function(r){return !usesGenuineLogo(r);});
 
   let h='<div class="scroll">';
-  h+='<div class="phead"><h2>Restaurants</h2><p>'+rows.length+' of '+allRestaurants().length+' places · newest first</p></div>';
+  h+='<div class="phead"><h2>Restaurants</h2><p>'+rows.length+' of '+allRestaurants().length+' places · curated order</p></div>';
 
   if(!rows.length){
     h+='<div class="empty">No restaurants match your search.</div>';
@@ -2967,15 +3678,9 @@ function renderRestaurants(){
     return h;
   }
 
-  if(pinned.length){
-    h+='<div class="rgroup pinned"><h3>Featured<span>'+pinned.length+'</span></h3></div>';
-    pinned.forEach(function(r){ h+=restaurantItem(r,now); });
-  }
-
-  order.forEach(function(t){
-    h+='<div class="rgroup"><h3>'+esc(t)+'<span>'+groups[t].length+'</span></h3></div>';
-    groups[t].forEach(function(r){ h+=restaurantItem(r,now); });
-  });
+  pinned.forEach(function(r){ h+=restaurantItem(r,now); });
+  withLogo.forEach(function(r){ h+=restaurantItem(r,now); });
+  withoutLogo.forEach(function(r){ h+=restaurantItem(r,now); });
 
   h+='<div style="height:24px"></div></div>';
   return h;
@@ -2986,13 +3691,10 @@ function renderRestaurants(){
    syncRestAccordions() flips .open without re-rendering the list. */
 function restaurantItem(r,now){
   const open=state.restaurantOpen===r.id;
-  const isNew=(now-r.lastActive)<2*86400000;
   let h='<div class="ritem'+(open?" open":"")+'" data-racc="'+esc(r.id)+'">';
   h+='<button class="rrow" data-act="toggleRestaurant" data-id="'+esc(r.id)+'" aria-expanded="'+(open?"true":"false")+'">';
   h+='<div class="rthumb">'+(r.thumbHtml||"")+'</div>';
-  h+='<div class="rinfo"><div class="rname">'+esc(r.name)+
-     (isNew?'<span class="rnew">New</span>':"")+
-     (r.isFlagship?'<span class="rflag">Flagship</span>':"")+'</div>';
+  h+='<div class="rinfo"><div class="rname">'+esc(r.name)+'</div>';
   h+='<div class="rmeta">'+esc(r.category)+' · '+esc(r.placeLabel||r.location.town||"")+'</div></div>';
   h+='</button>';
   h+='<div class="acc-wrap"><div class="acc-in">'+restaurantOptions(r)+'</div></div>';
@@ -3030,6 +3732,7 @@ function renderRestaurantSubView(){
 
   if(rv.view==="menu"){
     /* renderMenuCategory supplies its own scroll + crumb */
+    if(state.splitOpen) return renderCheckoutSplit();
     if(state.checkoutView) return renderCheckout();
     if(state.menuCat) return renderMenuCategory();
     return '<div class="scroll">'+crumb+renderMenuCategories(true)+'<div style="height:24px"></div></div>';
@@ -3120,6 +3823,24 @@ const SOCIAL_ICON={
   instagram:"iconIG", facebook:"iconFB", whatsapp:"iconWA", tiktok:"iconTT",
   twitter:"iconX", youtube:"iconYT", website:"iconWeb", call:"iconCall", gps:"iconGPS"
 };
+/* unavailable / no-destination glyph per platform, used by the off state */
+const SOCIAL_OFF_ICON={
+  instagram:"iconIGOff", facebook:"iconFBOff", whatsapp:"iconWAOff", tiktok:"iconTTOff",
+  twitter:"iconXOff", youtube:"iconYTOff", website:"iconWebOff", call:"iconCallOff", gps:"iconGPSOff"
+};
+/* canonical row: line one holds the first five (370px exactly), the rest
+   drop onto the second, centred line */
+const SOCIAL_GRID=[
+  {platform:"instagram"},
+  {platform:"facebook"},
+  {platform:"whatsapp"},
+  {platform:"tiktok"},
+  {platform:"twitter"},
+  {platform:"youtube"},
+  {platform:"website"},
+  {platform:"call"},
+  {platform:"gps"}
+];
 const SOCIAL_LABEL={
   instagram:"Instagram", facebook:"Facebook", whatsapp:"WhatsApp", tiktok:"TikTok",
   twitter:"X (Twitter)", youtube:"YouTube", website:"Website", call:"Call", gps:"Location"
@@ -3198,28 +3919,51 @@ function restCallHref(profile){
   if(!pick) return "";
   return socialUrl("call",(pick.countryCode||"+267")+" "+pick.number);
 }
-function socialImg(platform,label){
-  return '<img src="'+IMG[SOCIAL_ICON[platform]||SOCIAL_ICON.website]+'" alt="'+esc(label||SOCIAL_LABEL[platform]||"Link")+'">';
+function socialImg(platform,label,on){
+  const id=String(platform||"").toLowerCase().replace(/[^a-z]/g,"");
+  const table=on?SOCIAL_ICON:SOCIAL_OFF_ICON;
+  const key=(table[id]||SOCIAL_ICON[id]||SOCIAL_ICON.website)||"iconIG";
+  return '<img src="'+IMG[key]+'" alt="'+esc(label||SOCIAL_LABEL[id]||"Link")+'">';
+}
+/* one grid slot: live anchor when a destination exists, otherwise the
+   off-colour glyph, never a dead link */
+function socialSlot(platform,url,label){
+  const name=label||SOCIAL_LABEL[platform]||"Link";
+  if(url){
+    return '<a class="social-ico" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(name)+'">'+socialImg(platform,name,true)+'</a>';
+  }
+  return '<span class="social-ico off" role="img" aria-label="'+esc(name+" — contact unavailable")+'">'+socialImg(platform,name,false)+'</span>';
+}
+/* the About tab's fixed grid: the four channels EatOuts has no profile for
+   yet render their off glyph */
+function renderAboutSocialRow(){
+  let row='<div class="social-row">';
+  row+=socialSlot("instagram","https://www.instagram.com/theyellowgiraffebw/");
+  row+=socialSlot("facebook","https://www.facebook.com/p/The-Yellow-Giraffe-BW-61557884870901/");
+  row+=socialSlot("whatsapp",waLink("*WHATSAPP ENQUIRY — EatOuts*\n\nHi! I would like to know more about EatOuts and the venues available."));
+  row+=socialSlot("tiktok","");
+  row+=socialSlot("twitter","");
+  row+=socialSlot("youtube","");
+  row+=socialSlot("website","");
+  row+=socialSlot("call","tel:"+String(CONFIG.displayNumber||"").replace(/[^\d+]/g,""));
+  row+=socialSlot("gps","https://maps.app.goo.gl/ftCWbv24eRgmd3uYA");
+  row+='</div>';
+  return row;
 }
 function renderRestSocialRow(r,profile){
   const links=restSocialLinks(r);
-  const seen={};
-  let row='<div class="social-row">';
-  links.forEach(function(l){
-    if(seen[l.platform]) return;          /* one icon per platform */
-    seen[l.platform]=1;
-    row+='<a class="social-ico" href="'+esc(l.url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(l.label)+'">'+socialImg(l.platform,l.label)+'</a>';
-  });
+  const have={};
+  links.forEach(function(l){ if(!have[l.platform]) have[l.platform]=l.url; });  /* one slot per platform */
   const call=restCallHref(profile);
-  if(call&&!seen.call){
-    seen.call=1;
-    row+='<a class="social-ico" href="'+esc(call)+'" aria-label="Call"><img src="'+IMG.iconCall+'" alt="Call"></a>';
-  }
+  if(call&&!have.call) have.call=call;
   /* WhatsApp always applies, and guarantees the row is never empty */
-  if(!seen.whatsapp){
-    row+='<a class="social-ico" href="'+esc(waLink("*"+(r.name||"this restaurant")+"*\n\nHi! I found you on EatOuts and would like to ask about your menu, promos or booking a venue."))+'">'+
-         '<img src="'+IMG.iconWA+'" alt="WhatsApp"></a>';
+  if(!have.whatsapp){
+    have.whatsapp=waLink("*"+(r.name||"this restaurant")+"*\n\nHi! I found you on EatOuts and would like to ask about your menu, promos or booking a venue.");
   }
+  let row='<div class="social-row">';
+  SOCIAL_GRID.forEach(function(slot){
+    row+=socialSlot(slot.platform,have[slot.platform]||"");
+  });
   row+='</div>';
   return row;
 }
@@ -3344,7 +4088,10 @@ function cbarKey(){
     state.promoFilterOpen,state.promoTownPicker,state.promoAreaPicker,state.promoTypePicker,
     state.promoTown,state.promoArea,state.promoType,
     state.promoDistrict,state.promoDistrictName,
-    state.restSearchOpen,state.restSearch,state.filterOpen,state.restType,
+    restaurantTypeDataRev,state.restSearchOpen,state.restSearch,state.filterOpen,
+    state.restTown,state.restDistrict,state.restDistrictName,state.restArea,
+    state.restTypes.join(","),state.restTownPicker,state.restAreaPicker,state.restTypePicker,
+    state.restTypeSearch,state.restTypeDraft.join(","),
     state.restFilterOpen,
     state.searchOpen,state.gallerySearch,state.galleryFilter].join("~");
 }
@@ -3371,38 +4118,37 @@ function renderControlBar(){
   /* ---- Restaurants: search + cuisine filter ---- */
   if(state.tab==="restaurants"){
     if(!state.restFilterOpen){
-      /* hidden by default - close the popups but keep any search text and
-         the chosen cuisine, so revealing the bar again restores it */
-      cb.classList.remove("on");cb.innerHTML="";state.filterOpen=false;return;
+      /* Keep applied restaurant filters when the toolbar is hidden. */
+      cb.classList.remove("on");cb.innerHTML="";state.filterOpen=false;
+      state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
+      state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";
+      return;
     }
     cb.classList.add("on");
-    if(state.restSearchOpen){
-      cb.innerHTML='<div class="cbar2">'+
-        '<div class="csearch">'+
-        '<input id="rsearch" type="text" placeholder="Search restaurants..." value="'+esc(state.restSearch)+'">'+
-        '<button class="cbtn ic on" data-act="closeRestSearch" aria-label="Close">'+ICON.close+'</button>'+
-        '</div></div>';
-    } else {
-      cb.innerHTML='<div class="cbar2">'+
-        '<button class="cbtn" data-act="cycleRestType" aria-haspopup="listbox" aria-expanded="'+(state.filterOpen?"true":"false")+'">'+
-          esc(state.restType)+'</button>'+
-        '<div style="flex:1"></div>'+
-        '<button class="cbtn ic" data-act="openRestSearch" aria-label="Search">'+ICON.search+'</button></div>';
-      if(state.filterOpen){
-        const types=["All"].concat(restaurantTypes());
-        cb.innerHTML+='<div class="fpop-scrim" data-act="closeRestFilter"></div>'+
-          '<div class="fpop" role="listbox">'+types.map(function(c){
-            return '<button role="option" aria-selected="'+(c===state.restType?"true":"false")+'" class="'+(c===state.restType?"on":"")+'"'+
-              ' data-act="pickRestType" data-val="'+esc(c)+'">'+esc(c)+
-              '<span style="float:right;color:#a89a7e;font-weight:700">'+restaurantCountByType(c)+'</span></button>';
-          }).join("")+'</div>';
-      }
-    }
+    const townLabel=state.restTown==="All"?"All Botswana":state.restTown+((state.restDistrictName&&state.restDistrictName!==state.restTown)?" · "+state.restDistrictName:"");
+    const areaLabel=state.restArea==="All"?"All areas":state.restArea;
+    const typeLabel=!state.restTypes.length?"All types":state.restTypes.length===1?state.restTypes[0]:state.restTypes.length+" types selected";
+    let h='<div class="rest-filter-controls">';
+    h+='<div class="cbar2 rest-filter-row" style="justify-content: center;">'+
+      '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(townLabel)+'</span></button></div>';
+    h+='<div class="cbar2 rest-filter-row" style="justify-content: space-between;">'+
+      '<button class="cbtn" data-act="openRestAreaPicker"'+(state.restTown==="All"?' disabled':'')+' aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(areaLabel)+'</span></button>'+
+      '<button class="cbtn" data-act="openRestaurantTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.restTypePicker?'true':'false')+'"><span>'+esc(typeLabel)+'</span></button></div>';
+    h+='</div>';
+    if(state.restTownPicker)h+=renderRestaurantTownPicker();
+    if(state.restAreaPicker)h+=renderRestaurantAreaPicker();
+    if(state.restTypePicker)h+=renderRestaurantTypePicker();
+    cb.innerHTML=h;
     return;
   }
 
   /* ---- Gallery control bar ---- */
-  if(state.tab!=="gallery"){cb.classList.remove("on");cb.innerHTML="";state.filterOpen=false;return;}
+  if(state.tab!=="gallery"){
+    cb.classList.remove("on");cb.innerHTML="";state.filterOpen=false;
+    state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
+    state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";
+    return;
+  }
   cb.classList.add("on");
   if(state.searchOpen){
     cb.innerHTML='<div class="cbar2">'+
@@ -3433,7 +4179,7 @@ let lastViewKey=null;
 function viewKey(){
   return [state.tab,state.promoView,state.restaurantView&&state.restaurantView.view,
     state.reserveCat,state.reserveSub,state.galleryView,state.aboutView,
-    state.operatorView].join("|");
+    state.operatorView,state.legalView,state.checkoutView,state.splitOpen].join("|");
 }
 function renderViewport(){
   const vp=document.getElementById("viewport");
@@ -3485,6 +4231,7 @@ function renderScreen(){
     return renderGalleryGrid();
   }
   if(state.tab==="about"){
+    if(state.legalView)return renderLegalDoc(state.legalView);
     if(state.operatorView==="login")return renderOperatorLogin();
     if(state.aboutView==="gallery")return renderRestaurantGallery();
     return renderAbout();
@@ -3526,7 +4273,7 @@ function renderPoetryCard(){
     '</div>';
 
   inner+='<div class="subh">Event Images</div><div class="thumbs">';
-  for(let i=0;i<IMG.demoImages.length;i++) inner+='<div class="th">'+imgTag(demoImg(i),"Masa Poetry Nights")+'</div>';
+  for(let i=0;i<IMG.demoImages.length;i++) inner+='<div class="th">'+imgTag(demoImg(i),"Poetry Nights")+'</div>';
   inner+='</div>';
 
   inner+='<div class="subh">Ticket Info</div>'+renderPoetryInfo();
@@ -3749,8 +4496,9 @@ function renderMenuCategories(noWrap){
   let h=noWrap?"":'<div class="scroll">';
   h+='<div class="phead"><h2>Menu</h2><p>'+esc(curRestaurantName())+' &middot; '+M.length+' categories · '+itemCount+' items · '+(cartCount()>0?cartCount()+" in cart":"Tap a category to explore")+'</p></div>';
   M.forEach(c=>{
+    const cth=menuCatThumb(c);
     h+='<button class="cat-row" data-act="openCat" data-id="'+c.id+'">'+
-      '<div class="cat-ico" style="'+artStyle(c.id)+'">'+c.icon+'</div>'+
+      '<div class="cat-ico'+(cth?" has-thumb":"")+'" style="'+artStyle(c.id)+'">'+(cth?'<img src="'+esc(cth)+'" alt="">':c.icon)+'</div>'+
       '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div>'+
       '<div class="cat-meta">'+c.items.length+' items</div></div></button>';
   });
@@ -3771,7 +4519,7 @@ function renderMenuCategory(){
     const sizes=itemSizes(it);
     h+='<div class="mitem'+(open?" open":"")+'" data-macc="'+it[0]+'">';
     h+='<button class="mrow" data-act="toggleItem" data-id="'+it[0]+'" aria-expanded="'+(open?"true":"false")+'">'+
-      '<div class="mthumb">'+imgTag(foodImg(it[0]-1),it[1])+'</div>'+
+      '<div class="mthumb">'+imgTag(menuPhoto(it[1],it[0]-1),it[1])+'</div>'+
       '<div class="minfo"><div class="mtitle">'+esc(it[1])+'</div>'+
       '<div class="mprice">'+(sizes.length>1?"From ":"")+fmt(sizes[0][1])+
       (sizes[0][2]?' <span style="font-size:10.5px;color:#a89a7e;font-weight:700">HH '+fmt(sizes[0][2])+'</span>':'')+
@@ -3780,9 +4528,7 @@ function renderMenuCategory(){
     h+='<div class="acc-wrap"><div class="acc-in"><div class="mbody">';
     if(it[2]) h+='<p class="mdesc">'+esc(it[2])+'</p>';
 
-    h+='<div class="subh">Photos</div><div class="thumbs">';
-    for(let pi=0;pi<IMG.demoImages.length;pi++) h+='<div class="th">'+imgTag(demoImg(pi),it[1])+'</div>';
-    h+='</div>';
+    h+='<div class="subh">Photos</div><div class="thumbs">'+menuPhotoStrip(it)+'</div>';
 
     if(it[4]&&it[4].length){
       h+='<div class="subh">Extras</div>';
@@ -3851,7 +4597,7 @@ function renderCheckout(){
       h+='<div class="co-item">';
       h+='<div class="co-row">';
       h+='<button class="co-main" data-act="toggleCheckoutRow" data-key="'+key+'">'+
-         '<div class="co-thumb">'+imgTag(foodImg(l.itemId-1),l.name)+'</div>'+
+         '<div class="co-thumb">'+imgTag(menuPhoto(l.name,l.itemId-1),l.name)+'</div>'+
          '<div class="co-info">'+
            '<div class="co-name">'+esc(l.name)+(l.size?' <em>('+esc(l.size)+')</em>':'')+'</div>'+
            '<div class="co-sub">'+fmt(cartLineTotal(l.itemId,l.sizeIdx))+'</div>'+
@@ -3883,6 +4629,21 @@ function renderCheckout(){
     });
     h+='</div>';
     h+='<div class="tbar" style="margin:12px 14px"><span class="tl">Total</span><span class="tv">'+fmt(total)+'</span></div>';
+    /* split-the-bill entry point + a compact preview once names exist */
+    h+='<div class="pad" style="padding-top:0">';
+    if(state.splitPeople.length){
+      h+='<div class="split-preview">';
+      state.splitPeople.forEach(function(p){
+        h+='<div class="sp-row"><span>'+esc(p.name)+'</span><b>'+fmt(personTotal(p.id))+'</b></div>';
+      });
+      const un=unassignedTotal();
+      if(un>0.005) h+='<div class="sp-row muted"><span>Unassigned</span><b>'+fmt(un)+'</b></div>';
+      h+='</div>';
+    }
+    h+='<button class="btn full" data-act="openSplit">Split the Bill'+
+       (state.splitPeople.length?' <span style="color:#a89a7e;font-weight:700;margin-left:4px">· '+state.splitPeople.length+' '+(state.splitPeople.length===1?'person':'people')+'</span>':'')+
+       '</button>';
+    h+='</div>';
     h+='<div class="pad">';
     h+='<div class="fld"><label>Your Name</label><input id="orderName" type="text" placeholder="e.g. Kagiso M." value="'+esc(state.orderName)+'"></div>';
     h+='<div class="fld"><label>Contact Number</label><input id="orderContact" type="tel" placeholder="e.g. +267 71 234 567" value="'+esc(state.orderContact)+'"></div>';
@@ -3893,6 +4654,186 @@ function renderCheckout(){
   }
   h+='<div style="height:24px"></div></div>';
   return h;
+}
+
+/* ================================================================
+   SPLIT THE BILL — sub-view of checkout
+   ================================================================ */
+function renderSplitPersonChips(){
+  let h='<div class="subh">People</div>';
+  if(state.splitPeople.length){
+    h+='<div class="split-people">';
+    state.splitPeople.forEach(function(p){
+      h+='<span class="split-person">'+
+         '<i style="background:'+p.color+'"></i>'+
+         '<span class="split-pname">'+esc(p.name)+'</span>'+
+         '<span class="split-ptot">'+fmt(personTotal(p.id))+'</span>'+
+         '<button class="split-px" data-act="removeSplitPerson" data-id="'+p.id+'" aria-label="Remove '+esc(p.name)+'">&times;</button>'+
+         '</span>';
+    });
+    h+='</div>';
+  }
+  h+='<div class="split-add">'+
+     '<input id="splitNewName" type="text" placeholder="Add a name…" value="'+esc(state.splitNewName)+'" maxlength="24" autocomplete="off" autocapitalize="words">'+
+     '<button class="btn primary" data-act="addSplitPerson">Add</button>'+
+     '</div>';
+  return h;
+}
+
+function renderSplitLines(){
+  const lines=checkoutLines();
+  let h='<div class="subh">Items</div>';
+  if(!state.splitPeople.length){
+    h+='<div class="empty" style="padding:20px 8px">Add a person above to start splitting.<br>'+
+       'Every item stays editable until you send.</div>';
+    return h;
+  }
+  lines.forEach(function(line){
+    const unit=lineUnitPrice(line);
+    const un=lineUnassignedQty(line);
+    h+='<div class="split-line">';
+    h+='<div class="split-line-head">'+
+       '<div class="split-line-name">'+line.qty+'× '+esc(line.name)+
+       (line.size?' <em>('+esc(line.size)+')</em>':'')+'</div>'+
+       '<div class="split-line-tot">'+fmt(line.total)+'</div></div>';
+    const exBits=[];
+    Object.keys(line.extras||{}).forEach(function(ei){
+      const q=line.extras[ei];const ex=line.it.extras&&line.it.extras[ei];
+      if(q>0&&ex) exBits.push(q+'× '+ex[0]);
+    });
+    if(exBits.length) h+='<div class="split-line-meta">+ '+esc(exBits.join(" · "))+'</div>';
+    h+='<div class="split-line-unit">'+fmt(unit)+' each</div>';
+    h+='<div class="split-line-rows">';
+    state.splitPeople.forEach(function(p){
+      const q=splitQty(line.key,p.id);
+      h+='<div class="split-row">'+
+         '<span class="split-dot" style="background:'+p.color+'"></span>'+
+         '<span class="split-row-name">'+esc(p.name)+'</span>'+
+         '<div class="stp">'+
+           '<button data-act="splitMinus" data-key="'+esc(line.key)+'" data-pid="'+p.id+'"'+(q<=0?" disabled":"")+'>&minus;</button>'+
+           '<span class="val" data-splitq="'+esc(line.key)+':'+p.id+'">'+q+'</span>'+
+           '<button data-act="splitPlus" data-key="'+esc(line.key)+'" data-pid="'+p.id+'"'+(un<=0?" disabled":"")+'>+</button>'+
+         '</div>'+
+         '<span class="split-row-sub">'+fmt(q*unit)+'</span>'+
+         '</div>';
+    });
+    h+='<div class="split-unrow'+(un?"":" zero")+'">'+
+       '<span class="split-row-name">Unassigned</span>'+
+       '<span class="split-row-sub">'+fmt(un*unit)+' <em>('+un+' of '+line.qty+')</em></span>'+
+       '</div>';
+    h+='</div></div>';
+  });
+  return h;
+}
+
+function renderSplitTotals(){
+  const total=cartTotal();
+  let h='<div class="tbar" style="margin:12px 14px"><span class="tl">Bill Total</span><span class="tv">'+fmt(total)+'</span></div>';
+  if(!state.splitPeople.length) return h;
+  h+='<div class="pad" style="padding-top:0">';
+  state.splitPeople.forEach(function(p){
+    h+='<div class="split-sumrow" style="border-left-color:'+p.color+'"><span>'+esc(p.name)+'</span><b>'+fmt(personTotal(p.id))+'</b></div>';
+  });
+  const un=unassignedTotal();
+  if(un>0.005) h+='<div class="split-sumrow muted"><span>Unassigned</span><b>'+fmt(un)+'</b></div>';
+  h+='</div>';
+  return h;
+}
+
+function renderSplitActions(){
+  let h='<div class="pad" style="padding-top:0"><div class="split-actions">';
+  h+='<button class="btn primary full" data-act="waSplitRestaurant">Send Full Bill to Restaurant</button>';
+  h+='<p class="split-note" style="margin-top:-2px">One bill, all items, straight to the restaurant\'s WhatsApp.</p>';
+  if(state.splitPeople.length){
+    h+='<div class="subh" style="margin-top:16px">Send Each Person Their Share</div>';
+    state.splitPeople.forEach(function(p){
+      const has=personLines(p.id).length>0;
+      h+='<button class="btn wa full" data-act="waSplitPerson" data-id="'+p.id+'"'+(has?"":" disabled")+'>'+
+         'Send '+esc(p.name)+'\'s Share — '+fmt(personTotal(p.id))+'</button>';
+    });
+    h+='<p class="split-note">Each message opens WhatsApp\'s contact picker — nothing is stored about you or them. '+
+       'The restaurant\'s WhatsApp number is included at the bottom of every share, so it can be forwarded if needed.</p>';
+  }
+  h+='</div></div>';
+  return h;
+}
+
+function renderCheckoutSplit(){
+  normalizeSplitAssignments();
+  const lines=checkoutLines();
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="backFromSplit">Checkout</button><span class="sep">/</span><span class="cur">Split the Bill</span></div>';
+  h+='<div class="phead" style="padding-top:0"><h2>Split the Bill</h2>'+
+     '<p>Add names, then assign each item to whoever is paying for it</p></div>';
+  if(!lines.length){
+    h+='<div class="empty">Your cart is empty.</div>';
+    h+='<div class="pad"><button class="btn ghost full" data-act="backFromSplit">Back to Checkout</button></div>';
+    h+='<div style="height:24px"></div></div>';
+    return h;
+  }
+  h+='<div class="pad" style="padding-top:0">'+renderSplitPersonChips()+'</div>';
+  h+='<div class="pad" style="padding-top:4px">'+renderSplitLines()+'</div>';
+  h+=renderSplitTotals();
+  h+=renderSplitActions();
+  h+='<div style="height:24px"></div></div>';
+  return h;
+}
+
+/* ================================================================
+   SPLIT MESSAGES
+   ================================================================ */
+function buildFullBillMessage(){
+  const lines=checkoutLines();
+  const total=cartTotal();
+  const restName=curRestaurantName();
+  let msg="*NEW MENU ORDER*\nVenue: "+restName;
+  if(state.orderName.trim())    msg+="\nName: "+state.orderName.trim();
+  if(state.orderContact.trim()) msg+="\nContact: "+state.orderContact.trim();
+  if(state.orderNotes.trim())   msg+="\nNotes: "+state.orderNotes.trim();
+  msg+="\n\n*Order Summary:*\n";
+  lines.forEach(function(l){
+    if(l.qty>0) msg+=l.qty+"x "+l.name+(l.size?" ("+l.size+")":"")+
+      " @"+fmt(l.price)+" — "+fmt(l.price*l.qty)+"\n";
+    Object.keys(l.extras||{}).forEach(function(ei){
+      const q=l.extras[ei];const ex=l.it.extras&&l.it.extras[ei];
+      if(q>0&&ex) msg+=" + "+q+"x "+ex[0]+" — "+fmt(ex[1]*q)+"\n";
+    });
+  });
+  if(state.splitPeople.length){
+    msg+="\n*Split:*\n";
+    state.splitPeople.forEach(function(p){
+      msg+=p.name+": "+fmt(personTotal(p.id))+"\n";
+    });
+    const un=unassignedTotal();
+    if(un>0.005) msg+="Unassigned: "+fmt(un)+"\n";
+  }
+  msg+="\n*Total:* "+fmt(total);
+  return msg;
+}
+function buildPersonMessage(p){
+  const restName=curRestaurantName();
+  const rc=restaurantContact();
+  const lines=personLines(p.id);
+  const myTotal=personTotal(p.id);
+  const grand=cartTotal();
+  let msg="*BILL SPLIT — "+restName+"*\n\n"+
+    "Hi "+p.name+", here's your share:\n\n"+
+    "*Your Items:*\n";
+  lines.forEach(function(x){
+    msg+=x.qty+"x "+x.line.name+(x.line.size?" ("+x.line.size+")":"")+" — "+fmt(x.subtotal)+"\n";
+    Object.keys(x.line.extras||{}).forEach(function(ei){
+      const q=x.line.extras[ei];const ex=x.line.it.extras&&x.line.it.extras[ei];
+      if(q>0&&ex) msg+=" + "+q+"x "+ex[0]+"\n";
+    });
+  });
+  if(!lines.length) msg+="(Nothing assigned yet)\n";
+  msg+="\n*Your Total: "+fmt(myTotal)+"*\n"+
+    "Full order: "+fmt(grand)+"\n\n"+
+    "---\n"+
+    "To pay, or forward to the restaurant:\n"+
+    restName+"\n"+
+    "WhatsApp: "+rc.display;
+  return msg;
 }
 
 /* ================================================================
@@ -4014,17 +4955,7 @@ function renderAbout(){
   h+='<button class="btn primary full" data-act="openAboutGallery">Open Restaurant Gallery</button>';
   /* every icon in assets/icons, five to a line; the four with no link yet
      render dimmed so the full set is visible and easy to fill in later */
-  h+='<div class="social-row">'+
-    '<a class="social-ico" href="https://www.instagram.com/theyellowgiraffebw/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="'+IMG.iconIG+'" alt="Instagram"></a>'+
-    '<a class="social-ico" href="https://www.facebook.com/p/The-Yellow-Giraffe-BW-61557884870901/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="'+IMG.iconFB+'" alt="Facebook"></a>'+
-    '<a class="social-ico" href="'+esc(waLink("*WHATSAPP ENQUIRY — EatOuts*\n\nHi! I would like to know more about EatOuts and the venues available."))+'" aria-label="WhatsApp"><img src="'+IMG.iconWA+'" alt="WhatsApp"></a>'+
-    '<span class="social-ico inert" aria-disabled="true"><img src="'+IMG.iconTT+'" alt="TikTok"></span>'+
-    '<span class="social-ico inert" aria-disabled="true"><img src="'+IMG.iconX+'" alt="X (Twitter)"></span>'+
-    '<span class="social-ico inert" aria-disabled="true"><img src="'+IMG.iconYT+'" alt="YouTube"></span>'+
-    '<span class="social-ico inert" aria-disabled="true"><img src="'+IMG.iconWeb+'" alt="Website"></span>'+
-    '<a class="social-ico" href="tel:'+esc(String(CONFIG.displayNumber||"").replace(/[^\d+]/g,""))+'" aria-label="Call"><img src="'+IMG.iconCall+'" alt="Call"></a>'+
-    '<a class="social-ico gps" href="https://maps.app.goo.gl/ftCWbv24eRgmd3uYA" target="_blank" rel="noopener noreferrer" aria-label="Location"><img src="'+IMG.iconGPS+'" alt="Location"></a>'+
-    '</div>';
+  h+=renderAboutSocialRow();
 
   h+='<div class="about-sec">About EatOuts</div>';
   h+=aboutBlock('Platform','EatOuts helps people discover great restaurants, promotions, events and venue-booking opportunities in Botswana.');
@@ -4039,12 +4970,58 @@ function renderAbout(){
   h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waAbout">Send via WhatsApp</button></div>';
   /* Operator sign-in for restaurant owners, below the WhatsApp button */
   h+='<div style="margin-top:10px"><button class="btn primary full" data-act="openOperatorLogin">Operator</button></div>';
+  /* Legal buttons */
+  h+='<div style="margin-top:10px;display:flex;gap:8px">'+
+    '<button class="btn primary half" data-act="openTerms">Terms of Service</button>'+
+    '<button class="btn primary half" data-act="openPrivacy">Privacy Policy</button>'+
+  '</div>';
   h+='</div><div style="height:34px"></div></div>';
   return h;
 }
 /* subheading above body, centred, divided by a hairline */
 function aboutBlock(head,body){
   return '<div class="ablock"><p class="abh">'+esc(head)+'</p><p class="abv">'+esc(body)+'</p></div>';
+}
+
+/* ================================================================
+   LEGAL DOCS
+   Reachable from the About tab. The JSON documents are loaded
+   inline via <script> tags (no fetch/CORS), each wrapped in a
+   window global that byte-mirrors its .json source:
+   terms   -> window.EATOUTS_TERMS_OF_SERVICE.termsOfService
+   privacy -> window.EATOUTS_PRIVACY_POLICY.legal.privacyPolicy
+   ============================================================ */
+function legalDoc(type){
+  if(type==="terms"){
+    const w=window.EATOUTS_TERMS_OF_SERVICE;
+    return w&&w.termsOfService||null;
+  }
+  if(type==="privacy"){
+    const w=window.EATOUTS_PRIVACY_POLICY;
+    return w&&w.legal&&w.legal.privacyPolicy||null;
+  }
+  return null;
+}
+function renderLegalDoc(type){
+  const doc=legalDoc(type);
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="backLegal">'+esc("About")+'</button><span class="sep">/</span><span class="cur">'+esc((doc&&doc.title)||"Legal")+'</span></div>';
+  if(!doc){
+    h+='<div class="empty">This document is unavailable right now.</div>';
+    h+='<div style="height:24px"></div></div>';
+    return h;
+  }
+  h+='<div class="phead" style="padding-top:0"><h2>'+esc(doc.title)+'</h2>'+
+    '<p>Last updated '+esc(doc.lastUpdated||"")+(doc.version?' · Version '+esc(doc.version):'')+'</p></div>';
+  h+='<div class="pad">';
+  (doc.sections||[]).forEach(function(sec){
+    h+='<div class="legal-sec">'+esc(sec.number+". "+sec.heading)+'</div>';
+    (sec.paragraphs||[]).forEach(function(p){
+      h+='<p class="legal-para">'+esc(p)+'</p>';
+    });
+  });
+  h+='</div><div style="height:34px"></div></div>';
+  return h;
 }
 
 /* ================================================================
@@ -4147,11 +5124,12 @@ document.addEventListener("click",function(e){
     state.promoFilterOpen=false;
     state.operatorView="about";
     if(state.tab==="promos"){state.promoView="feed";state.promoId=null;state.promoGalleryId=null;state.promoExpanded=null;}
-    if(state.tab==="menu"){state.menuCat=null;state.menuOpen=null;state.checkoutView=false;}
+    if(state.tab==="menu"){state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;}
     if(state.tab==="restaurants"){
       /* always land back on the list, and hide the filter bar again.
          The cuisine choice and search text are kept deliberately. */
       state.restaurantView=null;state.restaurantOpen=null;state.restFilterOpen=false;
+      state.splitOpen=false;state.splitPeople=[];state.splitAssign={};
     }
     if(state.tab==="reserve"){state.reserveCat=null;state.reserveSub=null;}
     if(state.tab==="gallery"){state.galleryView="grid";state.galleryPhoto=null;state.filterOpen=false;state.searchOpen=false;}
@@ -4240,17 +5218,49 @@ document.addEventListener("click",function(e){
   if(act==="openPromoTypePicker"){state.promoTypePicker=true;state.promoTownPicker=false;state.promoAreaPicker=false;renderControlBar();return;}
   if(act==="closePickers"){state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;renderControlBar();return;}
   if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;syncRestAccordions();return;}
-  if(act==="openRestView"){state.restaurantOpen=id;state.restaurantView={id:id,view:t.getAttribute("data-view")||"menu",promoId:null};if(hasBridge())EatoutsBridge.setActive(id);render();return;}
-  if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;render();return;}
+  if(act==="openRestView"){state.restaurantOpen=id;state.restaurantView={id:id,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};if(hasBridge())EatoutsBridge.setActive(id);render();return;}
+  if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};render();return;}
   if(act==="openRestPromo"){state.restaurantView={id:id,view:"promo",promoId:t.getAttribute("data-promo")||null};render();return;}
   if(act==="backRestPromo"){if(state.restaurantView){state.restaurantView.view="promos";state.restaurantView.promoId=null;}render();return;}
   if(act==="waVenue"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const venueType=document.getElementById("venueType")||{};const venueDate=document.getElementById("venueDate")||{};const venuePax=document.getElementById("venuePax")||{};const venueNotes=document.getElementById("venueNotes")||{};const msg="*VENUE BOOKING INQUIRY*\nVenue: "+venue+"\nEvent Type: "+(venueType.value||"TBC")+"\nDate: "+(venueDate.value||"TBC")+"\nGuests: "+(venuePax.value||"TBC")+"\nNotes: "+(venueNotes.value||"N/A");window.location.href=waLink(msg);return;}
   if(act==="waRestPromo"){const r=hasBridge()?EatoutsBridge.byId(id):null;const promo=(r && EatoutsBridge.bundleOf(r.id)) ? ((function(){for(const d in EatoutsBridge.bundleOf(r.id).promos){const found=(EatoutsBridge.bundleOf(r.id).promos[d]||[]).find(x=>x.id===t.getAttribute("data-promo"));if(found)return found;}return null;})()) : null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const p=promo||{};const msg="*PROMO ENQUIRY*\nVenue: "+venue+"\nPromo: "+(p.title||"Promo")+"\nPrice: P"+(p.price||0)+"\nValid: "+(p.valid||"TBC")+"\n\nPlease confirm availability.";window.location.href=waLink(msg);return;}
   if(act==="waRestAbout"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const msg="*VENUE INQUIRY*\nVenue: "+venue+"\n\nHi! I'd like to know more about this location.";window.location.href=waLink(msg);return;}
-  if(act==="cycleRestType"){state.filterOpen=!state.filterOpen;renderControlBar();return;}
-  if(act==="pickRestType"){state.restType=t.getAttribute("data-val")||"All";state.filterOpen=false;render();return;}
-  if(act==="closeRestFilter"){state.filterOpen=false;renderControlBar();return;}
-  if(act==="openRestSearch"){state.restSearchOpen=true;render();setTimeout(function(){const i=document.getElementById("rsearch");if(i)i.focus();},60);return;}
+  if(act==="openRestTownPicker"){
+    state.restTownPicker=!state.restTownPicker;state.restAreaPicker=false;state.restTypePicker=false;
+    state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";renderControlBar();return;
+  }
+  if(act==="closeRestTownPicker"){state.restTownPicker=false;renderControlBar();return;}
+  if(act==="pickRestTown"){
+    state.restTown=t.getAttribute("data-town")||"All";
+    state.restDistrict=t.getAttribute("data-district")||"";
+    state.restDistrictName=t.getAttribute("data-district-name")||"";
+    state.restArea="All";state.restTownPicker=false;render();return;
+  }
+  if(act==="openRestAreaPicker"){
+    if(state.restTown==="All")return;
+    state.restAreaPicker=!state.restAreaPicker;state.restTownPicker=false;state.restTypePicker=false;
+    state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";renderControlBar();return;
+  }
+  if(act==="closeRestAreaPicker"){state.restAreaPicker=false;renderControlBar();return;}
+  if(act==="pickRestArea"){state.restArea=t.getAttribute("data-area")||"All";state.restAreaPicker=false;render();return;}
+  if(act==="openRestaurantTypePicker"){
+    state.restTypePicker=!state.restTypePicker;state.restTownPicker=false;state.restAreaPicker=false;
+    state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";renderControlBar();
+    if(state.restTypePicker)setTimeout(function(){const input=document.getElementById("restTypeSearch");if(input)input.focus();},30);
+    return;
+  }
+  if(act==="closeRestTypePicker"){
+    state.restTypePicker=false;state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";renderControlBar();return;
+  }
+  if(act==="clearRestTypeDraft"){state.restTypeDraft=[];renderControlBar();return;}
+  if(act==="applyRestTypeSelection"){
+    state.restTypes=state.restTypeDraft.slice();state.restTypePicker=false;state.restTypeSearch="";render();return;
+  }
+  if(act==="openRestSearch"){
+    state.restSearchOpen=true;state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
+    state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";render();
+    setTimeout(function(){const i=document.getElementById("rsearch");if(i)i.focus();},60);return;
+  }
   if(act==="closeRestSearch"){state.restSearchOpen=false;state.restSearch="";render();return;}
 
   /* MENU */
@@ -4262,8 +5272,58 @@ document.addEventListener("click",function(e){
   if(act==="exPlus"){const ei=parseInt(t.getAttribute("data-ei"),10);const si=t.hasAttribute("data-si")?parseInt(t.getAttribute("data-si"),10):0;const nid=parseInt(id,10);const l=cartLine(nid,si);if(!l.extras)l.extras={};l.extras[ei]=(l.extras[ei]||0)+1;syncCart();return;}
   if(act==="exMinus"){const ei=parseInt(t.getAttribute("data-ei"),10);const si=t.hasAttribute("data-si")?parseInt(t.getAttribute("data-si"),10):0;const nid=parseInt(id,10);const l=cartLine(nid,si);if(!l.extras)l.extras={};l.extras[ei]=Math.max(0,(l.extras[ei]||0)-1);if(!l.qty&&!Object.keys(l.extras).length)delete state.cart[cartKey(nid,si)];syncCart();return;}
   if(act==="openCheckout"){if(cartTotal()<=0)return;state.checkoutView=true;render();return;}
-  if(act==="backFromCheckout"){state.checkoutView=false;state.checkoutOpen=null;render();return;}
+  if(act==="backFromCheckout"){state.checkoutView=false;state.checkoutOpen=null;state.splitOpen=false;render();return;}
   if(act==="toggleCheckoutRow"){const k=t.getAttribute("data-key");state.checkoutOpen=(state.checkoutOpen===k?null:k);render();return;}
+
+  /* SPLIT THE BILL */
+  if(act==="openSplit"){state.splitOpen=true;render();return;}
+  if(act==="backFromSplit"){state.splitOpen=false;render();return;}
+  if(act==="addSplitPerson"){
+    const el=document.getElementById("splitNewName");
+    const name=el?el.value:"";
+    if(!String(name).trim()){if(el)el.focus();return;}
+    addSplitPerson(name);
+    state.splitNewName="";
+    render();
+    setTimeout(function(){const i=document.getElementById("splitNewName");if(i)i.focus();},40);
+    return;
+  }
+  if(act==="removeSplitPerson"){removeSplitPerson(id);render();return;}
+  if(act==="splitPlus"){
+    const skey=t.getAttribute("data-key");
+    const spid=t.getAttribute("data-pid");
+    let line=null;checkoutLines().forEach(function(l){if(l.key===skey)line=l;});
+    if(!line||lineUnassignedQty(line)<=0) return;
+    setSplitQty(skey,spid,splitQty(skey,spid)+1);
+    render();return;
+  }
+  if(act==="splitMinus"){
+    const skey=t.getAttribute("data-key");
+    const spid=t.getAttribute("data-pid");
+    setSplitQty(skey,spid,Math.max(0,splitQty(skey,spid)-1));
+    render();return;
+  }
+  if(act==="waSplitRestaurant"){
+    const nameEl=document.getElementById("orderName");
+    const contactEl=document.getElementById("orderContact");
+    const notesEl=document.getElementById("orderNotes");
+    if(nameEl)state.orderName=nameEl.value;
+    if(contactEl)state.orderContact=contactEl.value;
+    if(notesEl)state.orderNotes=notesEl.value;
+    if(!state.orderName.trim()||!state.orderContact.trim()){
+      alert("Please enter your name and contact number.");return;
+    }
+    window.location.href=waLink(buildFullBillMessage());
+    return;
+  }
+  if(act==="waSplitPerson"){
+    const p=state.splitPeople.find(function(x){return x.id===id;});
+    if(!p) return;
+    /* no phone number -> WhatsApp opens its built-in contact picker */
+    window.location.href=waShareLink(buildPersonMessage(p));
+    return;
+  }
+
   if(act==="waOrder"){
     const nameEl=document.getElementById("orderName");
     const contactEl=document.getElementById("orderContact");
@@ -4272,21 +5332,8 @@ document.addEventListener("click",function(e){
     if(contactEl)state.orderContact=contactEl.value;
     if(notesEl)state.orderNotes=notesEl.value;
     if(!state.orderName.trim()||!state.orderContact.trim()){alert("Please enter your name and contact number.");return;}
-    let lines=[];
-    cartKeys().forEach(k=>{
-      const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length)return;
-      const it=getMenuItem(l.itemId);if(!it)return;
-      const sz=itemSizes(it)[l.sizeIdx];
-      if(l.qty>0&&sz)lines.push(l.qty+"x "+it.name+(sz[0]?" ("+sz[0]+")":"")+" (P"+(sz[1]*l.qty).toFixed(2)+")");
-      Object.keys(l.extras||{}).forEach(ei=>{
-        if(l.extras[ei]>0&&it.extras[ei])lines.push(" + "+l.extras[ei]+"x "+it.extras[ei][0]+" (P"+(it.extras[ei][1]*l.extras[ei]).toFixed(2)+")");
-      });
-    });
-    if(!lines.length){alert("Your cart is empty.");return;}
-    let msg="*NEW MENU ORDER*\nVenue: "+curRestaurantName()+"\nName: "+state.orderName+"\nContact: "+state.orderContact+
-      (state.orderNotes.trim()?"\nNotes: "+state.orderNotes.trim():"")+
-      "\n\n*Order Summary:*\n"+lines.join("\n")+"\n\n*Total:* P"+cartTotal().toFixed(2);
-    window.location.href=waLink(msg);
+    if(cartTotal()<=0){alert("Your cart is empty.");return;}
+    window.location.href=waLink(buildFullBillMessage());
     return;
   }
 
@@ -4321,6 +5368,11 @@ document.addEventListener("click",function(e){
   /* ABOUT */
   if(act==="openAboutGallery"){state.aboutView="gallery";render();return;}
   if(act==="backAboutGallery"){state.aboutView="main";render();return;}
+
+  /* TERMS / PRIVACY */
+  if(act==="openTerms"){state.legalView="terms";render();return;}
+  if(act==="openPrivacy"){state.legalView="privacy";render();return;}
+  if(act==="backLegal"){state.legalView=null;render();return;}
 
   /* OPERATOR LOGIN */
   if(act==="openOperatorLogin"){
@@ -4360,14 +5412,65 @@ document.addEventListener("click",function(e){
 
 /* Escape closes the filter popup */
 document.addEventListener("keydown",function(e){
+  if(e.key==="Enter" && e.target && e.target.id==="splitNewName"){
+    e.preventDefault();
+    const name=e.target.value;
+    if(!String(name).trim()) return;
+    addSplitPerson(name);
+    state.splitNewName="";
+    render();
+    setTimeout(function(){const i=document.getElementById("splitNewName");if(i)i.focus();},40);
+    return;
+  }
   if(e.key==="Escape"||e.keyCode===27){
-    if(state.filterOpen){state.filterOpen=false;renderControlBar();}
+    if(state.restTownPicker||state.restAreaPicker||state.restTypePicker){
+      state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
+      state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";renderControlBar();
+    }
+    else if(state.filterOpen){state.filterOpen=false;renderControlBar();}
     else if(state.searchOpen){state.searchOpen=false;state.gallerySearch="";render();}
   }
 });
 
+document.addEventListener("change",function(e){
+  if(!e.target.matches("[data-rest-type-option]"))return;
+  const value=e.target.value;
+  const selected=state.restTypeDraft.indexOf(value)>-1;
+  if(e.target.checked&&!selected)state.restTypeDraft.push(value);
+  if(!e.target.checked&&selected)state.restTypeDraft=state.restTypeDraft.filter(function(type){return type!==value;});
+  renderControlBar();
+  Array.prototype.forEach.call(document.querySelectorAll("[data-rest-type-option]"),function(input){if(input.value===value)input.focus();});
+});
+
 /* Live search input */
 document.addEventListener("input",function(e){
+  if(e.target.id==="restTypeSearch"){
+    state.restTypeSearch=e.target.value;
+    const inputValue=state.restTypeSearch;
+    const start=e.target.selectionStart;
+    renderControlBar();
+    const input=document.getElementById("restTypeSearch");
+    if(input){input.focus();input.setSelectionRange(start,start);}
+    state.restTypeSearch=inputValue;
+  }
+  if(e.target.id==="restTownSearch"){
+    state.restTownSearch=e.target.value;
+    const inputValue=state.restTownSearch;
+    const start=e.target.selectionStart;
+    renderControlBar();
+    const input=document.getElementById("restTownSearch");
+    if(input){input.focus();input.setSelectionRange(start,start);}
+    state.restTownSearch=inputValue;
+  }
+  if(e.target.id==="restAreaSearch"){
+    state.restAreaSearch=e.target.value;
+    const inputValue=state.restAreaSearch;
+    const start=e.target.selectionStart;
+    renderControlBar();
+    const input=document.getElementById("restAreaSearch");
+    if(input){input.focus();input.setSelectionRange(start,start);}
+    state.restAreaSearch=inputValue;
+  }
   if(e.target.id==="gsearch"){
     state.gallerySearch=e.target.value;
     const val=state.gallerySearch;
@@ -4385,6 +5488,7 @@ document.addEventListener("input",function(e){
   if(e.target.id==="orderName")state.orderName=e.target.value;
   if(e.target.id==="orderContact")state.orderContact=e.target.value;
   if(e.target.id==="orderNotes")state.orderNotes=e.target.value;
+  if(e.target.id==="splitNewName")state.splitNewName=e.target.value;
 });
 
 /* Swiper dot indicator (vertical paging) */
@@ -4401,6 +5505,11 @@ document.addEventListener("scroll",function(e){
 /* Boot */
 bootEatoutsBridge();
 render();
+loadRestaurantTypeFilters();
+loadDirectoryMenus(function(){
+  bootEatoutsBridge();
+  render();
+});
 window.addEventListener("storage",function(e){
   if(e.key===EatoutsDB.KEY||e.key===null){
     bootEatoutsBridge();

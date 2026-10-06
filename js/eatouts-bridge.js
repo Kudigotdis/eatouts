@@ -29,6 +29,8 @@
 
   var FLAGSLAG = 'rest_the-yellow-giraffe';
 
+  var FLAGSHIP_SLUGS = ['the-yellow-giraffe', 'yellow-giraffe'];
+
   /* index.html hands us its globals once they are built */
   var SRC = null;
   var activeId = null;
@@ -244,6 +246,33 @@
   }
 
   /**
+   * Menu to show for a restaurant bundle.
+   *
+   * A restaurant that OWNS its content keeps exactly what the owner wrote -
+   * imported menus never replace it.
+   *
+   * A restaurant still SHARING the template conditionally shows one of:
+   *   1. its specific imported menu (KFC, Nando's, ...) by canonical slug
+   *   2. the demo menu (restaurants with no uploaded menu yet)
+   * The Yellow Giraffe itself always keeps index.html's own menu, which is
+   * the same shared template - so it never shows the demo/imported menus.
+   * Falling back to the shared template keeps this safe even when the
+   * directory has not loaded yet.
+   */
+  function menuFor(content, r, sharing) {
+    if (!r || !sharing || FLAGSHIP_SLUGS.indexOf(r.slug) > -1) {
+      return unflattenMenu(content);
+    }
+    var M = window.EatoutsMenus;
+    if (M) {
+      var imported = M.menuFor(r.slug);
+      if (imported && imported.length) return imported;
+      if (M.demo && M.demo.length) return M.demo;
+    }
+    return unflattenMenu(content);
+  }
+
+  /**
    * The nested bundle for one restaurant, in the exact shapes
    * index.html's existing renderers expect.
    */
@@ -256,7 +285,7 @@
       id: r.id,
       name: r.name,
       isSharing: DB.isSharing(id, db()),
-      menu: unflattenMenu(content),
+      menu: menuFor(content, r, DB.isSharing(id, db())),
       promos: unflattenPromos(content.promos),
       events: unflattenEvents(content.events),
       profile: content.profile || null,

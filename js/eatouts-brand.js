@@ -6,10 +6,10 @@
    Soya logo      assets/logo/soya_cafe_logo.jpg     1131x1131 square
    TYG logo       assets/logo/yellow_giraffe_logo.jpg 1172x504 wide
 
-Rule: Soya and The Yellow Giraffe use their real logos. Every
-   other restaurant gets a letter tile — first letter of the name on
-   a 7-colour rotation, deterministic from the slug so it never
-   reshuffles between loads.
+Rule: Soya and The Yellow Giraffe use their real logos. Restaurants
+   with a genuine logo file (kfc, nandos, ...) get it. Every other
+   restaurant gets logo_placement_image.png via logoFor() — the letter
+   tile path is kept for callers that WANT a tile (injectCss/thumbs).
 
    Letter colour is #1A1A1A (black) on every swatch, per design. That
    is a deliberate contrast trade-off: black on the mid/dark swatches
@@ -20,21 +20,89 @@ Rule: Soya and The Yellow Giraffe use their real logos. Every
 (function () {
   'use strict';
 
-  var LOGOS = {
+var LOGOS = {
     platform: 'assets/logo/EatOuts_Logo.png',
     soya: 'assets/logo/soya_cafe_logo.jpg',
-    tyg: 'assets/logo/yellow_giraffe_logo.jpg'
+    tyg: 'assets/logo/yellow_giraffe_logo.jpg',
+    placeholder: 'assets/logo/logo_placement_image.png'
   };
 
   /* Restaurants with a real logo file, keyed by slug. */
   var REAL_LOGOS = {
     soya: LOGOS.soya,
-    'the-yellow-giraffe': LOGOS.tyg
+    'the-yellow-giraffe': LOGOS.tyg,
+    'yellow-giraffe': LOGOS.tyg,
+kfc: 'assets/logo/kfc.jpg',
+    nandos: 'assets/logo/Nandos-Logo.png',
+    'hungry-lion': 'assets/logo/hungry_lion_logo.jpg',
+    'zen-cafe': 'assets/logo/zen_cafe_logo.jpg',
+    'bull-and-bush': 'assets/logo/bull_and_bush_logo.jpg',
+    'game-reserve': 'assets/logo/the_game_reserve_logo.jpg',
+    'the-game-reserve': 'assets/logo/the_game_reserve_logo.jpg',
+    'butter-chicken-indian-restaurant': 'assets/logo/butter_chicken_indian_restaurant.webp',
+    mozambik: 'assets/logo/mozambik_logo.png',
+    spur: 'assets/logo/spur_logo.jpg',
+    'roco-mamas': 'assets/logo/rocos_mamas_logo.png',
+    'rocomamas': 'assets/logo/rocos_mamas_logo.png',
+    'pie-city': 'assets/logo/pie_city_logo.jpg',
+    'chicken-licken': null
   };
 
-  /* Order matters - this is the rotation order. Slot 1 was the old gold swatch;
-     repointed to violet for the all-black UI. Slots are position-stable, so
-     each restaurant keeps the same swatch it had before. */
+  /**
+   * Canonical brand key for a restaurant slug. Mirrors the Python
+   * canonical_name() so the app and the generator agree:
+   *   Nando's*   -> nandos        RocoMamas*   -> rocomamas
+   *   Zen Cafe*  -> zen-cafe      Yellow Giraffe -> the-yellow-giraffe
+   *   Game Reserve* -> the-game-reserve
+   * Unknown slugs pass through unchanged.
+   */
+  function canonicalKey(slug) {
+    var s = String(slug || '').toLowerCase();
+    if (s.indexOf('nando') === 0) return 'nandos';
+    if (s.indexOf('zen-cafe') === 0) return 'zen-cafe';
+    if (s === 'roco-mamas') return 'rocomamas';
+    if (s === 'yellow-giraffe' || s === 'the-yellow-giraffe') return 'the-yellow-giraffe';
+    if (s === 'game-reserve' || s === 'the-game-reserve') return 'the-game-reserve';
+    if (s === 'bull-and-bush-maun') return 'bull-and-bush';
+    return s;
+  }
+
+  /**
+   * A logo is "real" only when it points at a local asset or an external
+   * image. Placeholders and the platform marks are interchangeable and
+   * are NOT considered real:
+   *   assets/logo/logo_placement_image.png
+   *   assets/logo/EatOuts_Logo.png
+   *   assets/logo/EatOuts_Badge.png
+   */
+  function isUsableLogo(path) {
+    if (!path) return false;
+    var p = String(path).split('?')[0];
+    if (p.indexOf('logo_placement_image') > -1) return false;
+    if (/EatOuts[_-]?(Logo|Badge)/i.test(p)) return false;
+    return /^assets\/logo\//i.test(p) || /^https?:\/\//i.test(p);
+  }
+
+  /** True when a restaurant must fall back to the placeholder tile. */
+  function isPlaceholderLogo(path) {
+    return !isUsableLogo(path);
+  }
+
+  function hasRealLogo(slug) {
+    return Object.prototype.hasOwnProperty.call(REAL_LOGOS, canonicalKey(slug));
+  }
+
+  /** Logo URL for a restaurant, or the placeholder when none is real. */
+  function logoFor(restaurant) {
+    if (!restaurant) return null;
+    var slug = restaurant.slug || slugify(restaurant.name);
+    if (isUsableLogo(restaurant.logo)) return restaurant.logo;
+    if (hasRealLogo(slug)) {
+      var rl = REAL_LOGOS[canonicalKey(slug)];
+      if (rl) return rl;
+    }
+    return LOGOS.placeholder;
+  }
   var PALETTE = [
     { name: 'red',       bg: '#C43C3C', fg: '#FFFFFF' },
     { name: 'violet',    bg: '#6B4E9B', fg: '#FFFFFF' },
@@ -93,17 +161,42 @@ Rule: Soya and The Yellow Giraffe use their real logos. Every
     return (n.charAt(0) || 'E').toUpperCase();
   }
 
-  function hasRealLogo(slug) {
+function hasRealLogo(slug) {
     return Object.prototype.hasOwnProperty.call(REAL_LOGOS, slug);
+  }
+
+  /**
+   * User-managed logo override (assets/data/restaurant_listings/
+   * eatouts_manifest.json -> eatouts_manifest.js). Loaded via a <script>
+   * tag, so it works both over http:// and from file://.
+   * Exact slug wins, then a brand-key prefix (kfc, nando, mugg, ...).
+   */
+  function manifestLogo(slug) {
+    if (typeof window === 'undefined' || !window.EATOUTS_MANIFEST) return null;
+    var logos = window.EATOUTS_MANIFEST.logos;
+    if (!logos) return null;
+    var key = slugify(String(slug || ''));
+    if (Object.prototype.hasOwnProperty.call(logos, key)) return logos[key];
+    for (var brand in logos) {
+      if (Object.prototype.hasOwnProperty.call(logos, brand) &&
+          key.length > brand.length &&
+          key.indexOf(brand + '-') === 0) return logos[brand];
+    }
+    return null;
   }
 
   /** Logo URL for a restaurant, or null when it should use a tile. */
   function logoFor(restaurant) {
     if (!restaurant) return null;
     var slug = restaurant.slug || slugify(restaurant.name);
+    var manifestPath = manifestLogo(slug);
+    if (manifestPath) return manifestPath;
     if (restaurant.logo) return restaurant.logo;
-    if (hasRealLogo(slug)) return REAL_LOGOS[slug];
-    return null;
+    if (hasRealLogo(slug)) {
+      var rl = REAL_LOGOS[slug];
+      if (rl) return rl;
+    }
+    return 'assets/logo/logo_placement_image.png';
   }
 
   /**
@@ -190,8 +283,12 @@ Rule: Soya and The Yellow Giraffe use their real logos. Every
     hash: hash,
     swatchFor: swatchFor,
     initialFor: initialFor,
-    hasRealLogo: hasRealLogo,
+hasRealLogo: hasRealLogo,
     logoFor: logoFor,
+    manifestLogo: manifestLogo,
+    canonicalKey: canonicalKey,
+    isUsableLogo: isUsableLogo,
+    isPlaceholderLogo: isPlaceholderLogo,
     thumbHtml: thumbHtml,
     thumbInfo: thumbInfo,
     esc: esc

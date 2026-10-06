@@ -26,6 +26,11 @@
   var VERSION = 2;
   var SHARED_TEMPLATE = 'tpl_shared';
 
+  /* Cached result of load(): the DB blob is ~1 MB JSON and callers (the
+     directory list, bundleOf per row, ensureSeeded, ...) read it many times
+     per render. load() parses once; save()/reset()/migration swap the cache. */
+  var _loadCache = null;
+
   var EMPTY_SETTINGS = {
     currency: 'BWP',
     currencySymbol: 'P',
@@ -168,6 +173,7 @@
   }
 
   function load() {
+    if (_loadCache) return _loadCache;
     var parsed = null;
     var text = raw();
     if (text) {
@@ -191,16 +197,19 @@
           if (isV1(v1)) {
             var migrated = migrateV1(v1);
             save(migrated);
+            _loadCache = migrated;
             return migrated;
           }
         } catch (e) {
           console.warn('[EatoutsDB] v1 migration failed', e);
         }
       }
-      return emptyDb();
+      _loadCache = emptyDb();
+      return _loadCache;
     }
 
-    return normalise(parsed);
+    _loadCache = normalise(parsed);
+    return _loadCache;
   }
 
   /** Fill in any missing top-level keys so callers never guard. */
@@ -234,6 +243,7 @@
     try {
       db.version = VERSION;
       localStorage.setItem(KEY, JSON.stringify(db));
+      _loadCache = db;
       if (typeof window !== 'undefined' && window.dispatchEvent) {
         window.dispatchEvent(new CustomEvent('eatouts:db-saved', { detail: db }));
       }
@@ -248,6 +258,7 @@
     try {
       localStorage.removeItem(KEY);
     } catch (e) { /* ignore */ }
+    _loadCache = null;
     if (typeof window !== 'undefined' && window.dispatchEvent) {
       window.dispatchEvent(new CustomEvent('eatouts:db-reset'));
     }
