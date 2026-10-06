@@ -176,6 +176,11 @@ img{display:block;max-width:100%}
 .thumbs .th{flex:0 0 auto;width:calc((100% - 14px)/3);height:auto;aspect-ratio:1/1;border-radius:6px;overflow:hidden;border:1px solid #ece7db;position:relative;scroll-snap-align:start;scroll-snap-stop:always}
 .thumbs .th .tile-ico{font-size:26px}
 .thumbs .th>img{width:100%;height:100%;object-fit:cover;display:block}
+/* Menu photo preview (lightbox): blurred backdrop, image centred with
+   equal gaps on both sides so it sits away from the screen edges. */
+.preview-layer{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:10vh 8vw;background:rgba(20,18,12,.6);backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1);animation:fd .18s ease}
+.preview-layer .preview-img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.55);object-fit:contain}
+.preview-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:19px;line-height:1;padding:0}
 
 /* ---------- CHECKOUT ---------- */
 .cbwrap{flex:0 0 auto;border-top:1px solid #ece7db;background:#ffffff}
@@ -247,6 +252,10 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .csearch input::placeholder{color:#b5a888}
 .rest-filter-row{display:flex;gap:8px;padding:0 12px 8px}
 .rest-filter-row .cbtn{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap}
+/* Town row: centred label with comfortable clearance above (overrides the
+   .cbar2+.rest-filter-row padding stack so the button isn't cramped). */
+.rest-filter-row.town-row{padding:14px 12px 12px}
+.rest-filter-row.town-row .cbtn{text-align:center}
 .rest-type-pop{left:8px;right:8px;width:auto;max-width:none;max-height:min(70vh,620px);padding:0;display:flex;flex-direction:column}
 .rest-type-top{flex:0 0 auto;padding:10px;background:#fff;border-bottom:1px solid #ece7db}
 .rest-type-top .csearch{min-height:38px}
@@ -364,7 +373,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
    row button (interactive content inside a <button> is invalid) and still
    animate via the shared .acc-wrap grid-rows transition. */
 .ritem{background:#ffffff}
-.ritem.open>.rrow{background:#faf8f2;border-bottom-color:#ece7db}
+.ritem.open>.rrow{background:#efe9db;border-bottom-color:#e2dbc9}
 .rrow{display:flex;align-items:center;gap:13px;padding:12px 14px;background:#ffffff;border-bottom:1px solid #f1ece1;width:100%;cursor:pointer;text-align:left}
 .rrow:active{background:#faf8f2}
 /* Layout box only. The square itself is painted by the injected
@@ -390,8 +399,24 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 /* No fd animation here: the .acc-wrap height transition owns the motion,
    and replaying a fade on freshly inserted markup is what made the old
    dropdown flash open/close. */
-.ropts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;background:#faf8f2;border-bottom:1px solid #ece7db}
-.ropt{padding:11px 12px;background:#ffffff;border:1px solid #ece7db;border-radius:12px;font-size:12.5px;font-weight:800;color:#3a3324;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:all .15s}
+.ropts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;background:#efe9db;border-bottom:1px solid #e2dbc9}
+.ropt{padding:11px 12px;background:#ffffff;border:1px solid #ece7db;border-radius:12px;font-size:12.5px;font-weight:800;color:#3a3324;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+/* location strip inside a restaurant's options panel: the town + area filter
+   buttons occupy the top line of the grid, the Menu/Promos actions the second.
+   "Also known as" surfaces a branch whose real name differs from the brand. */
+.ropts-loc-name{grid-column:1/-1;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#a89a7e;padding:0 2px}
+.ropts .cbtn,.ropts .cbtn-area{min-width:0;overflow:hidden;text-align:center;text-overflow:ellipsis;white-space:nowrap;background:#fff}
+.ropts .cbtn-area{font-size:12px;font-weight:800;letter-spacing:.03em;color:#3a3324;padding:9px 15px;border-radius:10px;border:1px solid #ece7db}
+.ropts .cbtn-area:active{background:#f4efe4}
+/* Per-restaurant branch picker: fixed so it floats over the list like the
+   promo popups, but anchored above the nav instead of a trigger row. */
+.rest-loc-pop{position:fixed;left:8px;right:8px;bottom:calc(var(--navh) + 14px);width:auto;max-width:none}
+/* Inactive Menu/Promos actions: greyed but still tappable so a notice can
+   explain why (choose a location / no promos here). */
+.ropt.off{opacity:.4}
+.ropt.off:active{background:#ffffff;border-color:#ece7db;transform:none}
+/* Floating notice for an inactive action (e.g. "select a location first"). */
+.rest-notice{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--navh) + 18px);z-index:66;max-width:min(92%,420px);background:#1a1a1a;color:#fff;font-size:12px;font-weight:700;line-height:1.4;padding:11px 15px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.32);text-align:center;animation:fpop .18s ease}
 .ropt:active{background:#f4efe4;border-color:#1a1a1a;transform:translateY(1px)}
 .ropt em{font-style:normal;font-size:9px;color:#a89a7e;font-weight:800;letter-spacing:.08em;text-transform:uppercase;flex:0 0 auto}
 
@@ -2652,7 +2677,7 @@ function indexImages(){
 function menuItemPhoto(itemName){
   const r=curRestaurant();
   if(!r)return null;
-  const idx=EATOUTS_IMAGE_INDEX[canonicalSlugKey(r.slug)];
+  const idx=EATOUTS_IMAGE_INDEX[brandKeyOf(r)];
   if(!idx||!idx.list.length)return null;
   const needle=photoNormalize(itemName);
   if(!needle)return null;
@@ -2900,6 +2925,7 @@ const state = {
   promoAddons:{},
   menuCat:null,
   menuOpen:null,
+  preview:null,
   cart:{},
   checkoutView:false,
   checkoutOpen:null,
@@ -2935,6 +2961,9 @@ const state = {
 
   /* Restaurants tab */
   restaurantOpen:null,
+  restBranchOf:{},
+  restLocPicker:null,
+  restNotice:null,
   restaurantView:null,
   restSearch:"",
   restTown:"All",
@@ -2954,6 +2983,7 @@ const state = {
      Restaurants nav button while already on the list toggles it */
   restFilterOpen:false
 };
+let restNoticeTimer=null;
 
 /* ================================================================
    HELPERS
@@ -3429,7 +3459,7 @@ function allRestaurants(){
   const rev=dbEventRev+"|"+(DIRECTORY_LOADED?1:0);
   if(rev===_listingRev) return _listingCache;
   _listingRev=rev;
-  _listingCache=hasBridge()?EatoutsBridge.listing():[];
+  _listingCache=hasBridge()?EatoutsBridge.groupedListing():[];
   return _listingCache;
 }
 function restaurantMatchesType(r,type){
@@ -3439,17 +3469,26 @@ function restaurantMatchesType(r,type){
     return restTypeTokens(value).some(function(token){return selected.indexOf(normalizeRestType(token))>-1;});
   });
 }
-function restaurantMatchesLocation(r,town,district,districtName,area){
-  const loc=r.location||{};
+function branchMatchesLocation(b,town,district,districtName,area){
+  const loc=b.location||{};
   if(town&&town!=="All"&&normalizeRestType(loc.town)!==normalizeRestType(town))return false;
   const recordDistrict=String(loc.district||loc.districtCode||"");
   if(district&&recordDistrict&&recordDistrict!==String(district)&&normalizeRestType(loc.districtName)!==normalizeRestType(districtName))return false;
   if(area&&area!=="All"&&normalizeRestType(loc.area)!==normalizeRestType(area))return false;
   return true;
 }
+function restaurantMatchesLocation(r,town,district,districtName,area){
+  if(r&&r.branches&&r.branches.length)return r.branches.some(function(b){return branchMatchesLocation(b,town,district,districtName,area);});
+  return branchMatchesLocation(r,town,district,districtName,area);
+}
 function restaurantMatchesSearch(r){
   const query=state.restSearch.trim().toLowerCase();
-  return !query||(String(r.name||"")+" "+String(r.category||"")+" "+String(r.placeLabel||"")).toLowerCase().indexOf(query)>-1;
+  const places=(r&&r.branchLabels&&r.branchLabels.length)?r.branchLabels.join(" "):(r&&r.placeLabel||"");
+  const names=(r&&r.branchNames&&r.branchNames.length)?r.branchNames.join(" "):"";
+  return !query||(String(r.name||"")+" "+names+" "+String(r.category||"")+" "+places).toLowerCase().indexOf(query)>-1;
+}
+function groupBranches(r){
+  return (r&&r.branches&&r.branches.length)?r.branches:[r];
 }
 function restaurantBaseRows(){
   let rows=allRestaurants();
@@ -3478,14 +3517,16 @@ function restaurantTownOptions(){
   const seen={};
   options.forEach(function(t){seen[normalizeRestType(t.value)+"|"+String(t.districtCode||"")]=true;});
   allRestaurants().forEach(function(r){
-    const loc=r.location||{};
-    const town=String(loc.town||"").trim();
-    if(!town)return;
-    const code=String(loc.district||loc.districtCode||"");
-    const key=normalizeRestType(town)+"|"+code;
-    if(seen[key])return;
-    seen[key]=true;
-    options.push({value:town,label:town,districtCode:code,districtName:loc.districtName||"Other / not listed",areaCount:0});
+    (groupBranches(r)).forEach(function(b){
+      const loc=b.location||{};
+      const town=String(loc.town||"").trim();
+      if(!town)return;
+      const code=String(loc.district||loc.districtCode||"");
+      const key=normalizeRestType(town)+"|"+code;
+      if(seen[key])return;
+      seen[key]=true;
+      options.push({value:town,label:town,districtCode:code,districtName:loc.districtName||"Other / not listed",areaCount:0});
+    });
   });
   return options;
 }
@@ -3495,10 +3536,12 @@ function restaurantAreaOptions(){
   const seen={};
   options.forEach(function(area){seen[normalizeRestType(area)]=area;});
   allRestaurants().forEach(function(r){
-    const loc=r.location||{};
-    if(normalizeRestType(loc.town)!==normalizeRestType(state.restTown))return;
-    const area=String(loc.area||"").trim();
-    if(area&&!seen[normalizeRestType(area)])seen[normalizeRestType(area)]=area;
+    (groupBranches(r)).forEach(function(b){
+      const loc=b.location||{};
+      if(normalizeRestType(loc.town)!==normalizeRestType(state.restTown))return;
+      const area=String(loc.area||"").trim();
+      if(area&&!seen[normalizeRestType(area)])seen[normalizeRestType(area)]=area;
+    });
   });
   return Object.keys(seen).map(function(key){return seen[key];}).sort();
 }
@@ -3565,7 +3608,9 @@ function renderRestaurantAreaPicker(){
   const query=normalizeRestType(state.restAreaSearch);
   const areas=restaurantAreaOptions();
   const hasAreaData=allRestaurants().some(function(r){
-    return restaurantMatchesLocation(r,state.restTown,state.restDistrict,state.restDistrictName,"All")&&String((r.location||{}).area||"").trim();
+    return (groupBranches(r)).some(function(b){
+      return branchMatchesLocation(b,state.restTown,state.restDistrict,state.restDistrictName,"All")&&String((b.location||{}).area||"").trim();
+    });
   });
   let h='<div class="fpop-scrim" data-act="closeRestAreaPicker"></div><div class="fpop area-pop rest-area-pop" role="listbox" aria-label="Choose area or neighbourhood">';
   h+='<div class="rest-type-top" style="border-bottom: 1px solid #ece7db; padding-bottom: 10px; margin-bottom: 10px;"><div class="csearch"><input id="restAreaSearch" type="search" placeholder="Search areas..." value="'+esc(state.restAreaSearch)+'" aria-label="Search areas"></div></div>';
@@ -3631,6 +3676,32 @@ function canonicalSlugKey(slug){
   const B=window.EatoutsBrand;
   return B&&typeof B.canonicalKey==="function"?B.canonicalKey(slug):slug;
 }
+/* Canonical brand key for a restaurant record (bridge owns the real
+   grouping; this mirrors it so rendering works before the bridge is up). */
+function brandKeyOf(r){
+  if(!r)return null;
+  if(window.EatoutsBridge&&typeof EatoutsBridge.brandKeyOf==="function")return EatoutsBridge.brandKeyOf(r);
+  return canonicalSlugKey(r.slug);
+}
+/* Find the group descriptor for a brand from the deduplicated list. */
+function brandGroupByKey(key){
+  const all=allRestaurants();
+  if(!all||!all.length)return null;
+  for(let i=0;i<all.length;i++)if(all[i].brandKey===key)return all[i];
+  return null;
+}
+/* The branch currently selected for a group: session choice wins, else
+   the bridge default (Gaborone branch, else first). */
+function activeBranchRecord(g){
+  if(!g||!g.branches||!g.branches.length)return null;
+  const sel=state.restBranchOf&&state.restBranchOf[g.brandKey];
+  if(sel)for(let i=0;i<g.branches.length;i++)if(g.branches[i].id===sel)return g.branches[i];
+  if(window.EatoutsBridge&&typeof EatoutsBridge.primaryBranch==="function"){
+    const p=EatoutsBridge.primaryBranch(g.branches);
+    if(p)return p;
+  }
+  return g.branches[0];
+}
 /* genuine logo test: the brand resolution (manifest -> record logo -> match)
    decides whether a venue counts as logo'd for ordering */
 function usesGenuineLogo(r){
@@ -3645,7 +3716,8 @@ function renderRestaurants(){
   const rowsLen=filteredRestaurants().length;
   const allLen=allRestaurants().length;
   const sig=[dbEventRev,state.restTown,state.restDistrict,state.restDistrictName,state.restArea,
-    state.restSearch,state.restTypes.join("|"),state.restaurantOpen||"",rowsLen,allLen].join("~");
+    state.restSearch,state.restTypes.join("|"),state.restaurantOpen||"",rowsLen,allLen,
+    JSON.stringify(state.restBranchOf),JSON.stringify(state.restLocPicker)].join("~");
   if(sig===_restList.sig) return _restList.html;
   _restList.sig=sig;
   _restList.html=buildRestaurantsHTML();
@@ -3658,16 +3730,18 @@ function buildRestaurantsHTML(){
   /* Flat single column: the pinned featured venues come first (drawn from the
      FILTERED rows so search and the cuisine filter still apply), then the
      remaining venues partitioned logo-first - venues with a real logo above
-     the ones still on the placeholder. No section headers. */
+     the ones still on the placeholder. No section headers. Rows are already
+     deduplicated to one per brand (groupedListing), so each brand renders
+     once regardless of how many branches it has. */
   const pinned=[];
   const usedPinned={};
-  rows.forEach(function(r){
-    const key=canonicalSlugKey(r.slug);
-    if(PINNED_REST_SLUGS.indexOf(key)>-1&&!usedPinned[key]){pinned.push(r);usedPinned[key]=1;}
+  rows.forEach(function(g){
+    const key=g.brandKey||canonicalSlugKey(g.slug);
+    if(PINNED_REST_SLUGS.indexOf(key)>-1&&!usedPinned[key]){pinned.push(g);usedPinned[key]=1;}
   });
-  const rest=rows.filter(function(r){return !usedPinned[canonicalSlugKey(r.slug)];});
+  const rest=rows.filter(function(g){return !usedPinned[g.brandKey||canonicalSlugKey(g.slug)];});
   const withLogo=rest.filter(usesGenuineLogo);
-  const withoutLogo=rest.filter(function(r){return !usesGenuineLogo(r);});
+  const withoutLogo=rest.filter(function(g){return !usesGenuineLogo(g);});
 
   let h='<div class="scroll">';
   h+='<div class="phead"><h2>Restaurants</h2><p>'+rows.length+' of '+allRestaurants().length+' places · curated order</p></div>';
@@ -3678,47 +3752,134 @@ function buildRestaurantsHTML(){
     return h;
   }
 
-  pinned.forEach(function(r){ h+=restaurantItem(r,now); });
-  withLogo.forEach(function(r){ h+=restaurantItem(r,now); });
-  withoutLogo.forEach(function(r){ h+=restaurantItem(r,now); });
+  pinned.forEach(function(g){ h+=restaurantItem(g,now); });
+  withLogo.forEach(function(g){ h+=restaurantItem(g,now); });
+  withoutLogo.forEach(function(g){ h+=restaurantItem(g,now); });
 
   h+='<div style="height:24px"></div></div>';
   return h;
 }
 
-/* One row plus its always-present, collapsed options panel. The panel is
-   in the DOM even when closed so .acc-wrap can animate it open AND shut;
-   syncRestAccordions() flips .open without re-rendering the list. */
-function restaurantItem(r,now){
-  const open=state.restaurantOpen===r.id;
-  let h='<div class="ritem'+(open?" open":"")+'" data-racc="'+esc(r.id)+'">';
-  h+='<button class="rrow" data-act="toggleRestaurant" data-id="'+esc(r.id)+'" aria-expanded="'+(open?"true":"false")+'">';
-  h+='<div class="rthumb">'+(r.thumbHtml||"")+'</div>';
-  h+='<div class="rinfo"><div class="rname">'+esc(r.name)+'</div>';
-  h+='<div class="rmeta">'+esc(r.category)+' · '+esc(r.placeLabel||r.location.town||"")+'</div></div>';
+/* One brand row plus its always-present, collapsed options panel. Each row
+   stands for a whole group of branches (kfc = 13 locations); the active
+   branch drives the Menu/Promos/About buttons and the town/area labels. */
+function restaurantItem(g,now){
+  const open=state.restaurantOpen===g.brandKey;
+  const meta=g.locationCount>1?(g.locationCount+" places"):(g.placeLabel||"");
+  let h='<div class="ritem'+(open?" open":"")+'" data-racc="'+esc(g.brandKey)+'">';
+  h+='<button class="rrow" data-act="toggleRestaurant" data-id="'+esc(g.brandKey)+'" aria-expanded="'+(open?"true":"false")+'">';
+  h+='<div class="rthumb">'+(g.thumbHtml||"")+'</div>';
+  h+='<div class="rinfo"><div class="rname">'+esc(g.name)+'</div>';
+  h+='<div class="rmeta">'+esc(g.category)+' · '+esc(meta)+'</div></div>';
   h+='</button>';
-  h+='<div class="acc-wrap"><div class="acc-in">'+restaurantOptions(r)+'</div></div>';
+  h+='<div class="acc-wrap"><div class="acc-in">'+restaurantOptions(g,activeBranchRecord(g))+'</div></div>';
   h+='</div>';
   return h;
 }
 
-function restaurantOptions(r){
-  const bundle=hasBridge()?EatoutsBridge.bundleOf(r.id):null;
+function restaurantOptions(g,active){
+  const bid=active?(active.id||g.brandKey):(g.branches&&g.branches[0]?g.branches[0].id:g.brandKey);
+  const brand=g.brandKey;
+  const bundle=hasBridge()?EatoutsBridge.bundleOf(bid):null;
   let promoN=0;
   if(bundle) for(const d in bundle.promos) promoN+=(bundle.promos[d]||[]).length;
-  let menuN=0;
-  if(bundle) bundle.menu.forEach(function(c){menuN+=c.items.length;});
+  const activeLoc=(active&&active.location)||{};
+  const townL=String(activeLoc.town||"").trim()||"Select Town";
+  const nameTag=(active&&active.name&&active.name!==g.name)?active.name:null;
+  const chosen=!!(state.restBranchOf&&state.restBranchOf[brand]);
+  const locationReady=g.locationCount<=1||chosen;
+  const pickAxis=function(axis,label,cls){
+    return '<button class="'+cls+'" data-act="openRestLocPicker" data-brand="'+esc(brand)+'" data-axis="'+axis+'" aria-haspopup="listbox" aria-expanded="'+(state.restLocPicker&&state.restLocPicker.brand===brand&&state.restLocPicker.axis===axis?"true":"false")+'"><span>'+esc(label)+'</span></button>';
+  };
+  /* areas in the active town: one -> show it, several -> "N locations",
+     none -> the placeholder neighbourhood until listings are completed */
+  const seenArea={};
+  (g.branches||[]).forEach(function(b){
+    const loc=b.location||{};
+    if(normalizeRestType(loc.town)!==normalizeRestType(activeLoc.town))return;
+    const area=String(loc.area||"").trim();
+    if(area)seenArea[normalizeRestType(area)]=area;
+  });
+  const areaKeys=Object.keys(seenArea);
+  const areaLabel=areaKeys.length>1?(areaKeys.length+" locations"):(areaKeys.length===1?seenArea[areaKeys[0]]:"Block 8");
+  const menuBtn=locationReady
+    ?'<button class="ropt" data-act="openRestView" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'" data-view="menu">Menu</button>'
+    :'<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("Choose a location first — each location has its own menu & specials.")+'">Menu</button>';
+  let promosBtn;
+  if(!locationReady)promosBtn='<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("Choose a location first — each location has its own menu & specials.")+'">Promos</button>';
+  else if(promoN>0)promosBtn='<button class="ropt" data-act="openRestView" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'" data-view="promos">Promos</button>';
+  else promosBtn='<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("No promos available at this location right now.")+'">Promos</button>';
 
   return '<div class="ropts">'+
-    '<button class="ropt" data-act="openRestView" data-id="'+esc(r.id)+'" data-view="menu">'+
-      'Menu<em>'+menuN+' items</em></button>'+
-    '<button class="ropt" data-act="openRestView" data-id="'+esc(r.id)+'" data-view="venue">'+
-      'Book Venue<em>Reserve</em></button>'+
-    '<button class="ropt" data-act="openRestView" data-id="'+esc(r.id)+'" data-view="promos">'+
-      'Promos<em>'+(promoN?promoN+" active":"None yet")+'</em></button>'+
-    '<button class="ropt" data-act="openRestView" data-id="'+esc(r.id)+'" data-view="about">'+
-      'About<em>Details</em></button>'+
+    (nameTag?'<div class="ropts-loc-name">Also known as: '+esc(nameTag)+'</div>':'')+
+    pickAxis("town",townL,"cbtn")+
+    pickAxis("area",areaL,"cbtn-area")+
+    menuBtn+
+    promosBtn+
     '</div>';
+}
+
+/* Branch picker: the "exact places" a brand is at, opened from the two
+   location filter buttons in the row's options panel. Town axis lists the
+   brand's towns; area axis lists its area/neighbourhood combinations.
+   Picking a row makes that branch active for this brand. */
+function renderRestLocPicker(){
+  const lp=state.restLocPicker;
+  if(!lp)return "";
+  const g=brandGroupByKey(lp.brand);
+  if(!g)return "";
+  const active=activeBranchRecord(g);
+  const axis=lp.axis;
+  let h='<div class="fpop-scrim" data-act="closeRestLocPicker"></div>';
+  h+='<div class="fpop rest-loc-pop" role="listbox" aria-label="Choose '+(axis==="town"?"town":"area or neighbourhood")+'">';
+  if(axis==="town"){
+    const seenT={};
+    const towns=[];
+    g.branches.forEach(function(b){
+      const t=String((b.location&&b.location.town)||"").trim();
+      const code=String((b.location&&b.location.district)||"");
+      const key=normalizeRestType(t)+"|"+code;
+      if(!t||seenT[key])return;
+      seenT[key]=true;
+      towns.push({town:t,district:code});
+    });
+    towns.sort(function(a,b){return normalizeRestType(a.town).localeCompare(normalizeRestType(b.town));});
+    towns.forEach(function(tp){
+      const matches=g.branches.filter(function(b){return normalizeRestType((b.location&&b.location.town))===normalizeRestType(tp.town);});
+      const target=matches[0];
+      const names=[];
+      matches.forEach(function(b){if(names.indexOf(b.name)===-1)names.push(b.name);});
+      const selected=active&&normalizeRestType((active.location&&active.location.town))===normalizeRestType(tp.town);
+      const label=tp.town+(names.length>1?" ("+(matches.length===2?"2":matches.length)+" locations)":"");
+      h+='<button class="loc-town-main'+(selected?" on":"")+'" data-act="pickRestBranch" data-id="'+esc(target.id)+'" data-brand="'+esc(g.brandKey)+'" role="option" aria-selected="'+selected+'">'+
+        '<span class="lbl">'+esc(label)+'</span>'+(names.length>1?'<span class="loc-count">'+esc(names.join(" · "))+'</span>':'')+
+        '</button>';
+    });
+  }else{
+    /* Area axis is scoped to the active town: pick a town first, then the
+       neighbourhood within it. Falls back to all branches when no town. */
+    const activeTown=String((active&&active.location&&active.location.town)||"").trim();
+    const seenA={};
+    const opts=[];
+    g.branches.forEach(function(b){
+      const loc=b.location||{};
+      if(activeTown&&normalizeRestType(loc.town)!==normalizeRestType(activeTown))return;
+      const area=String(loc.area||"").trim();
+      const town=String(loc.town||"").trim();
+      const key=normalizeRestType(area)+"|"+normalizeRestType(town);
+      if(seenA[key])return;
+      seenA[key]=true;
+      opts.push({b:b,label:area?(area+" · "+town):(town||"Other")});
+    });
+    opts.sort(function(a,b){return normalizeRestType(a.label).localeCompare(normalizeRestType(b.label));});
+    opts.forEach(function(o){
+      const selected=active&&active.id===o.b.id;
+      const nameTag=(o.b.name&&o.b.name!==g.name)?o.b.name+" · ":"";
+      h+='<button class="loc-area-option'+(selected?" on":"")+'" data-act="pickRestBranch" data-id="'+esc(o.b.id)+'" data-brand="'+esc(g.brandKey)+'" role="option" aria-selected="'+selected+'"><span>'+esc(nameTag+o.label)+'</span></button>';
+    });
+  }
+  h+='<div class="fpop-note">'+(g.branches.length>1?(g.branches.length+" locations · picking one makes it active"):"One location")+'</div>';
+  return h+'</div>';
 }
 
 function renderRestaurantSubView(){
@@ -4129,7 +4290,7 @@ function renderControlBar(){
     const areaLabel=state.restArea==="All"?"All areas":state.restArea;
     const typeLabel=!state.restTypes.length?"All types":state.restTypes.length===1?state.restTypes[0]:state.restTypes.length+" types selected";
     let h='<div class="rest-filter-controls">';
-    h+='<div class="cbar2 rest-filter-row" style="justify-content: center;">'+
+    h+='<div class="cbar2 rest-filter-row town-row" style="justify-content: center;">'+
       '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(townLabel)+'</span></button></div>';
     h+='<div class="cbar2 rest-filter-row" style="justify-content: space-between;">'+
       '<button class="cbtn" data-act="openRestAreaPicker"'+(state.restTown==="All"?' disabled':'')+' aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(areaLabel)+'</span></button>'+
@@ -4190,7 +4351,7 @@ function renderViewport(){
   const viewChanged=(key!==lastViewKey);
   lastViewKey=key;
 
-  vp.innerHTML='<div class="screen'+(viewChanged?" anim":"")+'">'+renderScreen()+'</div>';
+  vp.innerHTML='<div class="screen'+(viewChanged?" anim":"")+'">'+renderScreen()+'</div>'+renderPreview()+renderRestLocPicker()+renderRestNotice();
 
   /* same view re-render -> put them back where they were */
   if(!viewChanged&&keepTop){
@@ -4528,7 +4689,7 @@ function renderMenuCategory(){
     h+='<div class="acc-wrap"><div class="acc-in"><div class="mbody">';
     if(it[2]) h+='<p class="mdesc">'+esc(it[2])+'</p>';
 
-    h+='<div class="subh">Photos</div><div class="thumbs">'+menuPhotoStrip(it)+'</div>';
+    h+='<div class="thumbs">'+menuPhotoStrip(it)+'</div>';
 
     if(it[4]&&it[4].length){
       h+='<div class="subh">Extras</div>';
@@ -4541,7 +4702,7 @@ function renderMenuCategory(){
           '<button data-act="exPlus" data-id="'+it[0]+'" data-ei="'+ei+'">+</button></div></div>';
       });
     }
-    h+='<div class="subh" style="margin-top:14px">'+(sizes.length>1?"Choose Size":"Item")+'</div>';
+    if(sizes.length>1)h+='<div class="subh" style="margin-top:14px">Choose Size</div>';
     sizes.forEach(function(sz,si){
       const l=cartLine(it[0],si);
       const label=sz[0]||it[1];
@@ -4568,6 +4729,23 @@ function renderMenuCategory(){
     '<button class="cbbtn" data-act="openCheckout" data-cbbtn'+(total>0?"":" disabled")+'>Checkout</button>'+
     '</div></div>';
   return h;
+}
+
+/* Menu photo preview overlay: large view of the tapped image on a blurred
+   backdrop, with equal gaps on either side away from the screen edges. */
+function renderPreview(){
+  const p=state.preview;
+  if(!p||!p.src)return "";
+  return '<div class="preview-layer" data-act="closePreview" role="dialog" aria-modal="true" aria-label="Photo preview">'+
+    '<img class="preview-img" src="'+esc(p.src)+'" alt="'+esc(p.name||"Preview")+'">'+
+    '<button class="preview-close" data-act="closePreview" aria-label="Close preview">&times;</button></div>';
+}
+
+/* Floating notice shown when the user taps an inactive action (Menu before a
+   location is picked, or Promos when the location has none). Auto-dismisses. */
+function renderRestNotice(){
+  if(!state.restNotice)return "";
+  return '<div class="rest-notice" data-act="dismissRestNotice" role="status">'+esc(state.restNotice)+'</div>';
 }
 
 function renderCheckout(){
@@ -5123,12 +5301,13 @@ document.addEventListener("click",function(e){
     state.tab=nextTab;
     state.promoFilterOpen=false;
     state.operatorView="about";
+    state.preview=null;
     if(state.tab==="promos"){state.promoView="feed";state.promoId=null;state.promoGalleryId=null;state.promoExpanded=null;}
     if(state.tab==="menu"){state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;}
     if(state.tab==="restaurants"){
       /* always land back on the list, and hide the filter bar again.
          The cuisine choice and search text are kept deliberately. */
-      state.restaurantView=null;state.restaurantOpen=null;state.restFilterOpen=false;
+      state.restaurantView=null;state.restaurantOpen=null;state.restFilterOpen=false;state.restLocPicker=null;state.restNotice=null;
       state.splitOpen=false;state.splitPeople=[];state.splitAssign={};
     }
     if(state.tab==="reserve"){state.reserveCat=null;state.reserveSub=null;}
@@ -5137,10 +5316,40 @@ document.addEventListener("click",function(e){
     render();
     return;
   }
+  /* Photo preview: tapping a menu item's thumbnail or a strip photo opens
+     a large view of that image instead of toggling the row. */
+  const menuThumb=e.target.closest(".mthumb")||e.target.closest(".th");
+  if(menuThumb){
+    const img=menuThumb.querySelector("img");
+    if(img&&img.src){
+      const mitem=menuThumb.closest(".mitem");
+      const nameEl=mitem?mitem.querySelector(".mtitle"):null;
+      state.preview={src:img.src,name:nameEl?nameEl.textContent:""};
+      render();
+      return;
+    }
+  }
+  /* Restaurant logo preview: only when the venue has a real logo image;
+     letter-tile venues fall through to the normal row toggle. */
+  const restThumb=e.target.closest(".rthumb");
+  if(restThumb){
+    const img=restThumb.querySelector("img");
+    if(img&&img.src){
+      const row=restThumb.closest(".rrow");
+      const nameEl=row?row.querySelector(".rname"):null;
+      state.preview={src:img.src,name:nameEl?nameEl.textContent:""};
+      render();
+      return;
+    }
+  }
+
   const t=e.target.closest("[data-act]");
   if(!t)return;
   const act=t.getAttribute("data-act");
   const id=t.getAttribute("data-id");
+
+  /* Close the photo preview; tapping the image itself stays inert */
+  if(act==="closePreview"){if(e.target.closest(".preview-img"))return;state.preview=null;render();return;}
 
   /* PROMOS */
   if(act==="pickDay"){state.promoDay=parseInt(t.getAttribute("data-day"),10);state.promoExpanded=null;render();return;}
@@ -5217,10 +5426,33 @@ document.addEventListener("click",function(e){
   if(act==="openAreaPicker"){if(state.promoTown==="All")return;state.promoAreaPicker=true;state.promoTownPicker=false;state.promoTypePicker=false;renderControlBar();return;}
   if(act==="openPromoTypePicker"){state.promoTypePicker=true;state.promoTownPicker=false;state.promoAreaPicker=false;renderControlBar();return;}
   if(act==="closePickers"){state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;renderControlBar();return;}
-  if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;syncRestAccordions();return;}
-  if(act==="openRestView"){state.restaurantOpen=id;state.restaurantView={id:id,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};if(hasBridge())EatoutsBridge.setActive(id);render();return;}
-  if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};render();return;}
-  if(act==="openRestPromo"){state.restaurantView={id:id,view:"promo",promoId:t.getAttribute("data-promo")||null};render();return;}
+  if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;state.restLocPicker=null;state.restNotice=null;syncRestAccordions();return;}
+  if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
+  if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;render();return;}
+  if(act==="openRestPromo"){const brand=t.getAttribute("data-brand")||(state.restaurantView&&state.restaurantView.brand)||id;state.restaurantView={id:id,brand:brand,view:"promo",promoId:t.getAttribute("data-promo")||null};render();return;}
+  if(act==="showRestNotice"){
+    const m=t.getAttribute("data-notice")||"";
+    state.restNotice=m;
+    render();
+    if(restNoticeTimer)clearTimeout(restNoticeTimer);
+    restNoticeTimer=setTimeout(function(){if(state.restNotice===m){state.restNotice=null;render();}},2800);
+    return;
+  }
+  if(act==="dismissRestNotice"){if(restNoticeTimer)clearTimeout(restNoticeTimer);state.restNotice=null;render();return;}
+  if(act==="openRestLocPicker"){
+    const brand=t.getAttribute("data-brand")||"";
+    const axis=t.getAttribute("data-axis")||"town";
+    if(state.restLocPicker&&state.restLocPicker.brand===brand&&state.restLocPicker.axis===axis)state.restLocPicker=null;
+    else state.restLocPicker={brand:brand,axis:axis};
+    render();return;
+  }
+  if(act==="closeRestLocPicker"){state.restLocPicker=null;render();return;}
+  if(act==="pickRestBranch"){
+    const brand=t.getAttribute("data-brand")||(state.restLocPicker&&state.restLocPicker.brand)||"";
+    if(brand&&id)state.restBranchOf[brand]=id;
+    else if(brand)delete state.restBranchOf[brand];
+    state.restLocPicker=null;render();return;
+  }
   if(act==="backRestPromo"){if(state.restaurantView){state.restaurantView.view="promos";state.restaurantView.promoId=null;}render();return;}
   if(act==="waVenue"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const venueType=document.getElementById("venueType")||{};const venueDate=document.getElementById("venueDate")||{};const venuePax=document.getElementById("venuePax")||{};const venueNotes=document.getElementById("venueNotes")||{};const msg="*VENUE BOOKING INQUIRY*\nVenue: "+venue+"\nEvent Type: "+(venueType.value||"TBC")+"\nDate: "+(venueDate.value||"TBC")+"\nGuests: "+(venuePax.value||"TBC")+"\nNotes: "+(venueNotes.value||"N/A");window.location.href=waLink(msg);return;}
   if(act==="waRestPromo"){const r=hasBridge()?EatoutsBridge.byId(id):null;const promo=(r && EatoutsBridge.bundleOf(r.id)) ? ((function(){for(const d in EatoutsBridge.bundleOf(r.id).promos){const found=(EatoutsBridge.bundleOf(r.id).promos[d]||[]).find(x=>x.id===t.getAttribute("data-promo"));if(found)return found;}return null;})()) : null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const p=promo||{};const msg="*PROMO ENQUIRY*\nVenue: "+venue+"\nPromo: "+(p.title||"Promo")+"\nPrice: P"+(p.price||0)+"\nValid: "+(p.valid||"TBC")+"\n\nPlease confirm availability.";window.location.href=waLink(msg);return;}
@@ -5423,7 +5655,10 @@ document.addEventListener("keydown",function(e){
     return;
   }
   if(e.key==="Escape"||e.keyCode===27){
-    if(state.restTownPicker||state.restAreaPicker||state.restTypePicker){
+    if(state.preview){state.preview=null;render();}
+    else if(state.restLocPicker){state.restLocPicker=null;render();}
+    else if(state.restNotice){state.restNotice=null;render();}
+    else if(state.restTownPicker||state.restAreaPicker||state.restTypePicker){
       state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
       state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";renderControlBar();
     }

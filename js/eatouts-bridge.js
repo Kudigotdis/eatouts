@@ -212,6 +212,96 @@
 
   function flagship() { return DB.getRestaurantBySlug('the-yellow-giraffe', db()); }
 
+  /* ---------- brand grouping ---------- */
+
+  /* Branch rows whose slug can't be derived from their name (name
+     variants, dead-clear aliases). Everything else groups via the
+     name slug or EatoutsBrand.canonicalKey(). */
+  var BRAND_ALIAS = {
+    'chicken-licken-station': 'chicken-licken',
+    'chicken-licken-warehouse-lobatse': 'chicken-licken',
+    'debonairs-pizza-pty-limited': 'debonairs-pizza',
+    'bull-and-bush-maun': 'bull-and-bush',
+    'hungry-lion-take-aways': 'hungry-lion',
+    'kfc-francistown-francistown': 'kfc',
+    'milky-lane-restaurant': 'milky-lane',
+    'nandos-head-office': 'nandos',
+    'spur-at-metcourt-hotel-francistown': 'spur',
+    'silver-spur-steakhouse': 'spur',
+    'diamond-creek-spur': 'spur',
+    'steers-riverwalk': 'steers',
+    'steers-game-city': 'steers',
+    'steers-broadhurst': 'steers',
+    'whistle-stop-steers-diner': 'steers',
+    'denjebuya-restaurant-branch': 'denjebuya-restaurant'
+  };
+
+  /**
+   * Canonical brand key for one restaurant row. Branch rows of a chain
+   * all share a key, so KFC's Gaborone + Maun + Kasane rows all land on
+   * 'kfc'. Derivation: explicit alias wins, then EatoutsBrand's known
+   * remaps (Nando's -> nandos, ...), then the name slug (Wimpy -> wimpy
+   * even when the slug is wimpy-orapa), then the slug itself.
+   */
+  function brandKeyOf(r) {
+    if (!r) return null;
+    var slug = String(r.slug || '');
+    var alias = BRAND_ALIAS[slug];
+    if (alias) return alias;
+    var nameSlug = Brand ? (Brand.slugify ? Brand.slugify(r.name || slug) : slug) : slug;
+    var canonical = Brand && typeof Brand.canonicalKey === 'function' ? Brand.canonicalKey(slug) : slug;
+    if (canonical && canonical !== slug) return canonical;
+    if (nameSlug && nameSlug !== slug) return nameSlug;
+    return slug;
+  }
+
+  function sameTown(a, b) {
+    return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+  }
+
+  /**
+   * Default branch for a group: the Gaborone branch when one exists,
+   * otherwise the first branch in roster (newest-first) order.
+   */
+  function primaryBranch(branches) {
+    var list = branches || [];
+    var gaborone = [];
+    for (var i = 0; i < list.length; i++) {
+      if (sameTown((list[i].location && list[i].location.town) || '', 'Gaborone')) gaborone.push(list[i]);
+    }
+    var pool = gaborone.length ? gaborone : list;
+    return pool[0] || null;
+  }
+
+  /* Static brand groups: [{ key, branches:[records] }], in newest-first
+     roster order. The customer app composes a display row per group; the
+     owner pages keep the raw branch-level listing(). */
+  function groups() {
+    var d = db();
+    var rows = DB.byLastActive(d);
+    var byKey = {};
+    var order = [];
+    rows.forEach(function (r) {
+      var k = brandKeyOf(r);
+      if (!(k in byKey)) { byKey[k] = []; order.push(k); }
+      byKey[k].push(r);
+    });
+    return order.map(function (k) {
+      return { key: k, branches: byKey[k] };
+    });
+  }
+
+  /* Display name for a group: the branch that owns the brand slug when
+     present (Spur), else the first branch's name. */
+  function groupName(g) {
+    var branches = g && g.branches ? g.branches : [];
+    var key = g && (g.key || g.brandKey);
+    for (var i = 0; i < branches.length; i++) {
+      if (branches[i].slug === key) return branches[i].name;
+    }
+    return branches.length ? branches[0].name : key;
+  }
+
   /** Display record for the Restaurants list. */
   function listing() {
     var d = db();
@@ -231,6 +321,41 @@
         lastActive: r.lastActive,
         isFlagship: r.slug === 'the-yellow-giraffe',
         thumbHtml: Brand ? Brand.thumbHtml(r, { size: 56 }) : ''
+      };
+    });
+  }
+
+  /**
+   * Display records for the denduplicated Restaurants list: one row per
+   * brand group, with the branch array attached so the app can filter,
+   * count, and swap the active branch without more DB reads.
+   */
+  function groupedListing() {
+    return groups().map(function (g) {
+      var primary = primaryBranch(g.branches);
+      var name = groupName(g);
+      var primaryTypes = primary && primary.types && primary.types.length ? primary.types : ['Restaurant'];
+      return {
+        id: g.key,
+        name: name,
+        slug: g.key,
+        types: primaryTypes,
+        category: primaryTypes.join(' · '),
+        location: primary ? (primary.location || {}) : {},
+        placeLabel: placeLabel(primary || {}),
+        landmark: primary ? (primary.landmark || '') : '',
+        logo: primary ? (primary.logo || null) : null,
+        socials: (primary && primary.socials) || [],
+        status: primary ? primary.status : 'published',
+        lastActive: primary ? primary.lastActive : 0,
+        isFlagship: g.key === 'the-yellow-giraffe',
+        thumbHtml: primary ? (Brand ? Brand.thumbHtml(primary, { size: 56 }) : '') : '',
+        key: g.key,
+        brandKey: g.key,
+        branches: g.branches,
+        locationCount: g.branches.length,
+        branchNames: g.branches.map(function (b) { return b.name; }),
+        branchLabels: g.branches.map(function (b) { return placeLabel(b); })
       };
     });
   }
@@ -265,7 +390,16 @@
     }
     var M = window.EatoutsMenus;
     if (M) {
-      var imported = M.menuFor(r.slug);
+      var key = brandKeyOf(r);
+      var town = (r.location && r.location.town) || '';
+      var townKey = town && Brand ? Brand.slugify(town) : '';
+      /* A location-specific menu (menus_data/{brand}-{town}.json) wins
+         when one exists; otherwise every branch of the chain shares the
+         brand menu (kfc-maun -> kfc), else the demo, else the template. */
+      var menus = M.menus;
+      var override = townKey && menus ? menus[key + '-' + townKey] : null;
+      if (override && override.length) return override;
+      var imported = menus ? menus[key] : null;
       if (imported && imported.length) return imported;
       if (M.demo && M.demo.length) return M.demo;
     }
@@ -461,6 +595,11 @@
     byId: byId,
     flagship: flagship,
     listing: listing,
+    brandKeyOf: brandKeyOf,
+    groups: groups,
+    primaryBranch: primaryBranch,
+    groupName: groupName,
+    groupedListing: groupedListing,
     bundleOf: bundleOf,
     activeBundle: activeBundle,
     sourceBundle: sourceBundle,
