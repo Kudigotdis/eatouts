@@ -6,8 +6,9 @@
   "scripts": {
     "merge":   "python scripts/build_restaurant_directory.py",
     "build":   "npm run merge && node copy-static.mjs",
-    "deploy":  "npm run build && wrangler deploy",
-    "preview": "npm run build && wrangler dev",
+    "stage":   "node copy-static.mjs",
+    "deploy":  "npm run build && wrangler pages deploy dist",
+    "preview": "npm run build && wrangler pages dev dist",
     "validate": "python scripts/validate_submission.py"
   }
 }

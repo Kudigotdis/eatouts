@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-One-command build + deploy for EatOuts on Cloudflare Workers.
+One-command build + deploy for EatOuts on Cloudflare Pages.
 
 Steps:
-  1. python scripts/build_restaurant_directory.py  (merge owner submissions)
-  2. npm run build                                  (copy-static.mjs -> dist/)
-  3. npx wrangler deploy                            (ship to Cloudflare)
+  1. npm run build  (python merge scripts -> directory_runtime_data.json,
+                     then copy-static.mjs -> dist/)
+  2. npx wrangler pages deploy dist  (ship to Cloudflare Pages)
 """
 import subprocess, sys, os
 
@@ -21,11 +21,10 @@ def run(cmd, **kw):
 
 
 def main():
-    run([sys.executable, 'scripts/build_restaurant_directory.py'])
     # On Windows, npm/npx are .cmd shims and need shell=True.
     shell = os.name == 'nt'
     run(['npm', 'run', 'build'], shell=shell)
-    run(['npx', 'wrangler', 'deploy'], shell=shell)
+    run(['npx', 'wrangler', 'pages', 'deploy', 'dist'], shell=shell)
     print('\nDeployed.')
 
 

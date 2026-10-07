@@ -523,6 +523,19 @@ def main() -> None:
     print(f"Logos applied: {len(used)} distinct logo files in use; unused real logo files: {len(missing)}")
     for path in missing:
         print(f"  unused: {path}")
+    merge_owner_submissions()
+
+
+def merge_owner_submissions() -> None:
+    """Ingest owner_submissions/venue_*.json into the runtime directory that
+    was just written (integration_file.txt section 6.1 / plan task A2). The
+    merge logic itself lives in merge_submissions.py so the intake export and
+    this build entry point share one implementation."""
+    try:
+        from merge_submissions import main as merge_main
+    except ImportError:  # executed as a package module
+        from scripts.merge_submissions import main as merge_main  # type: ignore
+    merge_main()
 
 
 if __name__ == "__main__":

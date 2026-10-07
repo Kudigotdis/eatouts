@@ -36,6 +36,15 @@ const FILES = [
   'get-started.html',
   'pricing.html',
 
+  // Content + marketing pages
+  'eatouts-blog.html',
+  'eatouts-event-planner.html',
+  'eatouts-suppliers.html',
+
+  // Cloudflare Pages config
+  '_headers',
+  '_redirects',
+
   // Demo data used by the app
   'demo_info_menu-items-food-beverages.json',
   'demo_restaurant_list.json',
