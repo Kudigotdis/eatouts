@@ -35,9 +35,9 @@ img{display:block;max-width:100%}
 /* Promos feed focus mode: while an accordion e-card is open on the Promos
    feed, drop the top header, the sticky week calendar and the bottom nav so
    the open card fills the screen. Toggled by applyPromoFocus() on #shell. */
-#shell.promo-focus #hdr,#shell.promo-focus #nav,
-#shell.promo-focus #cbar,#shell.promo-focus #filter-bar,
-#shell.promo-focus .cal{display:none}
+#shell.promos-tab.promo-focus #hdr,#shell.promos-tab.promo-focus #nav,
+#shell.promos-tab.promo-focus #cbar,#shell.promos-tab.promo-focus #filter-bar,
+#shell.promos-tab.promo-focus .cal{display:none}
 .brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden}
 .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
 .hdr-right{margin-left:auto}
@@ -3213,7 +3213,10 @@ function promoFocusOn(){
 }
 function applyPromoFocus(){
   const shell=document.getElementById("shell");
-  if(shell) shell.classList.toggle("promo-focus",promoFocusOn());
+  if(shell){
+    shell.classList.toggle("promo-focus",promoFocusOn());
+    shell.classList.toggle("promos-tab", state.tab==="promos");
+  }
 }
 function syncAccordions(){
   const vp=document.getElementById("viewport");
