@@ -32,6 +32,12 @@ img{display:block;max-width:100%}
    while staying below .fpop (60) so an open menu still overlays it. */
 #hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#ffffff;border-bottom:1px solid #ece7db;position:relative;z-index:58;padding-top:env(safe-area-inset-top)}
 #hdr.hide{display:none}
+/* Promos feed focus mode: while an accordion e-card is open on the Promos
+   feed, drop the top header, the sticky week calendar and the bottom nav so
+   the open card fills the screen. Toggled by applyPromoFocus() on #shell. */
+#shell.promo-focus #hdr,#shell.promo-focus #nav,
+#shell.promo-focus #cbar,#shell.promo-focus #filter-bar,
+#shell.promo-focus .cal{display:none}
 .brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden}
 .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
 .hdr-right{margin-left:auto}
@@ -3200,6 +3206,15 @@ function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b
    ACCORDION SYNC — toggles .open in place so the CSS transition runs
    (a full re-render would rebuild the DOM and kill the animation)
    ================================================================ */
+/* True when an e-card is open on the Promos feed. Drives focus mode
+   (header + calendar + bottom nav hidden so the card fills the screen). */
+function promoFocusOn(){
+  return state.tab==="promos" && state.promoView==="feed" && !!state.promoExpanded;
+}
+function applyPromoFocus(){
+  const shell=document.getElementById("shell");
+  if(shell) shell.classList.toggle("promo-focus",promoFocusOn());
+}
 function syncAccordions(){
   const vp=document.getElementById("viewport");
   if(!vp) return;
@@ -3213,6 +3228,7 @@ function syncAccordions(){
     if(on) opened=c;
   });
   if(opened && opened.scrollIntoView) opened.scrollIntoView({block:"nearest"});
+  applyPromoFocus();
 }
 function syncMenuAccordions(){
   const vp=document.getElementById("viewport");
@@ -4362,6 +4378,7 @@ function renderViewport(){
   renderHeader();
   renderNav();
   renderControlBar();
+  applyPromoFocus();
   if(state.galleryView==="photo") scrollPhotoTo();
 }
 function renderScreen(){
