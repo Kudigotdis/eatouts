@@ -19,6 +19,10 @@
   var AUTOSAVE_MS = 2500;
   var MAX_POSTS   = 200;
   var MAX_BLOCKS  = 40;
+  /* durability limits (grafted from eatouts-blog-engine.js) */
+  var VERSION_LIMIT    = 10;            /* saved snapshots kept per post */
+  var POST_JSON_LIMIT  = 200 * 1024;    /* 200 KB per post */
+  var STORE_BYTES_LIMIT = 4 * 1024 * 1024; /* drop history before failing saves */
 
   var BLOCK_TYPES = [
     { type:'heading',    name:'Heading',     icon:'H' },
@@ -76,18 +80,27 @@
   function loadStore(){
     try {
       var raw = localStorage.getItem(STORE_KEY);
-      if (!raw) return { version:1, posts:[], redirects:{} };
+      if (!raw) return { version:1, posts:[], redirects:{}, history:{} };
       var parsed = JSON.parse(raw);
-      if (!parsed || !Array.isArray(parsed.posts)) return { version:1, posts:[], redirects:{} };
+      if (!parsed || !Array.isArray(parsed.posts)) return { version:1, posts:[], redirects:{}, history:{} };
       parsed.redirects = parsed.redirects || {};
+      parsed.history = parsed.history || {};
       return parsed;
     } catch(e){
       console.warn('[blog] store unreadable', e);
-      return { version:1, posts:[], redirects:{} };
+      return { version:1, posts:[], redirects:{}, history:{} };
     }
   }
   function saveStore(store){
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); return true; }
+    try {
+      var json = JSON.stringify(store);
+      /* Storage safety: shed version history before risking a write failure */
+      if (json.length > STORE_BYTES_LIMIT && store.history && Object.keys(store.history).length) {
+        store.history = {};
+        json = JSON.stringify(store);
+      }
+      localStorage.setItem(STORE_KEY, json); return true;
+    }
     catch(e){ console.warn('[blog] save failed', e); toast('Save failed — storage full'); return false; }
   }
   function allPosts(){
@@ -119,6 +132,7 @@
   function deletePost(id){
     var store = loadStore();
     store.posts = store.posts.filter(function(p){ return p.id !== id; });
+    if (store.history) delete store.history[id];
     saveStore(store);
     rebuildTagIndex();
   }
@@ -130,6 +144,138 @@
     var n = 2;
     while (taken[s + '-' + n]) n++;
     return s + '-' + n;
+  }
+
+  /* ============================================================
+     POST RESOLUTION (store first, cached feed as fallback)
+     ============================================================ */
+  function resolvePost(slug){
+    if (!slug) return null;
+    var post = findPost(slug);
+    if (post) return post;
+    var cached = loadCachedFeed();
+    if (cached && cached.posts) {
+      for (var i=0;i<cached.posts.length;i++){
+        if (cached.posts[i].slug === slug) return cached.posts[i];
+      }
+    }
+    return null;
+  }
+
+  /* ============================================================
+     OPEN GRAPH (grafted from eatouts-blog-engine.js)
+     Fills the og:/twitter: meta placeholders when a post view is
+     open so WhatsApp/share previews show the real title + image.
+     ============================================================ */
+  var DEFAULT_DOC_TITLE = null;
+  function applyOgTags(post){
+    var head = document.getElementsByTagName('head')[0];
+    if (!head) return;
+    var set = function(name, content){
+      var m = head.querySelector('meta[property="'+name+'"],meta[name="'+name+'"]');
+      if (!m){
+        m = document.createElement('meta');
+        if (name.indexOf('og:') === 0) m.setAttribute('property', name);
+        else m.setAttribute('name', name);
+        head.appendChild(m);
+      }
+      m.setAttribute('content', content || '');
+    };
+    var title = post && post.title ? post.title : 'EatOuts Blog';
+    var desc = post && post.subtitle ? post.subtitle
+      : (post && post.blocks && post.blocks[0] && post.blocks[0].text
+          ? String(post.blocks[0].text).slice(0, 155)
+          : "Stories, guides, and honest updates from Botswana's restaurant scene.");
+    var url = post && post.slug ? postUrl(post.slug) : window.location.href.split('#')[0];
+    var image = post && post.coverImage ? post.coverImage : '';
+
+    set('title', title);
+    set('og:title', title);
+    set('description', desc);
+    set('og:description', desc);
+    set('og:type', 'article');
+    set('og:url', url);
+    set('og:image', image);
+    set('twitter:card', image ? 'summary_large_image' : 'summary');
+    set('twitter:title', title);
+    set('twitter:description', desc);
+    set('twitter:image', image);
+    if (DEFAULT_DOC_TITLE) document.title = title + ' · EatOuts Blog';
+  }
+  function clearOgTags(){
+    var head = document.getElementsByTagName('head')[0];
+    if (!head) return;
+    ['title','og:title','og:description','og:url','og:image','twitter:card','twitter:title','twitter:description','twitter:image']
+      .forEach(function(name){
+        var m = head.querySelector('meta[property="'+name+'"],meta[name="'+name+'"]');
+        if (m) m.parentNode.removeChild(m);
+      });
+    if (DEFAULT_DOC_TITLE) document.title = DEFAULT_DOC_TITLE;
+  }
+
+  /* ============================================================
+     TAG DEEP LINKS  #tag-<tag-slug>  (grafted behaviour)
+     ============================================================ */
+  function readTagFromHash(){
+    var h = window.location.hash || '';
+    if (h.indexOf('#tag-') === 0) {
+      var s = h.slice(5).replace(/[^a-z0-9\-]/g, '').toLowerCase();
+      return TAG_INDEX[s] || '';
+    }
+    return '';
+  }
+  function setTagHash(tag){
+    var want = tag ? '#tag-' + slugify(tag) : '';
+    var have = window.location.hash || '';
+    if (have === want) return;
+    if (want) window.location.hash = want;
+    else if (have) window.location.hash = '';
+  }
+
+  /* ============================================================
+     VERSION HISTORY (grafted from eatouts-blog-admin.js)
+     ============================================================ */
+  function snapshot(post){
+    if (!post || !post.id) return;
+    var store = loadStore();
+    if (!store.history) store.history = {};
+    var hist = store.history[post.id] || [];
+    hist.push({
+      at: Date.now(),
+      title: post.title, slug: post.slug, subtitle: post.subtitle,
+      coverImage: post.coverImage, coverCaption: post.coverCaption,
+      tags: (post.tags || []).slice(),
+      blocks: JSON.parse(JSON.stringify(post.blocks || [])),
+      status: post.status, publishedAt: post.publishedAt
+    });
+    if (hist.length > VERSION_LIMIT) hist = hist.slice(hist.length - VERSION_LIMIT);
+    store.history[post.id] = hist;
+    saveStore(store);
+  }
+  function postHistory(post){
+    if (!post || !post.id) return [];
+    var store = loadStore();
+    return (store.history && store.history[post.id]) || [];
+  }
+  function renderVersionList(post){
+    var hist = postHistory(post);
+    if (!hist.length) return '';
+    var h = '<div style="margin-top:22px">';
+    h += '<div style="margin-bottom:10px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#a89a7e;font-weight:800">Previous versions</div>';
+    h += '<div style="max-height:220px;overflow-y:auto;border:1px solid #ece7db;border-radius:10px;background:#fff">';
+    for (var i = hist.length - 1; i >= 0; i--) {
+      var v = hist[i];
+      h += '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #f4efe4">' +
+        '<span style="flex:0 0 auto;font-size:11px;color:#a89a7e;font-weight:700">' + (i+1) + '</span>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-size:13px;font-weight:800;color:#1b1b1b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(v.title || '(no title)') + '</div>' +
+          '<div style="font-size:11px;color:#a89a7e">' + esc(formatDate(v.at)) + ' · ' + (v.status === 'published' ? 'published' : 'draft') + '</div>' +
+        '</div>' +
+        '<button class="btn ghost sm" data-act="restoreVer" data-i="' + i + '">Restore</button>' +
+      '</div>';
+    }
+    h += '</div></div>';
+    return h;
   }
 
   /* ============================================================
@@ -389,15 +535,7 @@
      POST VIEW
      ============================================================ */
   function renderPostView(slug){
-    var post = findPost(slug);
-    if (!post) {
-      var cached = loadCachedFeed();
-      if (cached && cached.posts) {
-        for (var i=0;i<cached.posts.length;i++){
-          if (cached.posts[i].slug === slug) { post = cached.posts[i]; break; }
-        }
-      }
-    }
+    var post = resolvePost(slug);
     if (!post) {
       return '<div class="scroll"><div class="empty-post">Post not found.<br><br><button class="btn ghost" data-act="blogHome">← Back to the blog</button></div></div>';
     }
@@ -528,6 +666,9 @@
     h += '</div>';
     h += '</div>';
 
+    /* Version history (grafted from eatouts-blog-admin.js) */
+    h += renderVersionList(p);
+
     h += '</div></div>';
     return h;
   }
@@ -649,6 +790,15 @@
 
     var screen = '<div class="screen">' + html + '</div>';
     els.mount.innerHTML = screen;
+
+    /* OG meta tracks the open post; cleared everywhere else */
+    if (state.view === 'post') {
+      var ogPost = resolvePost(state.postSlug);
+      if (ogPost) applyOgTags(ogPost);
+      else clearOgTags();
+    } else {
+      clearOgTags();
+    }
 
     if (state.previewOpen) mountPreview();
     renderBar();
@@ -833,7 +983,7 @@
     var p = state.draft;
 
     /* Navigation */
-    if (act === 'blogHome') { state.view = 'timeline'; state.postSlug = null; state.previewOpen = false; closePreview(); render(); return; }
+    if (act === 'blogHome') { state.view = 'timeline'; state.postSlug = null; state.previewOpen = false; closePreview(); render(); setTagHash(state.activeTag); return; }
     if (act === 'openPost') {
       state.view = 'post';
       state.postSlug = el.getAttribute('data-slug');
@@ -847,10 +997,11 @@
       state.view = 'timeline';
       state.postSlug = null;
       render();
+      setTagHash(state.activeTag);
       return;
     }
-    if (act === 'pickTag') { state.activeTag = el.getAttribute('data-tag') || ''; render(); return; }
-    if (act === 'clearSearch') { state.search = ''; state.activeTag = ''; render(); return; }
+    if (act === 'pickTag') { state.activeTag = el.getAttribute('data-tag') || ''; render(); setTagHash(state.activeTag); return; }
+    if (act === 'clearSearch') { state.search = ''; state.activeTag = ''; render(); setTagHash(''); return; }
 
     /* Sharing */
     if (act === 'sharePost') {
@@ -912,7 +1063,9 @@
       if (!p) return;
       if (!p.title) { toast('Add a title'); return; }
       if (!p.slug) p.slug = makeSlugUnique(p.title, p.id);
+      if (JSON.stringify(p).length > POST_JSON_LIMIT) { toast('Post too large — max 200KB'); return; }
       p.updatedAt = Date.now();
+      snapshot(p);
       upsertPost(p);
       toast('Saved');
       return;
@@ -924,6 +1077,7 @@
       if (p.status === 'published') { p.status = 'draft'; p.publishedAt = null; toast('Unpublished'); }
       else { p.status = 'published'; p.publishedAt = Date.now(); toast('Published'); }
       p.updatedAt = Date.now();
+      snapshot(p);
       upsertPost(p);
       render();
       return;
@@ -936,6 +1090,24 @@
     if (act === 'removeTag') {
       var ti = parseInt(el.getAttribute('data-i'), 10);
       if (p && p.tags) { p.tags.splice(ti, 1); scheduleAutosave(); render(); }
+      return;
+    }
+
+    /* Version restore (grafted from eatouts-blog-admin.js) */
+    if (act === 'restoreVer') {
+      if (!p || !p.id) return;
+      var vi = parseInt(el.getAttribute('data-i'), 10);
+      var histArr = postHistory(findPost(p.id) || p);
+      var ver = histArr[vi];
+      if (!ver) return;
+      if (!confirm('Restore this version? Current fields will be replaced (save to keep it).')) return;
+      p.title = ver.title; p.slug = ver.slug; p.subtitle = ver.subtitle;
+      p.coverImage = ver.coverImage; p.coverCaption = ver.coverCaption;
+      p.tags = (ver.tags || []).slice();
+      p.blocks = JSON.parse(JSON.stringify(ver.blocks || []));
+      p.status = ver.status; p.publishedAt = ver.publishedAt;
+      render();
+      toast('Version restored — press Save to keep it');
       return;
     }
 
@@ -1001,6 +1173,21 @@
 
       if (!els.mount) throw new Error('No mount element');
 
+      DEFAULT_DOC_TITLE = document.title;
+
+      /* Deep link: #tag-<slug> opens the timeline filtered to that tag */
+      rebuildTagIndex();
+      state.activeTag = readTagFromHash();
+      window.addEventListener('hashchange', function(){
+        var t = readTagFromHash();
+        if (state.view === 'timeline' && state.activeTag === t) return;
+        state.activeTag = t;
+        state.search = '';
+        state.view = 'timeline';
+        state.postSlug = null;
+        render();
+      });
+
       /* If the store is empty, try to bootstrap from the public feed.
          When that lands, re-render so the timeline is populated. */
       var wasEmpty = loadStore().posts.length === 0;
@@ -1008,6 +1195,10 @@
         fetchFeed().then(function(feed){
           if (feed) {
             bootstrapFromFeed(feed);
+            rebuildTagIndex();
+            /* a #tag- deep link may have arrived before the feed populated TAG_INDEX */
+            var t = readTagFromHash();
+            if (t) state.activeTag = t;
             render();
           }
         }).catch(function(){});

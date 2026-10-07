@@ -27,9 +27,9 @@ Concierge. There is no self-serve sign-up UI at launch. A restaurant owner reach
 
 ## Architecture
 
-Root HTML pages (single self-contained files, vanilla JS + inline CSS, no frameworks, no build step, no CDNs):
+Root HTML pages (single self-contained files, vanilla JS + inline CSS, no frameworks, no CDNs). There is no runtime build step; a Python merge + Cloudflare Pages build runs only for deploy:
 
-- **Public:** `index.html` (customer app), `get-started.html` (partner landing), `pricing.html` (pricing + feature matrix), `partner-terms.html` (merchant ToS + subscription agreement + privacy addendum), `one-pager.html` (printable pitch sheet).
+- **Public:** `index.html` (customer app), `get-started.html` (partner landing), `pricing.html` (pricing + feature matrix), `partner-terms.html` (merchant ToS + subscription agreement + privacy addendum), `one-pager.html` (printable pitch sheet), `eatouts-blog.html` (blog + on-device admin), `eatouts-event-planner.html`, `eatouts-suppliers.html` (supplier directory + self-onboarding). `404.html` is the Pages 404.
 - **Internal (operator, auth-gated):** `restaurant-onboarding.html`, `menu-onboarding.html`, `promo-onboarding.html`, `event-onboarding.html`, `gallery-onboarding.html`, `restaurant-dashboard.html`, plus the new `intake.html`, `invoice.html`, `ops-console.html`.
 
 **No backend.** All state is browser `localStorage`:
@@ -38,6 +38,8 @@ Root HTML pages (single self-contained files, vanilla JS + inline CSS, no framew
 - `eatouts_session_v1` — operator sessions (`js/eatouts-auth.js`).
 - `eatouts_ops_v1` — new internal business state (venues, invoices, submissions, metrics) used by `intake.html`, `invoice.html`, `ops-console.html`.
 - `eatouts_intake_draft_v1` — in-progress intake draft.
+- `eatouts_blog_v1` / `eatouts_blog_cache_v1` — blog posts (+ version history) and the cached feed (`js/eatouts-blog.js`).
+- `eatouts_event_planner_v1`, `eatouts_suppliers_v1` / `eatouts_supplier_session_v1` / `eatouts_supplier_draft_v1` — the planner and supplier pages.
 
 ## Run
 
@@ -45,10 +47,10 @@ Serve the root over `http://127.0.0.1` with `run-eatouts.bat`. Opening a page vi
 
 First visit: open `seed-demo.html`, seed demo data, then run verification (all assertions should read PASS). Then operator pages are reachable from `index.html` → About Us → Operator Sign in (or Demo login).
 
-## Library helpers (drop-in, no upload surface yet)
+## Client-side upload helpers
 
-- `eatouts-image-compressor.js` — client-side image compression via Canvas (WebP with JPEG fallback). Ready to use; no page currently accepts image uploads.
-- `eatouts-video-validator.js` — client-side video validation (size + duration) via the native `<video>` element. Ready to use; no page currently accepts video uploads.
+- `eatouts-image-compressor.js` — client-side image compression via Canvas (WebP with JPEG fallback). Wired into `intake.html` for logo / cover / menu / gallery images: the chosen file is compressed to an embedded `data:` URL, with plain URL entry kept as the fallback.
+- `eatouts-video-validator.js` — client-side video validation (size + duration) via the native `<video>` element. Wired into `intake.html`; a valid video is reported but must be hosted and pasted as a URL (data URLs are too large for `localStorage`).
 
 ## Pricing reference
 
@@ -58,4 +60,4 @@ First visit: open `seed-demo.html`, seed demo data, then run verification (all a
 
 ## Status
 
-The interaction analytics dashboard mentioned in earlier revisions is **not built** and is marked as roadmap, not a current capability. Owner edits live only in the browser's `localStorage` until the export → merge → deploy loop is completed (intake export exists; the directory generator ingest + one-command deploy are follow-up work).
+The interaction analytics dashboard mentioned in earlier revisions is **not built** and is marked as roadmap, not a current capability. The export → merge → deploy loop is now wired end to end: `restaurant-dashboard.html` and `intake.html` export a `eatouts.venue.v1` record, `scripts/build_restaurant_directory.py` merges `owner_submissions/*.json` into `directory_runtime_data.json`, `npm run build` stages `dist/`, and `npm run deploy` publishes to Cloudflare Pages. Owner edits still live in the browser's `localStorage` until that export is run.

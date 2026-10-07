@@ -132,6 +132,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-owner-compat.js"></script>
+<script src="js/eatouts-image-compressor.js"></script>
+<script src="js/eatouts-video-validator.js"></script>
 <script src="js/eatouts-brand.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="botswana_locations.js"></script>
@@ -155,6 +157,57 @@ else{EatoutsAuth.applyActive();}
   const uid = function(p){ return p + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,7); };
   const esc = function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
   const toast = (function(){ var t; return function(m){ t = document.getElementById('toast'); t.textContent = m; t.classList.add('on'); setTimeout(function(){ t.classList.remove('on'); }, 1900); };})();
+
+  /* ---- file upload helper (integration_file.txt step 11) ----
+     Picks an image, compresses it to a webp data URL and writes it into
+     the target URL input - the URL field stays editable as the fallback. */
+  function pickImageInto(targetId){
+    var inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = 'image/*';
+    inp.onchange = function(){
+      var f = inp.files && inp.files[0];
+      if(!f) return;
+      if(/video\//.test(f.type || '')){ checkVideo(f); return; }
+      if(!window.EatoutsImageCompressor){ toast('Image compressor unavailable'); return; }
+      EatoutsImageCompressor.compress(f, 1600, 1600, 0.82).then(function(blob){
+        var rd = new FileReader();
+        rd.onload = function(){
+          var el = document.getElementById(targetId);
+          if(!el){ toast('Target field not found'); return; }
+          el.value = String(rd.result);
+          el.dispatchEvent(new Event('input', {bubbles:true}));
+          toast('Image compressed and inserted');
+        };
+        rd.onerror = function(){ toast('Could not read the image'); };
+        rd.readAsDataURL(blob);
+      }).catch(function(e){ toast('Compression failed: ' + (e && e.message || e)); });
+    };
+    inp.click();
+  }
+  function checkVideo(file){
+    if(!window.EatoutsVideoValidator){ toast('Video validator unavailable'); return; }
+    EatoutsVideoValidator.validate(file, 50, 300).then(function(info){
+      toast('Video OK (' + EatoutsVideoValidator.formatSeconds(info.duration) + ', ' + EatoutsVideoValidator.formatMB(info.sizeMB) + ') - too big for browser storage. Host it and paste the URL.');
+    }).catch(function(e){ toast('Video rejected: ' + (e && e.message || e)); });
+  }
+  function handleFilePick(fi, scrim){
+    var f = fi.files && fi.files[0];
+    if(!f) return;
+    var target = scrim ? scrim.querySelector('[name="' + fi.getAttribute('data-file-for') + '"]') : null;
+    if(/video\//.test(f.type || '')){ checkVideo(f); return; }
+    if(!window.EatoutsImageCompressor){ toast('Image compressor unavailable'); return; }
+    EatoutsImageCompressor.compress(f, 1600, 1600, 0.82).then(function(blob){
+      var rd = new FileReader();
+      rd.onload = function(){
+        if(!target){ toast('Field not found'); return; }
+        target.value = String(rd.result);
+        toast('Image compressed and inserted');
+      };
+      rd.onerror = function(){ toast('Could not read the image'); };
+      rd.readAsDataURL(blob);
+    }).catch(function(e){ toast('Compression failed: ' + (e && e.message || e)); });
+  }
 
   function opsLoad(){
     try { var raw = localStorage.getItem(OPS_KEY); return raw ? JSON.parse(raw) : { venues:[], invoices:[], metrics:[] }; }
@@ -228,6 +281,7 @@ else{EatoutsAuth.applyActive();}
         '</div>' +
       '</div>';
     document.body.appendChild(scrim);
+    scrim.querySelectorAll('[data-file-for]').forEach(function(fi){ fi.onchange = function(){ handleFilePick(fi, scrim); }; });
     scrim.querySelectorAll('[data-close]').forEach(function(b){ b.onclick = function(){ scrim.remove(); }; });
     scrim.querySelector('[data-save]').onclick = function(){
       var out = {};
@@ -243,6 +297,7 @@ else{EatoutsAuth.applyActive();}
     };
   }
   function renderField(f, v){
+    if(f.type==='file') return '<div class="field"><label>'+esc(f.label)+'</label><input type="file" data-file-for="'+f.key+'"'+(f.accept?' accept="'+esc(f.accept)+'"':'')+'><input type="text" name="'+f.key+'" value="'+esc(v||'')+'" placeholder="'+esc(f.placeholder||'Image URL or upload')+'">'+(f.hint?'<div class="hint">'+esc(f.hint)+'</div>':'<div class="hint">Upload compresses to an embedded data URL, or paste any image URL.</div>')+'</div>';
     if(f.type==='textarea') return '<div class="field"><label>'+esc(f.label)+'</label><textarea name="'+f.key+'" placeholder="'+esc(f.placeholder||'')+'">'+esc(v||'')+'</textarea>'+(f.hint?'<div class="hint">'+esc(f.hint)+'</div>':'')+'</div>';
     if(f.type==='select') return '<div class="field"><label>'+esc(f.label)+'</label><select name="'+f.key+'">'+(f.options||[]).map(function(o){
       var val = typeof o==='string'?o:o.value;
@@ -352,8 +407,8 @@ else{EatoutsAuth.applyActive();}
       '<div class="field"><label>Slug (auto)</label><input id="f_slug" value="'+esc(id.slug)+'" placeholder="the-yellow-giraffe"><div class="hint">Used for the URL and image folder. Filled automatically from the name.</div></div>' +
       '<div class="field"><label>Description</label><textarea id="f_desc" placeholder="A short description diners will read first.">'+esc(id.description)+'</textarea></div>' +
       '<div class="grid2">' +
-        '<div class="field"><label>Logo URL</label><input id="f_logo" value="'+esc(id.logo)+'" placeholder="assets/logo/…"></div>' +
-        '<div class="field"><label>Cover Image URL</label><input id="f_cover" value="'+esc(id.coverImage)+'" placeholder="assets/images/…"></div>' +
+        '<div class="field"><label>Logo URL</label><input id="f_logo" value="'+esc(id.logo)+'" placeholder="assets/logo/…"><button type="button" class="btn btn-ghost btn-sm" data-act="uploadImage" data-target="f_logo">Upload image</button></div>' +
+        '<div class="field"><label>Cover Image URL</label><input id="f_cover" value="'+esc(id.coverImage)+'" placeholder="assets/images/…"><button type="button" class="btn btn-ghost btn-sm" data-act="uploadImage" data-target="f_cover">Upload image</button></div>' +
       '</div>' +
       '<div class="field"><label>Restaurant Type</label><div class="chips">' +
         TYPES.map(function(t){ return '<span class="chip ' + (id.types.indexOf(t)>-1?'active':'') + '" data-act="toggleType" data-val="'+esc(t)+'">'+esc(t)+'</span>'; }).join('') +
@@ -946,7 +1001,7 @@ else{EatoutsAuth.applyActive();}
         { key:'description', label:'Description', type:'textarea' },
         { key:'type', label:'Type', type:'select', options:['Main','Starter','Side','Dessert','Drink','Coffee','Beer','Wine','Cocktail','Other'] },
         { key:'price', label:'Price', type:'number' },
-        { key:'image', label:'Image URL' },
+        { key:'image', label:'Image', type:'file' },
         { key:'prepTime', label:'Prep time (min)', type:'number' },
         { key:'tags', label:'Tags (comma sep)' }
       ], onSave:function(v){
@@ -1001,6 +1056,7 @@ else{EatoutsAuth.applyActive();}
     }
     if(act==='delEvent'){ var ei2 = parseInt(t.getAttribute('data-i'),10); if(confirm('Remove event?')){ draft.events.splice(ei2,1); draftSave(draft); render(); } return; }
 
+    if(act==='uploadImage'){ pickImageInto(t.getAttribute('data-target')); return; }
     /* gallery */
     if(act==='addGalGroup' || act==='editGalGroup'){
       var gi = t.hasAttribute('data-i') ? parseInt(t.getAttribute('data-i'),10) : -1;
@@ -1017,7 +1073,7 @@ else{EatoutsAuth.applyActive();}
     if(act==='addGalImage'){
       var gi2 = parseInt(t.getAttribute('data-i'),10);
       openForm({ title:'Add image', fields:[
-        { key:'src', label:'Image URL' },
+        { key:'src', label:'Image', type:'file' },
         { key:'label', label:'Label' }
       ], onSave:function(v){
         if(!v.src) return;

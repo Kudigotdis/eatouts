@@ -162,6 +162,87 @@ function missingSuggestions(){
   return out.slice(0,3);
 }
 
+/* ========== SETUP-FEE STATUS (integration_file.txt step 7c) ==========
+   Reads the venue's row from eatouts_ops_v1.venues[] (written by
+   ops-console.html) so the owner sees the same publish-gate state
+   the ops team sees. No row -> the fee has not been confirmed. */
+function venueSlug(){
+  const r=DB.restaurant||{};const id=r.identity||{};
+  if(id.slug||r.slug) return id.slug||r.slug;
+  return String(id.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'';
+}
+function setupFeeStatus(){
+  try{
+    const ops=JSON.parse(localStorage.getItem('eatouts_ops_v1')||'null');
+    const venues=(ops&&ops.venues)||[];
+    const slug=venueSlug();
+    const name=(DB.restaurant&&DB.restaurant.identity&&DB.restaurant.identity.name)||'';
+    const row=venues.filter(v=>v&&(v.slug===slug||(name&&v.name===name)))[0];
+    return {paid:!!(row&&(row.setupPaid||row.setupFeePaid))};
+  }catch(e){return {paid:false};}
+}
+
+/* ========== EXPORT (integration_file.txt step 7a / plan task A1) ==========
+   Serialises the signed-in restaurant record to the same
+   eatouts.venue.v1 shape intake.html's buildExportObject() produces,
+   so scripts/merge_submissions.py ingests either file unchanged. */
+function exportVenue(){
+  const r=DB.restaurant||{};const id=r.identity||{};
+  const loc=r.location||{};
+  const slug=venueSlug()||'restaurant';
+  const galleryImages=[];
+  (DB.galleryGroups||[]).forEach(g=>{
+    (g.images||[]).forEach((im,i)=>{
+      galleryImages.push({id:im.id,cat:g.title||g.name||'',src:im.src||im.url||'',label:im.label||'',
+        visible:im.visible!==false,order:i+1,groupId:g.id,groupTitle:g.title||g.name||'',
+        groupVisible:true,groupOrder:1,coverImageId:null});
+    });
+  });
+  const payload={
+    $schema:'eatouts.venue.v1',
+    generatedAt:new Date().toISOString(),
+    slug:slug,
+    name:id.name||'',
+    description:id.description||'',
+    logo:id.logo||null,
+    coverImage:id.coverImage||null,
+    types:id.types||[],
+    category:(id.types||[])[0]||'',
+    location:{
+      district:loc.district||'',districtName:loc.districtName||'',
+      town:loc.town||loc.city||'',area:loc.area||'',
+      plotNumber:loc.plotNumber||'',street:loc.street||loc.streetName||'',
+      building:loc.building||'',landmark:loc.landmark||'',
+      lat:loc.lat!=null?loc.lat:(loc.latitude!=null?loc.latitude:null),
+      lng:loc.lng!=null?loc.lng:(loc.longitude!=null?loc.longitude:null)
+    },
+    landmark:loc.landmark||'',
+    contacts:(r.contacts||[]).map(c=>({id:c.id,title:c.title,countryCode:c.countryCode,
+      number:c.number,purpose:c.purpose,primary:!!c.primary,whatsapp:!!c.whatsapp,
+      active:c.active!==false})),
+    socials:(r.socials||[]).filter(Boolean),
+    profile:Object.assign({name:id.name||''},r),
+    content:{
+      menuCategories:DB.menuCategories||[],
+      menuItems:DB.menuItems||[],
+      promos:DB.promos||[],
+      events:DB.events||[],
+      performers:DB.performers||[],
+      performances:[],
+      galleryGroups:DB.galleryGroups||[],
+      galleryImages:galleryImages
+    }
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='venue_'+slug+'.json';
+  document.body.appendChild(a);a.click();a.remove();
+  URL.revokeObjectURL(url);
+  toast('Exported venue_'+slug+'.json');
+}
+
 function render(){
   const r=DB.restaurant||{};const id=r.identity||{};
   const A=deriveAnalytics();
@@ -170,7 +251,17 @@ function render(){
   const live=id.status==='published';
   const plan=(DB.settings&&DB.settings.plan)||'starter';
   const planLabel={starter:'Eatouts Starter',growth:'Eatouts Growth',pro:'Eatouts Pro'}[plan]||'Eatouts Starter';
-  const planPrice={starter:300,growth:500,pro:800}[plan]||300;
+  /* Single source of truth for prices (integration_file.txt step 7a):
+     window.EATOUTS_PRICING (set by pricing.html) -> EatoutsDB
+     settings.pricing -> P100/P300/P500 defaults. Never hardcode. */
+  const PRICING=(window.EATOUTS_PRICING||(function(){
+    try{const s=EatoutsDB.load()&&EatoutsDB.load().settings;if(s&&s.pricing)return s.pricing;}catch(e){}
+    return{setup:300,tiers:{starter:{price:100},growth:{price:300},pro:{price:500}}};
+  })());
+  const TIERS={starter:PRICING.tiers.starter.price,growth:PRICING.tiers.growth.price,pro:PRICING.tiers.pro.price};
+  const planPrice=TIERS[plan]!=null?TIERS[plan]:TIERS.starter;
+  const setupFee=PRICING.setup||300;
+  const setup=setupFeeStatus();
   const next=(()=>{const d=new Date();d.setDate(d.getDate()+30);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});})();
 
   let h=`
@@ -194,6 +285,7 @@ function render(){
     <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
       <a class="btn btn-primary" href="restaurant-onboarding.html" style="text-decoration:none">Complete Profile →</a>
       <a class="btn btn-ghost" href="index.html" target="_blank" style="text-decoration:none">View as Customer</a>
+      <button class="btn btn-ghost" id="btnExport" type="button">Export this restaurant</button>
     </div>
   </div>
 
@@ -253,7 +345,10 @@ function render(){
       <div>
         <div style="font-weight:900;font-size:16px">${planLabel}</div>
         <div class="hint">P${planPrice} / month · Next billing ${next}</div>
-        <div style="margin-top:8px"><span class="badge on">● Active</span></div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <span class="badge on">● Active</span>
+          <span class="badge ${setup&&setup.paid?'on':'warn'}">P${setupFee} setup ${setup&&setup.paid?'paid':'owing'}</span>
+        </div>
       </div>
       <button class="btn btn-ghost" id="btnChangePlan">Manage Subscription</button>
     </div>
@@ -287,6 +382,7 @@ function render(){
     DB.settings=DB.settings||{};DB.settings.plan=next;dbSave(DB);
     toast('Plan changed to '+next);render();
   };
+  document.getElementById('btnExport').onclick=()=>exportVenue();
 }
 
 render();

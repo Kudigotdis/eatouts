@@ -98,7 +98,7 @@ img{display:block;max-width:100%}
 /* ---------- COMMON ---------- */
 .pad{padding:14px}
 .subh{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#a89a7e;font-weight:800;margin:0 0 9px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 15px;border-radius:11px;font-size:12.5px;font-weight:800;background:#f7f4ec;border:1px solid #ece7db;color:#3a3324;letter-spacing:.02em;transition:background .15s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 15px;border-radius:11px;font-size:12.5px;font-weight:800;background:#f7f4ec;border:1px solid #ece7db;color:#3a3324;letter-spacing:.02em;transition:background .15s;text-decoration:none}
 .btn:active{background:#efe9da}
 .btn.primary{background:#0d0d0d;border-color:#0d0d0d;color:#ffffff}
 .btn.primary:active{background:#000000}
@@ -3286,7 +3286,26 @@ function artStyle(seed){const h=hash(seed);const p=PAL[h%PAL.length];const a=118
 function tile(seed,ico,cls){return '<div class="tile" style="'+artStyle(seed)+'"><span class="tile-ico '+(cls||"")+'">'+ico+'</span></div>';}
 function fmt(n){return "P"+(Number(n)||0).toFixed(2);}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
-function waLink(text){return "whatsapp://send?phone="+CONFIG.whatsapp+"&text="+encodeURIComponent(text);}
+/* Per-venue WhatsApp routing (integration_file.txt step 8a / plan task A7):
+   the venue being viewed wins; flagship CONFIG.whatsapp is the fallback. */
+function resolveVenueWhatsapp(venue){
+  const fallback=String(CONFIG.whatsapp||"").replace(/[^\d]/g,"");
+  if(!venue)return fallback;
+  const direct=venue.whatsapp||venue.contactWhatsapp||"";
+  if(direct)return String(direct).replace(/[^\d]/g,"");
+  if(Array.isArray(venue.contacts)){
+    const list=venue.contacts.filter(c=>c&&c.number!=null&&String(c.number).length&&c.active!==false);
+    const wa=list.filter(c=>c.whatsapp)[0];
+    const c=wa||list.filter(x=>x.primary)[0]||list[0];
+    if(c){
+      const cc=String(c.countryCode||"+267").replace(/[^\d]/g,"");
+      const num=String(c.number).replace(/[^\d]/g,"");
+      if(num)return cc+num;
+    }
+  }
+  return fallback;
+}
+function waLink(text,venue){return "whatsapp://send?phone="+resolveVenueWhatsapp(venue)+"&text="+encodeURIComponent(text);}
 const DAY_NAMES=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const DAY_SHORT=["S","M","T","W","T","F","S"];
 
@@ -3427,9 +3446,12 @@ function normalizeSplitAssignments(){
     });
   });
 }
-/* every WhatsApp send in the app targets the flagship number */
-function restaurantContact(){
-  return {number:String(CONFIG.whatsapp||"").replace(/[^\d]/g,""),display:String(CONFIG.displayNumber||"")};
+/* WhatsApp contact for the venue in view (flagship only as fallback) */
+function restaurantContact(venue){
+  const v=(venue!==undefined)?venue:curRestaurant();
+  const num=resolveVenueWhatsapp(v);
+  const flagship=String(CONFIG.whatsapp||"").replace(/[^\d]/g,"");
+  return {number:num,display:(!v||num===flagship)?String(CONFIG.displayNumber||""):"+"+num};
 }
 /* WhatsApp share link with no phone number -> opens the contact picker */
 function waShareLink(text){return "whatsapp://send?text="+encodeURIComponent(text);}
@@ -4418,7 +4440,7 @@ function renderRestSocialRow(r,profile){
   if(call&&!have.call) have.call=call;
   /* WhatsApp always applies, and guarantees the row is never empty */
   if(!have.whatsapp){
-    have.whatsapp=waLink("*"+(r.name||"this restaurant")+"*\n\nHi! I found you on EatOuts and would like to ask about your menu, promos or booking a venue.");
+    have.whatsapp=waLink("*"+(r.name||"this restaurant")+"*\n\nHi! I found you on EatOuts and would like to ask about your menu, promos or booking a venue.",r);
   }
   let row='<div class="social-row">';
   SOCIAL_GRID.forEach(function(slot){
@@ -5585,8 +5607,15 @@ function renderAbout(){
     '<button class="btn primary half" data-act="openTerms">Terms of Service</button>'+
     '<button class="btn primary half" data-act="openPrivacy">Privacy Policy</button>'+
   '</div>';
-  h+='<div style="margin-top:10px"><button class="btn primary full" data-act="showRestNotice" '+
-     'data-notice="'+esc("The EatOuts blog is coming soon.")+'">Blog</button></div>';
+  /* Marketing surfaces: onboarding CTA (integration_file.txt step 8b) */
+  h+='<div style="margin-top:10px"><a class="btn primary full" href="get-started.html">List your restaurant &rarr;</a></div>';
+  /* Event planner + suppliers directory (guide 5.2) */
+  h+='<div style="margin-top:10px;display:flex;gap:8px">'+
+    '<a class="btn primary half" href="eatouts-event-planner.html">Event Planner</a>'+
+    '<a class="btn primary half" href="eatouts-suppliers.html">Suppliers</a>'+
+  '</div>';
+  /* Blog (guide 5.3) */
+  h+='<div style="margin-top:10px"><a class="btn primary full" href="eatouts-blog.html">Blog</a></div>';
   h+='</div><div style="height:34px"></div></div>';
   return h;
 }
@@ -5811,7 +5840,7 @@ document.addEventListener("click",function(e){
     let total=p.price*seats;
     PROMO_ADDONS.forEach((a,i)=>{total+=a.price*(addons[i]||0);});
     msg+="Estimated Total: P"+total.toFixed(2)+"\n\nPlease confirm seat availability.";
-    window.location.href=waLink(msg);
+    window.location.href=waLink(msg,f&&f.restaurant);
     return;
   }
   if(act==="waPoetry"){
@@ -5854,7 +5883,7 @@ document.addEventListener("click",function(e){
     const day=evInfo.day || (evInfo.event.day || "Today");
     const venueName=(evInfo.restaurant && evInfo.restaurant.name) || (PROFILE && PROFILE.name) || "EatOuts";
     const msg="*EVENT INQUIRY*\nEvent: "+(evInfo.event.name || evInfo.event.title || "Event")+"\nVenue: "+venueName+"\nDay: "+day+"\nTime: "+(evInfo.event.time || "TBC")+"\n\nPlease share more details.";
-    window.location.href=waLink(msg);
+    window.location.href=waLink(msg,evInfo.restaurant);
     return;
   }
   if(act==="pickTown"){
@@ -5920,9 +5949,9 @@ document.addEventListener("click",function(e){
     state.restLocPicker=null;render();return;
   }
   if(act==="backRestPromo"){if(state.restaurantView){state.restaurantView.view="promos";state.restaurantView.promoId=null;}render();return;}
-  if(act==="waVenue"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const venueType=document.getElementById("venueType")||{};const venueDate=document.getElementById("venueDate")||{};const venuePax=document.getElementById("venuePax")||{};const venueNotes=document.getElementById("venueNotes")||{};const msg="*VENUE BOOKING INQUIRY*\nVenue: "+venue+"\nEvent Type: "+(venueType.value||"TBC")+"\nDate: "+(venueDate.value||"TBC")+"\nGuests: "+(venuePax.value||"TBC")+"\nNotes: "+(venueNotes.value||"N/A");window.location.href=waLink(msg);return;}
-  if(act==="waRestPromo"){const r=hasBridge()?EatoutsBridge.byId(id):null;const promo=(r && EatoutsBridge.bundleOf(r.id)) ? ((function(){for(const d in EatoutsBridge.bundleOf(r.id).promos){const found=(EatoutsBridge.bundleOf(r.id).promos[d]||[]).find(x=>x.id===t.getAttribute("data-promo"));if(found)return found;}return null;})()) : null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const p=promo||{};const msg="*PROMO ENQUIRY*\nVenue: "+venue+"\nPromo: "+(p.title||"Promo")+"\nPrice: P"+(p.price||0)+"\nValid: "+(p.valid||"TBC")+"\n\nPlease confirm availability.";window.location.href=waLink(msg);return;}
-  if(act==="waRestAbout"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const msg="*VENUE INQUIRY*\nVenue: "+venue+"\n\nHi! I'd like to know more about this location.";window.location.href=waLink(msg);return;}
+  if(act==="waVenue"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const venueType=document.getElementById("venueType")||{};const venueDate=document.getElementById("venueDate")||{};const venuePax=document.getElementById("venuePax")||{};const venueNotes=document.getElementById("venueNotes")||{};const msg="*VENUE BOOKING INQUIRY*\nVenue: "+venue+"\nEvent Type: "+(venueType.value||"TBC")+"\nDate: "+(venueDate.value||"TBC")+"\nGuests: "+(venuePax.value||"TBC")+"\nNotes: "+(venueNotes.value||"N/A");window.location.href=waLink(msg,r);return;}
+  if(act==="waRestPromo"){const r=hasBridge()?EatoutsBridge.byId(id):null;const promo=(r && EatoutsBridge.bundleOf(r.id)) ? ((function(){for(const d in EatoutsBridge.bundleOf(r.id).promos){const found=(EatoutsBridge.bundleOf(r.id).promos[d]||[]).find(x=>x.id===t.getAttribute("data-promo"));if(found)return found;}return null;})()) : null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const p=promo||{};const msg="*PROMO ENQUIRY*\nVenue: "+venue+"\nPromo: "+(p.title||"Promo")+"\nPrice: P"+(p.price||0)+"\nValid: "+(p.valid||"TBC")+"\n\nPlease confirm availability.";window.location.href=waLink(msg,r);return;}
+  if(act==="waRestAbout"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const msg="*VENUE INQUIRY*\nVenue: "+venue+"\n\nHi! I'd like to know more about this location.";window.location.href=waLink(msg,r);return;}
   if(act==="openRestTownPicker"){
     state.restTownPicker=!state.restTownPicker;state.restAreaPicker=false;state.restTypePicker=false;
     state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";renderControlBar();return;
@@ -6011,7 +6040,7 @@ document.addEventListener("click",function(e){
     if(!state.orderName.trim()||!state.orderContact.trim()){
       alert("Please enter your name and contact number.");return;
     }
-    window.location.href=waLink(buildFullBillMessage());
+    window.location.href=waLink(buildFullBillMessage(),curRestaurant());
     return;
   }
   if(act==="waSplitPerson"){
@@ -6031,7 +6060,7 @@ document.addEventListener("click",function(e){
     if(notesEl)state.orderNotes=notesEl.value;
     if(!state.orderName.trim()||!state.orderContact.trim()){alert("Please enter your name and contact number.");return;}
     if(cartTotal()<=0){alert("Your cart is empty.");return;}
-    window.location.href=waLink(buildFullBillMessage());
+    window.location.href=waLink(buildFullBillMessage(),curRestaurant());
     return;
   }
 
@@ -6050,7 +6079,7 @@ document.addEventListener("click",function(e){
     const pax=paxEl?paxEl.value:"";
     const notes=notesEl?notesEl.value:"";
     const msg="*VENUE BOOKING INQUIRY*\nCategory: "+cat.name+" ("+state.reserveSub+")\nEstimated Guests: "+(pax||"TBC")+"\nPreferred Date: "+(date||"TBC")+"\nNotes: "+(notes||"N/A");
-    window.location.href=waLink(msg);
+    window.location.href=waLink(msg,curRestaurant());
     return;
   }
 

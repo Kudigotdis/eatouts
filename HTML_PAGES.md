@@ -14,12 +14,21 @@ share, and how they line up against `MARKETING_ONBOARDING_PLAN.md`.
 | Page | Audience | Writes to | Auth-gated |
 |------|----------|-----------|------------|
 | `index.html` | Customers (+ operator sign-in entry) | `eatouts_db_v2`, `eatouts_session_v1` | No (public); sign-in is opt-in |
+| `eatouts-blog.html` | Readers (+ local blog admin) | `eatouts_blog_v1`, `eatouts_blog_cache_v1` | No (admin tool is an on-device key) |
+| `eatouts-event-planner.html` | Customers / event hosts | `eatouts_event_planner_v1` | No |
+| `eatouts-suppliers.html` | Customers + supplier self-onboarding | `eatouts_suppliers_v1`, `eatouts_supplier_session_v1`, `eatouts_supplier_draft_v1` | No (supplier self-login, not `EatoutsAuth`) |
+| `get-started.html` | Prospective owners (marketing) | reads `eatouts_db_v2` settings only | No |
+| `pricing.html` | Public pricing | `eatouts_db_v2` (`settings.pricing`) | No |
 | `restaurant-onboarding.html` | Restaurant owner | `eatouts_db_v2` (via owner-compat) | Yes |
 | `menu-onboarding.html` | Restaurant owner | `eatouts_db_v2` | Yes |
 | `promo-onboarding.html` | Restaurant owner | `eatouts_db_v2` | Yes |
 | `event-onboarding.html` | Restaurant owner | `eatouts_db_v2` | Yes |
 | `gallery-onboarding.html` | Restaurant owner | `eatouts_db_v2` | Yes |
-| `restaurant-dashboard.html` | Restaurant owner | `eatouts_db_v2` | Yes |
+| `restaurant-dashboard.html` | Restaurant owner | `eatouts_db_v2` (+ reads `eatouts_ops_v1`) | Yes |
+| `intake.html` | Operator / concierge intake | `eatouts_intake_draft_v1` (+ reads `eatouts_ops_v1`) | Yes |
+| `invoice.html` | Operator / ops billing | `eatouts_ops_v1` | Yes |
+| `ops-console.html` | Internal ops tracker | `eatouts_ops_v1` | Yes |
+| `partner-terms.html`, `one-pager.html`, `404.html` | Static | none | No |
 | `seed-demo.html` | Developer harness | `eatouts_db_v2` (+ `eatouts_db_v1`) | No |
 
 The eight operator pages share one tab bar (Restaurant · Menu · Promos · Events · Gallery · Dashboard), so they behave as one back-office app. `seed-demo.html` is a developer page and is **not** in the tab bar.
@@ -32,12 +41,12 @@ These limits apply to every page above.
 2. **Operator pages are auth-gated.** Each runs `EatoutsAuth.requireSession()` before painting and redirects to `index.html#about` when there is no session (e.g. `restaurant-onboarding.html:121`).
 3. **Sign-in needs a secure context.** Passwords are hashed with `crypto.subtle` (SHA-256 + per-user salt) and the login **fails closed** on `file://` — it only works over `https://` or `http://127.0.0.1`, which is why the app is served by `run-eatouts.bat` (`js/eatouts-auth.js:14-22,209-215`).
 4. **Sign-in is "a front door, not security."** Everything is client-side `localStorage`; the session key can be written from devtools (`js/eatouts-auth.js:19-22`).
-5. **No real file storage / upload.** Images (logos, covers, menu items, promos, events, gallery) are entered as **URLs or emoji** through prompts — there is no file picker or upload endpoint.
+5. **No server-side file storage / upload.** There is no upload endpoint. Images are entered as **URLs or emoji** through prompts; `intake.html` additionally offers an optional client-side **file picker** that compresses the chosen image with `js/eatouts-image-compressor.js` into an embedded `data:` URL (URL entry remains the fallback), and validates videos with `js/eatouts-video-validator.js` (host and paste a URL, since data URLs are too large for `localStorage`).
 6. **Owner edits fork a shared template.** Content is stored once and shared; the first edit forks it into the restaurant's own copy (`EatoutsDB.forkContent`, `js/eatouts-db.js:380-388`). This keeps the DB small (`< ~5 MB` quota).
 7. **No owner → live publish path.** The public directory in `index.html` is built from the static file `assets/data/restaurant_listings/directory_runtime_data.json`; owner edits only ever touch `localStorage`. The two are disconnected (this is the gap called out in `MARKETING_ONBOARDING_PLAN.md`).
 8. **Demo vs real session.** A real (non-demo) session locks the operator switcher to that restaurant; Demo mode keeps a `<select>` so all venues stay reachable (`js/eatouts-owner-compat.js:155-176`).
 
-## index.html — customer app (5565 lines)
+## index.html — customer app (6295 lines)
 
 **Purpose:** the public, mobile-first customer experience and the entry point to operator sign-in.
 
@@ -45,7 +54,7 @@ These limits apply to every page above.
 - Browse the restaurant directory grouped into **472 brands** from 563 source rows, with search and **town / area** filters; multi-location chains collapse to one row with per-branch menu/photo/promo resolution.
 - Open a venue to view its **menu, promotions, events, gallery, about** and legal content.
 - Per-venue options panel: pick town/area/branch; Menu and Promos show as inactive with a floating notice when not applicable.
-- WhatsApp ordering/reservation intents, split-the-bill, social icons.
+- WhatsApp ordering/reservation intents routed to the **venue's own number** (flagship as fallback), split-the-bill, social icons.
 - Operator sign-in and one-tap demo login (About Us → Operator Sign in), redirecting to `restaurant-dashboard.html` (`index.html:105-...`, `js/eatouts-auth.js:206-303`).
 - Seeds/loads the DB via `js/eatouts-bridge.js`.
 
@@ -104,17 +113,17 @@ These limits apply to every page above.
 **Cannot do**
 - No file upload (URL only), no in-group image reorder, no per-image captions or editing, no cropping.
 
-## restaurant-dashboard.html — owner dashboard (295 lines)
+## restaurant-dashboard.html — owner dashboard (391 lines)
 
 **Purpose:** at-a-glance status, simulated analytics, and quick actions.
 
-**Can do** — hero showing **Live/Draft**; profile completeness % with suggestions; quick actions; "this month"/"today" stat cards; top menu items bar chart; WhatsApp-activity table; active promos and upcoming events; **billing panel** (Starter P300 / Growth P500 / Pro P800, "Manage Subscription" cycles the tier); Weekly/Monthly report **alerts**; "View as Customer" link.
+**Can do** — hero showing **Live/Draft**; profile completeness % with suggestions; quick actions; "this month"/"today" stat cards; top menu items bar chart; WhatsApp-activity table; active promos and upcoming events; **billing panel** (Starter P100 / Growth P300 / Pro P500, "Manage Subscription" cycles the tier); Weekly/Monthly report **alerts**; "View as Customer" link.
 
 **Cannot do**
 - The analytics are **simulated** — derived pseudo-randomly from content counts, not real events (`restaurant-dashboard.html:95-130`).
 - Reports are `alert()` previews, not downloads.
-- Billing is cosmetic — no payment; plan is a stored label.
-- No **export/publish** action (the top gap in the marketing plan).
+- Billing is cosmetic - no payment gateway; the plan is a stored label and the monthly prices now come from the shared pricing settings (P100 / P300 / P500).
+- An **"Export this restaurant"** JSON download now exists (see below), but there is still no automated publish into the live directory.
 
 ## seed-demo.html — developer harness (418 lines)
 
@@ -126,13 +135,67 @@ These limits apply to every page above.
 - Only meaningful when served over the local server; `file://` isolates `localStorage` per page (`seed-demo.html:80`).
 - Reset is destructive; the harness notes the Yellow Giraffe content bundle wiring is elsewhere.
 
+
+
+## eatouts-blog.html - blog + local admin (484 lines)
+
+**Purpose:** public blog feed with per-post pages and a local authoring tool.
+
+**Can do** - feed + tag/search filtering (shareable `#tag-` hash and `?post=` deep links with OG tags), post view, admin create/edit/delete, **version history** (snapshot / restore), image upload via the shared compressor. Stores to `eatouts_blog_v1` (with a `history{}` map; history is shed before a save can exceed the 4 MB browser budget).
+
+**Cannot do** - No server/CMS; posts live in this browser only. Optional cloud sync via `js/eatouts-cloud.js` needs the Worker deployed and configured.
+
+## eatouts-event-planner.html - event planner (1430 lines)
+
+**Purpose:** plan an event (guests, budget, timeline) and send a structured enquiry.
+
+**Can do** - self-contained single-page planner; saves a draft to `eatouts_event_planner_v1`; deep-links the venue enquiry to WhatsApp.
+
+**Cannot do** - No accounts or server; per-device draft only.
+
+## eatouts-suppliers.html - supplier directory + self-onboarding (1737 lines)
+
+**Purpose:** browse event suppliers, and let a supplier publish a profile on-device.
+
+**Can do** - supplier profiles under `eatouts_suppliers_v1`; supplier sign-in (`eatouts_supplier_session_v1`) and drafts (`eatouts_supplier_draft_v1`); directory search.
+
+**Cannot do** - Supplier "sign-in" is a local label, not `EatoutsAuth` and not a real account; profiles are per-device.
+
+## get-started.html - owner landing (157 lines) / pricing.html - public pricing (221 lines)
+
+**Purpose:** marketing entry for prospective owners, and the pricing page.
+
+**Can do** - `pricing.html` reads and persists the shared plan prices (`eatouts_db_v2` settings.pricing) that the dashboard and ops console also read; `get-started.html` links into intake and pricing.
+
+**Cannot do** - No checkout; "Start" is a link into the WhatsApp/onboarding flow.
+
+## intake.html - concierge intake (1082 lines)
+
+**Purpose:** guided, operator-run capture of a restaurant record; auth-gated like the onboarding pages.
+
+**Can do** - full draft (`eatouts_intake_draft_v1`) mirroring the runtime venue shape; optional **client-side image picker** (compressor -> embedded data URL) for logo/cover/menu/gallery images, plus video validation; exports a venue object for the merge step.
+
+**Cannot do** - No server upload (data URLs stay in this browser); export still feeds the manual merge.
+
+## invoice.html / ops-console.html - internal ops (auth-gated)
+
+**Purpose:** generate invoices and track MRR/activity.
+
+**Can do** - both read/write `eatouts_ops_v1` (venues, invoices, submissions, metrics); the console recomputes MRR from active tiers and reuses `settings.pricing`.
+
+**Cannot do** - Single-device prototype tracker; no accounting backend.
+
+## partner-terms.html, one-pager.html, 404.html
+
+Static legal/marketing pages and the custom 404. No storage, no auth. The 404 is served by Cloudflare Pages (`404.html` at the build root).
+
 ## Gaps vs MARKETING_ONBOARDING_PLAN.md
 
 The plan's paid, launch-ready model assumes an owner can get a venue onto the public site. The current build does not close that loop:
 
-- **No export/publish path (plan task #1).** Owners can edit in `localStorage`, but nothing moves that into `directory_runtime_data.json`. The plan's proposed fix — an "Export this restaurant" JSON download + a merge-and-deploy step — does not exist yet.
+- **Export exists; automatic publish does not (plan task #1).** The dashboard now offers an **"Export this restaurant"** JSON download (`eatouts.venue.v1`), but nothing moves that file into `directory_runtime_data.json` automatically - the merge-and-deploy step is still manual (`scripts/merge_submissions.py` + `npm run build`).
 - **Dashboard analytics are simulated** (`restaurant-dashboard.html:95-130`), so the plan's menu-view / WhatsApp-action metrics cannot be trusted until the customer app emits real events and the dashboard reads `EatoutsDB.summary()`.
-- **Billing is a label, not a charge.** The plan's **P300 one-time setup + P100 / P300 / P500 monthly** model has no invoicing, no gate, and no payment integration in the UI (and the dashboard still shows the old P300/P500/P800 numbers).
+- **Billing is a label, not a charge.** The plan's **P300 one-time setup + P100 / P300 / P500 monthly** model has no invoicing, no gate, and no payment integration in the UI (the dashboard now reads the shared P100 / P300 / P500 prices and shows a setup-fee status badge sourced from `eatouts_ops_v1`).
 - **Publish has no gate.** `restaurant-onboarding.html` Publish only sets a status flag; the plan's rule "listing is published only after the P300 onboarding fee is confirmed" is not enforced anywhere.
 
 ## How to run
