@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ops Console — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--border:#e7e4dd;--ok:#17834b;--danger:#c43c3c;--radius:16px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5}
+.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:16px;color:var(--black)}
+.brand span{color:var(--gold)}
+.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.tabs{position:sticky;top:57px;z-index:49;background:#fff;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 8px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:12px 14px;font-size:12.5px;font-weight:800;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+.tab.active{color:var(--black);border-bottom-color:var(--gold)}
+.app{max-width:1100px;margin:0 auto;padding-bottom:60px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;padding:16px}
+.card h2{margin:0 0 12px;font-size:15px;font-weight:900;letter-spacing:-.01em}
+.field{margin-bottom:12px}
+.field label{display:block;margin-bottom:6px;font-size:12.5px;font-weight:750;color:#3a3324}
+input,textarea,select{width:100%;min-height:44px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fff;font:inherit;font-size:13.5px;outline:0}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:680px){.grid2,.grid3{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr 1fr}.grid4{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:520px){.grid2,.grid3{grid-template-columns:1fr}}
+.btn{min-height:44px;border:0;border-radius:12px;padding:0 16px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn-primary{background:var(--black);color:#fff}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:#3a3324}
+.btn-danger{background:#fbeaea;color:var(--danger)}
+.btn-ok{background:#e3f5e9;color:var(--ok)}
+.btn-sm{min-height:32px;padding:0 11px;font-size:11.5px;border-radius:8px}
+.btn-full{width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 12px}
+@media(min-width:680px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+.stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px}
+.stat .lbl{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.stat .val{font-size:24px;font-weight:900;color:var(--text);margin-top:6px;letter-spacing:-.02em}
+table{width:100%;border-collapse:collapse;margin-top:6px}
+th,td{padding:10px 8px;border-bottom:1px solid var(--border);text-align:left;font-size:12.5px;vertical-align:middle}
+th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800;background:#faf8f2}
+table tr:last-child td{border-bottom:0}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.badge.draft{background:#f0eee8;color:#7a7466}
+.badge.ready{background:#fdf3dc;color:#9a6a0a}
+.badge.live{background:#e3f5e9;color:#17834b}
+.badge.paid{background:#e3f5e9;color:var(--ok)}
+.badge.unpaid{background:#fdf3dc;color:#9a6a0a}
+.badge.suspended{background:#fbeaea;color:var(--danger)}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.notice{background:#fdf9ef;border:1px solid #ece0be;border-radius:12px;padding:12px 14px;font-size:12.5px;color:#6b5a1a;margin-bottom:14px;line-height:1.55}
+.notice b{color:#8a6a1a}
+.small{font-size:11.5px;color:var(--muted)}
+.empty{padding:30px 16px;text-align:center;color:var(--muted);font-size:13px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:680px){table{min-width:760px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">EAT<span>OUTS</span></div>
+  <div class="page">Ops Console</div>
+</header>
+<nav class="tabs">
+  <a class="tab" href="restaurant-onboarding.html">Restaurant</a>
+  <a class="tab" href="menu-onboarding.html">Menu</a>
+  <a class="tab" href="promo-onboarding.html">Promos</a>
+  <a class="tab" href="event-onboarding.html">Events</a>
+  <a class="tab" href="gallery-onboarding.html">Gallery</a>
+  <a class="tab" href="restaurant-dashboard.html">Dashboard</a>
+  <a class="tab" href="invoice.html">Invoice</a>
+  <a class="tab active" href="ops-console.html">Ops</a>
+</nav>
+
+<main class="app">
+  <div class="card">
+    <h2>Add / edit venue</h2>
+    <div class="grid2">
+      <div class="field"><label>Venue name</label><input id="f_name" placeholder="Restaurant name"></div>
+      <div class="field"><label>Slug</label><input id="f_slug" placeholder="restaurant-name"></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Tier</label><select id="f_tier"><option value="starter">Starter — P100</option><option value="growth">Growth — P300</option><option value="pro">Pro — P500</option></select></div>
+      <div class="field"><label>Status</label><select id="f_status"><option value="draft">Draft</option><option value="ready">Ready</option><option value="live">Live</option><option value="suspended">Suspended</option></select></div>
+      <div class="field"><label>WhatsApp number</label><input id="f_whatsapp" placeholder="+267 7X XXX XXX"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Next billing date</label><input type="date" id="f_billing"></div>
+      <div class="field"><label>Setup paid date</label><input type="date" id="f_setupdate"></div>
+    </div>
+    <label style="display:flex;gap:8px;align-items:center;padding:8px 0;font-weight:700;font-size:13px">
+      <input type="checkbox" id="f_setuppaid" style="width:auto;min-height:auto"> Setup fee paid (P300 confirmed)
+    </label>
+    <div class="row" style="margin-top:8px">
+      <button class="btn btn-primary" id="btnAdd">+ Add / Update venue</button>
+      <button class="btn btn-ghost" id="btnCancel" style="display:none">Cancel edit</button>
+    </div>
+  </div>
+
+  <div class="notice" id="publishNotice" style="display:none"></div>
+
+  <h2 style="margin:20px 16px 6px">Weekly metrics</h2>
+  <div class="stat-grid" id="stats"></div>
+  <div class="card" style="margin-top:14px">
+    <h2>Enter / update this week's numbers</h2>
+    <div class="grid3">
+      <div class="field"><label>Venues live</label><input type="number" id="m_live"></div>
+      <div class="field"><label>Paid subscribers</label><input type="number" id="m_paid"></div>
+      <div class="field"><label>WhatsApp clicks (total)</label><input type="number" id="m_clicks"></div>
+    </div>
+    <div class="small" style="margin-bottom:10px">MRR is recomputed automatically from active tiers. Weekly numbers are stored under <b>eatouts_ops_v1</b>.</div>
+    <button class="btn btn-gold" id="btnMetrics">Save metrics</button>
+  </div>
+
+  <h2 style="margin:20px 16px 6px">Venues</h2>
+  <div class="card" style="padding:0">
+    <div class="scroll-x">
+      <table id="venueTable"></table>
+    </div>
+    <div class="empty" id="venuesEmpty" style="display:none">No venues yet. Add one above.</div>
+  </div>
+
+  <h2 style="margin:20px 16px 6px">Submissions queue</h2>
+  <div class="card">
+    <div class="small" style="margin-bottom:10px">Exported venue JSON files ready to merge into the directory. Files land in <b>owner_submissions/</b>.</div>
+    <div id="submissions"></div>
+  </div>
+
+  <h2 style="margin:20px 16px 6px">Invoices</h2>
+  <div class="card">
+    <div id="invoices"></div>
+  </div>
+
+  <div class="card" style="margin-top:20px;background:#fdf6f6;border-color:#e0c9c9">
+    <div style="font-size:12px;color:#8a3a3a;line-height:1.6">
+      <b>Prototype note.</b> This is a single-device tracker. It stores everything under <b>eatouts_ops_v1</b> in this browser's localStorage. It is not security, not multi-user, and not a deploy system. Do not link it from public pages.
+    </div>
+  </div>
+</main>
+<div id="toast" class="toast"></div>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-brand.js"></script>
+<script>
+if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
+else{EatoutsAuth.applyActive();}
+</script>
+<script>
+(function(){
+  'use strict';
+
+  var OPS_KEY = 'eatouts_ops_v1';
+  var editingId = null;
+
+  function opsLoad(){
+    try { var r = localStorage.getItem(OPS_KEY); return r ? JSON.parse(r) : { venues:[], invoices:[], submissions:[], metrics:[] }; }
+    catch(e){ return { venues:[], invoices:[], submissions:[], metrics:[] }; }
+  }
+  function opsSave(o){ try { localStorage.setItem(OPS_KEY, JSON.stringify(o)); } catch(e){ console.warn(e); } }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function toast(m){ var t = document.getElementById('toast'); t.textContent = m; t.classList.add('on'); setTimeout(function(){ t.classList.remove('on'); }, 1900); }
+  function money(n){ return 'P' + Number(n||0).toFixed(2); }
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function inDays(n){ var d = new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+  function slugify(s){ if(window.EatoutsBrand && EatoutsBrand.slugify) return EatoutsBrand.slugify(s); return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
+
+  var PRICING = window.EATOUTS_PRICING || (function(){
+    try { var s = EatoutsDB.load().settings || {}; if(s.pricing) return s.pricing; } catch(e){}
+    return { setup:300, tiers:{ starter:{price:100}, growth:{price:300}, pro:{price:500} } };
+  })();
+  if(!PRICING.tiers) PRICING.tiers = { starter:{price:100}, growth:{price:300}, pro:{price:500} };
+  var TIER_PRICE = { starter:PRICING.tiers.starter.price, growth:PRICING.tiers.growth.price, pro:PRICING.tiers.pro.price };
+
+  /* ---- venue table ---- */
+  function renderVenues(){
+    var o = opsLoad();
+    var venues = o.venues || [];
+    var t = document.getElementById('venueTable');
+    var empty = document.getElementById('venuesEmpty');
+    if(!venues.length){
+      t.innerHTML = '';
+      empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+    var head = '<tr><th>Name</th><th>Tier</th><th>Setup</th><th>Next billing</th><th>Status</th><th>WhatsApp</th><th></th></tr>';
+    var rows = venues.map(function(v){
+      var setupBadge = v.setupPaid ? '<span class="badge paid">Paid</span>' : '<span class="badge unpaid">Owing</span>';
+      var stBadge = '<span class="badge ' + esc(v.status||'draft') + '">' + esc(v.status||'draft') + '</span>';
+      var canPublish = v.setupPaid;
+      return '<tr>' +
+        '<td><b>' + esc(v.name) + '</b><div class="small">' + esc(v.slug||'') + '</div></td>' +
+        '<td>' + esc(v.tier||'') + '<div class="small">' + money(TIER_PRICE[v.tier]||0) + '/mo</div></td>' +
+        '<td>' + setupBadge + '</td>' +
+        '<td>' + esc(v.nextBilling||'—') + '</td>' +
+        '<td>' + stBadge + '</td>' +
+        '<td>' + esc(v.whatsapp||'—') + '</td>' +
+        '<td style="white-space:nowrap">' +
+          '<button class="btn btn-ghost btn-sm" data-act="edit" data-id="'+esc(v.id)+'">Edit</button> ' +
+          '<button class="btn ' + (canPublish?'btn-ok':'btn-ghost') + ' btn-sm" data-act="publish" data-id="'+esc(v.id)+'"' + (canPublish?'':' disabled title="Setup fee unpaid"') + '>Go live</button> ' +
+          '<button class="btn btn-danger btn-sm" data-act="del" data-id="'+esc(v.id)+'">×</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+    t.innerHTML = head + rows;
+  }
+
+  /* ---- stats / metrics ---- */
+  function renderStats(){
+    var o = opsLoad();
+    var venues = o.venues||[];
+    var live = venues.filter(function(v){ return v.status==='live'; }).length;
+    var paid = venues.filter(function(v){ return v.status==='live' && v.setupPaid; }).length;
+    var mrr = venues.filter(function(v){ return v.status==='live'; }).reduce(function(s,v){ return s + (TIER_PRICE[v.tier]||0); },0);
+    var setupTotal = venues.filter(function(v){ return v.setupPaid; }).length * PRICING.setup;
+    var latest = (o.metrics||[]).slice(-1)[0] || {};
+    document.getElementById('stats').innerHTML =
+      '<div class="stat"><div class="lbl">Venues live</div><div class="val">'+live+'</div></div>' +
+      '<div class="stat"><div class="lbl">Paid subscribers</div><div class="val">'+paid+'</div></div>' +
+      '<div class="stat"><div class="lbl">MRR</div><div class="val">'+money(mrr)+'</div></div>' +
+      '<div class="stat"><div class="lbl">Setup collected</div><div class="val">'+money(setupTotal)+'</div></div>';
+    if(latest.venuesLive!=null) document.getElementById('m_live').value = latest.venuesLive;
+    if(latest.paidSubs!=null) document.getElementById('m_paid').value = latest.paidSubs;
+    if(latest.clicks!=null) document.getElementById('m_clicks').value = latest.clicks;
+  }
+
+  /* ---- submissions ---- */
+  function renderSubmissions(){
+    var o = opsLoad();
+    var list = o.submissions || [];
+    var host = document.getElementById('submissions');
+    if(!list.length){ host.innerHTML = '<div class="small">No submissions yet. Export a venue from intake.html and it will appear here.</div>'; return; }
+    host.innerHTML = list.slice().reverse().map(function(s){
+      return '<div style="padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:10px">' +
+        '<div><b>'+esc(s.filename)+'</b><div class="small">'+esc(s.slug)+' · '+new Date(s.at).toLocaleString()+'</div></div>' +
+        '<span class="badge ready">Ready to merge</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ---- invoices ---- */
+  function renderInvoices(){
+    var o = opsLoad();
+    var list = o.invoices || [];
+    var host = document.getElementById('invoices');
+    if(!list.length){ host.innerHTML = '<div class="small">No invoices logged yet.</div>'; return; }
+    host.innerHTML = list.slice().reverse().map(function(inv){
+      return '<div style="padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">' +
+        '<div><b>'+esc(inv.number)+'</b><div class="small">'+esc(inv.venue||'—')+' · '+esc(inv.tier||'')+' · '+money(inv.total)+'</div></div>' +
+        '<span class="badge ' + esc(inv.status||'unpaid') + '">' + esc(inv.status||'unpaid') + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ---- add/edit ---- */
+  function clearForm(){
+    editingId = null;
+    document.getElementById('f_name').value = '';
+    document.getElementById('f_slug').value = '';
+    document.getElementById('f_tier').value = 'starter';
+    document.getElementById('f_status').value = 'draft';
+    document.getElementById('f_whatsapp').value = '';
+    document.getElementById('f_billing').value = '';
+    document.getElementById('f_setupdate').value = '';
+    document.getElementById('f_setuppaid').checked = false;
+    document.getElementById('btnCancel').style.display = 'none';
+  }
+  function loadForEdit(id){
+    var o = opsLoad();
+    var v = (o.venues||[]).find(function(x){ return x.id===id; });
+    if(!v) return;
+    editingId = id;
+    document.getElementById('f_name').value = v.name||'';
+    document.getElementById('f_slug').value = v.slug||'';
+    document.getElementById('f_tier').value = v.tier||'starter';
+    document.getElementById('f_status').value = v.status||'draft';
+    document.getElementById('f_whatsapp').value = v.whatsapp||'';
+    document.getElementById('f_billing').value = v.nextBilling||'';
+    document.getElementById('f_setupdate').value = v.setupDate||'';
+    document.getElementById('f_setuppaid').checked = !!v.setupPaid;
+    document.getElementById('btnCancel').style.display = '';
+    window.scrollTo({ top: 0, behavior:'smooth' });
+  }
+
+  document.getElementById('btnAdd').onclick = function(){
+    var name = document.getElementById('f_name').value.trim();
+    if(!name){ toast('Venue name required'); return; }
+    var slug = document.getElementById('f_slug').value.trim() || slugify(name);
+    var tier = document.getElementById('f_tier').value;
+    var status = document.getElementById('f_status').value;
+    var whatsapp = document.getElementById('f_whatsapp').value.trim();
+    var billing = document.getElementById('f_billing').value || null;
+    var setupdate = document.getElementById('f_setupdate').value || null;
+    var setupPaid = document.getElementById('f_setuppaid').checked;
+
+    /* publish gate */
+    if((status === 'live' || status === 'ready') && !setupPaid){
+      var n = document.getElementById('publishNotice');
+      n.style.display = '';
+      n.innerHTML = '<b>Publish gate blocked.</b> "' + esc(name) + '" cannot be marked <b>' + esc(status) + '</b> until the P300 setup fee is confirmed (tick the "Setup fee paid" box).';
+      toast('Setup fee not confirmed');
+      return;
+    }
+    document.getElementById('publishNotice').style.display = 'none';
+
+    var o = opsLoad();
+    o.venues = o.venues || [];
+    if(editingId){
+      o.venues = o.venues.map(function(v){
+        if(v.id===editingId) return Object.assign(v, { name:name, slug:slug, tier:tier, status:status, whatsapp:whatsapp, nextBilling:billing, setupDate:setupdate, setupPaid:setupPaid });
+        return v;
+      });
+      toast('Venue updated');
+    } else {
+      o.venues.push({
+        id:'v_' + Date.now().toString(36),
+        name:name, slug:slug, tier:tier, status:status, whatsapp:whatsapp,
+        nextBilling:billing, setupDate:setupdate, setupPaid:setupPaid,
+        createdAt:Date.now()
+      });
+      toast('Venue added');
+    }
+    opsSave(o);
+    clearForm();
+    renderAll();
+  };
+  document.getElementById('btnCancel').onclick = function(){ clearForm(); };
+
+  /* ---- action buttons in table ---- */
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-act]');
+    if(!t) return;
+    var act = t.getAttribute('data-act');
+    var id = t.getAttribute('data-id');
+    if(act==='edit'){ loadForEdit(id); return; }
+    if(act==='del'){
+      if(!confirm('Remove this venue from the tracker?')) return;
+      var o = opsLoad();
+      o.venues = (o.venues||[]).filter(function(v){ return v.id!==id; });
+      opsSave(o);
+      renderAll();
+      return;
+    }
+    if(act==='publish'){
+      var o2 = opsLoad();
+      var v = (o2.venues||[]).find(function(x){ return x.id===id; });
+      if(!v) return;
+      if(!v.setupPaid){ toast('Setup fee unpaid — cannot publish'); return; }
+      if(v.status==='live'){ toast('Already live'); return; }
+      v.status = 'live';
+      opsSave(o2);
+      renderAll();
+      toast('Published ' + v.name);
+      return;
+    }
+  });
+
+  /* ---- metrics ---- */
+  document.getElementById('btnMetrics').onclick = function(){
+    var o = opsLoad();
+    o.metrics = o.metrics || [];
+    var venues = o.venues || [];
+    var live = venues.filter(function(v){ return v.status==='live'; }).length;
+    var mrr = venues.filter(function(v){ return v.status==='live'; }).reduce(function(s,v){ return s + (TIER_PRICE[v.tier]||0); },0);
+    o.metrics.push({
+      weekOf: today(),
+      venuesLive: Number(document.getElementById('m_live').value)||live,
+      paidSubs: Number(document.getElementById('m_paid').value)||0,
+      mrr: mrr,
+      clicks: Number(document.getElementById('m_clicks').value)||0
+    });
+    opsSave(o);
+    toast('Metrics saved');
+    renderStats();
+  };
+
+  function renderAll(){ renderVenues(); renderStats(); renderSubmissions(); renderInvoices(); }
+  renderAll();
+})();
+</script>
+</body>
+</html>

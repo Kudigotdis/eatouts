@@ -13,10 +13,10 @@ EatOuts is a mobile-first restaurant discovery app for Botswana. It brings toget
 | **563 restaurants & places** | A curated directory of eateries, coffee spots, bars and venues across Botswana |
 | **12 featured venues** | A pinned shortlist (including The Yellow Giraffe, KFC, Nando's, Mozambik, Spur and The Game Reserve) always shown first |
 | **Daily promos & events** | A constantly refreshed feed of deals and happenings, searchable by town, area and promo type |
-| **Masa Poetry Nights** | A signature featured event — book seats and extras in-app, then confirm on WhatsApp |
+| **Weekday featured events** | One headline event leads each day of the Promos feed — Simply Piano, Social Link, Kumnandi Ekhaya, Mas MusiQ, Motse Wa Setso, Kofifi Nights, AmaPiano Fest and Masa Poetry Nights |
 | **Order & Split the Bill** | Browse menus, build an order and send it to a restaurant on WhatsApp — or split it across friends |
 | **118 event types** | Venue booking inquiries across 9 categories, from weddings and conferences to esports and film festivals |
-| **Photo gallery** | Filterable, searchable and fullscreen viewing of events, food and venue photography |
+| **Photo gallery** | Scoped to a viewed restaurant, town or area, filterable by Promos / Events / Food / Timeline, hashtag-searchable and fullscreen |
 | **WhatsApp-first** | Every enquiry, order and booking is a single WhatsApp message — no accounts, no card details, nothing to install |
 
 ---
@@ -44,7 +44,8 @@ From the directory, tap **Menu**, **Book Venue**, **Promos** or **About**:
 
 - A **promo feed organised by day**, every entry showing the deal, what's included, the price, the "was" price and your saving.
 - **Filter by town, district, area and promo type** with live counts.
-- **Masa Poetry Nights** — the featured event: book **1+ seats**, add extras (**Mixed Grill Platter**, **Bucket of 6 Beers**, **Bottle of House Wine**, **Dessert Platter**), see an instant estimated total, and send the reservation request to WhatsApp in one tap.
+- **Featured event of the day** leads the feed — flyer, date, venue, lineup, ticket prices, outlets, sponsors and tags, expanding in place with a one-tap WhatsApp enquiry.
+- **Masa Poetry Nights** (Sundays, stacked with Kofifi Nights) keeps its full detail: ticket info, the complete artist roster with a *Show all* toggle, and a WhatsApp reservation request.
 - **Events by day** highlight local happenings — name, description, time, highlights and sponsor.
 
 ## Order & Split the Bill
@@ -76,14 +77,14 @@ Pick a category, choose the event type, give a date, guest count and notes, and 
 
 ## Gallery
 
-- Every photo from the venue's **events, food and gallery** collections in one place.
-- **Filter** between All / Events / Food / Gallery and **search live** by name or tag.
+- Every photo from the venue's **events, food and gallery** collections in one place, on a Gallery page that keeps the top header in view.
+- **Viewed Restaurant** picker (floating): a *Town/City | Area* row, live search and an alphabetical venue list — pick a venue and the grid switches to that venue's own promos, events and a venue-specific slice of the photo pool. Picking a town or area alone re-scopes the grid too.
+- **Gallery View Filter** between All / Promos / Events / Food / Timeline and **search live** by name or `#hashtag`. Promo and event images carry the real hashtags of the events they belong to.
 - **Tap any photo** for a fullscreen, finger-swipeable viewer with page dots.
 
 ## About, Legal & Owner Tools
 
-- **About EatOuts** — the brand story, focus areas, featured city and "Why It Works" highlights, with a direct WhatsApp enquiry button.
-- **Restaurant Gallery** — a dedicated swipeable photo showcase of the flagship venue.
+- **About EatOuts** — the brand story, focus areas, featured city and "Why It Works" highlights, plus **Install EatOuts** (APK installer) and a **Blog** shortcut.
 - **Terms of Service** (19 sections) and **Privacy Policy** — full, in-app legal documents with version numbers and last-updated dates. The app collects **no personal data**: as a diner you need no account, and no payment or contact details are ever stored.
 - **Operator access** — restaurant owners can sign in to manage their profile, menu, promotions, events, gallery and booking settings, with a one-tap Demo letting anyone preview ownership of The Yellow Giraffe.
 

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Invoice — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--border:#e7e4dd;--ok:#17834b;--danger:#c43c3c;--radius:16px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5}
+.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:16px;color:var(--black)}
+.brand span{color:var(--gold)}
+.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.tabs{position:sticky;top:57px;z-index:49;background:#fff;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 8px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:12px 14px;font-size:12.5px;font-weight:800;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+.tab.active{color:var(--black);border-bottom-color:var(--gold)}
+.app{max-width:960px;margin:0 auto;padding-bottom:60px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;padding:16px}
+.card h2{margin:0 0 12px;font-size:15px;font-weight:900;letter-spacing:-.01em}
+.field{margin-bottom:12px}
+.field label{display:block;margin-bottom:6px;font-size:12.5px;font-weight:750;color:#3a3324}
+input,textarea,select{width:100%;min-height:44px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fff;font:inherit;font-size:13.5px;outline:0}
+textarea{min-height:70px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.btn{min-height:44px;border:0;border-radius:12px;padding:0 16px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn-primary{background:var(--black);color:#fff}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:#3a3324}
+.btn-wa{background:#dff5e4;border:1px solid #b8e6c1;color:#1c6b2e}
+.btn-danger{background:#fbeaea;color:var(--danger)}
+.btn-full{width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.invoice{margin:12px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px 26px;color:#1b1b1b}
+.invoice .head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--black);padding-bottom:14px;margin-bottom:16px}
+.invoice .brand-lg{font-size:22px;font-weight:900;letter-spacing:-.02em}
+.invoice .brand-lg span{color:var(--gold)}
+.invoice .meta{font-size:12px;color:var(--muted);text-align:right}
+.invoice .meta b{display:block;color:#1b1b1b;font-size:14px;font-weight:900;letter-spacing:-.01em}
+.invoice .bill-to{margin-bottom:20px;font-size:12.5px}
+.invoice .bill-to .lbl{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.invoice .bill-to b{display:block;font-size:14px;font-weight:900}
+.invoice table{width:100%;border-collapse:collapse;margin-bottom:14px}
+.invoice th{text-align:left;font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:9px 0;border-bottom:1px solid var(--border)}
+.invoice td{padding:11px 0;border-bottom:1px solid #f4efe4;font-size:13px;vertical-align:top}
+.invoice td.r{text-align:right;font-weight:700}
+.invoice tfoot td{border:0;padding:6px 0}
+.invoice tfoot td.r{text-align:right}
+.invoice .tot-row{font-size:16px;font-weight:900;border-top:2px solid var(--black);padding-top:10px!important}
+.invoice .payment{margin-top:18px;padding:12px 14px;background:#faf8f2;border:1px solid #ece7db;border-radius:12px;font-size:12px;line-height:1.6}
+.invoice .payment .h{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.invoice .payment b{display:inline-block;min-width:120px}
+.invoice .foot{margin-top:22px;padding-top:14px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);text-align:center}
+.hist{margin-top:20px}
+.hist .item{padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px}
+.hist .item .badge{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px}
+.hist .item .badge.unpaid{background:#fdf3dc;color:#9a6a0a}
+.hist .item .badge.paid{background:#e3f5e9;color:#17834b}
+.hist .item .badge.overdue{background:#fbeaea;color:var(--danger)}
+@media print{
+  .topbar,.tabs,.no-print,.toast{display:none!important}
+  body{background:#fff}
+  .card,.no-print{display:none!important}
+  .invoice{border:0;border-radius:0;margin:0;padding:24px;box-shadow:none}
+  .app{max-width:none;padding:0}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">EAT<span>OUTS</span></div>
+  <div class="page">Invoice Generator</div>
+</header>
+<nav class="tabs">
+  <a class="tab" href="restaurant-onboarding.html">Restaurant</a>
+  <a class="tab" href="menu-onboarding.html">Menu</a>
+  <a class="tab" href="promo-onboarding.html">Promos</a>
+  <a class="tab" href="event-onboarding.html">Events</a>
+  <a class="tab" href="gallery-onboarding.html">Gallery</a>
+  <a class="tab" href="restaurant-dashboard.html">Dashboard</a>
+  <a class="tab active" href="invoice.html">Invoice</a>
+  <a class="tab" href="ops-console.html">Ops</a>
+</nav>
+
+<main class="app">
+  <div class="card no-print">
+    <h2>Invoice details</h2>
+    <div class="grid2">
+      <div class="field"><label>Venue name</label><input id="f_venue" placeholder="The Yellow Giraffe Coffee Club"></div>
+      <div class="field"><label>Contact name</label><input id="f_contact" placeholder="Kagiso M."></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Tier</label><select id="f_tier"><option value="starter">Starter — P100</option><option value="growth">Growth — P300</option><option value="pro">Pro — P500</option></select></div>
+      <div class="field"><label>Setup fee</label><input type="number" id="f_setup" value="300"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Invoice number</label><input id="f_invno" placeholder="EO-202610-001"></div>
+      <div class="field"><label>First month billing</label><input type="month" id="f_month"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Issue date</label><input type="date" id="f_issue"></div>
+      <div class="field"><label>Due date</label><input type="date" id="f_due"></div>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <button class="btn btn-primary" id="btnRender">Render invoice</button>
+      <button class="btn btn-ghost" id="btnPrint">🖨 Print / Save PDF</button>
+      <button class="btn btn-wa" id="btnWa">Send on WhatsApp</button>
+      <button class="btn btn-gold" id="btnLog">Log as issued</button>
+    </div>
+  </div>
+
+  <div class="card no-print" id="bankCard">
+    <h2>Payment details (used on every invoice)</h2>
+    <div class="grid2">
+      <div class="field"><label>Bank name</label><input id="f_bank" placeholder="e.g. FNB Botswana"></div>
+      <div class="field"><label>Account name</label><input id="f_acctname" placeholder="EatOuts / The Yellow Giraffe Co."></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Account number</label><input id="f_acctno" placeholder="00000000000"></div>
+      <div class="field"><label>Branch code</label><input id="f_branch" placeholder="000000"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>MoMo number</label><input id="f_momo" placeholder="+267 7X XXX XXX"></div>
+      <div class="field"><label>Reference prefix</label><input id="f_refprefix" placeholder="EOINV"></div>
+    </div>
+    <div class="field"><label>Company registration / VAT</label><input id="f_reg" placeholder="CO. XXXXX"></div>
+    <button class="btn btn-ghost" id="btnSaveBank">Save payment details</button>
+  </div>
+
+  <div id="invoiceHost"></div>
+
+  <div class="card no-print">
+    <h2>Issued invoice log</h2>
+    <div id="hist"></div>
+  </div>
+</main>
+<div id="toast" class="toast"></div>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-brand.js"></script>
+<script>
+if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
+else{EatoutsAuth.applyActive();}
+</script>
+<script>
+(function(){
+  'use strict';
+
+  var OPS_KEY = 'eatouts_ops_v1';
+
+  function opsLoad(){
+    try { var r = localStorage.getItem(OPS_KEY); return r ? JSON.parse(r) : { venues:[], invoices:[], submissions:[], metrics:[] }; }
+    catch(e){ return { venues:[], invoices:[], submissions:[], metrics:[] }; }
+  }
+  function opsSave(o){ try { localStorage.setItem(OPS_KEY, JSON.stringify(o)); } catch(e){ console.warn(e); } }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function toast(m){ var t = document.getElementById('toast'); t.textContent = m; t.classList.add('on'); setTimeout(function(){ t.classList.remove('on'); }, 1900); }
+  function money(n){ return 'P' + Number(n||0).toFixed(2); }
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function inDays(n){ var d = new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+  function thisMonth(){ var d = new Date(); return d.toISOString().slice(0,7); }
+
+  /* ---- pricing ---- */
+  var PRICING = window.EATOUTS_PRICING || (function(){
+    try {
+      var s = EatoutsDB.load().settings || {};
+      if(s.pricing) return s.pricing;
+    } catch(e){}
+    return { setup:300, tiers:{ starter:{price:100}, growth:{price:300}, pro:{price:500} } };
+  })();
+  if(!PRICING.tiers) PRICING.tiers = { starter:{price:100}, growth:{price:300}, pro:{price:500} };
+
+  /* ---- default values ---- */
+  var f = function(id){ return document.getElementById(id); };
+
+  function nextInvoiceNumber(){
+    var prefix = 'EO-' + new Date().toISOString().slice(0,7).replace('-','');
+    var ops = opsLoad();
+    var n = (ops.invoices||[]).filter(function(i){ return String(i.number||'').indexOf(prefix)===0; }).length + 1;
+    return prefix + '-' + String(n).padStart(3,'0');
+  }
+
+  function loadBank(){
+    var ops = opsLoad();
+    var b = ops.bank || {};
+    f('f_bank').value = b.bank || '';
+    f('f_acctname').value = b.acctName || '';
+    f('f_acctno').value = b.acctNo || '';
+    f('f_branch').value = b.branch || '';
+    f('f_momo').value = b.momo || '';
+    f('f_refprefix').value = b.refPrefix || 'EOINV';
+    f('f_reg').value = b.reg || '';
+  }
+  function saveBank(){
+    var ops = opsLoad();
+    ops.bank = {
+      bank: f('f_bank').value.trim(),
+      acctName: f('f_acctname').value.trim(),
+      acctNo: f('f_acctno').value.trim(),
+      branch: f('f_branch').value.trim(),
+      momo: f('f_momo').value.trim(),
+      refPrefix: f('f_refprefix').value.trim() || 'EOINV',
+      reg: f('f_reg').value.trim()
+    };
+    opsSave(ops);
+    toast('Payment details saved');
+  }
+
+  /* ---- defaults ---- */
+  f('f_setup').value = PRICING.setup;
+  f('f_invno').value = nextInvoiceNumber();
+  f('f_issue').value = today();
+  f('f_due').value = inDays(14);
+  f('f_month').value = thisMonth();
+  loadBank();
+
+  /* ---- live tier selector updates setup default ---- */
+  f('f_tier').onchange = function(){
+    var t = PRICING.tiers[f('f_tier').value];
+    if(t) f('f_setup').value = PRICING.setup;
+  };
+
+  /* ---- compute ---- */
+  function compute(){
+    var tierKey = f('f_tier').value;
+    var tier = PRICING.tiers[tierKey] || { price:0, name:tierKey };
+    var setup = Number(f('f_setup').value)||0;
+    var monthly = Number(tier.price)||0;
+    var subtotal = setup + monthly;
+    return {
+      tierKey: tierKey, tierName: tier.name || tierKey, tierPrice: monthly,
+      setup: setup, subtotal: subtotal, total: subtotal,
+      number: f('f_invno').value.trim() || nextInvoiceNumber(),
+      issue: f('f_issue').value || today(),
+      due: f('f_due').value || inDays(14),
+      month: f('f_month').value || thisMonth(),
+      venue: f('f_venue').value.trim() || '—',
+      contact: f('f_contact').value.trim() || ''
+    };
+  }
+
+  /* ---- render ---- */
+  function render(){
+    var c = compute();
+    var ops = opsLoad();
+    var bank = ops.bank || {};
+    var ref = (bank.refPrefix||'EOINV') + '-' + c.number.replace(/^EO-/, '');
+
+    var html = '' +
+      '<div class="invoice" id="invoice">' +
+        '<div class="head">' +
+          '<div class="brand-lg">EAT<span>OUTS</span><div style="font-size:11px;font-weight:700;color:#7a7466;letter-spacing:.1em;text-transform:uppercase;margin-top:4px">Directory &amp; WhatsApp Ordering</div></div>' +
+          '<div class="meta">' +
+            '<b>INVOICE ' + esc(c.number) + '</b>' +
+            'Issued ' + esc(c.issue) + '<br>' +
+            'Due ' + esc(c.due) + '<br>' +
+            (bank.reg ? 'Reg. ' + esc(bank.reg) : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="bill-to">' +
+          '<div class="lbl">Billed to</div>' +
+          '<b>' + esc(c.venue) + '</b>' +
+          (c.contact ? esc(c.contact) : '') +
+        '</div>' +
+        '<table>' +
+          '<thead><tr><th>Description</th><th style="text-align:right">Amount</th></tr></thead>' +
+          '<tbody>' +
+            '<tr><td><b>Concierge onboarding (one-time)</b><br><span style="color:#7a7466;font-size:12px">Non-refundable setup: profile, menu, photos, first promo</span></td><td class="r">' + money(c.setup) + '</td></tr>' +
+            '<tr><td><b>' + esc(c.tierName) + ' subscription</b><br><span style="color:#7a7466;font-size:12px">First monthly payment — ' + esc(c.month) + '</span></td><td class="r">' + money(c.tierPrice) + '</td></tr>' +
+          '</tbody>' +
+          '<tfoot>' +
+            '<tr><td class="r" style="color:#7a7466">Subtotal</td><td class="r">' + money(c.subtotal) + '</td></tr>' +
+            '<tr><td class="r tot-row">Total due</td><td class="r tot-row">' + money(c.total) + '</td></tr>' +
+          '</tfoot>' +
+        '</table>' +
+        '<div class="payment">' +
+          '<div class="h">Payment instructions</div>' +
+          (bank.bank ? '<div><b>Bank</b>' + esc(bank.bank) + '</div>' : '') +
+          (bank.acctName ? '<div><b>Account name</b>' + esc(bank.acctName) + '</div>' : '') +
+          (bank.acctNo ? '<div><b>Account no.</b>' + esc(bank.acctNo) + '</div>' : '') +
+          (bank.branch ? '<div><b>Branch code</b>' + esc(bank.branch) + '</div>' : '') +
+          (bank.momo ? '<div><b>MoMo</b>' + esc(bank.momo) + '</div>' : '') +
+          '<div><b>Reference</b>' + esc(ref) + '</div>' +
+          '<div style="margin-top:8px;font-size:11.5px;color:#7a7466">Your listing is published to the live directory only after the P300 setup fee is confirmed received. Thank you!</div>' +
+        '</div>' +
+        '<div class="foot">EatOuts · Gaborone, Botswana · Thank you for partnering with us.</div>' +
+      '</div>';
+
+    document.getElementById('invoiceHost').innerHTML = html;
+    renderHist();
+  }
+
+  function renderHist(){
+    var ops = opsLoad();
+    var list = (ops.invoices||[]).slice().reverse();
+    var host = document.getElementById('hist');
+    if(!list.length){
+      host.innerHTML = '<div style="font-size:12.5px;color:#7a7466">No invoices issued yet.</div>';
+      return;
+    }
+    host.innerHTML = list.map(function(inv, i){
+      var st = inv.status || 'unpaid';
+      return '<div class="item">' +
+        '<div><b>'+esc(inv.number)+'</b><div style="color:#7a7466;font-size:11.5px">'+esc(inv.venue||'—')+' · '+esc(inv.tier||'')+' · '+money(inv.total)+' · issued '+esc(inv.issue)+'</div></div>' +
+        '<div style="display:flex;gap:6px;align-items:center">' +
+          '<span class="badge '+esc(st)+'">'+esc(st)+'</span>' +
+          '<button class="btn btn-ghost" style="min-height:30px;padding:0 10px;font-size:11px" data-toggle="'+(inv.number)+'">'+(st==='paid'?'Mark unpaid':'Mark paid')+'</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    host.querySelectorAll('[data-toggle]').forEach(function(b){
+      b.onclick = function(){
+        var num = b.getAttribute('data-toggle');
+        var o = opsLoad();
+        o.invoices = (o.invoices||[]).map(function(x){ if(x.number===num) x.status = x.status==='paid'?'unpaid':'paid'; return x; });
+        opsSave(o); renderHist(); toast('Status updated');
+      };
+    });
+  }
+
+  /* ---- buttons ---- */
+  f('btnRender').onclick = render;
+  f('btnPrint').onclick = function(){ window.print(); };
+  f('btnWa').onclick = function(){
+    var c = compute();
+    var ops = opsLoad();
+    var bank = ops.bank || {};
+    var msg = '*EatOuts invoice ' + c.number + '*\n\n' +
+      'Venue: ' + c.venue + '\n' +
+      'Setup: ' + money(c.setup) + '\n' +
+      c.tierName + ': ' + money(c.tierPrice) + '\n' +
+      'Total due: ' + money(c.total) + '\n' +
+      'Due by: ' + c.due + '\n\n' +
+      'Payment details:\n' +
+      (bank.bank?'Bank: '+bank.bank+'\n':'') +
+      (bank.acctName?'Account: '+bank.acctName+'\n':'') +
+      (bank.acctNo?'Number: '+bank.acctNo+'\n':'') +
+      (bank.branch?'Branch: '+bank.branch+'\n':'') +
+      (bank.momo?'MoMo: '+bank.momo+'\n':'') +
+      'Reference: ' + (bank.refPrefix||'EOINV') + '-' + c.number.replace(/^EO-/,'') + '\n\n' +
+      'Your listing is published once the setup fee is confirmed. Thank you!';
+    var number = '26771844129';
+    try { var s = EatoutsDB.load().settings || {}; if(s.whatsapp) number = String(s.whatsapp).replace(/[^\d]/g,''); } catch(e){}
+    window.location.href = 'https://wa.me/' + number + '?text=' + encodeURIComponent(msg);
+  };
+  f('btnLog').onclick = function(){
+    var c = compute();
+    var ops = opsLoad();
+    ops.invoices = ops.invoices || [];
+    var exists = ops.invoices.some(function(i){ return i.number===c.number; });
+    if(exists){ toast('Already logged'); return; }
+    ops.invoices.push({
+      number:c.number, venue:c.venue, contact:c.contact, tier:c.tierName,
+      setup:c.setup, monthly:c.tierPrice, total:c.total,
+      issue:c.issue, due:c.due, month:c.month,
+      status:'unpaid', at:Date.now()
+    });
+    opsSave(ops);
+    toast('Logged ' + c.number);
+    renderHist();
+    f('f_invno').value = nextInvoiceNumber();
+  };
+  f('btnSaveBank').onclick = saveBank;
+
+  render();
+})();
+</script>
+</body>
+</html>

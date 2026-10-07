@@ -1,0 +1,1469 @@
+# EatOuts — Integration, Wiring & Cloudflare Deployment Guide
+
+This document explains how the ten new files fit into the existing project, **how to wire them so they communicate correctly**, how the whole thing deploys on **Cloudflare Pages**, which existing files must be updated, every `.py` and config file the project needs so it doesn't rebuild from scratch, and what to fill in after integrating. It cross-references the four root docs that govern this work:
+
+- `AI_BUILD_PROMPTS.md` — how to prompt a builder and the hard constraints.
+- `NEW_PAGES.md` — the spec for every new/changed page (the acceptance criteria).
+- `HTML_PAGES.md` — what the existing root pages do and their limits.
+- `MARKETING_ONBOARDING_PLAN.md` — the 29-task launch plan; each page maps to one or more plan tasks.
+
+> **How to read this document.** §1–§2 are orientation. **§3 is the core: the five shared contracts that make the pages talk to each other.** §4 is the step-by-step implementation guide. **§5 is the complete Cloudflare + Python file manifest** — every file the project needs. §6–§7 are the Python scripts and Cloudflare config in full. §8–§14 are reference: existing-file edits, acceptance checks, libraries, placeholders, final checklist.
+
+---
+
+## 0. The one-paragraph summary
+
+Six new pages (`pricing.html`, `get-started.html`, `partner-terms.html`, `intake.html`, `invoice.html`, `ops-console.html`), one print page (`one-pager.html`), and two drop-in libraries (`eatouts-image-compressor.js`, `eatouts-video-validator.js`) were added. They are self-contained HTML files that reuse the existing runtime modules and deploy as static assets on **Cloudflare Pages**. To make them **communicate correctly**, five things must be wired consistently: **one pricing object**, **one ops state key (`eatouts_ops_v1`)**, **one intake draft + export shape**, **one auth gate**, and **one WhatsApp routing rule**. On Cloudflare, the only server-side code is the Python build pipeline (run at build time, never at request time) that turns `owner_submissions/*.json` into `directory_runtime_data.json`. Once the five contracts are honoured and the Python merge script is in place, the intake → export → ops → publish → invoice loop closes. That is what this document wires.
+
+---
+
+## 1. The ten files, mapped to plan tasks and docs
+
+| File | Audience | Plan tasks | Constrain from | Spec from |
+|---|---|---|---|---|
+| `pricing.html` | Public + sales | B10 | `AI_BUILD_PROMPTS.md` §1 master; `HTML_PAGES.md` shared constraints | `NEW_PAGES.md` §4 |
+| `get-started.html` | Public (owners) | C16, B10 (summary) | same | `NEW_PAGES.md` §3 |
+| `partner-terms.html` | Public (partners) | B13, B14 | same | `NEW_PAGES.md` §6 |
+| `intake.html` | Internal (concierge) | A5, A6 | same + internal-page auth rule | `NEW_PAGES.md` §5 |
+| `invoice.html` | Internal (sales) | B11 | same | `NEW_PAGES.md` §7 |
+| `ops-console.html` | Internal (team) | B11, E27 | same | `NEW_PAGES.md` §8 |
+| `one-pager.html` | Internal / marketing / print | C17 | same | `NEW_PAGES.md` §9 |
+| `eatouts-video-validator.js` | Library (drop-in) | C18 (video) | `AI_BUILD_PROMPTS.md` §1 — no external libs, vanilla only | n/a (helper, not a page) |
+| `eatouts-image-compressor.js` | Library (drop-in) | A5/A6 gallery prep; C19 screenshots | same | n/a (helper, not a page) |
+| `New Pages & AI Build Prompts Task.md` | Notes / task log | — | — | summarizes what was built |
+
+### Read-first priority (per `AI_BUILD_PROMPTS.md` §3)
+
+The builder must read these **before** touching the new files, and must **not** modify them:
+
+- `NEW_PAGES.md` (spec + acceptance checks)
+- `HTML_PAGES.md` (existing capabilities/limits)
+- `MARKETING_ONBOARDING_PLAN.md` (business context and blockers)
+- `AI_BUILD_PROMPTS.md` (hard constraints + master prompt)
+
+Plus the runtime modules the new pages reuse (load via `<script src>`, do not edit):
+
+- `js/eatouts-db.js`
+- `js/eatouts-auth.js`
+- `js/eatouts-owner-compat.js`
+- `js/eatouts-brand.js`
+- `js/eatouts-locations.js`
+- `botswana_locations.js`
+
+And the existing pages whose visual language to copy:
+
+- `restaurant-onboarding.html` (accordion sections, `.section`, `.modal-scrim/.modal`, chips, records, `esc/uid/toast/openForm/money`)
+- `restaurant-dashboard.html` (card/stat/hero patterns, billing block)
+- `promo-onboarding.html`, `event-onboarding.html` (accordion + list layouts)
+- `index.html` (customer conventions, `CONFIG.whatsapp`, About/legal, operator sign-in)
+
+And the data shape references:
+
+- `assets/data/restaurant_listings/directory_runtime_data.json`
+- `js/eatouts-seed-data.js`
+
+And the run note:
+
+- `run-eatouts.bat` — serve over `http://127.0.0.1`; `file://` isolates `localStorage` per page and breaks auth. On Cloudflare, local dev uses `wrangler pages dev .` which serves over `http://127.0.0.1:8788`.
+
+---
+
+## 2. Delivery order (matches `AI_BUILD_PROMPTS.md` §3b)
+
+1. `pricing.html` — defines the shared price object first.
+2. `get-started.html` — depends on pricing (pricing summary card links here).
+3. `partner-terms.html` — depends on pricing numbers.
+4. `intake.html` — largest; depends on data shapes and `botswana_locations.js`.
+5. `invoice.html` — depends on shared pricing.
+6. `ops-console.html` — depends on invoice log + pricing + `eatouts_ops_v1`.
+7. `one-pager.html` — standalone, depends only on pricing numbers + branding.
+8. Edits to existing pages (`restaurant-dashboard.html`, `index.html`) — see §8.
+
+The two library files (`eatouts-video-validator.js`, `eatouts-image-compressor.js`) are independent of the pages and can be added any time; they become useful once an upload surface exists (see §11).
+
+---
+
+## 3. The five shared contracts (how the pages communicate)
+
+**This is the heart of the integration.** Every new page talks to the others through exactly five channels. If you keep these five consistent, the pages communicate correctly. If you break any one of them, prices drift, state gets lost, or the publish gate fails silently.
+
+### 3.1 Contract #1 — The pricing object
+
+**Owner:** `pricing.html` (the only file allowed to *define* prices).
+**Readers:** `get-started.html`, `partner-terms.html`, `invoice.html`, `ops-console.html`, `restaurant-dashboard.html` (after the fix), `one-pager.html` (static text).
+
+**The object** (already defined in `pricing.html`):
+
+```js
+var PRICING = {
+  currency: 'BWP',
+  symbol: 'P',
+  setup: 300,
+  tiers: {
+    starter: { key:'starter', name:'Starter', price:100, blurb:'Get listed and take orders.' },
+    growth:  { key:'growth',  name:'Growth',  price:300, blurb:'Add promos, events and bookings.' },
+    pro:     { key:'pro',     name:'Pro',     price:500, blurb:'Featured, unlimited, priority.' }
+  },
+  features: [ /* 8 rows, matrix in NEW_PAGES.md §4 */ ]
+};
+window.EATOUTS_PRICING = PRICING;
+
+// persist for cross-page reads
+try {
+  var db = EatoutsDB.load();
+  db.settings = db.settings || {};
+  db.settings.pricing = PRICING;
+  EatoutsDB.save(db);
+} catch (e) { /* page still renders */ }
+```
+
+**How every reader resolves it** (the exact pattern already used in `invoice.html` / `ops-console.html`):
+
+```js
+var PRICING = window.EATOUTS_PRICING || (function(){
+  try {
+    var s = EatoutsDB.load().settings || {};
+    if (s.pricing) return s.pricing;
+  } catch(e){}
+  return { setup:300, tiers:{ starter:{price:100}, growth:{price:300}, pro:{price:500} } };
+})();
+if (!PRICING.tiers) PRICING.tiers = { starter:{price:100}, growth:{price:300}, pro:{price:500} };
+```
+
+**Rule:** never hardcode a price on any page other than `pricing.html`. If you must show a literal (e.g. in `partner-terms.html` prose), it must be checked against the object during the integration checklist (§13).
+
+**The one edit that keeps this contract honest:** `restaurant-dashboard.html` currently hardcodes `{starter:300, growth:500, pro:800}`. That is drift waiting to happen. Replace it (§8.1 and §4 step 7) with a read from `EatoutsDB.load().settings.pricing`.
+
+---
+
+### 3.2 Contract #2 — The `eatouts_ops_v1` state key
+
+**Owner:** whoever writes to it. New internal pages only.
+**Readers:** `intake.html`, `invoice.html`, `ops-console.html`, `restaurant-dashboard.html` (setup-fee status only).
+
+All new internal state lives under one localStorage key, **separate from `eatouts_db_v2`** (which the operator pages use). The complete shape, taken from the actual files:
+
+```js
+// localStorage key: 'eatouts_ops_v1'
+{
+  venues: [
+    {
+      id: 'v_xxx', name: '', slug: '', tier: 'starter|growth|pro',
+      status: 'draft|ready|live|suspended',
+      whatsapp: '',
+      nextBilling: 'YYYY-MM-DD' | null,
+      setupDate: 'YYYY-MM-DD' | null,
+      setupPaid: true|false,
+      createdAt: 1234567890
+    }
+  ],
+  invoices: [
+    {
+      number: 'EO-YYYYMM-001', venue: '', contact: '',
+      tier: 'Starter|Growth|Pro', setup: 300, monthly: 100|300|500,
+      total: 400|600|800, issue: 'YYYY-MM-DD', due: 'YYYY-MM-DD',
+      month: 'YYYY-MM', status: 'unpaid|paid|overdue', at: 1234567890
+    }
+  ],
+  submissions: [
+    { slug: '', filename: 'venue_<slug>_<YYYYMMDD>.json', at: 1234567890, by: 'operator' }
+  ],
+  metrics: [
+    { weekOf: 'YYYY-MM-DD', venuesLive: 0, paidSubs: 0, mrr: 0, clicks: 0 }
+  ],
+  bank: {
+    bank: '', acctName: '', acctNo: '', branch: '',
+    momo: '', refPrefix: 'EOINV', reg: ''
+  }
+}
+```
+
+**Who writes what:**
+
+| Page | Writes to `eatouts_ops_v1` | Reads from `eatouts_ops_v1` |
+|---|---|---|
+| `intake.html` | `submissions[]` (on export) | — |
+| `invoice.html` | `bank`, `invoices[]` | `bank`, `invoices[]` (for sequence numbers) |
+| `ops-console.html` | `venues[]`, `metrics[]` | `venues[]`, `invoices[]`, `submissions[]`, `metrics[]` |
+| `restaurant-dashboard.html` | — | `venues[]` (for setup-fee status) |
+
+**Canonical load/save helpers** (already in `invoice.html` and `ops-console.html`; copy verbatim into any new page that needs them):
+
+```js
+function opsLoad(){
+  try { var r = localStorage.getItem('eatouts_ops_v1');
+        return r ? JSON.parse(r) : { venues:[], invoices:[], submissions:[], metrics:[] }; }
+  catch(e){ return { venues:[], invoices:[], submissions:[], metrics:[] }; }
+}
+function opsSave(o){
+  try { localStorage.setItem('eatouts_ops_v1', JSON.stringify(o)); }
+  catch(e){ console.warn(e); }
+}
+```
+
+**Rule:** no new internal page writes to `eatouts_db_v2` except through `EatoutsDB` / `EatoutsOwnerCompat`.
+
+**Cloudflare migration note:** when you move off single-device localStorage, swap the two function bodies above to call `/api/ops` (a Pages Function backed by KV or D1). The pages do not change — only these two functions do. See §7.4.
+
+---
+
+### 3.3 Contract #3 — The intake draft + export shape
+
+**Owner:** `intake.html`.
+**Readers:** `ops-console.html` (submissions queue), `scripts/build_restaurant_directory.py` (the merge script, plan task A2).
+
+Two separate things live here:
+
+**(a) The draft** — the concierge's in-progress work. Lives under its own key so it never collides with the ops blob:
+
+```js
+// localStorage key: 'eatouts_intake_draft_v1'
+{
+  id: 'intake_xxx', createdAt: 1234567890, updatedAt: 1234567890,
+  identity: { name, slug, description, logo, coverImage, types:[] },
+  location: { district, districtName, town, area, plotNumber, street, building, landmark, lat, lng },
+  contacts: [...], socials: {...}, hours: { weekly:{}, custom:[] },
+  character: [], amenities: [], menuTags: [], capacity: [], payments: [],
+  reservations: {...}, reservationServices: [], serviceStaff: [],
+  menu: { categories:[ { id, name, items:[...] } ] },
+  promos: [], events: [], gallery: { groups:[ { id, title, images:[...] } ] },
+  export: { lastExportedAt, filename }
+}
+```
+
+Draft survives reload because `bindLive()` writes on every input (`draftSave(draft)`). Re-opening `intake.html` calls `draftLoad()` and resumes. No other page reads this key.
+
+**(b) The export** — the file that becomes `owner_submissions/venue_<slug>_<YYYYMMDD>.json`. Built by `buildExportObject()` inside `intake.html`. **This is the shape the merge script must ingest.** It is already shaped to match `directory_runtime_data.json` and the owner content block. The top level is:
+
+```js
+{
+  $schema: 'eatouts.venue.v1',
+  generatedAt, slug, name, description, logo, coverImage, types, category,
+  location: {...}, landmark,
+  contacts: [...], socials: [...],
+  profile: {
+    name, identity:{...}, location:{...}, contacts:[...], socials:[...],
+    operatingHours:{ title, weekly:[{day,open,close}], customSchedules:[] },
+    character:{ title, options:[...] },
+    amenities:{ title, options:[...] },
+    menuTags:{ title, options:[...] },
+    capacity:[], payments:[], reservations:{...},
+    reservationServices:[], serviceStaff:[], users:[]
+  },
+  content: {
+    menuCategories:[...],
+    menuItems:[...],
+    promos:[...], events:[...],
+    performers:[], performances:[],
+    galleryGroups:[...],
+    galleryImages:[...]
+  }
+}
+```
+
+**The intake → ops handshake.** When `intake.html` exports, it does two things in one step (already coded):
+
+```js
+// 1. download the file (Blob → <a download>)
+// 2. log a submission in eatouts_ops_v1 so ops-console sees it
+var ops = opsLoad();
+ops.submissions = ops.submissions || [];
+ops.submissions.push({
+  slug: slug,
+  filename: filename,
+  at: Date.now(),
+  by: (EatoutsAuth.currentSession()||{}).userName || 'operator'
+});
+opsSave(ops);
+```
+
+That is the only channel between `intake.html` and `ops-console.html`. `ops-console.html` renders that array and reminds the operator to copy the file into `owner_submissions/`.
+
+**On Cloudflare, the operator can now skip the manual copy step** if you add a Pages Function `POST /api/submissions` that writes the file into R2 or commits it to the repo via the GitHub API. The intake export already calls `opsSave` — point it at the API instead and the file lands in `owner_submissions/` server-side. See §7.4.
+
+**Rule:** the export shape is the contract with the merge script. Do not add or rename fields without updating `scripts/build_restaurant_directory.py` (§6.1).
+
+---
+
+### 3.4 Contract #4 — The auth gate
+
+**Owner:** `js/eatouts-auth.js` (existing, not edited).
+**Consumers:** all three internal pages (`intake.html`, `invoice.html`, `ops-console.html`).
+
+Every internal page runs this **before any content paints**, immediately after the runtime `<script src>` tags and *before* the page's own `<script>`:
+
+```html
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-brand.js"></script>
+<script>
+if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
+else{EatoutsAuth.applyActive();}
+</script>
+<script>
+/* page logic starts here */
+</script>
+```
+
+Already correct in `intake.html`, `invoice.html`, `ops-console.html`. **Public pages (`pricing.html`, `get-started.html`, `partner-terms.html`) must NOT call `requireSession()`.** `get-started.html` and `pricing.html` load `eatouts-auth.js` only so `EatoutsAuth` exists for other helpers; they never gate.
+
+**Rule:** internal pages must not appear in the public tab bar. The existing operator tab bar (`restaurant-onboarding.html` … `restaurant-dashboard.html`) is reused in `intake.html`, `invoice.html`, `ops-console.html` — that is correct, because those pages are only reachable behind the gate. `pricing.html`, `get-started.html`, `partner-terms.html` use a different, simpler top bar and link only to each other and `index.html`.
+
+**Cloudflare note:** if you later add Cloudflare Access in front of `/intake`, `/invoice`, `/ops`, the client-side gate becomes a second layer. Cloudflare Access handles the real protection; the client gate stays as a UX redirect. Do not remove it — it is what makes the pages render correctly when opened directly.
+
+---
+
+### 3.5 Contract #5 — WhatsApp routing
+
+**Owner:** `index.html` (customer app). **Consumers:** every page that emits a `wa.me` link.
+
+**Today (broken):** every page routes to the flagship `+267 71 844 129`.
+
+**Target:** order / split-bill / booking / promo-enquiry messages route to the **venue's own contact number**, falling back to `CONFIG.whatsapp` when the venue has no number.
+
+**The pattern every page uses to resolve a number:**
+
+```js
+var number = '26771844129'; // fallback = flagship
+try {
+  var s = EatoutsDB.load().settings || {};
+  if (s.whatsapp) number = String(s.whatsapp).replace(/[^\d]/g,'');
+} catch(e){}
+var href = 'https://wa.me/' + number + '?text=' + encodeURIComponent(message);
+```
+
+That pattern is correct **for pages that are about EatOuts itself** (`get-started.html`, `pricing.html`, `invoice.html` when the operator is sending an invoice *from* EatOuts, `intake.html` summary). It is **not** correct for `index.html`'s order / booking flows, which must resolve per-venue.
+
+**The rule for `index.html`:** the messaging intent code that builds the `wa.me` URL must first look up the venue being viewed (its record has a WhatsApp contact — the same field the directory data and the intake export populate) and use that. Fall back to `CONFIG.whatsapp` only when the venue has none. This is plan task **A7** and closes blocker #2. See §8.2 for the exact edit.
+
+---
+
+## 4. Implementation guide — step by step
+
+Do these in order. Each step ends with a verification you can run over `http://127.0.0.1` (local) or your Cloudflare preview URL.
+
+### Step 1 — Land `pricing.html` and confirm the pricing object is the single source
+
+1. Drop `pricing.html` at the project root.
+2. Open it. Open DevTools console. Run:
+   ```js
+   window.EATOUTS_PRICING.setup                 // 300
+   window.EATOUTS_PRICING.tiers.growth.price    // 300
+   EatoutsDB.load().settings.pricing.setup      // 300
+   ```
+3. All three must return the same numbers. If `EatoutsDB.load().settings.pricing` is undefined, the try/catch swallowed an error — check that `js/eatouts-db.js` loaded before the inline script.
+4. Click the WhatsApp CTA — it must open a `wa.me` link with the prefilled message.
+
+**Verify:** no console errors; tier cards render at 360px (they stack); matrix scrolls horizontally on narrow screens.
+
+### Step 2 — Land `get-started.html` and `partner-terms.html`
+
+1. Drop both at the project root.
+2. Open `get-started.html`. The pricing summary card must say **P300** setup and **P100 / month · Starter**, and link to `pricing.html`. The sticky footer WhatsApp button must open a `wa.me` link.
+3. Open `partner-terms.html`. Scroll to §2.1–2.2. Every P-number must match `pricing.html` exactly (P300, P100, P300, P500). §2.4 must state the publish-after-setup rule.
+4. Cross-links: `pricing.html` → `partner-terms.html` and → `get-started.html`; `partner-terms.html` → `pricing.html` and → `get-started.html`; `get-started.html` → `pricing.html` and → `partner-terms.html`. All must resolve.
+
+**Verify:** no session required (open in a fresh incognito window — both pages load without redirect).
+
+### Step 3 — Land `intake.html`
+
+1. Drop `intake.html` at the project root.
+2. Open it. It must redirect to the operator login if no session. Log in, then it must render.
+3. Fill the Identity section. Watch the slug auto-fill. Reload the page. **The draft must survive** (loaded from `eatouts_intake_draft_v1`).
+4. Check the Location section: District → Town → Area dropdowns must cascade from `botswana_locations.js`. If they are empty, `botswana_locations.js` or `js/eatouts-locations.js` failed to load.
+5. Fill a couple of sections, then click **Export JSON**. A file named `venue_<slug>_<YYYYMMDD>.json` must download. Open it — the top-level keys must match §3.3(b).
+6. Open DevTools → Application → Local Storage → `eatouts_ops_v1`. There must now be a `submissions` array with one entry.
+
+**Verify:** the export round-trips. Re-open `intake.html`, confirm the draft is still there, and that re-exporting produces the same shape.
+
+### Step 4 — Land `invoice.html`
+
+1. Drop `invoice.html` at the project root.
+2. Open it. It must be auth-gated (same as intake).
+3. The setup fee field must prefill with `300` (read from the shared pricing object). The invoice number must auto-generate as `EO-<YYYYMM>-001`.
+4. Fill the bank card once (bank, account, MoMo, etc.) and click **Save payment details**. Reload. The fields must persist (they are under `eatouts_ops_v1.bank`).
+5. Click **Render invoice**. The invoice appears below. Click **Print / Save PDF** → print preview must show **only the invoice** (top bar, tabs, form card, history all hidden by `@media print`).
+6. Click **Log as issued**. The invoice appears in the "Issued invoice log" below. Toggle **Mark paid** — the badge flips.
+7. Open DevTools → Local Storage → `eatouts_ops_v1` → `invoices`. One entry with `status:'unpaid'` then `'paid'`.
+
+**Verify:** no console errors; the WhatsApp button opens a prefilled `wa.me` message containing the invoice total and reference.
+
+### Step 5 — Land `ops-console.html`
+
+1. Drop `ops-console.html` at the project root.
+2. Open it. Auth-gated. The tabs must include Invoice and Ops but **not** intake (intake is reachable only by URL — this is intentional; you may add it to the tab bar if you prefer, but do not add it to the public pages).
+3. The Venues table must be empty. The Invoices section must show the invoice you logged in Step 4. The Submissions queue must show the file you exported in Step 3.
+4. **Test the publish gate.** In "Add / edit venue", enter a name, set status to `live`, leave **Setup fee paid** unchecked, click **Add / Update venue**. It must refuse: a red notice appears, no row is added. Now tick **Setup fee paid** and add again. The row appears with a `Paid` badge and a **Go live** button.
+5. Click **Go live** on that row. Status flips to `live`. The MRR stat recomputes from `P<active tier price>`.
+6. Reload. Everything must persist.
+
+**Verify:** MRR equals the sum of active tiers; a `setupPaid=false` venue can never be set to `ready` or `live`; the invoice "paid" entries appear at the bottom.
+
+### Step 6 — Land `one-pager.html`
+
+1. Drop `one-pager.html` at the project root.
+2. Open it (no auth needed). Click **Print / Save as PDF**. The print preview must be a clean single page: no `.actions` bar, no background shadow, QR placeholder visible.
+3. The pricing line must read **P300** setup and **Starter P100 · Growth P300 · Pro P500 / month** — matching §3.1.
+
+**Verify:** no console errors; prints to one page.
+
+### Step 7 — Patch `restaurant-dashboard.html` (three edits)
+
+These are **not optional**. Without them the loop is incomplete.
+
+**(7a) Fix the tiers.** Find the hardcoded billing panel. Replace the old object:
+
+```js
+// OLD — delete this
+var TIERS = { starter:300, growth:500, pro:800 };
+```
+
+with a read from the shared object:
+
+```js
+// NEW — read from the single source of truth
+var PRICING = window.EATOUTS_PRICING || (function(){
+  try { var s = EatoutsDB.load().settings || {}; if (s.pricing) return s.pricing; } catch(e){}
+  return { setup:300, tiers:{ starter:{price:100}, growth:{price:300}, pro:{price:500} } };
+})();
+var TIERS = {
+  starter: PRICING.tiers.starter.price,
+  growth:  PRICING.tiers.growth.price,
+  pro:     PRICING.tiers.pro.price
+};
+```
+
+Then update every place the dashboard renders a tier price to use `TIERS[key]` instead of a literal. The displayed numbers must now be **P100 / P300 / P500**.
+
+**(7b) Add "Export this restaurant".** Next to the existing dashboard actions, add a button that serialises the signed-in restaurant record plus its forked content to a downloadable file:
+
+```js
+function exportVenue(){
+  var slug = (EatoutsBrand.slugify && EatoutsBrand.slugify(restaurant.name)) || restaurant.slug;
+  var content = EatoutsDB.resolveContent(restaurant); // existing API
+  var payload = {
+    $schema: 'eatouts.venue.v1',
+    generatedAt: new Date().toISOString(),
+    slug: slug,
+    name: restaurant.name,
+    /* ...same profile/content shape as intake.html's buildExportObject()... */
+    profile: { /* restaurant record */ },
+    content: content
+  };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'venue_' + slug + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+```
+
+This is plan task **A1**. The exported shape must match `intake.html`'s export so the same merge script ingests both. **If you cannot reuse `buildExportObject()` directly, copy its field names exactly** — the merge script does not care which page produced the file, only that the shape is right.
+
+**(7c) Add setup-fee status.** Read the venue's row from `eatouts_ops_v1.venues[]` (match by slug) and show either `P300 setup paid` or `P300 setup owing` in the billing panel. This connects the owner dashboard to the ops publish gate.
+
+**Verify:** dashboard shows P100/P300/P500; the Export button downloads a `venue_<slug>.json` that opens cleanly; the setup-fee status matches what you set in `ops-console.html`.
+
+### Step 8 — Patch `index.html` (two edits)
+
+**(8a) Per-venue WhatsApp routing.** Find the messaging-intent code that builds the `wa.me` URL for orders, split-bill, bookings, and promo enquiries. It currently uses `CONFIG.whatsapp` (the flagship). Change it so the venue being viewed is looked up first:
+
+```js
+// OLD — always the flagship
+var number = CONFIG.whatsapp;
+
+// NEW — venue first, flagship only as fallback
+function resolveVenueWhatsapp(venue){
+  var n = venue && (venue.whatsapp || venue.contactWhatsapp || '');
+  if (n) return String(n).replace(/[^\d]/g,'');
+  // check the venue's contacts[] for a whatsapp:true entry
+  if (venue && Array.isArray(venue.contacts)) {
+    var c = venue.contacts.find(function(x){ return x.whatsapp; });
+    if (c) return String((c.countryCode||'+267') + c.number).replace(/[^\d]/g,'');
+  }
+  return CONFIG.whatsapp;
+}
+```
+
+Then every `wa.me` builder that is about a *specific venue* uses `resolveVenueWhatsapp(currentVenue)` instead of `CONFIG.whatsapp`. This is plan task **A7**; closes blocker #2.
+
+**(8b) "List your restaurant" CTA.** On the About page / home surface, add a link:
+
+```html
+<a href="get-started.html">List your restaurant →</a>
+```
+
+Plan task **C16**. Low-effort; makes the new landing reachable.
+
+**Verify:** open a venue in `index.html`, tap Order — the `wa.me` URL must contain that venue's number, not the flagship. A venue with no number must fall back to the flagship. The About page link opens `get-started.html`.
+
+### Step 9 — Rename `README.md.md` → `README.md` and update `HTML_PAGES.md`
+
+**(9a) README.** Plan task **B12**. Rename the file, update it with the new pricing (P300 setup + P100/P300/P500), and remove or mark as roadmap the unbuilt "interaction analytics dashboard" claim.
+
+**(9b) `HTML_PAGES.md`.** Update the audit to reflect reality after Step 7: the restaurant-dashboard billing panel is now P100/P300/P500 (not the old P300/P500/P800), and there is now an export/publish path (the "Cannot do" line for that is stale). Keep the audit honest.
+
+### Step 10 — Add the Python build pipeline and Cloudflare config
+
+Follow **§5** (file manifest), **§6** (Python scripts in full), and **§7** (Cloudflare config in full). This is the step that makes the project deployable on Cloudflare without rebuilding from scratch.
+
+### Step 11 — Verify the loop end to end
+
+Run this sequence without touching DevTools:
+
+1. Open `intake.html`, fill enough for a venue to be "complete", export the JSON.
+2. Open `ops-console.html`. The submission appears in the queue. Add the venue, tick setup paid, set it live. MRR reflects the tier.
+3. Open `invoice.html`. Issue an invoice for that venue. Mark it paid.
+4. Back to `ops-console.html`. The invoice appears as paid.
+5. Open `restaurant-dashboard.html` for that venue. It shows P100/P300/P500 correctly, the setup-fee status, and the Export button downloads a file.
+6. Run `npm run build` (which calls the merge script). Run `npm run deploy` (which pushes to Cloudflare Pages). Open the live URL and confirm the venue appears.
+
+If all six steps pass, the five contracts are honoured and the project deploys on Cloudflare.
+
+---
+
+## 5. Complete file manifest for Cloudflare
+
+This is the full tree the project needs so nothing is rebuilt from scratch. Items marked ✅ already exist; 🟡 need creating from the content in this repo; 🔴 need creating from this document.
+
+```
+eatouts/
+├── _headers                          # 🔴 Cloudflare Pages headers (§7.1)
+├── _redirects                        # 🔴 Cloudflare Pages redirects (§7.2)
+├── _routes.json                      # 🔴 only if using Functions (§7.3)
+├── wrangler.toml                     # 🔴 Cloudflare config (§7.4)
+├── package.json                      # 🔴 wrangler scripts (§7.5)
+├── .dev.vars                         # 🔴 local secrets, gitignored (§7.6)
+├── .gitignore                        # 🔴 (§7.7)
+├── README.md                         # 🟡 rename from README.md.md + update
+│
+├── index.html                        # ✅ exists (needs 2 edits — §8.2)
+├── restaurant-onboarding.html        # ✅ exists
+├── menu-onboarding.html              # ✅ exists
+├── promo-onboarding.html             # ✅ exists
+├── event-onboarding.html             # ✅ exists
+├── gallery-onboarding.html           # ✅ exists
+├── restaurant-dashboard.html         # ✅ exists (needs 3 edits — §8.1)
+│
+├── pricing.html                      # 🟡 create (content provided)
+├── get-started.html                  # 🟡 create (content provided)
+├── partner-terms.html                # 🟡 create (content provided)
+├── intake.html                       # 🟡 create (content provided)
+├── invoice.html                      # 🟡 create (content provided)
+├── ops-console.html                  # 🟡 create (content provided)
+├── one-pager.html                    # 🟡 create (content provided)
+│
+├── botswana_locations.js             # ✅ exists
+├── eatouts-image-compressor.js       # 🟡 create (content provided)
+├── eatouts-video-validator.js        # 🟡 create (content provided)
+│
+├── js/
+│   ├── eatouts-db.js                 # ✅ exists
+│   ├── eatouts-auth.js               # ✅ exists
+│   ├── eatouts-owner-compat.js       # ✅ exists
+│   ├── eatouts-brand.js              # ✅ exists
+│   ├── eatouts-locations.js          # ✅ exists
+│   └── eatouts-seed-data.js          # ✅ exists
+│
+├── assets/
+│   ├── logo/
+│   │   └── EatOuts_Badge.png         # ✅ exists
+│   ├── images/                       # ✅ exists
+│   └── data/
+│       └── restaurant_listings/
+│           └── directory_runtime_data.json   # ✅ exists (regenerated by .py)
+│
+├── owner_submissions/                # 🔴 create directory
+│   └── .gitkeep                      # 🔴 keeps the dir in git
+│
+├── scripts/                          # 🔴 entire directory (§6)
+│   ├── build_restaurant_directory.py # 🔴 §6.1 — the critical merge script
+│   ├── validate_submission.py        # 🔴 §6.2 — shape validator
+│   ├── deploy.py                     # 🔴 §6.3 — one-command deploy
+│   ├── seed_from_listings.py         # 🔴 §6.4 — optional bootstrap
+│   └── requirements.txt              # 🔴 §6.5 — Python deps
+│
+├── functions/                        # 🔴 only if migrating to Model B (§7.8)
+│   ├── api/
+│   │   ├── venues.js                 # 🔴 KV-backed venues
+│   │   ├── invoices.js               # 🔴 KV-backed invoices
+│   │   ├── submissions.js            # 🔴 KV-backed submissions
+│   │   └── upload.js                 # 🔴 R2 upload endpoint
+│   └── _middleware.js                # 🔴 auth for /api/*
+│
+├── docs/
+│   ├── AI_BUILD_PROMPTS.md           # ✅ exists
+│   ├── NEW_PAGES.md                  # ✅ exists
+│   ├── HTML_PAGES.md                 # ✅ exists
+│   ├── MARKETING_ONBOARDING_PLAN.md  # ✅ exists
+│   └── INTEGRATION.md                # ✅ this file
+│
+└── run-eatouts.bat                   # ✅ exists (local dev on 127.0.0.1)
+```
+
+### 5.1 What exists vs. what you must create
+
+| File | Status |
+|---|---|
+| 7 operator HTML pages | ✅ exist |
+| `index.html` | ✅ exists (needs 2 edits) |
+| `js/*.js` (6 modules) | ✅ exist |
+| `botswana_locations.js` | ✅ exists |
+| `assets/data/restaurant_listings/directory_runtime_data.json` | ✅ exists |
+| `js/eatouts-seed-data.js` | ✅ exists |
+| `assets/logo/EatOuts_Badge.png` | ✅ exists |
+| `run-eatouts.bat` | ✅ exists |
+| 4 root docs | ✅ exist |
+| 7 new HTML pages | 🟡 **create** (content provided in prior turns) |
+| 2 library JS files | 🟡 **create** (content provided) |
+| `scripts/build_restaurant_directory.py` | 🔴 **create** (§6.1) |
+| `scripts/validate_submission.py` | 🔴 **create** (§6.2) |
+| `scripts/deploy.py` | 🔴 **create** (§6.3) |
+| `scripts/seed_from_listings.py` | 🔴 **create** (§6.4, optional) |
+| `scripts/requirements.txt` | 🔴 **create** (§6.5) |
+| `owner_submissions/.gitkeep` | 🔴 **create** |
+| `wrangler.toml` | 🔴 **create** (§7.4) |
+| `package.json` | 🔴 **create** (§7.5) |
+| `_headers` | 🔴 **create** (§7.1) |
+| `_redirects` | 🔴 **create** (§7.2) |
+| `_routes.json` | 🔴 **create** (only if using Functions, §7.3) |
+| `.dev.vars` | 🔴 **create** (gitignored, §7.6) |
+| `.gitignore` | 🔴 **create** (§7.7) |
+| `functions/*` | 🔴 **create** (only if migrating to Model B, §7.8) |
+| `README.md` | 🟡 **rename** from `README.md.md` + update |
+
+### 5.2 Minimum viable file set to launch
+
+If you want the smallest set that closes the launch blockers and runs on Cloudflare Pages:
+
+**Must create (Python + Cloudflare):**
+1. `scripts/build_restaurant_directory.py`
+2. `scripts/deploy.py`
+3. `wrangler.toml`
+4. `package.json`
+5. `_headers`
+6. `_redirects`
+7. `owner_submissions/.gitkeep`
+8. `.gitignore`
+
+**Must create (new pages + libraries):**
+9. `pricing.html`
+10. `get-started.html`
+11. `partner-terms.html`
+12. `intake.html`
+13. `invoice.html`
+14. `ops-console.html`
+15. `one-pager.html`
+16. `eatouts-image-compressor.js`
+17. `eatouts-video-validator.js`
+
+**Must edit (existing):**
+18. `restaurant-dashboard.html` — fix tiers, add export, add setup-fee status
+19. `index.html` — per-venue WhatsApp routing, "List your restaurant" CTA
+20. `README.md.md` → `README.md` — rename + update pricing
+
+That is **17 new files + 3 edits** to launch. Everything else in the tree is either already there or only needed once you scale past single-device localStorage.
+
+---
+
+## 6. Python scripts — full source
+
+These run at **build time** on Cloudflare Pages, not at request time. They are pure-stdlib Python 3.12 — no pip install needed unless you add `jsonschema`.
+
+### 6.1 `scripts/build_restaurant_directory.py` — the critical merge script (plan task A2)
+
+**Purpose:** merges `owner_submissions/*.json` into `assets/data/restaurant_listings/directory_runtime_data.json`. This is the bridge between the intake export and the live directory.
+
+**When it runs:** at build time — locally before `wrangler pages deploy`, or in CI. **Not** at request time.
+
+```python
+#!/usr/bin/env python3
+"""Merge owner_submissions/*.json into directory_runtime_data.json."""
+import json, glob, os, sys
+from datetime import datetime, timezone
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RUNTIME = os.path.join(ROOT, 'assets/data/restaurant_listings/directory_runtime_data.json')
+SUBMISSIONS = os.path.join(ROOT, 'owner_submissions')
+SCHEMA = 'eatouts.venue.v1'
+
+
+def validate(sub):
+    if sub.get('$schema') != SCHEMA:
+        return f"bad schema: {sub.get('$schema')}"
+    if not sub.get('slug'):
+        return "missing slug"
+    if not sub.get('name'):
+        return "missing name"
+    if not (sub.get('location') or {}).get('town'):
+        return "missing location.town"
+    if not sub.get('contacts'):
+        return "no contacts"
+    return None
+
+
+def merge(runtime, sub):
+    slug = sub['slug']
+    record = {
+        'slug': slug,
+        'name': sub['name'],
+        'description': sub.get('description', ''),
+        'logo': sub.get('logo'),
+        'coverImage': sub.get('coverImage'),
+        'types': sub.get('types', []),
+        'category': sub.get('category', ''),
+        'location': sub.get('location', {}),
+        'landmark': sub.get('landmark', ''),
+        'contacts': sub.get('contacts', []),
+        'socials': sub.get('socials', []),
+        'profile': sub.get('profile', {}),
+        'content': sub.get('content', {}),
+        'updatedAt': sub.get('generatedAt') or datetime.now(timezone.utc).isoformat(),
+    }
+    venues = runtime.setdefault('restaurants', [])
+    for i, v in enumerate(venues):
+        if v.get('slug') == slug:
+            venues[i] = record
+            return 'updated'
+    venues.append(record)
+    return 'added'
+
+
+def main():
+    with open(RUNTIME, 'r', encoding='utf-8') as f:
+        runtime = json.load(f)
+
+    files = sorted(glob.glob(os.path.join(SUBMISSIONS, 'venue_*.json')))
+    if not files:
+        print('No submissions to merge.')
+        return 0
+
+    added = updated = errors = 0
+    for path in files:
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                sub = json.load(f)
+            err = validate(sub)
+            if err:
+                print(f'SKIP {os.path.basename(path)}: {err}')
+                errors += 1
+                continue
+            result = merge(runtime, sub)
+            print(f'{result.upper()} {sub["slug"]}')
+            if result == 'added':
+                added += 1
+            else:
+                updated += 1
+        except Exception as e:
+            print(f'ERROR {os.path.basename(path)}: {e}')
+            errors += 1
+
+    with open(RUNTIME, 'w', encoding='utf-8') as f:
+        json.dump(runtime, f, indent=2, ensure_ascii=False)
+
+    print(f'\nDone. added={added} updated={updated} errors={errors}')
+    return 0 if errors == 0 else 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+```
+
+**Shape it ingests:** exactly what `intake.html`'s `buildExportObject()` produces (§3.3b). The `$schema` field is the version gate.
+
+### 6.2 `scripts/validate_submission.py` — shape validator
+
+**Purpose:** standalone check you can run on a single submission before it enters `owner_submissions/`. Useful as a pre-commit hook or a CI gate.
+
+```python
+#!/usr/bin/env python3
+"""Validate one venue submission file."""
+import json, sys
+
+REQUIRED = ['$schema', 'slug', 'name', 'location', 'contacts']
+SCHEMA = 'eatouts.venue.v1'
+
+
+def main(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        sub = json.load(f)
+    errors = []
+    for k in REQUIRED:
+        if k not in sub:
+            errors.append(f'missing {k}')
+    if sub.get('$schema') != SCHEMA:
+        errors.append(f'bad schema: {sub.get("$schema")}')
+    if not (sub.get('location') or {}).get('town'):
+        errors.append('location.town empty')
+    if not sub.get('contacts'):
+        errors.append('contacts empty')
+    if errors:
+        print('\n'.join(f'x {e}' for e in errors))
+        return 1
+    print(f'OK {sub["slug"]} is valid')
+    return 0
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print('usage: validate_submission.py <file.json>')
+        sys.exit(2)
+    sys.exit(main(sys.argv[1]))
+```
+
+### 6.3 `scripts/deploy.py` — one-command deploy (plan task A3)
+
+**Purpose:** runs the merge, then deploys to Cloudflare Pages via Wrangler.
+
+```python
+#!/usr/bin/env python3
+"""Build + deploy to Cloudflare Pages."""
+import subprocess, sys, os
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def run(cmd, **kw):
+    print(f'-> {" ".join(cmd)}')
+    r = subprocess.run(cmd, cwd=ROOT, **kw)
+    if r.returncode != 0:
+        sys.exit(r.returncode)
+
+
+def main():
+    # 1. merge submissions into runtime data
+    run([sys.executable, 'scripts/build_restaurant_directory.py'])
+    # 2. deploy to Cloudflare Pages
+    run(['npx', 'wrangler', 'pages', 'deploy', '.',
+         '--project-name=eatouts',
+         '--branch=main',
+         '--commit-dirty=true'])
+    print('\nDeployed.')
+
+
+if __name__ == '__main__':
+    main()
+```
+
+### 6.4 `scripts/seed_from_listings.py` — optional bootstrap
+
+**Purpose:** if you have a CSV or a legacy JSON of restaurants, convert it into the `eatouts.venue.v1` shape once, so the runtime data starts populated. Run once at setup, then never again.
+
+```python
+#!/usr/bin/env python3
+"""One-time: convert a legacy listings file into eatouts.venue.v1 submissions.
+
+Usage: seed_from_listings.py <input.json> [output_dir]
+"""
+import json, sys, os
+from datetime import datetime, timezone
+
+
+def slugify(s):
+    import re
+    return re.sub(r'^-+|-+$', '', re.sub(r'[^a-z0-9]+', '-', (s or '').lower()))
+
+
+def convert(item):
+    slug = item.get('slug') or slugify(item.get('name', ''))
+    return {
+        '$schema': 'eatouts.venue.v1',
+        'generatedAt': datetime.now(timezone.utc).isoformat(),
+        'slug': slug,
+        'name': item.get('name', ''),
+        'description': item.get('description', ''),
+        'logo': item.get('logo'),
+        'coverImage': item.get('coverImage'),
+        'types': item.get('types', []),
+        'category': item.get('category', ''),
+        'location': item.get('location', {}),
+        'landmark': item.get('landmark', ''),
+        'contacts': item.get('contacts', []),
+        'socials': item.get('socials', []),
+        'profile': item.get('profile', {}),
+        'content': item.get('content', {}),
+    }
+
+
+def main(src, out_dir='owner_submissions'):
+    with open(src, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    items = data if isinstance(data, list) else data.get('restaurants', [])
+    os.makedirs(out_dir, exist_ok=True)
+    for item in items:
+        sub = convert(item)
+        if not sub['slug']:
+            continue
+        fn = f'venue_{sub["slug"]}_{datetime.now().strftime("%Y%m%d")}.json'
+        path = os.path.join(out_dir, fn)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(sub, f, indent=2, ensure_ascii=False)
+        print(f'WROTE {path}')
+    print(f'\nDone. {len(items)} items processed.')
+
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print('usage: seed_from_listings.py <input.json> [output_dir]')
+        sys.exit(2)
+    main(*sys.argv[1:])
+```
+
+### 6.5 `scripts/requirements.txt` — Python deps
+
+```
+# Pure-stdlib scripts need nothing.
+# Uncomment if you add jsonschema-based validation:
+# jsonschema>=4.0
+```
+
+---
+
+## 7. Cloudflare config — full source
+
+### 7.1 `_headers` — security + cache headers
+
+```
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(self)
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+```
+
+### 7.2 `_redirects` — clean URLs
+
+```
+/get-started       /get-started.html       200
+/pricing           /pricing.html           200
+/terms             /partner-terms.html     200
+/intake            /intake.html            200
+/invoice           /invoice.html           200
+/ops               /ops-console.html       200
+/one-pager         /one-pager.html         200
+```
+
+### 7.3 `_routes.json` — which paths hit Functions
+
+Only needed once you add Functions. Prevents Functions from intercepting static asset requests.
+
+```json
+{
+  "version": 1,
+  "include": ["/api/*"],
+  "exclude": []
+}
+```
+
+### 7.4 `wrangler.toml` — Cloudflare config
+
+```toml
+name = "eatouts"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "."
+
+# Only needed if you use Pages Functions with bindings.
+# Uncomment as you migrate from localStorage to Cloudflare storage:
+
+# [[kv_namespaces]]
+# binding = "OPS_KV"
+# id = "<your-kv-namespace-id>"
+
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "eatouts"
+# database_id = "<your-d1-id>"
+
+# [[r2_buckets]]
+# binding = "UPLOADS"
+# bucket_name = "eatouts-uploads"
+```
+
+### 7.5 `package.json` — Wrangler scripts
+
+```json
+{
+  "name": "eatouts",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev . --port=8788",
+    "deploy": "python scripts/deploy.py",
+    "build": "python scripts/build_restaurant_directory.py",
+    "validate": "python scripts/validate_submission.py"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}
+```
+
+### 7.6 `.dev.vars` — local secrets (gitignored)
+
+```
+ADMIN_TOKEN=dev-only-change-me
+```
+
+### 7.7 `.gitignore`
+
+```
+node_modules/
+.dev.vars
+.wrangler/
+owner_submissions/*.json
+!owner_submissions/.gitkeep
+__pycache__/
+*.pyc
+.DS_Store
+```
+
+### 7.8 `functions/*` — Pages Functions (optional, Model B)
+
+Add these only when you migrate off `localStorage`. Until then, the app is pure static.
+
+**`functions/_middleware.js`** — auth gate for `/api/*`:
+
+```js
+export async function onRequest(context) {
+  const { request, env, next } = context;
+  if (!request.url.includes('/api/')) return next();
+  const token = request.headers.get('X-Admin-Token');
+  if (token !== env.ADMIN_TOKEN) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+  return next();
+}
+```
+
+**`functions/api/venues.js`** — KV-backed venues:
+
+```js
+export async function onRequestGet({ env }) {
+  const raw = await env.OPS_KV.get('venues');
+  return Response.json(raw ? JSON.parse(raw) : []);
+}
+
+export async function onRequestPost({ request, env }) {
+  const body = await request.json();
+  const raw = await env.OPS_KV.get('venues');
+  const venues = raw ? JSON.parse(raw) : [];
+  venues.push({ ...body, id: `v_${Date.now().toString(36)}` });
+  await env.OPS_KV.put('venues', JSON.stringify(venues));
+  return Response.json({ ok: true });
+}
+```
+
+**`functions/api/invoices.js`** — same pattern, key `invoices`.
+**`functions/api/submissions.js`** — same pattern, key `submissions`.
+**`functions/api/upload.js`** — R2 upload endpoint (only needed once you wire the image compressor / video validator):
+
+```js
+export async function onRequestPost({ request, env }) {
+  const form = await request.formData();
+  const file = form.get('file');
+  if (!file) return new Response('No file', { status: 400 });
+  const key = `${Date.now()}-${file.name}`;
+  await env.UPLOADS.put(key, file.stream(), {
+    httpMetadata: { contentType: file.type }
+  });
+  return Response.json({ url: `/uploads/${key}` });
+}
+```
+
+### 7.9 Build & deploy pipeline
+
+**Local development:**
+
+```bash
+# Python merge (run once after intake exports)
+python scripts/build_restaurant_directory.py
+
+# Local preview with Wrangler (Cloudflare Pages emulation)
+npm run dev
+# -> http://127.0.0.1:8788
+```
+
+**Important:** `npm run dev` serves over `http://127.0.0.1:8788`. If you use `run-eatouts.bat` instead, it must also serve over `127.0.0.1` — `file://` isolates `localStorage` per page and breaks auth.
+
+**Production deploy:**
+
+```bash
+# Full pipeline: merge + deploy
+npm run deploy
+
+# Or step by step:
+python scripts/build_restaurant_directory.py
+npx wrangler pages deploy . --project-name=eatouts
+```
+
+### 7.10 CI (GitHub Actions example)
+
+```yaml
+name: Deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: pip install -r scripts/requirements.txt
+      - run: python scripts/build_restaurant_directory.py
+      - run: npx wrangler pages deploy . --project-name=eatouts
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+```
+
+### 7.11 Cloudflare storage migration path
+
+Start with **Model A** (localStorage). Migrate to **Model B** when you need multi-device or shared state.
+
+| Data | Model A (launch) | Model B (scale) |
+|---|---|---|
+| Pricing | `DB.settings.pricing` in localStorage | Same — static config, ship it in `pricing.html` |
+| Intake draft | `eatouts_intake_draft_v1` in localStorage | KV namespace `OPS_KV`, key `draft:<session>` |
+| Ops state (venues, invoices, submissions, metrics, bank) | `eatouts_ops_v1` in localStorage | KV `OPS_KV` or D1 database |
+| Venue directory | `directory_runtime_data.json` (static) | Same — read-only, serve it static |
+| Images / video | URLs only (no uploads) | R2 bucket `UPLOADS` + `functions/api/upload.js` |
+| Auth | `EatoutsAuth` (localStorage session) | Cloudflare Access, or a Worker-issued JWT |
+
+**The migration is incremental.** You do not rewrite the HTML pages — they isolate state behind `opsLoad()` / `opsSave()` and `EatoutsDB.load()` / `EatoutsDB.save()`. Swap those two function bodies to call `/api/*`, and the pages keep working.
+
+---
+
+## 8. Existing files that must be updated
+
+The new pages are self-contained and do not require changes to the runtime modules. But several existing files have follow-up edits called out in `NEW_PAGES.md` §10 and `MARKETING_ONBOARDING_PLAN.md`. These are **not optional** if the new pages are meant to close the launch blockers.
+
+### 8.1 `restaurant-dashboard.html` (owner dashboard)
+
+Three edits from `NEW_PAGES.md` §10 and `AI_BUILD_PROMPTS.md` §1 master:
+
+1. **Add "Export this restaurant" button** — serialise the signed-in restaurant record + its forked content (`EatoutsDB.resolveContent`) to a downloadable `venue_<slug>.json`. Plan task **A1**; closes blocker #1 (no export/publish path). Without this, the intake → export → merge → deploy loop is incomplete. **Use the same shape as `intake.html`'s `buildExportObject()`** so the merge script ingests both.
+2. **Fix tiers** — replace the old `{starter:300, growth:500, pro:800}` with `{starter:100, growth:300, pro:500}` and read from the shared pricing object (`EATOUTS_PRICING` / `DB.settings.pricing`) instead of hardcoding. Plan task **B10**. The dashboard currently shows the wrong (old) numbers.
+3. **Add setup-fee status** — show "P300 setup paid / owing" sourced from `eatouts_ops_v1` when available. This connects the dashboard to the ops console's publish gate.
+
+### 8.2 `index.html` (customer app)
+
+Two edits from `NEW_PAGES.md` §10 and `MARKETING_ONBOARDING_PLAN.md` §7:
+
+1. **Per-venue WhatsApp routing** — route order / split-bill / booking / promo enquiry messages to the restaurant's own contact (falling back to `CONFIG.whatsapp`) instead of always the flagship `+267 71 844 129`. Plan task **A7**; closes blocker #2. See §4 step 8a for the helper.
+2. **"List your restaurant" CTA** — add a link to `get-started.html` on the About page / home surface. Plan task **C16**. Low-effort; makes the new public landing reachable from the live site.
+
+### 8.3 `README.md.md` → `README.md`
+
+Plan task **B12**: rename `README.md.md` to `README.md` and update it with the new tier pricing (P300 + P100/P300/P500). Remove or clearly mark as roadmap the unbuilt "interaction analytics dashboard" claim so marketing never over-promises. This is a doc-only change but it protects the launch narrative.
+
+### 8.4 `HTML_PAGES.md` (audit doc)
+
+Not a runtime dependency, but keep it honest: after the dashboard tiers are fixed and the export/publish path exists, update the relevant "Cannot do" lines (old P300/P500/P800 billing; no export/publish path) so the audit matches reality.
+
+### 8.5 `scripts/build_restaurant_directory.py` (merge script)
+
+Plan task **A2**. The intake → merge → deploy loop is incomplete without this. The script must ingest `owner_submissions/*.json` using the shape from §3.3(b). The intake export already matches; the script's job is to read it, merge into `directory_runtime_data.json`, and produce the runtime bundle. **The intake export shape and this script are a matched pair** — if one changes, the other must change with it. Full source in §6.1.
+
+---
+
+## 9. Acceptance criteria shorthand
+
+These are the checks from `NEW_PAGES.md` that the team should run against each file after integrating. Full detail is in `NEW_PAGES.md` §3–§10.
+
+### `pricing.html`
+- States P300 one-time setup + Starter P100 / Growth P300 / Pro P500.
+- Shows the full feature matrix (8 rows × 3 tiers) exactly as in `NEW_PAGES.md` §4.
+- Defines the price object once in JS and writes it into `DB.settings.pricing` so the dashboard reads the same numbers.
+- Rules box: listing published only after the P300 setup fee is confirmed; links to `partner-terms.html`.
+- WhatsApp CTA using the same `wa.me` mechanism as `get-started.html`.
+- Renders at 360px (stacked cards or horizontal scroll).
+- **No console errors over `http://127.0.0.1`.**
+
+### `get-started.html`
+- Hero with primary WhatsApp CTA; 3-step how-it-works; benefit grid (no commission, own WhatsApp, concierge, live promos/events); pricing summary card linking to `pricing.html`; proof placeholder; 5–6 question FAQ; sticky WhatsApp + Call footer.
+- Reads `EatoutsDB.load().settings.whatsapp` (default `26771844129`).
+- CTA is a prefilled `https://wa.me/<number>?text=...` link — no form backend.
+- Renders cleanly at 360px and on desktop. No session required.
+
+### `partner-terms.html`
+- Four parts: Merchant Terms of Service; Subscription Agreement (P300 non-refundable, recurring P100/P300/P500, billing cycle, cancellation/downgrade, suspension for non-payment, publish-after-setup rule); Merchant-data privacy addendum consistent with the existing 14-section Privacy Policy in `index.html`; version + effective date constant.
+- Anchored headings for direct linking. Footer note: template pending legal review.
+- Linked from `pricing.html` and `get-started.html`. No session required.
+
+### `intake.html`
+- Internal; gated with `EatoutsAuth.requireSession()` first; not in the public tab bar.
+- Mirrors `restaurant-onboarding.html` sections: Identity, Location (district/town/area from `botswana_locations.js`), Contacts, Socials, Hours, Character, Amenities, Menu tags, Capacity, Payments, Reservations, Reservation services, Service staff, Menu, Promos, Events, Gallery, then Review & Export.
+- Export produces `venue_<slug>_<YYYYMMDD>.json` shaped for `owner_submissions/` and consistent with `directory_runtime_data.json` + owner content.
+- Draft persists so a session can resume (dedicated draft key or `eatouts_ops_v1`).
+- WhatsApp-shareable summary + printable checklist.
+- No image uploads — URLs only.
+- **Acceptance:** complete all sections, export valid JSON, re-open to resume draft, JSON re-imports without data loss.
+
+### `invoice.html`
+- Internal; auth-gated; not in public tab bar.
+- Form: venue name, contact, tier, setup fee (default P300 from shared object), first month, invoice number auto `EO-<YYYYMM>-<seq>`, issue date, due date.
+- Renders printable invoice with bank + MoMo instructions (placeholders stored in `eatouts_ops_v1`, entered once).
+- "Send on WhatsApp" prefilled `wa.me` button; "Print / Save PDF" via `window.print()` with print stylesheet hiding bars/buttons.
+- Invoice log appended to `eatouts_ops_v1` with unpaid/paid toggle.
+- **Acceptance:** print preview shows only the invoice; marking paid updates the log and shows in `ops-console.html`.
+
+### `ops-console.html`
+- Internal; auth-gated; not linked publicly.
+- Venues table (name, tier, setup-fee-paid, next billing date, status draft/ready/live, WhatsApp, actions).
+- Add/edit venue form. Submissions queue of exported JSON filenames ready to merge.
+- **Publish gate:** venue can be marked ready/live only when setup fee paid = true; blocking notice otherwise.
+- Weekly metric cards: venues live, paid subscribers, MRR, clicks (manual entry now, later from `EatoutsDB.summary()`).
+- Revenue summary: setup fees collected + monthly recurring.
+- Stores everything under `eatouts_ops_v1`; reads tier prices from the same object as `pricing.html`.
+- Visible note: single-device prototype, not security, not multi-user, do not link from public pages.
+- **Acceptance:** adding a venue with `setupPaid=false` cannot be marked ready to deploy; MRR recomputes from active tiers; invoice "paid" entries appear; data survives reload.
+
+### `one-pager.html`
+- Branded printable pitch sheet: what EatOuts is; customer win; restaurant win; pricing line; live link + QR (client-side encoder or static placeholder).
+- `@media print` friendly.
+- **Acceptance:** prints to a clean single-page PDF; no console errors.
+
+### `eatouts-video-validator.js`
+- Drop-in; exposes `EatoutsVideoValidator.validate(file, maxSizeMB, maxDurationSeconds)` returning a promise.
+- Validates MIME/extension, size cap, duration via native `<video>` metadata, with timeout and format-unsupported errors.
+- **No changes needed to existing pages to add this file.** No upload surface exists yet (see §11).
+
+### `eatouts-image-compressor.js`
+- Drop-in; exposes `EatoutsImageCompressor.compress(file, maxWidth, maxHeight, quality)` returning a Blob (WebP with JPEG fallback), plus `compressDetailed()` returning the full result object.
+- **No changes needed to existing pages to add this file.** No upload surface exists yet (see §11).
+
+---
+
+## 10. Cloudflare deployment checklist
+
+- [ ] `wrangler.toml` present at root with `pages_build_output_dir = "."`
+- [ ] `package.json` present with `dev`, `deploy`, `build` scripts
+- [ ] `_headers` present (security + cache)
+- [ ] `_redirects` present (clean URLs)
+- [ ] `scripts/build_restaurant_directory.py` present and runs without error
+- [ ] `scripts/deploy.py` present and runs without error
+- [ ] `owner_submissions/.gitkeep` present
+- [ ] `.gitignore` excludes `owner_submissions/*.json`, `.dev.vars`, `.wrangler/`, `__pycache__/`
+- [ ] `npm run dev` serves over `http://127.0.0.1:8788`
+- [ ] `npm run build` merges submissions and updates `directory_runtime_data.json`
+- [ ] `npm run deploy` pushes to Cloudflare Pages without error
+- [ ] Cloudflare Pages project `eatouts` exists and is connected to the repo (or deployed via Wrangler)
+- [ ] `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set as CI secrets if using GitHub Actions
+- [ ] Live URL loads `pricing.html`, `get-started.html`, `partner-terms.html` without auth
+- [ ] Live URL redirects `intake.html`, `invoice.html`, `ops-console.html` to login without a session
+- [ ] A venue exported from `intake.html`, merged by the script, appears in the live directory
+
+---
+
+## 11. The two library files: where they actually get used
+
+`eatouts-video-validator.js` and `eatouts-image-compressor.js` are useful, but the project currently has **no file-upload surface** — every image/video in the existing onboarding pages is a URL or emoji (`HTML_PAGES.md` §Shared constraint 5). So these libraries do not yet hook into any existing page.
+
+### 11.1 Where each library is expected to hook in
+
+The existing onboarding pages accept images only as URLs or emoji. The expected call sites, in priority order:
+
+1. **Gallery image upload (highest value).** `gallery-onboarding.html`; the concierge intake gallery editor in `intake.html`.
+2. **Menu item image upload.** `menu-onboarding.html` and the intake menu editor.
+3. **Promo image upload.** `promo-onboarding.html` and the intake promo editor.
+4. **Cover/logo image upload.** `restaurant-onboarding.html` identity section and the intake identity section.
+5. **Video upload (lower priority).** Only relevant if the platform ever accepts venue intro videos, event promo videos, or dish videos.
+
+### 11.2 What the upload surface must provide before either library is useful
+
+A real upload surface needs more than a `<input type=file>`. The project currently stores images as URLs in `localStorage`, so an upload path has to decide **where the file lives** and **what URL it gets**. The options:
+
+- **`localStorage` + `URL.createObjectURL`** — simplest, per-device. Blob URLs are transient.
+- **Base64/data URL in `localStorage`** — survives reloads, but inflates storage and hits quota faster (the DB is kept under ~5 MB).
+- **R2 via a Pages Function** — the Cloudflare-native path. `functions/api/upload.js` (§7.8) puts the file in R2 and returns a stable URL. This is the target once you migrate to Model B.
+
+For launch, keep URL entry as the primary path, and add the compressor as an **optional** helper the concierge can use when a venue sends actual files.
+
+### 11.3 `eatouts-image-compressor.js` — exact integration plan
+
+**Global exposed:** `EatoutsImageCompressor`.
+**Key methods:**
+- `compress(file, maxWidth, maxHeight, quality)` → `Promise<Blob>`
+- `compressDetailed(file, maxWidth, maxHeight, quality)` → `Promise<{ blob, width, height, originalWidth, originalHeight, originalSize, compressedSize, ratio, savedBytes, type, usedFallback, quality }>`
+- `supportsWebP()` → `boolean`
+- `isImage(file)` → `boolean`
+- `blobToDataURL(blob)` → `Promise<string>`
+- `formatBytes(bytes)` → `string`
+- `DEFAULTS` → `{ maxWidth:1600, maxHeight:1600, quality:0.82, mimeType:'image/webp' }`
+
+**How to load it:** add one `<script src="eatouts-image-compressor.js"></script>` to any page that needs it, after the existing library scripts.
+
+**Recommended defaults:** photos `1600×1600 @ 0.82`; thumbnails `400×400 @ 0.78`.
+
+**How to consume the result:** if the target field is a URL field (the normal case), convert with `blobToDataURL(blob)` and write that string into the image field. If you have the R2 upload endpoint, POST the Blob to `/api/upload` and write the returned URL instead.
+
+**What NOT to do:** do not silently replace a venue's existing image URL with a compressed blob. Compress when the source is a local File; pass through when the source is already a URL.
+
+### 11.4 `eatouts-video-validator.js` — exact integration plan
+
+**Global exposed:** `EatoutsVideoValidator`.
+**Key methods:**
+- `validate(file, maxSizeMB, maxDurationSeconds)` → `Promise<{ duration, width, height, size, sizeMB, type, name }>`
+- `isVideo(file)` → `boolean`
+- `formatSeconds(seconds)` → `string`
+- `formatMB(mb)` → `string`
+- `DEFAULTS` → `{ maxSizeMB:20, maxDurationSeconds:60 }`
+
+**How to load it:** add one `<script src="eatouts-video-validator.js"></script>` to any page that accepts video. Self-contained.
+
+**Recommended defaults:** `validate(file, 20, 60)` — 20 MB, 60 seconds.
+
+**What it does and does not do:** it checks type, size, and duration; it does **not** transcode or compress video. It does not run reliably on every format on `file://` — some MKV/AVI report no duration and are rejected with `duration-read-failed`.
+
+**Failure codes:** `not-a-video`, `too-large`, `too-long`, `no-metadata`.
+
+**Why the validator may be lower priority than the compressor:** no page asks the user for a video file, video storage is a bigger problem than image storage, and adding a validator without a storage story risks validating files the app cannot keep.
+
+### 11.5 Loading order if both libraries are used on one page
+
+Load them in any order — they do not depend on each other.
+
+```html
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-brand.js"></script>
+<!-- only on pages that accept uploads -->
+<script src="eatouts-image-compressor.js"></script>
+<script src="eatouts-video-validator.js"></script>
+```
+
+Internal pages that accept uploads would still gate with `EatoutsAuth.requireSession()` first.
+
+### 11.6 Acceptance checks for the libraries (when wired in)
+
+- `isImage(file)` returns `true` for JPEG/PNG/WebP and `false` for text.
+- `compress()` returns a Blob smaller than the input for a large photo; `compressDetailed()` reports `savedBytes > 0`.
+- `supportsWebP()` is `true` on modern Chromium/Firefox/Edge; the library falls back to JPEG automatically.
+- `isVideo(file)` returns `true` for MP4/WebM and `false` for an image.
+- `validate()` rejects with a clear message for oversized/overlong files, resolves with `duration`/`width`/`height` for a valid file.
+- Neither library throws on load; both expose their globals on `window`.
+
+---
+
+## 12. Placeholder values the team must fill in after integration
+
+Per `AI_BUILD_PROMPTS.md` §4 and `NEW_PAGES.md` §11:
+
+- **Business bank account, account name, account number, branch code** — entered once in `invoice.html` and stored under `eatouts_ops_v1.bank`.
+- **MoMo number** — same place.
+- **Company registration / VAT** — same place.
+- **Live URL + QR image** — `one-pager.html` has a static placeholder; replace with the real live URL (your Cloudflare Pages URL) and a real QR (client-side encoder or a static image in `assets/`).
+- **Effective date + version on `partner-terms.html`** — currently v1.0 · 1 October 2026; bump when the legal review is done.
+- **Proof testimonial in `get-started.html`** — currently "Founding partner venue, Gaborone"; replace with a real quote once pilot restaurants are live (plan task D26).
+- **WhatsApp number** — `pricing.html`, `get-started.html`, `invoice.html` all read `EatoutsDB.load().settings.whatsapp` with a fallback to `26771844129`. Once per-venue routing is in place (plan task A7), the primary number should come from the venue's own contact, not the flagship.
+- **Cloudflare project name** — `wrangler.toml` and `package.json` use `eatouts`. Change if your Cloudflare Pages project is named differently.
+- **`CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`** — set as CI secrets if deploying via GitHub Actions.
+- **`scripts/build_restaurant_directory.py`** — not part of the HTML files, but the intake → merge → deploy loop is incomplete without it. The intake export shape must match what that script expects. Full source in §6.1.
+
+---
+
+## 13. Integration checklist (run after the files are in place)
+
+For each new page, confirm against `AI_BUILD_PROMPTS.md` §4:
+
+- [ ] Single self-contained `.html`, no external libraries, no CDNs, no build step.
+- [ ] Uses the existing `.topbar/.tabs/.section/.btn/.modal` classes and the `const OPEN={}` expand/collapse pattern (where applicable).
+- [ ] Internal pages call `EatoutsAuth.requireSession()` first; public pages do not.
+- [ ] All dynamic text passed through `esc()`.
+- [ ] No writes to `eatouts_db_v2` except via `EatoutsDB` / `EatoutsOwnerCompat`.
+- [ ] New internal state under `eatouts_ops_v1` (or a dedicated draft key for intake).
+- [ ] Renders at 360px; tap targets ≥ 44px; `env(safe-area-inset-bottom)` on fixed bars.
+- [ ] Loads with no console errors over `http://127.0.0.1` (never `file://`).
+- [ ] Placeholders flagged: bank account, MoMo, phone, effective date, live URL/QR.
+
+Plus the cross-page checks:
+
+- [ ] **Contract #1 (pricing):** `pricing.html` price object matches the numbers in `get-started.html`, `partner-terms.html`, `invoice.html`, `ops-console.html`, and (after the fix) `restaurant-dashboard.html`. Verify in DevTools: `EatoutsDB.load().settings.pricing.setup === 300` and each tier price matches.
+- [ ] **Contract #2 (`eatouts_ops_v1`):** `ops-console.html` reads the invoices `invoice.html` writes, and the submissions `intake.html` writes. Verify in DevTools → Local Storage.
+- [ ] **Contract #3 (intake export):** `intake.html` export shape is ingestable by `scripts/build_restaurant_directory.py` — confirm by running `python scripts/build_restaurant_directory.py` and checking the venue appears in `directory_runtime_data.json`. The `$schema` field is `eatouts.venue.v1`.
+- [ ] **Contract #4 (auth gate):** `intake.html`, `invoice.html`, `ops-console.html` all redirect to login without a session; `pricing.html`, `get-started.html`, `partner-terms.html` load without one.
+- [ ] **Contract #5 (WhatsApp routing):** `index.html` per-venue routing routes to the venue's own number; a venue with no number falls back to the flagship. `get-started.html`, `pricing.html`, `invoice.html`, `intake.html` summary use the flagship (correct, because they are about EatOuts itself).
+- [ ] `partner-terms.html` publish-after-setup rule matches the `ops-console.html` publish gate and the `invoice.html` note.
+- [ ] `restaurant-dashboard.html` tiers fixed to P100/P300/P500 and reading from the shared object; export button present; setup-fee status shown.
+- [ ] `index.html` "List your restaurant" CTA links to `get-started.html`.
+- [ ] `README.md.md` renamed to `README.md` and updated with new pricing; analytics-dashboard claim removed/marked roadmap.
+- [ ] `HTML_PAGES.md` audit updated to reflect the fixed dashboard billing and the new export/publish path.
+- [ ] Cloudflare deployment checklist (§10) all ticked.
+
+---
+
+## 14. What is not covered by these ten files
+
+These files close most of the launch blockers listed in `MARKETING_ONBOARDING_PLAN.md`, but not all:
+
+- **Export → merge → deploy loop is still incomplete without the Python scripts.** The new pages add the intake export and the ops console, but `scripts/build_restaurant_directory.py` must exist and ingest `owner_submissions/` (plan task A2), and `scripts/deploy.py` must push to Cloudflare Pages (plan task A3). The new pages make the first half possible; §6–§7 supply the second half.
+- **No payment gateway.** Invoicing (`invoice.html`) and the publish gate (`ops-console.html`) are manual — someone marks "paid". Plan task B11 is about the process, not automatic charging.
+- **No real analytics yet.** `ops-console.html` weekly metrics are manually entered at launch; plan task E27 notes they later come from `EatoutsDB.summary()` once the customer app emits real events. The existing dashboard analytics are simulated (`HTML_PAGES.md`).
+- **No upload surface yet.** The two library files are ready but have nowhere to hook in until an upload feature is added (and until the R2 bucket + `functions/api/upload.js` exist, per §7.8).
+- **Legal review pending.** `partner-terms.html` is a template flagged for review by a qualified Botswanan legal practitioner before it is relied on for material commercial agreements.
+- **Single-device state.** `eatouts_ops_v1` and `eatouts_intake_draft_v1` live in browser localStorage. Multi-user requires the Model B migration (§7.11).
+
+---
+
+## 15. Quick reference
+
+### Which doc says what
+
+- **`AI_BUILD_PROMPTS.md`** — the how-to: master prompt, per-page prompts, file checklist, delivery order, output checklist, hard constraints.
+- **`NEW_PAGES.md`** — the what: the spec and acceptance checks for every new page.
+- **`HTML_PAGES.md`** — the where-we-are: what the existing eight operator pages + seed demo can and cannot do.
+- **`MARKETING_ONBOARDING_PLAN.md`** — the why: the 29-task launch plan, blockers, and the paid-from-day-one pricing decision.
+- **`INTEGRATION.md`** (this file) — the wiring: the five contracts, the step-by-step implementation, the full Cloudflare + Python file manifest, and every config file in full.
+
+### The five contracts in one table
+
+| # | Contract | Owner | Readers | Storage |
+|---|---|---|---|---|
+| 1 | Pricing object | `pricing.html` | all price-showing pages | `window.EATOUTS_PRICING` + `DB.settings.pricing` |
+| 2 | Ops state | whichever page writes | intake / invoice / ops-console / dashboard | `localStorage['eatouts_ops_v1']` |
+| 3 | Intake draft + export | `intake.html` | ops-console + merge script | `localStorage['eatouts_intake_draft_v1']` + downloaded JSON |
+| 4 | Auth gate | `js/eatouts-auth.js` | 3 internal pages | session in localStorage (existing) |
+| 5 | WhatsApp routing | `index.html` | all `wa.me` emitters | venue record → `CONFIG.whatsapp` fallback |
+
+### The five things that break if you get it wrong
+
+| Mistake | Symptom |
+|---|---|
+| Hardcode a price outside `pricing.html` | Dashboard shows old numbers; invoice and pricing disagree |
+| Write internal state to `eatouts_db_v2` | Operator pages overwrite each other; intake draft disappears |
+| Change the intake export shape without updating the merge script | `build_restaurant_directory.py` silently drops fields |
+| Call `requireSession()` on a public page | Diners get bounced to operator login |
+| Route all `wa.me` to the flagship | Every venue's orders land on EatOuts's phone; blocker #2 stays open |
+
+### Cloudflare commands cheatsheet
+
+```bash
+# Install Wrangler locally
+npm install
+
+# Local dev (serves over http://127.0.0.1:8788)
+npm run dev
+
+# Merge owner_submissions/*.json into the runtime directory
+npm run build
+
+# Validate a single submission before it enters owner_submissions/
+python scripts/validate_submission.py owner_submissions/venue_foo_20261007.json
+
+# Full deploy: merge + push to Cloudflare Pages
+npm run deploy
+
+# Or push manually
+npx wrangler pages deploy . --project-name=eatouts
+```

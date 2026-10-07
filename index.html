@@ -38,6 +38,9 @@ img{display:block;max-width:100%}
 #shell.promos-tab.promo-focus #hdr,#shell.promos-tab.promo-focus #nav,
 #shell.promos-tab.promo-focus #cbar,#shell.promos-tab.promo-focus #filter-bar,
 #shell.promos-tab.promo-focus .cal{display:none}
+/* #hdr is gone in this mode, so a popup pinned below it would float over a
+   66px dead gap — tuck it against the top edge instead. */
+#shell.promos-tab.promo-focus .fpop{top:16px}
 .brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden}
 .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
 .hdr-right{margin-left:auto}
@@ -65,6 +68,14 @@ img{display:block;max-width:100%}
 #cbar.on{display:block}
 
 /* ---------- FLOATING FILTER POPUP (lightweight overlay) ---------- */
+/* Shared geometry for every popup: fixed, pinned 66px below the top of the
+   screen (just under the 58px #hdr) instead of hovering above its trigger at
+   the bottom, and inset 16px inside the 460px phone frame on both sides.
+   For a fixed element 100% is the viewport width, so max(16px,calc((100% -
+   460px)/2 + 16px)) = the grey gutter + 16px on wide screens and a plain
+   16px on phones — equal spacing either side, never touching an edge.
+   (keep 460px in sync with #shell and with .fpop-scrim's clip-path below). */
+.fpop{position:fixed;top:66px;bottom:auto;left:max(16px,calc((100% - 460px)/2 + 16px));right:max(16px,calc((100% - 460px)/2 + 16px));background:#ffffff;border:1px solid #ece7db;border-radius:14px;box-shadow:0 -6px 26px -6px rgba(0,0,0,.2);overflow:hidden;z-index:60;animation:fpop .18s ease}
 /* Frosted backdrop for all 5 picker popups. The scrim sits above page content
    but below .fpop (60) and .pfbtn (56), so the menu and its trigger stay sharp.
    -webkit- prefix is required: Safari ignores the unprefixed form entirely.
@@ -78,7 +89,6 @@ img{display:block;max-width:100%}
    tracks #shell's max-width:460px (keep those two in sync); var(--navh) is
    measured at runtime because it varies with env(safe-area-inset-bottom). */
 .fpop-scrim{position:fixed;inset:0;z-index:55;background:rgba(20,18,12,.28);backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);clip-path:inset(58px max(0px,calc((100% - 460px)/2)) var(--navh) max(0px,calc((100% - 460px)/2)))}
-.fpop{position:absolute;left:8px;right:8px;bottom:calc(100% + 8px);background:#ffffff;border:1px solid #ece7db;border-radius:14px;box-shadow:0 -6px 26px -6px rgba(0,0,0,.2);overflow:hidden;z-index:60;animation:fpop .18s ease}
 @keyframes fpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .fpop button{display:block;width:100%;padding:12px 14px;font-size:12.5px;font-weight:700;color:#3a3324;border-bottom:1px solid #f4efe4;text-align:left}
 .fpop button:last-child{border-bottom:0}
@@ -262,7 +272,14 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
    .cbar2+.rest-filter-row padding stack so the button isn't cramped). */
 .rest-filter-row.town-row{padding:14px 12px 12px}
 .rest-filter-row.town-row .cbtn{text-align:center}
-.rest-type-pop{left:8px;right:8px;width:auto;max-width:none;max-height:min(70vh,620px);padding:0;display:flex;flex-direction:column}
+/* Gallery cbar: two value buttons whose text may be long (venue names) */
+.cbtn.gal-val{flex:0 1 auto;min-width:0;max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Viewed Restaurant popup: Town/City | Area side-by-side row */
+.fpop .gal-locrow{display:flex;gap:8px;padding:10px 10px 8px;border-bottom:1px solid #f4efe4}
+.fpop .gal-locrow .cbtn{display:block;flex:1;min-width:0;width:auto;padding:9px 8px;border:1px solid #ece7db;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fpop .gal-locrow .cbtn.on{background:#0a0a0a;border-color:#0a0a0a;color:#ffffff}
+.fpop .gal-back{font-weight:900;background:#faf8f2}
+.rest-type-pop{width:auto;max-width:none;max-height:min(70vh,620px,calc(100vh - 66px - var(--navh) - 16px));padding:0;display:flex;flex-direction:column}
 .rest-type-top{flex:0 0 auto;padding:10px;background:#fff;border-bottom:1px solid #ece7db}
 .rest-type-top .csearch{min-height:38px}
 .rest-type-status{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px;font-size:11px;font-weight:800;color:#645b48}
@@ -351,12 +368,11 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .pfbtn.pf-type{justify-content:flex-end;text-align:right}
 .pfbtn[disabled]{opacity:.45;cursor:default}
 .pfbtn[disabled]:active{background:#faf8f2}
-.fpop{max-height:min(60vh,520px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.fpop.town-pop{left:8px;right:8px;width:auto}
-/* area/type popups must match the base .fpop insets so they sit symmetric
-   within #cbar instead of hugging one edge at a 300px cap */
-.fpop.area-pop{left:8px;right:8px;width:auto;max-width:none}
-.fpop.type-pop{left:8px;right:8px;width:auto;max-width:none}
+.fpop{max-height:min(60vh,520px,calc(100vh - 66px - var(--navh) - 16px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+/* width:auto/max-width:none keep the shared .fpop side insets in charge;
+   without them a capped intrinsic width could win and shift the popup
+   off-centre (it used to sit at 8px caps against #cbar's edge). */
+.fpop.town-pop,.fpop.area-pop,.fpop.type-pop{width:auto;max-width:none}
 /* .fpop prefix is load-bearing: plain .loc-* is (0,1,0) and loses to
    .fpop button's (0,1,0)+type, so the rows would fall back to display:block
    and space-between would never push the count pill to the right edge. */
@@ -414,9 +430,12 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .ropts .cbtn,.ropts .cbtn-area{min-width:0;overflow:hidden;text-align:center;text-overflow:ellipsis;white-space:nowrap;background:#fff}
 .ropts .cbtn-area{font-size:12px;font-weight:800;letter-spacing:.03em;color:#3a3324;padding:9px 15px;border-radius:10px;border:1px solid #ece7db}
 .ropts .cbtn-area:active{background:#f4efe4}
-/* Per-restaurant branch picker: fixed so it floats over the list like the
-   promo popups, but anchored above the nav instead of a trigger row. */
-.rest-loc-pop{position:fixed;left:8px;right:8px;bottom:calc(var(--navh) + 14px);width:auto;max-width:none}
+/* Per-restaurant branch picker: shares the base .fpop geometry (fixed at
+   top:66px, 16px inside the phone frame); only width:auto/max-width:none
+   are kept here. */
+.rest-loc-pop{width:auto;max-width:none}
+/* hint/footer text reads as a centred caption inside the branch picker */
+.fpop.rest-loc-pop .fpop-note{text-align:center}
 /* Inactive Menu/Promos actions: greyed but still tappable so a notice can
    explain why (choose a location / no promos here). */
 .ropt.off{opacity:.4}
@@ -576,7 +595,14 @@ const IMG = {
     "Screenshot_20261002_171835_Instagram.jpg",
     "Screenshot_20261002_171906_Instagram.jpg",
     "Screenshot_20261002_172232_Instagram.jpg",
-    "poetry_nights.jpg"
+    "poetry_nights.jpg",
+    "amapiano_fest_flyer.jpg",
+    "ekhaya_music_fest_flyer.jpg",
+    "kofifi_nights_flyer.jpg",
+    "mas_musiQ_flyer.jpg",
+    "motse_wa_setso_flyer.jpg",
+    "simply_piano.jpg",
+    "sociala_link_music_festival_flyer.jpeg"
   ],
   food: [
     "SaveClip.App_764373293_17960851326179023_4992844234238441144_n_320.jpg",
@@ -605,10 +631,12 @@ const IMG = {
     "SaveClip.App_832994420_17970179436179023_475588297880048406_n.jpg"
   ]
 };
-/* Rotating event images exclude poetry_nights.jpg so the pinned
-   featured Poetry card never shares an image with the day event card. */
-const POETRY_FILE=IMG.poetry.split("/").pop();
-const EVENT_ROT=IMG.events.filter(function(f){return f!==POETRY_FILE;});
+/* Featured event flyers are owned by their own cards - they are kept out of
+   the rotating pool so a venue day card or a promo gallery never borrows one. */
+const FEATURED_FLYERS = IMG.events.filter(function(f){
+  return /^(poetry_nights|amapiano_fest_flyer|ekhaya_music_fest_flyer|kofifi_nights_flyer|mas_musiQ_flyer|motse_wa_setso_flyer|simply_piano|sociala_link_music_festival_flyer)\./.test(f);
+});
+const EVENT_ROT=IMG.events.filter(function(f){return FEATURED_FLYERS.indexOf(f)<0;});
 function evImg(i){return IMG.dirEvents+IMG.events[((i%IMG.events.length)+IMG.events.length)%IMG.events.length];}
 function demoImg(i){const n=IMG.demoImages.length;return IMG.dirDemo+IMG.demoImages[((i%n)+n)%n];}
 function foodImg(i){return IMG.dirFood+IMG.food[((i%IMG.food.length)+IMG.food.length)%IMG.food.length];}
@@ -2825,10 +2853,146 @@ DATA_PROMOS.promos_by_day.forEach(function(d){
 const PROMO_NOTES = DATA_PROMOS.notes||[];
 
 /* ================================================================
-   FEATURED PROMO — Masa Poetry Nights (pinned first card)
+   FEATURED EVENTS — one card per weekday on the Promos feed.
+   day: 0=Sunday … 6=Saturday (DAY_NAMES order). Real event dates
+   are kept as display info only; placement is by weekday.
+   Sources: assets/images/events/{name}_flyer.jpg
+   ================================================================ */
+const FEATURED_EVENTS = [
+  {
+    id:"amapiano-fest", day:1,
+    title:"AmaPiano Fest",
+    tagline:"Amapiano / Street Culture / Youth Festival",
+    dateLabel:"Annual · Mid-Summer Weekend",
+    venue:"National Stadium Outer Grounds / Lion Park Resort",
+    lineup:[
+      {role:"DJs / Producers", name:"DJ Bunny, DJ Claps, Major League DJz (Guest), DJ T-Rex"},
+      {role:"Performers / Vocalists", name:"Focalistic, Pelo, Local Amapiano Dancers & MCs"}
+    ],
+    desc:"The ultimate celebration of log-drum basslines, piano keys, and street dance moves! AmaPiano Fest brings together top regional producers and local selectors for an all-day dance festival dedicated to the genre taking over the globe.",
+    tags:["#AmaPianoFest","#LogDrumVibes","#AmapianoBotswana","#DanceFestival"],
+    flyer:"amapiano_fest_flyer.jpg"
+  },
+  {
+    id:"kumnandi-ekhaya-3", day:2,
+    title:"Kumnandi Ekhaya Music Fest 3.0",
+    tagline:"#DikgositseThree · The premiere festival experience returns",
+    dateLabel:"29 September 2026",
+    presenter:"Kumnandi Ekhaya Music Fest",
+    venue:"Venue Loading (To Be Announced)",
+    lineup:[{role:"Headliners", name:"Sphalaphala · Saga Marothi"}],
+    tickets:[
+      {label:"Earlybird · ends 31 July 2026", price:"P100.00"},
+      {label:"Presold", price:"P150.00"},
+      {label:"At The Gate", price:"P200.00"},
+      {label:"VIP Double", price:"P1,500.00"}
+    ],
+    outlets:["WebTickets","Veetro's","Supa Save","Morata Media"],
+    contact:"(+267) 77 002 041 / 72 743 812",
+    desc:"The premiere festival experience returns with Volume 3.0! Featuring show-stopping performances by Sphalaphala and Saga Marothi, Kumnandi Ekhaya Music Fest brings the heat back to Botswana. Grab your early bird tickets early and secure your spot at the year's most anticipated showcase.",
+    tags:["#KumnandiEkhaya","#DikgositseThree","#BotswanaEvents","#LivePerformance","#WebTickets"],
+    flyer:"ekhaya_music_fest_flyer.jpg"
+  },
+  {
+    id:"motse-wa-setso-3", day:3,
+    title:"Motse Wa Setso Cultural Festival (3rd Edition)",
+    tagline:"#MogagamolaAfterMogagamola · Heritage, folklore, music & cuisine",
+    dateLabel:"24 April 2026 · 10:00 AM",
+    presenter:"Francistown Cultural Ensemble",
+    venue:"Molapo Leisure Gardens, Francistown",
+    lineup:[{role:"Headliner", name:"Madala Le KellyJess"}],
+    tickets:[
+      {label:"Early Bird", price:"P100.00"},
+      {label:"Double (Limited)", price:"P180.00"},
+      {label:"VIP", price:"P300.00"}
+    ],
+    outlets:["WebTickets","Choppies","Molapo Leisure Gardens"],
+    desc:"Celebrate local heritage, traditional folklore, music, and cuisine at the 3rd Edition of Motse Wa Setso Cultural Festival in Francistown! Headlined by Madala Le KellyJess, this day-long family event showcases cultural performances, crafts, and heritage celebration at Molapo Leisure Gardens.",
+    tags:["#MotseWaSetso","#CulturalFestival","#Francistown","#MadalaLeKellyJess","#MolapoLeisureGardens"],
+    flyer:"motse_wa_setso_flyer.jpg"
+  },
+  {
+    id:"mas-musiq-dejavu", day:4,
+    title:"Mas MusiQ Live",
+    tagline:"Featuring the Déjàvu Experience · Premium nightout",
+    dateLabel:"11 September 2026 · 10:00 PM – 06:00 AM",
+    presenter:"DJ Kuchi",
+    venue:"Déjàvu Lounge (1st Floor, Itowers North)",
+    lineup:[
+      {role:"Headliner", name:"Mas MusiQ"},
+      {role:"Supporting Lineup", name:"Miya Sihle, Yung Silly Coon, Kuchi, Deelow, Scratch, Chapu, Naysszn"}
+    ],
+    policy:"Strictly Bottle Policy · No Under 18s · VIP Right of Admission Reserved",
+    desc:"Experience high-energy Amapiano and deep electronic rhythms straight from South African star Mas MusiQ alongside Miya Sihle and Yung Silly Coon! Held at the iconic Déjàvu Lounge in iTowers, this premium nightout features a stellar local supporting cast powered by DJ Kuchi.",
+    tags:["#MasMusiQ","#Amapiano","#DejaVuLounge","#iTowers","#GaboroneNightlife","#DJKuchi"],
+    flyer:"mas_musiQ_flyer.jpg"
+  },
+  {
+    id:"simply-piano-4", day:5,
+    title:"Simply Piano (4th Edition)",
+    tagline:"Pure Amapiano · Sunset-to-Night Outdoor Groove",
+    dateLabel:"25 September 2026",
+    venue:"Fairgrounds, Gaborone",
+    lineup:[
+      {role:"Headliner", name:"Kamo Mphela · Live Vocal & Dance Performance"},
+      {role:"Featured DJs", name:"MDU a.k.a TRP, Kelvin Momo, DJ Kuchi, DJ Claps"},
+      {role:"Host / MC", name:"Tshego K"}
+    ],
+    outlets:["Tickito (online)","Liquorama stores nationwide","Choppies stores nationwide"],
+    sponsors:["Sunbet.co.bw","Gambling Authority","Powerplay","Blue Couch","Runners","KLM Group","St Daniel","MXD","Tickito","Liquorama","Choppies"],
+    desc:"The country's premier Amapiano spectacle returns for its 4th Edition at Fairgrounds, Gaborone! Simply Piano is all about unfiltered log-drum basslines, deep soulful keys, and non-stop street dance energy under the capital sky. Expect a world-class production featuring top-tier regional piano heavyweights and local tastemakers.",
+    tags:["#SimplyPiano","#SimplyPiano4thEdition","#FairgroundsGaborone","#AmapianoBotswana","#SunbetBW","#Tickito"],
+    flyer:"simply_piano.jpg"
+  },
+  {
+    id:"social-link-fest", day:6,
+    title:"Social Link Music Festival",
+    tagline:"House / Dance Music Festival · Outdoor lifestyle",
+    dateLabel:"31 October 2026",
+    presenter:"DJ Bongz Presents",
+    venue:"Shongweni Club",
+    lineup:[{role:"Host", name:"DJ Bongz"}],
+    desc:"Get ready for the ultimate outdoor music experience as DJ Bongz presents the Social Link Music Festival at Shongweni Club! Bring your festival energy, enjoy top-tier electronic and house beats under the open sky, and connect with fellow partygoers for an unforgettable day-to-night celebration.",
+    tags:["#HouseMusic","#MusicFestival","#OutdoorParty","#ShongweniClub","#SaveTheDate"],
+    flyer:"sociala_link_music_festival_flyer.jpeg"
+  },
+  {
+    id:"kofifi-nights", day:0,
+    title:"Kofifi Nights",
+    tagline:"Classic jazz · Big band · Vintage Kofifi lifestyle",
+    dateLabel:"16 August 2025 · Doors 17:30",
+    presenter:"Botswana Society for Jazz Education (BOSJE) & Concerts SA",
+    venue:"Kingdom Arts Academy",
+    lineup:[
+      {role:"Headliner", name:"Hendrick Monyeki Sextet (SA)"},
+      {role:"Ensembles", name:"BOSJE Big Band · Kingdom Arts Band"}
+    ],
+    tickets:[
+      {label:"Single", price:"P80.00"},
+      {label:"Double", price:"P150.00"}
+    ],
+    contact:"(+267) 75 150 718",
+    desc:"Step back in time to the golden vintage era of Jazz! The Botswana Society for Jazz Education presents a sophisticated evening of classical jazz, big band arrangements, and swing melodies headlined by the renowned Hendrick Monyeki Sextet alongside top local jazz musicians. Dress vintage and embrace the classic Kofifi lifestyle.",
+    tags:["#KofifiNights","#BotswanaJazz","#BOSJE","#LiveJazz","#KingdomArts","#VintageVibes"],
+    flyer:"kofifi_nights_flyer.jpg"
+  },
+  {
+    id:"POETRY-NIGHT-01", day:0, poetry:true,
+    title:"Masa Poetry Nights",
+    tagline:"Open-mic spoken word, poetry & live music in central Gaborone.",
+    dateLabel:"Periodic evening sessions",
+    presenter:"Think Tanks Advertising",
+    venue:"Masa Square precinct, central Gaborone",
+    desc:"One stage. Countless voices.",
+    flyer:"poetry_nights.jpg"
+  }
+];
+
+/* ================================================================
+   FEATURED PROMO — Masa Poetry Nights (Sunday card detail)
    Sources: assets/images/events/poetry_nights.jpg
-           Masa_Poetry Nights_info.txt
-           masa_poetry_nights_artists.json
+            Masa_Poetry Nights_info.txt
+            masa_poetry_nights_artists.json
    ================================================================ */
 const POETRY = {
   id:"POETRY-NIGHT-01",
@@ -2881,24 +3045,134 @@ const GALLERY=[];
   const pad=function(n){return n<10?"0"+n:""+n;};
   const add=function(cat,list,dir,prefix){
     list.forEach(function(f,i){
-      GALLERY.push({id:cat+"_"+i, cat:cat, src:dir+f, label:prefix+" "+pad(i+1), file:f});
+      let tags=["#"+cat];
+      if(cat==="Events"){
+        for(let k=0;k<FEATURED_EVENTS.length;k++){
+          if(FEATURED_EVENTS[k].flyer===f){tags=(FEATURED_EVENTS[k].tags||["#Events"]).slice();break;}
+        }
+      }
+      GALLERY.push({id:cat+"_"+i, cat:cat, src:dir+f, label:prefix+" "+pad(i+1), file:f, tags:tags, rest:null});
     });
   };
   add("Events",IMG.events,IMG.dirEvents,"Event");
   add("Food",IMG.food,IMG.dirFood,"Dish");
-  add("Gallery",IMG.gallery,IMG.dirGallery,"Gallery");
+  add("Timeline",IMG.gallery,IMG.dirGallery,"Timeline");
 })();
-const GALLERY_CATS=["All","Events","Food","Gallery"];
+const GALLERY_CATS=["All","Promos","Events","Food","Timeline"];
+function gpad(n){return n<10?"0"+n:""+n;}
+function hay(g){return (g.label+" "+g.cat+" "+g.file+" "+((g.tags||[]).join(" "))).toLowerCase();}
+function gtag(x){return "#"+String(x||"").replace(/[^A-Za-z0-9]+/g,"");}
+function poolSlice(list,seed){
+  const out=[];
+  if(!list||!list.length) return out;
+  const n=list.length, off=hash(String(seed||""))%n, take=Math.max(3,Math.ceil(n/2));
+  for(let i=0;i<take;i++){const idx=(off+i)%n;out.push({i:idx,v:list[idx]});}
+  return out;
+}
+function locationWanted(loc,f){
+  if(f.town&&f.town!=="All"&&String((loc&&loc.town)||"").toLowerCase()!==String(f.town).toLowerCase()) return false;
+  if(f.area&&f.area!=="All"&&String((loc&&loc.area)||"").toLowerCase()!==String(f.area).toLowerCase()) return false;
+  return true;
+}
+/* promos + events owned by one bundle, pushed onto out */
+function galleryPromoEventItems(b,rtag,out){
+  if(!b) return;
+  for(const d in (b.promos||{})){
+    const v=b.promos[d];
+    (Array.isArray(v)?v:(v?[v]:[])).forEach(function(p,i){
+      if(!p) return;
+      out.push({id:"gp_"+(p.id||p.promo_id||hash(d+"_"+i)), cat:"Promos", src:foodImg(hash(p.id||p.title||d)),
+        label:p.title||p.name||"Promo", file:"", rest:b.id||null,
+        tags:["#Promos",gtag(p.type||"Promo"),gtag(d),rtag]});
+    });
+  }
+  for(const d in (b.events||{})){
+    const v=b.events[d];
+    (Array.isArray(v)?v:(v?[v]:[])).forEach(function(e,i){
+      if(!e) return;
+      const di=DAY_NAMES.indexOf(d);
+      out.push({id:"ge_"+(e.id||e.title||e.name||hash(d+"_"+i))+"_"+d, cat:"Events",
+        src:eventImage(di<0?0:di), label:e.title||e.name||"Event", file:"", rest:b.id||null,
+        tags:["#Events",gtag(d),rtag]});
+    });
+  }
+}
+/* Food + Timeline photo slices for one scope - same demo files, but the
+   window is seeded by the scope so the grid visibly changes per venue */
+function galleryPhotoItems(seed,rtag,out){
+  poolSlice(IMG.food,seed).forEach(function(o){
+    out.push({id:"gf_"+o.i, cat:"Food", src:IMG.dirFood+o.v, label:"Dish "+gpad(o.i+1),
+      file:o.v, rest:null, tags:["#Food",rtag]});
+  });
+  poolSlice(IMG.gallery,seed).forEach(function(o){
+    out.push({id:"gt_"+o.i, cat:"Timeline", src:IMG.dirGallery+o.v, label:"Timeline "+gpad(o.i+1),
+      file:o.v, rest:null, tags:["#Timeline",rtag]});
+  });
+}
+function galleryItemsForRestaurant(id){
+  const out=[];
+  if(!hasBridge()) return out;
+  const b=EatoutsBridge.bundleOf(id);
+  if(!b) return out;
+  const rtag=gtag((b.restaurant&&b.restaurant.name)||b.name||"");
+  galleryPromoEventItems(b,rtag,out);
+  galleryPhotoItems(id,rtag,out);
+  return out;
+}
+function galleryItemsForLocation(){
+  const f={town:state.galTown||"All",area:state.galArea||"All"};
+  const out=[];
+  const rtag=gtag([f.town!=="All"?f.town:"",f.area!=="All"?f.area:""].filter(Boolean).join(" "));
+  if(hasBridge()){
+    EatoutsBridge.promoOwners().forEach(function(r){
+      if(!locationWanted(r.location,f)) return;
+      galleryPromoEventItems(EatoutsBridge.bundleOf(r.id),rtag,out);
+    });
+  }
+  galleryPhotoItems(f.town+"|"+f.area,rtag,out);
+  return out;
+}
+function galleryScopeItems(){
+  const rest=state.galRest||"All";
+  if(rest!=="All") return galleryItemsForRestaurant(rest);
+  if((state.galTown&&state.galTown!=="All")||(state.galArea&&state.galArea!=="All")) return galleryItemsForLocation();
+  return GALLERY;
+}
 function filteredGallery(){
-  let items=GALLERY;
+  let items=galleryScopeItems();
   if(state.galleryFilter!=="All") items=items.filter(function(g){return g.cat===state.galleryFilter;});
   const q=state.gallerySearch.trim().toLowerCase();
-  if(q) items=items.filter(function(g){return (g.label+" "+g.cat+" "+g.file).toLowerCase().indexOf(q)>-1;});
+  if(q) items=items.filter(function(g){return hay(g).indexOf(q)>-1;});
   return items;
 }
 function galleryCount(cat){
-  if(cat==="All") return GALLERY.length;
-  return GALLERY.filter(function(g){return g.cat===cat;}).length;
+  let items=galleryScopeItems();
+  if(cat!=="All") items=items.filter(function(g){return g.cat===cat;});
+  return items.length;
+}
+/* A–Z restaurant rows for the "Viewed Restaurant" picker */
+function galleryRestaurants(){
+  if(!hasBridge()) return [];
+  const f={town:state.galTown||"All",area:state.galArea||"All"};
+  const q=String(state.galRestSearch||"").trim().toLowerCase();
+  const out=[];
+  EatoutsBridge.all().forEach(function(r){
+    if(!locationWanted(r.location,f)) return;
+    const label=EatoutsBridge.placeLabel(r);
+    if(q&&((r.name+" "+label).toLowerCase().indexOf(q)<0)) return;
+    out.push({id:r.id,name:r.name,placeLabel:label});
+  });
+  out.sort(function(a,b){return String(a.name).localeCompare(String(b.name));});
+  return out;
+}
+function galleryRestLabel(){
+  const rest=state.galRest||"All";
+  if(rest==="All") return "All";
+  const r=hasBridge()?EatoutsBridge.byId(rest):null;
+  if(r) return r.name;
+  /* venue disappeared from the database - drop back to the whole gallery */
+  state.galRest="All";
+  return "All";
 }
 /* ================================================================
    RESERVE CATEGORIES
@@ -2948,6 +3222,12 @@ const state = {
   galleryPhoto:null,
   galleryFilter:"All",
   gallerySearch:"",
+  galRest:"All",
+  galTown:"All",
+  galArea:"All",
+  galPopup:false,
+  galLocMode:"rest",
+  galRestSearch:"",
   filterOpen:false,
   searchOpen:false,
   aboutView:"main",
@@ -3826,7 +4106,7 @@ function restaurantOptions(g,active){
     :'<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("Choose a location first — each location has its own menu & specials.")+'">Menu</button>';
   let promosBtn;
   if(!locationReady)promosBtn='<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("Choose a location first — each location has its own menu & specials.")+'">Promos</button>';
-  else if(promoN>0)promosBtn='<button class="ropt" data-act="openRestView" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'" data-view="promos">Promos</button>';
+  else if(promoN>0)promosBtn='<button class="ropt" data-act="openRestGallery" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'">Promos</button>';
   else promosBtn='<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("No promos available at this location right now.")+'">Promos</button>';
 
   return '<div class="ropts">'+
@@ -3869,9 +4149,9 @@ function renderRestLocPicker(){
       const names=[];
       matches.forEach(function(b){if(names.indexOf(b.name)===-1)names.push(b.name);});
       const selected=active&&normalizeRestType((active.location&&active.location.town))===normalizeRestType(tp.town);
-      const label=tp.town+(names.length>1?" ("+(matches.length===2?"2":matches.length)+" locations)":"");
+      const label=tp.town;
       h+='<button class="loc-town-main'+(selected?" on":"")+'" data-act="pickRestBranch" data-id="'+esc(target.id)+'" data-brand="'+esc(g.brandKey)+'" role="option" aria-selected="'+selected+'">'+
-        '<span class="lbl">'+esc(label)+'</span>'+(names.length>1?'<span class="loc-count">'+esc(names.join(" · "))+'</span>':'')+
+        '<span class="lbl">'+esc(label)+'</span>'+(names.length>1?'<span class="loc-count">'+matches.length+'</span>':'')+
         '</button>';
     });
   }else{
@@ -3897,7 +4177,7 @@ function renderRestLocPicker(){
       h+='<button class="loc-area-option'+(selected?" on":"")+'" data-act="pickRestBranch" data-id="'+esc(o.b.id)+'" data-brand="'+esc(g.brandKey)+'" role="option" aria-selected="'+selected+'"><span>'+esc(nameTag+o.label)+'</span></button>';
     });
   }
-  h+='<div class="fpop-note">'+(g.branches.length>1?(g.branches.length+" locations · picking one makes it active"):"One location")+'</div>';
+  if(g.branches.length>1) h+='<div class="fpop-note">Picking one makes it active</div>';
   return h+'</div>';
 }
 
@@ -4206,7 +4486,7 @@ function renderRestaurantAbout(r){
    ================================================================ */
 function renderHeader(){
   const hdr=document.getElementById("hdr");
-  if(state.tab==="gallery" || (state.tab==="about" && state.aboutView==="gallery")){hdr.classList.add("hide");}
+  if(state.tab==="about" && state.aboutView==="gallery"){hdr.classList.add("hide");}
   else{hdr.classList.remove("hide");}
 }
 const NAV_TABS=[
@@ -4273,7 +4553,9 @@ function cbarKey(){
     state.restTypes.join(","),state.restTownPicker,state.restAreaPicker,state.restTypePicker,
     state.restTypeSearch,state.restTypeDraft.join(","),
     state.restFilterOpen,
-    state.searchOpen,state.gallerySearch,state.galleryFilter].join("~");
+    state.searchOpen,state.gallerySearch,state.galleryFilter,
+    state.galRest,state.galTown,state.galArea,state.galPopup,
+    state.galLocMode,state.galRestSearch].join("~");
 }
 function renderControlBar(){
   const key=cbarKey();
@@ -4324,13 +4606,14 @@ function renderControlBar(){
 
   /* ---- Gallery control bar ---- */
   if(state.tab!=="gallery"){
-    cb.classList.remove("on");cb.innerHTML="";state.filterOpen=false;
+    cb.classList.remove("on");cb.innerHTML="";state.filterOpen=false;state.galPopup=false;
     state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
     state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";
     return;
   }
   cb.classList.add("on");
   if(state.searchOpen){
+    state.galPopup=false;
     cb.innerHTML='<div class="cbar2">'+
       '<div class="csearch">'+
       '<input id="gsearch" type="text" placeholder="Search photos..." value="'+esc(state.gallerySearch)+'">'+
@@ -4339,18 +4622,21 @@ function renderControlBar(){
     return;
   }
   let h='<div class="cbar2">'+
-    '<button class="cbtn" data-act="cycleFilter" aria-haspopup="listbox" aria-expanded="'+(state.filterOpen?"true":"false")+'">'+
-      esc(state.galleryFilter)+'</button>'+
+    '<button class="cbtn gal-val" data-act="openGalRest" aria-label="Viewed Restaurant" aria-haspopup="dialog" aria-expanded="'+(state.galPopup?"true":"false")+'">'+
+      esc(galleryRestLabel())+'</button>'+
+    '<button class="cbtn gal-val" data-act="cycleFilter" aria-label="Gallery View Filter" aria-haspopup="listbox" aria-expanded="'+(state.filterOpen?"true":"false")+'">'+
+      esc(state.galleryFilter==="All"?"Gallery":state.galleryFilter)+'</button>'+
     '<div style="flex:1"></div>'+
     '<button class="cbtn ic" data-act="openSearch" aria-label="Search">'+ICON.search+'</button></div>';
   if(state.filterOpen){
     h+='<div class="fpop-scrim" data-act="closeFilter"></div>';
-    h+='<div class="fpop" role="listbox">'+GALLERY_CATS.map(function(c){
+    h+='<div class="fpop" role="listbox" aria-label="Gallery View Filter">'+GALLERY_CATS.map(function(c){
       return '<button role="option" aria-selected="'+(c===state.galleryFilter?"true":"false")+'" class="'+(c===state.galleryFilter?"on":"")+'"'+
         ' data-act="pickFilter" data-val="'+c+'">'+esc(c)+
         '<span style="float:right;color:#a89a7e;font-weight:700">'+galleryCount(c)+'</span></button>';
     }).join("")+'</div>';
   }
+  if(state.galPopup) h+=renderGalleryRestPicker();
   cb.innerHTML=h;
 }
 /* Identity of what is on screen. When this does not change we re-render
@@ -4443,33 +4729,76 @@ function imgTag(src,alt){
   return '<img src="'+esc(src)+'" alt="'+esc(alt||"")+'" loading="lazy" decoding="async">';
 }
 
-function renderPoetryCard(){
-  const open=state.promoExpanded===POETRY.id;
-  const total=DATA_ARTISTS.length;
-  const shown=state.poetryAll?total:Math.min(8,total);
+function featuredEventsForDay(dayIdx){
+  return FEATURED_EVENTS.filter(function(e){return e.day===dayIdx;});
+}
+function featuredEventById(id){
+  for(let i=0;i<FEATURED_EVENTS.length;i++) if(FEATURED_EVENTS[i].id===id) return FEATURED_EVENTS[i];
+  return null;
+}
+function featChipRow(list){
+  if(!list||!list.length) return "";
+  return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
+    list.map(function(c){return '<span class="chip">'+esc(c)+'</span>';}).join("")+'</div>';
+}
+function featSection(label,html){
+  return html?'<div class="subh" style="margin-top:14px">'+esc(label)+'</div>'+html:'';
+}
+function renderFeaturedCard(ev){
+  const key="fe_"+ev.id;
+  const open=state.promoExpanded===key;
+  const isPoetry=!!ev.poetry;
   let inner='<div class="pbody">';
   inner+='<div class="phead-btn" style="cursor:default">'+
-    '<h3>'+esc(POETRY.title)+'</h3>'+
-    '<div style="font-size:12px;font-weight:700;color:#a89a7e;letter-spacing:.02em">'+esc(POETRY.tagline)+'</div>'+
+    '<h3>'+esc(ev.title)+'</h3>'+
+    (ev.tagline?'<div style="font-size:12px;font-weight:700;color:#a89a7e;letter-spacing:.02em">'+esc(ev.tagline)+'</div>':'')+
     '</div>';
 
-  inner+='<div class="subh">Event Images</div><div class="thumbs">';
-  for(let i=0;i<IMG.demoImages.length;i++) inner+='<div class="th">'+imgTag(demoImg(i),"Poetry Nights")+'</div>';
-  inner+='</div>';
+  inner+=featChipRow([ev.dateLabel,ev.venue,ev.presenter]);
 
-  inner+='<div class="subh">Ticket Info</div>'+renderPoetryInfo();
-
-  inner+='<div class="subh">Artist Lineup &middot; '+shown+' of '+total+'</div>'+renderPoetryLineup(shown);
-  if(total>8){
-    inner+='<button class="btn full sm" style="margin-top:10px" data-act="togglePoetryAll">'+
-      (state.poetryAll?"Show fewer artists":"Show all "+total+" artists")+'</button>';
+  if(ev.desc){
+    String(ev.desc).split(/\n+/).forEach(function(p){
+      if(p.trim()) inner+='<p class="mdesc" style="margin:0 0 10px">'+esc(p.trim())+'</p>';
+    });
   }
-  inner+='<button class="btn wa full" style="margin-top:12px" data-act="waPoetry">Send via WhatsApp</button>';
+  if(ev.lineup&&ev.lineup.length){
+    inner+=featSection("Lineup",ev.lineup.map(function(l){
+      return '<div class="ctr"><div class="lbl">'+esc(l.role)+'<em>'+esc(l.name)+'</em></div></div>';
+    }).join(""));
+  }
+  if(ev.tickets&&ev.tickets.length){
+    inner+=featSection("Tickets",ev.tickets.map(function(t){
+      return '<div class="ctr"><div class="lbl">'+esc(t.label)+'</div><div class="pprice">'+esc(t.price)+'</div></div>';
+    }).join(""));
+  }
+  if(ev.outlets&&ev.outlets.length) inner+=featSection("Ticketing & Outlets",featChipRow(ev.outlets));
+  if(ev.sponsors&&ev.sponsors.length) inner+=featSection("Sponsors & Partners",featChipRow(ev.sponsors));
+  if(ev.contact) inner+=featSection("Contact",'<div class="ctr"><div class="lbl">'+esc(ev.contact)+'<em>Call or WhatsApp</em></div></div>');
+  if(ev.policy) inner+=featSection("Event Policy",'<p class="mdesc" style="margin:0 0 10px">'+esc(ev.policy)+'</p>');
+  if(ev.tags&&ev.tags.length) inner+=featSection("Tags",featChipRow(ev.tags));
+
+  if(isPoetry){
+    const total=DATA_ARTISTS.length;
+    const shown=state.poetryAll?total:Math.min(8,total);
+    inner+='<div class="subh" style="margin-top:14px">Event Images</div><div class="thumbs">';
+    for(let i=0;i<IMG.demoImages.length;i++) inner+='<div class="th">'+imgTag(demoImg(i),ev.title)+'</div>';
+    inner+='</div>';
+    inner+='<div class="subh">Ticket Info</div>'+renderPoetryInfo();
+    inner+='<div class="subh">Artist Lineup &middot; '+shown+' of '+total+'</div>'+renderPoetryLineup(shown);
+    if(total>8){
+      inner+='<button class="btn full sm" style="margin-top:10px" data-act="togglePoetryAll">'+
+        (state.poetryAll?"Show fewer artists":"Show all "+total+" artists")+'</button>';
+    }
+  }
+
+  inner+= isPoetry
+    ? '<button class="btn wa full" style="margin-top:12px" data-act="waPoetry">Send via WhatsApp</button>'
+    : '<button class="btn wa full" style="margin-top:12px" data-act="waFeatEvent" data-ev="'+esc(ev.id)+'">Send via WhatsApp</button>';
   inner+='</div>';
 
-  return '<div class="ecard'+(open?" open":"")+'" data-acc="'+POETRY.id+'">'+
-    '<button class="pimg" data-act="togglePromo" data-id="'+POETRY.id+'" aria-expanded="'+(open?"true":"false")+'">'+
-      imgTag(IMG.poetry,POETRY.title)+'</button>'+
+  return '<div class="ecard'+(open?" open":"")+'" data-acc="'+key+'">'+
+    '<button class="pimg" data-act="togglePromo" data-id="'+key+'" aria-expanded="'+(open?"true":"false")+'">'+
+      imgTag(IMG.dirEvents+ev.flyer,ev.title)+'</button>'+
     accWrap(open,inner)+'</div>';
 }
 
@@ -4518,6 +4847,7 @@ function renderPromosFeed(){
 
   const dayPromos=promosOnDay(dayIdx);
   const dayEvents=eventsOnDay(dayIdx);
+  const feat=featuredEventsForDay(dayIdx);
 
     let cal='<div class="cal">';
     cal+='<div class="cal-title">'+esc(weekLabel())+'</div>';
@@ -4540,13 +4870,14 @@ function renderPromosFeed(){
     return cal+body;
   }
 
-  /* the poetry card is a Gaborone feature */
-  if(state.promoTown==='All'||state.promoTown==='Gaborone') body+=renderPoetryCard();
+  /* the weekday's featured events lead the feed (national listings, so
+     they are not tied to the town filter) */
+  feat.forEach(function(ev){ body+=renderFeaturedCard(ev); });
 
   dayEvents.forEach(function(x){ body+=renderEventCard(x.event,dayIdx,x.restaurant); });
   dayPromos.forEach(function(x,i){ body+=renderPromoCard(x.promo,dayIdx,i,x.restaurant); });
 
-  if(!dayPromos.length && !dayEvents.length){
+  if(!dayPromos.length && !dayEvents.length && !feat.length){
     body+='<div class="empty">No promos for '+DAY_NAMES[dayIdx]+'<br>'+
             'in '+esc(state.promoTown)+(state.promoType!=='All'?' &middot; '+esc(state.promoType):'')+'.<br><br>'+
             'Try a different day, town, or type.</div>';
@@ -5081,11 +5412,92 @@ function renderReserveForm(){
 /* ================================================================
    TAB 4: GALLERY
    ================================================================ */
+function galleryRows(){return hasBridge()?EatoutsBridge.all():[];}
+function galleryCountAt(town,area){
+  let n=0;
+  galleryRows().forEach(function(r){if(locationWanted(r.location,{town:town||"All",area:area||"All"}))n++;});
+  return n;
+}
+function galleryTownOptions(){
+  const seen={};
+  galleryRows().forEach(function(r){const t=String((r.location&&r.location.town)||"").trim();if(t)seen[t]=1;});
+  return Object.keys(seen).sort();
+}
+function galleryAreaOptions(){
+  const seen={};
+  galleryRows().forEach(function(r){
+    const loc=r.location||{};
+    if(state.galTown!=="All"&&normalizeRestType(loc.town)!==normalizeRestType(state.galTown))return;
+    const a=String(loc.area||"").trim();
+    if(a)seen[a]=1;
+  });
+  return Object.keys(seen).sort();
+}
+/* Floating "Viewed Restaurant" picker: location row + live search + A–Z
+   list. The location row swaps only the list below it. */
+function renderGalleryRestPicker(){
+  const mode=state.galLocMode||"rest";
+  const q=String(state.galRestSearch||"").trim().toLowerCase();
+  let h='<div class="fpop-scrim" data-act="closeGalRest"></div>';
+  h+='<div class="fpop gal-rest-pop" role="dialog" aria-label="Viewed Restaurant">';
+  h+='<div class="gal-locrow">'+
+    '<button type="button" class="cbtn'+(mode==="town"?" on":"")+'" data-act="galLocMode" data-val="town" aria-pressed="'+(mode==="town")+'">Town/City</button>'+
+    '<button type="button" class="cbtn'+(mode==="area"?" on":"")+'" data-act="galLocMode" data-val="area" aria-pressed="'+(mode==="area")+'">Area/neighbourhood</button>'+
+    '</div>';
+  h+='<div class="rest-type-top" style="padding:0 10px 8px"><div class="csearch">'+
+    '<input id="galRestSearch" type="search" aria-label="Search" placeholder="'+
+    (mode==="town"?"Search towns...":mode==="area"?"Search areas...":"Search restaurants...")+
+    '" value="'+esc(state.galRestSearch)+'"></div></div>';
+
+  if(mode!=="rest"){
+    h+='<button class="loc-area-option gal-back" data-act="galLocMode" data-val="rest"><span>View restaurants</span></button>';
+  }
+  if(mode==="rest"){
+    if(!q){
+      h+='<button class="loc-all'+(state.galRest==="All"?" on":"")+'" data-act="pickGalRest" data-id="All" role="option" aria-selected="'+(state.galRest==="All")+'">'+
+        '<span>All restaurants</span><span class="loc-count">'+galleryCountAt("All","All")+'</span></button>';
+    }
+    let shown=0;
+    galleryRestaurants().forEach(function(r){
+      shown++;
+      const selected=state.galRest===r.id;
+      h+='<button class="loc-area-option'+(selected?" on":"")+'" data-act="pickGalRest" data-id="'+esc(r.id)+'" role="option" aria-selected="'+selected+'">'+
+        '<span>'+esc(r.name+(r.placeLabel?" · "+r.placeLabel:""))+'</span>'+
+        (selected?'<span class="loc-count">&#10003;</span>':'')+'</button>';
+    });
+    if(!shown)h+='<div class="fpop-note">No restaurants match.</div>';
+  }else if(mode==="town"){
+    if(!q)h+='<button class="loc-all'+(state.galTown==="All"?" on":"")+'" data-act="pickGalTown" data-town="All" role="option" aria-selected="'+(state.galTown==="All")+'">'+
+      '<span>All towns</span><span class="loc-count">'+galleryCountAt("All","All")+'</span></button>';
+    let shown=0;
+    galleryTownOptions().forEach(function(t){
+      if(q&&normalizeRestType(t).indexOf(q)===-1)return;
+      shown++;
+      const selected=normalizeRestType(state.galTown)===normalizeRestType(t);
+      h+='<button class="loc-area-option'+(selected?" on":"")+'" data-act="pickGalTown" data-town="'+esc(t)+'" role="option" aria-selected="'+selected+'">'+
+        '<span>'+esc(t)+'</span><span class="loc-count">'+galleryCountAt(t,"All")+'</span></button>';
+    });
+    if(!shown)h+='<div class="fpop-note">No towns match.</div>';
+  }else{
+    if(!q)h+='<button class="loc-all'+(state.galArea==="All"?" on":"")+'" data-act="pickGalArea" data-area="All" role="option" aria-selected="'+(state.galArea==="All")+'">'+
+      '<span>All areas</span><span class="loc-count">'+galleryCountAt(state.galTown,"All")+'</span></button>';
+    let shown=0;
+    galleryAreaOptions().forEach(function(a){
+      if(q&&normalizeRestType(a).indexOf(q)===-1)return;
+      shown++;
+      const selected=normalizeRestType(state.galArea)===normalizeRestType(a);
+      h+='<button class="loc-area-option'+(selected?" on":"")+'" data-act="pickGalArea" data-area="'+esc(a)+'" role="option" aria-selected="'+selected+'">'+
+        '<span>'+esc(a)+'</span><span class="loc-count">'+galleryCountAt(state.galTown,a)+'</span></button>';
+    });
+    if(!shown)h+='<div class="fpop-note">No areas listed for this town.</div>';
+  }
+  h+='<div class="fpop-note">'+(state.galTown==="All"?"All towns":state.galTown)+
+    (state.galArea==="All"?"":" · "+state.galArea)+' &middot; grid follows this scope</div>';
+  return h+'</div>';
+}
 function renderGalleryGrid(){
   const items=filteredGallery();
   let h='<div class="scroll">';
-  h+='<div class="phead" style="padding-top:12px;padding-bottom:12px"><h2>Gallery</h2>'+
-    '<p>'+items.length+' of '+GALLERY.length+' photos &middot; '+esc(state.galleryFilter)+'</p></div>';
   h+='<div class="gal-grid">';
   items.forEach(function(g){
     h+='<button class="gal-cell" data-act="openPhoto" data-id="'+g.id+'" aria-label="'+esc(g.cat+' '+g.label)+'">'+
@@ -5150,7 +5562,6 @@ function renderAbout(){
     '<p>'+esc(brandBlurb)+'<br><span style="opacity:.75">'+esc(city)+' · '+esc(area)+'</span></p></div></div>';
 
   h+='<div class="pad">';
-  h+='<button class="btn primary full" data-act="openAboutGallery">Open Restaurant Gallery</button>';
   /* every icon in assets/icons, five to a line; the four with no link yet
      render dimmed so the full set is visible and easy to fill in later */
   h+=renderAboutSocialRow();
@@ -5165,14 +5576,17 @@ function renderAbout(){
   h+='<div class="tagwrap center">'+["Restaurant discovery","Daily promos","Venue booking","Local events","Easy WhatsApp"]
      .map(function(t){return '<span class="chip pill">'+esc(t)+'</span>';}).join("")+'</div>';
 
-  h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waAbout">Send via WhatsApp</button></div>';
-  /* Operator sign-in for restaurant owners, below the WhatsApp button */
+  h+='<div style="margin-top:22px"><button class="btn primary full" data-act="showRestNotice" '+
+     'data-notice="'+esc("EatOuts APK installer is coming soon - we will notify you here when it drops.")+'">Install EatOuts</button></div>';
+  /* Operator sign-in for restaurant owners, below the install button */
   h+='<div style="margin-top:10px"><button class="btn primary full" data-act="openOperatorLogin">Operator</button></div>';
   /* Legal buttons */
   h+='<div style="margin-top:10px;display:flex;gap:8px">'+
     '<button class="btn primary half" data-act="openTerms">Terms of Service</button>'+
     '<button class="btn primary half" data-act="openPrivacy">Privacy Policy</button>'+
   '</div>';
+  h+='<div style="margin-top:10px"><button class="btn primary full" data-act="showRestNotice" '+
+     'data-notice="'+esc("The EatOuts blog is coming soon.")+'">Blog</button></div>';
   h+='</div><div style="height:34px"></div></div>';
   return h;
 }
@@ -5409,6 +5823,20 @@ document.addEventListener("click",function(e){
     window.location.href=waLink(msg);
     return;
   }
+  if(act==="waFeatEvent"){
+    const ev=featuredEventById(t.getAttribute("data-ev"));
+    if(!ev) return;
+    let msg="*EVENT ENQUIRY*\nEvent: "+ev.title+"\nDay: "+DAY_NAMES[ev.day]+"\n";
+    if(ev.dateLabel) msg+="When: "+ev.dateLabel+"\n";
+    if(ev.venue) msg+="Venue: "+ev.venue+"\n";
+    if(ev.presenter) msg+="Presenter: "+ev.presenter+"\n";
+    if(ev.tagline) msg+="Vibe: "+ev.tagline+"\n";
+    if(ev.tickets&&ev.tickets.length) msg+="Tickets: "+ev.tickets.map(function(x){return x.label+" "+x.price;}).join(" | ")+"\n";
+    if(ev.outlets&&ev.outlets.length) msg+="Tickets from: "+ev.outlets.join(", ")+"\n";
+    msg+="\nPlease share more details and how to book.";
+    window.location.href=waLink(msg);
+    return;
+  }
   if(act==="waEvent"){
     const evId=t.getAttribute("data-ev") || t.getAttribute("data-day");
     let evInfo = null;
@@ -5449,6 +5877,24 @@ document.addEventListener("click",function(e){
   if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;state.restLocPicker=null;state.restNotice=null;syncRestAccordions();return;}
   if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;render();return;}
+  /* Promos on an expanded restaurant row opens the Gallery tab scoped to
+     that venue and its promos. */
+  if(act==="openRestGallery"){
+    const bid=id;
+    const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;
+    state.restaurantOpen=brand;
+    state.restaurantView=null;
+    state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};
+    state.restLocPicker=null;state.restNotice=null;
+    if(hasBridge())EatoutsBridge.setActive(bid);
+    state.tab="gallery";
+    state.galleryView="grid";state.galleryPhoto=null;
+    state.galleryFilter="Promos";
+    state.galRest=bid;state.galTown="All";state.galArea="All";
+    state.galPopup=false;state.galLocMode="rest";state.galRestSearch="";
+    state.filterOpen=false;state.searchOpen=false;state.gallerySearch="";
+    render();return;
+  }
   if(act==="openRestPromo"){const brand=t.getAttribute("data-brand")||(state.restaurantView&&state.restaurantView.brand)||id;state.restaurantView={id:id,brand:brand,view:"promo",promoId:t.getAttribute("data-promo")||null};render();return;}
   if(act==="showRestNotice"){
     const m=t.getAttribute("data-notice")||"";
@@ -5609,9 +6055,44 @@ document.addEventListener("click",function(e){
   }
 
   /* GALLERY */
-  if(act==="cycleFilter"){state.filterOpen=!state.filterOpen;renderControlBar();return;}
+  if(act==="cycleFilter"){state.filterOpen=!state.filterOpen;if(state.filterOpen)state.galPopup=false;renderControlBar();return;}
   if(act==="pickFilter"){state.galleryFilter=t.getAttribute("data-val")||"All";state.filterOpen=false;state.galleryPhoto=null;state.galleryView="grid";render();return;}
   if(act==="closeFilter"){if(!state.filterOpen)return;state.filterOpen=false;renderControlBar();return;}
+  if(act==="openGalRest"){
+    state.galPopup=!state.galPopup;
+    if(state.galPopup){state.galLocMode="rest";state.galRestSearch="";state.filterOpen=false;state.searchOpen=false;}
+    renderControlBar();
+    if(state.galPopup)setTimeout(function(){const i=document.getElementById("galRestSearch");if(i)i.focus();},30);
+    return;
+  }
+  if(act==="closeGalRest"){if(!state.galPopup)return;state.galPopup=false;renderControlBar();return;}
+  if(act==="galLocMode"){
+    const want=t.getAttribute("data-val")||"rest";
+    /* tapping the active location button again drops back to the list */
+    state.galLocMode=(want===state.galLocMode)?"rest":want;
+    state.galRestSearch="";
+    renderControlBar();
+    setTimeout(function(){const i=document.getElementById("galRestSearch");if(i)i.focus();},30);
+    return;
+  }
+  if(act==="pickGalRest"){
+    state.galRest=t.getAttribute("data-id")||"All";
+    state.galPopup=false;state.galLocMode="rest";state.galRestSearch="";
+    state.galleryView="grid";state.galleryPhoto=null;
+    render();return;
+  }
+  if(act==="pickGalTown"){
+    const town=t.getAttribute("data-town")||"All";
+    if(town!==state.galTown){state.galTown=town;state.galArea="All";state.galRest="All";state.galleryView="grid";state.galleryPhoto=null;}
+    state.galLocMode="rest";state.galRestSearch="";
+    render();return;
+  }
+  if(act==="pickGalArea"){
+    const area=t.getAttribute("data-area")||"All";
+    if(area!==state.galArea){state.galArea=area;state.galRest="All";state.galleryView="grid";state.galleryPhoto=null;}
+    state.galLocMode="rest";state.galRestSearch="";
+    render();return;
+  }
   if(act==="openPhoto"){state.galleryPhoto=id;state.galleryView="photo";render();return;}
   if(act==="backAlbum"){state.galleryView="grid";state.galleryPhoto=null;render();return;}
   if(act==="openSearch"){state.searchOpen=true;render();setTimeout(function(){const i=document.getElementById("gsearch");if(i)i.focus();},60);return;}
@@ -5682,6 +6163,7 @@ document.addEventListener("keydown",function(e){
       state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
       state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";renderControlBar();
     }
+    else if(state.galPopup){state.galPopup=false;renderControlBar();}
     else if(state.filterOpen){state.filterOpen=false;renderControlBar();}
     else if(state.searchOpen){state.searchOpen=false;state.gallerySearch="";render();}
   }
@@ -5733,6 +6215,14 @@ document.addEventListener("input",function(e){
     state.gallerySearch=val;
     const inp=document.getElementById("gsearch");
     if(inp){inp.value=val;inp.focus();inp.setSelectionRange(val.length,val.length);}
+  }
+  if(e.target.id==="galRestSearch"){
+    state.galRestSearch=e.target.value;
+    const val=state.galRestSearch;
+    const start=e.target.selectionStart;
+    renderControlBar();
+    const inp=document.getElementById("galRestSearch");
+    if(inp){inp.value=val;inp.focus();inp.setSelectionRange(start,start);}
   }
   if(e.target.id==="rsearch"){
     state.restSearch=e.target.value;

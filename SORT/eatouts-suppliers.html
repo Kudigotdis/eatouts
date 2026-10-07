@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#151515">
+<title>Suppliers — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+/* ============================================================
+   EATOUTS SUPPLIERS — styles
+   Same visual language as eatouts-event-planner.html so the two
+   pages feel like a pair. Portrait-first, warm earth palette,
+   colour-coded accordion steps.
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#f0ece2;height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#1a1a1a;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;text-align:left}
+img{display:block;max-width:100%}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+
+:root{
+  --gold:#c9a84c; --black:#151515; --border:#e7e4dd; --muted:#7a7466;
+  --ok:#17834b; --danger:#c43c3c;
+  --s1-bg:#fdf6e8; --s1-bd:#f0dfb8; --s1-fg:#8a6a1a;
+  --s2-bg:#eef2e4; --s2-bd:#d6dfc1; --s2-fg:#4a6b2a;
+  --s3-bg:#e8f0f5; --s3-bd:#c5d5e0; --s3-fg:#2a527a;
+  --s4-bg:#f8ecf0; --s4-bd:#ebd0d8; --s4-fg:#8a3a4a;
+  --s5-bg:#f0ecf5; --s5-bd:#ddd2e8; --s5-fg:#5c3a7a;
+  --s6-bg:#f5ebe2; --s6-bd:#e8cfbd; --s6-fg:#8a4a2a;
+  --s7-bg:#efede7; --s7-bd:#d8d4c8; --s7-fg:#3a3324;
+}
+
+#shell{position:fixed;inset:0;max-width:520px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+@media(min-width:560px){#shell{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
+
+/* ---------- HEADER ---------- */
+#hdr{flex:0 0 auto;min-height:58px;display:flex;align-items:center;gap:10px;padding:8px 14px;background:#fff;border-bottom:1px solid var(--border);position:relative;z-index:58;padding-top:calc(8px + env(safe-area-inset-top))}
+.brand-mark{display:flex;align-items:center;text-decoration:none;color:#1a1a1a;font-weight:900;font-size:15px;letter-spacing:-.02em;flex:0 0 auto}
+.brand-mark span{color:var(--gold)}
+#hdr .title{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hdr .status{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;border:1px solid var(--border);border-radius:20px;padding:4px 9px;background:#faf8f2;flex:0 0 auto}
+#hdr .status.published{color:var(--ok);border-color:#b8e6c1;background:#e3f5e9}
+#hdr .status.draft{color:#8a6a1a;border-color:#f0dfb8;background:#fdf6e8}
+#hdr .back-btn{font-size:11px;font-weight:800;color:var(--gold);padding:6px 4px;flex:0 0 auto}
+#hdr .back-btn::before{content:"← ";font-weight:900}
+
+/* ---------- SCROLL ---------- */
+#scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff}
+#bar{flex:0 0 auto;display:none;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--border);position:relative;z-index:50}
+#bar.on{display:flex}
+#bar .btn{flex:1;min-height:46px}
+
+/* ---------- BUTTONS ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 14px;border-radius:11px;font-size:12.5px;font-weight:800;letter-spacing:.02em;background:#f7f4ec;border:1px solid var(--border);color:#3a3324;transition:background .15s,color .15s,border-color .15s;min-height:44px}
+.btn:active{background:#efe9da}
+.btn.primary{background:#0d0d0d;border-color:#0d0d0d;color:#fff}
+.btn.primary:active{background:#000}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.btn.gold:active{background:#b59437}
+.btn.ghost{background:transparent;border-color:var(--border);color:#6f6754}
+.btn.danger{background:#fbeaea;color:var(--danger);border-color:#e0c9c9}
+.btn.sm{padding:8px 12px;font-size:11.5px;border-radius:9px;min-height:36px}
+.btn.full{width:100%}
+.btn[disabled]{opacity:.35;cursor:not-allowed}
+
+/* ---------- LANDING ---------- */
+.landing{padding:0}
+.landing-hero{padding:36px 22px 26px;background:linear-gradient(160deg,#1a1a1a 0%,#2c2c2c 100%);color:#fff}
+.landing-hero .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);background:rgba(201,168,76,.14);border:1px solid rgba(201,168,76,.3);padding:4px 10px;border-radius:6px;margin-bottom:12px}
+.landing-hero h1{margin:0 0 8px;font-size:26px;font-weight:900;letter-spacing:-.02em;line-height:1.15}
+.landing-hero p{margin:0;font-size:13px;color:rgba(255,255,255,.72);line-height:1.6}
+.landing-body{padding:18px 16px 60px}
+.landing-actions{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.landing-card{padding:16px;background:#faf8f2;border:1px solid var(--border);border-radius:14px;margin-bottom:10px}
+.landing-card h3{margin:0 0 6px;font-size:13.5px;font-weight:900;color:#1a1a1a}
+.landing-card p{margin:0;font-size:12px;color:var(--muted);line-height:1.55}
+.profile-row{display:flex;gap:12px;padding:13px 14px;background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;align-items:center}
+.profile-row:active{border-color:var(--gold)}
+.profile-logo{width:48px;height:48px;flex:0 0 auto;border-radius:50%;background:#faf8f2;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden}
+.profile-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-info{flex:1;min-width:0}
+.profile-name{font-size:13.5px;font-weight:800;color:#1a1a1a;line-height:1.25;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-meta{font-size:11px;color:var(--muted);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- FORM FIELDS ---------- */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a89a7e;margin-bottom:6px}
+.field input,.field textarea,.field select{width:100%;padding:11px 12px;background:#faf8f2;border:1px solid var(--border);border-radius:11px;color:#1a1a1a;font-size:13.5px;outline:none;min-height:44px;transition:border-color .16s,background .16s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#1a1a1a;background:#fff}
+.field textarea{resize:vertical;min-height:78px;line-height:1.55}
+.field .row{display:flex;gap:8px}
+.field .row > *{flex:1;min-width:0}
+.field .hint{font-size:10.5px;color:#a89a7e;margin-top:5px;line-height:1.4}
+.counter{float:right;font-size:10px;color:#a89a7e;font-weight:400}
+
+/* ---------- CHIPS ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;background:#faf8f2;border:1px solid var(--border);color:#5c5547;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.chip:active{background:#f4efe4}
+.chip.on{background:#0d0d0d;border-color:#0d0d0d;color:#fff}
+
+/* ---------- TOGGLE ---------- */
+.sw{display:flex;align-items:center;gap:12px;padding:11px 12px;background:#faf8f2;border:1px solid var(--border);border-radius:11px;margin-bottom:8px;cursor:pointer;user-select:none}
+.sw input{display:none}
+.sw .track{width:42px;height:24px;flex:0 0 auto;background:#d6cfbf;border-radius:999px;position:relative;transition:background .2s}
+.sw .track:after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.sw input:checked + .track{background:var(--gold)}
+.sw input:checked + .track:after{transform:translateX(18px)}
+.sw .lbl{flex:1;font-size:12.5px;font-weight:700;color:#3a3324;line-height:1.35}
+.sw .lbl em{display:block;font-style:normal;font-size:10.5px;color:var(--muted);font-weight:600;margin-top:2px}
+
+/* ---------- ACCORDION ---------- */
+.acc{padding:12px 12px 100px}
+.acc-item{margin-bottom:10px;border:1px solid var(--border);border-radius:14px;background:#fff;overflow:hidden}
+.acc-hdr{width:100%;min-height:64px;padding:12px 14px;border:1px solid transparent;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:2px;cursor:pointer;text-align:left}
+.acc-hdr .t{font-size:14.5px;font-weight:800;line-height:1.2}
+.acc-hdr .s{font-size:11px;font-weight:600;opacity:.85;line-height:1.3}
+.acc-hdr .n{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.06);margin-bottom:2px}
+.acc-item.i1 .acc-hdr{background:var(--s1-bg);border-color:var(--s1-bd);color:var(--s1-fg)}
+.acc-item.i2 .acc-hdr{background:var(--s2-bg);border-color:var(--s2-bd);color:var(--s2-fg)}
+.acc-item.i3 .acc-hdr{background:var(--s3-bg);border-color:var(--s3-bd);color:var(--s3-fg)}
+.acc-item.i4 .acc-hdr{background:var(--s4-bg);border-color:var(--s4-bd);color:var(--s4-fg)}
+.acc-item.i5 .acc-hdr{background:var(--s5-bg);border-color:var(--s5-bd);color:var(--s5-fg)}
+.acc-item.i6 .acc-hdr{background:var(--s6-bg);border-color:var(--s6-bd);color:var(--s6-fg)}
+.acc-item.i7 .acc-hdr{background:var(--s7-bg);border-color:var(--s7-bd);color:var(--s7-fg)}
+.acc-item.open .acc-hdr{border-bottom-left-radius:0;border-bottom-right-radius:0;filter:brightness(.98)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.acc-item.open .acc-body{max-height:20000px;transition:max-height .55s ease-in-out;border-top:1px solid var(--border)}
+.acc-in{padding:14px}
+
+/* ---------- DASHBOARD ---------- */
+.dash{padding:16px 14px 40px;max-width:560px;margin:0 auto}
+.dash-hero{padding:20px;background:linear-gradient(160deg,#1a1a1a 0%,#2c2c2c 100%);color:#fff;border-radius:16px;margin-bottom:14px}
+.dash-hero .row{display:flex;gap:14px;align-items:center}
+.dash-logo{width:64px;height:64px;flex:0 0 auto;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden}
+.dash-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.dash-hero h1{margin:0;font-size:19px;font-weight:900;letter-spacing:-.015em;line-height:1.2}
+.dash-hero p{margin:4px 0 0;font-size:12px;color:rgba(255,255,255,.66);line-height:1.4}
+.dash-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.dash-stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 10px;text-align:center}
+.dash-stat .lbl{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.dash-stat .val{font-size:20px;font-weight:900;color:#1a1a1a;letter-spacing:-.02em}
+.dash-section{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.dash-section h2{margin:0 0 12px;font-size:14.5px;font-weight:900;letter-spacing:-.01em;color:#1a1a1a}
+.dash-action{display:block;width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:11px;margin-bottom:8px;background:#fff;text-align:left;cursor:pointer;transition:border-color .15s,background .15s}
+.dash-action:active{background:#faf8f2;border-color:var(--gold)}
+.dash-action b{display:block;font-size:13px;font-weight:800;color:#1a1a1a;margin-bottom:2px}
+.dash-action span{display:block;font-size:11.5px;color:var(--muted);line-height:1.4}
+
+/* ---------- SERVICE CARDS ---------- */
+.svc-card{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;background:#faf8f2}
+.svc-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.svc-hdr .info{flex:1;min-width:0}
+.svc-hdr .cat{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--s2-fg);margin-bottom:2px}
+.svc-hdr .nm{font-size:13px;font-weight:800;color:#1a1a1a;line-height:1.3}
+.svc-hdr .rate{font-size:11.5px;font-weight:800;color:#3a3324;margin-top:3px}
+.svc-actions{display:flex;gap:4px}
+.svc-actions button{padding:6px 10px;font-size:11px;font-weight:800;border-radius:8px;border:1px solid var(--border);background:#fff;color:#3a3324}
+.svc-actions button.danger{background:#fbeaea;color:var(--danger);border-color:#e0c9c9}
+
+/* ---------- DISCOUNT CARDS ---------- */
+.disc-card{border:1px solid #d6dfc1;border-radius:12px;padding:12px;margin-bottom:8px;background:#f5f9ee}
+.disc-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.disc-hdr .info{flex:1;min-width:0}
+.disc-code{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--s2-fg);margin-bottom:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.disc-label{font-size:12.5px;font-weight:800;color:#1a1a1a;line-height:1.3}
+.disc-meta{font-size:10.5px;color:var(--muted);margin-top:4px;font-weight:700}
+.disc-value{font-size:16px;font-weight:900;color:var(--ok);letter-spacing:-.01em;flex:0 0 auto}
+
+/* ---------- GALLERY ---------- */
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.gal-cell{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f4efe4;border:1px solid var(--border)}
+.gal-cell img{width:100%;height:100%;object-fit:cover;display:block}
+.gal-cell .rm{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.66);color:#fff;font-size:14px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.gal-cell .lbl{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.72));color:#fff;font-size:9.5px;font-weight:700;padding:14px 6px 5px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gal-vid{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#0a0a0a;border:1px solid var(--border);margin-bottom:8px}
+.gal-vid video{width:100%;height:100%;object-fit:cover;display:block}
+.gal-vid .rm{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.66);color:#fff;font-size:14px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;z-index:2}
+
+/* ---------- PORTFOLIO ---------- */
+.pf-card{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;background:#fff;display:flex;gap:10px}
+.pf-thumb{width:64px;height:64px;flex:0 0 auto;border-radius:8px;overflow:hidden;background:#f4efe4;border:1px solid var(--border)}
+.pf-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pf-thumb .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#c9c2b3}
+.pf-info{flex:1;min-width:0}
+.pf-info b{display:block;font-size:12.5px;font-weight:800;color:#1a1a1a;line-height:1.3;margin-bottom:2px}
+.pf-info .meta{font-size:10.5px;color:var(--muted);font-weight:700;margin-bottom:4px}
+.pf-info .desc{font-size:11.5px;color:#5c5547;line-height:1.4;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pf-actions{display:flex;gap:4px;margin-top:6px}
+
+/* ---------- REVIEW / PUBLISH ---------- */
+.check{padding:11px 13px;border-radius:11px;margin-bottom:8px;font-size:12px;line-height:1.5;display:flex;gap:8px;align-items:flex-start}
+.check.ok{background:#e3f5e9;border:1px solid #b8e6c1;color:#1c6b2e}
+.check.warn{background:#fdf3dc;border:1px solid #ece0be;color:#8a6a1a}
+.check.info{background:#eef4ff;border:1px solid #cfdcf4;color:#24476e}
+.check .ic{font-weight:900;flex:0 0 auto;width:14px}
+
+/* ---------- PREVIEW AS VENUE ---------- */
+.supplier-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.supplier-card .top{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.supplier-card .av{width:52px;height:52px;flex:0 0 auto;border-radius:12px;background:#faf8f2;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden}
+.supplier-card .av img{width:100%;height:100%;object-fit:cover;display:block}
+.supplier-card .info{flex:1;min-width:0}
+.supplier-card .biz{font-size:15px;font-weight:900;color:#1a1a1a;line-height:1.2;letter-spacing:-.01em}
+.supplier-card .tagline{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:3px}
+.supplier-card .services{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.supplier-card .svc{font-size:10px;font-weight:800;padding:4px 9px;border-radius:999px;background:#eef2e4;border:1px solid #d6dfc1;color:var(--s2-fg)}
+.supplier-card .row{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;color:#3a3324;border-bottom:1px solid #f4efe4}
+.supplier-card .row:last-child{border-bottom:0}
+.supplier-card .row b{font-weight:900;color:#1a1a1a}
+.supplier-card .foot{padding-top:10px;border-top:1px solid #f4efe4;margin-top:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.supplier-card .foot .cta{font-size:11px;font-weight:800;color:var(--gold);letter-spacing:.03em}
+
+/* ---------- TOAST ---------- */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#0d0d0d;color:#fff;padding:11px 20px;border-radius:11px;font-size:12.5px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;box-shadow:0 8px 30px -8px rgba(0,0,0,.4);max-width:90%;text-align:center}
+.toast.on{opacity:1}
+
+/* ---------- MODAL ---------- */
+.scrim{position:fixed;inset:0;background:rgba(20,18,12,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:560px){.scrim{align-items:center;padding:16px}}
+.sheet{background:#fff;width:100%;max-width:520px;max-height:92vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
+@media(min-width:560px){.sheet{border-radius:16px}}
+.sheet-hdr{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sheet-hdr h3{margin:0;font-size:14.5px;font-weight:900;flex:1}
+.sheet-body{padding:14px 16px;overflow-y:auto;flex:1}
+.sheet-foot{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;background:#faf8f2}
+.sheet-foot .btn{flex:1}
+.close-x{width:28px;height:28px;flex:0 0 auto;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;color:#6f6754;padding:0}
+
+/* ---------- EMPTY / HELPERS ---------- */
+.empty{padding:26px 16px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.55;background:#faf8f2;border:1.5px dashed var(--border);border-radius:11px}
+.hint{font-size:10.5px;color:#a89a7e;margin-top:5px;line-height:1.5}
+.hint b{color:#3a3324}
+.section-title{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a89a7e;margin:0 0 10px}
+.divider{border:0;height:1px;background:#f1ece1;margin:14px 0}
+
+/* ---------- CATALOG PICKER ---------- */
+.cat-block{border:1px solid var(--border);border-radius:11px;margin-bottom:8px;overflow:hidden;background:#fff}
+.cat-hdr{width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;background:#faf8f2;cursor:pointer;text-align:left}
+.cat-ico{font-size:18px;flex:0 0 auto}
+.cat-info{flex:1;min-width:0}
+.cat-info b{display:block;font-size:12.5px;font-weight:800;color:#1a1a1a;line-height:1.2}
+.cat-info span{display:block;font-size:10.5px;color:var(--muted);margin-top:2px}
+.cat-chev{font-size:14px;color:var(--muted);flex:0 0 auto;transition:transform .2s}
+.cat-block.open .cat-chev{transform:rotate(90deg)}
+.cat-body{padding:10px 12px;border-top:1px solid var(--border)}
+.type-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--border);border-radius:9px;margin-bottom:6px;background:#fff;cursor:pointer;transition:border-color .15s,background .15s}
+.type-row.on{border-color:#c5d5e0;background:#f8fbfd}
+.type-tick{width:20px;height:20px;flex:0 0 auto;border:1.5px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#a89a7e}
+.type-row.on .type-tick{background:var(--s2-fg);border-color:var(--s2-fg);color:#fff}
+.type-info{flex:1;min-width:0}
+.type-info b{display:block;font-size:12px;font-weight:700;color:#1a1a1a;line-height:1.3}
+.type-info span{display:block;font-size:10.5px;color:var(--muted);margin-top:2px}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="hdr">
+    <a class="brand-mark" href="index.html">EAT<span>OUTS</span></a>
+    <span class="title" id="hdrTitle">Suppliers</span>
+    <span class="status" id="hdrStatus" style="display:none">Draft</span>
+  </header>
+  <div id="scroll"></div>
+  <div id="bar"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   EATOUTS SUPPLIERS — engine
+   Self-contained. Works with or without EatoutsCloud.
+   Storage keys:
+     eatouts_suppliers_v1          — all supplier profiles on device
+     eatouts_supplier_session_v1   — signed-in supplier id
+     eatouts_supplier_draft_v1     — in-progress profile draft
+   ============================================================ */
+(function(){
+  'use strict';
+
+  /* ============================================================
+     CONSTANTS
+     ============================================================ */
+  var PROFILES_KEY = 'eatouts_suppliers_v1';
+  var SESSION_KEY  = 'eatouts_supplier_session_v1';
+  var DRAFT_KEY    = 'eatouts_supplier_draft_v1';
+
+  /* Same 8 categories as eatouts-event-planner.html so suppliers
+     map cleanly when a venue picks them. */
+  var CATALOG = [
+    { id:'infrastructure', name:'Infrastructure & Rentals', icon:'⛺',
+      blurb:'Tent, power, floor, stage.',
+      types:[
+        { id:'tent',      name:'Tent & marquee',       note:'Stretch / peg-and-pole / clear-span' },
+        { id:'ablution',  name:'Mobile toilets',       note:'VIP trailers or portaloos' },
+        { id:'power',     name:'Power & generators',   note:'Silent backups, cabling' },
+        { id:'climate',   name:'Climate control',      note:'Heaters, fans, mobile AC' },
+        { id:'flooring',  name:'Flooring & carpeting', note:'Turf, wooden deck, VIP carpet' },
+        { id:'staging',   name:'Staging & rigging',    note:'Stage, catwalks, trussing' }
+      ]},
+    { id:'catering', name:'Catering, Bar & Hospitality', icon:'🍽',
+      blurb:'Food, drink, and the staff serving them.',
+      types:[
+        { id:'food',      name:'Food caterers',          note:'Buffet, plated, spit braai' },
+        { id:'equipment', name:'Catering equipment',     note:'Tables, chairs, glassware' },
+        { id:'bar',       name:'Mobile bar service',     note:'Bar setup, ice, mixers' },
+        { id:'wholesale', name:'Alcohol & beverage',     note:'Bulk beer, wine, spirits' },
+        { id:'specialty', name:'Specialty stations',     note:'Coffee, cocktail, ice cream carts' },
+        { id:'waitron',   name:'Waitron agency',         note:'Uniformed waiters' },
+        { id:'bartender', name:'Bartender / mixology',   note:'Skilled cocktail staff' },
+        { id:'scullery',  name:'Scullery & cleaning',    note:'Dishwash, trash, tidy-up' }
+      ]},
+    { id:'decor', name:'Decor, Styling & Florals', icon:'🎨',
+      blurb:'The visual identity of the event.',
+      types:[
+        { id:'stylist',   name:'Event stylist / designer', note:'Mood board + concept' },
+        { id:'florist',   name:'Florist',                  note:'Centerpieces, arches, bouquets' },
+        { id:'furniture', name:'Furniture hire',           note:'Lounges, cocktail tables, stools' },
+        { id:'draping',   name:'Draping & fabric',         note:'Ceiling, wall, fairy lights' },
+        { id:'printing',  name:'Signage & stationery',     note:'Menus, seating, name cards' }
+      ]},
+    { id:'technical', name:'Technical Production (AV)', icon:'🔊',
+      blurb:'Sound, lighting, screens, effects.',
+      types:[
+        { id:'pa',       name:'PA & sound engineer',   note:'Speakers, mixer, monitors' },
+        { id:'mics',     name:'Microphone specialist', note:'Lapel, roaming, instrument mics' },
+        { id:'lighting', name:'Lighting design',       note:'Uplighting, stage lights' },
+        { id:'visual',   name:'LED wall & projectors', note:'Screens, live feeds' },
+        { id:'sfx',      name:'Special effects',       note:'Sparklers, smoke, confetti' }
+      ]},
+    { id:'entertainment', name:'Entertainment & Talent', icon:'🎤',
+      blurb:'The people who keep the crowd engaged.',
+      types:[
+        { id:'mc',           name:'MC / host' },
+        { id:'dj',           name:'DJ' },
+        { id:'band',         name:'Live band / musician' },
+        { id:'cultural',     name:'Cultural / traditional dancers' },
+        { id:'contemporary', name:'Contemporary dancers' },
+        { id:'hype',         name:'Hype man / announcer' },
+        { id:'keynote',      name:'Keynote / celebrity speaker' }
+      ]},
+    { id:'security', name:'Safety, Security & Logistics', icon:'🛡',
+      blurb:'Keep the event lawful, safe, orderly.',
+      types:[
+        { id:'vipsecurity',    name:'VIP / close protection' },
+        { id:'staticsecurity', name:'Venue static security' },
+        { id:'access',         name:'Access control & ticketing' },
+        { id:'parking',        name:'Parking marshals' },
+        { id:'armed',          name:'Armed response / K9' },
+        { id:'healthsafety',   name:'Health & safety officer' },
+        { id:'medical',        name:'Medical emergency services' }
+      ]},
+    { id:'media', name:'Media, Memories & Marketing', icon:'📸',
+      blurb:'Capture it, broadcast it, remember it.',
+      types:[
+        { id:'photographer', name:'Event photographer' },
+        { id:'videographer', name:'Videographer / cinematographer' },
+        { id:'drone',        name:'Drone operator' },
+        { id:'streaming',    name:'Live-streaming technician' },
+        { id:'photobooth',   name:'Photo booth vendor' }
+      ]},
+    { id:'management', name:'Management & Coordination', icon:'📋',
+      blurb:'The glue that keeps everything together.',
+      types:[
+        { id:'planner', name:'Event planner / coordinator' },
+        { id:'onday',   name:'On-the-day coordinator' },
+        { id:'rsvp',    name:'RSVP & guest manager' }
+      ]}
+  ];
+
+  var RATE_TYPES = ['Per hour','Per day','Per booking','Per person','Per item','Custom quote'];
+  var WEEKDAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var PAYMENT_TERMS = ['Cash','EFT','MoMo','Orange Money','Card','Bank transfer'];
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function esc(s){
+    return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function uid(p){ return (p||'id') + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,7); }
+  function slugify(s){
+    if (window.EatoutsBrand && typeof EatoutsBrand.slugify === 'function') return EatoutsBrand.slugify(s);
+    return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  }
+  function money(n){ return 'P' + (Number(n)||0).toFixed(2); }
+  function toDateLabel(iso){
+    if (!iso) return '';
+    try { return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
+    catch(e){ return iso; }
+  }
+  /* Simple non-secure PIN hash. Local-only prototype. */
+  function hashPin(pin, salt){
+    var s = String(salt || '') + '|' + String(pin || '');
+    var h = 5381;
+    for (var i=0;i<s.length;i++) h = ((h << 5) + h) + s.charCodeAt(i);
+    return (h >>> 0).toString(16);
+  }
+  function randomSalt(){
+    var s = '';
+    for (var i=0;i<8;i++) s += Math.floor(Math.random()*36).toString(36);
+    return s;
+  }
+  function findCategory(cid){
+    for (var i=0;i<CATALOG.length;i++) if (CATALOG[i].id === cid) return CATALOG[i];
+    return null;
+  }
+  function findType(cid, tid){
+    var c = findCategory(cid);
+    if (!c) return null;
+    for (var i=0;i<c.types.length;i++) if (c.types[i].id === tid) return c.types[i];
+    return null;
+  }
+  function toast(m){
+    var t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = m; t.classList.add('on');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ t.classList.remove('on'); }, 2200);
+  }
+
+  /* ============================================================
+     PERSISTENCE
+     ============================================================ */
+  function loadProfiles(){
+    try {
+      var raw = localStorage.getItem(PROFILES_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    } catch(e){ return []; }
+  }
+  function saveProfiles(list){
+    try { localStorage.setItem(PROFILES_KEY, JSON.stringify(list)); return true; }
+    catch(e){ console.warn('[suppliers] save failed', e); toast('Save failed — storage full'); return false; }
+  }
+  function sessionGet(){
+    try { var raw = localStorage.getItem(SESSION_KEY); return raw || null; }
+    catch(e){ return null; }
+  }
+  function sessionSet(id){
+    try { localStorage.setItem(SESSION_KEY, id); } catch(e){}
+  }
+  function sessionClear(){
+    try { localStorage.removeItem(SESSION_KEY); } catch(e){}
+  }
+  function draftSave(p){
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(p)); } catch(e){}
+  }
+  function draftLoad(){
+    try { var raw = localStorage.getItem(DRAFT_KEY); return raw ? JSON.parse(raw) : null; }
+    catch(e){ return null; }
+  }
+  function draftClear(){
+    try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
+  }
+
+  /* ============================================================
+     DRAFT SHAPE
+     ============================================================ */
+  function blankProfile(){
+    return {
+      id: uid('sup'),
+      slug: '',
+      status: 'draft',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      publishedAt: null,
+
+      /* security — local PIN */
+      pin: { salt: '', hash: '' },
+
+      /* step 1 — you & business */
+      owner: { firstName: '', lastName: '', age: null, headshot: '' },
+      business: { name: '', tagline: '', about: '', since: null, logo: '' },
+
+      /* step 2 — services */
+      services: [],
+
+      /* step 3 — pricing & discounts */
+      pricing: {
+        hourlyRate: null, halfDayRate: null, fullDayRate: null,
+        depositPercent: 30, paymentTerms: '',
+        packages: []
+      },
+      discounts: [],
+
+      /* step 4 — gallery */
+      gallery: { images: [], videos: [] },
+
+      /* step 5 — portfolio */
+      portfolio: [],
+
+      /* step 6 — contact & availability */
+      contact: { whatsapp: '', phone: '', email: '', preferred: 'whatsapp' },
+      location: { district: '', districtName: '', town: '', area: '', travelRadiusKm: 50, servesNationwide: false },
+      availability: { days: [], peakSeason: '', leadTimeDays: 7, notes: '' },
+
+      /* step 7 — trust */
+      trust: { yearsActive: null, insured: false, licensed: false, badges: [] },
+
+      /* runtime metrics (local only) */
+      metrics: { views: 0, enquiries: 0, bookings: 0 }
+    };
+  }
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  var state = {
+    view: 'landing',        /* landing | onboarding | dashboard | preview */
+    openStep: 'identity',
+    openCat: null,
+    profile: null,          /* active working copy */
+    editing: false,
+    dirty: false
+  };
+  var autosaveTimer = null;
+  var els = {};
+
+  /* ============================================================
+     RENDER ROUTER
+     ============================================================ */
+  function render(){
+    if (!els.scroll) return;
+    var scroll = null;
+
+    if (state.view === 'landing') {
+      els.scroll.innerHTML = renderLanding();
+      setBar(null);
+      paintHdr('Suppliers', null);
+    }
+    else if (state.view === 'onboarding') {
+      els.scroll.innerHTML = renderOnboarding();
+      setBar('edit');
+      paintHdr('Your profile', state.profile);
+    }
+    else if (state.view === 'dashboard') {
+      els.scroll.innerHTML = renderDashboard();
+      setBar(null);
+      paintHdr('Dashboard', state.profile);
+    }
+    else if (state.view === 'preview') {
+      els.scroll.innerHTML = renderPreview();
+      setBar(null);
+      paintHdr('Preview', state.profile);
+    }
+
+    bindLive();
+    /* Preserve scroll position on rerenders triggered by clicks */
+    if (scroll) els.scroll.scrollTop = scroll;
+  }
+
+  function paintHdr(title, profile){
+    var t = document.getElementById('hdrTitle');
+    var s = document.getElementById('hdrStatus');
+    if (t) t.textContent = title;
+    if (!s) return;
+    if (profile) {
+      s.style.display = '';
+      s.textContent = profile.status === 'published' ? 'Published' : 'Draft';
+      s.className = 'status ' + (profile.status === 'published' ? 'published' : 'draft');
+    } else {
+      s.style.display = 'none';
+    }
+  }
+
+  function setBar(mode){
+    var bar = document.getElementById('bar');
+    if (!bar) return;
+    if (!mode) { bar.classList.remove('on'); bar.innerHTML = ''; return; }
+    bar.classList.add('on');
+    if (mode === 'edit') {
+      bar.innerHTML =
+        '<button class="btn ghost" data-act="saveDraft">Save draft</button>' +
+        '<button class="btn gold" data-act="publish">Publish</button>';
+    }
+  }
+
+  /* ============================================================
+     LANDING
+     ============================================================ */
+  function renderLanding(){
+    var list = loadProfiles();
+    var session = sessionGet();
+    var current = session ? list.filter(function(p){ return p.id === session; })[0] : null;
+
+    var h = '';
+    h += '<div class="landing">';
+    h += '<div class="landing-hero">';
+    h += '<span class="tag">For suppliers</span>';
+    h += '<h1>List your services on EatOuts.</h1>';
+    h += '<p>DJs, caterers, florists, MCs, photographers, security, AV teams. Create a profile once — venues across Botswana find you when they plan events.</p>';
+    h += '</div>';
+    h += '<div class="landing-body">';
+
+    if (current) {
+      h += '<div class="section-title">Continue</div>';
+      h += '<button class="profile-row" data-act="openProfile" data-id="' + esc(current.id) + '">' +
+        '<div class="profile-logo">' + (current.business.logo ? '<img src="' + esc(current.business.logo) + '" alt="">' : '👤') + '</div>' +
+        '<div class="profile-info">' +
+          '<div class="profile-name">' + esc(current.business.name || current.owner.firstName || 'Untitled profile') + '</div>' +
+          '<div class="profile-meta">' + (current.status === 'published' ? 'Published' : 'Draft · tap to continue') + '</div>' +
+        '</div>' +
+        '<span style="color:#c9a84c;font-weight:900">→</span>' +
+      '</button>';
+    }
+
+    h += '<div class="landing-actions" style="margin-top:16px">';
+    h += '<button class="btn gold full" data-act="newProfile">Create my profile</button>';
+    h += '<button class="btn ghost full" data-act="toggleSignIn">Sign in to an existing profile</button>';
+    h += '</div>';
+
+    if (list.length) {
+      h += '<div class="section-title" style="margin-top:20px">Profiles on this device</div>';
+      list.forEach(function(p){
+        h += '<button class="profile-row" data-act="openProfile" data-id="' + esc(p.id) + '">' +
+          '<div class="profile-logo">' + (p.business.logo ? '<img src="' + esc(p.business.logo) + '" alt="">' : '👤') + '</div>' +
+          '<div class="profile-info">' +
+            '<div class="profile-name">' + esc(p.business.name || p.owner.firstName || 'Untitled') + '</div>' +
+            '<div class="profile-meta">' + (p.status === 'published' ? 'Published · ' : 'Draft · ') + esc((p.services||[]).length + ' service' + ((p.services||[]).length === 1 ? '' : 's')) + '</div>' +
+          '</div>' +
+          '<span style="color:#c9a84c;font-weight:900">→</span>' +
+        '</button>';
+      });
+    }
+
+    h += '<div class="landing-card" style="margin-top:20px">';
+    h += '<h3>How it works</h3>';
+    h += '<p>Fill in your details → we help you shape a clean listing → you publish. Venues see you when they plan their next event. WhatsApp is the only channel — no commission, no middleman.</p>';
+    h += '</div>';
+
+    h += '</div></div>';
+    return h;
+  }
+
+  /* ============================================================
+     ONBOARDING (7 steps)
+     ============================================================ */
+  function renderOnboarding(){
+    var p = state.profile;
+    if (!p) return '<div class="empty">No profile loaded.</div>';
+
+    var h = '';
+    h += '<div class="acc">';
+    h += step('identity',  1, 'You & your business', 'Name, age, business name, about');
+    h += step('services',  2, 'What you offer',      'Pick the supplier types you do');
+    h += step('pricing',   3, 'Pricing & discounts', 'Rates, packages, EatOuts discount codes');
+    h += step('gallery',   4, 'Gallery',             'Photos and video of your work');
+    h += step('portfolio', 5, 'Portfolio',           'Previous events and clients');
+    h += step('contact',   6, 'Contact & availability','WhatsApp, town, days you work');
+    h += step('review',    7, 'Review & publish',    'Checklist + publish gate');
+    h += '</div>';
+    return h;
+  }
+
+  function step(key, num, title, subtitle){
+    var open = state.openStep === key;
+    return '' +
+      '<section class="acc-item i' + num + (open ? ' open' : '') + '">' +
+        '<button class="acc-hdr" data-act="toggleStep" data-step="' + key + '">' +
+          '<span class="n">STEP ' + num + '</span>' +
+          '<span class="t">' + esc(title) + '</span>' +
+          '<span class="s">' + esc(subtitle) + '</span>' +
+        '</button>' +
+        '<div class="acc-body"><div class="acc-in">' + stepBody(key) + '</div></div>' +
+      '</section>';
+  }
+
+  function stepBody(key){
+    switch(key){
+      case 'identity':  return renderIdentity();
+      case 'services':  return renderServicesStep();
+      case 'pricing':   return renderPricingStep();
+      case 'gallery':   return renderGalleryStep();
+      case 'portfolio': return renderPortfolioStep();
+      case 'contact':   return renderContactStep();
+      case 'review':    return renderReviewStep();
+      default: return '';
+    }
+  }
+
+  /* ---------- STEP 1: IDENTITY ---------- */
+  function renderIdentity(){
+    var p = state.profile;
+    var o = p.owner, b = p.business;
+    var h = '';
+    h += '<div class="section-title">You</div>';
+    h += '<div class="field"><label>First name</label><input data-model="owner.firstName" value="' + esc(o.firstName) + '" placeholder="e.g. Kagiso"></div>';
+    h += '<div class="field"><label>Last name</label><input data-model="owner.lastName" value="' + esc(o.lastName) + '" placeholder="e.g. Molefe"></div>';
+    h += '<div class="field"><label>Age</label><input data-model="owner.age" type="number" min="18" max="99" value="' + (o.age == null ? '' : o.age) + '" placeholder="Optional"><div class="hint">Not shown publicly — for internal verification only.</div></div>';
+    h += '<div class="field"><label>Headshot URL</label><input data-model="owner.headshot" value="' + esc(o.headshot) + '" placeholder="https://… or assets/…"></div>';
+
+    h += '<hr class="divider">';
+    h += '<div class="section-title">Your business</div>';
+    h += '<div class="field"><label>Business name *</label><input data-model="business.name" value="' + esc(b.name) + '" placeholder="e.g. Pulse Sound & Light"></div>';
+    h += '<div class="field"><label>Tagline</label><input data-model="business.tagline" maxlength="80" value="' + esc(b.tagline) + '" placeholder="One line — what you do"><div class="hint">Shown under your name in the supplier picker.</div></div>';
+    h += '<div class="field"><label>About</label><textarea data-model="business.about" rows="4" placeholder="Two or three sentences about what you do and what makes you different.">' + esc(b.about) + '</textarea></div>';
+    h += '<div class="field"><label>Years active (since)</label><input data-model="business.since" type="number" min="1980" max="2099" value="' + (b.since == null ? '' : b.since) + '" placeholder="e.g. 2018"></div>';
+    h += '<div class="field"><label>Logo URL</label><input data-model="business.logo" value="' + esc(b.logo) + '" placeholder="https://… or assets/…"></div>';
+    return h;
+  }
+
+  /* ---------- STEP 2: SERVICES ---------- */
+  function renderServicesStep(){
+    var p = state.profile;
+    var selected = {};
+    p.services.forEach(function(s){ selected[s.categoryId + '/' + s.typeId] = true; });
+
+    var h = '';
+    h += '<div class="section-title">Pick what you offer</div>';
+    h += '<div class="hint" style="margin-bottom:12px">Tap a category to expand. Then tap the specific services you provide.</div>';
+
+    CATALOG.forEach(function(cat){
+      var open = state.openCat === cat.id;
+      var count = p.services.filter(function(s){ return s.categoryId === cat.id; }).length;
+      h += '<div class="cat-block' + (open ? ' open' : '') + '">' +
+        '<button class="cat-hdr" data-act="toggleCat" data-cat="' + cat.id + '">' +
+          '<span class="cat-ico">' + cat.icon + '</span>' +
+          '<span class="cat-info"><b>' + esc(cat.name) + '</b><span>' + count + ' selected</span></span>' +
+          '<span class="cat-chev">▸</span>' +
+        '</button>';
+      if (open) {
+        h += '<div class="cat-body">';
+        cat.types.forEach(function(t){
+          var on = !!selected[cat.id + '/' + t.id];
+          h += '<div class="type-row' + (on ? ' on' : '') + '" data-act="toggleService" data-cat="' + cat.id + '" data-type="' + t.id + '">' +
+            '<span class="type-tick">' + (on ? '✓' : '+') + '</span>' +
+            '<span class="type-info"><b>' + esc(t.name) + '</b>' + (t.note ? '<span>' + esc(t.note) + '</span>' : '') + '</span>' +
+          '</div>';
+        });
+        h += '</div>';
+      }
+      h += '</div>';
+    });
+
+    if (p.services.length) {
+      h += '<hr class="divider">';
+      h += '<div class="section-title">Your services</div>';
+      p.services.forEach(function(s, i){
+        var cat = findCategory(s.categoryId);
+        var type = findType(s.categoryId, s.typeId);
+        h += '<div class="svc-card">' +
+          '<div class="svc-hdr">' +
+            '<div class="info">' +
+              '<div class="cat">' + esc(cat ? cat.name : '') + '</div>' +
+              '<div class="nm">' + esc(s.title || (type ? type.name : 'Service')) + '</div>' +
+              (s.baseRate ? '<div class="rate">' + money(s.baseRate) + ' · ' + esc(s.rateType || 'Per booking') + '</div>' : '<div class="rate">Rate not set</div>') +
+            '</div>' +
+            '<div class="svc-actions">' +
+              '<button data-act="editService" data-id="' + esc(s.id) + '">Edit</button>' +
+              '<button class="danger" data-act="removeService" data-id="' + esc(s.id) + '">Remove</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      });
+    }
+    return h;
+  }
+
+  /* ---------- STEP 3: PRICING & DISCOUNTS ---------- */
+  function renderPricingStep(){
+    var p = state.profile;
+    var pr = p.pricing;
+    var h = '';
+    h += '<div class="section-title">Rates</div>';
+    h += '<div class="field"><label>Hourly rate</label><input data-model="pricing.hourlyRate" type="number" min="0" value="' + (pr.hourlyRate == null ? '' : pr.hourlyRate) + '" placeholder="P"></div>';
+    h += '<div class="field"><label>Half-day rate (5h)</label><input data-model="pricing.halfDayRate" type="number" min="0" value="' + (pr.halfDayRate == null ? '' : pr.halfDayRate) + '" placeholder="P"></div>';
+    h += '<div class="field"><label>Full-day rate (8–10h)</label><input data-model="pricing.fullDayRate" type="number" min="0" value="' + (pr.fullDayRate == null ? '' : pr.fullDayRate) + '" placeholder="P"></div>';
+    h += '<div class="field"><label>Deposit %</label><input data-model="pricing.depositPercent" type="number" min="0" max="100" value="' + (pr.depositPercent == null ? 30 : pr.depositPercent) + '"><div class="hint">Typical for Botswana event suppliers is 30–50%.</div></div>';
+    h += '<div class="field"><label>Payment terms</label><div class="chips">' +
+      PAYMENT_TERMS.map(function(t){
+        var on = (pr.paymentTerms || '').indexOf(t) > -1;
+        return '<span class="chip' + (on ? ' on' : '') + '" data-act="togglePayTerm" data-val="' + esc(t) + '">' + esc(t) + '</span>';
+      }).join('') +
+    '</div></div>';
+
+    h += '<hr class="divider">';
+    h += '<div class="section-title">Packages</div>';
+    h += '<div class="hint" style="margin-bottom:10px">Bundled offerings like "Wedding package" or "4-hour DJ set + lighting".</div>';
+    (pr.packages || []).forEach(function(pkg, i){
+      h += '<div class="svc-card">' +
+        '<div class="svc-hdr">' +
+          '<div class="info">' +
+            '<div class="nm">' + esc(pkg.name) + '</div>' +
+            '<div class="rate">' + money(pkg.price) + '</div>' +
+            (pkg.includes ? '<div class="meta" style="font-size:11px;color:#7a7466;margin-top:3px">' + esc(pkg.includes) + '</div>' : '') +
+          '</div>' +
+          '<div class="svc-actions">' +
+            '<button data-act="editPackage" data-i="' + i + '">Edit</button>' +
+            '<button class="danger" data-act="removePackage" data-i="' + i + '">Remove</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    h += '<button class="btn ghost full" data-act="addPackage">+ Add package</button>';
+
+    h += '<hr class="divider">';
+    h += '<div class="section-title">EatOuts discounts</div>';
+    h += '<div class="hint" style="margin-bottom:10px">Codes venues see on your listing. Applied when they add you to an event.</div>';
+    (p.discounts || []).forEach(function(d, i){
+      h += '<div class="disc-card">' +
+        '<div class="disc-hdr">' +
+          '<div class="info">' +
+            '<div class="disc-code">' + esc(d.code) + '</div>' +
+            '<div class="disc-label">' + esc(d.label) + '</div>' +
+            (d.validUntil ? '<div class="disc-meta">Valid until ' + esc(toDateLabel(d.validUntil)) + '</div>' : '') +
+            (d.terms ? '<div class="disc-meta">' + esc(d.terms) + '</div>' : '') +
+          '</div>' +
+          '<div class="disc-value">' + (d.percent ? d.percent + '%' : (d.flatOff ? money(d.flatOff) : '')) + '</div>' +
+        '</div>' +
+        '<div class="svc-actions" style="margin-top:8px">' +
+          '<button data-act="editDiscount" data-i="' + i + '">Edit</button>' +
+          '<button class="danger" data-act="removeDiscount" data-i="' + i + '">Remove</button>' +
+        '</div>' +
+      '</div>';
+    });
+    h += '<button class="btn ghost full" data-act="addDiscount">+ Add discount code</button>';
+    return h;
+  }
+
+  /* ---------- STEP 4: GALLERY ---------- */
+  function renderGalleryStep(){
+    var p = state.profile;
+    var h = '';
+    h += '<div class="section-title">Photos</div>';
+    h += '<div class="hint" style="margin-bottom:10px">Add 4–6 images: your setup, your work in action, a recent event.</div>';
+    if (p.gallery.images.length) {
+      h += '<div class="gal-grid">';
+      p.gallery.images.forEach(function(im, i){
+        h += '<div class="gal-cell">' +
+          '<img src="' + esc(im.url) + '" alt="">' +
+          (im.caption ? '<div class="lbl">' + esc(im.caption) + '</div>' : '') +
+          '<button class="rm" data-act="removeImage" data-i="' + i + '" aria-label="Remove">×</button>' +
+        '</div>';
+      });
+      h += '</div>';
+    } else {
+      h += '<div class="empty" style="margin-bottom:12px">No photos yet.</div>';
+    }
+    h += '<button class="btn ghost full" data-act="addImage">+ Add image URL</button>';
+
+    h += '<hr class="divider">';
+    h += '<div class="section-title">Videos</div>';
+    h += '<div class="hint" style="margin-bottom:10px">Short clips (under 20 MB) — best sent to us on WhatsApp and uploaded to Cloudflare.</div>';
+    p.gallery.videos.forEach(function(v, i){
+      h += '<div class="gal-vid">' +
+        '<video controls preload="metadata"' + (v.poster ? ' poster="' + esc(v.poster) + '"' : '') + '>' +
+          '<source src="' + esc(v.url) + '">' +
+        '</video>' +
+        '<button class="rm" data-act="removeVideo" data-i="' + i + '" aria-label="Remove">×</button>' +
+      '</div>';
+      if (v.caption) h += '<div style="font-size:11.5px;color:#7a7466;text-align:center;margin-bottom:12px;font-style:italic">' + esc(v.caption) + '</div>';
+    });
+    h += '<button class="btn ghost full" data-act="addVideo">+ Add video URL</button>';
+    return h;
+  }
+
+  /* ---------- STEP 5: PORTFOLIO ---------- */
+  function renderPortfolioStep(){
+    var p = state.profile;
+    var h = '';
+    h += '<div class="section-title">Previous work</div>';
+    h += '<div class="hint" style="margin-bottom:10px">Past events you\'ve worked on. Optional but very convincing.</div>';
+    if (!p.portfolio.length) {
+      h += '<div class="empty" style="margin-bottom:12px">No portfolio entries yet.</div>';
+    } else {
+      p.portfolio.forEach(function(pf, i){
+        h += '<div class="pf-card">' +
+          '<div class="pf-thumb">' +
+            (pf.imageUrl ? '<img src="' + esc(pf.imageUrl) + '" alt="">' : '<div class="ph">✦</div>') +
+          '</div>' +
+          '<div class="pf-info">' +
+            '<b>' + esc(pf.title || 'Untitled') + '</b>' +
+            '<div class="meta">' + (pf.clientType ? esc(pf.clientType) : '') + (pf.date ? ' · ' + esc(pf.date) : '') + '</div>' +
+            (pf.description ? '<div class="desc">' + esc(pf.description) + '</div>' : '') +
+            '<div class="pf-actions">' +
+              '<button class="btn ghost sm" data-act="editPortfolio" data-i="' + i + '">Edit</button>' +
+              '<button class="btn danger sm" data-act="removePortfolio" data-i="' + i + '">Remove</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      });
+    }
+    h += '<button class="btn ghost full" data-act="addPortfolio">+ Add portfolio entry</button>';
+    return h;
+  }
+
+  /* ---------- STEP 6: CONTACT & AVAILABILITY ---------- */
+  function renderContactStep(){
+    var p = state.profile;
+    var c = p.contact, l = p.location, a = p.availability;
+    var h = '';
+    h += '<div class="section-title">Contact</div>';
+    h += '<div class="field"><label>WhatsApp number *</label><input data-model="contact.whatsapp" type="tel" value="' + esc(c.whatsapp) + '" placeholder="+267 71 234 567"></div>';
+    h += '<div class="field"><label>Phone number</label><input data-model="contact.phone" type="tel" value="' + esc(c.phone) + '" placeholder="Optional"></div>';
+    h += '<div class="field"><label>Email</label><input data-model="contact.email" type="email" value="' + esc(c.email) + '" placeholder="Optional"></div>';
+
+    h += '<hr class="divider">';
+    h += '<div class="section-title">Location</div>';
+    h += '<div class="field"><label>Town / city *</label><input data-model="location.town" value="' + esc(l.town) + '" placeholder="Gaborone"><div class="hint">Where you\'re based. Not necessarily where you work — set the travel radius below.</div></div>';
+    h += '<div class="field"><label>Neighbourhood / area</label><input data-model="location.area" value="' + esc(l.area) + '" placeholder="Optional"></div>';
+    h += '<div class="field"><label>Travel radius (km)</label><input data-model="location.travelRadiusKm" type="number" min="0" max="1500" value="' + (l.travelRadiusKm == null ? 50 : l.travelRadiusKm) + '"></div>';
+    h += '<label class="sw"><input type="checkbox" data-model="location.servesNationwide"' + (l.servesNationwide ? ' checked' : '') + '><span class="track"></span><span class="lbl">Serve nationwide<em>You travel anywhere in Botswana</em></span></label>';
+
+    h += '<hr class="divider">';
+    h += '<div class="section-title">Availability</div>';
+    h += '<div class="field"><label>Days you work</label><div class="chips">' +
+      WEEKDAYS.map(function(d){
+        var on = a.days.indexOf(d) > -1;
+        return '<span class="chip' + (on ? ' on' : '') + '" data-act="toggleDay" data-val="' + d + '">' + d + '</span>';
+      }).join('') +
+    '</div></div>';
+    h += '<div class="field"><label>Lead time required (days)</label><input data-model="availability.leadTimeDays" type="number" min="0" max="180" value="' + (a.leadTimeDays == null ? 7 : a.leadTimeDays) + '"><div class="hint">Minimum notice you need for a booking.</div></div>';
+    h += '<div class="field"><label>Peak season</label><input data-model="availability.peakSeason" value="' + esc(a.peakSeason) + '" placeholder="e.g. Oct–Dec, wedding season"></div>';
+    h += '<div class="field"><label>Notes</label><textarea data-model="availability.notes" rows="3" placeholder="Anything a venue should know about your availability.">' + esc(a.notes) + '</textarea></div>';
+
+    h += '<hr class="divider">';
+    h += '<div class="section-title">Trust signals</div>';
+    h += '<div class="field"><label>Years active</label><input data-model="trust.yearsActive" type="number" min="0" max="60" value="' + (p.trust.yearsActive == null ? '' : p.trust.yearsActive) + '"></div>';
+    h += '<label class="sw"><input type="checkbox" data-model="trust.insured"' + (p.trust.insured ? ' checked' : '') + '><span class="track"></span><span class="lbl">Insured<em>You have public liability insurance</em></span></label>';
+    h += '<label class="sw"><input type="checkbox" data-model="trust.licensed"' + (p.trust.licensed ? ' checked' : '') + '><span class="track"></span><span class="lbl">Licensed<em>Registered business or trade licence</em></span></label>';
+    return h;
+  }
+
+  /* ---------- STEP 7: REVIEW & PUBLISH ---------- */
+  function renderReviewStep(){
+    var p = state.profile;
+    var checks = publishChecks(p);
+
+    var h = '';
+    h += '<div class="section-title">Publish checklist</div>';
+    checks.forEach(function(c){
+      h += '<div class="check ' + c.k + '"><span class="ic">' + c.ic + '</span><span>' + esc(c.txt) + '</span></div>';
+    });
+
+    h += '<hr class="divider">';
+    h += '<div class="section-title">Summary</div>';
+    h += '<div class="supplier-card">' + renderSupplierCard(p) + '</div>';
+
+    h += '<hr class="divider">';
+    h += '<div class="section-title">Export</div>';
+    h += '<div class="hint" style="margin-bottom:12px">Export your profile JSON. Send it to us on WhatsApp and we\'ll add you to the directory that venues read from.</div>';
+    h += '<button class="btn ghost full" data-act="exportProfile">Export profile JSON</button>';
+    if (window.EatoutsCloud && EatoutsCloud.isConfigured && EatoutsCloud.isConfigured()) {
+      h += '<button class="btn gold full" style="margin-top:8px" data-act="publishCloud">Publish to cloud</button>';
+    }
+    return h;
+  }
+
+  function publishChecks(p){
+    var checks = [];
+    var svc = (p.services||[]).length;
+    checks.push(svc > 0
+      ? { k:'ok', ic:'✓', txt: svc + ' service' + (svc===1?'':'s') + ' selected.' }
+      : { k:'warn', ic:'!', txt:'Add at least one service (Step 2).' });
+
+    var hasPrice = p.services.some(function(s){ return s.baseRate; }) ||
+                   p.pricing.hourlyRate || p.pricing.halfDayRate || p.pricing.fullDayRate ||
+                   (p.pricing.packages||[]).length;
+    checks.push(hasPrice
+      ? { k:'ok', ic:'✓', txt:'Pricing is set.' }
+      : { k:'warn', ic:'!', txt:'Add at least one rate or package (Step 3).' });
+
+    checks.push(p.contact.whatsapp
+      ? { k:'ok', ic:'✓', txt:'WhatsApp number on file.' }
+      : { k:'warn', ic:'!', txt:'Add your WhatsApp number (Step 6).' });
+
+    checks.push(p.business.name
+      ? { k:'ok', ic:'✓', txt:'Business name set.' }
+      : { k:'warn', ic:'!', txt:'Give your business a name (Step 1).' });
+
+    checks.push(p.location.town
+      ? { k:'ok', ic:'✓', txt:'Town / city set.' }
+      : { k:'warn', ic:'!', txt:'Set your town or city (Step 6).' });
+
+    checks.push((p.gallery.images||[]).length > 0
+      ? { k:'ok', ic:'✓', txt:(p.gallery.images||[]).length + ' photo' + ((p.gallery.images||[]).length===1?'':'s') + ' in gallery.' }
+      : { k:'warn', ic:'!', txt:'Add at least one photo (Step 4).' });
+
+    return checks;
+  }
+  function publishReady(p){
+    return publishChecks(p).every(function(c){ return c.k !== 'warn'; });
+  }
+
+  /* ============================================================
+     DASHBOARD
+     ============================================================ */
+  function renderDashboard(){
+    var p = state.profile;
+    if (!p) return '<div class="empty">No profile loaded.</div>';
+    var h = '';
+    h += '<div class="dash">';
+
+    /* hero */
+    h += '<div class="dash-hero">' +
+      '<div class="row">' +
+        '<div class="dash-logo">' + (p.business.logo ? '<img src="' + esc(p.business.logo) + '" alt="">' : '👤') + '</div>' +
+        '<div>' +
+          '<h1>' + esc(p.business.name || 'Untitled profile') + '</h1>' +
+          '<p>' + esc(p.business.tagline || (p.location.town ? p.location.town : 'Supplier')) + '</p>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    /* metrics — local only */
+    h += '<div class="dash-stat-grid">' +
+      '<div class="dash-stat"><div class="lbl">Views</div><div class="val">' + (p.metrics.views || 0) + '</div></div>' +
+      '<div class="dash-stat"><div class="lbl">Enquiries</div><div class="val">' + (p.metrics.enquiries || 0) + '</div></div>' +
+      '<div class="dash-stat"><div class="lbl">Bookings</div><div class="val">' + (p.metrics.bookings || 0) + '</div></div>' +
+    '</div>';
+
+    /* listing summary */
+    h += '<div class="dash-section">';
+    h += '<h2>Your listing</h2>';
+    h += '<div class="supplier-card">' + renderSupplierCard(p) + '</div>';
+    h += '</div>';
+
+    /* actions */
+    h += '<div class="dash-section">';
+    h += '<h2>Manage</h2>';
+    h += '<button class="dash-action" data-act="editProfile"><b>Edit profile</b><span>Update services, pricing, gallery, contact</span></button>';
+    h += '<button class="dash-action" data-act="viewPreview"><b>Preview as a venue sees it</b><span>Exactly what appears in the event planner</span></button>';
+    h += '<button class="dash-action" data-act="quickDiscount"><b>Quick add a discount</b><span>Add an EatOuts booking code</span></button>';
+    h += '<button class="dash-action" data-act="exportProfile"><b>Export profile JSON</b><span>Download a file for the directory</span></button>';
+    if (p.status === 'published') {
+      h += '<button class="dash-action" data-act="unpublish"><b>Unpublish profile</b><span>Hide from venues until you re-publish</span></button>';
+    }
+    h += '<button class="dash-action" data-act="signOut" style="border-color:#e0c9c9;background:#fdf6f6"><b style="color:#8a3a3a">Sign out</b><span style="color:#8a3a3a">Return to the landing screen</span></button>';
+    h += '</div>';
+
+    h += '</div>';
+    return h;
+  }
+
+  /* ============================================================
+     PREVIEW (as venue sees it)
+     ============================================================ */
+  function renderPreview(){
+    var p = state.profile;
+    if (!p) return '<div class="empty">No profile.</div>';
+    var h = '';
+    h += '<div class="dash">';
+    h += '<div class="hint" style="text-align:center;margin-bottom:12px">This is what venues see when they pick you from the supplier picker.</div>';
+    h += '<div class="supplier-card">' + renderSupplierCard(p) + '</div>';
+    h += '<hr class="divider">';
+    h += '<div class="section-title">Full profile</div>';
+    if (p.business.about) {
+      h += '<div class="dash-section"><h2>About</h2><p style="font-size:13.5px;color:#3a3324;line-height:1.65;margin:0">' + esc(p.business.about) + '</p></div>';
+    }
+    if ((p.services||[]).length) {
+      h += '<div class="dash-section"><h2>Services</h2>';
+      p.services.forEach(function(s){
+        var cat = findCategory(s.categoryId);
+        var type = findType(s.categoryId, s.typeId);
+        h += '<div class="svc-card" style="background:#fff">' +
+          '<div class="svc-hdr" style="margin-bottom:4px"><div class="info"><div class="cat">' + esc(cat ? cat.name : '') + '</div><div class="nm">' + esc(s.title || (type ? type.name : 'Service')) + '</div>' +
+          (s.description ? '<div style="font-size:11.5px;color:#7a7466;line-height:1.5;margin-top:4px">' + esc(s.description) + '</div>' : '') +
+          (s.baseRate ? '<div class="rate">' + money(s.baseRate) + ' · ' + esc(s.rateType || '') + '</div>' : '') +
+          '</div></div></div>';
+      });
+      h += '</div>';
+    }
+    if ((p.discounts||[]).length) {
+      h += '<div class="dash-section"><h2>Active discounts</h2>';
+      p.discounts.forEach(function(d){
+        h += '<div class="disc-card">' +
+          '<div class="disc-hdr"><div class="info"><div class="disc-code">' + esc(d.code) + '</div><div class="disc-label">' + esc(d.label) + '</div>' + (d.validUntil ? '<div class="disc-meta">Valid until ' + esc(toDateLabel(d.validUntil)) + '</div>' : '') + '</div><div class="disc-value">' + (d.percent ? d.percent + '%' : (d.flatOff ? money(d.flatOff) : '')) + '</div></div>' +
+        '</div>';
+      });
+      h += '</div>';
+    }
+    if ((p.gallery.images||[]).length) {
+      h += '<div class="dash-section"><h2>Gallery</h2><div class="gal-grid">';
+      p.gallery.images.forEach(function(im){
+        h += '<div class="gal-cell"><img src="' + esc(im.url) + '" alt=""></div>';
+      });
+      h += '</div></div>';
+    }
+    if ((p.portfolio||[]).length) {
+      h += '<div class="dash-section"><h2>Portfolio</h2>';
+      p.portfolio.forEach(function(pf){
+        h += '<div class="pf-card"><div class="pf-thumb">' + (pf.imageUrl ? '<img src="' + esc(pf.imageUrl) + '" alt="">' : '<div class="ph">✦</div>') + '</div><div class="pf-info"><b>' + esc(pf.title) + '</b><div class="meta">' + (pf.clientType ? esc(pf.clientType) : '') + (pf.date ? ' · ' + esc(pf.date) : '') + '</div>' + (pf.description ? '<div class="desc">' + esc(pf.description) + '</div>' : '') + '</div></div>';
+      });
+      h += '</div>';
+    }
+    h += '<button class="btn primary full" style="margin-top:16px" data-act="backFromPreview">← Back</button>';
+    h += '</div>';
+    return h;
+  }
+
+  function renderSupplierCard(p){
+    var h = '';
+    var svcNames = (p.services||[]).slice(0,4).map(function(s){
+      var type = findType(s.categoryId, s.typeId);
+      return '<span class="svc">' + esc(s.title || (type ? type.name : 'Service')) + '</span>';
+    }).join('');
+    h += '<div class="top">' +
+      '<div class="av">' + (p.business.logo ? '<img src="' + esc(p.business.logo) + '" alt="">' : '👤') + '</div>' +
+      '<div class="info">' +
+        '<div class="biz">' + esc(p.business.name || 'Untitled') + '</div>' +
+        (p.business.tagline ? '<div class="tagline">' + esc(p.business.tagline) + '</div>' : '') +
+      '</div>' +
+    '</div>';
+    if (svcNames) h += '<div class="services">' + svcNames + '</div>';
+    if (p.location.town) {
+      h += '<div class="row"><span>Based in</span><b>' + esc(p.location.town) + (p.location.servesNationwide ? ' · Nationwide' : (p.location.travelRadiusKm ? ' · ' + p.location.travelRadiusKm + 'km' : '')) + '</b></div>';
+    }
+    if (p.pricing.fullDayRate) h += '<div class="row"><span>Full day</span><b>' + money(p.pricing.fullDayRate) + '</b></div>';
+    else if (p.pricing.hourlyRate) h += '<div class="row"><span>Hourly</span><b>' + money(p.pricing.hourlyRate) + '</b></div>';
+    if ((p.discounts||[]).length) {
+      var d = p.discounts[0];
+      h += '<div class="row"><span>EatOuts discount</span><b style="color:#17834b">' + esc(d.code) + ' · ' + (d.percent ? d.percent + '% off' : money(d.flatOff) + ' off') + '</b></div>';
+    }
+    h += '<div class="foot">' +
+      '<span style="font-size:11px;color:#7a7466">' + (p.trust.yearsActive ? p.trust.yearsActive + ' yrs active · ' : '') + (p.contact.whatsapp ? 'WhatsApp ready' : 'No WhatsApp yet') + '</span>' +
+      '<span class="cta">Contact on WhatsApp →</span>' +
+    '</div>';
+    return h;
+  }
+
+  /* ============================================================
+     LIVE INPUT BINDING
+     ============================================================ */
+  function bindLive(){
+    var p = state.profile;
+    if (!p) return;
+
+    /* data-model="path.to.field" */
+    document.querySelectorAll('[data-model]').forEach(function(el){
+      var path = el.getAttribute('data-model');
+      el.addEventListener('input', function(){
+        setPath(p, path, el.type === 'number' ? (el.value === '' ? null : Number(el.value)) : (el.type === 'checkbox' ? el.checked : el.value));
+        markDirty();
+      });
+      el.addEventListener('change', function(){
+        if (el.type === 'checkbox') {
+          setPath(p, path, el.checked);
+          markDirty();
+        }
+      });
+    });
+  }
+
+  function setPath(obj, path, value){
+    var parts = path.split('.');
+    var cur = obj;
+    for (var i=0;i<parts.length-1;i++){
+      if (!cur[parts[i]]) cur[parts[i]] = {};
+      cur = cur[parts[i]];
+    }
+    cur[parts[parts.length-1]] = value;
+  }
+  function getPath(obj, path){
+    var parts = path.split('.');
+    var cur = obj;
+    for (var i=0;i<parts.length;i++){
+      if (!cur) return null;
+      cur = cur[parts[i]];
+    }
+    return cur;
+  }
+
+  function markDirty(){
+    state.dirty = true;
+    scheduleAutosave();
+  }
+  function scheduleAutosave(){
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(function(){
+      if (!state.profile || !state.editing) return;
+      state.profile.updatedAt = Date.now();
+      draftSave(state.profile);
+    }, 2000);
+  }
+
+  /* ============================================================
+     ACTION HANDLER
+     ============================================================ */
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-act]');
+    if (!t) return;
+    var act = t.getAttribute('data-act');
+
+    /* ---------- landing ---------- */
+    if (act === 'newProfile') {
+      var p = blankProfile();
+      state.profile = p;
+      state.editing = true;
+      state.view = 'onboarding';
+      state.openStep = 'identity';
+      draftSave(p);
+      render();
+      return;
+    }
+    if (act === 'toggleSignIn') {
+      openSignInSheet();
+      return;
+    }
+    if (act === 'openProfile') {
+      var id = t.getAttribute('data-id');
+      var list = loadProfiles();
+      var found = list.filter(function(x){ return x.id === id; })[0];
+      if (!found) { toast('Profile not found'); return; }
+      /* Require PIN if the profile has one set */
+      if (found.pin && found.pin.hash) {
+        openPinSheet(found, function(){
+          sessionSet(found.id);
+          state.profile = found;
+          state.editing = false;
+          state.view = found.status === 'published' ? 'dashboard' : 'onboarding';
+          state.openStep = 'identity';
+          render();
+        });
+      } else {
+        sessionSet(found.id);
+        state.profile = found;
+        state.editing = false;
+        state.view = 'onboarding';
+        state.openStep = 'identity';
+        render();
+      }
+      return;
+    }
+
+    /* ---------- onboarding nav ---------- */
+    if (act === 'toggleStep') {
+      state.openStep = state.openStep === t.getAttribute('data-step') ? null : t.getAttribute('data-step');
+      render();
+      return;
+    }
+    if (act === 'toggleCat') {
+      state.openCat = state.openCat === t.getAttribute('data-cat') ? null : t.getAttribute('data-cat');
+      render();
+      return;
+    }
+    if (act === 'toggleService') {
+      toggleService(t.getAttribute('data-cat'), t.getAttribute('data-type'));
+      return;
+    }
+    if (act === 'editService') { editService(t.getAttribute('data-id')); return; }
+    if (act === 'removeService') {
+      var sid = t.getAttribute('data-id');
+      state.profile.services = state.profile.services.filter(function(s){ return s.id !== sid; });
+      markDirty(); render();
+      return;
+    }
+    if (act === 'togglePayTerm') {
+      var v = t.getAttribute('data-val');
+      var cur = state.profile.pricing.paymentTerms || '';
+      var parts = cur ? cur.split(', ').filter(Boolean) : [];
+      var idx = parts.indexOf(v);
+      if (idx > -1) parts.splice(idx, 1); else parts.push(v);
+      state.profile.pricing.paymentTerms = parts.join(', ');
+      markDirty(); t.classList.toggle('on');
+      return;
+    }
+    if (act === 'toggleDay') {
+      var d = t.getAttribute('data-val');
+      var days = state.profile.availability.days || [];
+      var di = days.indexOf(d);
+      if (di > -1) days.splice(di, 1); else days.push(d);
+      state.profile.availability.days = days;
+      markDirty(); t.classList.toggle('on');
+      return;
+    }
+    if (act === 'addPackage') { editPackage(-1); return; }
+    if (act === 'editPackage') { editPackage(parseInt(t.getAttribute('data-i'),10)); return; }
+    if (act === 'removePackage') {
+      state.profile.pricing.packages.splice(parseInt(t.getAttribute('data-i'),10), 1);
+      markDirty(); render();
+      return;
+    }
+    if (act === 'addDiscount') { editDiscount(-1); return; }
+    if (act === 'editDiscount') { editDiscount(parseInt(t.getAttribute('data-i'),10)); return; }
+    if (act === 'removeDiscount') {
+      state.profile.discounts.splice(parseInt(t.getAttribute('data-i'),10), 1);
+      markDirty(); render();
+      return;
+    }
+    if (act === 'addImage') { editImage(-1); return; }
+    if (act === 'removeImage') {
+      state.profile.gallery.images.splice(parseInt(t.getAttribute('data-i'),10), 1);
+      markDirty(); render();
+      return;
+    }
+    if (act === 'addVideo') { editVideo(-1); return; }
+    if (act === 'removeVideo') {
+      state.profile.gallery.videos.splice(parseInt(t.getAttribute('data-i'),10), 1);
+      markDirty(); render();
+      return;
+    }
+    if (act === 'addPortfolio') { editPortfolio(-1); return; }
+    if (act === 'editPortfolio') { editPortfolio(parseInt(t.getAttribute('data-i'),10)); return; }
+    if (act === 'removePortfolio') {
+      state.profile.portfolio.splice(parseInt(t.getAttribute('data-i'),10), 1);
+      markDirty(); render();
+      return;
+    }
+
+    /* ---------- save / publish ---------- */
+    if (act === 'saveDraft') {
+      if (!state.profile) return;
+      state.profile.updatedAt = Date.now();
+      draftSave(state.profile);
+      var list = loadProfiles();
+      var existing = -1;
+      for (var i=0;i<list.length;i++) if (list[i].id === state.profile.id) existing = i;
+      if (existing > -1) list[existing] = state.profile; else list.push(state.profile);
+      saveProfiles(list);
+      sessionSet(state.profile.id);
+      toast('Draft saved');
+      return;
+    }
+    if (act === 'publish') {
+      if (!state.profile) return;
+      if (!publishReady(state.profile)) {
+        toast('Some required fields are missing');
+        state.openStep = 'review';
+        render();
+        return;
+      }
+      if (!state.profile.business.name) { toast('Give your business a name first'); return; }
+      if (!state.profile.slug) state.profile.slug = slugify(state.profile.business.name) || 'supplier';
+      state.profile.status = 'published';
+      state.profile.publishedAt = Date.now();
+      state.profile.updatedAt = Date.now();
+      /* Persist */
+      var list2 = loadProfiles();
+      var ex2 = -1;
+      for (var j=0;j<list2.length;j++) if (list2[j].id === state.profile.id) ex2 = j;
+      if (ex2 > -1) list2[ex2] = state.profile; else list2.push(state.profile);
+      saveProfiles(list2);
+      sessionSet(state.profile.id);
+      draftClear();
+      state.editing = false;
+      state.view = 'dashboard';
+      render();
+      toast('Profile published');
+      return;
+    }
+
+    /* ---------- dashboard ---------- */
+    if (act === 'editProfile') { state.view = 'onboarding'; state.editing = true; state.openStep = 'identity'; render(); return; }
+    if (act === 'viewPreview') { state.view = 'preview'; render(); return; }
+    if (act === 'backFromPreview') { state.view = 'dashboard'; render(); return; }
+    if (act === 'quickDiscount') { editDiscount(-1); return; }
+    if (act === 'exportProfile') { exportProfile(); return; }
+    if (act === 'unpublish') {
+      if (!confirm('Unpublish your profile? Venues won\'t see you until you re-publish.')) return;
+      state.profile.status = 'draft';
+      state.profile.publishedAt = null;
+      state.profile.updatedAt = Date.now();
+      var list3 = loadProfiles();
+      for (var k=0;k<list3.length;k++) if (list3[k].id === state.profile.id) list3[k] = state.profile;
+      saveProfiles(list3);
+      render();
+      toast('Profile unpublished');
+      return;
+    }
+    if (act === 'signOut') {
+      sessionClear();
+      state.profile = null;
+      state.view = 'landing';
+      render();
+      return;
+    }
+
+    /* ---------- modal closes ---------- */
+    if (act === 'closeSheet') {
+      var scrim = t.closest('.scrim');
+      if (scrim) scrim.remove();
+      return;
+    }
+  });
+
+  /* ============================================================
+     SERVICE TOGGLE + EDIT
+     ============================================================ */
+  function toggleService(cid, tid){
+    var p = state.profile;
+    var idx = -1;
+    for (var i=0;i<p.services.length;i++){
+      if (p.services[i].categoryId === cid && p.services[i].typeId === tid) { idx = i; break; }
+    }
+    if (idx > -1) {
+      p.services.splice(idx, 1);
+      markDirty();
+      render();
+      return;
+    }
+    var type = findType(cid, tid);
+    /* open the detail sheet to capture title/rate */
+    openSheet('Add service',
+      '<div class="field"><label>Service title</label><input id="__svcTitle" value="' + esc(type ? type.name : '') + '"></div>' +
+      '<div class="field"><label>Description</label><textarea id="__svcDesc" rows="3" placeholder="What does this include?"></textarea></div>' +
+      '<div class="field"><label>Base rate (BWP)</label><input id="__svcRate" type="number" min="0" placeholder="e.g. 2500"></div>' +
+      '<div class="field"><label>Rate type</label><select id="__svcRateType">' +
+        RATE_TYPES.map(function(rt){ return '<option>' + esc(rt) + '</option>'; }).join('') +
+      '</select></div>' +
+      '<div class="field"><label>Minimum notice (days)</label><input id="__svcMin" type="number" min="0" placeholder="Optional"></div>',
+      function(scrim){
+        var title = scrim.querySelector('#__svcTitle').value.trim();
+        if (!title) { toast('Give the service a title'); return; }
+        p.services.push({
+          id: uid('svc'),
+          categoryId: cid,
+          typeId: tid,
+          title: title,
+          description: scrim.querySelector('#__svcDesc').value.trim(),
+          baseRate: scrim.querySelector('#__svcRate').value === '' ? null : Number(scrim.querySelector('#__svcRate').value),
+          rateType: scrim.querySelector('#__svcRateType').value,
+          minimum: scrim.querySelector('#__svcMin').value === '' ? null : Number(scrim.querySelector('#__svcMin').value),
+          travelIncluded: true
+        });
+        scrim.remove();
+        markDirty();
+        render();
+      }, 'Add service');
+  }
+  function editService(id){
+    var p = state.profile;
+    var svc = p.services.filter(function(s){ return s.id === id; })[0];
+    if (!svc) return;
+    var type = findType(svc.categoryId, svc.typeId);
+    openSheet('Edit service',
+      '<div class="field"><label>Service title</label><input id="__svcTitle" value="' + esc(svc.title || '') + '"></div>' +
+      '<div class="field"><label>Description</label><textarea id="__svcDesc" rows="3">' + esc(svc.description || '') + '</textarea></div>' +
+      '<div class="field"><label>Base rate (BWP)</label><input id="__svcRate" type="number" min="0" value="' + (svc.baseRate == null ? '' : svc.baseRate) + '"></div>' +
+      '<div class="field"><label>Rate type</label><select id="__svcRateType">' +
+        RATE_TYPES.map(function(rt){ return '<option' + (svc.rateType === rt ? ' selected' : '') + '>' + esc(rt) + '</option>'; }).join('') +
+      '</select></div>' +
+      '<div class="field"><label>Minimum notice (days)</label><input id="__svcMin" type="number" min="0" value="' + (svc.minimum == null ? '' : svc.minimum) + '"></div>',
+      function(scrim){
+        svc.title = scrim.querySelector('#__svcTitle').value.trim();
+        svc.description = scrim.querySelector('#__svcDesc').value.trim();
+        svc.baseRate = scrim.querySelector('#__svcRate').value === '' ? null : Number(scrim.querySelector('#__svcRate').value);
+        svc.rateType = scrim.querySelector('#__svcRateType').value;
+        svc.minimum = scrim.querySelector('#__svcMin').value === '' ? null : Number(scrim.querySelector('#__svcMin').value);
+        scrim.remove();
+        markDirty(); render();
+      }, 'Save');
+  }
+
+  /* ============================================================
+     PACKAGE / DISCOUNT / IMAGE / VIDEO / PORTFOLIO EDITORS
+     ============================================================ */
+  function editPackage(i){
+    var p = state.profile;
+    var pkg = i >= 0 ? p.pricing.packages[i] : { name:'', price:null, includes:'' };
+    openSheet(i >= 0 ? 'Edit package' : 'Add package',
+      '<div class="field"><label>Package name</label><input id="__pkName" value="' + esc(pkg.name) + '" placeholder="e.g. Wedding package"></div>' +
+      '<div class="field"><label>Price (BWP)</label><input id="__pkPrice" type="number" min="0" value="' + (pkg.price == null ? '' : pkg.price) + '"></div>' +
+      '<div class="field"><label>What\'s included</label><textarea id="__pkInc" rows="3" placeholder="e.g. 6hr set + MC + lighting rig">' + esc(pkg.includes || '') + '</textarea></div>',
+      function(scrim){
+        var name = scrim.querySelector('#__pkName').value.trim();
+        if (!name) { toast('Give the package a name'); return; }
+        var obj = {
+          name: name,
+          price: scrim.querySelector('#__pkPrice').value === '' ? null : Number(scrim.querySelector('#__pkPrice').value),
+          includes: scrim.querySelector('#__pkInc').value.trim()
+        };
+        if (i >= 0) p.pricing.packages[i] = obj; else p.pricing.packages.push(obj);
+        scrim.remove();
+        markDirty(); render();
+      }, i >= 0 ? 'Save' : 'Add');
+  }
+
+  function editDiscount(i){
+    var p = state.profile;
+    var d = i >= 0 ? p.discounts[i] : { code:'', label:'', percent:10, flatOff:null, validUntil:'', terms:'' };
+    openSheet(i >= 0 ? 'Edit discount' : 'Add discount',
+      '<div class="field"><label>Discount code</label><input id="__dCode" value="' + esc(d.code) + '" placeholder="e.g. EATOUTS10" style="text-transform:uppercase"><div class="hint">Short, memorable, uppercase.</div></div>' +
+      '<div class="field"><label>Label</label><input id="__dLabel" value="' + esc(d.label) + '" placeholder="e.g. 10% off for EatOuts bookings"></div>' +
+      '<div class="field"><label>Discount type</label><select id="__dType"><option value="percent"' + (d.percent ? ' selected' : '') + '>Percentage off</option><option value="flat"' + (d.flatOff ? ' selected' : '') + '>Flat amount off</option></select></div>' +
+      '<div class="field"><label>Percent (%)</label><input id="__dPct" type="number" min="0" max="90" value="' + (d.percent == null ? '' : d.percent) + '" placeholder="e.g. 10"></div>' +
+      '<div class="field"><label>Flat amount (BWP)</label><input id="__dFlat" type="number" min="0" value="' + (d.flatOff == null ? '' : d.flatOff) + '" placeholder="e.g. 200"></div>' +
+      '<div class="field"><label>Valid until</label><input id="__dUntil" type="date" value="' + esc(d.validUntil) + '"></div>' +
+      '<div class="field"><label>Terms</label><textarea id="__dTerms" rows="2" placeholder="e.g. Minimum P2000 booking">' + esc(d.terms) + '</textarea></div>',
+      function(scrim){
+        var code = scrim.querySelector('#__dCode').value.trim().toUpperCase();
+        var label = scrim.querySelector('#__dLabel').value.trim();
+        if (!code) { toast('Give the discount a code'); return; }
+        if (!label) { toast('Give the discount a label'); return; }
+        var type = scrim.querySelector('#__dType').value;
+        var obj = {
+          code: code,
+          label: label,
+          percent: type === 'percent' ? (scrim.querySelector('#__dPct').value === '' ? null : Number(scrim.querySelector('#__dPct').value)) : null,
+          flatOff: type === 'flat' ? (scrim.querySelector('#__dFlat').value === '' ? null : Number(scrim.querySelector('#__dFlat').value)) : null,
+          validUntil: scrim.querySelector('#__dUntil').value || '',
+          terms: scrim.querySelector('#__dTerms').value.trim()
+        };
+        if (i >= 0) p.discounts[i] = obj; else p.discounts.push(obj);
+        scrim.remove();
+        markDirty(); render();
+      }, i >= 0 ? 'Save' : 'Add');
+  }
+
+  function editImage(i){
+    var p = state.profile;
+    var im = i >= 0 ? p.gallery.images[i] : { url:'', caption:'' };
+    openSheet(i >= 0 ? 'Edit image' : 'Add image',
+      '<div class="field"><label>Image URL</label><input id="__imUrl" value="' + esc(im.url) + '" placeholder="https://… or assets/…"></div>' +
+      '<div class="field"><label>Caption</label><input id="__imCap" value="' + esc(im.caption || '') + '" placeholder="Optional"></div>' +
+      (window.EatoutsCloud && EatoutsCloud.isConfigured && EatoutsCloud.isConfigured()
+        ? '<div class="hint">Cloud is configured — file upload coming in a later version. For now paste the URL of an image you\'ve hosted.</div>'
+        : '<div class="hint">Paste the URL of an image you\'ve hosted somewhere. Direct file uploads come when Cloudflare is set up.</div>'),
+      function(scrim){
+        var url = scrim.querySelector('#__imUrl').value.trim();
+        if (!url) { toast('Add an image URL'); return; }
+        var obj = { id: uid('img'), url: url, caption: scrim.querySelector('#__imCap').value.trim() };
+        if (i >= 0) p.gallery.images[i] = obj; else p.gallery.images.push(obj);
+        scrim.remove();
+        markDirty(); render();
+      }, i >= 0 ? 'Save' : 'Add');
+  }
+
+  function editVideo(i){
+    var p = state.profile;
+    var v = i >= 0 ? p.gallery.videos[i] : { url:'', poster:'', caption:'' };
+    openSheet(i >= 0 ? 'Edit video' : 'Add video',
+      '<div class="field"><label>Video URL</label><input id="__vdUrl" value="' + esc(v.url) + '" placeholder="https://…"></div>' +
+      '<div class="field"><label>Poster image URL</label><input id="__vdPoster" value="' + esc(v.poster || '') + '" placeholder="Shown before playback"></div>' +
+      '<div class="field"><label>Caption</label><input id="__vdCap" value="' + esc(v.caption || '') + '" placeholder="Optional"></div>' +
+      '<div class="hint">Keep videos short (under 20 MB, under 60 seconds). Send the file to us on WhatsApp and we\'ll host it for you.</div>',
+      function(scrim){
+        var url = scrim.querySelector('#__vdUrl').value.trim();
+        if (!url) { toast('Add a video URL'); return; }
+        var obj = { id: uid('vid'), url: url, poster: scrim.querySelector('#__vdPoster').value.trim(), caption: scrim.querySelector('#__vdCap').value.trim() };
+        if (i >= 0) p.gallery.videos[i] = obj; else p.gallery.videos.push(obj);
+        scrim.remove();
+        markDirty(); render();
+      }, i >= 0 ? 'Save' : 'Add');
+  }
+
+  function editPortfolio(i){
+    var p = state.profile;
+    var pf = i >= 0 ? p.portfolio[i] : { title:'', clientType:'', date:'', description:'', imageUrl:'' };
+    openSheet(i >= 0 ? 'Edit portfolio entry' : 'Add portfolio entry',
+      '<div class="field"><label>Event / project title</label><input id="__pfTitle" value="' + esc(pf.title) + '" placeholder="e.g. Wedding for 120 guests"></div>' +
+      '<div class="field"><label>Client type</label><input id="__pfClient" value="' + esc(pf.clientType) + '" placeholder="Restaurant, wedding, corporate…"></div>' +
+      '<div class="field"><label>Date / season</label><input id="__pfDate" value="' + esc(pf.date) + '" placeholder="e.g. Oct 2026"></div>' +
+      '<div class="field"><label>Description</label><textarea id="__pfDesc" rows="3">' + esc(pf.description) + '</textarea></div>' +
+      '<div class="field"><label>Image URL</label><input id="__pfImg" value="' + esc(pf.imageUrl) + '" placeholder="Optional photo"></div>',
+      function(scrim){
+        var title = scrim.querySelector('#__pfTitle').value.trim();
+        if (!title) { toast('Give the entry a title'); return; }
+        var obj = {
+          id: i >= 0 ? pf.id : uid('pf'),
+          title: title,
+          clientType: scrim.querySelector('#__pfClient').value.trim(),
+          date: scrim.querySelector('#__pfDate').value.trim(),
+          description: scrim.querySelector('#__pfDesc').value.trim(),
+          imageUrl: scrim.querySelector('#__pfImg').value.trim()
+        };
+        if (i >= 0) p.portfolio[i] = obj; else p.portfolio.push(obj);
+        scrim.remove();
+        markDirty(); render();
+      }, i >= 0 ? 'Save' : 'Add');
+  }
+
+  /* ============================================================
+     MODAL SYSTEM
+     ============================================================ */
+  function openSheet(title, bodyHTML, onSave, saveLabel){
+    var scrim = document.createElement('div');
+    scrim.className = 'scrim';
+    scrim.innerHTML =
+      '<div class="sheet">' +
+        '<div class="sheet-hdr"><h3>' + esc(title) + '</h3>' +
+          '<button class="close-x" data-act="closeSheet">×</button>' +
+        '</div>' +
+        '<div class="sheet-body">' + bodyHTML + '</div>' +
+        '<div class="sheet-foot">' +
+          '<button class="btn ghost" data-act="closeSheet">Cancel</button>' +
+          (onSave ? '<button class="btn gold" data-save>' + esc(saveLabel||'Save') + '</button>' : '') +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(scrim);
+    var saveBtn = scrim.querySelector('[data-save]');
+    if (saveBtn && onSave) saveBtn.onclick = function(){ onSave(scrim); };
+    scrim.addEventListener('click', function(ev){ if (ev.target === scrim) scrim.remove(); });
+    return scrim;
+  }
+
+  /* ============================================================
+     SIGN-IN AND PIN SHEETS
+     ============================================================ */
+  function openSignInSheet(){
+    var list = loadProfiles();
+    if (!list.length) { toast('No profiles on this device yet'); return; }
+    var h = '<div class="hint" style="margin-bottom:12px">Pick the profile you want to sign into.</div>';
+    list.forEach(function(p){
+      h += '<button class="profile-row" data-act="signInAs" data-id="' + esc(p.id) + '">' +
+        '<div class="profile-logo">' + (p.business.logo ? '<img src="' + esc(p.business.logo) + '" alt="">' : '👤') + '</div>' +
+        '<div class="profile-info">' +
+          '<div class="profile-name">' + esc(p.business.name || 'Untitled') + '</div>' +
+          '<div class="profile-meta">' + (p.pin && p.pin.hash ? 'PIN protected' : 'No PIN set') + '</div>' +
+        '</div>' +
+      '</button>';
+    });
+    openSheet('Sign in', h, null);
+
+    /* signInAs handler */
+    document.querySelectorAll('[data-act="signInAs"]').forEach(function(btn){
+      btn.onclick = function(){
+        var id = btn.getAttribute('data-id');
+        var found = list.filter(function(x){ return x.id === id; })[0];
+        if (!found) return;
+        var closeScrim = btn.closest('.scrim');
+        if (closeScrim) closeScrim.remove();
+        if (found.pin && found.pin.hash) {
+          openPinSheet(found, function(){
+            sessionSet(found.id);
+            state.profile = found;
+            state.view = found.status === 'published' ? 'dashboard' : 'onboarding';
+            state.openStep = 'identity';
+            render();
+          });
+        } else {
+          sessionSet(found.id);
+          state.profile = found;
+          state.view = found.status === 'published' ? 'dashboard' : 'onboarding';
+          state.openStep = 'identity';
+          render();
+        }
+      };
+    });
+  }
+
+  function openPinSheet(profile, onOk){
+    var scrim = openSheet('Enter PIN',
+      '<div class="hint" style="margin-bottom:12px">Enter the 4-digit PIN you set for <b>' + esc(profile.business.name || 'this profile') + '</b>.</div>' +
+      '<div class="field"><label>PIN</label><input id="__pinInput" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" style="font-size:22px;letter-spacing:.5em;text-align:center;font-weight:900"></div>' +
+      '<div class="hint">No PIN yet? Just tap Sign in — the button below lets you set one now.</div>',
+      function(sc){
+        var v = (sc.querySelector('#__pinInput').value || '').trim();
+        if (v.length !== 4) { toast('Enter a 4-digit PIN'); return; }
+        var hash = hashPin(v, profile.pin.salt);
+        if (hash !== profile.pin.hash) { toast('Incorrect PIN'); return; }
+        sc.remove();
+        onOk();
+      }, 'Sign in');
+    setTimeout(function(){
+      var input = document.getElementById('__pinInput');
+      if (input) input.focus();
+    }, 120);
+  }
+
+  /* ============================================================
+     EXPORT
+     ============================================================ */
+  function exportProfile(){
+    var p = state.profile;
+    if (!p) return;
+    var slug = p.slug || slugify(p.business.name || 'supplier') || 'supplier';
+    var filename = 'supplier_' + slug + '.json';
+    var payload = {
+      $schema: 'eatouts.supplier.v1',
+      exportedAt: new Date().toISOString(),
+      supplier: p
+    };
+
+    /* Cloud path (if configured) */
+    if (window.EatoutsCloud && EatoutsCloud.isConfigured && EatoutsCloud.isConfigured() && EatoutsCloud.publishSupplier) {
+      toast('Publishing to cloud…');
+      EatoutsCloud.publishSupplier(Object.assign({ slug: slug }, p))
+        .then(function(res){
+          if (res && res.ok) toast('Published to cloud · ' + (res.url || slug));
+          else { toast('Cloud failed — downloading'); downloadPayload(payload, filename); }
+        });
+      return;
+    }
+    downloadPayload(payload, filename);
+  }
+  function downloadPayload(payload, filename){
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    toast('Downloaded ' + filename);
+  }
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  function boot(){
+    try {
+      els.scroll = document.getElementById('scroll');
+      els.bar = document.getElementById('bar');
+      if (!els.scroll) throw new Error('Scroll element missing');
+
+      /* If there's an in-progress draft, offer to resume it */
+      var draft = draftLoad();
+      if (draft && draft.id && !sessionGet()) {
+        /* Restore the editing session */
+        state.profile = draft;
+        state.editing = true;
+        state.view = 'onboarding';
+        state.openStep = 'identity';
+        render();
+        toast('Draft restored');
+        return;
+      }
+
+      render();
+      window.addEventListener('beforeunload', function(){ clearTimeout(autosaveTimer); });
+    } catch(err) {
+      console.error('[suppliers] boot failed', err);
+      var s = document.getElementById('scroll');
+      if (s) s.innerHTML =
+        '<div style="padding:40px 20px;text-align:center;color:#c43c3c;font-size:13px;line-height:1.7">' +
+          '<b>Suppliers page failed to start.</b><br><br>' +
+          esc(err && err.message || String(err)) +
+          '<br><br>Press F12 for details.' +
+        '</div>';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>

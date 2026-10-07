@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Get Started — EatOuts for Restaurants</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--border:#e7e4dd;--ok:#17834b;--radius:16px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:96px}
+.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:16px;color:var(--black);text-decoration:none}
+.brand span{color:var(--gold)}
+.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.app{max-width:820px;margin:0 auto}
+.hero{padding:38px 20px 30px;text-align:center;background:linear-gradient(160deg,#1a1a1a,#2c2c2c);color:#fff}
+.hero .tag{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.hero h1{margin:10px 0 12px;font-size:28px;font-weight:900;letter-spacing:-.025em;line-height:1.14}
+.hero p{margin:0 auto 20px;color:rgba(255,255,255,.72);font-size:14px;max-width:520px;line-height:1.55}
+.hero .btn-hero{display:inline-flex;align-items:center;gap:8px;min-height:52px;background:var(--gold);color:#fff;padding:0 24px;border-radius:12px;font-weight:900;text-decoration:none;font-size:14.5px;box-shadow:0 12px 30px -10px rgba(201,168,76,.6)}
+.hero .btn-hero:active{background:#b59437}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:14px;padding:18px}
+h2{font-size:17px;font-weight:900;letter-spacing:-.01em;margin:0 0 4px}
+.hint{font-size:12px;color:var(--muted)}
+.section-h{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 18px;margin:24px 0 6px}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:14px;padding:14px;background:#fff;border:1px solid var(--border);border-radius:14px;margin:0 14px}
+.step .num{width:38px;height:38px;flex:0 0 auto;border-radius:50%;background:var(--black);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px}
+.step .body{flex:1;min-width:0}
+.step .t{font-weight:900;font-size:14px;color:var(--text);margin-bottom:3px}
+.step .d{font-size:12.5px;color:var(--muted);line-height:1.5}
+.grid2{display:grid;grid-template-columns:1fr;gap:10px;padding:0 14px}
+@media(min-width:640px){.grid2{grid-template-columns:1fr 1fr}}
+.benefit{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
+.benefit .ic{font-size:22px;margin-bottom:6px;display:block}
+.benefit .t{font-weight:900;font-size:14px;color:var(--text);margin-bottom:4px}
+.benefit .d{font-size:12.5px;color:var(--muted);line-height:1.55}
+.price-card{margin:14px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:14px}
+.price-card .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.price-card .amt{font-size:28px;font-weight:900;letter-spacing:-.02em}
+.price-card .amt small{font-size:13px;font-weight:700;color:var(--muted)}
+.price-card .from{font-size:13.5px;font-weight:800;color:var(--gold)}
+.proof{margin:14px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center}
+.proof .quote{font-size:14px;font-style:italic;color:#3a3324;line-height:1.6}
+.proof .src{margin-top:8px;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.faq{display:flex;flex-direction:column;gap:8px;padding:0 14px}
+.qa{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.qa summary{cursor:pointer;padding:14px 16px;font-weight:800;font-size:13.5px;color:var(--text);list-style:none;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary::after{content:"+";font-size:20px;font-weight:400;color:var(--muted);transition:transform .18s}
+.qa[open] summary::after{content:"−"}
+.qa .a{padding:0 16px 16px;font-size:12.5px;color:var(--muted);line-height:1.6;border-top:1px solid #f4efe4;padding-top:12px}
+.sticky{position:fixed;bottom:0;left:0;right:0;z-index:60;background:#fff;border-top:1px solid var(--border);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;max-width:820px;margin:0 auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border:0;border-radius:12px;padding:0 18px;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;text-decoration:none;letter-spacing:.02em;flex:1}
+.btn.wa{background:#25D366;color:#fff}
+.btn.wa:active{background:#1cb356}
+.btn.call{background:#f7f4ec;border:1px solid var(--border);color:#3a3324;flex:0 0 auto;padding:0 20px}
+.footer{padding:28px 16px 34px;text-align:center;font-size:11.5px;color:var(--muted);line-height:1.6}
+.footer a{color:var(--muted);text-decoration:underline}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html">EAT<span>OUTS</span></a>
+  <div class="page">For Restaurants</div>
+  <a class="link" href="pricing.html" style="font-size:12px;font-weight:700;color:var(--gold);text-decoration:none">Pricing</a>
+</header>
+
+<main class="app">
+  <section class="hero">
+    <div class="tag">List your restaurant</div>
+    <h1>Get your restaurant in front of Botswana diners.</h1>
+    <p>EatOuts lists your menu, promos and events in one place — and sends every order straight to your own WhatsApp. No commission. No app for your customers to install.</p>
+    <a class="btn-hero" id="ctaWa" href="#">Talk to us on WhatsApp →</a>
+  </section>
+
+  <div class="section-h">How it works</div>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><div class="body"><div class="t">Share your details</div><div class="d">One WhatsApp message — your name, town, and what you serve. We take it from there.</div></div></div>
+    <div class="step"><div class="num">2</div><div class="body"><div class="t">We set you up</div><div class="d">Concierge onboarding: your profile, menu, photos, first promo. You don't touch a dashboard until it's ready.</div></div></div>
+    <div class="step"><div class="num">3</div><div class="body"><div class="t">Go live — orders land on your own WhatsApp</div><div class="d">Diners tap "Order", the message lands on your number, you reply like any normal WhatsApp. No middleman.</div></div></div>
+  </div>
+
+  <div class="section-h">Why EatOuts</div>
+  <div class="grid2">
+    <div class="benefit"><span class="ic">💸</span><div class="t">No commission</div><div class="d">We never take a cut of your sales. Subscription only — you keep 100% of every order.</div></div>
+    <div class="benefit"><span class="ic">📱</span><div class="t">Your WhatsApp, your orders</div><div class="d">Every diner's message arrives on your number. You own the conversation and the customer.</div></div>
+    <div class="benefit"><span class="ic">🎯</span><div class="t">Concierge setup</div><div class="d">We build your listing for you — profile, menu, photos, first promo. Nothing for you to learn.</div></div>
+    <div class="benefit"><span class="ic">🔥</span><div class="t">Live promos &amp; events</div><div class="d">Featured on the daily Promos feed alongside Botswana's best-known venues.</div></div>
+  </div>
+
+  <div class="section-h">Pricing</div>
+  <div class="price-card">
+    <div class="row">
+      <div>
+        <div class="hint" style="margin-bottom:2px">One-time onboarding</div>
+        <div class="amt">P300</div>
+      </div>
+      <span style="background:#fdf3dc;color:#9a6a0a;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px">Required to publish</span>
+    </div>
+    <div class="row">
+      <div class="hint">Then from</div>
+      <div class="from">P100 / month · Starter</div>
+    </div>
+    <a class="btn wa" href="pricing.html">See full pricing →</a>
+  </div>
+
+  <div class="section-h">Proof</div>
+  <div class="proof">
+    <div class="quote">"The EatOuts team set up our whole page in one afternoon. We've had real diners WhatsApp us before the day was over."</div>
+    <div class="src">— Founding partner venue, Gaborone</div>
+  </div>
+
+  <div class="section-h">FAQ</div>
+  <div class="faq">
+    <details class="qa"><summary>How much does it cost?</summary><div class="a">P300 one-time onboarding, then a monthly subscription that starts at P100 (Starter), P300 (Growth) or P500 (Pro). No commission on any order. See <a href="pricing.html" style="color:var(--gold);font-weight:700;text-decoration:none">pricing.html</a> for the full matrix.</div></details>
+    <details class="qa"><summary>How long until I'm live?</summary><div class="a">Typically 24–72 hours from the moment we have your menu and one good photo of each dish. Most venues are live within a week.</div></details>
+    <details class="qa"><summary>Who updates my page?</summary><div class="a">At launch, we do — that's the concierge model. Send a WhatsApp message with the change and we apply it. You can take over the dashboard later.</div></details>
+    <details class="qa"><summary>Do my customers need an app?</summary><div class="a">No. EatOuts runs in the browser — diners just open the link. Ordering happens on WhatsApp, which everyone already has.</div></details>
+    <details class="qa"><summary>How do orders reach me?</summary><div class="a">Straight to your own WhatsApp number. Each venue has its own routing — the customer's message arrives on your phone, not ours.</div></details>
+    <details class="qa"><summary>What do I need to get started?</summary><div class="a">Your restaurant name, town, a rough menu with prices, one clear photo of each dish or of the room, and your WhatsApp number. That's it.</div></details>
+  </div>
+
+  <div class="footer">
+    EatOuts · Gaborone, Botswana<br>
+    <a href="pricing.html">Pricing</a> · <a href="partner-terms.html">Terms</a> · <a href="index.html">Back to EatOuts</a>
+  </div>
+</main>
+
+<div class="sticky">
+  <a class="btn wa" id="stickyWa" href="#">💬 WhatsApp us</a>
+  <a class="btn call" id="stickyCall" href="tel:+26771844129">Call</a>
+</div>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-brand.js"></script>
+<script>
+(function(){
+  'use strict';
+  var number = '26771844129';
+  var display = '+267 71 844 129';
+  try {
+    var s = EatoutsDB.load().settings || {};
+    if (s.whatsapp) number = String(s.whatsapp).replace(/[^\d]/g,'');
+  } catch(e){}
+  var intro = "Hi EatOuts — I'd like to list my restaurant.\n\nName:\nTown:\nCuisine:";
+  var href = 'https://wa.me/' + number + '?text=' + encodeURIComponent(intro);
+  document.getElementById('ctaWa').href = href;
+  document.getElementById('stickyWa').href = href;
+  document.getElementById('stickyCall').href = 'tel:' + number;
+})();
+</script>
+</body>
+</html>

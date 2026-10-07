@@ -4,8 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node copy-static.mjs",
-    "deploy": "wrangler deploy",
-    "preview": "wrangler dev"
+    "merge":   "python scripts/build_restaurant_directory.py",
+    "build":   "npm run merge && node copy-static.mjs",
+    "deploy":  "npm run build && wrangler deploy",
+    "preview": "npm run build && wrangler dev",
+    "validate": "python scripts/validate_submission.py"
   }
 }

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partner Pricing — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--border:#e7e4dd;--ok:#17834b;--radius:16px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:16px;color:var(--black);text-decoration:none}
+.brand span{color:var(--gold)}
+.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.topbar a.link{font-size:12px;font-weight:700;color:var(--gold);text-decoration:none}
+.app{max-width:900px;margin:0 auto;padding-bottom:60px}
+.hero{padding:34px 20px 26px;text-align:center;background:#fff;border-bottom:1px solid var(--border)}
+.hero .tag{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.hero h1{margin:8px 0 10px;font-size:26px;font-weight:900;letter-spacing:-.02em;line-height:1.15}
+.hero p{margin:0;color:var(--muted);font-size:13.5px;max-width:520px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:14px;padding:18px}
+h2{font-size:17px;font-weight:900;letter-spacing:-.01em;margin:0 0 4px}
+.hint{font-size:12px;color:var(--muted)}
+.setup{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.setup .badge{background:#fdf3dc;color:#9a6a0a;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
+.setup .amt{font-size:30px;font-weight:900;color:var(--black);letter-spacing:-.02em}
+.tiers{display:grid;grid-template-columns:1fr;gap:14px;padding:0 14px}
+@media(min-width:680px){.tiers{grid-template-columns:repeat(3,1fr)}}
+.tier{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column}
+.tier.featured{border-color:var(--gold);box-shadow:0 8px 30px -14px rgba(201,168,76,.5)}
+.tier .name{font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+.tier .price{font-size:32px;font-weight:900;letter-spacing:-.03em;color:var(--black);margin:6px 0 2px}
+.tier .price small{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:0}
+.tier ul{list-style:none;margin:14px 0 0;padding:0;flex:1}
+.tier li{font-size:12.5px;padding:7px 0 7px 22px;position:relative;border-bottom:1px solid #f4efe4;color:#3a3324;line-height:1.4}
+.tier li:last-child{border-bottom:0}
+.tier li::before{content:"✓";position:absolute;left:0;top:7px;color:var(--ok);font-weight:900}
+.tier li.off{color:#b5a888}
+.tier li.off::before{content:"—";color:#d6cfbf}
+.matrix{margin:14px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.matrix table{width:100%;border-collapse:collapse;font-size:12.5px}
+.matrix th,.matrix td{padding:11px 10px;border-bottom:1px solid var(--border);text-align:left}
+.matrix th{background:#faf8f2;font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.matrix td.c, .matrix th.c{text-align:center}
+.matrix td.c{font-weight:800}
+.matrix tr:last-child td{border-bottom:0}
+.matrix td.h{font-weight:700;color:#3a3324}
+.matrix-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:520px){
+  .matrix table{min-width:420px}
+}
+.rules{margin:14px;background:#fdf9ef;border:1px solid #ece0be;border-radius:var(--radius);padding:16px}
+.rules h3{margin:0 0 8px;font-size:13px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#8a6a1a}
+.rules p{margin:0 0 8px;font-size:12.5px;color:#5c5547;line-height:1.55}
+.rules p:last-child{margin-bottom:0}
+.rules a{color:#8a6a1a;font-weight:800}
+.cta{display:flex;flex-direction:column;gap:10px;margin:18px 14px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border:0;border-radius:12px;padding:0 18px;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;text-decoration:none;letter-spacing:.02em;transition:background .15s}
+.btn.primary{background:var(--black);color:#fff}
+.btn.primary:active{background:#000}
+.btn.gold{background:var(--gold);color:#fff}
+.btn.gold:active{background:#b59437}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:#3a3324}
+.btn.wa{background:#dff5e4;border:1px solid #b8e6c1;color:#1c6b2e}
+.footer{padding:24px 16px 40px;text-align:center;font-size:11.5px;color:var(--muted);line-height:1.55}
+.footer a{color:var(--muted);text-decoration:underline}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html">EAT<span>OUTS</span></a>
+  <div class="page">Partner Pricing</div>
+  <a class="link" href="get-started.html">Get started →</a>
+</header>
+
+<main class="app">
+  <section class="hero">
+    <div class="tag">Pricing</div>
+    <h1>One setup. Three monthly tiers. No commission.</h1>
+    <p>EatOuts charges a one-time onboarding fee and a simple monthly subscription. We never take a cut of your orders — every WhatsApp message goes straight to your own number.</p>
+  </section>
+
+  <div class="card setup">
+    <div style="flex:1;min-width:180px">
+      <div class="hint" style="margin-bottom:4px">One-time onboarding</div>
+      <div class="amt">P300</div>
+      <div class="hint">Non-refundable · covers concierge setup of your profile, menu, photos & first promo</div>
+    </div>
+    <span class="badge">Required before publishing</span>
+  </div>
+
+  <div class="tiers" id="tiers"></div>
+
+  <h2 style="margin:24px 16px 4px">Full feature matrix</h2>
+  <p class="hint" style="margin:0 16px 10px">Everything in each tier, side by side.</p>
+  <div class="matrix">
+    <div class="matrix-scroll">
+      <table id="matrix"></table>
+    </div>
+  </div>
+
+  <div class="rules">
+    <h3>Publishing rules</h3>
+    <p>Your listing is <b>published on the live directory only after the P300 setup fee is confirmed</b>. Before that, you have a private draft you can preview — no one else can see it.</p>
+    <p>Subscriptions are billed monthly from the day you go live. Downgrades take effect at the start of the next billing cycle. Cancellations stop the next renewal; we don't issue pro-rated refunds.</p>
+    <p>Full terms are in the <a href="partner-terms.html">Merchant Terms of Service</a>.</p>
+  </div>
+
+  <div class="cta">
+    <a class="btn gold" id="ctaWa" href="#">Talk to us on WhatsApp</a>
+    <a class="btn ghost" href="get-started.html">See how it works</a>
+  </div>
+
+  <div class="footer">
+    Prices in Botswana Pula (BWP). Subject to change with 30 days' notice.<br>
+    <a href="partner-terms.html">Merchant Terms</a> · <a href="index.html">Back to EatOuts</a>
+  </div>
+</main>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-brand.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  /* ============================================================
+     SINGLE SOURCE OF TRUTH FOR PRICING.
+     Every page that shows a price reads from here (or from the
+     DB.settings.pricing copy we persist right after).
+     ============================================================ */
+  var PRICING = {
+    currency: 'BWP',
+    symbol: 'P',
+    setup: 300,
+    tiers: {
+      starter: { key:'starter', name:'Starter', price:100, blurb:'Get listed and take orders.' },
+      growth:  { key:'growth',  name:'Growth',  price:300, blurb:'Add promos, events and bookings.' },
+      pro:     { key:'pro',     name:'Pro',     price:500, blurb:'Featured, unlimited, priority.' }
+    },
+    features: [
+      { label:'Directory listing',            starter:'yes', growth:'yes', pro:'yes' },
+      { label:'Menu (categories/items)',      starter:'yes', growth:'yes', pro:'yes' },
+      { label:'Promos',                       starter:'1 active', growth:'3 active', pro:'Unlimited' },
+      { label:'Events + performers',          starter:'—', growth:'yes', pro:'yes' },
+      { label:'Gallery groups',               starter:'1', growth:'3', pro:'Unlimited' },
+      { label:'Reservation settings',         starter:'—', growth:'yes', pro:'yes' },
+      { label:'Featured placement',           starter:'—', growth:'—', pro:'yes' },
+      { label:'Support',                      starter:'WhatsApp', growth:'Priority', pro:'Priority + review' }
+    ]
+  };
+  window.EATOUTS_PRICING = PRICING;
+
+  /* write the prices into DB.settings so restaurant-dashboard.html
+     and any other page reads the same numbers */
+  try {
+    var db = EatoutsDB.load();
+    db.settings = db.settings || {};
+    db.settings.pricing = PRICING;
+    EatoutsDB.save(db);
+  } catch (e) { /* graceful: page still renders */ }
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function money(n){ return PRICING.symbol + Number(n||0).toFixed(0); }
+
+  /* ---- tier cards ---- */
+  var order = ['starter','growth','pro'];
+  document.getElementById('tiers').innerHTML = order.map(function(k){
+    var t = PRICING.tiers[k];
+    var featured = (k === 'growth');
+    var per = ['Directory + menu', 'Promos + events + bookings', 'Everything + featured placement'];
+    var tierIdx = order.indexOf(k);
+    var picks = PRICING.features.filter(function(f){
+      // keep only features that meaningfully differ or apply
+      return true;
+    });
+    var list = picks.map(function(f){
+      var v = f[k];
+      var has = v !== '—';
+      var display;
+      if (v === 'yes') display = f.label;
+      else if (v === '—') display = f.label;
+      else display = f.label + ' · ' + v;
+      return '<li' + (has ? '' : ' class="off"') + '>' + esc(display) + '</li>';
+    }).join('');
+    return '' +
+      '<div class="tier' + (featured ? ' featured' : '') + '">' +
+        '<div class="name">' + esc(t.name) + '</div>' +
+        '<div class="price">' + money(t.price) + '<small> / month</small></div>' +
+        '<div class="hint">' + esc(t.blurb) + '</div>' +
+        '<ul>' + list + '</ul>' +
+      '</div>';
+  }).join('');
+
+  /* ---- feature matrix ---- */
+  var head = '<tr><th>Feature</th><th class="c">Starter</th><th class="c">Growth</th><th class="c">Pro</th></tr>';
+  var rows = PRICING.features.map(function(f){
+    function cell(v){
+      if (v === 'yes') return '<td class="c" style="color:#17834b">✓</td>';
+      if (v === '—')   return '<td class="c" style="color:#c9c2b3">—</td>';
+      return '<td class="c">' + esc(v) + '</td>';
+    }
+    return '<tr><td class="h">' + esc(f.label) + '</td>' + cell(f.starter) + cell(f.growth) + cell(f.pro) + '</tr>';
+  }).join('');
+  document.getElementById('matrix').innerHTML = head + rows;
+
+  /* ---- WhatsApp CTA ---- */
+  var number = '26771844129';
+  try {
+    var s = EatoutsDB.load().settings || {};
+    if (s.whatsapp) number = String(s.whatsapp).replace(/[^\d]/g,'');
+  } catch(e){}
+  var msg = "Hi EatOuts — I'd like to talk about partner pricing. I saw the P300 setup + Starter/Growth/Pro tiers on your pricing page.";
+  document.getElementById('ctaWa').href =
+    'https://wa.me/' + number + '?text=' + encodeURIComponent(msg);
+})();
+</script>
+</body>
+</html>
