@@ -55,16 +55,16 @@ setTimeout(() => {
   const empty = w.resolveVenueWhatsapp({ contacts: [] });
   check('empty contacts -> flagship', empty === flagship, 'got ' + empty);
 
-  const linkVenue = w.waLink('hello', { whatsapp: '26771111111' });
-  check('waLink uses venue number', linkVenue.includes('phone=26771111111'), linkVenue);
+const linkVenue = w.waLink('hello', { whatsapp: '26771111111' });
+  check('waLink uses venue number', linkVenue.includes('wa.me/26771111111'), linkVenue);
   const linkDefault = w.waLink('hello');
-  check('waLink without venue -> flagship', linkDefault.includes('phone=' + flagship), linkDefault);
-  check('waLink encodes text', linkDefault.includes('text=hello'));
+  check('waLink without venue -> flagship', linkDefault.includes('wa.me/' + flagship), linkDefault);
+  check('waLink encodes text', linkDefault.includes('?text=hello'));
 
   const rawNumber = w.resolveVenueWhatsapp('26771829765');
   check('raw number string routes to that line', rawNumber === '26771829765', rawNumber);
   const bevLine = w.waLink('order', '26771829765');
-  check('beverage order routes to the dedicated line', bevLine.includes('phone=26771829765'), bevLine);
+  check('beverage order routes to the dedicated line', bevLine.includes('wa.me/26771829765'), bevLine);
 
   const rcVenue = w.restaurantContact({ whatsapp: '26771111111' });
   check('restaurantContact(venue).number', rcVenue.number === '26771111111', JSON.stringify(rcVenue));

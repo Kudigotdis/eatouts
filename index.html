@@ -3386,7 +3386,7 @@ function resolveVenueWhatsapp(venue){
   }
   return fallback;
 }
-function waLink(text,venue){return "whatsapp://send?phone="+resolveVenueWhatsapp(venue)+"&text="+encodeURIComponent(text);}
+function waLink(text,venue){return "https://wa.me/"+resolveVenueWhatsapp(venue)+"?text="+encodeURIComponent(text);}
 const DAY_NAMES=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const DAY_SHORT=["S","M","T","W","T","F","S"];
 
@@ -3535,7 +3535,7 @@ function restaurantContact(venue){
   return {number:num,display:(!v||num===flagship)?String(CONFIG.displayNumber||""):"+"+num};
 }
 /* WhatsApp share link with no phone number -> opens the contact picker */
-function waShareLink(text){return "whatsapp://send?text="+encodeURIComponent(text);}
+function waShareLink(text){return "https://wa.me/?text="+encodeURIComponent(text);}
 /* Promos/events now live per-restaurant in the v2 database. These lookups
    search every restaurant that owns promos, so the feed and the detail
    views work no matter which venue a promo came from. */
@@ -7405,6 +7405,13 @@ document.addEventListener("scroll",function(e){
   const dots=parent.querySelectorAll(".dots i");
   dots.forEach((d,i)=>d.classList.toggle("on",i===idx));
 },true);
+
+/* Connectivity chip — shown only when offline */
+const netChip=document.querySelector(".hdr-chip");
+function refreshNetChip(){if(netChip)netChip.style.display=navigator.onLine?"none":"";}
+window.addEventListener("online",refreshNetChip);
+window.addEventListener("offline",refreshNetChip);
+refreshNetChip();
 
 /* Boot */
 bootEatoutsBridge();
