@@ -25,6 +25,12 @@ jobs:
       - name: Build directory data (merge step)
         run: python scripts/build_restaurant_directory.py
 
+      - name: Validate D1 schema + seed (local)
+        run: |
+          npx wrangler d1 migrations apply eatouts --local
+          python scripts/build_d1_seed.py
+          npx wrangler d1 execute eatouts --file scripts/seeds/restaurants.sql --local
+
       - name: Install test deps
         working-directory: tests
         run: npm install

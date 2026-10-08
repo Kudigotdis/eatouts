@@ -7,10 +7,15 @@
     "merge":   "python scripts/build_restaurant_directory.py",
     "build":   "npm run merge && node copy-static.mjs",
     "stage":   "node copy-static.mjs",
-    "deploy":  "npm run build && wrangler pages deploy dist",
-    "preview": "npm run build && wrangler pages dev dist",
+    "deploy":  "npm run build && npx wrangler pages deploy dist",
+    "preview": "npm run build && npx wrangler pages dev dist",
     "validate": "python scripts/validate_submission.py",
-    "test":     "node tests/run-all.js"
+    "test":     "node tests/run-all.js",
+    "db:migrate:local": "npx wrangler d1 migrations apply eatouts --local",
+    "db:migrate":       "npx wrangler d1 migrations apply eatouts --remote",
+    "db:seed:build":    "python scripts/build_d1_seed.py",
+    "db:seed":          "python scripts/build_d1_seed.py && npx wrangler d1 execute eatouts --file scripts/seeds/restaurants.sql --remote",
+    "pages:dev":        "npm run build && npx wrangler pages dev dist"
   },
   "devDependencies": {
     "jsdom": "^29.1.1"

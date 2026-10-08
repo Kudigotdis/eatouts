@@ -32,7 +32,7 @@ Root HTML pages (single self-contained files, vanilla JS + inline CSS, no framew
 - **Public:** `index.html` (customer app), `get-started.html` (partner landing), `pricing.html` (pricing + feature matrix), `partner-terms.html` (merchant ToS + subscription agreement + privacy addendum), `one-pager.html` (printable pitch sheet), `eatouts-blog.html` (blog + on-device admin), `eatouts-event-planner.html`, `eatouts-suppliers.html` (supplier directory + self-onboarding). `404.html` is the Pages 404.
 - **Internal (operator, auth-gated):** `restaurant-onboarding.html`, `menu-onboarding.html`, `promo-onboarding.html`, `event-onboarding.html`, `gallery-onboarding.html`, `restaurant-dashboard.html`, plus the new `intake.html`, `invoice.html`, `ops-console.html`.
 
-**No backend.** All state is browser `localStorage`:
+**Currently no backend at runtime.** All live state is browser `localStorage` (a Cloudflare Pages Functions + D1 backend is being added on top — see **Cloudflare backend (M0)** below):
 
 - `eatouts_db_v1` / `eatouts_db_v2` — the main restaurant DB (`js/eatouts-db.js`).
 - `eatouts_session_v1` — operator sessions (`js/eatouts-auth.js`).
@@ -73,6 +73,43 @@ npm test
 ```
 
 CI (`.github/workflows/test.yml`) runs the same suites plus the build-time merge on every push and pull request. No Cloudflare secrets are required.
+
+## Cloudflare backend (M0)
+
+The self-serve platform runs on **Cloudflare Pages Functions + D1 + KV + R2**. Functions live in `functions/api/` and deploy automatically with the Git-connected Pages project.
+
+Bindings (`wrangler.toml`):
+
+- `DB` — D1 database `eatouts` (schema in `migrations/`).
+- `OPS_KV` — KV namespace holding login sessions.
+- `UPLOADS` — R2 bucket `eatouts-media` for media.
+
+Endpoints:
+
+- `GET  /api/health` — readiness + which bindings are live.
+- `POST /api/auth/dev-login` — passwordless login (**development only**; refuses when `ENV=production`).
+- `POST /api/auth/logout`, `GET /api/me` — session management.
+- `GET  /api/venues` — list / search / "mine" venues.
+- `POST /api/upload?path=<key>` — session-gated upload to R2.
+
+First-time setup (run once, paste the IDs each command prints back into `wrangler.toml`):
+
+```
+npx wrangler d1 create eatouts
+npx wrangler kv namespace create OPS_KV
+npx wrangler r2 bucket create eatouts-media
+npm run db:migrate     # create the tables
+npm run db:seed        # import the 563 directory listings as claimable venues
+```
+
+Local development:
+
+```
+copy .dev.vars.example .dev.vars   # then set DEV_LOGIN_EMAILS
+npm run pages:dev                  # builds dist/ and serves with bindings
+```
+
+Production secrets (`SESSION_SECRET`, `DEV_LOGIN_EMAILS`, `ADMIN_EMAILS`, `PUBLIC_BASE`) are set in the Cloudflare dashboard under Workers & Pages → eatouts → Settings → Variables and Secrets. `ENV=production` disables the dev-login shortcut.
 
 ## Cloud media (R2 worker) setup
 

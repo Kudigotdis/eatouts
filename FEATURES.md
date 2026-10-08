@@ -16,6 +16,8 @@ EatOuts is a mobile-first restaurant discovery app for Botswana. It brings toget
 | **Weekday featured events** | One headline event leads each day of the Promos feed — Simply Piano, Social Link, Kumnandi Ekhaya, Mas MusiQ, Motse Wa Setso, Kofifi Nights, AmaPiano Fest and Masa Poetry Nights |
 | **Order & Split the Bill** | Browse menus, build an order and send it to a restaurant on WhatsApp — or split it across friends |
 | **118 event types** | Venue booking inquiries across 9 categories, from weddings and conferences to esports and film festivals |
+| **Event Planner** | A working organiser for an event — lineup, schedule, tickets, budget, vendors, guests and seating in one place |
+| **EatOuts Blog** | A feed of stories, guides and local happenings across Botswana's food and events scene |
 | **Photo gallery** | Scoped to a viewed restaurant, town or area, filterable by Promos / Events / Food / Timeline, hashtag-searchable and fullscreen |
 | **WhatsApp-first** | Every enquiry, order and booking is a single WhatsApp message — no accounts, no card details, nothing to install |
 
@@ -82,9 +84,24 @@ Pick a category, choose the event type, give a date, guest count and notes, and 
 - **Gallery View Filter** between All / Promos / Events / Food / Timeline and **search live** by name or `#hashtag`. Promo and event images carry the real hashtags of the events they belong to.
 - **Tap any photo** for a fullscreen, finger-swipeable viewer with page dots.
 
-## About, Legal & Owner Tools
+## Event Planner
 
-- **About EatOuts** — the brand story, focus areas, featured city and "Why It Works" highlights, plus **Install EatOuts** (APK installer) and a **Blog** shortcut.
+A dedicated organiser (`eatouts-event-planner.html`) that turns a booking inquiry into a plan you can actually run:
+
+- **Lineup & Schedule** — lay out the acts/performers and a running order for the day.
+- **Ticketing** — ticket tiers and pricing, with sponsor slots alongside them.
+- **Budget** — track planned vs. estimated spend across the whole event.
+- **Vendors** — attach suppliers and services (catering, sound, décor and more) to the plan.
+- **Guests & Seating** — capture guest counts and seating arrangements in one place.
+- Once the plan is set, it flows into the same WhatsApp-first enquiry/booking path as the rest of EatOuts.
+
+## Blog
+
+- **EatOuts Blog** (`eatouts-blog.html`) — an editorial feed of stories, guides and local happenings from around Botswana's food and events scene.
+- Every post carries a **cover image, title, author and publish date**, and is tagged so related stories group together.
+- Posts render **in-app** in the site's phone-shell styling, so reading a story never leaves the app.
+
+- **About EatOuts** — the brand story, focus areas, featured city and "Why It Works" highlights, plus **Install EatOuts** (APK installer) and shortcuts to the **Blog** and **Event Planner**.
 - **Terms of Service** (19 sections) and **Privacy Policy** — full, in-app legal documents with version numbers and last-updated dates. The app collects **no personal data**: as a diner you need no account, and no payment or contact details are ever stored.
 - **Operator access** — restaurant owners can sign in to manage their profile, menu, promotions, events, gallery and booking settings, with a one-tap Demo letting anyone preview ownership of The Yellow Giraffe.
 

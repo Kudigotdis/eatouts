@@ -1,0 +1,16 @@
+/* GET /api/health — quick status of the API and its bindings. */
+import { json } from './_shared.js';
+
+export function onRequestGet(context) {
+  var env = context.env || {};
+  return json({
+    ok: true,
+    env: env.ENV || 'unknown',
+    bindings: {
+      db: !!env.DB,
+      kv: !!env.OPS_KV,
+      r2: !!env.UPLOADS
+    },
+    time: new Date().toISOString()
+  });
+}

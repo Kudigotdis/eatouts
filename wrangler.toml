@@ -2,18 +2,40 @@ name = "eatouts"
 compatibility_date = "2026-10-07"
 pages_build_output_dir = "dist"
 
-# Only needed if you use Pages Functions with bindings.
-# Uncomment as you migrate from localStorage to Cloudflare storage:
+# ------------------------------------------------------------------
+# Default environment (local dev + preview deploys).
+# ENV is "development" here so the dev-login shortcut works locally.
+# The PRODUCTION environment overrides ENV to "production" (below),
+# which disables the shortcut in the live app.
+# ------------------------------------------------------------------
+[vars]
+ENV = "development"
+PUBLIC_BASE = ""
 
-# [[kv_namespaces]]
-# binding = "OPS_KV"
-# id = "<your-kv-namespace-id>"
+# D1 database  ->  npx wrangler d1 create eatouts
+# Replace <D1_DATABASE_ID> with the database_id it prints.
+[[d1_databases]]
+binding = "DB"
+database_name = "eatouts"
+database_id = "<D1_DATABASE_ID>"
 
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "eatouts"
-# database_id = "<your-d1-id>"
+# KV namespace ->  npx wrangler kv namespace create OPS_KV
+# Replace <KV_NAMESPACE_ID> with the id it prints.
+[[kv_namespaces]]
+binding = "OPS_KV"
+id = "<KV_NAMESPACE_ID>"
 
-# [[r2_buckets]]
-# binding = "UPLOADS"
-# bucket_name = "eatouts-uploads"
+# R2 bucket    ->  npx wrangler r2 bucket create eatouts-media
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "eatouts-media"
+
+# ------------------------------------------------------------------
+# Production overrides.
+# ENV MUST stay "production" so /api/auth/dev-login refuses to run.
+# Set the real secrets in the Cloudflare dashboard
+# (Workers & Pages -> eatouts -> Settings -> Variables and Secrets):
+#   SESSION_SECRET, DEV_LOGIN_EMAILS, ADMIN_EMAILS, PUBLIC_BASE
+# ------------------------------------------------------------------
+[env.production.vars]
+ENV = "production"
