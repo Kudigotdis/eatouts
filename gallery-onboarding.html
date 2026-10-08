@@ -81,6 +81,9 @@ input:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(20
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-owner-compat.js"></script>
+<script src="js/eatouts-image-compressor.js"></script>
+<script src="js/eatouts-video-validator.js"></script>
+<script src="js/eatouts-upload.js"></script>
 <script>
 /* Operator pages are only reachable through the About Us sign-in.
    This runs before any page content paints. */
@@ -105,6 +108,7 @@ function openForm({title,fields,values,onSave,saveLabel}){
     <div class="modal-body">${fields.map(f=>field(f,values[f.key])).join('')}</div>
     <div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button class="btn btn-gold" data-save>${esc(saveLabel||'Save')}</button></div></div>`;
   document.body.appendChild(scrim);
+  if(window.EatoutsUpload)EatoutsUpload.decorate(scrim);
   scrim.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>scrim.remove());
   scrim.querySelector('[data-save]').onclick=()=>{
     const out={};
@@ -120,6 +124,7 @@ function openForm({title,fields,values,onSave,saveLabel}){
 function field(f,v){
   if(f.type==='textarea')return `<div class="field"><label>${esc(f.label)}</label><textarea name="${f.key}">${esc(v||'')}</textarea></div>`;
   if(f.type==='checkbox')return `<label style="display:flex;gap:8px;align-items:center;padding:8px 0;font-weight:700;font-size:13px"><input type="checkbox" name="${f.key}" ${v?'checked':''}> ${esc(f.label)}</label>`;
+  if(f.key==='src'||f.type==='file')return `<div class="field"><label>${esc(f.label)}</label><input data-upload name="${f.key}" value="${esc(v||'')}" placeholder="${esc(f.placeholder||'')}"><button type="button" class="btn btn-ghost btn-sm" data-upload-for="${f.key}">Upload</button></div>`;
   return `<div class="field"><label>${esc(f.label)}</label><input name="${f.key}" value="${esc(v||'')}" placeholder="${esc(f.placeholder||'')}"></div>`;
 }
 

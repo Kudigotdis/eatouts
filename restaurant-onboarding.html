@@ -115,6 +115,9 @@ input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-owner-compat.js"></script>
+<script src="js/eatouts-image-compressor.js"></script>
+<script src="js/eatouts-video-validator.js"></script>
+<script src="js/eatouts-upload.js"></script>
 <script>
 /* Operator pages are only reachable through the About Us sign-in.
    This runs before any page content paints. */
@@ -173,6 +176,7 @@ function openForm({title,fields,values,onSave,saveLabel}){
     });
     onSave(out);scrim.remove();
   };
+  return scrim;
 }
 function renderField(f,v){
   if(f.type==='textarea')return `<div class="field"><label>${esc(f.label)}</label><textarea name="${f.key}">${esc(v||'')}</textarea>${f.hint?`<div class="hint">${esc(f.hint)}</div>`:''}</div>`;
@@ -719,7 +723,25 @@ function promptAdd(title,cb){
   openForm({title,fields:[{key:'value',label:'Name',placeholder:'e.g. Afrocentric'}],onSave:v=>{if(v.value&&v.value.trim())cb(v.value.trim());}});
 }
 function promptUrl(title,cb){
-  openForm({title,fields:[{key:'url',label:'Image URL',placeholder:'https://… or assets/…'}],onSave:v=>{cb(v.url||'');}});
+  const scrim=openForm({title,fields:[{key:'url',label:'Image URL',placeholder:'https://… or assets/…'}],onSave:v=>{cb(v.url||'');}});
+  /* Post-process the freshly-opened modal: mark the URL input as an
+     upload target, append the Upload button next to it, and hand the
+     scrim to EatoutsUpload.decorate so the button is wired. Uploaded
+     images land in the input as data-URL strings, so the existing
+     save path (which reads el.value) delivers them to cb unchanged.
+     The field stays editable — a user can still paste a plain URL. */
+  const input=scrim.querySelector('[name="url"]');
+  if(input){
+    input.setAttribute('data-upload','');
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='btn btn-ghost btn-sm';
+    btn.setAttribute('data-upload-for','url');
+    btn.textContent='Upload';
+    if(input.parentNode)input.parentNode.appendChild(btn);
+  }
+  if(window.EatoutsUpload)EatoutsUpload.decorate(scrim);
+  return scrim;
 }
 
 /* ========== ACTION BAR ========== */

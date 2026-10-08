@@ -93,6 +93,9 @@ input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-owner-compat.js"></script>
+<script src="js/eatouts-image-compressor.js"></script>
+<script src="js/eatouts-video-validator.js"></script>
+<script src="js/eatouts-upload.js"></script>
 <script>
 /* Operator pages are only reachable through the About Us sign-in.
    This runs before any page content paints. */
@@ -123,6 +126,7 @@ function openForm({title,fields,values,onSave,saveLabel,size}){
       <button class="btn btn-gold" data-save>${esc(saveLabel||'Save')}</button>
     </div></div>`;
   document.body.appendChild(scrim);
+  if(window.EatoutsUpload)EatoutsUpload.decorate(scrim);
   scrim.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>scrim.remove());
   scrim.querySelector('[data-save]').onclick=()=>{
     const out={};
@@ -141,6 +145,7 @@ function renderField(f,v){
   if(f.type==='textarea')return `<div class="field"><label>${esc(f.label)}</label><textarea name="${f.key}">${esc(v||'')}</textarea>${f.hint?`<div class="hint" style="font-size:11px;color:var(--muted);margin-top:4px">${esc(f.hint)}</div>`:''}</div>`;
   if(f.type==='select')return `<div class="field"><label>${esc(f.label)}</label><select name="${f.key}">${(f.options||[]).map(o=>{const val=typeof o==='string'?o:o.value;const lbl=typeof o==='string'?o:o.label;return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lbl)}</option>`;}).join('')}</select></div>`;
   if(f.type==='checkbox')return `<label style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:13px;font-weight:700"><input type="checkbox" name="${f.key}" ${v?'checked':''}> ${esc(f.label)}</label>`;
+  if(f.key==='image')return `<div class="field"><label>${esc(f.label)}</label><input data-upload type="${f.type||'text'}" name="${f.key}" value="${esc(v||'')}" placeholder="${esc(f.placeholder||'')}"><button type="button" class="btn btn-ghost btn-sm" data-upload-for="${f.key}">Upload</button></div>`;
   return `<div class="field"><label>${esc(f.label)}</label><input type="${f.type||'text'}" name="${f.key}" value="${esc(v||'')}" placeholder="${esc(f.placeholder||'')}"></div>`;
 }
 

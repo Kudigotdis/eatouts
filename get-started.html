@@ -96,13 +96,13 @@ h2{font-size:17px;font-weight:900;letter-spacing:-.01em;margin:0 0 4px}
     <div class="row">
       <div>
         <div class="hint" style="margin-bottom:2px">One-time onboarding</div>
-        <div class="amt">P300</div>
+        <div class="amt" data-price="setup">P300</div>
       </div>
       <span style="background:#fdf3dc;color:#9a6a0a;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px">Required to publish</span>
     </div>
     <div class="row">
       <div class="hint">Then from</div>
-      <div class="from">P100 / month · Starter</div>
+      <div class="from"><span data-price="starter">P100</span> / month · Starter</div>
     </div>
     <a class="btn wa" href="pricing.html">See full pricing →</a>
   </div>
@@ -115,7 +115,7 @@ h2{font-size:17px;font-weight:900;letter-spacing:-.01em;margin:0 0 4px}
 
   <div class="section-h">FAQ</div>
   <div class="faq">
-    <details class="qa"><summary>How much does it cost?</summary><div class="a">P300 one-time onboarding, then a monthly subscription that starts at P100 (Starter), P300 (Growth) or P500 (Pro). No commission on any order. See <a href="pricing.html" style="color:var(--gold);font-weight:700;text-decoration:none">pricing.html</a> for the full matrix.</div></details>
+    <details class="qa"><summary>How much does it cost?</summary><div class="a"><span data-price="setup">P300</span> one-time onboarding, then a monthly subscription that starts at <span data-price="starter">P100</span> (Starter), <span data-price="growth">P300</span> (Growth) or <span data-price="pro">P500</span> (Pro). No commission on any order. See <a href="pricing.html" style="color:var(--gold);font-weight:700;text-decoration:none">pricing.html</a> for the full matrix.</div></details>
     <details class="qa"><summary>How long until I'm live?</summary><div class="a">Typically 24–72 hours from the moment we have your menu and one good photo of each dish. Most venues are live within a week.</div></details>
     <details class="qa"><summary>Who updates my page?</summary><div class="a">At launch, we do — that's the concierge model. Send a WhatsApp message with the change and we apply it. You can take over the dashboard later.</div></details>
     <details class="qa"><summary>Do my customers need an app?</summary><div class="a">No. EatOuts runs in the browser — diners just open the link. Ordering happens on WhatsApp, which everyone already has.</div></details>
@@ -137,6 +137,7 @@ h2{font-size:17px;font-weight:900;letter-spacing:-.01em;margin:0 0 4px}
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-brand.js"></script>
+<script src="js/eatouts-pricing-source.js"></script>
 <script>
 (function(){
   'use strict';
@@ -151,6 +152,8 @@ h2{font-size:17px;font-weight:900;letter-spacing:-.01em;margin:0 0 4px}
   document.getElementById('ctaWa').href = href;
   document.getElementById('stickyWa').href = href;
   document.getElementById('stickyCall').href = 'tel:' + number;
+
+  if(window.EatoutsPricing)EatoutsPricing.fill(document);
 })();
 </script>
 </body>
