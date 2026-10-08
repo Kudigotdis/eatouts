@@ -82,7 +82,7 @@ Bindings (`wrangler.toml`):
 
 - `DB` — D1 database `eatouts` (schema in `migrations/`).
 - `OPS_KV` — KV namespace holding login sessions.
-- `UPLOADS` — R2 bucket `eatouts-media` for media.
+- Media lives in **Supabase Storage** (no Cloudflare binding; R2 is not used because it requires a card on file). The upload function calls the Supabase Storage REST API with a server-side key.
 
 Endpoints:
 
@@ -90,17 +90,18 @@ Endpoints:
 - `POST /api/auth/dev-login` — passwordless login (**development only**; refuses when `ENV=production`).
 - `POST /api/auth/logout`, `GET /api/me` — session management.
 - `GET  /api/venues` — list / search / "mine" venues.
-- `POST /api/upload?path=<key>` — session-gated upload to R2.
+- `POST /api/upload?path=<key>` — session-gated upload to Supabase Storage.
 
 First-time setup (run once, paste the IDs each command prints back into `wrangler.toml`):
 
 ```
-npx wrangler d1 create eatouts
-npx wrangler kv namespace create OPS_KV
-npx wrangler r2 bucket create eatouts-media
+npx wrangler d1 create eatouts         # paste the database_id into wrangler.toml
+npx wrangler kv namespace create OPS_KV   # paste the id into wrangler.toml
 npm run db:migrate     # create the tables
 npm run db:seed        # import the 563 directory listings as claimable venues
 ```
+
+Media uses a **Supabase Storage** bucket instead of R2. Create a bucket in your Supabase project (e.g. `eatouts-media`) and set `SUPABASE_URL`, `SUPABASE_KEY` (service_role) and `SUPABASE_BUCKET` as secrets.
 
 Local development:
 
@@ -109,9 +110,11 @@ copy .dev.vars.example .dev.vars   # then set DEV_LOGIN_EMAILS
 npm run pages:dev                  # builds dist/ and serves with bindings
 ```
 
-Production secrets (`SESSION_SECRET`, `DEV_LOGIN_EMAILS`, `ADMIN_EMAILS`, `PUBLIC_BASE`) are set in the Cloudflare dashboard under Workers & Pages → eatouts → Settings → Variables and Secrets. `ENV=production` disables the dev-login shortcut.
+Production secrets (`SESSION_SECRET`, `DEV_LOGIN_EMAILS`, `ADMIN_EMAILS`, `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_BUCKET`, `PUBLIC_BASE`) are set in the Cloudflare dashboard under Workers & Pages → eatouts → Settings → Variables and Secrets. `ENV=production` disables the dev-login shortcut.
 
-## Cloud media (R2 worker) setup
+## Cloud media — legacy R2 worker (superseded by Supabase Storage)
+
+> **Legacy / optional, kept for reference.** This R2-based path is superseded by the Supabase Storage upload endpoint (`POST /api/upload`), because Cloudflare R2 requires a card on file. The supplier/blog/event pages will move onto the Supabase path.
 
 The supplier, blog and event pages can store media in a Cloudflare R2 bucket through a small Worker. The client (`js/eatouts-cloud.js`) degrades gracefully until it is configured, so this is optional for launch.
 

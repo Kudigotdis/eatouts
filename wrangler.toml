@@ -25,17 +25,23 @@ database_id = "<D1_DATABASE_ID>"
 binding = "OPS_KV"
 id = "<KV_NAMESPACE_ID>"
 
-# R2 bucket    ->  npx wrangler r2 bucket create eatouts-media
-[[r2_buckets]]
-binding = "UPLOADS"
-bucket_name = "eatouts-media"
+# ------------------------------------------------------------------
+# Media storage is Supabase Storage (not Cloudflare R2, which needs a
+# card on file). No binding is needed — the upload function calls the
+# Supabase Storage REST API. Provide these as secrets:
+#   SUPABASE_URL      e.g. https://xxxxxxxx.supabase.co
+#   SUPABASE_KEY      the service_role key (server-side only!)
+#   SUPABASE_BUCKET   e.g. eatouts-media
+#   PUBLIC_BASE       optional override for the public file URL prefix
+# ------------------------------------------------------------------
 
 # ------------------------------------------------------------------
 # Production overrides.
 # ENV MUST stay "production" so /api/auth/dev-login refuses to run.
 # Set the real secrets in the Cloudflare dashboard
 # (Workers & Pages -> eatouts -> Settings -> Variables and Secrets):
-#   SESSION_SECRET, DEV_LOGIN_EMAILS, ADMIN_EMAILS, PUBLIC_BASE
+#   SESSION_SECRET, DEV_LOGIN_EMAILS, ADMIN_EMAILS,
+#   SUPABASE_URL, SUPABASE_KEY, SUPABASE_BUCKET, PUBLIC_BASE
 # ------------------------------------------------------------------
 [env.production.vars]
 ENV = "production"

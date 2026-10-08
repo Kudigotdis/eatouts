@@ -9,7 +9,11 @@ export function onRequestGet(context) {
     bindings: {
       db: !!env.DB,
       kv: !!env.OPS_KV,
-      r2: !!env.UPLOADS
+      storage: !!(env.SUPABASE_URL && env.SUPABASE_KEY)
+    },
+    storage: {
+      provider: 'supabase',
+      bucket: env.SUPABASE_BUCKET || 'eatouts-media'
     },
     time: new Date().toISOString()
   });
