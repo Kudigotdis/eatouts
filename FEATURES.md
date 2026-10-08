@@ -31,6 +31,19 @@ EatOuts is a mobile-first restaurant discovery app for Botswana. It brings toget
 - **Curated ordering**: the 12 featured venues lead, followed by venues with real logos, then the rest — so the best-known places surface first.
 - **Tap any venue** to expand quick actions without leaving the list.
 
+## Beverages & Liquors
+
+A second page inside the Restaurants tab — swipe the list sideways (or use the **Restaurants · Beverages** strip at the top) to open it.
+
+- **Drinks** (230 products): Fizzy Drinks, Fruit Juices, Iced Tea, Water, Energy and Cordials as six tappable tiles in two columns. Categories with no stock stay visible but greyed out as "Coming soon".
+- **Liqours** (389 products): Beers & AFBs, Ciders, Brandy, Rum, Vodka, Wines, Gin, Champagne & MCC, Spirits, Tequila and Liqueurs — eleven rounded-square thumbnails in a two-column grid, no chevrons.
+- **Item rows** show the photo, name, size and price, with an **Add** button that turns into a −/+ stepper.
+- **Prices are shown in Pula (BWP)** — normalised from the source catalogues, no markup.
+- **Order & send**: the checkout summarises the cart and offers two buttons — send it to EatOuts on **+267 718 29765**, or share it as text to WhatsApp and pick the contact yourself.
+- **Split the Bill** works here too: add names, hand each drink to whoever is paying, and send each person their share — or send the whole split in one message.
+- Product photos are pre-generated into `assets/images/beverages/` and `assets/images/alcohol/`; items without a photo are hidden from the lists.
+- Data lives in `assets/data/beverages.json` and `assets/data/alcohols.json`, rebuilt by `scripts/build_beverage_data.py` from the merged `assets/data/source/Beverages.*` and `Alcohols.*` catalogues.
+
 ## Every Restaurant Has Its Own Page
 
 From the directory, tap **Menu**, **Book Venue**, **Promos** or **About**:
@@ -45,7 +58,12 @@ From the directory, tap **Menu**, **Book Venue**, **Promos** or **About**:
 ## Daily Promos & Events
 
 - A **promo feed organised by day**, every entry showing the deal, what's included, the price, the "was" price and your saving.
-- **Filter by town, district, area and promo type** with live counts.
+- **Bar & bottle promos** (`assets/data/beverage-and-bar-promotions.json`, 23 brand-led offers with their own artwork) run in the same feed. They are not tied to one venue, so they follow you whichever town is selected. The source module (`assets/data/source/beverage_and_bar_promotions.js`) is rewritten by the build with the same artwork and drink styles, so the two can never drift apart.
+- **Type filter in four segments — All · Combos · Food · Beverages** — tap a segment, or **swipe the popup left/right** (arrow keys work too). Tapping **All** closes the popup and clears every tick.
+- **Tick lists depend on the segment**: Combos and Food list the restaurant **cuisines**, Beverages lists one fixed drink list — Beverages, Spirits, Beers, Brandy, Champagne, Ciders, Cold Drinks, Red Wines, Fizzy Drinks, Fruit Juices, Gin, Tequila, Rum, Vodka — and All shows cuisines plus drinks together. Promos that mix food and drink are filed under **Combos**, and a platter served "without beer" still counts as food.
+- **Town, district and area filters** keep their live counts and work together with the type filter.
+- **Every promo carries a category** — restaurant promos derive it from their own copy, bar promos declare it, and the drink ticks come from a fixed vocabulary that matches the copy (a gin promo answers to both *Gin* and *Spirits*).
+- Promos with no listed price skip the price and the booking block — you get the style, the brand and an **Ask on WhatsApp** button instead.
 - **Featured event of the day** leads the feed — flyer, date, venue, lineup, ticket prices, outlets, sponsors and tags, expanding in place with a one-tap WhatsApp enquiry.
 - **Masa Poetry Nights** (Sundays, stacked with Kofifi Nights) keeps its full detail: ticket info, the complete artist roster with a *Show all* toggle, and a WhatsApp reservation request.
 - **Events by day** highlight local happenings — name, description, time, highlights and sponsor.

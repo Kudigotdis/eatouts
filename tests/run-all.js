@@ -29,7 +29,9 @@ const SUITES = [
   'wa.js',
   'intake8.js',
   'contracts.js',
-  'upload.js'
+  'upload.js',
+  'beverages.js',
+  'promocats.js'
 ];
 
 function pad(n, width) {

@@ -137,6 +137,7 @@ img{display:block;max-width:100%}
 .phead-btn h3{margin:0 0 6px;font-size:17px;font-weight:900;color:#1a1a1a;line-height:1.2;letter-spacing:-.01em}
 .pprice{font-size:15px;font-weight:900;color:#1a1a1a;letter-spacing:-.01em}
 .pprice .pwas{font-size:11.5px;font-weight:700;color:#b5a888;text-decoration:line-through;margin-left:6px;letter-spacing:0}
+.pprice.pcat{font-size:11.5px;font-weight:800;color:#8a7a55;letter-spacing:.05em;text-transform:uppercase}
 .phl{margin:0;padding:0;list-style:none}
 .phl li{font-size:12px;color:#5c5547;line-height:1.5;padding:7px 0 7px 14px;position:relative;border-bottom:1px solid #f4efe4}
 .phl li:last-child{border-bottom:0}
@@ -152,7 +153,7 @@ img{display:block;max-width:100%}
 .acc-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
 .acc-wrap>.acc-in{overflow:hidden;min-height:0}
 .ecard.open>.acc-wrap,.mitem.open>.acc-wrap,.ritem.open>.acc-wrap{grid-template-rows:1fr}
-@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}}
+@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}#cbar.on{animation:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}}
 
 /* ---------- COUNTERS ---------- */
 .ctr{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#faf8f2;border:1px solid #f1ece1;border-radius:12px;margin-bottom:7px}
@@ -197,6 +198,35 @@ img{display:block;max-width:100%}
 .preview-layer{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:10vh 8vw;background:rgba(20,18,12,.6);backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1);animation:fd .18s ease}
 .preview-layer .preview-img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.55);object-fit:contain}
 .preview-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:19px;line-height:1;padding:0}
+
+/* ---------- BEVERAGES PANEL (swipe inside the Restaurants tab) ---------- */
+/* Two-button strip above the pager: tap to jump, or swipe the pages. */
+.bev-toggle{flex:0 0 auto;display:flex;gap:6px;padding:6px 14px 8px}
+.bev-toggle-btn{flex:1 1 0;padding:9px 12px;border-radius:10px;border:1px solid #ece7db;background:#faf8f2;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#a89a7e;cursor:pointer;transition:background .15s,color .15s}
+.bev-toggle-btn:active{background:#f4efe4}
+.bev-toggle-btn.on{background:#1a1a1a;border-color:#1a1a1a;color:#ffffff}
+/* Horizontal pager: page 1 = Restaurants list, page 2 = Beverages. Native
+   scroll-snap does the swiping; each page owns its own vertical .scroll. */
+.bev-pager{flex:1 1 auto;min-height:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.bev-pager::-webkit-scrollbar{display:none}
+.bevpage{flex:0 0 100%;width:100%;height:100%;min-width:0;display:flex;flex-direction:column;scroll-snap-align:start;scroll-snap-stop:always}
+.bev-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}
+.bev-tile{position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(var(--bt-rgb,214,201,182),.2);background:rgba(var(--bt-rgb,214,201,182),.25);display:flex;align-items:center;justify-content:center;text-align:center;min-height:120px;padding:14px 12px;cursor:pointer}
+.bev-tile:active{filter:brightness(.96)}
+.bev-tile .bt-name{font-size:13px;font-weight:800;color:#1a1a1a;line-height:1.25}
+.bev-tile.off{opacity:.55}
+.bev-tile.off:active{filter:none}
+.bev-tile.off .bt-name{color:#6f6553}
+.bev-note{font-size:10.5px;color:#a89a7e;line-height:1.5;padding:0 16px 12px}
+.bev-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #f1ece1;background:#fff}
+.bev-item .mthumb{width:54px;height:54px}
+.bev-item .minfo{flex:1;min-width:0}
+.bev-item .mtitle{font-size:13px}
+.bev-item .mprice{font-size:12.5px}
+.bev-item .mprice em{font-style:normal;font-size:10.5px;color:#a89a7e;font-weight:700}
+.bev-step{flex:0 0 auto}
+.bev-ratio{font-size:10.5px;letter-spacing:.12em;color:#8a7d63;font-weight:800;padding:14px 16px 8px;text-align:center}
+.bev-ratio.liquors{margin-top:12px;border-top:3px solid rgba(168,154,126,.15)}
 
 /* ---------- CHECKOUT ---------- */
 .cbwrap{flex:0 0 auto;border-top:1px solid #ece7db;background:#ffffff}
@@ -268,6 +298,17 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .csearch input::placeholder{color:#b5a888}
 .rest-filter-row{display:flex;gap:8px;padding:0 12px 8px}
 .rest-filter-row .cbtn{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap}
+.rest-filter-row .cbtn.align-right{text-align:right}
+/* cbar slides up from the bottom when a filter bar is toggled open */
+#cbar.on{animation:cbarUp .18s ease-out}
+@keyframes cbarUp{from{transform:translateY(14px);opacity:.35}to{transform:translateY(0);opacity:1}}
+/* Beverages filtered-results list + sticky Clear Search button */
+.bev-result{width:100%;text-align:left;border:0;font:inherit;cursor:pointer;color:inherit}
+.bev-result .mthumb{border:0;background:#f1ece1}
+.bev-result .mthumb img{width:100%;height:100%;object-fit:cover;display:block;border-radius:10px}
+.bev-result-go{margin-left:auto;font-size:20px;line-height:1;color:#c8bda6;font-weight:700}
+.bev-clear-row{position:sticky;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(255,255,255,0),#ffffff 36%)}
+.bev-clear-row .btn{width:100%;display:flex;background:#0a0a0a;border-color:#0a0a0a;color:#ffffff}
 /* Town row: centred label with comfortable clearance above (overrides the
    .cbar2+.rest-filter-row padding stack so the button isn't cramped). */
 .rest-filter-row.town-row{padding:14px 12px 12px}
@@ -287,12 +328,13 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .rest-type-status button{width:auto}
 .rest-type-status button,.rest-type-footer button{font-size:11px;font-weight:800;color:#3a3324;padding:8px 12px;border:1px solid #ece7db;border-radius:8px;background:#faf8f2}
 .rest-type-options{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.rest-type-group-title{padding:10px 14px 7px;background:#f7f6f3;color:#817766;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.rest-type-group-title{padding:10px 14px 7px;background:#f7f6f3;color:#817766;font-size:11px;font-weight:900;letter-spacing:.02em;text-align:center;text-transform:none}
 .rest-type-subgroup-title{padding:9px 14px 4px;color:#645b48;font-size:10px;font-weight:900}
 .rest-type-option{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-bottom:1px solid #f4efe4;text-align:left;font-size:12px;font-weight:700;color:#3a3324;cursor:pointer}
 .rest-type-option input{flex:0 0 18px;width:18px;height:18px;margin:0;accent-color:#1a1a1a}
 .rest-type-option .rest-type-count{margin-left:auto}
-.rest-type-footer{flex:0 0 auto;display:flex;justify-content:space-between;gap:8px;padding:10px;background:#fff;border-top:1px solid #ece7db}
+.rest-type-footer{flex:0 0 auto;display:flex;justify-content:center;gap:8px;padding:10px;background:#fff;border-top:1px solid #ece7db}
+.rest-type-footer button{min-width:110px;text-align:center;justify-content:center}
 .rest-type-footer .apply{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
 .rest-type-note,.rest-type-empty{padding:12px 14px;color:#817766;font-size:11px;line-height:1.45}
 
@@ -373,6 +415,22 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
    without them a capped intrinsic width could win and shift the popup
    off-centre (it used to sit at 8px caps against #cbar's edge). */
 .fpop.town-pop,.fpop.area-pop,.fpop.type-pop{width:auto;max-width:none}
+/* type popup: a four-segment category bar pinned above a scrolling
+   checkbox list, so the popup can size itself without the segments
+   scrolling away */
+.fpop.type-pop{display:flex;flex-direction:column;padding:0;overflow:hidden;max-height:min(72vh,640px,calc(100vh - 66px - var(--navh) - 16px));touch-action:pan-y}
+.segbar{flex:0 0 auto;display:flex;gap:8px;padding:12px 12px 8px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.segbtn{flex:1 1 auto;scroll-snap-align:start;min-width:74px;padding:9px 8px;border:1px solid #ece7db;border-radius:999px;background:#faf8f2;font-size:11.5px;font-weight:800;color:#3a3324;cursor:pointer;white-space:nowrap}
+.segbtn.on{background:#1a1a1a;border-color:#1a1a1a;color:#ffffff}
+.typepop-top{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:0 12px 10px}
+.typepop-top .csearch{min-height:38px}
+.typepop-options{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-top:1px solid #f4efe4}
+.typepop-group-title{position:sticky;top:0;z-index:1;padding:10px 14px 6px;background:#fffdf8;border-bottom:1px solid #f4efe4;font-size:10.5px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#8d8264}
+.typepop-option{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-bottom:1px solid #f4efe4;text-align:left;font-size:12px;font-weight:700;color:#3a3324;cursor:pointer}
+.typepop-option input{flex:0 0 18px;width:18px;height:18px;margin:0;accent-color:#1a1a1a}
+.typepop-footer{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid #ece7db}
+.typepop-hint{font-size:11px;font-weight:700;color:#8d8264}
+.typepop-footer .apply{min-width:110px;text-align:center;font-size:11px;font-weight:800;color:#ffffff;background:#1a1a1a;border:1px solid #1a1a1a;border-radius:8px;padding:8px 12px}
 /* .fpop prefix is load-bearing: plain .loc-* is (0,1,0) and loses to
    .fpop button's (0,1,0)+type, so the rows would fall back to display:block
    and space-between would never push the count pill to the right edge. */
@@ -3239,7 +3297,9 @@ const state = {
   promoDistrict:"01",
   promoDistrictName:"Gaborone",
   promoArea:"All",
-  promoType:"All",
+  promoType:"All",           /* segment: All | Combo | Food | Beverage */
+  promoSubtypes:[],          /* checked subtype labels (empty = every style) */
+  promoSubtypeSearch:"",
   promoTownPicker:false,
   promoAreaPicker:false,
   promoTypePicker:false,
@@ -3267,7 +3327,23 @@ const state = {
   restSearchOpen:false,
   /* the cbar (type filter + search) is hidden by default; tapping the
      Restaurants nav button while already on the list toggles it */
-  restFilterOpen:false
+  restFilterOpen:false,
+
+  /* Beverages panel (swipe page 2 of the Restaurants tab) */
+  restPanel:"food",
+  bevView:null,
+  bevCheckout:false,
+  bevCart:{},
+  bevSplitOpen:false,
+  bevSplitPeople:[],
+  bevSplitAssign:{},
+  bevSplitNewName:"",
+  /* beverages filter bar (2nd tap of the Restaurants nav icon) */
+  bevFilterOpen:false,
+  bevTypePicker:false,
+  bevTypeDraft:[],
+  bevTypeSearch:"",
+  bevTypes:[]
 };
 let restNoticeTimer=null;
 
@@ -3291,6 +3367,11 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 function resolveVenueWhatsapp(venue){
   const fallback=String(CONFIG.whatsapp||"").replace(/[^\d]/g,"");
   if(!venue)return fallback;
+  /* a raw number (beverage orders route to a dedicated line) is used as-is */
+  if(typeof venue==="string"||typeof venue==="number"){
+    const raw=String(venue).replace(/[^\d]/g,"");
+    return raw||fallback;
+  }
   const direct=venue.whatsapp||venue.contactWhatsapp||"";
   if(direct)return String(direct).replace(/[^\d]/g,"");
   if(Array.isArray(venue.contacts)){
@@ -3459,14 +3540,174 @@ function waShareLink(text){return "whatsapp://send?text="+encodeURIComponent(tex
    search every restaurant that owns promos, so the feed and the detail
    views work no matter which venue a promo came from. */
 function promoLocation(){return {town:state.promoTown,district:state.promoDistrict,districtName:state.promoDistrictName,area:state.promoArea};}
-function promosOnDay(dayIdx){
-  if (hasBridge()) {
-    const res = EatoutsBridge.promosForDay(dayIdx,state.promoTown,state.promoType,state.promoArea,state.promoDistrict,state.promoDistrictName);
-    if (res.length > 0) return res;
+
+/* ================================================================
+   PROMO CATEGORIES — the Promos tab filters by one of four segments
+   (All · Combos · Food · Beverages) plus an optional list of subtype
+   checkboxes (cuisines for food, drink styles for beverages).
+   Category: explicit `category` field wins, otherwise derived from
+   the promo's own words. Subtypes: bar promos carry their own, food
+   promos borrow the owning restaurant's cuisine types.
+   ================================================================ */
+const PROMO_CATEGORIES=[
+  {id:"All",label:"All"},
+  {id:"Combo",label:"Combos"},
+  {id:"Food",label:"Food"},
+  {id:"Beverage",label:"Beverages"}
+];
+function promoCategoryLabel(id){
+  const c=PROMO_CATEGORIES.find(function(x){return x.id===id;});
+  return c?c.label:String(id||"All");
+}
+function promoCategoryOf(p){
+  const explicit=String((p&&p.category)||"").toLowerCase().trim();
+  if(explicit.indexOf("bev")===0)return "Beverage";
+  if(explicit.indexOf("comb")===0)return "Combo";
+  if(explicit.indexOf("food")===0)return "Food";
+  /* a bar promo keeps its drink style even when the category field was left off */
+  if(!explicit&&p&&p.subtype)return "Beverage";
+  const raw=String((p&&p.type)||"")+" "+String((p&&p.title)||"");
+  /* "Platter Special Without Beer/Cider" is food, so drop negated spans */
+  const text=raw.replace(/\bwithout\b[\s\S]*$/gi," ");
+  const drink=/\b(beer|beers|lager|cider|ciders|wine|wines|spirit|spirits|vodka|gin|rum|whisk[ey]|champagne|mcc|cocktails?|mocktails?|bubbles|drinks?|beverages?|bottle|shooters?)\b/i.test(text);
+  const food=/\b(food|meals?|pizza|pastas?|burgers?|wings?|platters?|steaks?|breakfast|brunch|curry|curries|dessert|rice|chicken|beef|braai|fries|lunch|dinner|roast|sushi|starters?)\b/i.test(text);
+  if(drink&&food)return "Combo";
+  if(drink)return "Beverage";
+  return "Food";
+}
+/* Fixed tick vocabulary for the Beverages segment - the popup lists these
+   in exactly this order. "Beverages" answers to every drink promo, the rest
+   narrow it down, so the option list never drifts with the data. */
+const BEV_TICK_OPTIONS=[
+  "Beverages","Spirits","Beers","Brandy","Champagne","Ciders","Cold Drinks",
+  "Red Wines","Fizzy Drinks","Fruit Juices","Gin","Tequila","Rum","Vodka"
+];
+/* drink words -> ticks. Umbrella tags (Spirits, Cold Drinks) keep broad
+   taps forgiving: a gin promo answers to both "Gin" and "Spirits". */
+const BEV_TICK_RULES=[
+  [/\b(beers?|lagers?|budweiser|castle lite|heineken|st louis|black label|amstel)\b/i,["Beers"]],
+  [/\bciders?\b/i,["Ciders"]],
+  [/\b(champagne|mcc|prosecco|bubbles)\b/i,["Champagne"]],
+  [/\b(brand(?:y|ie)s?|klipdrift|kwh|cognac|hennessy|remy martin)\b/i,["Brandy","Spirits"]],
+  [/\btequilas?\b/i,["Tequila","Spirits"]],
+  [/\bvodkas?\b/i,["Vodka","Spirits"]],
+  [/\bgins?\b/i,["Gin","Spirits"]],
+  [/\brums?\b/i,["Rum","Spirits"]],
+  [/\b(whisk[ey]|single malts?|shooters?|spirits?|liqueurs?|amarula|jagermeister)\b/i,["Spirits"]],
+  [/\b(wines?|merlot|cabernet|shiraz|pinot|chardonnay|sauvignon|roses?)\b/i,["Red Wines"]],
+  [/\b(juices?|nectar)\b/i,["Fruit Juices","Cold Drinks"]],
+  [/\b(fizzy|soda|cola|coca|coke|fanta|sprite|pepsi|minerals?)\b/i,["Fizzy Drinks","Cold Drinks"]],
+  [/\b(cold drinks?|soft drinks?|iced teas?|energy|water)\b/i,["Cold Drinks"]]
+];
+function promoBevTags(p){
+  const text=[String((p&&p.subtype)||""),String((p&&p.brand)||""),
+    String((p&&p.type)||""),String((p&&p.title)||""),String((p&&p.desc)||""),
+    (Array.isArray(p&&p.items)?p.items.map(function(it){return (it&&it.name)||"";}).join(" "):"")
+  ].join(" ").toLowerCase();
+  const tags=["Beverages"];
+  for(let i=0;i<BEV_TICK_RULES.length;i++){
+    if(!BEV_TICK_RULES[i][0].test(text))continue;
+    BEV_TICK_RULES[i][1].forEach(function(t){if(tags.indexOf(t)<0)tags.push(t);});
   }
-  const dayName = DAY_NAMES[dayIdx];
-  const pList = PROMOS[dayName] || [];
-  return pList.map(function(p){ return {promo: p, day: dayName, restaurant: null}; });
+  return tags;
+}
+function promoSubtypeList(p,restaurant){
+  const cat=promoCategoryOf(p);
+  const out=[];
+  if(cat==="Beverage"||cat==="Combo"){
+    promoBevTags(p).forEach(function(t){if(out.indexOf(t)<0)out.push(t);});
+  }
+  if(cat==="Food"||cat==="Combo"){
+    const types=(restaurant&&restaurant.types)||[];
+    if(Array.isArray(types))types.forEach(function(t){
+      t=String(t);if(t&&out.indexOf(t)<0)out.push(t);
+    });
+  }
+  return out;
+}
+/* Loose match so a venue type like "Fast Food/Takeout" still answers to
+   the catalog option "Fast Food". */
+function normSubtype(s){
+  return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
+}
+function subtypeMatches(list,selected){
+  for(let i=0;i<list.length;i++){
+    const a=normSubtype(list[i]);
+    for(let j=0;j<selected.length;j++){
+      const b=normSubtype(selected[j]);
+      if(!a||!b)continue;
+      if(a===b)return true;
+      if(a.length>3&&b.length>3&&(a.indexOf(b)===0||b.indexOf(a)===0))return true;
+    }
+  }
+  return false;
+}
+function promoPassesFilter(entry){
+  const p=entry.promo;
+  if(!p)return false;
+  const cat=promoCategoryOf(p);
+  if(state.promoType!=="All"&&cat!==state.promoType)return false;
+  if(state.promoSubtypes.length){
+    const list=promoSubtypeList(p,entry.restaurant);
+    if(!subtypeMatches(list,state.promoSubtypes))return false;
+  }
+  return true;
+}
+
+/* ---------- the bar & bottle promo catalogue (assets/data/...json) ---------- */
+function beveragePromoRecord(p){
+  return {
+    id:"bevp-"+p.id,
+    type:p.subtype||"Beverage Promo",
+    title:p.headline||p.brand||"Promo",
+    desc:p.copy||"",
+    items:[],
+    was:0,price:0,save:0,
+    valid:(p.days||[]).join(" · "),
+    days:Array.isArray(p.days)?p.days.slice():[],
+    category:"Beverage",
+    subtype:p.subtype||"",
+    brand:p.brand||"",
+    sponsor:p.brand||"",
+    images:Array.isArray(p.images)?p.images.slice():[]
+  };
+}
+function beveragePromoRecords(){
+  const data=window._BEV&&window._BEV.promos;
+  if(!data||!Array.isArray(data.promotions))return [];
+  if(!window._BEV_PROMO_MAP){
+    window._BEV_PROMO_MAP=data.promotions.map(beveragePromoRecord);
+  }
+  return window._BEV_PROMO_MAP;
+}
+function beveragePromosOnDay(dayName){
+  return beveragePromoRecords().filter(function(p){
+    return Array.isArray(p.valid.split(" · "))&&p.valid.split(" · ").indexOf(dayName)!==-1;
+  }).map(function(p){return {promo:p,day:dayName,restaurant:null};});
+}
+/* pinned beverage promos jump to the top of the beverage block on a day */
+const PINNED_BEV_PROMOS={Monday:["bevp-lipton-promo"]};
+function allDayPromos(dayIdx){
+  const dayName=DAY_NAMES[dayIdx];
+  let out=[];
+  if(hasBridge()){
+    /* type/subtype filtering happens in promoPassesFilter, so the bridge
+       is asked for the whole day and narrowed here */
+    out=EatoutsBridge.promosForDay(dayIdx,state.promoTown,null,state.promoArea,state.promoDistrict,state.promoDistrictName);
+    if(!out.length)out=(PROMOS[dayName]||[]).map(function(p){return {promo:p,day:dayName,restaurant:null};});
+  }else{
+    out=(PROMOS[dayName]||[]).map(function(p){return {promo:p,day:dayName,restaurant:null};});
+  }
+  const bev=beveragePromosOnDay(dayName);
+  const pin=PINNED_BEV_PROMOS[dayName]||[];
+  if(pin.length&&bev.length){
+    const rank=function(e){const i=pin.indexOf(e.promo.id);return i<0?pin.length:i;};
+    bev.sort(function(a,b){return rank(a)-rank(b);});   /* stable: keeps the rest in place */
+  }
+  return out.concat(bev);
+}
+function promosOnDay(dayIdx){
+  return allDayPromos(dayIdx).filter(promoPassesFilter);
 }
 function eventsOnDay(dayIdx){
   if (hasBridge()) {
@@ -3478,7 +3719,17 @@ function eventsOnDay(dayIdx){
   return e ? [{event: e, day: dayName, restaurant: null}] : [];
 }
 function promoListFor(dayIdx){const b=curBundle();return (b&&b.promos)?(b.promos[DAY_NAMES[dayIdx]]||[]):[];}
-function promoById(id){if(hasBridge())return EatoutsBridge.findPromoAnywhere(id);for(const d in PROMOS){const p=PROMOS[d].find(x=>x.id===id);if(p)return {promo:p,day:d};}return null;}
+function promoById(id){
+  if(hasBridge()){const found=EatoutsBridge.findPromoAnywhere(id);if(found)return found;}
+  const bev=beveragePromoRecords().filter(function(p){return p.id===id;})[0];
+  if(bev){
+    const today=DAY_NAMES[new Date().getDay()];
+    const day=(bev.days.indexOf(today)!==-1?today:(bev.days[0]||today));
+    return {promo:bev,day:day};
+  }
+  for(const d in PROMOS){const p=PROMOS[d].find(x=>x.id===id);if(p)return {promo:p,day:d};}
+  return null;
+}
 function eventFor(dayIdx){
   if(hasBridge()){
     const list=EatoutsBridge.eventsForDay(dayIdx,state.promoTown,state.promoArea,state.promoDistrict,state.promoDistrictName);
@@ -3690,9 +3941,102 @@ function loadRestaurantTypeFilters(){
     });
 }
 
+/* ---------- promo subtype options ---------- */
+/* Every promo the current town/area filter can reach, across the whole
+   week. Built only while the type popup is open so the checkbox list
+   stays stable as the day changes. */
+function promoWeekEntries(){
+  const out=[];
+  for(let d=0;d<7;d++){
+    const dayName=DAY_NAMES[d];
+    let list=[];
+    if(hasBridge()){
+      list=EatoutsBridge.promosForDay(d,state.promoTown,null,state.promoArea,state.promoDistrict,state.promoDistrictName);
+      if(!list.length)list=(PROMOS[dayName]||[]).map(function(p){return {promo:p,day:dayName,restaurant:null};});
+    }else{
+      list=(PROMOS[dayName]||[]).map(function(p){return {promo:p,day:dayName,restaurant:null};});
+    }
+    Array.prototype.push.apply(out,list.concat(beveragePromosOnDay(dayName)));
+  }
+  return out;
+}
+/* The restaurant cuisine catalog - the same source the Restaurants tab
+   filter is built from. */
+function promoCuisineOptions(){
+  const out=[];
+  if(Array.isArray(restaurantTypeFilterGroups)){
+    restaurantTypeFilterGroups.forEach(function(group){
+      if(String(group.name||"").toLowerCase().indexOf("cuisine")===-1)return;
+      (group.subgroups||[]).forEach(function(subgroup){
+        (subgroup.options||[]).forEach(function(option){out.push(String(option));});
+      });
+    });
+  }
+  return out;
+}
+/* Checkbox list for the open segment: cuisines for food/combos, drink
+   styles for beverage, both for All. */
+function promoSubtypeGroups(segment){
+  const seg=segment||state.promoType;
+  const wantCuisine=seg==="All"||seg==="Food"||seg==="Combo";
+  const wantDrink=seg==="All"||seg==="Beverage";
+  const cuisines={};
+  if(wantCuisine){
+    promoWeekEntries().forEach(function(entry){
+      const cat=promoCategoryOf(entry.promo);
+      if(cat!=="Food"&&cat!=="Combo")return;
+      promoSubtypeList(entry.promo,entry.restaurant).forEach(function(label){
+        if(label)cuisines[label]=1;
+      });
+    });
+    promoCuisineOptions().forEach(function(label){cuisines[label]=1;});
+  }
+  const query=normalizeRestType(state.promoSubtypeSearch);
+  const match=function(label){return !query||normalizeRestType(label).indexOf(query)>-1;};
+  const groups=[];
+  if(wantCuisine){
+    const options=Object.keys(cuisines).filter(match).sort(function(a,b){return a.localeCompare(b);});
+    if(options.length)groups.push({name:"Cuisines",options:options});
+  }
+  if(wantDrink){
+    const options=BEV_TICK_OPTIONS.filter(match);
+    if(options.length)groups.push({name:"Drinks",options:options});
+  }
+  return groups;
+}
+function promoSubtypeOptionCount(){
+  let n=0;
+  promoSubtypeGroups().forEach(function(g){n+=g.options.length;});
+  return n;
+}
+/* One writer for the segment picker so taps, swipes and arrow keys all end
+   up pruning ticks the same way. `close` shuts the popup (the All segment). */
+function setPromoTypeSegment(seg,close){
+  const prev=state.promoType;
+  state.promoType=seg;
+  state.promoSubtypeSearch="";
+  if(seg==="All"){
+    state.promoSubtypes=[];
+  }else if(seg!==prev&&state.promoSubtypes.length){
+    const keep={};
+    promoSubtypeGroups(seg).forEach(function(g){g.options.forEach(function(o){keep[o]=1;});});
+    state.promoSubtypes=state.promoSubtypes.filter(function(s){return !!keep[s];});
+  }
+  if(close){
+    state.promoTypePicker=false;state.promoTownPicker=false;state.promoAreaPicker=false;
+  }
+  render();renderControlBar();
+}
+function cyclePromoType(dir){
+  if(!state.promoTypePicker)return;
+  const ids=PROMO_CATEGORIES.map(function(c){return c.id;});
+  let i=ids.indexOf(state.promoType);
+  if(i<0)i=0;
+  setPromoTypeSegment(ids[(i+dir+ids.length)%ids.length],false);
+}
+
 /* ---------- promo filter bar ---------- */
 function renderPromoFilterBar(){
-  const types=["All"].concat(hasBridge()?EatoutsBridge.promoTypes():[]);
   const locations=window.EatoutsLocations;
   const towns=locations?locations.allTowns():[];
   const restaurants=hasBridge()?EatoutsBridge.all():[];
@@ -3707,8 +4051,10 @@ function renderPromoFilterBar(){
     }).length;
   };
   const townLabel=state.promoTown==="All"?"All Botswana":state.promoTown+((state.promoDistrictName&&state.promoDistrictName!==state.promoTown)?" · "+state.promoDistrictName:"");
-  const areaLabel=state.promoArea==="All"?"All areas":state.promoArea;
+  const areaLabel=state.promoArea==="All"?"All Areas":state.promoArea;
   const areaEnabled=state.promoTown!=="All";
+  const typeLabel=promoCategoryLabel(state.promoType)+
+    (state.promoSubtypes.length?" · "+state.promoSubtypes.length+(state.promoSubtypes.length===1?" style":" styles"):"");
 
   let h='<div class="pfbar">';
   /* row 1 - town, centred and full width */
@@ -3717,9 +4063,9 @@ function renderPromoFilterBar(){
   /* row 2 - area on the left, promo type on the right */
   h+='<div class="pfrow">';
   h+='<button class="pfbtn pf-area" data-act="openAreaPicker"'+(areaEnabled?"":" disabled")+' aria-haspopup="listbox" aria-expanded="'+(state.promoAreaPicker?"true":"false")+'">'+
-     '<span>'+esc(areaEnabled?areaLabel:"All areas")+'</span></button>';
-  h+='<button class="pfbtn pf-type" data-act="openPromoTypePicker" aria-haspopup="listbox" aria-expanded="'+(state.promoTypePicker?"true":"false")+'">'+
-     '<span>'+esc(state.promoType)+'</span></button>';
+     '<span>'+esc(areaEnabled?areaLabel:"All Areas")+'</span></button>';
+  h+='<button class="pfbtn pf-type" data-act="openPromoTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.promoTypePicker?"true":"false")+'">'+
+     '<span>'+esc(typeLabel)+'</span></button>';
   h+='</div>';
 
   /* town popup - flat scrollable list, one row per town, no accordion */
@@ -3747,7 +4093,7 @@ function renderPromoFilterBar(){
     h+='<div class="fpop area-pop" role="listbox">';
     const areas=locations?locations.areas(state.promoDistrict,state.promoTown).slice().sort():[];
     const townCount=countAt(state.promoTown,state.promoDistrict,state.promoDistrictName,"All");
-    h+='<button class="loc-area-option'+(state.promoArea==="All"?" on":"")+'" role="option" aria-selected="'+(state.promoArea==="All")+'" data-act="pickArea" data-town="'+esc(state.promoTown)+'" data-district="'+esc(state.promoDistrict)+'" data-district-name="'+esc(state.promoDistrictName)+'" data-area="All"><span>All areas</span><span class="loc-count">'+townCount+'</span></button>';
+    h+='<button class="loc-area-option'+(state.promoArea==="All"?" on":"")+'" role="option" aria-selected="'+(state.promoArea==="All")+'" data-act="pickArea" data-town="'+esc(state.promoTown)+'" data-district="'+esc(state.promoDistrict)+'" data-district-name="'+esc(state.promoDistrictName)+'" data-area="All"><span>All Areas</span><span class="loc-count">'+townCount+'</span></button>';
     if(areas.length){
       areas.forEach(function(area){
         const areaCount=countAt(state.promoTown,state.promoDistrict,state.promoDistrictName,area);
@@ -3760,13 +4106,38 @@ function renderPromoFilterBar(){
     h+='</div>';
   }
 
-  /* promo type popup */
+  /* promo type popup - four category segments over a checkbox list */
   if(state.promoTypePicker){
+    const groups=promoSubtypeGroups();
     h+='<div class="fpop-scrim" data-act="closePickers"></div>';
-    h+='<div class="fpop type-pop" role="listbox">';
-    types.forEach(function(c){
-      h+='<button role="option" aria-selected="'+(c===state.promoType)+'" class="'+(c===state.promoType?"on":"")+'" data-act="pickPromoType" data-val="'+esc(c)+'">'+esc(c)+'</button>';
+    h+='<div class="fpop type-pop" role="dialog" aria-label="Promo type">';
+    h+='<div class="segbar" role="tablist" aria-label="Promo category">';
+    PROMO_CATEGORIES.forEach(function(c){
+      const on=state.promoType===c.id;
+      h+='<button type="button" role="tab" aria-selected="'+(on?"true":"false")+'" class="segbtn'+(on?" on":"")+'" data-act="pickPromoType" data-val="'+c.id+'">'+esc(c.label)+'</button>';
     });
+    h+='</div>';
+    h+='<div class="typepop-top">';
+    h+='<div class="csearch"><input id="promoSubtypeSearch" type="search" placeholder="Search styles..." value="'+esc(state.promoSubtypeSearch)+'" aria-label="Search promo styles"></div>';
+    h+='<div class="rest-type-status"><span>'+state.promoSubtypes.length+' selected</span>'+
+       (state.promoSubtypes.length?'<button type="button" data-act="clearPromoSubtypes">Clear</button>':'')+'</div>';
+    h+='</div>';
+    h+='<div class="typepop-options">';
+    let shownGroups=0;
+    groups.forEach(function(g){
+      shownGroups++;
+      h+='<section><div class="typepop-group-title">'+esc(g.name)+'</div>';
+      g.options.forEach(function(option){
+        const on=state.promoSubtypes.indexOf(option)>-1;
+        h+='<label class="typepop-option"><input type="checkbox" data-promo-subtype value="'+esc(option)+'"'+(on?' checked':'')+'>'+
+           '<span>'+esc(option)+'</span></label>';
+      });
+      h+='</section>';
+    });
+    if(!shownGroups)h+='<div class="fpop-note">No styles match that search.</div>';
+    h+='</div>';
+    h+='<div class="typepop-footer"><span class="typepop-hint">Tick as many as you like</span>'+
+       '<button type="button" class="apply" data-act="closePickers">Done</button></div>';
     h+='</div>';
   }
   h+='</div>';
@@ -3935,7 +4306,7 @@ function renderRestaurantAreaPicker(){
   });
   let h='<div class="fpop-scrim" data-act="closeRestAreaPicker"></div><div class="fpop area-pop rest-area-pop" role="listbox" aria-label="Choose area or neighbourhood">';
   h+='<div class="rest-type-top" style="border-bottom: 1px solid #ece7db; padding-bottom: 10px; margin-bottom: 10px;"><div class="csearch"><input id="restAreaSearch" type="search" placeholder="Search areas..." value="'+esc(state.restAreaSearch)+'" aria-label="Search areas"></div></div>';
-  if(!query) h+='<button class="loc-area-option'+(state.restArea==="All"?" on":"")+'" role="option" aria-selected="'+(state.restArea==="All")+'" data-act="pickRestArea" data-area="All"><span>All areas</span><span class="loc-count">'+restaurantCountAt(state.restTown,state.restDistrict,state.restDistrictName,"All")+'</span></button>';
+  if(!query) h+='<button class="loc-area-option'+(state.restArea==="All"?" on":"")+'" role="option" aria-selected="'+(state.restArea==="All")+'" data-act="pickRestArea" data-area="All"><span>All Areas</span><span class="loc-count">'+restaurantCountAt(state.restTown,state.restDistrict,state.restDistrictName,"All")+'</span></button>';
   if(areas.length&&!hasAreaData)h+='<div class="fpop-note">Current listings do not include neighbourhood details for this town.</div>';
   if(areas.length){
     let shown=0;
@@ -3983,6 +4354,47 @@ function renderRestaurantTypePicker(){
 function renderRestaurantTypeOption(option,rows){
   const selected=state.restTypeDraft.indexOf(option.name)>-1;
   return '<label class="rest-type-option"><input type="checkbox" data-rest-type-option value="'+esc(option.name)+'"'+(selected?' checked':'')+'><span>'+esc(option.name)+'</span><span class="loc-count rest-type-count">'+restaurantCountByType(option.name,rows)+'</span></label>';
+}
+/* ---------- beverage type picker (Drinks + Liquors, grouped) ---------- */
+function bevTypeCatalog(){
+  const B=window._BEV&&window._BEV.beverages;
+  const A=window._BEV&&window._BEV.alcohols;
+  const byName=function(a,b){return a.name.localeCompare(b.name);};
+  const drinks=(B&&B.subcats||[]).map(function(s){return {id:s.id,name:s.name,count:s.count,kind:'subcat'};}).sort(byName);
+  const liquors=(A&&A.buckets||[]).map(function(b){return {id:b.id,name:b.name,count:b.count,kind:'bucket'};}).sort(byName);
+  return [{name:'Drinks',options:drinks},{name:'Liquors',options:liquors}];
+}
+function bevTypeValue(option){return option.kind+":"+option.id;}
+function bevTypeOptionNames(values){
+  const names={};
+  bevTypeCatalog().forEach(function(group){group.options.forEach(function(o){names[bevTypeValue(o)]=o.name;});});
+  return (values||[]).map(function(v){return names[v]||v;});
+}
+function renderBevTypeOption(option){
+  const value=bevTypeValue(option);
+  const selected=state.bevTypeDraft.indexOf(value)>-1;
+  return '<label class="rest-type-option"><input type="checkbox" data-bev-type-option value="'+esc(value)+'"'+(selected?' checked':'')+'><span>'+esc(option.name)+'</span><span class="loc-count rest-type-count">'+option.count+'</span></label>';
+}
+function renderBevTypePicker(){
+  const query=(state.bevTypeSearch||"").trim().toLowerCase();
+  const groups=bevTypeCatalog();
+  let h='<div class="fpop-scrim" data-act="closeBevTypePicker"></div><div class="fpop rest-type-pop bev-type-pop" role="dialog" aria-label="Choose beverage types">';
+  h+='<div class="rest-type-top"><div class="csearch"><input id="bevTypeSearch" type="search" placeholder="Search beverage types..." value="'+esc(state.bevTypeSearch)+'" aria-label="Search beverage types"></div>';
+  h+='<div class="rest-type-status"><span>'+state.bevTypeDraft.length+' selected</span><button type="button" data-act="clearBevTypeDraft">Clear</button></div></div>';
+  h+='<div class="rest-type-options">';
+  let shown=0;
+  groups.forEach(function(group){
+    const groupMatch=query&&group.name.toLowerCase().indexOf(query)>-1;
+    const options=group.options.filter(function(o){return !query||groupMatch||o.name.toLowerCase().indexOf(query)>-1;});
+    if(!options.length)return;
+    shown++;
+    h+='<section><div class="rest-type-group-title">'+esc(group.name)+'</div>';
+    options.forEach(function(o){h+=renderBevTypeOption(o);});
+    h+='</section>';
+  });
+  if(!shown)h+='<div class="rest-type-empty">No matching types</div>';
+  h+='</div><div class="rest-type-footer"><button type="button" data-act="closeBevTypePicker">Cancel</button><button type="button" class="apply" data-act="applyBevTypeSelection">Apply</button></div></div>';
+  return h;
 }
 
 /* Pinned to the top of the list, in this order. Matched on canonical slug
@@ -4065,7 +4477,6 @@ function buildRestaurantsHTML(){
   const withoutLogo=rest.filter(function(g){return !usesGenuineLogo(g);});
 
   let h='<div class="scroll">';
-  h+='<div class="phead"><h2>Restaurants</h2><p>'+rows.length+' of '+allRestaurants().length+' places · curated order</p></div>';
 
   if(!rows.length){
     h+='<div class="empty">No restaurants match your search.</div>';
@@ -4079,6 +4490,52 @@ function buildRestaurantsHTML(){
 
   h+='<div style="height:24px"></div></div>';
   return h;
+}
+function renderRestaurantsPager(){
+  const foodOn=(state.restPanel==='food');
+  let h='<div class="bev-toggle" role="tablist">';
+  h+='<button role="tab" class="bev-toggle-btn'+(foodOn?' on':'')+'" data-act="panelFood" aria-selected="'+(foodOn?'true':'false')+'">Restaurants</button>';
+  h+='<button role="tab" class="bev-toggle-btn'+(foodOn?'':' on')+'" data-act="panelBev" aria-selected="'+(foodOn?'false':'true')+'">Beverages</button>';
+  h+='</div>';
+  h+='<div class="bev-pager" id="bev-pager">';
+  h+='<div class="bevpage" data-page="food">'+renderRestaurants()+'</div>';
+  h+='<div class="bevpage" data-page="beverages">'+(state.bevCheckout?renderBeveragesCheckout():state.bevView?renderBeveragesCategory():(state.bevTypes.length?renderBeveragesResults():renderBeveragesLanding()))+'</div>';
+  h+='</div>';
+  return h;
+}
+function syncBeveragesPanel(){
+  const pager=document.getElementById('bev-pager');
+  if(!pager) return;
+  const pageW=pager.clientWidth||1;
+  const at=pageW>0?(pager.scrollLeft/pageW):0;
+  const panel=at>=0.5?'beverages':'food';
+  if(panel!==state.restPanel){
+    state.restPanel=panel;
+    /* keep the swipe animation smooth: only the toolbar + shell class move,
+       the pages themselves are already in the DOM */
+    renderControlBar();
+  }
+  const shellEl=document.getElementById('shell');
+  if(shellEl) shellEl.classList.toggle('bev-panel', state.tab==='restaurants' && state.restPanel==='beverages' && !state.restaurantView && !state.bevView && !state.bevCheckout);
+  const bar=pager.previousElementSibling;
+  if(bar&&bar.classList&&bar.classList.contains('bev-toggle')){
+    Array.prototype.forEach.call(bar.querySelectorAll('.bev-toggle-btn'),function(b){
+      const on=(b.getAttribute('data-act')==='panelFood')===(state.restPanel==='food');
+      b.classList.toggle('on',on);
+      b.setAttribute('aria-selected',on?'true':'false');
+    });
+  }
+}
+function scrollToBeveragesPage(){
+  try{
+    const el=document.getElementById('bev-pager');
+    if(!el) return;
+    if(state.restPanel==='beverages'){
+      el.scrollTo({left:el.scrollWidth, behavior:'auto'});
+    }else{
+      el.scrollTo({left:0, behavior:'auto'});
+    }
+  }catch(e){}
 }
 
 /* One brand row plus its always-present, collapsed options panel. Each row
@@ -4569,12 +5026,16 @@ function cbarKey(){
   return [cbarDataRev,state.tab,
     state.promoFilterOpen,state.promoTownPicker,state.promoAreaPicker,state.promoTypePicker,
     state.promoTown,state.promoArea,state.promoType,
+    state.promoSubtypes.join("|"),state.promoSubtypeSearch,
     state.promoDistrict,state.promoDistrictName,
+    state.restPanel,state.bevCheckout,(state.bevView&&state.bevView.id)||"",
     restaurantTypeDataRev,state.restSearchOpen,state.restSearch,state.filterOpen,
     state.restTown,state.restDistrict,state.restDistrictName,state.restArea,
     state.restTypes.join(","),state.restTownPicker,state.restAreaPicker,state.restTypePicker,
     state.restTypeSearch,state.restTypeDraft.join(","),
     state.restFilterOpen,
+    state.bevFilterOpen,state.bevTypePicker,state.bevTypeSearch,
+    state.bevTypes.join(","),state.bevTypeDraft.join(","),
     state.searchOpen,state.gallerySearch,state.galleryFilter,
     state.galRest,state.galTown,state.galArea,state.galPopup,
     state.galLocMode,state.galRestSearch].join("~");
@@ -4599,8 +5060,36 @@ function renderControlBar(){
     state.promoTypePicker=false;
   }
 
-  /* ---- Restaurants: search + cuisine filter ---- */
+  /* ---- Restaurants tab: food filters, beverage filters, search ---- */
   if(state.tab==="restaurants"){
+    /* Beverages panel: its own filter bar, hidden unless toggled open */
+    if(state.restPanel==='beverages'){
+      if(state.bevView||state.bevCheckout||!state.bevFilterOpen){
+        cb.classList.remove("on"); cb.innerHTML="";
+        state.bevTypePicker=false;state.bevTypeDraft=state.bevTypes.slice();state.bevTypeSearch="";
+        return;
+      }
+      cb.classList.add("on");
+      const bevTownLabel=state.restTown==="All"?"All Botswana":state.restTown;
+      const bevAreaLabel=state.restArea==="All"?"All Areas":state.restArea;
+      const bevNames=bevTypeOptionNames(state.bevTypes);
+      const bevTypeLabel=!state.bevTypes.length?"Beverage Type":state.bevTypes.length===1?bevNames[0]:state.bevTypes.length+" Types";
+      let bh='<div class="rest-filter-controls">';
+      bh+='<div class="cbar2 rest-filter-row">'+
+        '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(bevTownLabel)+'</span></button>'+
+        '<button class="cbtn" data-act="openRestAreaPicker"'+(state.restTown==="All"?' disabled':'')+' aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(bevAreaLabel)+'</span></button></div>';
+      bh+='<div class="cbar2 rest-filter-row">'+
+        '<button class="cbtn align-right" data-act="openBevaergeTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.bevTypePicker?'true':'false')+'"><span>'+esc(bevTypeLabel)+'</span></button></div>';
+      bh+='</div>';
+      if(state.restTownPicker)bh+=renderRestaurantTownPicker();
+      if(state.restAreaPicker)bh+=renderRestaurantAreaPicker();
+      if(state.bevTypePicker)bh+=renderBevTypePicker();
+      cb.innerHTML=bh;
+      return;
+    }
+    if(state.bevView || state.bevCheckout){
+      cb.classList.remove("on"); cb.innerHTML=""; return;
+    }
     if(!state.restFilterOpen){
       /* Keep applied restaurant filters when the toolbar is hidden. */
       cb.classList.remove("on");cb.innerHTML="";state.filterOpen=false;
@@ -4610,14 +5099,18 @@ function renderControlBar(){
     }
     cb.classList.add("on");
     const townLabel=state.restTown==="All"?"All Botswana":state.restTown+((state.restDistrictName&&state.restDistrictName!==state.restTown)?" · "+state.restDistrictName:"");
-    const areaLabel=state.restArea==="All"?"All areas":state.restArea;
-    const typeLabel=!state.restTypes.length?"All types":state.restTypes.length===1?state.restTypes[0]:state.restTypes.length+" types selected";
+    const areaLabel=state.restArea==="All"?"All Areas":state.restArea;
+    const typeLabel=!state.restTypes.length?"All Cuisines":state.restTypes.length===1?state.restTypes[0]:state.restTypes.length+" Cuisines";
     let h='<div class="rest-filter-controls">';
+    h+='<div class="cbar2"><div class="csearch">'+
+      '<input id="rsearch" type="search" placeholder="Search restaurants..." aria-label="Search restaurants" value="'+esc(state.restSearch)+'">'+
+      (state.restSearch?'<button class="cbtn ic" data-act="closeRestSearch" aria-label="Clear search">'+ICON.close+'</button>':'')+
+      '</div></div>';
     h+='<div class="cbar2 rest-filter-row town-row" style="justify-content: center;">'+
       '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(townLabel)+'</span></button></div>';
     h+='<div class="cbar2 rest-filter-row" style="justify-content: space-between;">'+
       '<button class="cbtn" data-act="openRestAreaPicker"'+(state.restTown==="All"?' disabled':'')+' aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(areaLabel)+'</span></button>'+
-      '<button class="cbtn" data-act="openRestaurantTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.restTypePicker?'true':'false')+'"><span>'+esc(typeLabel)+'</span></button></div>';
+      '<button class="cbtn align-right" data-act="openRestaurantTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.restTypePicker?'true':'false')+'"><span>'+esc(typeLabel)+'</span></button></div>';
     h+='</div>';
     if(state.restTownPicker)h+=renderRestaurantTownPicker();
     if(state.restAreaPicker)h+=renderRestaurantAreaPicker();
@@ -4667,13 +5160,16 @@ let lastViewKey=null;
 function viewKey(){
   return [state.tab,state.promoView,state.restaurantView&&state.restaurantView.view,
     state.reserveCat,state.reserveSub,state.galleryView,state.aboutView,
-    state.operatorView,state.legalView,state.checkoutView,state.splitOpen].join("|");
+    state.operatorView,state.legalView,state.checkoutView,state.splitOpen,
+    state.restPanel,state.bevCheckout,state.bevSplitOpen,(state.bevView&&state.bevView.type+":"+state.bevView.id)||""].join("|");
 }
 function renderViewport(){
   const vp=document.getElementById("viewport");
   /* remember where the user was before the DOM is replaced */
-  const prevScroller=vp.querySelector(".scroll");
-  const keepTop=prevScroller?prevScroller.scrollTop:0;
+  const prevScrollers=vp.querySelectorAll(".scroll");
+  const keepTops=Array.prototype.map.call(prevScrollers,function(s){return s.scrollTop;});
+  const prevPager=vp.querySelector("#bev-pager");
+  const keepPagerLeft=prevPager?prevPager.scrollLeft:-1;
   const key=viewKey();
   const viewChanged=(key!==lastViewKey);
   lastViewKey=key;
@@ -4681,15 +5177,24 @@ function renderViewport(){
   vp.innerHTML='<div class="screen'+(viewChanged?" anim":"")+'">'+renderScreen()+'</div>'+renderPreview()+renderRestLocPicker()+renderRestNotice();
 
   /* same view re-render -> put them back where they were */
-  if(!viewChanged&&keepTop){
-    const nextScroller=vp.querySelector(".scroll");
-    if(nextScroller) nextScroller.scrollTop=keepTop;
+  if(!viewChanged&&keepTops.length){
+    const nextScrollers=vp.querySelectorAll(".scroll");
+    Array.prototype.forEach.call(nextScrollers,function(s,i){
+      if(keepTops[i]) s.scrollTop=keepTops[i];
+    });
   }
 
   renderHeader();
   renderNav();
   renderControlBar();
   applyPromoFocus();
+  const shellEl=document.getElementById("shell");
+  if(shellEl) shellEl.classList.toggle("bev-panel", state.tab==="restaurants" && state.restPanel==="beverages" && !state.restaurantView && !state.bevView && !state.bevCheckout);
+  const pagerEl=document.getElementById("bev-pager");
+  if(pagerEl){
+    pagerEl.addEventListener("scroll",syncBeveragesPanel,{passive:true});
+    scrollToBeveragesPage();
+  }
   if(state.galleryView==="photo") scrollPhotoTo();
 }
 function renderScreen(){
@@ -4708,7 +5213,8 @@ function renderScreen(){
       }
     }
     if(state.restaurantView)return renderRestaurantSubView();
-    return renderRestaurants();
+    loadBeverageData();
+    return renderRestaurantsPager();
   }
   if(state.tab==="reserve"){
     if(state.reserveSub)return renderReserveForm();
@@ -4735,6 +5241,7 @@ function accWrap(open,inner){
   return '<div class="acc-wrap"><div class="acc-in">'+(inner||"")+'</div></div>';
 }
 function promoImage(p){
+  if(p&&Array.isArray(p.images)&&p.images[0])return p.images[0];
   const f=promoById(p&&p.id);
   if(!f) return foodImg(0);
   const dayIdx=DAY_NAMES.indexOf(f.day);
@@ -4846,24 +5353,35 @@ function renderEventCard(ev,dayIdx,r){
 
 function renderPromoCard(p,dayIdx,idx,r){
   const open=state.promoExpanded===p.id;
-  const venue=r?r.name:(PROFILE&&PROFILE.name)||"";
+  const venue=r?r.name:((p.brand)||(PROFILE&&PROFILE.name)||"");
+  const hasPrice=!!(p.price||p.was);
+  const hasItems=!!(p.items&&p.items.length);
+  const img=(Array.isArray(p.images)&&p.images[0])||foodImg(hash(p.id));
   let inner='<div class="pbody">';
   inner+='<button class="phead-btn" data-act="openPromo" data-id="'+p.id+'">'+
     '<h3>'+esc(p.title)+'</h3>'+
-    '<div class="pprice">'+fmt(p.price)+' <span class="pwas">'+fmt(p.was)+'</span></div>'+
+    (hasPrice
+      ? '<div class="pprice">'+fmt(p.price)+' <span class="pwas">'+fmt(p.was)+'</span></div>'
+      : '<div class="pprice pcat">'+esc(promoCategoryLabel(promoCategoryOf(p)))+(p.subtype?' · '+esc(p.subtype):'')+'</div>')+
     '</button>';
   inner+='<div style="font-size:11px;color:#a89a7e;font-weight:700;letter-spacing:.03em;margin:-4px 0 10px">'+
     esc(venue)+' &middot; '+esc(DAY_NAMES[dayIdx])+' &middot; '+esc(p.valid)+'</div>';
-  inner+='<ul class="phl">'+(p.items||[]).slice(0,5).map(function(it){return '<li>'+esc(it)+'</li>';}).join("")+'</ul>';
-  inner+='<button class="btn full sm" style="margin-top:12px" data-act="openPromo" data-id="'+p.id+'">View &amp; Reserve</button>';
+  inner+=hasItems
+    ? '<ul class="phl">'+p.items.slice(0,5).map(function(it){return '<li>'+esc(it)+'</li>';}).join("")+'</ul>'
+    : (p.desc?'<p class="mdesc" style="margin:0 0 4px">'+esc(p.desc)+'</p>':'');
+  inner+='<button class="btn full sm" style="margin-top:12px" data-act="openPromo" data-id="'+p.id+'">'+
+    (hasPrice?'View &amp; Reserve':'View Details')+'</button>';
   inner+='</div>';
   return '<div class="ecard'+(open?" open":"")+'" data-acc="'+p.id+'">'+
     '<button class="pimg" data-act="togglePromo" data-id="'+p.id+'" aria-expanded="'+(open?"true":"false")+'">'+
-      imgTag(foodImg(hash(p.id)),p.title)+'</button>'+
+      imgTag(img,p.title)+'</button>'+
     accWrap(open,inner)+'</div>';
 }
 
 function renderPromosFeed(){
+  /* the bar & bottle promos arrive with their own JSON, so ask for it
+     before the feed is built */
+  loadBeverageData();
   const days=getWeekDays();
   const dayIdx=state.promoDay;
 
@@ -4885,8 +5403,11 @@ function renderPromosFeed(){
 
   let body='<div class="scroll">';
   const matchingRestaurants=hasBridge()?EatoutsBridge.restaurantCountAt(promoLocation()):0;
+  /* brand-led bar promos are not tied to a venue, so they survive a
+     town filter that matches no restaurant */
+  const hasBarPromos=!!beveragePromosOnDay(DAY_NAMES[dayIdx]).length;
 
-  if(matchingRestaurants===0){
+  if(matchingRestaurants===0&&!hasBarPromos){
     body+='<div class="empty">No Foodies Here Sorry,</div>';
     body+='<div style="height:24px"></div></div>';
     return cal+body;
@@ -4900,9 +5421,12 @@ function renderPromosFeed(){
   dayPromos.forEach(function(x,i){ body+=renderPromoCard(x.promo,dayIdx,i,x.restaurant); });
 
   if(!dayPromos.length && !dayEvents.length && !feat.length){
+    const filterBits=esc(state.promoTown)+
+      (state.promoType!=='All'?' &middot; '+esc(promoCategoryLabel(state.promoType)):'')+
+      (state.promoSubtypes.length?' &middot; '+esc(state.promoSubtypes.slice(0,3).join(", ")+(state.promoSubtypes.length>3?' +'+(state.promoSubtypes.length-3):'')):'');
     body+='<div class="empty">No promos for '+DAY_NAMES[dayIdx]+'<br>'+
-            'in '+esc(state.promoTown)+(state.promoType!=='All'?' &middot; '+esc(state.promoType):'')+'.<br><br>'+
-            'Try a different day, town, or type.</div>';
+            'in '+filterBits+'.<br><br>'+
+            'Try a different day, town, or style.</div>';
   }
   body+='<div style="height:24px"></div></div>';
   return cal+body;
@@ -4914,7 +5438,7 @@ function renderPromoDetail(){
   const p=found.promo;
   const day=found.day;
   const dayIdx=DAY_NAMES.indexOf(day);
-  const venue=found.restaurant?found.restaurant.name:((PROFILE&&PROFILE.name)||"");
+  const venue=found.restaurant?found.restaurant.name:((p.brand)||(PROFILE&&PROFILE.name)||"");
   let ev=null;
   if(found.restaurant&&hasBridge()){
     const c=EatoutsDB.resolveContent(found.restaurant.id);
@@ -4927,6 +5451,8 @@ function renderPromoDetail(){
   let addonsTotal=0;
   PROMO_ADDONS.forEach(function(a,i){addonsTotal+=a.price*(addons[i]||0);});
   const total=p.price*seats+addonsTotal;
+  const hasPrice=!!(p.price||p.was);
+  const hasItems=!!(p.items&&p.items.length);
 
   let links='';
   links+='<button class="btn full" style="margin-bottom:8px" data-act="openPromoGallery" data-id="'+p.id+'">View Image Gallery</button>';
@@ -4943,6 +5469,24 @@ function renderPromoDetail(){
       '<button data-act="addonPlus" data-id="'+p.id+'" data-idx="'+i+'">+</button></div></div>';
   });
 
+  let reserve='';
+  if(hasPrice){
+    reserve='<div class="subh" style="margin-top:16px">Reserve Your Spot</div>'+
+    '<div class="ctr"><div class="lbl">Seats<em>'+fmt(p.price)+' per seat</em></div>'+
+    '<div class="stp"><button data-act="seatMinus" data-id="'+p.id+'">&minus;</button>'+
+    '<span class="val">'+seats+'</span>'+
+    '<button data-act="seatPlus" data-id="'+p.id+'">+</button></div></div>'+
+    '<div class="subh" style="margin-top:14px">Add Menu Items</div>'+
+    addonRows+
+    '<div class="tbar"><span class="tl">Estimated Total</span><span class="tv">'+fmt(total)+'</span></div>';
+  }else{
+    reserve='<div class="subh" style="margin-top:16px">Good To Know</div>'+
+    '<div class="ctr"><div class="lbl">Style<em>'+esc(promoCategoryLabel(promoCategoryOf(p)))+'</em></div></div>'+
+    (p.subtype?'<div class="ctr"><div class="lbl">Drink style<em>'+esc(p.subtype)+'</em></div></div>':'')+
+    (p.brand?'<div class="ctr"><div class="lbl">Brand<em>'+esc(p.brand)+'</em></div></div>':'')+
+    '<div class="ctr"><div class="lbl">Valid<em>'+esc(p.valid||day)+'</em></div></div>';
+  }
+
   return '<div class="scroll">'+
     '<div class="crumb"><button data-act="backPromo">Back</button><span class="sep">/</span><span class="cur">'+esc(p.type)+'</span></div>'+
     '<div class="pcard" style="margin-top:0">'+
@@ -4950,25 +5494,23 @@ function renderPromoDetail(){
     '<div class="pbody">'+
     '<h3 style="margin:0 0 6px;font-size:19px;font-weight:900;line-height:1.2;color:#1a1a1a">'+esc(p.title)+'</h3>'+
     '<div style="font-size:11.5px;color:#a89a7e;font-weight:700;margin-bottom:10px">'+esc(venue)+' &middot; '+esc(day)+' &middot; '+esc(p.valid||"")+'</div>'+
-    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
-    '<span class="chip g">'+fmt(p.price)+'</span>'+
-    '<span class="chip">was '+fmt(p.was)+'</span>'+
-    '<span class="chip">Save '+fmt(p.save)+'</span>'+
-    '</div>'+
+    (hasPrice
+      ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
+        '<span class="chip g">'+fmt(p.price)+'</span>'+
+        '<span class="chip">was '+fmt(p.was)+'</span>'+
+        '<span class="chip">Save '+fmt(p.save)+'</span>'+
+        '</div>'
+      : '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
+        '<span class="chip g">'+esc(promoCategoryLabel(promoCategoryOf(p)))+'</span>'+
+        (p.subtype?'<span class="chip">'+esc(p.subtype)+'</span>':'')+
+        '</div>')+
     '<p class="mdesc">'+esc(p.desc||"")+'</p>'+
-    '<div class="subh">Includes</div>'+
-    (p.items||[]).map(function(it){return '<div class="ctr"><div class="lbl">'+esc(it)+'</div></div>';}).join("")+
+    (hasItems?'<div class="subh">Includes</div>'+
+      p.items.map(function(it){return '<div class="ctr"><div class="lbl">'+esc(it)+'</div></div>';}).join(""):'')+
     '<div class="subh" style="margin-top:16px">Gallery &amp; Links</div>'+
     links+
-    '<div class="subh" style="margin-top:16px">Reserve Your Spot</div>'+
-    '<div class="ctr"><div class="lbl">Seats<em>'+fmt(p.price)+' per seat</em></div>'+
-    '<div class="stp"><button data-act="seatMinus" data-id="'+p.id+'">&minus;</button>'+
-    '<span class="val">'+seats+'</span>'+
-    '<button data-act="seatPlus" data-id="'+p.id+'">+</button></div></div>'+
-    '<div class="subh" style="margin-top:14px">Add Menu Items</div>'+
-    addonRows+
-    '<div class="tbar"><span class="tl">Estimated Total</span><span class="tv">'+fmt(total)+'</span></div>'+
-    '<button class="btn wa full" data-act="waPromo" data-id="'+p.id+'">Send via WhatsApp</button>'+
+    reserve+
+    '<button class="btn wa full" data-act="waPromo" data-id="'+p.id+'">'+(hasPrice?'Send via WhatsApp':'Ask on WhatsApp')+'</button>'+
     '</div></div>'+
     '<div style="height:24px"></div></div>';
 }
@@ -5002,7 +5544,7 @@ function renderPromoLink(){
   }
   if(!ev)return '<div class="empty">No link details.</div>';
   const dayIdx=DAY_NAMES.indexOf(found.day);
-  const venue=found.restaurant?found.restaurant.name:((PROFILE&&PROFILE.name)||"");
+  const venue=found.restaurant?found.restaurant.name:((found.promo&&found.promo.brand)||(PROFILE&&PROFILE.name)||"");
   return '<div class="scroll">'+
     '<div class="crumb"><button data-act="backPromoLink">Back to Promo</button><span class="cur">Lineup</span></div>'+
     '<div class="pcard" style="margin-top:0">'+
@@ -5019,6 +5561,406 @@ function renderPromoLink(){
     '<ul class="phl">'+(ev.highlights||[]).map(function(h){return '<li>'+esc(h)+'</li>';}).join("")+'</ul>'+
     '<button class="btn wa full" style="margin-top:14px" data-act="waEvent" data-ev="'+esc(ev.id)+'">Send via WhatsApp</button>'+
     '</div></div><div style="height:24px"></div></div>';
+}
+
+/* ================================================================
+   BEVERAGES
+   ================================================================ */
+function loadBeverageData(){
+  if(window._BEV){return Promise.resolve(window._BEV);}
+  if(window._BEV_LOAD){return window._BEV_LOAD;}
+  if(typeof fetch!=="function"){
+    window._BEV={beverages:{items:[],subcats:[]},alcohols:{items:[],buckets:[]},promos:{promotions:[]}};
+    window._BEV_LOAD=Promise.resolve(window._BEV);
+    return window._BEV_LOAD;
+  }
+  window._BEV_LOAD=Promise.all([
+    fetch('assets/data/beverages.json',{cache:'no-cache'}).then(function(r){return r.json();}).catch(function(){return {items:[],subcats:[]};}),
+    fetch('assets/data/alcohols.json',{cache:'no-cache'}).then(function(r){return r.json();}).catch(function(){return {items:[],buckets:[]};}),
+    fetch('assets/data/beverage-and-bar-promotions.json',{cache:'no-cache'}).then(function(r){return r.json();}).catch(function(){return {promotions:[]};})
+  ]).then(function(a){
+    window._BEV={beverages:a[0]||{items:[]},alcohols:a[1]||{items:[]},promos:a[2]||{promotions:[]}};
+    return window._BEV;
+  }).catch(function(){window._BEV={beverages:{items:[]},alcohols:{items:[]},promos:{promotions:[]}};return window._BEV;});
+  window._BEV_LOAD.then(function(){
+    try{
+      if(typeof render==="function"&&((state.tab==="restaurants"&&state.restPanel==="beverages")||state.tab==="promos")) render();
+    }catch(e){}
+  });
+  return window._BEV_LOAD;
+}
+function getBeverageCartKey(it){return 'bev:'+it.id;}
+function bevCartCount(){
+  let n=0; const c=state.bevCart; for(const k in c){n+=c[k].qty;}
+  return n;
+}
+function formatBWP(n){
+  if(n===null||n===undefined||isNaN(n)) return 'P0.00';
+  return 'P'+Number(n).toFixed(2);
+}
+function bevPrice(it){
+  const p=it&&it.price;
+  if(typeof p==='number') return p;
+  if(typeof p==='string') return parseFloat(p)||0;
+  return 0;
+}
+function bevFindItem(id){
+  const B=window._BEV&&window._BEV.beverages;
+  const A=window._BEV&&window._BEV.alcohols;
+  let list=(B&&B.items)||[];
+  for(let i=0;i<list.length;i++) if(list[i].id===id) return list[i];
+  list=(A&&A.items)||[];
+  for(let i=0;i<list.length;i++) if(list[i].id===id) return list[i];
+  return null;
+}
+function bevOrderText(){
+  const c=state.bevCart;
+  const keys=Object.keys(c);
+  let out="EatOuts beverage order:\n";
+  keys.forEach(function(k){
+    const row=c[k];
+    out+="• "+row.item.name+(row.item.size?" ("+row.item.size+")":"")+" × "+row.qty+" — "+formatBWP(bevPrice(row.item)*row.qty)+"\n";
+  });
+  out+="Total: "+formatBWP(bevCartTotal())+" ("+bevCartCount()+" items)\n";
+  if(state.bevSplitPeople.length){
+    out+="\nSplit:\n";
+    state.bevSplitPeople.forEach(function(p){
+      out+="• "+p.name+": "+formatBWP(bevPersonTotal(p.id))+"\n";
+    });
+    const un=bevUnassignedTotal();
+    if(un>0.005)out+="• Unassigned: "+formatBWP(un)+"\n";
+  }
+  return out.replace(/\n$/,"");
+}
+/* 25%-tint palette for the bev-grid category buttons (rgb triplets) */
+const BEV_TILE_COLOURS={
+  cordials:"64,224,208",energy:"255,255,0",fizzy:"255,95,31",juice:"50,205,50",
+  icedtea:"137,207,240",water:"0,71,171",
+  beer:"255,215,0",brandy:"242,133,0",champagne:"255,203,164",ciders:"152,255,152",
+  gin:"191,148,228",liqueurs:"255,105,180",rum:"220,20,60",spirits:"191,0,255",
+  tequila:"255,127,80",vodka:"135,206,235",wines:"214,36,73"
+};
+function bevTileRgb(id){return BEV_TILE_COLOURS[id]||"214,201,182";}
+function renderBeveragesLanding(){
+  const B=window._BEV&&window._BEV.beverages;
+  const A=window._BEV&&window._BEV.alcohols;
+  const subs=B&&B.subcats||[];
+  const bucks=A&&A.buckets||[];
+  let h='<div class="scroll">';
+  if(!window._BEV){h+='<div class="empty">Loading beverages…</div></div>';return h;}
+  h+='<div class="bev-ratio">Drinks</div><div class="bev-grid">';
+  (subs||[]).forEach(function(sc){
+    const off=sc.count<=0;
+    h+='<button class="bev-tile'+(off?' off':'')+'" data-act="bevOpenSub" data-id="'+esc(sc.id)+'" style="--bt-rgb:'+bevTileRgb(sc.id)+'"'+(off?' disabled':'')+'>';
+    h+='<div class="bt-name">'+esc(sc.name)+'</div>';
+    h+='</button>';
+  });
+  h+='</div>';
+  h+='<div class="bev-ratio liquors">Liquors</div><div class="bev-grid">';
+  (bucks||[]).forEach(function(b){
+    const off=b.count<=0;
+    h+='<button class="bev-tile sq'+(off?' off':'')+'" data-act="bevOpenBucket" data-id="'+esc(b.id)+'" style="--bt-rgb:'+bevTileRgb(b.id)+'"'+(off?' disabled':'')+'>';
+    h+='<div class="bt-name">'+esc(b.name)+'</div>';
+    h+='</button>';
+  });
+  h+='</div>';
+  h+='<div class="bev-note">Images for missing items are hidden as specified. Prices shown in BWP.</div>';
+  h+='<div style="height:24px"></div>';
+  h+='</div></div>';
+  return h;
+}
+function bevTypeSelectedItems(){
+  const B=window._BEV&&window._BEV.beverages;
+  const A=window._BEV&&window._BEV.alcohols;
+  const subs={},bucks={};
+  (state.bevTypes||[]).forEach(function(v){
+    const p=String(v).split(":");
+    if(p[0]==="subcat")subs[p[1]]=1;
+    else if(p[0]==="bucket")bucks[p[1]]=1;
+  });
+  const out=[];
+  (B&&B.items||[]).forEach(function(it){if(subs[it.subcat])out.push({item:it,kind:'subcat',cat:it.subcat});});
+  (A&&A.items||[]).forEach(function(it){if(bucks[it.bucket])out.push({item:it,kind:'bucket',cat:it.bucket});});
+  return out;
+}
+function renderBeveragesResults(){
+  const rows=bevTypeSelectedItems();
+  let h='<div class="scroll">';
+  if(!rows.length){
+    h+='<div class="empty">No drinks match the selected types.</div>';
+  }
+  rows.forEach(function(r){
+    const it=r.item;
+    h+='<button class="bev-item bev-result" data-act="bevGotoCat" data-type="'+r.kind+'" data-cat="'+esc(r.cat)+'">';
+    h+='<div class="mthumb">'+
+      (it.image
+        ?'<img src="'+esc(it.image)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
+        :'<div class="tile-ico">🥤</div>')+
+      '</div>';
+    h+='<div class="minfo"><div class="mtitle">'+esc(it.name)+'</div>'+
+      '<div class="mprice">'+esc(it.size||'')+(it.size?' · ':'')+fmt(it.price)+' <em>in list</em></div></div>';
+    h+='<span class="bev-result-go" aria-hidden="true">›</span>';
+    h+='</button>';
+  });
+  h+='<div class="bev-clear-row"><button class="btn" data-act="bevClearTypes">Clear Search</button></div>';
+  h+='<div style="height:8px"></div>';
+  h+='</div></div>';
+  return h;
+}
+function drinkTile(id,name){
+  const map={
+    'fizzy':'🥤',
+    'juice':'🧃',
+    'icedtea':'🧊',
+    'water':'💧',
+    'energy':'⚡',
+    'cordials':'🧋'
+  };
+  return '<div class="tile-ico" style="color:#d6c9b6">'+(map[id]||'🥤')+'</div>';
+}
+function liquorTile(id,name){
+  const map={'beer':'🍺','ciders':'🍏','brandy':'🥃','rum':'🥃','vodka':'🥃','gin':'🍸','wines':'🍷','champagne':'🥂','spirits':'🥃','tequila':'🥃','liqueurs':'🍸'};
+  return '<div class="tile-ico" style="color:#d6c9b6">'+(map[id]||'🥃')+'</div>';
+}
+function renderBeveragesCategory(){
+  const B=window._BEV&&window._BEV.beverages;
+  const A=window._BEV&&window._BEV.alcohols;
+  let items=[];
+  let title='Beverages';
+  if(state.bevView&&state.bevView.type==='subcat'){
+    items=(B&&B.items||[]).filter(function(it){return it.subcat===state.bevView.id;});
+    const sc=(B&&B.subcats||[]).find(function(x){return x.id===state.bevView.id;}); title=sc?sc.name:'Drinks';
+  }else if(state.bevView&&state.bevView.type==='bucket'){
+    items=(A&&A.items||[]).filter(function(it){return it.bucket===state.bevView.id;});
+    const bk=(A&&A.buckets||[]).find(function(x){return x.id===state.bevView.id;}); title=bk?bk.name:'Liquors';
+  }
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="bevBackLanding">Beverages</button><span class="sep">/</span><span class="cur">'+esc(title)+'</span></div>';
+  h+='<div class="phead" style="padding-top:0"><h2>'+esc(title)+'</h2><p>'+items.length+' items</p></div>';
+  items.forEach(function(it){
+    const key='bev:'+it.id;
+    const c=state.bevCart[key];
+    const qty=c?c.qty:0;
+    h+='<div class="bev-item">';
+    h+='<button class="mthumb" data-act="bevPhoto" data-id="'+esc(it.id)+'">'+(it.image?imgTag(it.image,it.name):'<div class="tile"><div class="tile-ico">🥤</div></div>')+'</button>';
+    h+='<div class="minfo"><div class="mtitle">'+esc(it.name)+'</div><div class="mprice">'+formatBWP(bevPrice(it))+(it.size?'<em> · '+esc(it.size)+'</em>':'')+'</div></div>';
+    h+='<div class="bev-step">';
+    if(qty===0){
+      h+='<button class="cbtn" data-act="bevAdd" data-id="'+esc(it.id)+'">Add</button>';
+    }else{
+      h+='<div class="stp"><button data-act="bevDec" data-id="'+esc(it.id)+'">−</button><div class="val">'+qty+'</div><button data-act="bevInc" data-id="'+esc(it.id)+'">+</button></div>';
+    }
+    h+='</div></div>';
+  });
+  const c=bevCartCount();
+  h+='<div style="height:16px"></div>';
+  if(c>0){
+    h+='<div class="pad"><button class="btn full" data-act="bevGoCheckout">View cart · '+c+' · '+formatBWP(bevCartTotal())+'</button></div>';
+  }
+  h+='<div style="height:24px"></div>';
+  h+='</div>';
+  return h;
+}
+function bevCartTotal(){
+  let t=0; const c=state.bevCart; for(const k in c){t+=bevPrice(c[k].item)*c[k].qty;} return t;
+}
+/* ================================================================
+   SPLIT THE BILL - beverages checkout
+   ================================================================ */
+function bevLines(){
+  const c=state.bevCart;const out=[];
+  Object.keys(c).forEach(function(k){
+    const it=c[k].item;const price=bevPrice(it);
+    out.push({key:k,item:it,name:it.name,size:it.size||null,price:price,qty:c[k].qty,total:price*c[k].qty});
+  });
+  return out;
+}
+function bevAddSplitPerson(name){
+  name=String(name||"").trim().slice(0,24);
+  if(!name)return null;
+  if(state.bevSplitPeople.some(function(p){return p.name.toLowerCase()===name.toLowerCase();}))return null;
+  const id="p"+(++_splitSeq);
+  state.bevSplitPeople.push({id:id,name:name,color:SPLIT_COLORS[state.bevSplitPeople.length%SPLIT_COLORS.length]});
+  return id;
+}
+function bevRemoveSplitPerson(id){
+  state.bevSplitPeople=state.bevSplitPeople.filter(function(p){return p.id!==id;});
+  Object.keys(state.bevSplitAssign).forEach(function(k){
+    if(state.bevSplitAssign[k]&&state.bevSplitAssign[k][id]!==undefined)delete state.bevSplitAssign[k][id];
+  });
+}
+function bevSplitQty(key,pid){const a=state.bevSplitAssign[key];return (a&&a[pid])||0;}
+function bevSetSplitQty(key,pid,q){if(!state.bevSplitAssign[key])state.bevSplitAssign[key]={};state.bevSplitAssign[key][pid]=Math.max(0,q|0);}
+function bevLineAssignedQty(key){const a=state.bevSplitAssign[key]||{};return Object.keys(a).reduce(function(s,p){return s+(a[p]||0);},0);}
+function bevPersonTotal(pid){
+  return bevLines().reduce(function(s,l){return s+bevSplitQty(l.key,pid)*l.price;},0);
+}
+function bevUnassignedTotal(){
+  return bevLines().reduce(function(s,l){return s+Math.max(0,l.qty-bevLineAssignedQty(l.key))*l.price;},0);
+}
+function bevSplitAssignedLines(pid){
+  return bevLines().filter(function(l){return bevSplitQty(l.key,pid)>0;});
+}
+function bevNormalizeSplitAssign(){
+  bevLines().forEach(function(line){
+    const a=state.bevSplitAssign[line.key];if(!a)return;
+    let sum=0;state.bevSplitPeople.forEach(function(p){sum+=(a[p.id]||0);});
+    if(sum<=line.qty)return;
+    let rem=line.qty;
+    state.bevSplitPeople.forEach(function(p){
+      const q=a[p.id]||0;if(!q)return;
+      const take=Math.min(q,rem);a[p.id]=take;rem-=take;
+    });
+  });
+}
+function bevPersonMessage(p){
+  let out="EatOuts beverage order - "+p.name+"'s share:\n";
+  bevLines().forEach(function(l){
+    const q=bevSplitQty(l.key,p.id);
+    if(q>0)out+="• "+l.name+(l.size?" ("+l.size+")":"")+" × "+q+" — "+formatBWP(q*l.price)+"\n";
+  });
+  out+="Share total: "+formatBWP(bevPersonTotal(p.id))+"\nFull order total: "+formatBWP(bevCartTotal());
+  return out;
+}
+function resetBevSplit(){
+  state.bevSplitOpen=false;state.bevSplitPeople=[];state.bevSplitAssign={};state.bevSplitNewName="";
+}
+function renderBeveragesCheckout(){
+  if(state.bevSplitOpen)return renderBevSplit();
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="bevBackFromCheckout">Beverages</button><span class="sep">/</span><span class="cur">Checkout</span></div>';
+  h+='<div class="phead" style="padding-top:0"><h2>Review & Send</h2><p>'+bevCartCount()+' items · '+formatBWP(bevCartTotal())+'</p></div>';
+  const c=state.bevCart;
+  const keys=Object.keys(c);
+  if(keys.length===0){
+    h+='<div class="empty">Your cart is empty.</div>';
+  }else{
+    keys.forEach(function(k){
+      const row=c[k];
+      const it=row.item;
+      h+='<div class="co-item"><div class="co-row">';
+      h+='<div class="co-main"><div class="co-thumb">'+(it.image?imgTag(it.image,it.name):'')+'</div>';
+      h+='<div class="co-info"><div class="co-name">'+esc(it.name)+(it.size?'<em> · '+esc(it.size)+'</em>':'')+'</div>';
+      h+='<div class="co-sub">'+formatBWP(bevPrice(it))+' × '+row.qty+'</div></div></div>';
+      h+='<div class="co-edit" style="display:flex;gap:8px;align-items:center">';
+      h+='<button class="cbtn" data-act="bevDec" data-id="'+esc(it.id)+'">−</button><div style="min-width:22px;text-align:center;font-weight:800">'+row.qty+'</div><button class="cbtn" data-act="bevInc" data-id="'+esc(it.id)+'">+</button>';
+      h+='</div></div></div>';
+    });
+  }
+  h+='<div class="tbar" style="margin:12px 14px"><span class="tl">Total</span><span class="tv">'+formatBWP(bevCartTotal())+'</span></div>';
+  /* split-the-bill entry point + a compact preview once names exist */
+  if(keys.length){
+    h+='<div class="pad" style="padding-top:0">';
+    if(state.bevSplitPeople.length){
+      h+='<div class="split-preview">';
+      state.bevSplitPeople.forEach(function(p){
+        h+='<div class="sp-row"><span>'+esc(p.name)+'</span><b>'+formatBWP(bevPersonTotal(p.id))+'</b></div>';
+      });
+      const un=bevUnassignedTotal();
+      if(un>0.005)h+='<div class="sp-row muted"><span>Unassigned</span><b>'+formatBWP(un)+'</b></div>';
+      h+='</div>';
+    }
+    h+='<button class="btn full" data-act="bevOpenSplit">Split the Bill'+
+       (state.bevSplitPeople.length?' <span style="color:#a89a7e;font-weight:700;margin-left:4px">· '+state.bevSplitPeople.length+' '+(state.bevSplitPeople.length===1?'person':'people')+'</span>':'')+
+       '</button>';
+    h+='</div>';
+  }
+  h+='<div style="height:12px"></div>';
+  h+='<div class="pad" style="display:flex;flex-direction:column;gap:10px">';
+  h+='<button class="btn wa" data-act="bevSendWaGeneric">Send to +267 718 29765 (WhatsApp)</button>';
+  h+='<button class="btn" data-act="bevShareWa" style="background:#1f7a3e">Share to WhatsApp (choose contact)</button>';
+  h+='</div>';
+  h+='<div style="height:24px"></div>';
+  h+='</div>';
+  return h;
+}
+function renderBevSplit(){
+  bevNormalizeSplitAssign();
+  const lines=bevLines();
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="bevBackFromSplit">Checkout</button><span class="sep">/</span><span class="cur">Split the Bill</span></div>';
+  h+='<div class="phead" style="padding-top:0"><h2>Split the Bill</h2>'+
+     '<p>Add names, then hand each drink to whoever is paying for it</p></div>';
+  if(!lines.length){
+    h+='<div class="empty">Your cart is empty.</div>';
+    h+='<div class="pad"><button class="btn ghost full" data-act="bevBackFromSplit">Back to Checkout</button></div>';
+    h+='<div style="height:24px"></div></div>';
+    return h;
+  }
+  h+='<div class="pad" style="padding-top:0"><div class="subh">People</div>';
+  if(state.bevSplitPeople.length){
+    h+='<div class="split-people">';
+    state.bevSplitPeople.forEach(function(p){
+      h+='<span class="split-person">'+
+         '<i style="background:'+p.color+'"></i>'+
+         '<span class="split-pname">'+esc(p.name)+'</span>'+
+         '<span class="split-ptot">'+formatBWP(bevPersonTotal(p.id))+'</span>'+
+         '<button class="split-px" data-act="bevRemoveSplitPerson" data-id="'+p.id+'" aria-label="Remove '+esc(p.name)+'">&times;</button>'+
+         '</span>';
+    });
+    h+='</div>';
+  }
+  h+='<div class="split-add">'+
+     '<input id="bevSplitNewName" type="text" placeholder="Add a name…" value="'+esc(state.bevSplitNewName)+'" maxlength="24" autocomplete="off" autocapitalize="words">'+
+     '<button class="btn primary" data-act="bevAddSplitPerson">Add</button>'+
+     '</div></div>';
+  h+='<div class="pad" style="padding-top:4px"><div class="subh">Items</div>';
+  if(!state.bevSplitPeople.length){
+    h+='<div class="empty" style="padding:20px 8px">Add a person above to start splitting.<br>'+
+       'Everything stays editable until you send.</div>';
+  }else{
+    lines.forEach(function(line){
+      const un=Math.max(0,line.qty-bevLineAssignedQty(line.key));
+      h+='<div class="split-line">';
+      h+='<div class="split-line-head">'+
+         '<div class="split-line-name">'+line.qty+'× '+esc(line.name)+
+         (line.size?' <em>('+esc(line.size)+')</em>':'')+'</div>'+
+         '<div class="split-line-tot">'+formatBWP(line.total)+'</div></div>';
+      h+='<div class="split-line-unit">'+formatBWP(line.price)+' each</div>';
+      h+='<div class="split-line-rows">';
+      state.bevSplitPeople.forEach(function(p){
+        const q=bevSplitQty(line.key,p.id);
+        h+='<div class="split-row">'+
+           '<span class="split-dot" style="background:'+p.color+'"></span>'+
+           '<span class="split-row-name">'+esc(p.name)+'</span>'+
+           '<div class="stp">'+
+             '<button data-act="bevSplitMinus" data-key="'+esc(line.key)+'" data-pid="'+p.id+'"'+(q<=0?' disabled':'')+'>&minus;</button>'+
+             '<span class="val">'+q+'</span>'+
+             '<button data-act="bevSplitPlus" data-key="'+esc(line.key)+'" data-pid="'+p.id+'"'+(un<=0?' disabled':'')+'>+</button>'+
+           '</div>'+
+           '<span class="split-row-sub">'+formatBWP(q*line.price)+'</span>'+
+           '</div>';
+      });
+      h+='<div class="split-unrow'+(un?'':' zero')+'">'+
+         '<span class="split-row-name">Unassigned</span>'+
+         '<span class="split-row-sub">'+formatBWP(un*line.price)+' <em>('+un+' of '+line.qty+')</em></span>'+
+         '</div>';
+      h+='</div></div>';
+    });
+  }
+  h+='</div>';
+  h+='<div class="tbar" style="margin:12px 14px"><span class="tl">Bill Total</span><span class="tv">'+formatBWP(bevCartTotal())+'</span></div>';
+  if(state.bevSplitPeople.length){
+    h+='<div class="pad" style="padding-top:0">';
+    state.bevSplitPeople.forEach(function(p){
+      h+='<div class="split-sumrow" style="border-left-color:'+p.color+'"><span>'+esc(p.name)+'</span><b>'+formatBWP(bevPersonTotal(p.id))+'</b></div>';
+    });
+    const un=bevUnassignedTotal();
+    if(un>0.005)h+='<div class="split-sumrow muted"><span>Unassigned</span><b>'+formatBWP(un)+'</b></div>';
+    h+='<div class="subh" style="margin-top:16px">Send Each Person Their Share</div>';
+    state.bevSplitPeople.forEach(function(p){
+      const has=bevSplitAssignedLines(p.id).length>0;
+      h+='<button class="btn wa full" data-act="bevWaSplitPerson" data-id="'+p.id+'"'+(has?'':' disabled')+'>'+
+         'Send '+esc(p.name)+'\'s Share — '+formatBWP(bevPersonTotal(p.id))+'</button>';
+    });
+    h+='<p class="split-note">Each message opens WhatsApp\'s contact picker. The order total and the flagship number stay at the bottom of every share.</p>';
+    h+='<button class="btn ghost full" data-act="bevBackFromSplit">Back to Cart</button>';
+    h+='</div>';
+  }else{
+    h+='<div class="pad"><button class="btn ghost full" data-act="bevBackFromSplit">Back to Cart</button></div>';
+  }
+  h+='<div style="height:24px"></div></div>';
+  return h;
 }
 
 /* ================================================================
@@ -5502,7 +6444,7 @@ function renderGalleryRestPicker(){
     if(!shown)h+='<div class="fpop-note">No towns match.</div>';
   }else{
     if(!q)h+='<button class="loc-all'+(state.galArea==="All"?" on":"")+'" data-act="pickGalArea" data-area="All" role="option" aria-selected="'+(state.galArea==="All")+'">'+
-      '<span>All areas</span><span class="loc-count">'+galleryCountAt(state.galTown,"All")+'</span></button>';
+      '<span>All Areas</span><span class="loc-count">'+galleryCountAt(state.galTown,"All")+'</span></button>';
     let shown=0;
     galleryAreaOptions().forEach(function(a){
       if(q&&normalizeRestType(a).indexOf(q)===-1)return;
@@ -5755,13 +6697,25 @@ document.addEventListener("click",function(e){
       renderControlBar();return;
     }
     /* same deal on Restaurants, but only from the list itself - inside a
-       restaurant sub-view the tap means "take me back to the list" */
+       restaurant sub-view the tap means "take me back to the list".
+       On the Beverages panel the same tap toggles the beverage filter bar. */
     if(nextTab==="restaurants" && state.tab==="restaurants" && !state.restaurantView){
-      state.restFilterOpen=!state.restFilterOpen;
-      if(!state.restFilterOpen){state.filterOpen=false;}
+      if(state.restPanel==="beverages" && !state.bevView && !state.bevCheckout){
+        state.bevFilterOpen=!state.bevFilterOpen;
+        if(!state.bevFilterOpen){
+          state.bevTypePicker=false;state.restTownPicker=false;state.restAreaPicker=false;
+        }
+      }else{
+        state.restFilterOpen=!state.restFilterOpen;
+        if(!state.restFilterOpen){state.filterOpen=false;}
+      }
       renderControlBar();return;
     }
     state.tab=nextTab;
+    state.restPanel='food';
+    state.bevView=null;
+    state.bevCheckout=false;
+    resetBevSplit();
     state.promoFilterOpen=false;
     state.operatorView="about";
     state.preview=null;
@@ -5833,13 +6787,21 @@ document.addEventListener("click",function(e){
     const p=f.promo;
     const seats=state.promoSeats[p.id]||1;
     const addons=state.promoAddons[p.id]||{};
-    let msg="*EVENT RESERVATION REQUEST*\nEvent: "+p.title+"\nDate: "+f.day+" ("+p.valid+")\nSeats: "+seats+"\n";
-    let extras=[];
-    PROMO_ADDONS.forEach((a,i)=>{if(addons[i])extras.push("- "+a.name+" ("+addons[i]+")");});
-    if(extras.length)msg+="Extras:\n"+extras.join("\n")+"\n";
     let total=p.price*seats;
     PROMO_ADDONS.forEach((a,i)=>{total+=a.price*(addons[i]||0);});
-    msg+="Estimated Total: P"+total.toFixed(2)+"\n\nPlease confirm seat availability.";
+    let msg;
+    if(!p.price&&!p.was){
+      /* no price on the listing - this is an enquiry, not a booking */
+      msg="*PROMO ENQUIRY*\n"+p.title+"\n"+
+          promoCategoryLabel(promoCategoryOf(p))+(p.subtype?" - "+p.subtype:"")+"\n"+
+          f.day+(p.valid?" ("+p.valid+")":"")+"\n\n"+(p.desc||"")+"\n\nIs this available today?";
+    }else{
+      msg="*EVENT RESERVATION REQUEST*\nEvent: "+p.title+"\nDate: "+f.day+" ("+p.valid+")\nSeats: "+seats+"\n";
+      let extras=[];
+      PROMO_ADDONS.forEach((a,i)=>{if(addons[i])extras.push("- "+a.name+" ("+addons[i]+")");});
+      if(extras.length)msg+="Extras:\n"+extras.join("\n")+"\n";
+      msg+="Estimated Total: P"+total.toFixed(2)+"\n\nPlease confirm seat availability.";
+    }
     window.location.href=waLink(msg,f&&f.restaurant);
     return;
   }
@@ -5898,10 +6860,16 @@ document.addEventListener("click",function(e){
     state.promoDistrictName=t.getAttribute("data-district-name")||"";
     state.promoArea=t.getAttribute("data-area")||"All";state.promoTownPicker=false;state.promoAreaPicker=false;render();return;
   }
-  if(act==="pickPromoType"){state.promoType=t.getAttribute("data-val")||"All";state.promoTypePicker=false;render();return;}
+  if(act==="pickPromoType"){
+    /* All closes the popup and just filters */
+    const seg=t.getAttribute("data-val")||"All";
+    setPromoTypeSegment(seg,seg==="All");
+    return;
+  }
+  if(act==="clearPromoSubtypes"){state.promoSubtypes=[];render();renderControlBar();return;}
   if(act==="openTownPicker"){state.promoTownPicker=true;state.promoAreaPicker=false;state.promoTypePicker=false;renderControlBar();return;}
   if(act==="openAreaPicker"){if(state.promoTown==="All")return;state.promoAreaPicker=true;state.promoTownPicker=false;state.promoTypePicker=false;renderControlBar();return;}
-  if(act==="openPromoTypePicker"){state.promoTypePicker=true;state.promoTownPicker=false;state.promoAreaPicker=false;renderControlBar();return;}
+  if(act==="openPromoTypePicker"){state.promoTypePicker=true;state.promoTownPicker=false;state.promoAreaPicker=false;state.promoSubtypeSearch="";renderControlBar();return;}
   if(act==="closePickers"){state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;renderControlBar();return;}
   if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;state.restLocPicker=null;state.restNotice=null;syncRestAccordions();return;}
   if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
@@ -5989,6 +6957,88 @@ document.addEventListener("click",function(e){
     setTimeout(function(){const i=document.getElementById("rsearch");if(i)i.focus();},60);return;
   }
   if(act==="closeRestSearch"){state.restSearchOpen=false;state.restSearch="";render();return;}
+
+  /* BEVERAGE TYPE PICKER (Drinks + Liquors) */
+  if(act==="openBevaergeTypePicker"){
+    state.bevTypePicker=!state.bevTypePicker;state.restTownPicker=false;state.restAreaPicker=false;
+    state.bevTypeDraft=state.bevTypes.slice();state.bevTypeSearch="";renderControlBar();
+    if(state.bevTypePicker)setTimeout(function(){const input=document.getElementById("bevTypeSearch");if(input)input.focus();},30);
+    return;
+  }
+  if(act==="closeBevTypePicker"){
+    state.bevTypePicker=false;state.bevTypeDraft=state.bevTypes.slice();state.bevTypeSearch="";renderControlBar();return;
+  }
+  if(act==="clearBevTypeDraft"){state.bevTypeDraft=[];renderControlBar();return;}
+  if(act==="applyBevTypeSelection"){
+    state.bevTypes=state.bevTypeDraft.slice();state.bevTypePicker=false;state.bevTypeSearch="";
+    if(state.bevView&&state.bevView.type==="bucket")state.bevView=null;
+    render();return;
+  }
+  if(act==="bevClearTypes"){state.bevTypes=[];state.bevTypeDraft=[];state.bevView=null;render();return;}
+  if(act==="bevGotoCat"){state.bevView={type:t.getAttribute("data-type"),id:t.getAttribute("data-cat")};state.bevCheckout=false;render();return;}
+
+  /* BEVERAGES PANEL */
+  if(act==="panelFood"){loadBeverageData();state.restPanel='food';state.bevView=null;state.bevCheckout=false;render();return;}
+  if(act==="panelBev"){loadBeverageData();state.restPanel='beverages';state.bevView=null;state.bevCheckout=false;render();return;}
+  if(act==="bevOpenSub"){state.bevView={type:'subcat',id:id};state.bevCheckout=false;render();return;}
+  if(act==="bevOpenBucket"){state.bevView={type:'bucket',id:id};state.bevCheckout=false;render();return;}
+  if(act==="bevBackLanding"){state.bevView=null;state.bevCheckout=false;render();return;}
+  if(act==="bevAdd"||act==="bevInc"||act==="bevDec"){
+    const it=bevFindItem(id);
+    if(!it)return;
+    const key='bev:'+it.id;
+    if(!state.bevCart[key])state.bevCart[key]={item:it,qty:0};
+    if(act==='bevDec')state.bevCart[key].qty=Math.max(0,state.bevCart[key].qty-1);
+    else state.bevCart[key].qty+=1;
+    if(!state.bevCart[key].qty)delete state.bevCart[key];
+    if(state.bevSplitPeople.length)bevNormalizeSplitAssign();
+    render();return;
+  }
+  if(act==="bevGoCheckout"){if(bevCartCount()<=0)return;state.bevCheckout=true;resetBevSplit();render();return;}
+  if(act==="bevBackFromCheckout"){state.bevCheckout=false;resetBevSplit();render();return;}
+  if(act==="bevPhoto"){
+    const it=bevFindItem(id);
+    if(it&&it.image){state.preview={src:it.image,name:it.name};render();}
+    return;
+  }
+  if(act==="bevSendWaGeneric"){
+    window.location.href=waLink(bevOrderText(),'26771829765');return;
+  }
+  if(act==="bevShareWa"){
+    window.location.href=waShareLink(bevOrderText());return;
+  }
+
+  /* BEVERAGE SPLIT THE BILL */
+  if(act==="bevOpenSplit"){if(bevCartCount()<=0)return;state.bevSplitOpen=true;render();return;}
+  if(act==="bevBackFromSplit"){state.bevSplitOpen=false;render();return;}
+  if(act==="bevAddSplitPerson"){
+    const el=document.getElementById("bevSplitNewName");
+    const name=el?el.value:"";
+    if(!String(name).trim()){if(el)el.focus();return;}
+    bevAddSplitPerson(name);
+    state.bevSplitNewName="";
+    render();
+    setTimeout(function(){const i=document.getElementById("bevSplitNewName");if(i)i.focus();},40);
+    return;
+  }
+  if(act==="bevRemoveSplitPerson"){bevRemoveSplitPerson(id);render();return;}
+  if(act==="bevSplitPlus"||act==="bevSplitMinus"){
+    const key=t.getAttribute("data-key");
+    const pid=t.getAttribute("data-pid");
+    let line=null;bevLines().forEach(function(l){if(l.key===key)line=l;});
+    if(!line)return;
+    const q=bevSplitQty(key,pid);
+    const room=line.qty-bevLineAssignedQty(key)+q;
+    const next=act==="bevSplitPlus"?q+1:q-1;
+    if(next<0||next>room)return;
+    bevSetSplitQty(key,pid,next);
+    render();return;
+  }
+  if(act==="bevWaSplitPerson"){
+    const p=state.bevSplitPeople.find(function(x){return x.id===id;});
+    if(!p||!bevSplitAssignedLines(p.id).length)return;
+    window.location.href=waShareLink(bevPersonMessage(p));return;
+  }
 
   /* MENU */
   if(act==="openCat"){state.menuCat=id;state.menuOpen=null;render();return;}
@@ -6174,6 +7224,16 @@ document.addEventListener("click",function(e){
 
 /* Escape closes the filter popup */
 document.addEventListener("keydown",function(e){
+  if(e.key==="Enter" && e.target && e.target.id==="bevSplitNewName"){
+    e.preventDefault();
+    const name=e.target.value;
+    if(!String(name).trim()) return;
+    bevAddSplitPerson(name);
+    state.bevSplitNewName="";
+    render();
+    setTimeout(function(){const i=document.getElementById("bevSplitNewName");if(i)i.focus();},40);
+    return;
+  }
   if(e.key==="Enter" && e.target && e.target.id==="splitNewName"){
     e.preventDefault();
     const name=e.target.value;
@@ -6182,6 +7242,12 @@ document.addEventListener("keydown",function(e){
     state.splitNewName="";
     render();
     setTimeout(function(){const i=document.getElementById("splitNewName");if(i)i.focus();},40);
+    return;
+  }
+  if(state.promoTypePicker&&e.target.tagName!=="INPUT"&&
+     (e.key==="ArrowRight"||e.key==="ArrowLeft"||e.keyCode===37||e.keyCode===39)){
+    e.preventDefault();
+    cyclePromoType((e.key==="ArrowLeft"||e.keyCode===37)?-1:1);
     return;
   }
   if(e.key==="Escape"||e.keyCode===27){
@@ -6198,14 +7264,59 @@ document.addEventListener("keydown",function(e){
   }
 });
 
+/* Swipe across the promo type popup to move between the four segments.
+   Horizontal only - a vertical drag keeps scrolling the tick list. */
+(function(){
+  let origin=null;
+  const SWIPE=44;
+  document.addEventListener("pointerdown",function(e){
+    origin=null;
+    if(!state.promoTypePicker)return;
+    const pop=e.target&&e.target.closest?e.target.closest(".fpop.type-pop"):null;
+    if(!pop)return;
+    origin={x:e.clientX,y:e.clientY};
+  },true);
+  document.addEventListener("pointermove",function(e){
+    if(!origin)return;
+    const dx=e.clientX-origin.x,dy=e.clientY-origin.y;
+    if(Math.abs(dx)<SWIPE||Math.abs(dx)<Math.abs(dy)*1.4)return;
+    origin=null;
+    cyclePromoType(dx<0?1:-1);
+  },{passive:true});
+  ["pointerup","pointercancel","pointerleave"].forEach(function(ev){
+    document.addEventListener(ev,function(){origin=null;},true);
+  });
+})();
+
 document.addEventListener("change",function(e){
-  if(!e.target.matches("[data-rest-type-option]"))return;
-  const value=e.target.value;
-  const selected=state.restTypeDraft.indexOf(value)>-1;
-  if(e.target.checked&&!selected)state.restTypeDraft.push(value);
-  if(!e.target.checked&&selected)state.restTypeDraft=state.restTypeDraft.filter(function(type){return type!==value;});
-  renderControlBar();
-  Array.prototype.forEach.call(document.querySelectorAll("[data-rest-type-option]"),function(input){if(input.value===value)input.focus();});
+  if(e.target.matches("[data-rest-type-option]")){
+    const value=e.target.value;
+    const selected=state.restTypeDraft.indexOf(value)>-1;
+    if(e.target.checked&&!selected)state.restTypeDraft.push(value);
+    if(!e.target.checked&&selected)state.restTypeDraft=state.restTypeDraft.filter(function(type){return type!==value;});
+    renderControlBar();
+    Array.prototype.forEach.call(document.querySelectorAll("[data-rest-type-option]"),function(input){if(input.value===value)input.focus();});
+    return;
+  }
+  if(e.target.matches("[data-bev-type-option]")){
+    const value=e.target.value;
+    const selected=state.bevTypeDraft.indexOf(value)>-1;
+    if(e.target.checked&&!selected)state.bevTypeDraft.push(value);
+    if(!e.target.checked&&selected)state.bevTypeDraft=state.bevTypeDraft.filter(function(type){return type!==value;});
+    renderControlBar();
+    Array.prototype.forEach.call(document.querySelectorAll("[data-bev-type-option]"),function(input){if(input.value===value)input.focus();});
+    return;
+  }
+  if(e.target.matches("[data-promo-subtype]")){
+    const value=e.target.value;
+    const selected=state.promoSubtypes.indexOf(value)>-1;
+    if(e.target.checked&&!selected)state.promoSubtypes.push(value);
+    if(!e.target.checked&&selected)state.promoSubtypes=state.promoSubtypes.filter(function(style){return style!==value;});
+    render();
+    renderControlBar();
+    Array.prototype.forEach.call(document.querySelectorAll("[data-promo-subtype]"),function(input){if(input.value===value)input.focus();});
+    return;
+  }
 });
 
 /* Live search input */
@@ -6218,6 +7329,24 @@ document.addEventListener("input",function(e){
     const input=document.getElementById("restTypeSearch");
     if(input){input.focus();input.setSelectionRange(start,start);}
     state.restTypeSearch=inputValue;
+  }
+  if(e.target.id==="bevTypeSearch"){
+    state.bevTypeSearch=e.target.value;
+    const inputValue=state.bevTypeSearch;
+    const start=e.target.selectionStart;
+    renderControlBar();
+    const input=document.getElementById("bevTypeSearch");
+    if(input){input.focus();input.setSelectionRange(start,start);}
+    state.bevTypeSearch=inputValue;
+  }
+  if(e.target.id==="promoSubtypeSearch"){
+    state.promoSubtypeSearch=e.target.value;
+    const inputValue=state.promoSubtypeSearch;
+    const start=e.target.selectionStart;
+    renderControlBar();
+    const input=document.getElementById("promoSubtypeSearch");
+    if(input){input.focus();input.setSelectionRange(start,start);}
+    state.promoSubtypeSearch=inputValue;
   }
   if(e.target.id==="restTownSearch"){
     state.restTownSearch=e.target.value;
@@ -6263,6 +7392,7 @@ document.addEventListener("input",function(e){
   if(e.target.id==="orderContact")state.orderContact=e.target.value;
   if(e.target.id==="orderNotes")state.orderNotes=e.target.value;
   if(e.target.id==="splitNewName")state.splitNewName=e.target.value;
+  if(e.target.id==="bevSplitNewName")state.bevSplitNewName=e.target.value;
 });
 
 /* Swiper dot indicator (vertical paging) */

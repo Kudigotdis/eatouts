@@ -61,6 +61,11 @@ setTimeout(() => {
   check('waLink without venue -> flagship', linkDefault.includes('phone=' + flagship), linkDefault);
   check('waLink encodes text', linkDefault.includes('text=hello'));
 
+  const rawNumber = w.resolveVenueWhatsapp('26771829765');
+  check('raw number string routes to that line', rawNumber === '26771829765', rawNumber);
+  const bevLine = w.waLink('order', '26771829765');
+  check('beverage order routes to the dedicated line', bevLine.includes('phone=26771829765'), bevLine);
+
   const rcVenue = w.restaurantContact({ whatsapp: '26771111111' });
   check('restaurantContact(venue).number', rcVenue.number === '26771111111', JSON.stringify(rcVenue));
   check('restaurantContact(venue).display is +number', rcVenue.display === '+26771111111', rcVenue.display);
@@ -74,7 +79,7 @@ setTimeout(() => {
     if (/function waLink/.test(l)) return;
     if (!/(?<!function\s)waLink\(/.test(l)) return;
     const ctx = lines.slice(Math.max(0, i - 14), i + 1).join('\n');
-    const flagshipIntended = /act==="waPoetry"|act==="waFeatEvent"|act==="waAbout"|function renderAboutSocialRow/.test(ctx);
+    const flagshipIntended = /act==="waPoetry"|act==="waFeatEvent"|act==="waAbout"|act==="bevSendWaGeneric"|function renderAboutSocialRow/.test(ctx);
     const venueAware = /,\s*(r|f&&f\.restaurant|evInfo\.restaurant|curRestaurant\(\))\s*\)/.test(l);
     if (!flagshipIntended && !venueAware) flagged.push('line ' + (i + 1) + ': ' + l.trim().slice(0, 90));
   });
