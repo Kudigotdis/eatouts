@@ -61,3 +61,28 @@ First visit: open `seed-demo.html`, seed demo data, then run verification (all a
 ## Status
 
 The interaction analytics dashboard mentioned in earlier revisions is **not built** and is marked as roadmap, not a current capability. The export → merge → deploy loop is now wired end to end: `restaurant-dashboard.html` and `intake.html` export a `eatouts.venue.v1` record, `scripts/build_restaurant_directory.py` merges `owner_submissions/*.json` into `directory_runtime_data.json`, `npm run build` stages `dist/`, and `npm run deploy` publishes to Cloudflare Pages. Owner edits still live in the browser's `localStorage` until that export is run.
+
+## Tests
+
+`tests/` holds a jsdom suite (via `scripts` in `tests/package.json`). Run everything with:
+
+```
+cd tests
+npm install
+npm test
+```
+
+CI (`.github/workflows/test.yml`) runs the same suites plus the build-time merge on every push and pull request. No Cloudflare secrets are required.
+
+## Cloud media (R2 worker) setup
+
+The supplier, blog and event pages can store media in a Cloudflare R2 bucket through a small Worker. The client (`js/eatouts-cloud.js`) degrades gracefully until it is configured, so this is optional for launch.
+
+1. Deploy the Worker: paste `cloudflare-worker.js` into the Cloudflare Workers editor.
+2. In the Worker settings, set the environment variables:
+   - `BUCKET` — your R2 bucket binding (name it `eatouts-media`).
+   - `SECRET` — a long random string.
+   - `PUBLIC_BASE` — the public URL prefix of your R2 bucket (e.g. `https://pub-xxxxx.r2.dev`).
+3. In `js/eatouts-cloud.js`, set `window.EATOUTS_CLOUD.workerUrl` to the deployed Worker URL (e.g. `https://eatouts-media.YOUR-NAME.workers.dev`) and `secret` to the same value as the Worker's `SECRET`.
+
+Until step 3 is done, `EatoutsCloud` reports "not configured" and callers fall back to local behaviour. The `workerUrl` and `secret` values are intentionally left blank in the repo; fill them in per environment.
