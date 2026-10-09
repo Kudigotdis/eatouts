@@ -88,18 +88,24 @@ setTimeout(() => {
   const fizzyCount = evj('window._BEV.beverages.items.filter(i=>i.subcat==="fizzy").length');
   check('subcategory lists its items', rows.length === fizzyCount, rows.length + ' of ' + fizzyCount);
   check('item rows show a price', /P\d/.test((rows[0] || {}).textContent || ''), (rows[0] || {}).textContent);
-  check('checkout button starts disabled', ev('bevCartCount()') === 0);
+  const bevSel = '.bevpage[data-page="beverages"] ';
+  check('cart starts empty', ev('bevCartCount()') === 0);
+  check('no Add button on beverage rows', !doc.querySelector(bevSel + '[data-act="bevAdd"]'));
+  check('stepper always present on beverage rows',
+    !!doc.querySelector(bevSel + '[data-act="bevInc"]') && !!doc.querySelector(bevSel + '[data-act="bevDec"]'));
+  check('cart summary hidden while empty', !doc.querySelector('.bevpage[data-page="beverages"] .cbwrap'));
 
   /* ---------- cart ---------- */
-  const bevSel = '.bevpage[data-page="beverages"] ';
-  click(doc.querySelector(bevSel + '[data-act="bevAdd"]'));
+  click(doc.querySelector(bevSel + '[data-act="bevInc"]'));
   check('adding records one unit', ev('bevCartCount()') === 1, ev('bevCartCount()'));
   check('cart total uses the item price', ev('bevCartTotal()') > 0, ev('bevCartTotal()'));
-  check('stepper appears after adding', !!doc.querySelector(bevSel + '[data-act="bevDec"]'));
+  check('stepper reflects the added quantity', doc.querySelector(bevSel + '.stp .val').textContent === '1');
+  check('cart summary bar appears once items are added',
+    !!doc.querySelector('.bevpage[data-page="beverages"] .cbwrap [data-act="bevGoCheckout"]'));
   click(doc.querySelector(bevSel + '[data-act="bevDec"]'));
   check('decrementing clears an empty line', ev('bevCartCount()') === 0, ev('bevCartCount()'));
-  check('row falls back to Add', !!doc.querySelector(bevSel + '[data-act="bevAdd"]'));
-  click(doc.querySelector(bevSel + '[data-act="bevAdd"]'));
+  check('row keeps the stepper at zero', !!doc.querySelector(bevSel + '[data-act="bevInc"]') && !doc.querySelector(bevSel + '[data-act="bevAdd"]'));
+  click(doc.querySelector(bevSel + '[data-act="bevInc"]'));
   click(doc.querySelector(bevSel + '[data-act="bevInc"]'));
   check('incrementing stacks', ev('bevCartCount()') === 2, ev('bevCartCount()'));
 

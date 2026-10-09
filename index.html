@@ -5804,21 +5804,19 @@ function renderBeveragesCategory(){
     h+='<div class="bev-item">';
     h+='<button class="mthumb" data-act="bevPhoto" data-id="'+esc(it.id)+'">'+(it.image?imgTag(it.image,it.name):'<div class="tile"><div class="tile-ico">🥤</div></div>')+'</button>';
     h+='<div class="minfo"><div class="mtitle">'+esc(it.name)+'</div><div class="mprice">'+formatBWP(bevPrice(it))+(it.size?'<em> · '+esc(it.size)+'</em>':'')+'</div></div>';
-    h+='<div class="bev-step">';
-    if(qty===0){
-      h+='<button class="cbtn" data-act="bevAdd" data-id="'+esc(it.id)+'">Add</button>';
-    }else{
-      h+='<div class="stp"><button data-act="bevDec" data-id="'+esc(it.id)+'">−</button><div class="val">'+qty+'</div><button data-act="bevInc" data-id="'+esc(it.id)+'">+</button></div>';
-    }
-    h+='</div></div>';
+    h+='<div class="bev-step"><div class="stp"><button data-act="bevDec" data-id="'+esc(it.id)+'">−</button><div class="val">'+qty+'</div><button data-act="bevInc" data-id="'+esc(it.id)+'">+</button></div></div>';
+    h+='</div>';
   });
   const c=bevCartCount();
   h+='<div style="height:16px"></div>';
-  if(c>0){
-    h+='<div class="pad"><button class="btn full" data-act="bevGoCheckout">View cart · '+c+' · '+formatBWP(bevCartTotal())+'</button></div>';
-  }
   h+='<div style="height:24px"></div>';
   h+='</div>';
+  if(c>0){
+    h+='<div class="cbwrap"><div class="cbar">'+
+      '<button class="cbtot" data-act="bevGoCheckout"><span>Cart &middot; '+c+' item'+(c===1?'':'s')+'</span><b>'+formatBWP(bevCartTotal())+'</b></button>'+
+      '<button class="cbbtn" data-act="bevGoCheckout" data-cbbtn>Checkout</button>'+
+    '</div></div>';
+  }
   return h;
 }
 function bevCartTotal(){
@@ -7036,7 +7034,7 @@ document.addEventListener("click",function(e){
   if(act==="bevOpenSub"){state.bevView={type:'subcat',id:id};state.bevCheckout=false;render();return;}
   if(act==="bevOpenBucket"){state.bevView={type:'bucket',id:id};state.bevCheckout=false;render();return;}
   if(act==="bevBackLanding"){state.bevView=null;state.bevCheckout=false;render();return;}
-  if(act==="bevAdd"||act==="bevInc"||act==="bevDec"){
+  if(act==="bevInc"||act==="bevDec"){
     const it=bevFindItem(id);
     if(!it)return;
     const key='bev:'+it.id;
