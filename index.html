@@ -49,8 +49,8 @@ img{display:block;max-width:100%}
 /* ---------- VIEWPORT (WHITE) ---------- */
 #viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#ffffff;padding-top:0;view-transition-name:app-vp}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#ffffff;color:#1a1a1a}
-.screen.anim{animation:sl .18s ease}
-@keyframes sl{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+.screen.anim{animation:screenfade .28s ease}
+@keyframes screenfade{from{opacity:0}to{opacity:1}}
 ::view-transition-old(app-vp),::view-transition-new(app-vp){animation-duration:.28s;animation-timing-function:ease}
 ::view-transition-old(app-vp){animation-name:vtFadeOut}
 ::view-transition-new(app-vp){animation-name:vtFadeIn}
@@ -180,8 +180,10 @@ img{display:block;max-width:100%}
 .cat-row:active{background:#faf8f2}
 .cat-ico{width:44px;height:44px;flex:0 0 auto;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid #f1ece1;overflow:hidden}
 .cat-ico img{width:100%;height:100%;object-fit:cover;display:block;border-radius:0}
-.cat-name{font-size:14.5px;font-weight:800;color:#1a1a1a;letter-spacing:.01em}
+.cat-name{font-size:24px;font-weight:800;color:#1a1a1a;letter-spacing:.01em;text-align:center;display:block;width:100%}
 .cat-meta{font-size:10.5px;color:#a89a7e;margin-top:2px;letter-spacing:.03em;font-weight:600}
+.cat-row .cat-ico{display:none}
+.cat-row .cat-meta{text-align:center}
 /* Events tab category rows: icon-less, centred, larger label */
 .cat-row.evcat{padding:22px 16px;gap:0}
 .cat-row.evcat .minfo{text-align:center}
@@ -291,8 +293,9 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 /* ---------- LISTS ---------- */
 .lrow{display:flex;align-items:center;gap:11px;padding:15px 16px;border-bottom:1px solid #f1ece1;background:#ffffff;width:100%}
 .lrow:active{background:#faf8f2}
-.lrow .ln{font-size:13.5px;font-weight:700;color:#1a1a1a;flex:1}
-.lrow .lc{font-size:11px;color:#a89a7e;font-weight:700}
+.lrow .ln{font-size:18px;font-weight:700;color:#1a1a1a;flex:1;text-align:center}
+.lrow .ld{font-size:11.5px;color:#a89a7e;font-weight:500;margin-top:3px;text-align:center}
+.resback{flex:0 0 auto;background:#ffffff;border-top:1px solid #f1ece1;padding:10px 14px 12px}
 
 /* ---------- GALLERY ---------- */
 .gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:0 0 2px;background:#ffffff}
@@ -611,6 +614,8 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 <script src="assets/data/restaurant_listings/eatouts_manifest.js"></script>
 <script src="assets/data/eatouts_terms_of_service.js"></script>
 <script src="assets/data/eatouts_privacy_policy.js"></script>
+<script src="assets/data/event_types.js"></script>
+<script src="assets/data/venue-provider-list.js"></script>
 <script src="botswana_locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-brand.js"></script>
@@ -3262,17 +3267,17 @@ function galleryRestLabel(){
 /* ================================================================
    RESERVE CATEGORIES
    ================================================================ */
-const RESERVE = [
-{id:"corporate",name:"Corporate Events",icon:"💼",subs:["Conferences","Seminars","Workshops","Product Launches","Trade Shows","Expos","Team-Building Events","Networking Events","Annual General Meetings","Corporate Galas","Award Ceremonies","Press Conferences","Board Meetings","Shareholder Meetings","Executive Retreats","Company Milestones","Corporate Dinners","Recruiting Events","Job Fairs","Incentive Trips","VIP Events"]},
-{id:"social",name:"Social & Celebrations",icon:"🎉",subs:["Weddings","Engagement Parties","Rehearsal Dinners","Bridal Showers","Baby Showers","Gender Reveal Parties","Birthday Parties","Quinceañeras","Sweet Sixteens","Anniversaries","Family Reunions","Housewarming Parties","Retirement Parties","Graduation Parties","Proms","Formals","Dinner Parties","Cocktail Parties","Holiday Parties"]},
-{id:"arts",name:"Arts & Performances",icon:"🎭",subs:["Music Festivals","Concerts","Gigs","Art Exhibitions","Gallery Openings","Fashion Shows","Runway Events","Theatre Performances","Stage Plays","Stand-Up Comedy Shows","Talent Shows","Poetry Slams"]},
-{id:"film",name:"Film & Media",icon:"🎬",subs:["Film Festivals","Movie Premieres","Film Screenings","Livestreams","Digital Summits"]},
-{id:"food",name:"Food & Drink",icon:"🍽️",subs:["Food Festivals","Drink Festivals","Wine Tastings","Craft Beer Expos","Culinary Pop-ups","Cultural Festivals","Historic Reenactments"]},
-{id:"community",name:"Community & Causes",icon:"🤝",subs:["Charity Galas","Fundraising Auctions","Awareness Walks","Awareness Runs","Benefit Concerts","Food Drives","Community Markets","Farmers Markets","Block Parties","Neighborhood Cleanups","Town Halls","Civic Rallies","Parades","Holiday Festivals","Cultural Celebrations","Religious Ceremonies","Baptisms","Bar Mitzvahs","Bat Mitzvahs","Memorial Services"]},
-{id:"sports",name:"Sports & Fitness",icon:"🏆",subs:["Tournaments","Sports Meets","Matches","Games","Marathons","Triathlons","Fun Runs","Fitness Bootcamps","Wellness Retreats","Yoga Workshops","Meditation Seminars"]},
-{id:"tech",name:"Tech & Learning",icon:"💡",subs:["Esports Tournaments","Gaming Conventions","Academic Lectures","Debates","Panels","Hackathons","Codefests","Science Fairs","School Graduations","Commencements","Alumni Reunions","Orientation Days","Convocation Ceremonies","Continuing Education Classes","Webinars","Virtual Conferences","Online Workshops","Hybrid Conferences"]},
-{id:"mega",name:"Mega Events",icon:"🌍",subs:["Mega-Events","Olympic Games","World Expos","Hallmark Events","Carnivals","Themed Conventions"]}
-];
+/* Event catalogue: category -> subCategory groups -> event types.
+   Sourced from assets/data/event_types.js (window.EATOUTS_EVENT_TAXONOMY). */
+const RESERVE = Object.keys(window.EATOUTS_EVENT_TAXONOMY||{}).map(function(k){
+  const cat=window.EATOUTS_EVENT_TAXONOMY[k];
+  return {id:cat.id,name:cat.name,icon:cat.icon,
+    groups:(cat.subCategories||[]).map(function(sub){
+      return {name:sub.name,events:(sub.events||[]).map(function(e){
+        return {id:e.id,name:e.name,description:e.description||""};
+      })};
+    })};
+});
 
 /* ================================================================
    STATE
@@ -3302,7 +3307,11 @@ const state = {
   splitAssign:{},
   splitNewName:"",
   reserveCat:null,
+  reserveGroup:null,
   reserveSub:null,
+  reserveVenueTown:"All",
+  reserveVenueQuery:"",
+  reserveVenueTownPicker:false,
   galleryView:"grid",
   galleryPhoto:null,
   galleryFilter:"All",
@@ -5234,8 +5243,10 @@ function renderControlBar(){
    silently: no .anim replay, and the scroll position is kept. */
 let lastViewKey=null;
 function viewKey(){
-  return [state.tab,state.promoView,state.restaurantView&&state.restaurantView.view,
-    state.reserveCat,state.reserveSub,state.galleryView,state.aboutView,
+  return [state.tab,state.promoView,state.restaurantView&&state.restaurantView.view,state.menuCat,
+    state.reserveCat,state.reserveGroup,state.reserveSub,
+    state.reserveVenueTown,state.reserveVenueQuery,state.reserveVenueTownPicker,
+    state.galleryView,state.aboutView,
     state.operatorView,state.legalView,state.checkoutView,state.splitOpen,
     state.restPanel,state.bevCheckout,state.bevSplitOpen,(state.bevView&&state.bevView.type+":"+state.bevView.id)||""].join("|");
 }
@@ -5305,8 +5316,9 @@ function renderScreen(){
     return renderRestaurantsPager();
   }
   if(state.tab==="reserve"){
-    if(state.reserveSub)return renderReserveForm();
-    if(state.reserveCat)return renderReserveSubs();
+    if(state.reserveSub)return renderReserveProviders();
+    if(state.reserveGroup)return renderReserveEvents();
+    if(state.reserveCat)return renderReserveGroups();
     return renderReserveCats();
   }
   if(state.tab==="gallery"){
@@ -6421,7 +6433,7 @@ function buildPersonMessage(p){
    ================================================================ */
 function renderReserveCats(){
   let h='<div class="scroll">';
-  h+='<div class="phead"><h2>Plan Event</h2></div>';
+  h+='<div class="phead" style="margin-top:12px"><h2>Plan Event</h2></div>';
   RESERVE.forEach(c=>{
     h+='<button class="cat-row evcat" data-act="openResCat" data-id="'+c.id+'">'+
       '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div></div></button>';
@@ -6429,32 +6441,113 @@ function renderReserveCats(){
   h+='<div style="height:24px"></div></div>';
   return h;
 }
-function renderReserveSubs(){
+/* Category -> its subCategory groups. */
+function renderReserveGroups(){
   const cat=RESERVE.find(c=>c.id===state.reserveCat);
   if(!cat)return '<div class="empty">Category not found.</div>';
   let h='<div class="scroll">';
   h+='<div class="crumb"><button data-act="backResCats">Reserve</button><span class="sep">/</span><span class="cur">'+esc(cat.name)+'</span></div>';
-  h+='<div class="phead" style="padding-top:0"><h2>'+esc(cat.name)+'</h2><p>'+cat.subs.length+' event types</p></div>';
-  cat.subs.forEach(s=>{
-    h+='<button class="lrow" data-act="openResSub" data-id="'+esc(s)+'">'+
-      '<div class="ln">'+esc(s)+'</div><div class="lc">Inquire</div></button>';
+  h+='<div class="phead" style="padding-top:20px;margin-top:12px"><h2>'+esc(cat.name)+'</h2></div>';
+  cat.groups.forEach(function(g){
+    h+='<button class="lrow" data-act="openResGroup" data-id="'+esc(g.name)+'">'+
+      '<div class="ln">'+esc(g.name)+'</div></button>';
   });
   h+='<div style="height:24px"></div></div>';
+  h+='<div class="resback"><button class="btn primary full" data-act="backResCats">Back</button></div>';
   return h;
 }
-function renderReserveForm(){
+/* Group -> its event types, with descriptions where present. */
+function renderReserveEvents(){
   const cat=RESERVE.find(c=>c.id===state.reserveCat);
-  const sub=state.reserveSub;
-  if(!cat||!sub)return '<div class="empty">Not found.</div>';
+  const grp=cat&&cat.groups.find(g=>g.name===state.reserveGroup);
+  if(!cat||!grp)return '<div class="empty">Not found.</div>';
   let h='<div class="scroll">';
-  h+='<div class="crumb"><button data-act="backResSubs">'+esc(cat.name)+'</button><span class="sep">/</span><span class="cur">'+esc(sub)+'</span></div>';
-  h+='<div class="phead" style="padding-top:0"><h2>'+esc(sub)+'</h2><p>Tell us about your event and we\'ll confirm via WhatsApp</p></div>';
+  h+='<div class="crumb"><button data-act="backResGroups">'+esc(cat.name)+'</button><span class="sep">/</span><span class="cur">'+esc(grp.name)+'</span></div>';
+  h+='<div class="phead" style="padding-top:20px;margin-top:12px"><h2>'+esc(grp.name)+'</h2></div>';
+  grp.events.forEach(function(e){
+    h+='<button class="lrow" data-act="openResSub" data-id="'+esc(e.id)+'">'+
+      '<div class="ln">'+esc(e.name)+(e.description?'<div class="ld">'+esc(e.description)+'</div>':'')+
+      '</div></button>';
+  });
+  h+='<div style="height:24px"></div></div>';
+  h+='<div class="resback"><button class="btn primary full" data-act="backResGroups">Back</button></div>';
+  return h;
+}
+function renderReserveProviders(){
+  const cat=RESERVE.find(c=>c.id===state.reserveCat);
+  const grp=cat&&cat.groups.find(g=>g.name===state.reserveGroup);
+  const ev=grp&&grp.events.find(e=>e.id===state.reserveSub);
+  if(!cat||!grp||!ev)return '<div class="empty">Not found.</div>';
+
+  const api=(window.EATOUTS_VENUE_PROVIDERS);
+  const providers=api?api.forEvent(state.reserveSub):[];
+  const q=String(state.reserveVenueQuery||"").trim().toLowerCase();
+  const town=state.reserveVenueTown||"All";
+  const filtered=providers.filter(function(p){
+    if(town!=="All"&&String(p.town||"")!==String(town))return false;
+    if(!q)return true;
+    const hay=(String(p.name||"")+" "+String(p.placeLabel||"")+" "+(p.branchNames||[]).join(" "))
+      .toLowerCase();
+    return hay.indexOf(q)>-1;
+  });
+
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="backResProviders">'+esc(ev.name)+'</button><span class="sep">/</span><span class="cur">Venues</span></div>';
+  h+='<div class="phead" style="padding-top:20px;margin-top:12px"><h2>Choose a venue</h2><p>'
+    +filtered.length+' venue'+(filtered.length===1?'':'s')
+    +' for '+esc(ev.name)+'</p></div>';
   h+='<div class="pad" style="padding-top:0">';
-  h+='<div class="fld"><label>Preferred Date</label><input id="resDate" type="date"></div>';
-  h+='<div class="fld"><label>Estimated Guests</label><input id="resPax" type="number" min="1" placeholder="e.g. 50"></div>';
-  h+='<div class="fld"><label>Notes</label><textarea id="resNotes" placeholder="Seating style, catering, AV needs, etc."></textarea></div>';
-  h+='<button class="btn wa full" data-act="waReserve">Send via WhatsApp</button>';
-  h+='</div><div style="height:24px"></div></div>';
+  h+='<div class="cbar2" style="padding:0 0 8px;margin-top:20px">'
+    +'<div class="csearch"><input id="resVenueSearch" type="search" placeholder="Search venues..." value="'+esc(state.reserveVenueQuery)+'" aria-label="Search venues"></div>'
+    +'</div>';
+  h+='<div class="rest-filter-row town-row" style="padding:0 0 6px">'
+    +'<button class="cbtn" data-act="openResVenueTown" aria-haspopup="listbox" aria-expanded="'+(state.reserveVenueTownPicker?'true':'false')+'"><span>'+esc(town==="All"?"All towns":town)+'</span></button>'
+    +'</div>';
+  h+='</div>';
+
+  if(!filtered.length){
+    h+='<div class="empty">No venues match your search.</div>';
+  } else {
+    filtered.forEach(function(p){
+      h+='<button class="rrow" data-act="openResProvider" data-id="'+esc(p.id)+'" data-name="'+esc(p.name)+'">'
+        +'<div class="rthumb">'+(p.thumbHtml||'')+'</div>'
+        +'<div class="rinfo">'
+        +'<div class="rname">'+esc(p.name)+'</div>'
+        +'<div class="rmeta">'+esc(p.category||"")+(p.placeLabel?' · '+esc(p.placeLabel):"")+'</div>'
+        +'</div>'
+        +'</button>';
+    });
+  }
+
+  /* Town picker popup */
+  if(state.reserveVenueTownPicker){
+    const seen={};
+    const townList=[];
+    providers.forEach(function(p){
+      const t=String(p.town||"").trim();
+      if(t&&!seen[t]){seen[t]=1;townList.push(t);}
+    });
+    const locs=window.EatoutsLocations;
+    if(locs&&typeof locs.allTowns==="function"){
+      (locs.allTowns()||[]).forEach(function(t){
+        const v=String(t.value||t.label||"").trim();
+        if(v&&!seen[v]){seen[v]=1;townList.push(v);}
+      });
+    }
+    townList.sort(function(a,b){return String(a).localeCompare(String(b));});
+
+    h+='<div class="fpop-scrim" data-act="closeResVenueTown"></div>';
+    h+='<div class="fpop town-pop" role="listbox">';
+    h+='<button class="loc-all'+(town==="All"?" on":"")+'" data-act="pickResVenueTown" data-val="All" role="option" aria-selected="'+(town==="All")+'"><span>All towns</span></button>';
+    townList.forEach(function(t){
+      const on=(t===town);
+      h+='<button class="loc-town-main'+(on?" on":"")+'" data-act="pickResVenueTown" data-val="'+esc(t)+'" role="option" aria-selected="'+on+'"><span class="lbl">'+esc(t)+'</span></button>';
+    });
+    h+='</div>';
+  }
+
+  h+='<div style="height:24px"></div></div>';
+  h+='<div class="resback"><button class="btn primary full" data-act="backResProviders">Back</button></div>';
   return h;
 }
 
@@ -6820,7 +6913,11 @@ document.addEventListener("click",function(e){
       state.restaurantView=null;state.restaurantOpen=null;state.restFilterOpen=false;state.restLocPicker=null;state.restNotice=null;
       state.splitOpen=false;state.splitPeople=[];state.splitAssign={};
     }
-    if(state.tab==="reserve"){state.reserveCat=null;state.reserveSub=null;}
+    if(state.tab==="reserve"){
+      state.reserveCat=null;state.reserveGroup=null;state.reserveSub=null;
+      state.reserveVenueTown="All";state.reserveVenueQuery="";
+      state.reserveVenueTownPicker=false;
+    }
     if(state.tab==="gallery"){state.galleryView="grid";state.galleryPhoto=null;state.filterOpen=false;state.searchOpen=false;}
     if(state.tab==="about"){state.aboutView="main";}
     render();
@@ -7201,23 +7298,22 @@ document.addEventListener("click",function(e){
   }
 
   /* RESERVE */
-  if(act==="openResCat"){state.reserveCat=id;state.reserveSub=null;render();return;}
-  if(act==="backResCats"){state.reserveCat=null;state.reserveSub=null;render();return;}
+  if(act==="openResCat"){state.reserveCat=id;state.reserveGroup=null;state.reserveSub=null;render();return;}
+  if(act==="backResCats"){state.reserveCat=null;state.reserveGroup=null;state.reserveSub=null;render();return;}
+  if(act==="openResGroup"){state.reserveGroup=id;state.reserveSub=null;render();return;}
+  if(act==="backResGroups"){state.reserveGroup=null;state.reserveSub=null;render();return;}
   if(act==="openResSub"){state.reserveSub=id;render();return;}
   if(act==="backResSubs"){state.reserveSub=null;render();return;}
-  if(act==="waReserve"){
-    const cat=RESERVE.find(c=>c.id===state.reserveCat);
-    if(!cat)return;
-    const dateEl=document.getElementById("resDate");
-    const paxEl=document.getElementById("resPax");
-    const notesEl=document.getElementById("resNotes");
-    const date=dateEl?dateEl.value:"";
-    const pax=paxEl?paxEl.value:"";
-    const notes=notesEl?notesEl.value:"";
-    const msg="*VENUE BOOKING INQUIRY*\nCategory: "+cat.name+" ("+state.reserveSub+")\nEstimated Guests: "+(pax||"TBC")+"\nPreferred Date: "+(date||"TBC")+"\nNotes: "+(notes||"N/A");
-    window.location.href=waLink(msg,curRestaurant());
-    return;
-  }
+  if(act==="openResProvider"){
+    const name=t.getAttribute("data-name")||"";
+    const url="eatout_event_builder.html?event="+encodeURIComponent(state.reserveSub||"")
+      +"&venue="+encodeURIComponent(id||"")
+      +"&vname="+encodeURIComponent(name);
+    window.location.href=url; return; }
+  if(act==="backResProviders"){state.reserveSub=null;render();return;}
+  if(act==="openResVenueTown"){state.reserveVenueTownPicker=!state.reserveVenueTownPicker;render();return;}
+  if(act==="closeResVenueTown"){state.reserveVenueTownPicker=false;render();return;}
+  if(act==="pickResVenueTown"){state.reserveVenueTown=t.getAttribute("data-val")||"All";state.reserveVenueTownPicker=false;render();return;}
 
   /* GALLERY */
   if(act==="cycleFilter"){state.filterOpen=!state.filterOpen;if(state.filterOpen)state.galPopup=false;renderControlBar();return;}
@@ -7409,6 +7505,15 @@ document.addEventListener("change",function(e){
 
 /* Live search input */
 document.addEventListener("input",function(e){
+  if(e.target.id==="resVenueSearch"){
+    state.reserveVenueQuery=e.target.value;
+    const v=e.target.value, s=e.target.selectionStart;
+    render();
+    const i=document.getElementById("resVenueSearch");
+    if(i){i.focus();i.setSelectionRange(s,s);}
+    state.reserveVenueQuery=v;
+    return;
+  }
   if(e.target.id==="restTypeSearch"){
     state.restTypeSearch=e.target.value;
     const inputValue=state.restTypeSearch;
@@ -7497,6 +7602,12 @@ refreshNetChip();
 
 /* Boot */
 bootEatoutsBridge();
+/* Deep-link a tab from the URL hash (e.g. index.html#reserve), used by the
+   standalone pages that link back here. */
+try{
+  const hashTab=(window.location.hash||"").replace(/^#\/?/,"").toLowerCase();
+  if(NAV_TABS.some(function(t){return t.id===hashTab;})) state.tab=hashTab;
+}catch(e){}
 render();
 loadRestaurantTypeFilters();
 loadDirectoryMenus(function(){
