@@ -47,10 +47,17 @@ img{display:block;max-width:100%}
 .hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;border:1px solid #ece7db;border-radius:20px;padding:4px 9px;background:#faf8f2}
 
 /* ---------- VIEWPORT (WHITE) ---------- */
-#viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#ffffff;padding-top:0}
+#viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#ffffff;padding-top:0;view-transition-name:app-vp}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#ffffff;color:#1a1a1a}
 .screen.anim{animation:sl .18s ease}
 @keyframes sl{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+::view-transition-old(app-vp),::view-transition-new(app-vp){animation-duration:.28s;animation-timing-function:ease}
+::view-transition-old(app-vp){animation-name:vtFadeOut}
+::view-transition-new(app-vp){animation-name:vtFadeIn}
+@keyframes vtFadeOut{to{opacity:0}}
+@keyframes vtFadeIn{from{opacity:0}}
+.panelfade-out{position:absolute;inset:0;z-index:5;pointer-events:none;animation:pfOut .28s ease forwards}
+@keyframes pfOut{from{opacity:1}to{opacity:0}}
 .scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#ffffff}
 
 /* ---------- BOTTOM NAV (BLACK, WHITE ICONS, NO TEXT) ---------- */
@@ -153,7 +160,7 @@ img{display:block;max-width:100%}
 .acc-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
 .acc-wrap>.acc-in{overflow:hidden;min-height:0}
 .ecard.open>.acc-wrap,.mitem.open>.acc-wrap,.ritem.open>.acc-wrap{grid-template-rows:1fr}
-@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}#cbar.on{animation:none}.bev-toggle-thumb{transition:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}}
+@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}#cbar.on{animation:none}.bev-toggle-thumb{transition:none}::view-transition-old(app-vp),::view-transition-new(app-vp){animation:none}.panelfade-out{animation:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}}
 
 /* ---------- COUNTERS ---------- */
 .ctr{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#faf8f2;border:1px solid #f1ece1;border-radius:12px;margin-bottom:7px}
@@ -203,7 +210,7 @@ img{display:block;max-width:100%}
 /* Two-button strip above the pager: tap to jump, or swipe the pages. */
 .bev-toggle{position:relative;display:flex;align-items:center;flex:0 0 auto;min-height:2.25em;margin:0 0 8px;padding:5px;border-radius:0;background-color:#e7eff9;border:1px solid #f3f8fe;overflow:hidden}
 .bev-toggle.food,.bev-toggle.bev{margin-top:1px}
-.bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc(50% - 5px);height:calc(100% - 10px);border-radius:23px;background:#fff;transition:transform .4s ease}
+.bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc(50% - 5px);height:calc(100% - 10px);border-radius:3px;background:#fff;transition:transform .4s ease}
 .bev-toggle.bev .bev-toggle-thumb{transform:translateX(100%)}
 .bev-toggle-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;background:transparent;border:0;padding:9px 15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:11.5px;font-weight:700;line-height:normal;letter-spacing:.06em;text-transform:uppercase;color:#7e93ad;cursor:pointer;transition:color .2s}
 .bev-toggle-btn:first-of-type{text-align:left}
@@ -4561,6 +4568,27 @@ function scrollToBeveragesPage(){
     }
   }catch(e){}
 }
+/* Restaurants <-> Beverages panel switch: crossfade instead of the harsh
+   full-viewport re-render flash. View Transitions when available, a cloned
+   overlay fade otherwise. */
+let panelFade=false;
+function reduceMotion(){return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches);}
+function switchRestPanel(panel){
+  loadBeverageData();
+  const doChange=function(){
+    panelFade=true;
+    state.restPanel=panel;
+    state.bevView=null;
+    state.bevCheckout=false;
+    render();
+    panelFade=false;
+  };
+  if(document.startViewTransition&&!reduceMotion()){
+    document.startViewTransition(doChange);
+  }else{
+    doChange();
+  }
+}
 
 /* One brand row plus its always-present, collapsed options panel. Each row
    stands for a whole group of branches (kfc = 13 locations); the active
@@ -5190,11 +5218,23 @@ function renderViewport(){
   const keepTops=Array.prototype.map.call(prevScrollers,function(s){return s.scrollTop;});
   const prevPager=vp.querySelector("#bev-pager");
   const keepPagerLeft=prevPager?prevPager.scrollLeft:-1;
+  const prevScreen=vp.querySelector(".screen");
   const key=viewKey();
   const viewChanged=(key!==lastViewKey);
   lastViewKey=key;
+  /* a panel switch crossfades: suppress the slide so the two don't fight */
+  const doFade=panelFade&&!document.startViewTransition&&!reduceMotion();
 
-  vp.innerHTML='<div class="screen'+(viewChanged?" anim":"")+'">'+renderScreen()+'</div>'+renderPreview()+renderRestLocPicker()+renderRestNotice();
+  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'">'+renderScreen()+'</div>'+renderPreview()+renderRestLocPicker()+renderRestNotice();
+  if(doFade&&prevScreen){
+    const old=prevScreen.cloneNode(true);
+    old.classList.remove("anim");
+    Array.prototype.forEach.call(old.querySelectorAll("[id]"),function(n){n.removeAttribute("id");});
+    old.classList.add("panelfade-out");
+    old.setAttribute("aria-hidden","true");
+    vp.appendChild(old);
+    setTimeout(function(){ if(old.parentNode) old.parentNode.removeChild(old); },320);
+  }
 
   /* same view re-render -> put them back where they were */
   if(!viewChanged&&keepTops.length){
@@ -6991,8 +7031,8 @@ document.addEventListener("click",function(e){
   if(act==="bevGotoCat"){state.bevView={type:t.getAttribute("data-type"),id:t.getAttribute("data-cat")};state.bevCheckout=false;render();return;}
 
   /* BEVERAGES PANEL */
-  if(act==="panelFood"){loadBeverageData();state.restPanel='food';state.bevView=null;state.bevCheckout=false;render();return;}
-  if(act==="panelBev"){loadBeverageData();state.restPanel='beverages';state.bevView=null;state.bevCheckout=false;render();return;}
+  if(act==="panelFood"){switchRestPanel('food');return;}
+  if(act==="panelBev"){switchRestPanel('beverages');return;}
   if(act==="bevOpenSub"){state.bevView={type:'subcat',id:id};state.bevCheckout=false;render();return;}
   if(act==="bevOpenBucket"){state.bevView={type:'bucket',id:id};state.bevCheckout=false;render();return;}
   if(act==="bevBackLanding"){state.bevView=null;state.bevCheckout=false;render();return;}
