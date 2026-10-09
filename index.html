@@ -47,7 +47,7 @@ img{display:block;max-width:100%}
 .hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;border:1px solid #ece7db;border-radius:20px;padding:4px 9px;background:#faf8f2}
 
 /* ---------- VIEWPORT (WHITE) ---------- */
-#viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#ffffff}
+#viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#ffffff;padding-top:0}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#ffffff;color:#1a1a1a}
 .screen.anim{animation:sl .18s ease}
 @keyframes sl{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
@@ -202,6 +202,7 @@ img{display:block;max-width:100%}
 /* ---------- BEVERAGES PANEL (swipe inside the Restaurants tab) ---------- */
 /* Two-button strip above the pager: tap to jump, or swipe the pages. */
 .bev-toggle{position:relative;display:flex;align-items:center;flex:0 0 auto;min-height:2.25em;margin:0 0 8px;padding:5px;border-radius:0;background-color:#e7eff9;border:1px solid #f3f8fe;overflow:hidden}
+.bev-toggle.food,.bev-toggle.bev{margin-top:1px}
 .bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc(50% - 5px);height:calc(100% - 10px);border-radius:23px;background:#fff;transition:transform .4s ease}
 .bev-toggle.bev .bev-toggle-thumb{transform:translateX(100%)}
 .bev-toggle-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;background:transparent;border:0;padding:9px 15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:11.5px;font-weight:700;line-height:normal;letter-spacing:.06em;text-transform:uppercase;color:#7e93ad;cursor:pointer;transition:color .2s}
@@ -397,7 +398,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .crumb button:active{color:#1a1a1a}
 .crumb .sep{color:#e2dcc9;font-size:10px}
 .crumb .cur{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#1a1a1a}
-.phead{width:100%;box-sizing:border-box;padding:4px 16px 16px;text-align:center;background:#FFFDD0}
+.phead{width:100vw;box-sizing:border-box;margin-left:calc(-50vw + 50%);margin-right:calc(-50vw + 50%);padding:20px 16px 16px;text-align:center;border-radius:0;background-color:rgba(211,211,211,.2)}
 .phead h2{margin:0 0 4px;font-size:19px;font-weight:900;letter-spacing:-.01em;color:#1a1a1a}
 .phead p{margin:0;font-size:11.5px;color:#a89a7e;line-height:1.5}
 .empty{padding:44px 20px;text-align:center;color:#a89a7e;font-size:12.5px;line-height:1.6}
@@ -5755,7 +5756,7 @@ function renderBeveragesCategory(){
   }
   let h='<div class="scroll">';
   h+='<div class="crumb"><button data-act="bevBackLanding">Beverages</button><span class="sep">/</span><span class="cur">'+esc(title)+'</span></div>';
-  h+='<div class="phead" style="padding-top:0"><h2>'+esc(title)+'</h2><p>'+items.length+' items</p></div>';
+  h+='<div class="phead"><h2>'+esc(title)+'</h2><p>'+items.length+' items</p></div>';
   items.forEach(function(it){
     const key='bev:'+it.id;
     const c=state.bevCart[key];
@@ -6007,7 +6008,7 @@ function renderMenuCategory(){
   if(!cat)return '<div class="empty">Category not found.</div>';
   let h='<div class="scroll">';
   h+='<div class="crumb"><button data-act="backCats">'+esc(curRestaurantName())+'</button><span class="sep">/</span><span class="cur">'+esc(cat.name)+'</span></div>';
-  h+='<div class="phead" style="padding-top:0"><h2>'+esc(cat.name)+'</h2><p>'+cat.items.length+' items</p></div>';
+  h+='<div class="phead"><h2>'+esc(cat.name)+'</h2><p>'+cat.items.length+' items</p></div>';
   if(cat.note) h+='<div class="pad" style="padding-top:0;padding-bottom:0"><div class="ctr"><div class="lbl"><em style="margin:0">'+esc(cat.note)+'</em></div></div></div>';
   cat.items.forEach(it=>{
     const open=state.menuOpen===it[0];
