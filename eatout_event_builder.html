@@ -1,0 +1,3557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>EatOuts — Event Planner</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{
+  --gold:#c9a84c;--black:#151515;--bg:#f0ece2;
+  --card:#fff;--surface:#faf8f2;--text:#1a1a1a;
+  --muted:#7a7466;--muted-2:#a89a7e;--border:#e7e4dd;--border-soft:#f1ece1;
+  --danger:#c43c3c;--success:#17834b;--radius:16px;
+  --navh:0px;--calch:0px;
+}
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  color:var(--text);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;text-align:left;padding:0}
+img{display:block;max-width:100%}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+
+#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;
+  background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+@media(min-width:520px){#shell{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
+
+/* ---------- HEADER ---------- */
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;
+  background:#fff;border-bottom:1px solid var(--border);position:relative;z-index:58;
+  padding-top:env(safe-area-inset-top)}
+.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden}
+.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted-2);border:1px solid var(--border);border-radius:20px;padding:4px 9px;
+  background:var(--surface);transition:all .15s}
+
+/* ---------- VENUE BAR ---------- */
+#venue-bar{flex:0 0 auto;background:#fff;border-bottom:1px solid var(--border);
+  position:relative;z-index:30}
+.venue-bar-inner{display:flex;align-items:center;gap:10px;padding:9px 14px;
+  min-height:54px;cursor:pointer;transition:background .15s}
+.venue-bar-inner:active{background:var(--surface)}
+.venue-thumb{width:38px;height:38px;border-radius:10px;flex:0 0 auto;overflow:hidden;
+  background:var(--surface);display:flex;align-items:center;justify-content:center;
+  font-size:16px;border:1px solid var(--border-soft)}
+.venue-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.venue-bar-info{flex:1;min-width:0}
+.venue-bar-name{font-size:13px;font-weight:800;color:var(--text);line-height:1.2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.venue-bar-sub{font-size:10.5px;color:var(--muted);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.venue-bar-sub b{color:var(--gold);font-weight:800}
+.venue-bar-badge{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted-2);border:1px solid var(--border);border-radius:10px;padding:3px 7px;
+  background:var(--surface);flex:0 0 auto}
+.venue-bar-expand{border-top:1px solid var(--border-soft);padding:12px 14px;
+  background:var(--surface);display:none}
+.venue-bar-expand.open{display:block;animation:fadeIn .18s ease}
+.venue-bar-expand h4{margin:0 0 8px;font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:800}
+.venue-kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;
+  border-bottom:1px solid var(--border-soft);font-size:12px}
+.venue-kv:last-child{border-bottom:0}
+.venue-kv .k{color:var(--muted);font-weight:700}
+.venue-kv .v{color:var(--text);font-weight:700;text-align:right;max-width:60%}
+
+/* ---------- VIEWPORT ---------- */
+#viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#fff}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff}
+.scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;padding-bottom:calc(84px + var(--calch) + env(safe-area-inset-bottom))}
+
+/* ---------- FLYER (edge-to-edge) ---------- */
+.flyer{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#f5f3ee,#e8e4d8);
+  cursor:pointer;position:relative;overflow:hidden;display:block;border:0;padding:0}
+.flyer:active{opacity:.9}
+.flyer img{width:100%;height:100%;object-fit:cover;display:block}
+.flyer-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  color:var(--muted-2);font-size:42px;font-weight:200;letter-spacing:-.02em}
+.flyer-add-badge{position:absolute;right:12px;bottom:12px;width:32px;height:32px;
+  border-radius:50%;background:rgba(0,0,0,.72);color:#fff;display:flex;align-items:center;
+  justify-content:center;font-size:20px;font-weight:300;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.flyer-main-badge{position:absolute;left:12px;top:12px;background:rgba(0,0,0,.72);color:#fff;
+  font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 8px;border-radius:20px;backdrop-filter:blur(6px)}
+.flyer-count{position:absolute;right:12px;top:12px;background:rgba(0,0,0,.72);color:#fff;
+  font-size:9.5px;font-weight:800;letter-spacing:.04em;padding:4px 8px;border-radius:20px;
+  backdrop-filter:blur(6px)}
+
+/* ---------- TITLE BLOCK ---------- */
+.flyer-title-block{padding:16px 14px 12px;cursor:pointer;transition:background .15s}
+.flyer-title-block:active{background:var(--surface)}
+.flyer-title-block h1{margin:0;font-size:22px;font-weight:900;letter-spacing:-.015em;
+  color:var(--text);line-height:1.15}
+.flyer-title-block .desc{margin-top:6px;font-size:12.5px;color:var(--muted);font-weight:500;
+  line-height:1.5;max-width:100%}
+.flyer-title-block .desc.placeholder{font-style:italic;opacity:.7}
+.flyer-title-block .edit-hint{margin-top:6px;font-size:10px;font-weight:800;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
+
+/* ---------- SIDE-SCROLL (no numbers, no pills, snap 4) ---------- */
+.side-scroll-wrap{position:relative;padding:10px 0 12px;
+  border-bottom:1px solid var(--border-soft);background:#fff}
+.side-scroll{display:flex;gap:6px;overflow-x:auto;padding:0 14px;
+  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+  scroll-padding-left:14px}
+.side-scroll::-webkit-scrollbar{display:none}
+.side-item{flex:0 0 calc((100% - 18px) / 4);scroll-snap-align:start;scroll-snap-stop:always;
+  padding:8px 2px;text-align:center;
+  font-size:11px;font-weight:800;letter-spacing:.01em;
+  color:var(--muted-2);background:transparent;border:0;
+  transition:color .18s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-width:0}
+.side-item:active{color:var(--muted)}
+.side-item.on{color:var(--text)}
+.side-item.locked{opacity:.45;pointer-events:none}
+.side-item .side-lbl{display:block;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- SECTION ---------- */
+.section{background:#fff;border:1px solid var(--border-soft);border-radius:14px;
+  margin:12px 14px;overflow:hidden;transition:border-color .22s}
+.section.open{border-color:var(--text)}
+.section.locked{opacity:.72}
+.section-hdr{width:100%;padding:14px 16px;display:flex;align-items:center;gap:12px;
+  background:transparent;transition:background .15s}
+.section-hdr:active{background:var(--surface)}
+.section-num{font-size:10px;font-weight:900;letter-spacing:.14em;color:var(--muted-2);
+  min-width:24px;flex:0 0 auto;transition:color .22s}
+.section.open .section-num{color:var(--gold)}
+.section-title-block{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.section-title{font-size:14px;font-weight:900;color:var(--text);letter-spacing:.01em}
+.section-sub{font-size:11px;color:var(--muted);font-weight:600;line-height:1.35}
+.section-count{font-size:10.5px;font-weight:800;letter-spacing:.04em;color:var(--muted-2);
+  padding:2px 7px;border-radius:10px;background:var(--surface);
+  border:1px solid var(--border-soft);flex:0 0 auto}
+.section-count.has{color:var(--success);background:#effaf3;border-color:#c7ebd3}
+.section-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
+.section.open .section-body{max-height:10000px}
+.section-body-in{padding:2px 16px 16px;border-top:1px solid var(--border-soft)}
+
+/* ---------- FIELDS ---------- */
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;margin-bottom:6px;font-size:10px;font-weight:800;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+.field-hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.45}
+input[type="text"],input[type="tel"],input[type="email"],input[type="number"],
+input[type="date"],input[type="time"],input[type="url"],textarea,select{
+  width:100%;min-height:44px;padding:11px 13px;background:var(--surface);
+  border:1px solid var(--border-soft);border-radius:11px;font-size:13px;color:var(--text);
+  outline:none;transition:border-color .15s,background .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--text);background:#fff}
+textarea{min-height:80px;resize:vertical;line-height:1.5}
+select{appearance:none;-webkit-appearance:none;padding-right:32px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:360px){.grid2{grid-template-columns:1fr}}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.chip{font-size:11px;font-weight:700;letter-spacing:.02em;padding:7px 12px;border-radius:20px;
+  background:var(--surface);border:1px solid var(--border-soft);color:var(--muted);
+  cursor:pointer;transition:all .15s}
+.chip:active{transform:scale(.97)}
+.chip.on{background:var(--black);color:#fff;border-color:var(--black)}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:11px 12px;background:var(--surface);border:1px solid var(--border-soft);
+  border-radius:11px;margin-bottom:8px}
+.toggle-row .lbl{font-size:12.5px;font-weight:800;color:var(--text);display:flex;flex-direction:column}
+.toggle-row .lbl em{font-style:normal;font-size:10.5px;color:var(--muted);font-weight:600;margin-top:2px}
+.switch{width:42px;height:24px;border-radius:20px;background:var(--border);position:relative;
+  flex:0 0 auto;transition:background .18s;cursor:pointer}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;
+  border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s}
+.switch.on{background:var(--success)}
+.switch.on::after{transform:translateX(18px)}
+
+/* ---------- BUTTONS ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;
+  padding:11px 16px;border-radius:11px;font-size:12.5px;font-weight:800;letter-spacing:.02em;
+  background:var(--surface);border:1px solid var(--border-soft);color:var(--text);
+  transition:background .15s,transform .1s;text-decoration:none}
+.btn:active{transform:scale(.98);background:var(--border-soft)}
+.btn.primary{background:var(--black);color:#fff;border-color:var(--black)}
+.btn.primary:active{background:#000}
+.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.ghost{background:transparent;border-color:var(--border);color:var(--muted)}
+.btn.wa{background:#dff5e4;border-color:#b8e6c1;color:#1c6b2e}
+.btn.wa:active{background:#c9ecd0}
+.btn.full{width:100%}
+.btn.half{flex:1}
+.btn.sm{min-height:34px;padding:7px 12px;font-size:11px;border-radius:9px}
+.btn.tiny{min-height:28px;padding:5px 10px;font-size:10.5px;border-radius:8px}
+.btn.danger{background:#fbeaea;color:var(--danger);border-color:#f0d1d1}
+.btn[disabled]{opacity:.4;cursor:default;transform:none}
+
+/* ---------- EVENT TYPE GROUPS ---------- */
+.etype-group{border:1px solid var(--border-soft);border-radius:12px;margin-bottom:8px;
+  overflow:hidden;background:#fff;transition:border-color .2s}
+.etype-group.open{border-color:var(--text)}
+.etype-group-hdr{display:flex;align-items:center;gap:11px;padding:12px 13px;
+  background:var(--surface);cursor:pointer;transition:background .15s;width:100%}
+.etype-group-hdr:active{background:var(--border-soft)}
+.etype-group.open .etype-group-hdr{background:#fff;border-bottom:1px solid var(--border-soft)}
+.etype-ico{width:34px;height:34px;border-radius:9px;background:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 auto;
+  border:1px solid var(--border-soft);overflow:hidden}
+.etype-ico img{width:100%;height:100%;object-fit:cover}
+.etype-info{flex:1;min-width:0}
+.etype-name{font-size:13px;font-weight:800;color:var(--text);display:block}
+.etype-meta{font-size:10.5px;color:var(--muted);margin-top:2px;display:block}
+.etype-group-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.etype-group.open .etype-group-body{max-height:4000px}
+.etype-sub{padding:10px 13px 4px;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:800}
+.etype-list{padding:0 8px 8px}
+.etype-option{display:block;width:100%;padding:10px 12px;border-radius:9px;
+  font-size:12.5px;font-weight:700;color:var(--text);border:1px solid transparent;
+  margin-bottom:2px;transition:all .12s}
+.etype-option:active{background:var(--surface)}
+.etype-option.on{background:var(--black);color:#fff;border-color:var(--black)}
+.etype-option .desc{display:block;font-size:10.5px;font-weight:600;color:var(--muted);
+  margin-top:3px;line-height:1.4}
+.etype-option.on .desc{color:rgba(255,255,255,.7)}
+
+/* Event type hero */
+.eventtype-hero{padding:14px;border-radius:12px;background:linear-gradient(135deg,#151515,#2c2418);
+  color:#fff;margin-bottom:12px}
+.eventtype-hero .icon{font-size:28px;margin-bottom:6px;opacity:.9}
+.eventtype-hero h3{margin:0 0 4px;font-size:16px;font-weight:900;letter-spacing:-.01em}
+.eventtype-hero .cat{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.5);font-weight:800;margin-bottom:8px}
+.eventtype-hero .desc{font-size:12px;color:rgba(255,255,255,.82);line-height:1.5}
+.eventtype-hero .actions{margin-top:12px;display:flex;gap:6px}
+
+/* ---------- VENUE CARD ---------- */
+.venue-card{border:1px solid var(--border-soft);border-radius:12px;margin-bottom:10px;
+  overflow:hidden;background:#fff;transition:border-color .2s}
+.venue-card.on{border-color:var(--text)}
+.venue-card-hdr{width:100%;padding:12px;display:flex;gap:11px;align-items:center;background:#fff;
+  transition:background .15s}
+.venue-card-hdr:active{background:var(--surface)}
+.venue-card-thumb{width:56px;height:56px;border-radius:10px;flex:0 0 auto;overflow:hidden;
+  background:var(--surface);display:flex;align-items:center;justify-content:center;
+  font-size:22px;border:1px solid var(--border-soft)}
+.venue-card-thumb img{width:100%;height:100%;object-fit:cover}
+.venue-card-info{flex:1;min-width:0}
+.venue-card-name{font-size:13.5px;font-weight:800;color:var(--text);line-height:1.25}
+.venue-card-meta{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+.venue-card-price{font-size:11.5px;font-weight:900;color:var(--gold);margin-top:4px}
+.venue-card-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  color:transparent;font-size:13px;font-weight:900;transition:all .18s}
+.venue-card.on .venue-card-check{background:var(--black);border-color:var(--black);color:#fff}
+.venue-card-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
+.venue-card.on .venue-card-body{max-height:6000px}
+.venue-body-in{padding:4px 12px 14px;border-top:1px solid var(--border-soft)}
+
+.subacc{border:1px solid var(--border-soft);border-radius:10px;margin-bottom:8px;overflow:hidden;
+  transition:border-color .2s}
+.subacc.open{border-color:var(--text)}
+.subacc-hdr{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);
+  cursor:pointer;transition:background .15s;width:100%}
+.subacc-hdr:active{background:var(--border-soft)}
+.subacc.open .subacc-hdr{background:#fff;border-bottom:1px solid var(--border-soft)}
+.subacc-title{flex:1;font-size:12px;font-weight:800;color:var(--text);text-align:left}
+.subacc-count{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.03em}
+.subacc-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.subacc.open .subacc-body{max-height:3500px}
+.subacc-in{padding:10px 12px 12px;font-size:12px;color:var(--text)}
+
+/* Gallery */
+.venue-gallery{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;padding-bottom:4px}
+.venue-gallery::-webkit-scrollbar{display:none}
+.venue-gallery .g-item{flex:0 0 auto;width:calc((100% - 12px)/3);aspect-ratio:1;
+  border-radius:8px;overflow:hidden;scroll-snap-align:start;scroll-snap-stop:always;
+  background:var(--surface);border:1px solid var(--border-soft);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  color:var(--muted-2);cursor:pointer;position:relative;padding:0}
+.venue-gallery .g-item img{width:100%;height:100%;object-fit:cover}
+.g-detail{margin-top:8px;padding:10px;background:var(--surface);border-radius:9px;
+  border:1px solid var(--border-soft);font-size:12px;line-height:1.5}
+.g-detail h5{margin:0 0 5px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:800}
+.g-detail .row{display:flex;justify-content:space-between;padding:3px 0;font-size:11.5px}
+.g-detail .row .k{color:var(--muted);font-weight:700}
+.g-detail .row .v{color:var(--text);font-weight:800}
+
+/* Space tick */
+.tick-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tick{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border-soft);
+  border-radius:9px;background:var(--surface);cursor:pointer;transition:all .15s;text-align:left}
+.tick:active{background:var(--border-soft)}
+.tick.on{background:var(--black);color:#fff;border-color:var(--black)}
+.tick input{display:none}
+.tick .bx{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);background:#fff;
+  flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:transparent;
+  font-size:11px;font-weight:900;transition:all .15s}
+.tick.on .bx{background:var(--gold);border-color:var(--gold);color:#fff}
+.tick .tx{font-size:11.5px;font-weight:700;line-height:1.25;min-width:0}
+.tick .tx em{font-style:normal;display:block;font-size:9.5px;font-weight:600;
+  opacity:.75;margin-top:2px}
+
+/* ---------- NOTES / SCHEDULE / AUDIENCE ---------- */
+.note-item{border:1px solid var(--border-soft);border-radius:11px;padding:10px 12px;
+  margin-bottom:8px;background:var(--surface)}
+.note-item h5{margin:0 0 5px;font-size:12px;font-weight:800;color:var(--text);
+  display:flex;align-items:center;gap:8px}
+.note-item h5 .rm{margin-left:auto;color:var(--danger);font-size:16px;font-weight:900;
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:#fff;border:1px solid var(--border-soft)}
+.note-item h5 .rm:active{background:#fbeaea}
+.note-item p{margin:0;font-size:12px;color:var(--muted);line-height:1.5;white-space:pre-wrap}
+.note-item .meta{font-size:10.5px;color:var(--muted-2);margin-top:4px;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase}
+
+.schedule-day{border:1px solid var(--border-soft);border-radius:11px;margin-bottom:9px;
+  overflow:hidden;background:var(--surface)}
+.schedule-day-hdr{display:flex;align-items:center;gap:10px;padding:9px 11px;background:#fff;
+  border-bottom:1px solid var(--border-soft)}
+.schedule-day-hdr .day-num{width:22px;height:22px;border-radius:50%;background:var(--black);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;
+  font-weight:900;flex:0 0 auto}
+.schedule-day-hdr .day-title{flex:1;font-size:12px;font-weight:800}
+.schedule-day-hdr .day-remove{width:24px;height:24px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;color:var(--danger);font-size:15px;font-weight:900}
+.schedule-day-hdr .day-remove:active{background:#fbeaea}
+.schedule-day-in{padding:11px}
+
+.audience-card{border:1px solid var(--border-soft);border-radius:11px;padding:11px 12px;
+  margin-bottom:8px;background:var(--surface)}
+.audience-card h5{margin:0 0 5px;font-size:12px;font-weight:800;color:var(--text);
+  display:flex;align-items:center;gap:8px}
+.audience-card h5 .rm{margin-left:auto;color:var(--danger);font-size:16px;font-weight:900;
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:#fff;border:1px solid var(--border-soft)}
+.audience-card p{margin:0;font-size:11.5px;color:var(--muted);line-height:1.5}
+.audience-card .age{font-size:10.5px;color:var(--gold);font-weight:800;margin-top:5px;
+  letter-spacing:.04em}
+
+/* ---------- SUPPLIER FIELD ---------- */
+.sup-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:10px;
+  background:var(--surface);border-radius:11px;margin-bottom:10px;
+  border:1px solid var(--border-soft)}
+.sup-stat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px}
+.sup-stat .l{font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:800}
+.sup-stat b{font-size:14px;font-weight:900;color:var(--text)}
+.sup-stat b.gold{color:var(--gold)}
+
+.sup-group{border:1px solid var(--border-soft);border-radius:12px;margin-bottom:8px;
+  overflow:hidden;background:#fff;transition:border-color .2s}
+.sup-group.open{border-color:var(--text)}
+.sup-group-hdr{display:flex;align-items:center;gap:11px;padding:11px 13px;
+  background:var(--surface);cursor:pointer;transition:background .15s;width:100%}
+.sup-group-hdr:active{background:var(--border-soft)}
+.sup-group.open .sup-group-hdr{background:#fff;border-bottom:1px solid var(--border-soft)}
+.sup-group-ico{width:32px;height:32px;border-radius:9px;background:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 auto;
+  border:1px solid var(--border-soft)}
+.sup-group-info{flex:1;min-width:0}
+.sup-group-name{font-size:12.5px;font-weight:800;color:var(--text);display:block}
+.sup-group-meta{font-size:10.5px;color:var(--muted);margin-top:2px;display:block}
+.sup-group-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
+.sup-group.open .sup-group-body{max-height:7000px}
+.sup-field{border-bottom:1px solid var(--border-soft)}
+.sup-field:last-child{border-bottom:0}
+.sup-field-hdr{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;
+  transition:background .15s;width:100%}
+.sup-field-hdr:active{background:var(--surface)}
+.sup-field-info{flex:1;min-width:0;text-align:left}
+.sup-field-name{font-size:12px;font-weight:700;color:var(--text);display:block}
+.sup-field-count{font-size:10px;color:var(--muted-2);font-weight:700;margin-top:1px;
+  letter-spacing:.03em;display:block}
+.sup-field-count.has{color:var(--success)}
+.sup-field-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.sup-field.open .sup-field-body{max-height:2500px}
+.sup-field-in{padding:0 13px 12px}
+
+.sup-slot{display:flex;align-items:center;gap:10px;padding:10px 11px;background:var(--surface);
+  border:1px solid var(--border-soft);border-radius:10px;margin-bottom:6px}
+.sup-slot-info{flex:1;min-width:0}
+.sup-slot-name{font-size:12px;font-weight:800;color:var(--text)}
+.sup-slot-meta{font-size:10.5px;color:var(--muted);margin-top:2px}
+.sup-slot-price{font-size:12px;font-weight:900;color:var(--gold);margin-top:3px}
+.sup-slot-acts{display:flex;gap:4px;flex:0 0 auto}
+.sup-slot-btn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;background:#fff;border:1px solid var(--border-soft);
+  font-size:14px;color:var(--muted)}
+.sup-slot-btn:active{background:var(--border-soft)}
+.sup-slot-btn.danger{color:var(--danger)}
+.sup-add-btn{width:100%;padding:10px;border-radius:10px;background:transparent;
+  border:1.5px dashed var(--border);color:var(--muted);font-size:11.5px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.sup-add-btn:active{background:var(--surface);border-color:var(--muted)}
+
+.sup-custom{background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;
+  padding:11px 12px;margin:-4px 0 8px;animation:fadeIn .18s ease}
+.sup-custom h5{margin:0 0 9px;font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:800}
+.sup-custom .field{margin-bottom:8px}
+.sup-custom .field label{font-size:9.5px;margin-bottom:4px}
+.sup-custom input,.sup-custom select{min-height:38px;font-size:12.5px;padding:8px 11px}
+
+/* ---------- MENU ITEM ---------- */
+.menu-item{display:flex;align-items:center;gap:11px;padding:10px;
+  border:1px solid var(--border-soft);border-radius:11px;margin-bottom:7px;background:#fff}
+.menu-item-thumb{width:44px;height:44px;border-radius:9px;overflow:hidden;flex:0 0 auto;
+  background:var(--surface);display:flex;align-items:center;justify-content:center;
+  font-size:18px;border:1px solid var(--border-soft)}
+.menu-item-thumb img{width:100%;height:100%;object-fit:cover}
+.menu-item-info{flex:1;min-width:0}
+.menu-item-name{font-size:12.5px;font-weight:800;color:var(--text);line-height:1.25}
+.menu-item-price{font-size:11px;color:var(--muted);margin-top:3px;font-weight:700}
+.menu-item-price b{color:var(--gold);font-weight:900}
+.menu-item-qty{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.qty-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border-soft);
+  background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;
+  font-weight:900;color:var(--text)}
+.qty-btn:active{background:var(--surface)}
+.qty-val{min-width:24px;text-align:center;font-size:12.5px;font-weight:900}
+
+/* ---------- TICKET TIERS ---------- */
+.tier{border:1px solid var(--border-soft);border-radius:11px;padding:10px 12px;
+  margin-bottom:8px;background:var(--surface)}
+.tier h5{margin:0 0 6px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:8px}
+.tier h5 .rm{margin-left:auto;color:var(--danger);font-size:16px;font-weight:900;
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:#fff;border:1px solid var(--border-soft)}
+.tier .price{font-size:13px;font-weight:900;color:var(--gold);margin-bottom:4px}
+.tier .notes{font-size:11.5px;color:var(--muted);line-height:1.5}
+
+/* ---------- CALCULATOR BAR ---------- */
+#calc-bar{flex:0 0 auto;background:#fff;border-top:1px solid var(--border);
+  position:relative;z-index:38;padding-bottom:env(safe-area-inset-bottom)}
+.calc-strip{display:flex;align-items:center;gap:12px;padding:11px 14px;min-height:64px}
+.calc-strip-btn{flex:1;display:flex;flex-direction:column;align-items:flex-start;
+  padding:4px 0;text-align:left}
+.calc-strip-lbl{font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2)}
+.calc-strip-total{font-size:17px;font-weight:900;color:var(--text);margin-top:1px}
+.calc-strip-items{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:2px}
+.calc-actions{display:flex;gap:6px;flex:0 0 auto}
+.calc-actions .btn{min-height:40px;padding:0 14px;font-size:12px}
+.calc-expand{border-top:1px solid var(--border-soft);padding:12px 14px 14px;display:none;
+  background:var(--surface);max-height:60vh;overflow-y:auto}
+.calc-expand.open{display:block;animation:fadeIn .18s ease}
+.calc-expand h4{margin:0 0 9px;font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:800}
+.calc-line{display:flex;justify-content:space-between;gap:10px;padding:7px 0;
+  border-bottom:1px solid var(--border-soft);font-size:12px}
+.calc-line:last-child{border-bottom:0}
+.calc-line .lbl{color:var(--muted);font-weight:700}
+.calc-line .val{color:var(--text);font-weight:800}
+.calc-line.sub .lbl{padding-left:10px;font-weight:600}
+.calc-line.sub .val{font-weight:700}
+.calc-line.total{border-top:1px solid var(--border);padding-top:9px;margin-top:5px;font-size:13px}
+.calc-line.total .lbl{color:var(--text);font-weight:900;letter-spacing:.02em}
+.calc-line.total .val{color:var(--text);font-weight:900;font-size:15px}
+.calc-empty{padding:16px 4px;text-align:center;color:var(--muted-2);font-size:12px}
+
+/* ---------- BOTTOM NAV ---------- */
+#nav{flex:0 0 auto;position:relative;display:flex;background:#0a0a0a;
+  border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
+.nav-btn{flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.42);transition:color .18s}
+.nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+.nav-btn.on{color:#fff}
+.nav-btn.on svg{transform:translateY(-1px);filter:drop-shadow(0 0 8px rgba(255,255,255,.35))}
+.nav-btn:active{color:rgba(255,255,255,.75)}
+
+/* ---------- MODALS / FLOATING ---------- */
+.fpop-scrim{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:55;
+  display:flex;align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .18s ease}
+@media(min-width:520px){.fpop-scrim{align-items:center;padding:20px}}
+.fpop{background:#fff;width:100%;max-width:460px;max-height:86vh;border-radius:20px 20px 0 0;
+  display:flex;flex-direction:column;overflow:hidden;animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+@media(min-width:520px){.fpop{border-radius:20px}}
+.fpop-hdr{padding:14px 18px;border-bottom:1px solid var(--border-soft);
+  display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.fpop-hdr h3{margin:0;font-size:14px;font-weight:900;flex:1}
+.fpop-close{width:30px;height:30px;border-radius:50%;background:var(--surface);
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;
+  color:var(--muted)}
+.fpop-search{padding:10px 14px;flex:0 0 auto;border-bottom:1px solid var(--border-soft)}
+.fpop-search input{width:100%;min-height:42px;padding:10px 13px;background:var(--surface);
+  border:1px solid var(--border-soft);border-radius:11px;font-size:13px;outline:none}
+.fpop-body{flex:1 1 auto;overflow-y:auto;padding:8px 0}
+.fpop-opt{width:100%;padding:11px 16px;display:flex;align-items:center;gap:11px;
+  border-bottom:1px solid var(--border-soft);transition:background .12s}
+.fpop-opt:active{background:var(--surface)}
+.fpop-opt:last-child{border-bottom:0}
+.fpop-opt-ico{width:38px;height:38px;border-radius:10px;flex:0 0 auto;background:var(--surface);
+  border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;
+  font-size:16px;overflow:hidden}
+.fpop-opt-ico img{width:100%;height:100%;object-fit:cover}
+.fpop-opt-info{flex:1;min-width:0}
+.fpop-opt-name{font-size:12.5px;font-weight:800;color:var(--text)}
+.fpop-opt-meta{font-size:10.5px;color:var(--muted);margin-top:2px}
+.fpop-opt-price{font-size:11px;font-weight:900;color:var(--gold);margin-top:3px}
+.fpop-opt-add{flex:0 0 auto;font-size:10.5px;font-weight:900;padding:6px 11px;
+  border-radius:20px;background:var(--black);color:#fff;letter-spacing:.04em}
+.fpop-empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:12.5px}
+
+/* Supplier type menu (floating) */
+.stm-cat{border-bottom:1px solid var(--border-soft)}
+.stm-cat-hdr{display:flex;align-items:center;gap:11px;padding:12px 16px;background:var(--surface);
+  cursor:pointer;transition:background .15s;width:100%}
+.stm-cat-hdr:active{background:var(--border-soft)}
+.stm-cat.open .stm-cat-hdr{background:#fff;border-bottom:1px solid var(--border-soft)}
+.stm-cat-ico{width:36px;height:36px;border-radius:10px;background:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto;
+  border:1px solid var(--border-soft)}
+.stm-cat-info{flex:1;min-width:0}
+.stm-cat-name{font-size:13px;font-weight:800;color:var(--text);display:block}
+.stm-cat-meta{font-size:10.5px;color:var(--muted);margin-top:2px;display:block}
+.stm-cat-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.stm-cat.open .stm-cat-body{max-height:4000px}
+.stm-sub{padding:8px 16px;background:#f7f5f0;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted-2);font-weight:800;border-top:1px solid var(--border-soft)}
+.stm-sup-list{padding:0 16px 12px}
+.stm-sup{display:flex;align-items:center;gap:10px;padding:10px;background:#fff;
+  border:1px solid var(--border-soft);border-radius:10px;margin-bottom:6px}
+.stm-sup-info{flex:1;min-width:0}
+.stm-sup-name{font-size:12.5px;font-weight:800;color:var(--text)}
+.stm-sup-meta{font-size:10.5px;color:var(--muted);margin-top:2px}
+.stm-sup-price{font-size:11px;color:var(--gold);font-weight:900;margin-top:3px}
+.stm-add{background:var(--black);color:#fff;font-size:10px;font-weight:900;
+  padding:6px 11px;border-radius:20px;letter-spacing:.04em;flex:0 0 auto}
+.stm-add.on{background:var(--muted-2)}
+.stm-sup-ico{width:36px;height:36px;border-radius:10px;background:var(--surface);
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto;
+  border:1px solid var(--border-soft)}
+.stm-empty{padding:10px 16px;color:var(--muted);font-size:11.5px;font-style:italic}
+.fpop-note{padding:12px 16px;font-size:10.5px;color:var(--muted);border-top:1px solid var(--border-soft)}
+
+/* Supplier customise panel */
+.sup-custom-meta{font-size:11px;color:var(--gold);font-weight:800;margin-bottom:8px}
+.sup-custom-note{font-size:10px;color:var(--muted);text-align:center;margin-top:8px}
+.qty-stepper{display:flex;align-items:center;gap:0;border:1px solid var(--border-soft);
+  border-radius:10px;overflow:hidden;background:#fff;width:100%}
+.qty-stepper button{flex:0 0 42px;height:42px;background:var(--surface);border:0;
+  font-size:18px;font-weight:800;color:var(--text);cursor:pointer}
+.qty-stepper button:active{background:var(--border-soft)}
+.qty-stepper input{flex:1;min-width:0;border:0;text-align:center;font-size:14px;font-weight:800;
+  color:var(--text);background:#fff;padding:0 6px;min-height:42px;-moz-appearance:textfield}
+.qty-stepper input::-webkit-outer-spin-button,.qty-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.qty-stepper.sm button{flex-basis:36px;height:36px;font-size:16px}
+.qty-stepper.sm input{min-height:36px;font-size:13px}
+.sup-addons-wrap{margin:10px 0;border-top:1px solid var(--border-soft);padding-top:10px}
+.sup-addons-label{font-size:11px;font-weight:900;display:block;margin-bottom:7px}
+.sup-addon{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--border-soft)}
+.sup-addon:last-child{border-bottom:0}
+.sup-addon-info{flex:1;min-width:0}
+.sup-addon-name{font-size:11.5px;font-weight:700;color:var(--text)}
+.sup-addon-price{font-size:10.5px;color:var(--gold);font-weight:900;margin-top:2px}
+
+/* Flyer add menu */
+.flyer-menu-panel{background:#fff;width:100%;max-width:460px;max-height:88vh;
+  border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;
+  animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+@media(min-width:520px){.flyer-menu-panel{border-radius:20px}}
+.flyer-menu-hdr{padding:16px 18px 12px;border-bottom:1px solid var(--border-soft);
+  display:flex;align-items:center;gap:10px}
+.flyer-menu-hdr h3{margin:0;font-size:15px;font-weight:900;flex:1}
+.flyer-menu-hint{padding:10px 18px;font-size:11.5px;color:var(--muted);font-weight:600;
+  background:var(--surface);border-bottom:1px solid var(--border-soft);line-height:1.5}
+.flyer-menu-stack{flex:1 1 auto;overflow-y:auto;padding:14px 18px}
+.flyer-item{position:relative;border-radius:12px;overflow:hidden;margin-bottom:10px;
+  background:var(--surface);border:1.5px solid var(--border-soft)}
+.flyer-item.main{border-color:var(--gold);border-width:2px}
+.flyer-item img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.flyer-item-actions{position:absolute;top:8px;right:8px;display:flex;gap:6px}
+.flyer-item-btn{width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+  backdrop-filter:blur(6px)}
+.flyer-item-btn:active{background:rgba(0,0,0,.9)}
+.flyer-item-btn.make-main{background:rgba(201,168,76,.9);font-size:10.5px;font-weight:900;
+  width:auto;padding:0 10px;border-radius:20px;height:28px;letter-spacing:.04em}
+.flyer-item-main-label{position:absolute;left:8px;top:8px;background:var(--gold);color:#fff;
+  font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 9px;border-radius:20px}
+.flyer-menu-foot{padding:14px 18px;border-top:1px solid var(--border-soft);background:#fafaf7;
+  display:flex;flex-direction:column;gap:9px;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+
+/* Title edit modal */
+.title-edit-panel{background:#fff;width:100%;max-width:460px;max-height:88vh;
+  border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;
+  animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+@media(min-width:520px){.title-edit-panel{border-radius:20px}}
+.title-edit-body{padding:16px 18px;flex:1 1 auto;overflow-y:auto}
+.title-edit-body .field{margin-bottom:14px}
+.title-edit-foot{padding:14px 18px;border-top:1px solid var(--border-soft);background:#fafaf7;
+  display:flex;gap:10px;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+
+/* Simple add item prompt panel */
+.prompt-panel{background:#fff;width:100%;max-width:460px;border-radius:20px 20px 0 0;
+  overflow:hidden;animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+@media(min-width:520px){.prompt-panel{border-radius:20px}}
+.prompt-body{padding:16px 18px}
+.prompt-body .field{margin-bottom:12px}
+.prompt-foot{padding:12px 18px 16px;display:flex;gap:10px;
+  padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+
+/* ---------- REVIEW / PREVIEW ---------- */
+.review-hero{margin-bottom:14px;padding:18px 16px;border-radius:14px;
+  background:linear-gradient(135deg,#151515,#2c2418);color:#fff;position:relative;
+  overflow:hidden}
+.review-hero .lbl{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.5);font-weight:800}
+.review-hero h2{margin:6px 0 4px;font-size:19px;font-weight:900;letter-spacing:-.01em;
+  line-height:1.15}
+.review-hero .meta{font-size:11.5px;color:rgba(255,255,255,.72);font-weight:600}
+.review-block{background:#fff;border:1px solid var(--border-soft);border-radius:12px;
+  padding:13px 14px;margin-bottom:10px}
+.review-block h4{margin:0 0 8px;font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:800}
+.review-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:12px;
+  border-bottom:1px solid var(--border-soft)}
+.review-row:last-child{border-bottom:0}
+.review-row .k{color:var(--muted);font-weight:700;min-width:0}
+.review-row .v{color:var(--text);font-weight:800;text-align:right;max-width:62%}
+.review-list{margin:0;padding:0 0 0 16px;font-size:12px;color:var(--text);line-height:1.6}
+.review-list li{margin-bottom:3px}
+
+.warning{
+  display:flex;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:8px;
+  font-size:12px;line-height:1.5;
+}
+.warning.capacity{background:#fdf3dc;border:1px solid #f0dcae;color:#7a5a0a}
+.warning.budget{background:#fbeaea;border:1px solid #f0c8c8;color:#8a2a2a}
+.warning.dietary{background:#eaf4ea;border:1px solid #c8e0c8;color:#1c5a1c}
+.warning .ic{
+  width:22px;height:22px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-weight:900;flex:0 0 auto;
+  background:rgba(0,0,0,.08)
+}
+.warning b{font-weight:900}
+
+.privacy-row{display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-bottom:1px solid var(--border-soft);font-size:12px}
+.privacy-row:last-child{border-bottom:0}
+.privacy-row .lbl{flex:1;font-weight:700;color:var(--text)}
+.privacy-row .lbl em{font-style:normal;display:block;font-size:10.5px;color:var(--muted);
+  font-weight:600;margin-top:2px}
+
+/* ---------- PREVIEW (read-only page) ---------- */
+.preview-page{background:var(--bg);min-height:100%}
+.preview-hero{position:relative;aspect-ratio:16/9;overflow:hidden;background:#151515}
+.preview-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.preview-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85),rgba(0,0,0,.05) 55%);
+  display:flex;flex-direction:column;justify-content:flex-end;padding:16px;color:#fff}
+.preview-hero-overlay .cat{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--gold);font-weight:800;margin-bottom:5px}
+.preview-hero-overlay h1{margin:0;font-size:21px;font-weight:900;letter-spacing:-.015em;
+  line-height:1.15}
+.preview-hero-overlay .sub{font-size:11.5px;color:rgba(255,255,255,.75);margin-top:5px;
+  font-weight:600}
+.preview-body{padding:14px}
+.preview-card{background:#fff;border:1px solid var(--border-soft);border-radius:14px;
+  padding:14px;margin-bottom:12px}
+.preview-card h3{margin:0 0 10px;font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:800}
+.preview-kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;
+  border-bottom:1px solid var(--border-soft);font-size:12.5px}
+.preview-kv:last-child{border-bottom:0}
+.preview-kv .k{color:var(--muted);font-weight:700}
+.preview-kv .v{color:var(--text);font-weight:800;text-align:right;max-width:62%}
+.preview-tags{display:flex;flex-wrap:wrap;gap:6px}
+.preview-tag{font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;
+  background:var(--surface);border:1px solid var(--border-soft);color:var(--muted)}
+.preview-tag.gold{background:rgba(201,168,76,.12);border-color:rgba(201,168,76,.3);
+  color:#7a5a0a;font-weight:800}
+.preview-social{display:flex;flex-wrap:wrap;gap:8px}
+.preview-social-item{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;
+  border-radius:20px;background:var(--surface);border:1px solid var(--border-soft);
+  font-size:11.5px;font-weight:700;color:var(--text);text-decoration:none}
+.preview-social-item:active{background:var(--border-soft)}
+
+/* ---------- TOAST ---------- */
+#toast{position:fixed;bottom:calc(var(--calch) + var(--navh) + 20px);left:50%;
+  transform:translateX(-50%);background:var(--black);color:#fff;padding:11px 18px;
+  border-radius:11px;font-size:12.5px;font-weight:800;z-index:200;opacity:0;
+  pointer-events:none;transition:opacity .2s;max-width:calc(100% - 40px);text-align:center}
+#toast.on{opacity:1}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.empty{padding:32px 20px;text-align:center;color:var(--muted-2);font-size:12.5px;line-height:1.6}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="hdr">
+    <div class="brand-mark"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></div>
+    <div class="hdr-right"><span class="hdr-chip">Offline</span></div>
+  </header>
+  <div id="venue-bar"></div>
+  <div id="viewport">
+    <div class="screen">
+      <div class="scroll" id="mainScroll"></div>
+    </div>
+  </div>
+  <div id="calc-bar"></div>
+  <nav id="nav">
+    <button class="nav-btn" data-tab="promos" aria-label="Promos">
+      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+    </button>
+    <button class="nav-btn" data-tab="restaurants" aria-label="Restaurants">
+      <svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg>
+    </button>
+    <button class="nav-btn on" data-tab="reserve" aria-label="Events">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </button>
+    <button class="nav-btn" data-tab="gallery" aria-label="Gallery">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    </button>
+    <button class="nav-btn" data-tab="about" aria-label="About">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </button>
+  </nav>
+</div>
+
+<div id="toast"></div>
+<div id="modal-root"></div>
+
+<script src="assets/data/restaurant_listings/directory_runtime_data.js"></script>
+<script src="assets/data/event_types.js"></script>
+<script src="assets/data/venue-provider-list.js"></script>
+<script src="botswana_locations.js"></script>
+<script src="assets/data/masterSupplierCatalogue.js"></script>
+<script src="assets/data/event_supplier_demo_catalogue.js"></script>
+
+<script>
+/* ============================================================
+   FALLBACK DATA (only used if external files aren't loaded)
+   ============================================================ */
+const DEMO_TAXONOMY = {
+  weddings_cultural:{id:"weddings_cultural",name:"Weddings & Cultural Traditions",icon:"💍",
+    subCategories:[
+      {name:"Ceremony & Weekend",events:[
+        {id:"wedding_ceremony",name:"Wedding Ceremony",description:"The main marriage ceremony"},
+        {id:"wedding_reception",name:"Wedding Reception",description:"Post-ceremony celebration and meal"}
+      ]},
+      {name:"Setswana Cultural Events (Batswana)",events:[
+        {id:"setswana_bogadi",name:"Bogadi / Magadi",description:"Bride Wealth Negotiations"}
+      ]}
+    ]
+  },
+  corporate:{id:"corporate",name:"Corporate Events",icon:"💼",
+    subCategories:[
+      {name:"Knowledge & Industry",events:[
+        {id:"conference",name:"Conference",description:"Multi-session industry gathering"},
+        {id:"seminar",name:"Seminar",description:"Focused educational session"},
+        {id:"workshop",name:"Workshop",description:"Hands-on learning"}
+      ]}
+    ]
+  },
+  social:{id:"social",name:"Social & Celebrations",icon:"🎉",
+    subCategories:[
+      {name:"Milestones & Life Steps",events:[
+        {id:"birthday_party",name:"Birthday Party"},
+        {id:"anniversary",name:"Anniversary"}
+      ]}
+    ]
+  },
+  arts_performance:{id:"arts_performance",name:"Arts & Performances",icon:"🎭",
+    subCategories:[
+      {name:"Music & Live Acts",events:[
+        {id:"concert",name:"Concert"},
+        {id:"music_festival",name:"Music Festival"}
+      ]}
+    ]
+  }
+};
+
+const DEMO_VENUES = [
+  {id:"v1",name:"Mokolodi Nature Reserve",city:"Gaborone",area:"Mokolodi",
+   logo:"",thumb:"🏞",fromPrice:4500,capacity:250,
+   eventTypes:["wedding_ceremony","wedding_reception","conference","concert"],
+   rules:"No outside catering. No open fires outside designated areas. Music curfew 23:00.",
+   seating:"Round tables of 8, theatre style, banquet, cocktail",
+   spaces:[
+     {id:"s1",name:"Main Lawn",type:"Outdoor",cap:250,price:2500,desc:"Open lawn with permanent stage"},
+     {id:"s2",name:"Conference Room",type:"Indoor",cap:80,price:1200,desc:"AV equipped boardroom"},
+     {id:"s3",name:"Boma Restaurant",type:"Indoor",cap:60,price:800,desc:"Covered boma dining area"}
+   ],
+   menu:[
+     {id:"m1",name:"Grilled Seswaa Platter",price:145,cat:"Food",dietary:["Halal"]},
+     {id:"m2",name:"Vegetarian Braai",price:120,cat:"Food",dietary:["Vegetarian","Vegan"]},
+     {id:"m3",name:"Traditional Bogobe",price:60,cat:"Food",dietary:["Vegetarian"]},
+     {id:"m4",name:"Local Beers",price:40,cat:"Beverage"},
+     {id:"m5",name:"House Wine",price:65,cat:"Beverage"}
+   ],
+   gallery:[
+     {emoji:"🏞",title:"Main Lawn",desc:"Wide open lawn perfect for ceremonies",price:2500},
+     {emoji:"🌿",title:"Garden Walk",desc:"Landscaped garden path"},
+     {emoji:"🎋",title:"Boma",desc:"Traditional covered dining"},
+     {emoji:"🌅",title:"Sunset Deck",desc:"West-facing deck with views"},
+     {emoji:"🍽",title:"Restaurant",desc:"In-house restaurant"},
+     {emoji:"🥂",title:"Champagne Lawn",desc:"Small private lawn"}
+   ],
+   pricing:{perPerson:180,minSpend:15000,hourly:850}
+  },
+  {id:"v2",name:"Masa Square Hotel",city:"Gaborone",area:"CBD",
+   logo:"",thumb:"🏨",fromPrice:8000,capacity:400,
+   eventTypes:["conference","wedding_reception","product_launch"],
+   rules:"Preferred suppliers list applies for decor and AV. Corkage P80/bottle.",
+   seating:"Banquet, theatre, cabaret, U-shape, boardroom",
+   spaces:[
+     {id:"s1",name:"Grand Ballroom",type:"Indoor",cap:400,price:6000,desc:"Grand pillarless ballroom"},
+     {id:"s2",name:"Sky Terrace",type:"Outdoor",cap:120,price:2800,desc:"Rooftop terrace with CBD views"},
+     {id:"s3",name:"Boardroom A",type:"Indoor",cap:20,price:900,desc:"Executive boardroom"}
+   ],
+   menu:[
+     {id:"m1",name:"Executive Buffet",price:280,cat:"Food",dietary:["Halal","Vegetarian"]},
+     {id:"m2",name:"Gala Dinner (Plated)",price:450,cat:"Food",dietary:["Halal"]},
+     {id:"m3",name:"Cocktail Canapés",price:180,cat:"Food",dietary:["Vegetarian"]},
+     {id:"m4",name:"Open Bar Package",price:320,cat:"Beverage"},
+     {id:"m5",name:"Wine Pairing",price:180,cat:"Beverage"}
+   ],
+   gallery:[
+     {emoji:"🏨",title:"Grand Ballroom",desc:"Elegant 400-seat ballroom",price:6000},
+     {emoji:"🥂",title:"Champagne Bar",desc:"Premium bar"},
+     {emoji:"🍽",title:"Gala Setup",desc:"Plated gala service"},
+     {emoji:"🎉",title:"Terrace",desc:"Rooftop event space",price:2800},
+     {emoji:"✨",title:"Lounge",desc:"VIP lounge area"},
+     {emoji:"🎊",title:"Pre-Function",desc:"Reception space"}
+   ],
+   pricing:{perPerson:350,minSpend:40000,hourly:1200}
+  },
+  {id:"v3",name:"Lion Park Resort",city:"Gaborone",area:"Notwane",
+   logo:"",thumb:"🦁",fromPrice:6500,capacity:600,
+   eventTypes:["concert","music_festival","birthday_party","wedding_reception"],
+   rules:"Outside suppliers welcome. Sound levels monitored. Event must end by 02:00.",
+   seating:"Festival standing, picnic seating, casual lounge",
+   spaces:[
+     {id:"s1",name:"Big Top Arena",type:"Outdoor",cap:600,price:4500,desc:"Large covered outdoor arena"},
+     {id:"s2",name:"Poolside Deck",type:"Outdoor",cap:150,price:1800,desc:"Poolside event space"},
+     {id:"s3",name:"Private Chalet",type:"Indoor",cap:40,price:600,desc:"Intimate private chalet"}
+   ],
+   menu:[
+     {id:"m1",name:"Braai Buffet",price:195,cat:"Food",dietary:["Halal"]},
+     {id:"m2",name:"Pizza Station",price:120,cat:"Food",dietary:["Vegetarian"]},
+     {id:"m3",name:"Bar Bucket Specials",price:180,cat:"Beverage"}
+   ],
+   gallery:[
+     {emoji:"🦁",title:"Big Top",desc:"Outdoor covered arena",price:4500},
+     {emoji:"🎪",title:"Festival Ground",desc:"Large open-air festival ground"},
+     {emoji:"🎤",title:"Stage",desc:"Performance stage"},
+     {emoji:"🍖",title:"Braai Area",desc:"Outdoor braai pits"},
+     {emoji:"🍻",title:"Beer Garden",desc:"Casual beer garden"},
+     {emoji:"🌟",title:"VIP Deck",desc:"VIP viewing deck"}
+   ],
+   pricing:{perPerson:220,minSpend:25000,hourly:950}
+  }
+];
+
+const DEMO_SUPPLIERS = [
+  {id:"sup1",name:"Savanna Caterers",cat:"catering",field:"main_catering",price:180,unit:"per person",rating:4.8,city:"Gaborone",thumb:"🍽"},
+  {id:"sup2",name:"Kalahari Feasts",cat:"catering",field:"traditional_catering",price:145,unit:"per person",rating:4.7,city:"Gaborone",thumb:"🥘"},
+  {id:"sup3",name:"Sweet Botswana Cakes",cat:"catering",field:"desserts_cakes",price:900,unit:"per cake",rating:4.9,city:"Gaborone",thumb:"🎂"},
+  {id:"sup4",name:"Premium Mobile Bar",cat:"catering",field:"beverages_bar",price:220,unit:"per person",rating:4.6,city:"Gaborone",thumb:"🍸"},
+  {id:"sup5",name:"Craft Beer Cart",cat:"catering",field:"beverages_bar",price:180,unit:"per person",rating:4.5,city:"Gaborone",thumb:"🍺"},
+  {id:"sup6",name:"Elegance Décor Co",cat:"decor",field:"theme_decor",price:4500,unit:"fixed",rating:4.9,city:"Gaborone",thumb:"🎨"},
+  {id:"sup7",name:"Petal & Stem",cat:"decor",field:"florals",price:2800,unit:"fixed",rating:4.8,city:"Gaborone",thumb:"💐"},
+  {id:"sup8",name:"Balloon Artistry",cat:"decor",field:"props_structures",price:1500,unit:"fixed",rating:4.6,city:"Gaborone",thumb:"🎈"},
+  {id:"sup9",name:"ProSound Botswana",cat:"technical",field:"sound_systems",price:5500,unit:"per day",rating:4.8,city:"Gaborone",thumb:"🔊"},
+  {id:"sup10",name:"LightWorks AV",cat:"technical",field:"lighting",price:4200,unit:"per day",rating:4.7,city:"Gaborone",thumb:"💡"},
+  {id:"sup11",name:"ScreenTech",cat:"technical",field:"video_screens",price:6800,unit:"per day",rating:4.6,city:"Gaborone",thumb:"📺"},
+  {id:"sup12",name:"DJ Kuchi",cat:"entertainment",field:"djs",price:3500,unit:"per set",rating:4.9,city:"Gaborone",thumb:"🎧"},
+  {id:"sup13",name:"Sphalaphala Live Band",cat:"entertainment",field:"live_music",price:7500,unit:"per set",rating:4.8,city:"Gaborone",thumb:"🎸"},
+  {id:"sup14",name:"Masa Poetry Collective",cat:"entertainment",field:"speciality_acts",price:2800,unit:"per set",rating:4.9,city:"Gaborone",thumb:"🎤"},
+  {id:"sup15",name:"Sentinel Security",cat:"security",field:"venue_security",price:85,unit:"per hour",rating:4.5,city:"Gaborone",thumb:"🛡"},
+  {id:"sup16",name:"SwiftMed Event Medics",cat:"security",field:"medical_support",price:3500,unit:"per day",rating:4.8,city:"Gaborone",thumb:"🚑"},
+  {id:"sup17",name:"Moments Photography",cat:"media",field:"photography",price:4500,unit:"per day",rating:4.9,city:"Gaborone",thumb:"📸"},
+  {id:"sup18",name:"Cinema Vows",cat:"media",field:"videography",price:6800,unit:"per day",rating:4.7,city:"Gaborone",thumb:"🎥"},
+  {id:"sup19",name:"Tent Masters",cat:"infrastructure",field:"tents_marquees",price:12000,unit:"per day",rating:4.7,city:"Gaborone",thumb:"⛺"},
+  {id:"sup20",name:"PowerGen Rentals",cat:"infrastructure",field:"power_generators",price:2800,unit:"per day",rating:4.6,city:"Gaborone",thumb:"⚡"},
+  {id:"sup21",name:"Event Architects",cat:"management",field:"event_planning",price:15000,unit:"fixed",rating:4.9,city:"Gaborone",thumb:"📋"},
+  {id:"sup22",name:"Day-Of Coordinators",cat:"management",field:"on_site_coordination",price:6500,unit:"per day",rating:4.8,city:"Gaborone",thumb:"📝"}
+];
+
+const SUPPLIER_FIELDS = {
+  infrastructure:{name:"Infrastructure & Rentals",icon:"⛺",fields:[
+    {id:"tents_marquees",name:"Tents & Marquees"},
+    {id:"flooring_ground",name:"Flooring & Ground"},
+    {id:"furniture_seating",name:"Furniture & Seating"},
+    {id:"tables_linen",name:"Tables & Linen"},
+    {id:"power_generators",name:"Power & Generators"},
+    {id:"climate_control",name:"Climate Control"}
+  ]},
+  catering:{name:"Catering, Bar & Hospitality",icon:"🍽",fields:[
+    {id:"main_catering",name:"Main Catering"},
+    {id:"traditional_catering",name:"Traditional Catering"},
+    {id:"speciality_diets",name:"Speciality Diets"},
+    {id:"desserts_cakes",name:"Desserts & Cakes"},
+    {id:"beverages_bar",name:"Beverages & Bar"},
+    {id:"bar_equipment",name:"Bar Equipment"},
+    {id:"waiters_staff",name:"Waiters & Staff"},
+    {id:"mobile_kitchens",name:"Mobile Kitchens"}
+  ]},
+  decor:{name:"Decor, Styling & Florals",icon:"🎨",fields:[
+    {id:"theme_decor",name:"Theme Décor"},
+    {id:"florals",name:"Florals"},
+    {id:"props_structures",name:"Props & Structures"},
+    {id:"draping",name:"Draping"},
+    {id:"ambient_lighting",name:"Ambient Lighting"}
+  ]},
+  technical:{name:"Technical Production (AV)",icon:"🔊",fields:[
+    {id:"sound_systems",name:"Sound Systems"},
+    {id:"lighting",name:"Lighting"},
+    {id:"video_screens",name:"Video & Screens"},
+    {id:"staging_trussing",name:"Staging & Trussing"},
+    {id:"livestreaming",name:"Livestreaming"}
+  ]},
+  entertainment:{name:"Entertainment & Talent",icon:"🎤",fields:[
+    {id:"djs",name:"DJs"},
+    {id:"live_music",name:"Live Music"},
+    {id:"dance_movement",name:"Dance & Movement"},
+    {id:"speciality_acts",name:"Speciality Acts"},
+    {id:"hosts_mcs",name:"Hosts & MCs"},
+    {id:"speakers",name:"Speakers"},
+    {id:"cultural_performers",name:"Cultural Performers"}
+  ]},
+  security:{name:"Safety, Security & Logistics",icon:"🛡",fields:[
+    {id:"personal_protection",name:"Personal Protection"},
+    {id:"venue_security",name:"Venue Security"},
+    {id:"crowd_control",name:"Crowd Control"},
+    {id:"parking_traffic",name:"Parking & Traffic"},
+    {id:"medical_support",name:"Medical Support"},
+    {id:"fire_safety",name:"Fire Safety"},
+    {id:"transport_shuttles",name:"Transport & Shuttles"}
+  ]},
+  media:{name:"Media, Memories & Marketing",icon:"📸",fields:[
+    {id:"photography",name:"Photography"},
+    {id:"videography",name:"Videography"},
+    {id:"photo_booths",name:"Photo Booths"},
+    {id:"drone_aerial",name:"Drone & Aerial"},
+    {id:"social_content",name:"Social Media & Content"}
+  ]},
+  management:{name:"Management & Coordination",icon:"📋",fields:[
+    {id:"event_planning",name:"Event Planning"},
+    {id:"on_site_coordination",name:"On-Site Coordination"},
+    {id:"specialist_planning",name:"Specialist Planning"}
+  ]}
+};
+
+const SUPPLIER_CUSTOM = {
+  photography:[
+    {key:"hours",label:"Hours",type:"number",placeholder:"8"},
+    {key:"photographers",label:"Number of photographers",type:"number",placeholder:"1"},
+    {key:"edited",label:"Edited photos",type:"number",placeholder:"300"},
+    {key:"second_shooter",label:"Second shooter",type:"select",options:["No","Yes"]},
+    {key:"album",label:"Printed album",type:"select",options:["No","Yes"]},
+    {key:"drone",label:"Drone coverage",type:"select",options:["No","Yes"]}
+  ],
+  videography:[
+    {key:"hours",label:"Hours",type:"number",placeholder:"8"},
+    {key:"cameras",label:"Number of cameras",type:"number",placeholder:"2"},
+    {key:"highlight",label:"Highlight film",type:"select",options:["No","Yes"]},
+    {key:"drone",label:"Drone coverage",type:"select",options:["No","Yes"]}
+  ],
+  main_catering:[
+    {key:"guests",label:"Number of guests",type:"number",placeholder:"100"},
+    {key:"courses",label:"Courses",type:"number",placeholder:"3"},
+    {key:"service",label:"Service style",type:"select",options:["Buffet","Plated","Family style","Cocktail"]},
+    {key:"dietary",label:"Dietary options",type:"text",placeholder:"Vegetarian, Vegan, Halal"},
+    {key:"staff",label:"Service staff",type:"number",placeholder:"6"}
+  ],
+  traditional_catering:[
+    {key:"guests",label:"Number of guests",type:"number",placeholder:"100"},
+    {key:"dishes",label:"Traditional dishes",type:"number",placeholder:"5"},
+    {key:"service",label:"Service style",type:"select",options:["Buffet","Family style","Plated"]}
+  ],
+  desserts_cakes:[
+    {key:"tiers",label:"Number of tiers",type:"number",placeholder:"3"},
+    {key:"servings",label:"Servings",type:"number",placeholder:"120"},
+    {key:"flavour",label:"Flavour",type:"text",placeholder:"Vanilla, Chocolate"}
+  ],
+  beverages_bar:[
+    {key:"guests",label:"Number of guests",type:"number",placeholder:"100"},
+    {key:"hours",label:"Bar hours",type:"number",placeholder:"5"},
+    {key:"package",label:"Package",type:"select",options:["Cash bar","Open bar","Beer & wine only","Cocktails"]},
+    {key:"bartenders",label:"Bartenders",type:"number",placeholder:"3"}
+  ],
+  sound_systems:[
+    {key:"hours",label:"Hours",type:"number",placeholder:"8"},
+    {key:"speakers",label:"Speakers",type:"number",placeholder:"4"},
+    {key:"microphones",label:"Microphones",type:"number",placeholder:"4"},
+    {key:"engineer",label:"Sound engineer",type:"select",options:["No","Yes"]}
+  ],
+  lighting:[
+    {key:"type",label:"Lighting type",type:"select",options:["Uplighting","Spotlights","String lights","Full rig"]},
+    {key:"hours",label:"Hours",type:"number",placeholder:"8"},
+    {key:"technician",label:"Technician",type:"select",options:["No","Yes"]}
+  ],
+  djs:[
+    {key:"hours",label:"Hours",type:"number",placeholder:"5"},
+    {key:"equipment",label:"Equipment",type:"select",options:["Basic","Full sound + lights","Club rig"]},
+    {key:"mc",label:"MC services",type:"select",options:["No","Yes"]},
+    {key:"genre",label:"Music genre",type:"text",placeholder:"Amapiano, House"}
+  ],
+  live_music:[
+    {key:"hours",label:"Hours",type:"number",placeholder:"3"},
+    {key:"sets",label:"Number of sets",type:"number",placeholder:"2"},
+    {key:"members",label:"Band members",type:"number",placeholder:"6"}
+  ],
+  tents_marquees:[
+    {key:"size",label:"Size",type:"select",options:["Small (up to 50)","Medium (up to 150)","Large (up to 300)","Custom"]},
+    {key:"sidewalls",label:"Sidewalls",type:"select",options:["No","Yes"]},
+    {key:"flooring",label:"Flooring",type:"select",options:["No","Yes"]},
+    {key:"installation",label:"Installation & dismantling",type:"select",options:["No","Yes"]}
+  ],
+  power_generators:[
+    {key:"size",label:"Generator size (kVA)",type:"number",placeholder:"60"},
+    {key:"hours",label:"Hours",type:"number",placeholder:"10"},
+    {key:"fuel",label:"Fuel included",type:"select",options:["No","Yes"]},
+    {key:"technician",label:"Standby technician",type:"select",options:["No","Yes"]}
+  ],
+  venue_security:[
+    {key:"guards",label:"Number of guards",type:"number",placeholder:"4"},
+    {key:"hours",label:"Hours",type:"number",placeholder:"8"},
+    {key:"type",label:"Type",type:"select",options:["Static","Patrol","Access control","VIP"]}
+  ],
+  medical_support:[
+    {key:"medics",label:"Number of medics",type:"number",placeholder:"2"},
+    {key:"ambulance",label:"Ambulance standby",type:"select",options:["No","Yes"]},
+    {key:"hours",label:"Hours",type:"number",placeholder:"8"}
+  ],
+  theme_decor:[
+    {key:"theme",label:"Theme",type:"text",placeholder:"Botswana Heritage"},
+    {key:"colours",label:"Colour palette",type:"text",placeholder:"Gold, Cream, Emerald"},
+    {key:"setup",label:"Setup & teardown",type:"select",options:["No","Yes"]}
+  ],
+  florals:[
+    {key:"bouquets",label:"Bouquets",type:"number",placeholder:"6"},
+    {key:"centerpieces",label:"Centerpieces",type:"number",placeholder:"20"},
+    {key:"arrangement",label:"Arrangement type",type:"select",options:["Fresh","Dried","Artificial","Mixed"]},
+    {key:"setup",label:"Setup",type:"select",options:["No","Yes"]}
+  ],
+  event_planning:[
+    {key:"coverage",label:"Coverage",type:"select",options:["Full service","Partial","Day-of only"]},
+    {key:"meetings",label:"Planning meetings",type:"number",placeholder:"5"},
+    {key:"on_site",label:"On-site team size",type:"number",placeholder:"3"}
+  ],
+  on_site_coordination:[
+    {key:"hours",label:"Hours",type:"number",placeholder:"12"},
+    {key:"coordinators",label:"Number of coordinators",type:"number",placeholder:"2"}
+  ]
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const STATE = {
+  // Event type + intro
+  eventType:{eventId:null,name:null,categoryId:null,categoryName:null,subCategoryName:null,description:null,icon:null},
+  notes:[],  // {id,title,body}
+
+  // Flyer images (dataURLs)
+  flyerImages:[],
+  eventTitle:"",
+  eventDescription:"",
+
+  // Schedule
+  schedule:{mode:"one-day",days:[{id:"d1",startDate:"",startTime:"",endDate:"",endTime:""}]},
+
+  // Target audience
+  targetAudience:[],  // {id,title,note,ageGroup}
+
+  // Venue + venue related
+  venue:null,
+  venueSpaces:[],  // [spaceId]
+  venueRules:[],   // {id,title,note}
+  venueGalleryOpen:null,  // index of gallery item whose details are open
+  venueBarExpanded:false,
+
+  // Menu
+  menuFood:[],       // [{itemId, qty}]
+  menuBeverages:[],  // [{itemId, qty}]
+  menuOpen:{food:false,beverages:false},
+
+  // Suppliers
+  suppliers:{},  // {fieldId:[{supplierId,customisations}]}
+  supplierCustomising:null,  // {supplierId, fieldId}
+  supplierTypeMenu:{open:false,search:"",openCat:null},
+
+  // Event details
+  eventDetails:{
+    mode:"private",  // private | public
+    entryType:"free",  // free | ticket
+    tiers:[],  // {id,name,price,notes}
+    dresscode:"",
+    contacts:[],  // {id,type,title,value,notes}
+    ticketLinks:[]  // {id,url,notes}
+  },
+
+  // Guests
+  guests:[],  // {id,name,role,dietary,plus}
+
+  // RSVP
+  rsvp:[],  // {id,title,note,contactType,contactValue}
+
+  // Share
+  shareOptions:{whatsapp:true,facebook:false,instagram:false,tiktok:false,twitter:false},
+
+  // UI
+  openSections:{},
+  calcExpanded:false,
+  activeStep:"event-type",
+
+  // Modals
+  flyerMenuOpen:false,
+  titleEditOpen:false,
+  titleEditDraft:{title:"",description:""},
+  prompt:{open:false,kind:null,fields:null,onSave:null},
+
+  draftKey:"eatouts.event.draft.v2",
+  toastTimer:null
+};
+
+/* ============================================================
+   AUTOSAVE
+   ============================================================ */
+function saveDraft(){
+  try{
+    const toSave={
+      eventType:STATE.eventType,
+      notes:STATE.notes,
+      flyerImages:STATE.flyerImages,
+      eventTitle:STATE.eventTitle,
+      eventDescription:STATE.eventDescription,
+      schedule:STATE.schedule,
+      targetAudience:STATE.targetAudience,
+      venueId:STATE.venue?STATE.venue.id:null,
+      venueSpaces:STATE.venueSpaces,
+      venueRules:STATE.venueRules,
+      menuFood:STATE.menuFood,
+      menuBeverages:STATE.menuBeverages,
+      suppliers:STATE.suppliers,
+      eventDetails:STATE.eventDetails,
+      guests:STATE.guests,
+      rsvp:STATE.rsvp,
+      shareOptions:STATE.shareOptions
+    };
+    localStorage.setItem(STATE.draftKey,JSON.stringify(toSave));
+  }catch(e){console.warn("save failed",e);}
+}
+let _saveTimer=null;
+function scheduleSave(){
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(saveDraft,400);
+}
+function loadDraft(){
+  try{
+    const raw=localStorage.getItem(STATE.draftKey);
+    if(!raw)return;
+    const d=JSON.parse(raw);
+    Object.assign(STATE.eventType,d.eventType||{});
+    STATE.notes=d.notes||[];
+    STATE.flyerImages=d.flyerImages||[];
+    STATE.eventTitle=d.eventTitle||"";
+    STATE.eventDescription=d.eventDescription||"";
+    if(d.schedule)STATE.schedule=d.schedule;
+    STATE.targetAudience=d.targetAudience||[];
+    if(d.venueId)STATE.venue=findVenue(d.venueId);
+    STATE.venueSpaces=d.venueSpaces||[];
+    STATE.venueRules=d.venueRules||[];
+    STATE.menuFood=d.menuFood||[];
+    STATE.menuBeverages=d.menuBeverages||[];
+    STATE.suppliers=d.suppliers||{};
+    if(d.eventDetails)Object.assign(STATE.eventDetails,d.eventDetails);
+    STATE.guests=d.guests||[];
+    STATE.rsvp=d.rsvp||[];
+    if(d.shareOptions)Object.assign(STATE.shareOptions,d.shareOptions);
+  }catch(e){console.warn("load draft failed",e);}
+}
+
+/* ============================================================
+   DATA ACCESS
+   ============================================================ */
+function getTaxonomy(){
+  if(window.EVENT_TAXONOMY && typeof window.EVENT_TAXONOMY==="object") return window.EVENT_TAXONOMY;
+  return DEMO_TAXONOMY;
+}
+function getVenues(){
+  if(window.EATOUTS_VENUES && Array.isArray(window.EATOUTS_VENUES)) return window.EATOUTS_VENUES;
+  return DEMO_VENUES;
+}
+function normalizeDemoSupplier(s){
+  if(!s) return s;
+  const pricing=s.pricing||{};
+  const area=Array.isArray(s.serviceArea)?s.serviceArea:(Array.isArray(s.service_area)?s.service_area:(Array.isArray(s.serviceAreaList)?s.serviceAreaList:[]));
+  const isActual=!(Array.isArray(area)&&area.length===0) || (s.price===undefined && !s.name);
+  let price=Number(pricing.amount!==undefined?pricing.amount:(s.price!==undefined?s.price:0))||0;
+  return {
+    id: s.id,
+    name: s.name||s.supplier_name||"Unnamed supplier",
+    businessName: s.businessName||s.business_name||"",
+    catName: s.catName||s.category||"",
+    catId: s.catId||s.category_id||"",
+    subcategory: s.subcategory||"",
+    service: s.service||s.service_listing||"",
+    description: s.description||"",
+    price: price,
+    displayPrice: s.displayPrice||pricing.display_price||"",
+    model: s.model||pricing.model||"",
+    unit: s.unit||"per event",
+    included: s.included||s.included_in_base_price||"",
+    addons: Array.isArray(s.addons)?s.addons:(Array.isArray(s.example_add_ons)?s.example_add_ons:[]),
+    availability: s.availability||"",
+    serviceArea: area.length?area:["Nationwide"],
+    rating: s.rating!==undefined?s.rating:(s.ratingScore||0),
+    thumb: s.thumb||"📦",
+    city: s.city||(area.length?area[0]:""),
+    listingStatus: s.listingStatus||s.listing_status||"",
+    verificationStatus: s.verificationStatus||s.supplier_verification_status||"",
+    notes: s.notes||s.supplier_notes||""
+  };
+}
+let $supplierCache=null;
+function getSuppliers(){
+  if($supplierCache) return $supplierCache;
+  const raw=(window.EATOUTS_SUPPLIERS&&Array.isArray(window.EATOUTS_SUPPLIERS))?window.EATOUTS_SUPPLIERS:DEMO_SUPPLIERS;
+  $supplierCache=raw.map(normalizeDemoSupplier);
+  return $supplierCache;
+}
+function findVenue(id){return getVenues().find(function(v){return v.id===id;})||null;}
+function findSupplier(id){
+  const s=getSuppliers().find(function(x){return x.id===id;});
+  if(s) return s;
+  // legacy draft ids survive even when the full directory is loaded
+  const d=DEMO_SUPPLIERS.find(function(x){return x.id===id;});
+  return d?normalizeDemoSupplier(d):null;
+}
+let $supplierCatCache=null;
+function getSupplierCats(){
+  if($supplierCatCache) return $supplierCatCache;
+  let cats=(window.EATOUTS_SUPPLIER_CATS&&window.EATOUTS_SUPPLIER_CATS.length)?window.EATOUTS_SUPPLIER_CATS:null;
+  if(!cats){
+    cats=Object.keys(SUPPLIER_FIELDS).map(function(gid){
+      const g=SUPPLIER_FIELDS[gid];
+      return {id:gid,name:g.name,icon:g.icon||"📦",subs:(g.fields||[]).map(function(f){return {name:f.name,services:[]};})};
+    });
+  }
+  $supplierCatCache=cats;
+  return cats;
+}
+function catById(id){
+  return getSupplierCats().find(function(c){return c.id===id;})||null;
+}
+function bucketLabel(id){
+  const cat=catById(id);
+  if(cat&&cat.name) return cat.name;
+  let name=null;
+  Object.keys(SUPPLIER_FIELDS).forEach(function(gid){
+    const g=SUPPLIER_FIELDS[gid];
+    if(g.id===id) name=g.name;
+    (g.fields||[]).forEach(function(f){ if(f.id===id) name=f.name; });
+  });
+  return name||id;
+}
+function isSupplierAdded(id){
+  return Object.keys(STATE.suppliers).some(function(k){
+    return (STATE.suppliers[k]||[]).some(function(e){return e.supplierId===id;});
+  });
+}
+function parseAddonPrice(str){
+  const m=String(str||"").match(/P\s?([\d,]+(?:\.\d+)?)/);
+  if(!m) return null;
+  return {price:Number(m[1].replace(/,/g,""))};
+}
+const UNIT_KEY_LABELS={
+  "per person":"Guests","per hour":"Hours","per day":"Days","per night":"Nights",
+  "per shift":"Shifts","per set":"Sets","per event":"Units","per item":"Items",
+  "per trip":"Trips","per session":"Sessions","per installation":"Units",
+  "per square metre":"Sq metres","per cake":"Qty","fixed":"Qty"
+};
+function supplierUnitQty(unit,c){
+  if(c.qty!==undefined && Number(c.qty)>0) return Number(c.qty);
+  if(unit==="per person") return totalGuests()||1;
+  if(unit==="per day"||unit==="per night") return STATE.schedule.days.length||1;
+  return 1;
+}
+
+function getAllEventTypes(){
+  const tax=getTaxonomy();
+  const out=[];
+  Object.keys(tax).forEach(function(catId){
+    const cat=tax[catId];
+    (cat.subCategories||[]).forEach(function(sub){
+      (sub.events||[]).forEach(function(ev){
+        out.push({
+          id:ev.id,name:ev.name,description:ev.description||"",
+          categoryId:cat.id,categoryName:cat.name,icon:cat.icon,
+          subCategoryName:sub.name
+        });
+      });
+    });
+  });
+  return out;
+}
+function findEventType(id){return getAllEventTypes().find(function(e){return e.id===id;})||null;}
+function venuesForEventType(eventId){
+  return getVenues().filter(function(v){
+    return Array.isArray(v.eventTypes) && v.eventTypes.indexOf(eventId)>-1;
+  });
+}
+function getMenuItemsForVenue(cat){
+  const v=STATE.venue;
+  if(!v||!v.menu) return [];
+  return v.menu.filter(function(m){return m.cat===cat;});
+}
+
+/* ============================================================
+   PRICING
+   ============================================================ */
+function fmt(n){
+  const v=Number(n)||0;
+  return "P"+v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,",");
+}
+function venueSpacesCost(){
+  if(!STATE.venue) return 0;
+  return STATE.venueSpaces.reduce(function(sum,sid){
+    const sp=(STATE.venue.spaces||[]).find(function(s){return s.id===sid;});
+    return sum + (sp && sp.price ? Number(sp.price) : 0);
+  },0);
+}
+function venueDurationCost(){
+  if(!STATE.venue) return 0;
+  const base=Number(STATE.venue.fromPrice)||0;
+  const hourly=(STATE.venue.pricing && STATE.venue.pricing.hourly)||0;
+  return STATE.schedule.days.reduce(function(sum,d){
+    let hours=0;
+    if(d.startTime && d.endTime && d.startDate && d.endDate){
+      // simple estimate: use time difference on start date
+      const s=d.startTime.split(":").map(Number);
+      const e=d.endTime.split(":").map(Number);
+      let h=(e[0]*60+e[1])-(s[0]*60+s[1]);
+      if(h<0) h+=24*60;
+      hours=h/60;
+    } else if(d.startDate && d.endDate){
+      // multi-day range: use days * 8h
+      const sd=new Date(d.startDate), ed=new Date(d.endDate);
+      if(!isNaN(sd) && !isNaN(ed)){
+        const days=Math.max(1, Math.round((ed-sd)/86400000)+1);
+        hours=days*8;
+      }
+    }
+    return sum + base + (hourly*hours);
+  },0);
+}
+function venueCost(){ return venueDurationCost() + venueSpacesCost(); }
+function menuFoodCost(){
+  return STATE.menuFood.reduce(function(s,x){
+    return s + (Number(x.price)||0)*(Number(x.qty)||0);
+  },0);
+}
+function menuBeveragesCost(){
+  return STATE.menuBeverages.reduce(function(s,x){
+    return s + (Number(x.price)||0)*(Number(x.qty)||0);
+  },0);
+}
+function menuCost(){ return menuFoodCost()+menuBeveragesCost(); }
+function supplierLineCost(entry){
+  const sup=findSupplier(entry.supplierId);
+  if(!sup) return 0;
+  const c=entry.customisations||{};
+  let cost=(Number(sup.price)||0)*supplierUnitQty(sup.unit,c);
+  (sup.addons||[]).forEach(function(add,i){
+    const pm=parseAddonPrice(add);
+    const n=Number(c["addon_"+i])||0;
+    if(pm&&n>0) cost+=pm.price*n;
+  });
+  return cost;
+}
+function supplierCost(){
+  let total=0;
+  Object.keys(STATE.suppliers).forEach(function(fieldId){
+    (STATE.suppliers[fieldId]||[]).forEach(function(entry){
+      total+=supplierLineCost(entry);
+    });
+  });
+  return total;
+}
+function customSummary(entry,sup){
+  const c=entry.customisations||{};
+  const bits=[];
+  if(sup) bits.push(supplierUnitQty(sup.unit,c)+" "+sup.unit);
+  (sup?sup.addons:[]).forEach(function(a,i){
+    const n=Number(c["addon_"+i])||0;
+    if(n>0) bits.push(String(a).replace(/\([^)]*\)\s*$/,"").trim()+" × "+n);
+  });
+  if(c.notes) bits.push(c.notes);
+  return bits.join(" · ");
+}
+function totalGuests(){
+  let n=0;
+  STATE.guests.forEach(function(g){ n += 1 + (Number(g.plus)||0); });
+  return n;
+}
+function grandTotal(){ return venueCost()+menuCost()+supplierCost(); }
+function calculatorItemCount(){
+  let n=0;
+  if(STATE.venue) n++;
+  n+=STATE.menuFood.length+STATE.menuBeverages.length;
+  Object.keys(STATE.suppliers).forEach(function(k){ n+=(STATE.suppliers[k]||[]).length; });
+  n+=STATE.guests.length;
+  n+=STATE.notes.length;
+  n+=STATE.targetAudience.length;
+  return n;
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function esc(s){
+  return String(s==null?"":s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("on");
+  clearTimeout(STATE.toastTimer);
+  STATE.toastTimer=setTimeout(function(){t.classList.remove("on");},2000);
+}
+function uid(p){return p+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7);}
+
+/* ============================================================
+   VENUE BAR
+   ============================================================ */
+function venueLogoHtml(v){
+  if(!v) return '<div class="venue-thumb">📍</div>';
+  const logo=v.logo||"";
+  if(logo && /^(https?:|assets\/|data:|\.\/)/.test(logo)){
+    return '<div class="venue-thumb"><img src="'+esc(logo)+'" alt=""></div>';
+  }
+  if(v.thumb && /^(https?:|assets\/|data:|\.\/)/.test(v.thumb)){
+    return '<div class="venue-thumb"><img src="'+esc(v.thumb)+'" alt=""></div>';
+  }
+  return '<div class="venue-thumb">'+esc(v.thumb||"🏛")+'</div>';
+}
+function renderVenueBar(){
+  const el=document.getElementById("venue-bar");
+  const v=STATE.venue;
+  const typeName=STATE.eventType.name||"event";
+  if(!v){
+    el.innerHTML='<div class="venue-bar-inner">'+
+      '<div class="venue-thumb">📍</div>'+
+      '<div class="venue-bar-info">'+
+        '<div class="venue-bar-name" style="color:var(--muted);font-style:italic">No venue provider selected</div>'+
+        '<div class="venue-bar-sub">for '+esc(typeName)+'</div>'+
+      '</div>'+
+      '<span class="venue-bar-badge">Venue</span>'+
+    '</div>';
+    return;
+  }
+  let expanded='';
+  if(STATE.venueBarExpanded){
+    expanded='<div class="venue-bar-expand open">'+
+      '<h4>Venue Provider</h4>'+
+      '<div class="venue-kv"><span class="k">Name</span><span class="v">'+esc(v.name)+'</span></div>'+
+      '<div class="venue-kv"><span class="k">Location</span><span class="v">'+esc(v.city||"")+(v.area?" · "+esc(v.area):"")+'</span></div>'+
+      '<div class="venue-kv"><span class="k">Capacity</span><span class="v">Up to '+esc(v.capacity||"—")+' guests</span></div>'+
+      '<div class="venue-kv"><span class="k">From</span><span class="v">'+fmt(v.fromPrice||0)+'</span></div>'+
+      '<div class="venue-kv"><span class="k">For Event Type</span><span class="v" style="color:var(--gold);font-weight:900">'+esc(typeName)+'</span></div>'+
+      '<div class="venue-kv"><span class="k">Spaces</span><span class="v">'+(v.spaces||[]).length+' available</span></div>'+
+      '<div class="venue-kv"><span class="k">Selected</span><span class="v">'+STATE.venueSpaces.length+' space'+(STATE.venueSpaces.length===1?"":"s")+'</span></div>'+
+    '</div>';
+  }
+  el.innerHTML='<div class="venue-bar-inner" data-act="toggleVenueBar">'+
+    venueLogoHtml(v)+
+    '<div class="venue-bar-info">'+
+      '<div class="venue-bar-name">'+esc(v.name)+'</div>'+
+      '<div class="venue-bar-sub">for <b>'+esc(typeName)+'</b></div>'+
+    '</div>'+
+    '<span class="venue-bar-badge">'+(STATE.venueBarExpanded?"Hide":"Info")+'</span>'+
+  '</div>'+expanded;
+}
+
+/* ============================================================
+   FLYER (edge-to-edge) + ADD MENU
+   ============================================================ */
+function renderFlyer(){
+  const imgs=STATE.flyerImages;
+  if(imgs.length){
+    const main=imgs[0];
+    return '<button class="flyer" data-act="openFlyerMenu">'+
+      '<img src="'+esc(main)+'" alt="">'+
+      '<span class="flyer-main-badge">Main Flyer</span>'+
+      (imgs.length>1?'<span class="flyer-count">'+imgs.length+' images</span>':'')+
+      '<span class="flyer-add-badge">+</span>'+
+    '</button>';
+  }
+  return '<button class="flyer" data-act="openFlyerMenu">'+
+    '<span class="flyer-empty">+</span>'+
+  '</button>';
+}
+
+function renderFlyerAddMenu(){
+  if(!STATE.flyerMenuOpen) return "";
+  const imgs=STATE.flyerImages;
+  let stack='';
+  if(imgs.length){
+    stack=imgs.map(function(src,i){
+      const isMain=i===0;
+      return '<div class="flyer-item'+(isMain?" main":"")+'">'+
+        '<img src="'+esc(src)+'" alt="">'+
+        (isMain?'<span class="flyer-item-main-label">Main</span>':'')+
+        '<div class="flyer-item-actions">'+
+          (!isMain?'<button class="flyer-item-btn make-main" data-act="makeMainFlyer" data-idx="'+i+'">Make main</button>':'')+
+          '<button class="flyer-item-btn" data-act="removeFlyer" data-idx="'+i+'" aria-label="Remove">×</button>'+
+        '</div>'+
+      '</div>';
+    }).join("");
+  }
+  return '<div class="fpop-scrim" data-act="closeFlyerMenu">'+
+    '<div class="flyer-menu-panel" data-stop="1">'+
+      '<div class="flyer-menu-hdr">'+
+        '<h3>Event Images</h3>'+
+        '<button class="fpop-close" data-act="closeFlyerMenu" aria-label="Close">×</button>'+
+      '</div>'+
+      '<div class="flyer-menu-hint">The first image is your main flyer. Add several to build a gallery.</div>'+
+      '<div class="flyer-menu-stack">'+
+        (stack||'<div class="empty" style="padding:32px 20px">No images yet. Tap below to add.</div>')+
+      '</div>'+
+      '<div class="flyer-menu-foot">'+
+        '<button class="btn primary full" data-act="addFlyerImage">+ Add Image</button>'+
+        '<button class="btn ghost full" data-act="closeFlyerMenu">Done</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ============================================================
+   TITLE BLOCK
+   ============================================================ */
+function renderTitleBlock(){
+  const name=STATE.eventTitle||"Untitled Event";
+  const desc=STATE.eventDescription||"Add a short description…";
+  const hasDesc=!!STATE.eventDescription;
+  return '<div class="flyer-title-block" data-act="openTitleEdit">'+
+    '<h1>'+esc(name)+'</h1>'+
+    '<div class="desc'+(hasDesc?"":" placeholder")+'">'+esc(desc)+'</div>'+
+    '<div class="edit-hint">Tap to edit</div>'+
+  '</div>';
+}
+function renderTitleEdit(){
+  if(!STATE.titleEditOpen) return "";
+  const d=STATE.titleEditDraft;
+  return '<div class="fpop-scrim" data-act="closeTitleEdit">'+
+    '<div class="title-edit-panel" data-stop="1">'+
+      '<div class="fpop-hdr">'+
+        '<h3>Event Title & Description</h3>'+
+        '<button class="fpop-close" data-act="closeTitleEdit" aria-label="Close">×</button>'+
+      '</div>'+
+      '<div class="title-edit-body">'+
+        '<div class="field">'+
+          '<label>Event Title</label>'+
+          '<input type="text" id="titleDraft" value="'+esc(d.title)+'" placeholder="e.g. Sarah & Tom Wedding Reception" maxlength="80">'+
+        '</div>'+
+        '<div class="field">'+
+          '<label>Event Description</label>'+
+          '<textarea id="descDraft" placeholder="A short description of your event..." maxlength="400">'+esc(d.description)+'</textarea>'+
+        '</div>'+
+      '</div>'+
+      '<div class="title-edit-foot">'+
+        '<button class="btn ghost half" data-act="closeTitleEdit">Cancel</button>'+
+        '<button class="btn primary half" data-act="saveTitleEdit">Save</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ============================================================
+   SIDE-SCROLL (no numbers, no pills)
+   ============================================================ */
+const STEPS=[
+  {id:"event-type",label:"Event Type"},
+  {id:"schedule",label:"Schedule"},
+  {id:"audience",label:"Audience"},
+  {id:"venue",label:"Venue"},
+  {id:"menu",label:"Menu"},
+  {id:"suppliers",label:"Suppliers"},
+  {id:"details",label:"Details"},
+  {id:"guests",label:"Guests"},
+  {id:"rsvp",label:"RSVP"},
+  {id:"share",label:"Share"},
+  {id:"review",label:"Review"},
+  {id:"preview",label:"Preview"}
+];
+function stepLocked(id){
+  if(id==="event-type") return false;
+  if(id==="venue"||id==="schedule"||id==="audience") return !STATE.eventType.eventId;
+  return !STATE.venue && !["share","review","preview"].includes(id);
+}
+function renderSideScroll(){
+  let h='<div class="side-scroll-wrap"><div class="side-scroll">';
+  STEPS.forEach(function(s){
+    const on=STATE.activeStep===s.id;
+    const locked=stepLocked(s.id);
+    h+='<button class="side-item'+(on?" on":"")+(locked?" locked":"")+'" data-act="jumpStep" data-step="'+s.id+'">'+
+      '<span class="side-lbl">'+esc(s.label)+'</span>'+
+    '</button>';
+  });
+  h+='</div></div>';
+  return h;
+}
+
+/* ============================================================
+   SECTION HELPER (no acc-ind)
+   ============================================================ */
+const MAIN_ACC_IDS=STEPS.map(function(s){return s.id;});
+function closeMainSections(keep){
+  MAIN_ACC_IDS.forEach(function(id){
+    if(id!==keep) STATE.openSections[id]=false;
+  });
+}
+function closeOpenSectionsByPrefix(prefix,keep){
+  Object.keys(STATE.openSections).forEach(function(k){
+    if(k!==keep && k.indexOf(prefix)===0) STATE.openSections[k]=false;
+  });
+}
+function section(id,num,title,sub,count,body,opts){
+  opts=opts||{};
+  const open=!!STATE.openSections[id];
+  const locked=!!opts.locked;
+  const cls="section"+(open?" open":"")+(locked?" locked":"");
+  let countEl="";
+  if(count!==null && count!==undefined){
+    const has=count>0;
+    countEl='<span class="section-count'+(has?" has":"")+'">'+count+'</span>';
+  }
+  return '<div class="'+cls+'" data-sec="'+id+'">'+
+    '<button class="section-hdr" data-act="toggleSec" data-sec="'+id+'">'+
+      '<span class="section-num">'+num+'</span>'+
+      '<span class="section-title-block">'+
+        '<span class="section-title">'+esc(title)+'</span>'+
+        '<span class="section-sub">'+esc(sub)+'</span>'+
+      '</span>'+
+      countEl+
+    '</button>'+
+    '<div class="section-body"><div class="section-body-in">'+body+'</div></div>'+
+  '</div>';
+}
+
+/* ============================================================
+   SECTION 01 — EVENT TYPE
+   ============================================================ */
+function renderEventTypeSection(){
+  let body="";
+  if(STATE.eventType.eventId){
+    const et=findEventType(STATE.eventType.eventId);
+    body+='<div class="eventtype-hero">'+
+      '<div class="icon">'+esc(et.icon||"📌")+'</div>'+
+      '<div class="cat">'+esc(et.categoryName)+' · '+esc(et.subCategoryName)+'</div>'+
+      '<h3>'+esc(et.name)+'</h3>'+
+      '<div class="desc">'+esc(et.description||("A "+et.name.toLowerCase()+" type of event"))+'</div>'+
+      '<div class="actions">'+
+        '<button class="btn tiny" data-act="clearEventType" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">Change type</button>'+
+      '</div>'+
+    '</div>';
+    // Notes for the event type
+    body+='<div class="field"><label>Notes <span style="color:var(--muted-2);font-weight:600;text-transform:none;letter-spacing:0">Add title + note for this event</span></label>';
+    if(STATE.notes.length){
+      STATE.notes.forEach(function(n,i){
+        body+='<div class="note-item">'+
+          '<h5>'+esc(n.title||"Note")+'<button class="rm" data-act="removeNote" data-idx="'+i+'">×</button></h5>'+
+          '<p>'+esc(n.body||"")+'</p>'+
+        '</div>';
+      });
+    }
+    body+='<button class="sup-add-btn" data-act="addNote">+ Add note</button></div>';
+  } else {
+    const tax=getTaxonomy();
+    Object.keys(tax).forEach(function(catId){
+      const cat=tax[catId];
+      const key="et_cat_"+catId;
+      const open=!!STATE.openSections[key];
+      let totalEvents=0;
+      (cat.subCategories||[]).forEach(function(s){totalEvents+=(s.events||[]).length;});
+      body+='<div class="etype-group'+(open?" open":"")+'">'+
+        '<button class="etype-group-hdr" data-act="toggleEtypeGroup" data-key="'+key+'">'+
+          '<span class="etype-ico">'+esc(cat.icon||"📌")+'</span>'+
+          '<span class="etype-info">'+
+            '<span class="etype-name">'+esc(cat.name)+'</span>'+
+            '<span class="etype-meta">'+(cat.subCategories||[]).length+' subcategories · '+totalEvents+' event types</span>'+
+          '</span>'+
+        '</button>'+
+        '<div class="etype-group-body">';
+      (cat.subCategories||[]).forEach(function(sub){
+        body+='<div class="etype-sub">'+esc(sub.name)+'</div>';
+        body+='<div class="etype-list">';
+        (sub.events||[]).forEach(function(ev){
+          body+='<button class="etype-option" data-act="pickEventType" data-id="'+esc(ev.id)+'">'+
+            esc(ev.name)+
+            (ev.description?'<span class="desc">'+esc(ev.description)+'</span>':'')+
+          '</button>';
+        });
+        body+='</div>';
+      });
+      body+='</div></div>';
+    });
+  }
+  return section("event-type","01","Event Type",
+    STATE.eventType.eventId?"You've chosen your event type":"Pick the kind of event you're planning",
+    STATE.notes.length||null, body, {locked:false});
+}
+
+/* ============================================================
+   SECTION 02 — SCHEDULE
+   ============================================================ */
+function renderScheduleSection(){
+  if(!STATE.eventType.eventId){
+    return section("schedule","02","Schedule",
+      "Pick an event type first",null,
+      '<div class="empty">Choose an event type to unlock the schedule.</div>',
+      {locked:true});
+  }
+  let body='';
+  body+='<div class="field"><label>Schedule type</label>'+
+    '<div class="chip-row">'+
+      '<span class="chip'+(STATE.schedule.mode==="one-day"?" on":"")+'" data-act="setScheduleMode" data-val="one-day">One Day</span>'+
+      '<span class="chip'+(STATE.schedule.mode==="multi-day"?" on":"")+'" data-act="setScheduleMode" data-val="multi-day">Multiple Days</span>'+
+    '</div>'+
+  '</div>';
+  STATE.schedule.days.forEach(function(d,i){
+    body+='<div class="schedule-day">'+
+      '<div class="schedule-day-hdr">'+
+        '<span class="day-num">'+(i+1)+'</span>'+
+        '<span class="day-title">'+(i===0?"Day 1":("Day "+(i+1)))+'</span>'+
+        (STATE.schedule.days.length>1?'<button class="day-remove" data-act="removeDay" data-idx="'+i+'" aria-label="Remove">×</button>':'')+
+      '</div>'+
+      '<div class="schedule-day-in">'+
+        '<div class="field"><label>Start date & time</label>'+
+          '<div class="grid2">'+
+            '<input type="date" data-day="'+i+'" data-dfield="startDate" value="'+esc(d.startDate||"")+'">'+
+            '<input type="time" data-day="'+i+'" data-dfield="startTime" value="'+esc(d.startTime||"")+'">'+
+          '</div>'+
+        '</div>'+
+        '<div class="field"><label>End date & time</label>'+
+          '<div class="grid2">'+
+            '<input type="date" data-day="'+i+'" data-dfield="endDate" value="'+esc(d.endDate||"")+'">'+
+            '<input type="time" data-day="'+i+'" data-dfield="endTime" value="'+esc(d.endTime||"")+'">'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  });
+  if(STATE.schedule.mode==="multi-day"){
+    body+='<button class="sup-add-btn" data-act="addDay">+ Add another day</button>';
+  }
+  return section("schedule","02","Schedule",
+    STATE.schedule.mode==="multi-day"?STATE.schedule.days.length+" days":"One day event",
+    STATE.schedule.days.length, body, {locked:false});
+}
+
+/* ============================================================
+   SECTION 03 — TARGET AUDIENCE
+   ============================================================ */
+function renderAudienceSection(){
+  let body="";
+  if(!STATE.targetAudience.length){
+    body+='<div class="field-hint" style="margin-bottom:10px">Describe who this event is for — audience groups, age brackets, special notes.</div>';
+  }
+  STATE.targetAudience.forEach(function(a,i){
+    body+='<div class="audience-card">'+
+      '<h5>'+esc(a.title||"Audience")+'<button class="rm" data-act="removeAudience" data-idx="'+i+'">×</button></h5>'+
+      (a.note?'<p>'+esc(a.note)+'</p>':'')+
+      (a.ageGroup?'<div class="age">Age group: '+esc(a.ageGroup)+'</div>':'')+
+    '</div>';
+  });
+  body+='<button class="sup-add-btn" data-act="addAudience">+ Add target audience</button>';
+  return section("audience","03","Target Audience",
+    STATE.targetAudience.length?STATE.targetAudience.length+" audience group"+(STATE.targetAudience.length===1?"":"s"):"Who is this event for?",
+    STATE.targetAudience.length, body, {locked:!STATE.eventType.eventId});
+}
+
+/* ============================================================
+   SECTION 04 — VENUE
+   ============================================================ */
+function renderVenueSection(){
+  if(!STATE.eventType.eventId){
+    return section("venue","04","Venue",
+      "Pick an event type first",null,
+      '<div class="empty">Choose an event type to unlock venues.</div>',
+      {locked:true});
+  }
+  const list=venuesForEventType(STATE.eventType.eventId);
+  if(!list.length){
+    return section("venue","04","Venue","No venues listed for this event type yet",0,
+      '<div class="empty">No venues are currently listed for '+esc(STATE.eventType.name)+'.<br>Try a different event type.</div>',
+      {locked:false});
+  }
+  let body="";
+  if(!STATE.venue){
+    body+='<div class="field-hint" style="margin-bottom:10px">'+list.length+' venue'+(list.length===1?"":"s")+' available for '+esc(STATE.eventType.name)+'.</div>';
+  }
+  list.forEach(function(v){
+    body+=renderVenueCard(v,STATE.venue && STATE.venue.id===v.id);
+  });
+
+  // Venue rules added by user (visible when a venue is selected)
+  if(STATE.venue){
+    body+='<div class="field" style="margin-top:16px"><label>Your venue rules & notes</label>';
+    if(STATE.venueRules.length){
+      STATE.venueRules.forEach(function(r,i){
+        body+='<div class="note-item">'+
+          '<h5>'+esc(r.title||"Rule")+'<button class="rm" data-act="removeVenueRule" data-idx="'+i+'">×</button></h5>'+
+          '<p>'+esc(r.note||"")+'</p>'+
+        '</div>';
+      });
+    }
+    body+='<button class="sup-add-btn" data-act="addVenueRule">+ Add rule (title + note)</button></div>';
+  }
+
+  return section("venue","04","Venue",
+    STATE.venue?STATE.venue.name+" selected":"Browse venue providers",
+    STATE.venue?1:null, body, {locked:false});
+}
+function renderVenueCard(v,on){
+  const body=on?renderVenueCardBody(v):"";
+  return '<div class="venue-card'+(on?" on":"")+'">'+
+    '<button class="venue-card-hdr" data-act="pickVenue" data-id="'+esc(v.id)+'">'+
+      '<span class="venue-card-thumb">'+
+        (v.logo && /^(https?:|assets\/|data:)/.test(v.logo) ? '<img src="'+esc(v.logo)+'" alt="">' : esc(v.thumb||"🏛"))+
+      '</span>'+
+      '<span class="venue-card-info">'+
+        '<span class="venue-card-name">'+esc(v.name)+'</span>'+
+        '<span class="venue-card-meta">'+esc(v.city||"")+(v.area?" · "+esc(v.area):"")+(v.capacity?" · up to "+esc(v.capacity)+" guests":"")+'</span>'+
+        '<span class="venue-card-price">From '+fmt(v.fromPrice||0)+'</span>'+
+      '</span>'+
+      '<span class="venue-card-check">'+(on?"✓":"")+'</span>'+
+    '</button>'+
+    '<div class="venue-card-body"><div class="venue-body-in">'+body+'</div></div>'+
+  '</div>';
+}
+function renderVenueCardBody(v){
+  let h="";
+  // Rules (from venue)
+  h+=subacc("rules","Rules",(v.rules?"Provided":"None"),
+    '<div style="font-size:12px;line-height:1.55">'+esc(v.rules||"No rules published by this venue.")+'</div>'
+  );
+  // Seating
+  h+=subacc("seating","Seating",esc(v.seating||"Not specified"),
+    '<div style="font-size:12px;line-height:1.55">'+esc(v.seating||"No seating information published.")+'</div>'
+  );
+  // Spaces with tick + pricing
+  const spaces=v.spaces||[];
+  h+=subacc("spaces","Spaces",spaces.length+" available · tap to select",
+    spaces.length
+      ? '<div class="tick-grid">'+spaces.map(function(s){
+          const on=STATE.venueSpaces.indexOf(s.id)>-1;
+          return '<button class="tick'+(on?" on":"")+'" data-act="toggleSpace" data-id="'+esc(s.id)+'">'+
+            '<span class="bx">✓</span>'+
+            '<span class="tx">'+esc(s.name)+
+              '<em>'+esc(s.type)+' · up to '+esc(s.cap)+
+              (s.price?' · P'+s.price:"")+
+              '</em>'+
+            '</span>'+
+          '</button>';
+        }).join("")+'</div>'
+      : '<div class="field-hint">No spaces listed.</div>'
+  );
+  // Gallery — tap shows detail
+  const gal=v.gallery||[];
+  h+=subacc("gallery","Image gallery",gal.length+" photos · tap for details",
+    gal.length
+      ? '<div class="venue-gallery">'+gal.map(function(g,i){
+          const img = g.url
+            ? '<img src="'+esc(g.url)+'" alt="">'
+            : esc(g.emoji||"🖼");
+          return '<button class="g-item" data-act="openGalleryDetail" data-idx="'+i+'">'+img+'</button>';
+        }).join("")+'</div>'+
+        (STATE.venueGalleryOpen!==null && gal[STATE.venueGalleryOpen]
+          ? renderGalleryDetail(gal[STATE.venueGalleryOpen])
+          : '')
+      : '<div class="field-hint">No photos listed.</div>'
+  );
+  // Pricing
+  const p=v.pricing||{};
+  h+=subacc("pricing","Pricing",p.perPerson?"From P"+p.perPerson+" per person":"Contact venue",
+    '<div class="venue-kv"><span class="k">Per person</span><span class="v">'+(p.perPerson?fmt(p.perPerson):"—")+'</span></div>'+
+    '<div class="venue-kv"><span class="k">Hourly rate</span><span class="v">'+(p.hourly?fmt(p.hourly):"—")+'</span></div>'+
+    '<div class="venue-kv"><span class="k">Minimum spend</span><span class="v">'+(p.minSpend?fmt(p.minSpend):"—")+'</span></div>'+
+    '<div class="venue-kv"><span class="k">Base hire</span><span class="v">'+fmt(v.fromPrice||0)+'</span></div>'
+  );
+  // Location
+  h+=subacc("location","Location",esc(v.city||"")+(v.area?" · "+v.area:""),
+    '<div class="venue-kv"><span class="k">Town</span><span class="v">'+esc(v.city||"—")+'</span></div>'+
+    '<div class="venue-kv"><span class="k">Area</span><span class="v">'+esc(v.area||"—")+'</span></div>'+
+    '<div class="venue-kv"><span class="k">Map</span><span class="v"><a href="https://maps.google.com/?q='+encodeURIComponent(v.name+" "+(v.city||""))+
+      '" target="_blank" rel="noopener" style="color:var(--gold);font-weight:800">Open in Maps</a></span></div>'
+  );
+  return h;
+}
+function renderGalleryDetail(g){
+  return '<div class="g-detail">'+
+    '<h5>'+esc(g.title||"Image")+'</h5>'+
+    (g.desc?'<div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+esc(g.desc)+'</div>':'')+
+    (g.price?'<div class="row"><span class="k">Price</span><span class="v">'+fmt(g.price)+'</span></div>':'')+
+  '</div>';
+}
+function subacc(key,title,meta,body){
+  const k="sub_"+key;
+  const open=!!STATE.openSections[k];
+  return '<div class="subacc'+(open?" open":"")+'">'+
+    '<button class="subacc-hdr" data-act="toggleSub" data-key="'+k+'">'+
+      '<span class="subacc-title">'+esc(title)+'</span>'+
+      '<span class="subacc-count">'+esc(meta||"")+'</span>'+
+    '</button>'+
+    '<div class="subacc-body"><div class="subacc-in">'+body+'</div></div>'+
+  '</div>';
+}
+
+/* ============================================================
+   SECTION 05 — MENU (food + beverages)
+   ============================================================ */
+function renderMenuSection(){
+  if(!STATE.venue){
+    return section("menu","05","Menu",
+      "Select a venue first",null,
+      '<div class="empty">Choose a venue to unlock its menu.</div>',
+      {locked:true});
+  }
+  const food=getMenuItemsForVenue("Food");
+  const bevs=getMenuItemsForVenue("Beverage");
+  let body="";
+  // Food sub-accordion
+  body+=menuCatAcc("food","Food",food,STATE.menuFood);
+  // Beverages sub-accordion
+  body+=menuCatAcc("beverages","Beverages",bevs,STATE.menuBeverages);
+
+  if(!food.length && !bevs.length){
+    body+='<div class="field-hint">'+esc(STATE.venue.name)+' has no published menu. Add a caterer under Suppliers.</div>';
+  }
+  return section("menu","05","Menu",
+    (STATE.menuFood.length+STATE.menuBeverages.length)?(STATE.menuFood.length+STATE.menuBeverages.length)+" item"+(STATE.menuFood.length+STATE.menuBeverages.length===1?"":"s")+" selected":"Add food and beverages",
+    STATE.menuFood.length+STATE.menuBeverages.length, body, {locked:false});
+}
+function menuCatAcc(key,title,items,selected){
+  const k="menu_"+key;
+  const open=!!STATE.menuOpen[key];
+  const selectedCount=selected.length;
+  let inner="";
+  if(!items.length){
+    inner='<div class="field-hint">No '+title.toLowerCase()+' published for this venue.</div>';
+  } else {
+    inner=items.map(function(m){
+      const entry=selected.find(function(x){return x.itemId===m.id;});
+      const qty=entry?entry.qty:0;
+      return '<div class="menu-item">'+
+        '<div class="menu-item-thumb">'+(key==="beverages"?"🥂":"🍽")+'</div>'+
+        '<div class="menu-item-info">'+
+          '<div class="menu-item-name">'+esc(m.name)+'</div>'+
+          '<div class="menu-item-price"><b>'+fmt(m.price)+'</b> per person'+
+            (m.dietary?' · '+esc(m.dietary.join(", ")):'')+
+          '</div>'+
+        '</div>'+
+        '<div class="menu-item-qty">'+
+          '<button class="qty-btn" data-act="decMenu" data-cat="'+key+'" data-id="'+esc(m.id)+'">−</button>'+
+          '<span class="qty-val">'+qty+'</span>'+
+          '<button class="qty-btn" data-act="incMenu" data-cat="'+key+'" data-id="'+esc(m.id)+'">+</button>'+
+        '</div>'+
+      '</div>';
+    }).join("");
+  }
+  return '<div class="subacc'+(open?" open":"")+'">'+
+    '<button class="subacc-hdr" data-act="toggleMenuCat" data-key="'+key+'">'+
+      '<span class="subacc-title">'+esc(title)+'</span>'+
+      '<span class="subacc-count">'+(selectedCount?selectedCount+" added":items.length+" items")+'</span>'+
+    '</button>'+
+    '<div class="subacc-body"><div class="subacc-in">'+inner+'</div></div>'+
+  '</div>';
+}
+
+/* ============================================================
+   SECTION 06 — SUPPLIERS
+   ============================================================ */
+function renderSuppliersSection(){
+  let totalEngaged=0;
+  Object.keys(STATE.suppliers).forEach(function(k){
+    totalEngaged+=(STATE.suppliers[k]||[]).length;
+  });
+  let body='<div class="sup-summary">'+
+    '<div class="sup-stat"><span class="l">Engaged</span><b>'+totalEngaged+'</b></div>'+
+    '<div class="sup-stat"><span class="l">Categories</span><b>'+Object.keys(STATE.suppliers).filter(function(k){return STATE.suppliers[k].length;}).length+'</b></div>'+
+    '<div class="sup-stat"><span class="l">Budget</span><b class="gold">'+fmt(supplierCost())+'</b></div>'+
+  '</div>';
+  // Show added suppliers grouped by directory category
+  let hasAny=false;
+  getSupplierCats().forEach(function(cat){
+    const list=STATE.suppliers[cat.id]||[];
+    if(!list.length) return;
+    hasAny=true;
+    const open=!!STATE.openSections["sup_added_"+cat.id];
+    body+='<div class="sup-group'+(open?" open":"")+'">'+
+      '<button class="sup-group-hdr" data-act="toggleSupGroup" data-key="sup_added_'+cat.id+'">'+
+        '<span class="sup-group-ico">'+esc(cat.icon||"📦")+'</span>'+
+        '<span class="sup-group-info">'+
+          '<span class="sup-group-name">'+esc(cat.name)+'</span>'+
+          '<span class="sup-group-meta">'+list.length+(list.length===1?" supplier":" suppliers")+' added</span>'+
+        '</span>'+
+      '</button>'+
+      '<div class="sup-group-body">'+
+        '<div class="sup-field" style="border:1px solid var(--border-soft);border-radius:10px;margin-bottom:6px">'+
+          '<div style="padding:9px 11px;background:var(--surface);border-bottom:1px solid var(--border-soft);font-size:11.5px;font-weight:800">'+esc(cat.name)+'</div>'+
+          '<div class="sup-field-in" style="padding:10px">'+
+            list.map(function(entry,idx){ return renderSupplierSlot(entry,cat.id,idx); }).join("")+
+            '<button class="sup-add-btn" data-act="openSupplierTypeMenu" data-cat="'+esc(cat.id)+'">+ Add supplier</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  });
+  // Legacy buckets saved before the directory (old field ids) still render
+  const catIds={};
+  getSupplierCats().forEach(function(c){ catIds[c.id]=true; });
+  const orphans=Object.keys(STATE.suppliers).filter(function(k){ return (STATE.suppliers[k]||[]).length && !catIds[k]; });
+  if(orphans.length){
+    hasAny=true;
+    const open=!!STATE.openSections["sup_added_legacy"];
+    body+='<div class="sup-group'+(open?" open":"")+'">'+
+      '<button class="sup-group-hdr" data-act="toggleSupGroup" data-key="sup_added_legacy">'+
+        '<span class="sup-group-ico">📦</span>'+
+        '<span class="sup-group-info">'+
+          '<span class="sup-group-name">Saved supplier types</span>'+
+          '<span class="sup-group-meta">'+orphans.reduce(function(n,k){return n+(STATE.suppliers[k]||[]).length;},0)+' added</span>'+
+        '</span>'+
+      '</button>'+
+      '<div class="sup-group-body">'+
+        orphans.map(function(k){
+          return '<div class="sup-field" style="border:1px solid var(--border-soft);border-radius:10px;margin-bottom:6px">'+
+            '<div style="padding:9px 11px;background:var(--surface);border-bottom:1px solid var(--border-soft);font-size:11.5px;font-weight:800">'+esc(bucketLabel(k))+'</div>'+
+            '<div class="sup-field-in" style="padding:10px">'+
+              (STATE.suppliers[k]||[]).map(function(entry,idx){ return renderSupplierSlot(entry,k,idx); }).join("")+
+            '</div>'+
+          '</div>';
+        }).join("")+
+      '</div>'+
+    '</div>';
+  }
+  body+='<button class="sup-add-btn" style="margin-top:10px" data-act="openSupplierTypeMenu" data-cat="">+ Browse supplier directory</button>';
+  if(!hasAny){
+    body+='<div class="field-hint" style="text-align:center;padding:14px 0 0">No suppliers added yet. Tap above to browse the full directory.</div>';
+  }
+  return section("suppliers","06","Suppliers",
+    totalEngaged?totalEngaged+" engaged":"Add suppliers to your event",
+    totalEngaged, body, {locked:!STATE.venue});
+}
+function renderSupplierSlot(entry,fieldId,idx){
+  const s=findSupplier(entry.supplierId);
+  if(!s) return "";
+  const c=entry.customisations||{};
+  const customising=STATE.supplierCustomising && STATE.supplierCustomising.supplierId===entry.supplierId && STATE.supplierCustomising.fieldId===fieldId;
+  const metaParts=[];
+  if(s.city) metaParts.push(esc(s.city));
+  if(s.unit) metaParts.push(esc(s.unit));
+  if(s.rating) metaParts.push("★ "+esc(s.rating));
+  let h='<div class="sup-slot">'+
+    '<div class="sup-slot-info">'+
+      '<div class="sup-slot-name">'+esc(s.name)+'</div>'+
+      '<div class="sup-slot-meta">'+metaParts.join(" · ")+'</div>'+
+      '<div class="sup-slot-price">'+fmt(supplierLineCost(entry))+'</div>'+
+    '</div>'+
+    '<div class="sup-slot-acts">'+
+      '<button class="sup-slot-btn" data-act="customiseSupplier" data-field="'+esc(fieldId)+'" data-idx="'+idx+'" aria-label="Customise">⚙</button>'+
+      '<button class="sup-slot-btn danger" data-act="removeSupplier" data-field="'+esc(fieldId)+'" data-idx="'+idx+'" aria-label="Remove">×</button>'+
+    '</div>'+
+  '</div>';
+  if(customising){
+    h+=renderSupplierCustom(fieldId,idx,s,c);
+  }
+  return h;
+}
+function renderSupplierCustom(fieldId,idx,s,c){
+  const qtyLabel=UNIT_KEY_LABELS[s.unit]||"Qty";
+  const qty=supplierUnitQty(s.unit,c);
+  const addons=s.addons||[];
+  let h='<div class="sup-custom">'+
+    '<h5>Customise · '+esc(s.name)+'</h5>'+
+    '<div class="sup-custom-meta">'+fmt(s.price)+' '+esc(s.unit)+(addons.length?' · add-ons available':'')+'</div>';
+  h+='<div class="field">'+
+    '<label>'+esc(qtyLabel)+'</label>'+
+    '<div class="qty-stepper">'+
+      '<button type="button" data-act="decSupQty" data-field="'+esc(fieldId)+'" data-idx="'+idx+'" aria-label="Decrease">−</button>'+
+      '<input type="number" inputmode="numeric" min="1" data-sup-qty="1" data-field="'+esc(fieldId)+'" data-idx="'+idx+'" value="'+qty+'">'+
+      '<button type="button" data-act="incSupQty" data-field="'+esc(fieldId)+'" data-idx="'+idx+'" aria-label="Increase">+</button>'+
+    '</div>'+
+    '<div class="field-hint">'+fmt(s.price)+' × '+qty+' = '+fmt(s.price*qty)+'</div>'+
+  '</div>';
+  if(addons.length){
+    h+='<div class="sup-addons-wrap"><label class="sup-addons-label">Add-ons</label>';
+    addons.forEach(function(add,i){
+      const pm=parseAddonPrice(add);
+      const name=String(add).replace(/\([^)]*\)\s*$/,"").trim()||add;
+      const addN=Number(c["addon_"+i])||0;
+      h+='<div class="sup-addon">'+
+        '<div class="sup-addon-info">'+
+          '<div class="sup-addon-name">'+esc(name)+'</div>'+
+          (pm?'<div class="sup-addon-price">'+fmt(pm.price)+'</div>':'')+
+        '</div>'+
+        '<div class="qty-stepper sm">'+
+          '<button type="button" data-act="decSupAddon" data-field="'+esc(fieldId)+'" data-idx="'+idx+'" data-i="'+i+'" aria-label="Decrease">−</button>'+
+          '<input type="number" inputmode="numeric" min="0" data-sup-addon="'+i+'" data-field="'+esc(fieldId)+'" data-idx="'+idx+'" value="'+addN+'">'+
+          '<button type="button" data-act="incSupAddon" data-field="'+esc(fieldId)+'" data-idx="'+idx+'" data-i="'+i+'" aria-label="Increase">+</button>'+
+        '</div>'+
+      '</div>';
+    });
+    h+='</div>';
+  }
+  h+='<div class="field">'+
+    '<label>Notes</label>'+
+    '<input type="text" data-sup-notes="1" data-field="'+esc(fieldId)+'" data-idx="'+idx+'" value="'+esc(c.notes||"")+'" placeholder="Any notes for this supplier (optional)">'+
+  '</div>';
+  h+='<button class="btn primary sm full" data-act="saveSupplierCustom" data-field="'+esc(fieldId)+'" data-idx="'+idx+'">Done</button>'+
+     '<div class="sup-custom-note">Illustrative demo rate — not a quote. Real pricing is confirmed with each provider.</div>'+
+  '</div>';
+  return h;
+}
+/* Supplier directory popup */
+function renderSupplierTypeMenu(){
+  const p=STATE.supplierTypeMenu;
+  if(!p.open) return "";
+  const q=(p.search||"").toLowerCase().trim();
+  const preCat=p.cat||"";
+  let body="";
+  getSupplierCats().forEach(function(cat){
+    const list=getSuppliers().filter(function(s){
+      if(s.catId!==cat.id) return false;
+      if(!q) return true;
+      const hay=(s.name+" "+s.businessName+" "+s.catName+" "+s.subcategory+" "+s.service+" "+
+        (s.serviceArea||[]).join(" ")+" "+s.displayPrice).toLowerCase();
+      return hay.indexOf(q)>-1;
+    });
+    const open = (p.openCat===cat.id) || (!q && !!preCat && preCat===cat.id);
+    body+='<div class="stm-cat'+(open?" open":"")+'">'+
+      '<button class="stm-cat-hdr" data-act="toggleStmCat" data-cat="'+esc(cat.id)+'">'+
+        '<span class="stm-cat-ico">'+esc(cat.icon||"📦")+'</span>'+
+        '<span class="stm-cat-info">'+
+          '<span class="stm-cat-name">'+esc(cat.name)+'</span>'+
+          '<span class="stm-cat-meta">'+list.length+(list.length===1?" supplier":" suppliers")+'</span>'+
+        '</span>'+
+      '</button>'+
+      '<div class="stm-cat-body">'+
+        (list.length
+          ? '<div class="stm-sup-list">'+list.map(function(s){
+              const added=isSupplierAdded(s.id);
+              return '<div class="stm-sup">'+
+                '<div class="stm-sup-ico">'+esc(s.thumb||"📦")+'</div>'+
+                '<div class="stm-sup-info">'+
+                  '<div class="stm-sup-name">'+esc(s.name)+'</div>'+
+                  '<div class="stm-sup-meta">'+esc(s.subcategory||"")+(s.rating?" · ★ "+esc(s.rating):"")+(s.city?" · "+esc(s.city):"")+'</div>'+
+                  '<div class="stm-sup-price">'+fmt(s.price)+' '+esc(s.unit)+'</div>'+
+                '</div>'+
+                '<button class="stm-add'+(added?" on":"")+'" data-act="pickSupplier" data-id="'+esc(s.id)+'" data-cat="'+esc(cat.id)+'"'+(added?" disabled":"")+'>'+(added?"Added":"Add")+'</button>'+
+              '</div>';
+            }).join("")+'</div>'
+          : '<div class="stm-empty">No listed suppliers yet</div>')+
+      '</div>'+
+    '</div>';
+  });
+  return '<div class="fpop-scrim" data-act="closeSupplierTypeMenu">'+
+    '<div class="fpop" data-stop="1">'+
+      '<div class="fpop-hdr">'+
+        '<h3>Supplier Directory</h3>'+
+        '<button class="fpop-close" data-act="closeSupplierTypeMenu" aria-label="Close">×</button>'+
+      '</div>'+
+      '<div class="fpop-search">'+
+        '<input type="text" id="stmSearch" placeholder="Search suppliers…" value="'+esc(p.search)+'">'+
+      '</div>'+
+      '<div class="fpop-body">'+
+        (body || '<div class="fpop-empty">No suppliers match your search.</div>')+
+        '<div class="fpop-note">Illustrative demo rates with fictional suppliers — not a quote. Real pricing is confirmed with each provider before booking.</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ============================================================
+   SECTION 07 — EVENT DETAILS
+   ============================================================ */
+function renderDetailsSection(){
+  const d=STATE.eventDetails;
+  let body="";
+  // Public / Private
+  body+='<div class="field"><label>Event visibility</label>'+
+    '<div class="chip-row">'+
+      '<span class="chip'+(d.mode==="private"?" on":"")+'" data-act="setEventMode" data-val="private">Private</span>'+
+      '<span class="chip'+(d.mode==="public"?" on":"")+'" data-act="setEventMode" data-val="public">Public</span>'+
+    '</div>'+
+    '<div class="field-hint">'+(d.mode==="private"?"Invite-only. Only guests you share with will see details.":"Open to the public. Guests can find your event and RSVP.")+'</div>'+
+  '</div>';
+
+  // Entry type (only if public)
+  if(d.mode==="public"){
+    body+='<div class="field"><label>Entry</label>'+
+      '<div class="chip-row">'+
+        '<span class="chip'+(d.entryType==="free"?" on":"")+'" data-act="setEntryType" data-val="free">Free entry</span>'+
+        '<span class="chip'+(d.entryType==="ticket"?" on":"")+'" data-act="setEntryType" data-val="ticket">Ticketed</span>'+
+      '</div>'+
+    '</div>';
+    if(d.entryType==="ticket"){
+      body+='<div class="field"><label>Ticket tiers</label>';
+      d.tiers.forEach(function(t,i){
+        body+='<div class="tier">'+
+          '<h5>'+esc(t.name||"Tier")+'<button class="rm" data-act="removeTier" data-idx="'+i+'">×</button></h5>'+
+          '<div class="price">'+fmt(t.price)+'</div>'+
+          (t.notes?'<div class="notes">'+esc(t.notes)+'</div>':'')+
+        '</div>';
+      });
+      body+='<button class="sup-add-btn" data-act="addTier">+ Add ticket tier</button></div>';
+    }
+  }
+
+  // Dress code
+  body+='<div class="field" style="margin-top:12px"><label>Dress code</label>'+
+    '<textarea data-field="dresscode" placeholder="e.g. Smart casual, Black tie, Traditional attire welcome">'+esc(d.dresscode)+'</textarea></div>';
+
+  // Contact links
+  body+='<div class="field"><label>Contact links</label>';
+  if(d.contacts.length){
+    d.contacts.forEach(function(c,i){
+      body+='<div class="sup-slot">'+
+        '<div class="sup-slot-info">'+
+          '<div class="sup-slot-name">'+esc(c.title||c.type||"Contact")+' <span style="color:var(--muted-2);font-weight:600;font-size:10.5px">· '+esc(c.type||"")+'</span></div>'+
+          '<div class="sup-slot-meta">'+esc(c.value||"")+(c.notes?" · "+esc(c.notes):"")+'</div>'+
+        '</div>'+
+        '<button class="sup-slot-btn danger" data-act="removeContact" data-idx="'+i+'" aria-label="Remove">×</button>'+
+      '</div>';
+    });
+  }
+  body+='<button class="sup-add-btn" data-act="addContact">+ Add contact link</button></div>';
+
+  // Ticket site links
+  body+='<div class="field"><label>External ticket site links</label>';
+  if(d.ticketLinks.length){
+    d.ticketLinks.forEach(function(t,i){
+      body+='<div class="sup-slot">'+
+        '<div class="sup-slot-info">'+
+          '<div class="sup-slot-name">'+esc(t.url||"Ticket link")+'</div>'+
+          (t.notes?'<div class="sup-slot-meta">'+esc(t.notes)+'</div>':'')+
+        '</div>'+
+        '<button class="sup-slot-btn danger" data-act="removeTicketLink" data-idx="'+i+'" aria-label="Remove">×</button>'+
+      '</div>';
+    });
+  }
+  body+='<button class="sup-add-btn" data-act="addTicketLink">+ Add ticket link</button></div>';
+
+  return section("details","07","Event Details",
+    (d.mode==="public"?"Public":"Private")+" · "+d.contacts.length+" contact"+(d.contacts.length===1?"":"s"),
+    d.contacts.length+d.ticketLinks.length, body, {locked:!STATE.venue});
+}
+
+/* ============================================================
+   SECTION 08 — GUESTS
+   ============================================================ */
+function renderGuestsSection(){
+  let body="";
+  if(!STATE.guests.length){
+    body+='<div class="field-hint" style="margin-bottom:10px">Add guests, speakers, VIPs, performers and helpers. Each with name, role and dietary notes.</div>';
+  }
+  STATE.guests.forEach(function(g,i){
+    body+='<div class="sup-slot">'+
+      '<div class="sup-slot-info">'+
+        '<div class="sup-slot-name">'+esc(g.name||"Guest "+(i+1))+
+          (g.plus?' <span style="color:var(--gold);font-weight:800">+'+g.plus+'</span>':'')+
+        '</div>'+
+        '<div class="sup-slot-meta">'+esc(g.role||"Guest")+(g.dietary?" · "+esc(g.dietary):"")+'</div>'+
+      '</div>'+
+      '<button class="sup-slot-btn danger" data-act="removeGuest" data-idx="'+i+'" aria-label="Remove">×</button>'+
+    '</div>';
+  });
+  body+='<button class="sup-add-btn" data-act="addGuest">+ Add guest</button>';
+  return section("guests","08","Guests",
+    totalGuests()+" guest"+(totalGuests()===1?"":"s")+" total",
+    STATE.guests.length, body, {locked:!STATE.venue});
+}
+
+/* ============================================================
+   SECTION 09 — RSVP
+   ============================================================ */
+function renderRsvpSection(){
+  let body="";
+  if(!STATE.rsvp.length){
+    body+='<div class="field-hint" style="margin-bottom:10px">RSVP contacts — the people or channels your guests reply to (name, note, contact type and handle/number).</div>';
+  }
+  STATE.rsvp.forEach(function(r,i){
+    body+='<div class="sup-slot">'+
+      '<div class="sup-slot-info">'+
+        '<div class="sup-slot-name">'+esc(r.title||"RSVP contact")+' <span style="color:var(--muted-2);font-weight:600;font-size:10.5px">· '+esc(r.contactType||"")+'</span></div>'+
+        '<div class="sup-slot-meta">'+esc(r.contactValue||"")+(r.note?" · "+esc(r.note):"")+'</div>'+
+      '</div>'+
+      '<button class="sup-slot-btn danger" data-act="removeRsvp" data-idx="'+i+'" aria-label="Remove">×</button>'+
+    '</div>';
+  });
+  body+='<button class="sup-add-btn" data-act="addRsvp">+ Add RSVP contact</button>';
+  return section("rsvp","09","RSVP Management",
+    STATE.rsvp.length+" RSVP contact"+(STATE.rsvp.length===1?"":"s"),
+    STATE.rsvp.length, body, {locked:!STATE.venue});
+}
+
+/* ============================================================
+   SECTION 10 — EVENT SHARE OPTIONS
+   ============================================================ */
+function renderShareOptionsSection(){
+  const opts=[
+    {key:"whatsapp",label:"WhatsApp"},
+    {key:"facebook",label:"Facebook"},
+    {key:"instagram",label:"Instagram"},
+    {key:"tiktok",label:"TikTok"},
+    {key:"twitter",label:"Twitter / X"}
+  ];
+  let body='<div class="field-hint" style="margin-bottom:10px">Choose which channels appear on your event preview so guests can share.</div>';
+  opts.forEach(function(o){
+    body+='<div class="toggle-row">'+
+      '<div class="lbl">'+esc(o.label)+'</div>'+
+      '<div class="switch'+(STATE.shareOptions[o.key]?" on":"")+'" data-act="toggleShare" data-key="'+o.key+'"></div>'+
+    '</div>';
+  });
+  return section("share","10","Event Share Options",
+    "Channels shown on the preview",
+    Object.keys(STATE.shareOptions).filter(function(k){return STATE.shareOptions[k];}).length,
+    body, {locked:!STATE.venue});
+}
+
+/* ============================================================
+   SECTION 11 — REVIEW (with warnings)
+   ============================================================ */
+function getWarnings(){
+  const w=[];
+  if(STATE.venue){
+    // Capacity
+    const g=totalGuests();
+    if(STATE.venue.capacity && g>STATE.venue.capacity){
+      w.push({type:"capacity",title:"Capacity exceeded",
+        msg:"Guest count ("+g+") exceeds venue capacity ("+STATE.venue.capacity+"). Consider a larger venue or trimming the list."});
+    }
+    // Dietary
+    const hasDietary=STATE.guests.some(function(g){return g.dietary && g.dietary.trim();});
+    if(hasDietary){
+      const hasDietaryMenu=(STATE.venue.menu||[]).some(function(m){
+        if(!m.dietary) return false;
+        const selected=STATE.menuFood.some(function(f){return f.itemId===m.id;})||
+                       STATE.menuBeverages.some(function(b){return b.itemId===m.id;});
+        return selected;
+      });
+      const hasDietarySupplier=(STATE.suppliers["speciality_diets"]||[]).length>0;
+      if(!hasDietaryMenu && !hasDietarySupplier){
+        w.push({type:"dietary",title:"Dietary requirements not covered",
+          msg:"Some guests have dietary requirements but no matching menu items or dietary supplier are selected."});
+      }
+    }
+    // Budget
+    const b=STATE.eventDetails.budget;
+    if(b && Number(b)>0 && grandTotal()>Number(b)){
+      w.push({type:"budget",title:"Budget exceeded",
+        msg:"Estimated total "+fmt(grandTotal())+" exceeds the budget of "+fmt(b)+"."});
+    }
+  }
+  return w;
+}
+function renderReviewSection(){
+  if(!STATE.venue){
+    return section("review","11","Review",
+      "Fill in the event details first",null,
+      '<div class="empty">Add a venue and some details to see a review.</div>',
+      {locked:true});
+  }
+  const et=findEventType(STATE.eventType.eventId);
+  const v=STATE.venue;
+  const d=STATE.eventDetails;
+  const warnings=getWarnings();
+  let body="";
+
+  // Warnings
+  if(warnings.length){
+    warnings.forEach(function(w){
+      body+='<div class="warning '+w.type+'">'+
+        '<span class="ic">!</span>'+
+        '<div><b>'+esc(w.title)+'</b><br>'+esc(w.msg)+'</div>'+
+      '</div>';
+    });
+  }
+
+  // Hero
+  body+='<div class="review-hero">'+
+    '<div class="lbl">Event Summary</div>'+
+    '<h2>'+esc(STATE.eventTitle||"Untitled Event")+'</h2>'+
+    '<div class="meta">'+esc(et?et.name:"Event")+' · '+esc(v.name)+'</div>'+
+  '</div>';
+
+  // Venue
+  body+='<div class="review-block">'+
+    '<h4>Venue</h4>'+
+    '<div class="review-row"><span class="k">Name</span><span class="v">'+esc(v.name)+'</span></div>'+
+    '<div class="review-row"><span class="k">Location</span><span class="v">'+esc(v.city||"")+(v.area?" · "+esc(v.area):"")+'</span></div>'+
+    '<div class="review-row"><span class="k">Spaces</span><span class="v">'+
+      (STATE.venueSpaces.length?STATE.venueSpaces.map(function(id){
+        const s=(v.spaces||[]).find(function(x){return x.id===id;});
+        return s?esc(s.name):id;
+      }).join(", "):"—")+'</span></div>'+
+    '<div class="review-row"><span class="k">Capacity</span><span class="v">Up to '+esc(v.capacity||"—")+'</span></div>'+
+  '</div>';
+
+  // Date & time
+  body+='<div class="review-block">'+
+    '<h4>Event Date & Time</h4>'+
+    (STATE.schedule.days.length
+      ? STATE.schedule.days.map(function(d,i){
+          const s=(d.startDate||"")+" "+(d.startTime||"");
+          const e=(d.endDate||"")+" "+(d.endTime||"");
+          return '<div class="review-row"><span class="k">Day '+(i+1)+'</span><span class="v">'+esc(s.trim()||"—")+' → '+esc(e.trim()||"—")+'</span></div>';
+        }).join("")
+      : '<div class="review-row"><span class="k">—</span><span class="v">Not set</span></div>'
+    )+
+  '</div>';
+
+  // Guests
+  body+='<div class="review-block">'+
+    '<h4>Guests · '+totalGuests()+'</h4>'+
+    (STATE.guests.length
+      ? STATE.guests.map(function(g){
+          return '<div class="review-row"><span class="k">'+esc(g.name||"Guest")+(g.role?" ("+esc(g.role)+")":"")+'</span><span class="v">'+(g.plus?"+"+g.plus+" · ":"")+esc(g.dietary||"—")+'</span></div>';
+        }).join("")
+      : '<div class="review-row"><span class="k">—</span><span class="v">No guests added</span></div>'
+    )+
+  '</div>';
+
+  // Menu highlights
+  body+='<div class="review-block">'+
+    '<h4>Menu Highlights</h4>'+
+    ((STATE.menuFood.length+STATE.menuBeverages.length)
+      ? STATE.menuFood.map(function(m){
+          return '<div class="review-row"><span class="k">'+esc(m.name)+' × '+m.qty+'</span><span class="v">'+fmt((Number(m.price)||0)*m.qty)+'</span></div>';
+        }).join("")+
+        STATE.menuBeverages.map(function(m){
+          return '<div class="review-row"><span class="k">'+esc(m.name)+' × '+m.qty+'</span><span class="v">'+fmt((Number(m.price)||0)*m.qty)+'</span></div>';
+        }).join("")
+      : '<div class="review-row"><span class="k">—</span><span class="v">No menu items selected</span></div>'
+    )+
+  '</div>';
+
+  // Suppliers
+  const supLines=[];
+  Object.keys(STATE.suppliers).forEach(function(fid){
+    (STATE.suppliers[fid]||[]).forEach(function(entry){
+      const s=findSupplier(entry.supplierId);
+      if(s) supLines.push({field:fid,sup:s,entry:entry});
+    });
+  });
+  body+='<div class="review-block">'+
+    '<h4>Suppliers · '+supLines.length+'</h4>'+
+    (supLines.length
+      ? supLines.map(function(l){
+          const customBits=Object.keys(l.entry.customisations||{}).map(function(k){
+            return k+": "+l.entry.customisations[k];
+          }).join(" · ");
+          return '<div class="review-row"><span class="k">'+esc(l.sup.name)+'<br><em style="font-style:normal;font-size:10px;color:var(--muted)">'+esc(bucketLabel(l.field))+'</em></span><span class="v">'+esc(customSummary(l.entry,l.sup)||"—")+'</span></div>';
+        }).join("")
+      : '<div class="review-row"><span class="k">—</span><span class="v">No suppliers</span></div>'
+    )+
+  '</div>';
+
+  // Timeline
+  body+='<div class="review-block">'+
+    '<h4>Event Timeline</h4>'+
+    (STATE.schedule.days.length
+      ? STATE.schedule.days.map(function(d,i){
+          return '<div class="review-row"><span class="k">Day '+(i+1)+'</span><span class="v">'+
+            esc((d.startTime||"")+(d.endTime?" → "+d.endTime:""))+'</span></div>';
+        }).join("")
+      : '<div class="review-row"><span class="k">—</span><span class="v">Not set</span></div>'
+    )+
+  '</div>';
+
+  // Cost
+  body+='<div class="review-block">'+
+    '<h4>Cost Breakdown</h4>'+
+    '<div class="review-row"><span class="k">Venue</span><span class="v">'+fmt(venueCost())+'</span></div>'+
+    '<div class="review-row"><span class="k">Food</span><span class="v">'+fmt(menuFoodCost())+'</span></div>'+
+    '<div class="review-row"><span class="k">Beverages</span><span class="v">'+fmt(menuBeveragesCost())+'</span></div>'+
+    '<div class="review-row"><span class="k">Suppliers</span><span class="v">'+fmt(supplierCost())+'</span></div>'+
+    '<div class="review-row" style="padding-top:9px;margin-top:5px;border-top:1px solid var(--border)">'+
+      '<span class="k" style="font-weight:900;color:var(--text)">Total</span>'+
+      '<span class="v" style="font-size:15px;font-weight:900">'+fmt(grandTotal())+'</span>'+
+    '</div>'+
+  '</div>';
+
+  // Preview visibility toggles
+  body+='<div class="review-block">'+
+    '<h4>Preview Visibility</h4>'+
+    privacyRow("showBudget","Budget","Show the cost breakdown in the shared preview",false)+
+    privacyRow("showGuests","Guest list","Show guest names in the shared preview",false)+
+    privacyRow("showSuppliers","Suppliers","Show the supplier list in the shared preview",true)+
+    privacyRow("showAddress","Exact venue address","Show the full venue address in the preview",true)+
+    privacyRow("showRsvp","RSVP status","Show RSVP contacts and status",true)+
+  '</div>';
+
+  return section("review","11","Review",
+    warnings.length?warnings.length+" warning"+(warnings.length===1?"":"s"):"All looks good",
+    warnings.length||null, body, {locked:false});
+}
+function privacyRow(key,title,desc,def){
+  const val=STATE[key]===undefined?def:STATE[key];
+  return '<div class="privacy-row">'+
+    '<div class="lbl">'+esc(title)+'<em>'+esc(desc)+'</em></div>'+
+    '<div class="switch'+(val?" on":"")+'" data-act="togglePrivacy" data-key="'+key+'"></div>'+
+  '</div>';
+}
+
+/* ============================================================
+   SECTION 12 — PREVIEW (read-only detailed page)
+   ============================================================ */
+function renderPreviewSection(){
+  if(!STATE.venue){
+    return section("preview","12","Preview",
+      "Fill in the event details first",null,
+      '<div class="empty">Add a venue and some details to see the preview.</div>',
+      {locked:true});
+  }
+  const et=findEventType(STATE.eventType.eventId);
+  const v=STATE.venue;
+  const showBudget=STATE.showBudget===true;
+  const showGuests=STATE.showGuests===true;
+  const showSuppliers=STATE.showSuppliers!==false;
+  const showAddress=STATE.showAddress!==false;
+  const showRsvp=STATE.showRsvp!==false;
+
+  let body='<div class="field-hint" style="margin-bottom:12px">This is the read-only page guests will see. Toggle visibility in the Review section.</div>';
+  body+='<div class="preview-page" style="margin:0 -16px -16px">';
+  // Hero
+  if(STATE.flyerImages.length){
+    body+='<div class="preview-hero"><img src="'+esc(STATE.flyerImages[0])+'" alt="">'+
+      '<div class="preview-hero-overlay">'+
+        '<div class="cat">'+esc(et?et.name:"Event")+'</div>'+
+        '<h1>'+esc(STATE.eventTitle||"Untitled Event")+'</h1>'+
+        (STATE.eventDescription?'<div class="sub">'+esc(STATE.eventDescription)+'</div>':'')+
+      '</div>'+
+    '</div>';
+  } else {
+    body+='<div class="preview-hero" style="background:linear-gradient(135deg,#2c2418,#151515)">'+
+      '<div class="preview-hero-overlay" style="background:transparent">'+
+        '<div class="cat">'+esc(et?et.name:"Event")+'</div>'+
+        '<h1>'+esc(STATE.eventTitle||"Untitled Event")+'</h1>'+
+        (STATE.eventDescription?'<div class="sub">'+esc(STATE.eventDescription)+'</div>':'')+
+      '</div>'+
+    '</div>';
+  }
+  body+='<div class="preview-body">';
+
+  // Venue
+  body+='<div class="preview-card">'+
+    '<h3>Venue</h3>'+
+    '<div class="preview-kv"><span class="k">Name</span><span class="v">'+esc(v.name)+'</span></div>'+
+    (showAddress?'<div class="preview-kv"><span class="k">Location</span><span class="v">'+esc(v.city||"")+(v.area?" · "+esc(v.area):"")+'</span></div>':'<div class="preview-kv"><span class="k">Location</span><span class="v">'+esc(v.city||"")+'</span></div>')+
+    (STATE.venueSpaces.length?'<div class="preview-kv"><span class="k">Spaces</span><span class="v">'+STATE.venueSpaces.map(function(id){
+      const s=(v.spaces||[]).find(function(x){return x.id===id;});
+      return s?esc(s.name):id;
+    }).join(", ")+'</span></div>':'')+
+  '</div>';
+
+  // Date & time
+  if(STATE.schedule.days.length && (STATE.schedule.days[0].startDate || STATE.schedule.days[0].startTime)){
+    body+='<div class="preview-card">'+
+      '<h3>Date & Time</h3>'+
+      STATE.schedule.days.map(function(d,i){
+        const s=[d.startDate,d.startTime].filter(Boolean).join(" ");
+        const e=[d.endDate,d.endTime].filter(Boolean).join(" ");
+        return '<div class="preview-kv"><span class="k">'+(STATE.schedule.days.length>1?("Day "+(i+1)):"When")+'</span><span class="v">'+esc(s||"—")+(e?" → "+esc(e):"")+'</span></div>';
+      }).join("")+
+    '</div>';
+  }
+
+  // Dress code
+  if(STATE.eventDetails.dresscode){
+    body+='<div class="preview-card">'+
+      '<h3>Dress Code</h3>'+
+      '<div style="font-size:13px;line-height:1.55">'+esc(STATE.eventDetails.dresscode)+'</div>'+
+    '</div>';
+  }
+
+  // Menu
+  if(STATE.menuFood.length || STATE.menuBeverages.length){
+    body+='<div class="preview-card">'+
+      '<h3>Menu</h3>';
+    if(STATE.menuFood.length){
+      body+='<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);font-weight:800;margin:4px 0 6px">Food</div>';
+      STATE.menuFood.forEach(function(m){
+        body+='<div class="preview-kv"><span class="k">'+esc(m.name)+'</span><span class="v">'+esc(String(m.qty))+' selected</span></div>';
+      });
+    }
+    if(STATE.menuBeverages.length){
+      body+='<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);font-weight:800;margin:10px 0 6px">Beverages</div>';
+      STATE.menuBeverages.forEach(function(m){
+        body+='<div class="preview-kv"><span class="k">'+esc(m.name)+'</span><span class="v">'+esc(String(m.qty))+' selected</span></div>';
+      });
+    }
+    body+='</div>';
+  }
+
+  // Suppliers
+  if(showSuppliers){
+    const supLines=[];
+    Object.keys(STATE.suppliers).forEach(function(fid){
+      (STATE.suppliers[fid]||[]).forEach(function(entry){
+        const s=findSupplier(entry.supplierId);
+        if(s) supLines.push({field:fid,sup:s,entry:entry});
+      });
+    });
+    if(supLines.length){
+      body+='<div class="preview-card">'+
+        '<h3>Suppliers</h3>'+
+        supLines.map(function(l){
+          const customBits=Object.keys(l.entry.customisations||{}).filter(function(k){return l.entry.customisations[k];}).map(function(k){
+            return k+": "+l.entry.customisations[k];
+          }).join(" · ");
+          return '<div class="preview-kv"><span class="k">'+esc(l.sup.name)+(customBits?'<br><em style="font-style:normal;font-size:10.5px;color:var(--muted)">'+esc(customBits)+'</em>':'')+'</span><span class="v">'+fmt(supplierLineCost(l.entry))+'</span></div>';
+        }).join("")+
+      '</div>';
+    }
+  }
+
+  // Contact links
+  if(STATE.eventDetails.contacts.length){
+    body+='<div class="preview-card">'+
+      '<h3>Contact</h3>'+
+      '<div class="preview-social">'+
+        STATE.eventDetails.contacts.map(function(c){
+          const href=contactHref(c.type, c.value);
+          return '<a class="preview-social-item" href="'+esc(href||"#")+'" target="_blank" rel="noopener">'+esc(c.type||"Link")+': '+esc(c.value||"")+'</a>';
+        }).join("")+
+      '</div>'+
+    '</div>';
+  }
+
+  // Ticket links
+  if(STATE.eventDetails.ticketLinks.length){
+    body+='<div class="preview-card">'+
+      '<h3>Tickets</h3>'+
+      STATE.eventDetails.ticketLinks.map(function(t){
+        return '<div class="preview-kv"><span class="k">'+esc(t.url||"")+'</span><span class="v">'+esc(t.notes||"")+'</span></div>';
+      }).join("")+
+    '</div>';
+  }
+
+  // RSVP
+  if(showRsvp && STATE.rsvp.length){
+    body+='<div class="preview-card">'+
+      '<h3>RSVP</h3>'+
+      STATE.rsvp.map(function(r){
+        return '<div class="preview-kv"><span class="k">'+esc(r.title||"")+(r.note?'<br><em style="font-style:normal;font-size:10.5px;color:var(--muted)">'+esc(r.note)+'</em>':'')+'</span><span class="v">'+esc(r.contactType||"")+': '+esc(r.contactValue||"")+'</span></div>';
+      }).join("")+
+    '</div>';
+  }
+
+  // Guest list
+  if(showGuests && STATE.guests.length){
+    body+='<div class="preview-card">'+
+      '<h3>Guest List · '+totalGuests()+'</h3>'+
+      STATE.guests.map(function(g){
+        return '<div class="preview-kv"><span class="k">'+esc(g.name||"Guest")+(g.role?" ("+esc(g.role)+")":"")+'</span><span class="v">'+(g.plus?"+"+g.plus+"":'')+'</span></div>';
+      }).join("")+
+    '</div>';
+  }
+
+  // Budget
+  if(showBudget){
+    body+='<div class="preview-card">'+
+      '<h3>Estimated Budget</h3>'+
+      '<div class="preview-kv"><span class="k">Total</span><span class="v" style="color:var(--gold);font-weight:900;font-size:15px">'+fmt(grandTotal())+'</span></div>'+
+    '</div>';
+  }
+
+  // Share row
+  const shareChannels=[];
+  if(STATE.shareOptions.whatsapp) shareChannels.push("WhatsApp");
+  if(STATE.shareOptions.facebook) shareChannels.push("Facebook");
+  if(STATE.shareOptions.instagram) shareChannels.push("Instagram");
+  if(STATE.shareOptions.tiktok) shareChannels.push("TikTok");
+  if(STATE.shareOptions.twitter) shareChannels.push("Twitter / X");
+  if(shareChannels.length){
+    body+='<div class="preview-card">'+
+      '<h3>Share this event</h3>'+
+      '<div class="preview-tags">'+
+        shareChannels.map(function(c){return '<span class="preview-tag gold">'+esc(c)+'</span>';}).join("")+
+      '</div>'+
+    '</div>';
+  }
+
+  // Actions
+  body+='<div style="display:flex;flex-direction:column;gap:9px;margin-top:14px">'+
+    '<button class="btn wa full" data-act="shareWhatsApp">Share on WhatsApp</button>'+
+    '<button class="btn primary full" data-act="sendToVenue">Send to Venue Provider</button>'+
+  '</div>';
+
+  body+='</div></div>'; // close preview-body + preview-page
+
+  return section("preview","12","Preview",
+    "Read-only page your guests will see",
+    null, body, {locked:false});
+}
+function contactHref(type,value){
+  if(!value) return "#";
+  const v=String(value).trim();
+  if(/^(https?:|tel:|mailto:)/.test(v)) return v;
+  const t=(type||"").toLowerCase();
+  if(t==="call") return "tel:"+v.replace(/[^\d+]/g,"");
+  if(t==="whatsapp") return "https://wa.me/"+v.replace(/[^\d]/g,"");
+  if(t==="facebook") return "https://facebook.com/"+v.replace(/^@/,"");
+  if(t==="instagram") return "https://instagram.com/"+v.replace(/^@/,"");
+  if(t==="tiktok") return "https://tiktok.com/@"+v.replace(/^@/,"");
+  if(t==="twitter"||t==="x") return "https://x.com/"+v.replace(/^@/,"");
+  if(t==="youtube") return "https://youtube.com/@"+v.replace(/^@/,"");
+  if(t==="linkedin") return "https://linkedin.com/in/"+v.replace(/^@/,"");
+  if(/\./.test(v)) return "https://"+v;
+  return "#";
+}
+
+/* ============================================================
+   PROMPT MODAL (generic add/edit)
+   ============================================================ */
+function renderPrompt(){
+  const p=STATE.prompt;
+  if(!p.open) return "";
+  let fields='';
+  (p.fields||[]).forEach(function(f){
+    const val=p.values && p.values[f.key]!==undefined?p.values[f.key]:"";
+    if(f.type==="textarea"){
+      fields+='<div class="field"><label>'+esc(f.label)+'</label>'+
+        '<textarea data-prompt-field="'+esc(f.key)+'" placeholder="'+esc(f.placeholder||"")+'">'+esc(val)+'</textarea></div>';
+    } else if(f.type==="select"){
+      fields+='<div class="field"><label>'+esc(f.label)+'</label>'+
+        '<select data-prompt-field="'+esc(f.key)+'">'+
+          (f.options||[]).map(function(o){
+            const vv=typeof o==="string"?o:o.value;
+            const ll=typeof o==="string"?o:o.label;
+            return '<option value="'+esc(vv)+'"'+(val===vv?" selected":"")+'>'+esc(ll)+'</option>';
+          }).join("")+
+        '</select></div>';
+    } else {
+      fields+='<div class="field"><label>'+esc(f.label)+'</label>'+
+        '<input type="'+(f.type||"text")+'" data-prompt-field="'+esc(f.key)+'" value="'+esc(val)+'" placeholder="'+esc(f.placeholder||"")+'"></div>';
+    }
+  });
+  return '<div class="fpop-scrim" data-act="closePrompt">'+
+    '<div class="prompt-panel" data-stop="1">'+
+      '<div class="fpop-hdr">'+
+        '<h3>'+esc(p.title||"Add")+'</h3>'+
+        '<button class="fpop-close" data-act="closePrompt" aria-label="Close">×</button>'+
+      '</div>'+
+      '<div class="prompt-body">'+fields+'</div>'+
+      '<div class="prompt-foot">'+
+        '<button class="btn ghost half" data-act="closePrompt">Cancel</button>'+
+        '<button class="btn primary half" data-act="savePrompt">Save</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+function openPrompt(title,fields,onSave){
+  STATE.prompt={open:true,title:title,fields:fields,values:{},onSave:onSave};
+  render();
+}
+function savePromptFromForm(){
+  const p=STATE.prompt;
+  const out={};
+  document.querySelectorAll("[data-prompt-field]").forEach(function(el){
+    out[el.getAttribute("data-prompt-field")]=el.value;
+  });
+  p.open=false;
+  if(p.onSave) p.onSave(out);
+  render();
+}
+
+/* ============================================================
+   RENDER — main scroll
+   ============================================================ */
+function renderMainScroll(){
+  const el=document.getElementById("mainScroll");
+  if(!el) return;
+  let h="";
+  h+=renderFlyer();
+  h+=renderTitleBlock();
+  h+=renderSideScroll();
+  h+=renderEventTypeSection();
+  h+=renderScheduleSection();
+  h+=renderAudienceSection();
+  h+=renderVenueSection();
+  h+=renderMenuSection();
+  h+=renderSuppliersSection();
+  h+=renderDetailsSection();
+  h+=renderGuestsSection();
+  h+=renderRsvpSection();
+  h+=renderShareOptionsSection();
+  h+=renderReviewSection();
+  h+=renderPreviewSection();
+  h+='<div style="height:16px"></div>';
+  el.innerHTML=h;
+}
+
+/* ============================================================
+   RENDER — calculator bar
+   ============================================================ */
+function renderCalcBar(){
+  const el=document.getElementById("calc-bar");
+  if(!el) return;
+  const count=calculatorItemCount();
+  const total=grandTotal();
+  let h='<div class="calc-strip">'+
+    '<button class="calc-strip-btn" data-act="toggleCalc">'+
+      '<span class="calc-strip-lbl">'+(STATE.calcExpanded?"Hide breakdown":"Total")+'</span>'+
+      '<span class="calc-strip-total">'+fmt(total)+'</span>'+
+      '<span class="calc-strip-items">'+count+' item'+(count===1?"":"s")+' · tap for breakdown</span>'+
+    '</button>'+
+    '<div class="calc-actions">'+
+      '<button class="btn ghost sm" data-act="saveDraftNow">Save</button>'+
+      '<button class="btn primary sm" data-act="jumpStep" data-step="preview"'+(STATE.venue?"":" disabled")+'>Preview</button>'+
+    '</div>'+
+  '</div>';
+  if(STATE.calcExpanded){
+    h+='<div class="calc-expand open">';
+    h+='<h4>Breakdown</h4>';
+    if(!count){
+      h+='<div class="calc-empty">Nothing added yet.</div>';
+    } else {
+      if(STATE.venue){
+        h+='<div class="calc-line"><span class="lbl">'+esc(STATE.venue.name)+' · venue</span><span class="val">'+fmt(venueCost())+'</span></div>';
+      }
+      if(STATE.menuFood.length){
+        h+='<div class="calc-line"><span class="lbl">Food items</span><span class="val">'+fmt(menuFoodCost())+'</span></div>';
+        STATE.menuFood.forEach(function(m){
+          h+='<div class="calc-line sub"><span class="lbl">'+esc(m.name)+' × '+m.qty+'</span><span class="val">'+fmt((Number(m.price)||0)*m.qty)+'</span></div>';
+        });
+      }
+      if(STATE.menuBeverages.length){
+        h+='<div class="calc-line"><span class="lbl">Beverages</span><span class="val">'+fmt(menuBeveragesCost())+'</span></div>';
+        STATE.menuBeverages.forEach(function(m){
+          h+='<div class="calc-line sub"><span class="lbl">'+esc(m.name)+' × '+m.qty+'</span><span class="val">'+fmt((Number(m.price)||0)*m.qty)+'</span></div>';
+        });
+      }
+      Object.keys(STATE.suppliers).forEach(function(fid){
+        (STATE.suppliers[fid]||[]).forEach(function(entry){
+          const s=findSupplier(entry.supplierId);
+          if(!s) return;
+          h+='<div class="calc-line sub"><span class="lbl">'+esc(s.name)+'</span><span class="val">'+fmt(supplierLineCost(entry))+'</span></div>';
+        });
+      });
+      h+='<div class="calc-line total"><span class="lbl">Total</span><span class="val">'+fmt(grandTotal())+'</span></div>';
+    }
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+/* ============================================================
+   MASTER RENDER
+   ============================================================ */
+function render(){
+  renderVenueBar();
+  renderMainScroll();
+  renderCalcBar();
+  const root=document.getElementById("modal-root");
+  let modalHtml="";
+  modalHtml+=renderFlyerAddMenu();
+  modalHtml+=renderTitleEdit();
+  modalHtml+=renderSupplierTypeMenu();
+  modalHtml+=renderPrompt();
+  root.innerHTML=modalHtml;
+  // Focus search in STM
+  if(STATE.supplierTypeMenu.open){
+    setTimeout(function(){
+      const s=document.getElementById("stmSearch");
+      if(s && !s._focused){s.focus();s._focused=true;}
+    },50);
+  }
+  // Focus title edit
+  if(STATE.titleEditOpen){
+    setTimeout(function(){
+      const t=document.getElementById("titleDraft");
+      if(t){t.focus();}
+    },50);
+  }
+  measureCalc();
+  measureNav();
+  scheduleSave();
+}
+function measureCalc(){
+  const el=document.getElementById("calc-bar");
+  if(el) document.documentElement.style.setProperty("--calch",el.offsetHeight+"px");
+}
+function measureNav(){
+  const el=document.getElementById("nav");
+  if(el) document.documentElement.style.setProperty("--navh",el.offsetHeight+"px");
+}
+
+/* ============================================================
+   EVENT HANDLERS
+   ============================================================ */
+document.addEventListener("click",function(e){
+  // bottom-nav tabs return to the main app on the matching tab
+  const navTab=e.target.closest(".nav-btn[data-tab]");
+  if(navTab){window.location.href="index.html#"+navTab.getAttribute("data-tab");return;}
+  // scrim close (only if clicked directly on scrim, not panel)
+  const scrim=e.target.closest(".fpop-scrim");
+  if(scrim && e.target===scrim){
+    const act=scrim.getAttribute("data-act");
+    if(act==="closeSupplierTypeMenu"){STATE.supplierTypeMenu.open=false;render();return;}
+    if(act==="closeFlyerMenu"){STATE.flyerMenuOpen=false;render();return;}
+    if(act==="closeTitleEdit"){STATE.titleEditOpen=false;render();return;}
+    if(act==="closePrompt"){STATE.prompt.open=false;render();return;}
+    // fallback: close any open modal
+    STATE.flyerMenuOpen=false;STATE.titleEditOpen=false;
+    STATE.supplierTypeMenu.open=false;STATE.prompt.open=false;
+    render();return;
+  }
+
+  const t=e.target.closest("[data-act]");
+  if(!t) return;
+  const act=t.getAttribute("data-act");
+
+  // Venue bar
+  if(act==="toggleVenueBar"){ STATE.venueBarExpanded=!STATE.venueBarExpanded; render(); return; }
+
+  // Flyer
+  if(act==="openFlyerMenu"){ STATE.flyerMenuOpen=true; render(); return; }
+  if(act==="closeFlyerMenu"){ STATE.flyerMenuOpen=false; render(); return; }
+  if(act==="addFlyerImage"){
+    const input=document.createElement("input");
+    input.type="file";input.accept="image/*";
+    input.onchange=function(){
+      const f=input.files&&input.files[0];
+      if(!f) return;
+      const reader=new FileReader();
+      reader.onload=function(ev){
+        STATE.flyerImages.push(ev.target.result);
+        render();
+        toast("Image added");
+      };
+      reader.readAsDataURL(f);
+    };
+    input.click();
+    return;
+  }
+  if(act==="removeFlyer"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.flyerImages.splice(i,1);
+    render();
+    return;
+  }
+  if(act==="makeMainFlyer"){
+    const i=Number(t.getAttribute("data-idx"));
+    if(i<=0||i>=STATE.flyerImages.length) return;
+    const [img]=STATE.flyerImages.splice(i,1);
+    STATE.flyerImages.unshift(img);
+    render();
+    toast("Main flyer updated");
+    return;
+  }
+
+  // Title edit
+  if(act==="openTitleEdit"){
+    STATE.titleEditOpen=true;
+    STATE.titleEditDraft={title:STATE.eventTitle,description:STATE.eventDescription};
+    render();
+    return;
+  }
+  if(act==="closeTitleEdit"){ STATE.titleEditOpen=false; render(); return; }
+  if(act==="saveTitleEdit"){
+    const titleEl=document.getElementById("titleDraft");
+    const descEl=document.getElementById("descDraft");
+    STATE.eventTitle=titleEl?titleEl.value:"";
+    STATE.eventDescription=descEl?descEl.value:"";
+    STATE.titleEditOpen=false;
+    render();
+    toast("Saved");
+    return;
+  }
+
+  // Side-scroll / steps
+  if(act==="jumpStep"){
+    STATE.activeStep=t.getAttribute("data-step");
+    render();
+    setTimeout(function(){
+      const el=document.querySelector('[data-sec="'+STATE.activeStep+'"]');
+      if(el && el.scrollIntoView) el.scrollIntoView({behavior:"smooth",block:"start"});
+    },40);
+    return;
+  }
+
+  // Section toggle
+  if(act==="toggleSec"){
+    const key=t.getAttribute("data-sec");
+    const open=!STATE.openSections[key];
+    closeMainSections(key);
+    STATE.openSections[key]=open;
+    render();
+    return;
+  }
+  if(act==="toggleSub"||act==="toggleSupGroup"||act==="toggleMenuCat"){
+    const key=t.getAttribute("data-key");
+    if(act==="toggleMenuCat"){
+      const open=!STATE.menuOpen[key];
+      Object.keys(STATE.menuOpen).forEach(function(k){
+        if(k!==key) STATE.menuOpen[k]=false;
+      });
+      STATE.menuOpen[key]=open;
+    } else if(act==="toggleSub"){
+      const open=!STATE.openSections[key];
+      closeOpenSectionsByPrefix("sub_",key);
+      STATE.openSections[key]=open;
+    } else {
+      const open=!STATE.openSections[key];
+      closeOpenSectionsByPrefix("sup_added_",key);
+      STATE.openSections[key]=open;
+    }
+    render();
+    return;
+  }
+  if(act==="toggleEtypeGroup"){
+    const key=t.getAttribute("data-key");
+    const open=!STATE.openSections[key];
+    closeOpenSectionsByPrefix("et_cat_",key);
+    STATE.openSections[key]=open;
+    render();
+    return;
+  }
+
+  // Event type
+  if(act==="pickEventType"){
+    const id=t.getAttribute("data-id");
+    const et=findEventType(id);
+    if(!et) return;
+    STATE.eventType={eventId:et.id,name:et.name,categoryId:et.categoryId,categoryName:et.categoryName,subCategoryName:et.subCategoryName,description:et.description,icon:et.icon};
+    STATE.activeStep="schedule";
+    render();
+    toast("Event type set");
+    return;
+  }
+  if(act==="clearEventType"){
+    STATE.eventType={eventId:null,name:null,categoryId:null,categoryName:null,subCategoryName:null,description:null,icon:null};
+    render();
+    return;
+  }
+
+  // Notes
+  if(act==="addNote"){
+    openPrompt("Add Note",[
+      {key:"title",label:"Title",placeholder:"e.g. Cultural protocol"},
+      {key:"body",label:"Note",type:"textarea",placeholder:"Detail the note…"}
+    ],function(v){
+      if(!v.title && !v.body) return;
+      STATE.notes.push({id:uid("n"),title:v.title||"Note",body:v.body||""});
+      render();
+    });
+    return;
+  }
+  if(act==="removeNote"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.notes.splice(i,1);
+    render();
+    return;
+  }
+
+  // Schedule
+  if(act==="setScheduleMode"){
+    STATE.schedule.mode=t.getAttribute("data-val");
+    if(STATE.schedule.mode==="one-day" && STATE.schedule.days.length>1){
+      STATE.schedule.days=[STATE.schedule.days[0]];
+    }
+    render();
+    return;
+  }
+  if(act==="addDay"){
+    STATE.schedule.days.push({id:uid("d"),startDate:"",startTime:"",endDate:"",endTime:""});
+    render();
+    return;
+  }
+  if(act==="removeDay"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.schedule.days.splice(i,1);
+    render();
+    return;
+  }
+
+  // Target audience
+  if(act==="addAudience"){
+    openPrompt("Add Target Audience",[
+      {key:"title",label:"Title",placeholder:"e.g. Students"},
+      {key:"note",label:"Note",type:"textarea",placeholder:"Describe this audience"},
+      {key:"ageGroup",label:"Age group",placeholder:"e.g. 18–25"}
+    ],function(v){
+      if(!v.title) return;
+      STATE.targetAudience.push({id:uid("a"),title:v.title,note:v.note||"",ageGroup:v.ageGroup||""});
+      render();
+    });
+    return;
+  }
+  if(act==="removeAudience"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.targetAudience.splice(i,1);
+    render();
+    return;
+  }
+
+  // Venue
+  if(act==="pickVenue"){
+    const id=t.getAttribute("data-id");
+    if(STATE.venue && STATE.venue.id===id){
+      STATE.venue=null;STATE.venueSpaces=[];STATE.venueGalleryOpen=null;
+    } else {
+      STATE.venue=findVenue(id);
+      STATE.venueSpaces=[];
+      STATE.venueGalleryOpen=null;
+      STATE.activeStep="menu";
+    }
+    render();
+    return;
+  }
+  if(act==="toggleSpace"){
+    const id=t.getAttribute("data-id");
+    const i=STATE.venueSpaces.indexOf(id);
+    if(i>-1) STATE.venueSpaces.splice(i,1); else STATE.venueSpaces.push(id);
+    render();
+    return;
+  }
+  if(act==="openGalleryDetail"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.venueGalleryOpen = STATE.venueGalleryOpen===i?null:i;
+    render();
+    return;
+  }
+  if(act==="addVenueRule"){
+    openPrompt("Add Venue Rule",[
+      {key:"title",label:"Rule title",placeholder:"e.g. No outside catering"},
+      {key:"note",label:"Note",type:"textarea",placeholder:"Explain the rule"}
+    ],function(v){
+      if(!v.title) return;
+      STATE.venueRules.push({id:uid("r"),title:v.title,note:v.note||""});
+      render();
+    });
+    return;
+  }
+  if(act==="removeVenueRule"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.venueRules.splice(i,1);
+    render();
+    return;
+  }
+
+  // Menu
+  if(act==="incMenu"||act==="decMenu"){
+    const cat=t.getAttribute("data-cat");
+    const id=t.getAttribute("data-id");
+    const list=cat==="beverages"?STATE.menuBeverages:STATE.menuFood;
+    const items=getMenuItemsForVenue(cat==="beverages"?"Beverage":"Food");
+    const m=items.find(function(x){return x.id===id;});
+    if(!m) return;
+    let entry=list.find(function(x){return x.itemId===id;});
+    if(!entry){
+      if(act==="decMenu") return;
+      entry={itemId:id,name:m.name,price:m.price,qty:0};
+      list.push(entry);
+    }
+    entry.qty += (act==="incMenu"?1:-1);
+    if(entry.qty<=0){
+      const idx=list.indexOf(entry);
+      list.splice(idx,1);
+    }
+    render();
+    return;
+  }
+
+  // Suppliers
+  if(act==="openSupplierTypeMenu"){
+    STATE.supplierTypeMenu={open:true,search:"",cat:t.getAttribute("data-cat")||"",openCat:null};
+    render();
+    return;
+  }
+  if(act==="closeSupplierTypeMenu"){
+    STATE.supplierTypeMenu.open=false;
+    render();
+    return;
+  }
+  if(act==="toggleStmCat"){
+    const cat=t.getAttribute("data-cat");
+    STATE.supplierTypeMenu.openCat = STATE.supplierTypeMenu.openCat===cat?null:cat;
+    render();
+    return;
+  }
+  if(act==="pickSupplier"){
+    const id=t.getAttribute("data-id");
+    const cat=t.getAttribute("data-cat")||t.getAttribute("data-field");
+    if(!cat) return;
+    if(isSupplierAdded(id)){ STATE.supplierTypeMenu.open=false; render(); return; }
+    if(!STATE.suppliers[cat]) STATE.suppliers[cat]=[];
+    STATE.suppliers[cat].push({supplierId:id,customisations:{}});
+    STATE.supplierTypeMenu.open=false;
+    STATE.supplierCustomising={supplierId:id,fieldId:cat};
+    render();
+    toast("Supplier added");
+    return;
+  }
+  if(act==="removeSupplier"){
+    const field=t.getAttribute("data-field");
+    const idx=Number(t.getAttribute("data-idx"));
+    if(STATE.suppliers[field]) STATE.suppliers[field].splice(idx,1);
+    if(STATE.supplierCustomising && STATE.supplierCustomising.fieldId===field) STATE.supplierCustomising=null;
+    render();
+    return;
+  }
+  if(act==="customiseSupplier"){
+    const field=t.getAttribute("data-field");
+    const idx=Number(t.getAttribute("data-idx"));
+    const entry=(STATE.suppliers[field]||[])[idx];
+    if(!entry) return;
+    const same=STATE.supplierCustomising && STATE.supplierCustomising.supplierId===entry.supplierId && STATE.supplierCustomising.fieldId===field;
+    STATE.supplierCustomising = same?null:{supplierId:entry.supplierId,fieldId:field};
+    render();
+    return;
+  }
+  if(act==="incSupQty"||act==="decSupQty"){
+    const field=t.getAttribute("data-field");
+    const idx=Number(t.getAttribute("data-idx"));
+    const entry=(STATE.suppliers[field]||[])[idx];
+    if(!entry) return;
+    const c=entry.customisations||(entry.customisations={});
+    let v=Number(c.qty)||1;
+    v+=(act==="incSupQty"?1:-1);
+    if(v<1) v=1;
+    c.qty=v;
+    render();
+    return;
+  }
+  if(act==="incSupAddon"||act==="decSupAddon"){
+    const field=t.getAttribute("data-field");
+    const idx=Number(t.getAttribute("data-idx"));
+    const i=Number(t.getAttribute("data-i"));
+    const entry=(STATE.suppliers[field]||[])[idx];
+    if(!entry) return;
+    const c=entry.customisations||(entry.customisations={});
+    let v=Number(c["addon_"+i])||0;
+    v+=(act==="incSupAddon"?1:-1);
+    if(v<0) v=0;
+    c["addon_"+i]=v;
+    render();
+    return;
+  }
+  if(act==="saveSupplierCustom"){
+    const field=t.getAttribute("data-field");
+    const idx=Number(t.getAttribute("data-idx"));
+    const entry=(STATE.suppliers[field]||[])[idx];
+    if(!entry) return;
+    const custom={};
+    const qty=document.querySelector("[data-sup-qty]");
+    const notes=document.querySelector("[data-sup-notes]");
+    if(qty) custom.qty=qty.value;
+    document.querySelectorAll("[data-sup-addon]").forEach(function(input){
+      custom["addon_"+input.getAttribute("data-sup-addon")]=input.value;
+    });
+    if(notes) custom.notes=notes.value;
+    entry.customisations=custom;
+    STATE.supplierCustomising=null;
+    render();
+    toast("Customisation saved");
+    return;
+  }
+
+  // Event details
+  if(act==="setEventMode"){
+    STATE.eventDetails.mode=t.getAttribute("data-val");
+    render();
+    return;
+  }
+  if(act==="setEntryType"){
+    STATE.eventDetails.entryType=t.getAttribute("data-val");
+    render();
+    return;
+  }
+  if(act==="addTier"){
+    openPrompt("Add Ticket Tier",[
+      {key:"name",label:"Tier name",placeholder:"e.g. Early Bird"},
+      {key:"price",label:"Price",type:"number",placeholder:"150"},
+      {key:"notes",label:"Notes",type:"textarea",placeholder:"What's included"}
+    ],function(v){
+      if(!v.name) return;
+      STATE.eventDetails.tiers.push({id:uid("t"),name:v.name,price:v.price,notes:v.notes||""});
+      render();
+    });
+    return;
+  }
+  if(act==="removeTier"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.eventDetails.tiers.splice(i,1);
+    render();
+    return;
+  }
+  if(act==="addContact"){
+    openPrompt("Add Contact Link",[
+      {key:"type",label:"Type",type:"select",options:["Call","WhatsApp","Facebook","Instagram","TikTok","Twitter/X","YouTube","LinkedIn"]},
+      {key:"title",label:"Title",placeholder:"e.g. RSVP line"},
+      {key:"value",label:"Link or number",placeholder:"+267 71 234 567 / @handle / https://..."},
+      {key:"notes",label:"Notes",type:"textarea",placeholder:"Any notes for guests"}
+    ],function(v){
+      if(!v.value) return;
+      STATE.eventDetails.contacts.push({id:uid("c"),type:v.type,title:v.title||"",value:v.value,notes:v.notes||""});
+      render();
+    });
+    return;
+  }
+  if(act==="removeContact"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.eventDetails.contacts.splice(i,1);
+    render();
+    return;
+  }
+  if(act==="addTicketLink"){
+    openPrompt("Add Ticket Link",[
+      {key:"url",label:"URL",type:"url",placeholder:"https://tickets.example.com/event"},
+      {key:"notes",label:"Notes",type:"textarea",placeholder:"Explain the ticket details"}
+    ],function(v){
+      if(!v.url) return;
+      STATE.eventDetails.ticketLinks.push({id:uid("tl"),url:v.url,notes:v.notes||""});
+      render();
+    });
+    return;
+  }
+  if(act==="removeTicketLink"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.eventDetails.ticketLinks.splice(i,1);
+    render();
+    return;
+  }
+
+  // Guests
+  if(act==="addGuest"){
+    openPrompt("Add Guest",[
+      {key:"name",label:"Name",placeholder:"e.g. Kagiso M."},
+      {key:"role",label:"Role",placeholder:"Guest / Speaker / VIP / Performer"},
+      {key:"dietary",label:"Dietary notes",placeholder:"e.g. Vegetarian, Nut allergy"},
+      {key:"plus",label:"Plus ones",type:"number",placeholder:"0"}
+    ],function(v){
+      if(!v.name) return;
+      STATE.guests.push({id:uid("g"),name:v.name,role:v.role||"Guest",dietary:v.dietary||"",plus:Number(v.plus)||0});
+      render();
+    });
+    return;
+  }
+  if(act==="removeGuest"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.guests.splice(i,1);
+    render();
+    return;
+  }
+
+  // RSVP
+  if(act==="addRsvp"){
+    openPrompt("Add RSVP Contact",[
+      {key:"title",label:"Title",placeholder:"e.g. RSVP line"},
+      {key:"note",label:"Note",type:"textarea",placeholder:"Any notes"},
+      {key:"contactType",label:"Contact type",type:"select",options:["Call","WhatsApp","Facebook","Instagram","TikTok","Twitter/X","YouTube","LinkedIn"]},
+      {key:"contactValue",label:"Link or number",placeholder:"+267 ... / @handle / https://..."}
+    ],function(v){
+      if(!v.title) return;
+      STATE.rsvp.push({id:uid("r"),title:v.title,note:v.note||"",contactType:v.contactType,contactValue:v.contactValue||""});
+      render();
+    });
+    return;
+  }
+  if(act==="removeRsvp"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.rsvp.splice(i,1);
+    render();
+    return;
+  }
+
+  // Share options
+  if(act==="toggleShare"){
+    const key=t.getAttribute("data-key");
+    STATE.shareOptions[key]=!STATE.shareOptions[key];
+    render();
+    return;
+  }
+
+  // Privacy toggles
+  if(act==="togglePrivacy"){
+    const key=t.getAttribute("data-key");
+    STATE[key]=!STATE[key];
+    render();
+    return;
+  }
+
+  // Calculator
+  if(act==="toggleCalc"){
+    STATE.calcExpanded=!STATE.calcExpanded;
+    renderCalcBar();
+    measureCalc();
+    return;
+  }
+  if(act==="saveDraftNow"){
+    saveDraft();
+    toast("Draft saved");
+    return;
+  }
+
+  // Share
+  if(act==="shareWhatsApp"){
+    const text=buildShareMessage();
+    window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank");
+    return;
+  }
+  if(act==="sendToVenue"){
+    if(!STATE.venue) return;
+    const text=buildShareMessage();
+    const number=STATE.venue.whatsapp || "26771844129";
+    window.open("https://wa.me/"+number+"?text="+encodeURIComponent(text),"_blank");
+    return;
+  }
+
+  // Prompt
+  if(act==="closePrompt"){ STATE.prompt.open=false; render(); return; }
+  if(act==="savePrompt"){ savePromptFromForm(); return; }
+});
+
+// Input handler
+document.addEventListener("input",function(e){
+  const t=e.target;
+  if(t.matches("[data-dfield]")){
+    const i=Number(t.getAttribute("data-day"));
+    const field=t.getAttribute("data-dfield");
+    if(STATE.schedule.days[i]) STATE.schedule.days[i][field]=t.value;
+    scheduleSave();
+    return;
+  }
+  if(t.matches("[data-field]")){
+    const k=t.getAttribute("data-field");
+    if(k==="dresscode") STATE.eventDetails.dresscode=t.value;
+    scheduleSave();
+    return;
+  }
+  if(t.matches("[data-sup-qty]")||t.matches("[data-sup-addon]")||t.matches("[data-sup-notes]")){
+    const field=t.getAttribute("data-field");
+    const idx=Number(t.getAttribute("data-idx"));
+    const entry=(STATE.suppliers[field]||[])[idx];
+    if(!entry) return;
+    const c=entry.customisations||(entry.customisations={});
+    if(t.matches("[data-sup-qty]")) c.qty=t.value;
+    else if(t.matches("[data-sup-addon]")) c["addon_"+t.getAttribute("data-sup-addon")]=t.value;
+    else c.notes=t.value;
+    scheduleSave();
+    return;
+  }
+  if(t.id==="stmSearch"){
+    STATE.supplierTypeMenu.search=t.value;
+    // Update the popup body in place for smooth typing
+    const body=document.querySelector(".fpop-body");
+    if(body && STATE.supplierTypeMenu.open){
+      // re-render just the body via render()
+    }
+    // simple re-render (still fast enough)
+    scheduleSave();
+    return;
+  }
+});
+
+// Special handler for STM search - re-render after typing to filter live
+document.addEventListener("input",function(e){
+  if(e.target.id==="stmSearch"){
+    STATE.supplierTypeMenu.search=e.target.value;
+    const val=e.target.value;
+    const start=e.target.selectionStart;
+    render();
+    const inp=document.getElementById("stmSearch");
+    if(inp){inp.focus();inp.setSelectionRange(start,start);}
+  }
+});
+
+/* ============================================================
+   SHARE MESSAGE
+   ============================================================ */
+function buildShareMessage(){
+  const et=findEventType(STATE.eventType.eventId);
+  const v=STATE.venue;
+  let msg="*"+(STATE.eventTitle||"Untitled Event")+"*\n";
+  if(et) msg+="Type: "+et.name+"\n";
+  if(v) msg+="Venue: "+v.name+" ("+(v.city||"")+(v.area?" · "+v.area:"")+")\n";
+  if(STATE.schedule.days.length && STATE.schedule.days[0].startDate){
+    msg+="When: "+STATE.schedule.days.map(function(d,i){
+      return "Day "+(i+1)+" "+(d.startDate||"")+" "+(d.startTime||"")+
+        (d.endDate||d.endTime?" → "+(d.endDate||"")+" "+(d.endTime||""):"");
+    }).join(" | ")+"\n";
+  }
+  if(totalGuests()) msg+="Guests: "+totalGuests()+"\n";
+  const menuCount=STATE.menuFood.length+STATE.menuBeverages.length;
+  if(menuCount) msg+="Menu items: "+menuCount+"\n";
+  const supCount=Object.keys(STATE.suppliers).reduce(function(n,k){return n+(STATE.suppliers[k]||[]).length;},0);
+  if(supCount) msg+="Suppliers: "+supCount+"\n";
+  if(STATE.showBudget) msg+="Estimated budget: "+fmt(grandTotal())+"\n";
+  if(STATE.eventDescription) msg+="\n"+STATE.eventDescription+"\n";
+  msg+="\nPreview: https://eatouts.app/e/"+(v?v.id:"draft");
+  return msg;
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+(function boot(){
+  loadDraft();
+  try{
+    var q=new URLSearchParams(location.search);
+    var eid=q.get("event");
+    if(eid){var et=findEventType(eid); if(et){
+      STATE.eventType={eventId:et.id,name:et.name,categoryId:et.categoryId,
+        categoryName:et.categoryName,subCategoryName:et.subCategoryName,
+        description:et.description,icon:et.icon};
+      }}
+    var vid=q.get("venue");
+    if(vid){
+      var v=findVenue(vid);
+      if(!v){
+        /* Fallback: branch ids from groupedListing() may differ from the raw
+           directory row ids used in EATOUTS_VENUES; match by venue name. */
+        var want=String(q.get("vname")||"").trim().toLowerCase();
+        v=getVenues().find(function(x){
+          return String(x.name||"").trim().toLowerCase()===want;
+        })||null;
+      }
+      if(v){STATE.venue=v; STATE.venueSpaces=[]; STATE.venueGalleryOpen=null;
+        STATE.activeStep="menu";}
+    }
+  }catch(e){}
+  render();
+  /* Connectivity chip - shown only when offline (matches index.html) */
+  var netChip=document.querySelector(".hdr-chip");
+  function refreshNetChip(){if(netChip)netChip.style.display=navigator.onLine?"none":"";}
+  window.addEventListener("online",refreshNetChip);
+  window.addEventListener("offline",refreshNetChip);
+  refreshNetChip();
+  window.addEventListener("resize",function(){measureCalc();measureNav();});
+  window.addEventListener("beforeunload",saveDraft);
+})();
+</script>
+</body>
+</html>

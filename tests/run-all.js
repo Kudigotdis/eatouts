@@ -31,7 +31,8 @@ const SUITES = [
   'contracts.js',
   'upload.js',
   'beverages.js',
-  'promocats.js'
+  'promocats.js',
+  'builder-suppliers.js'
 ];
 
 function pad(n, width) {
