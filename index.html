@@ -201,7 +201,7 @@ img{display:block;max-width:100%}
 
 /* ---------- BEVERAGES PANEL (swipe inside the Restaurants tab) ---------- */
 /* Two-button strip above the pager: tap to jump, or swipe the pages. */
-.bev-toggle{position:relative;display:flex;align-items:center;flex:0 0 auto;margin:6px 14px 8px;padding:5px;border-radius:28px;background:#e7eff9;border:1px solid rgba(200,213,230,.5);box-shadow:inset 0 2px 4px rgba(200,213,230,.4),0 1px 2px rgba(26,26,26,.04)}
+.bev-toggle{position:relative;display:flex;align-items:center;flex:0 0 auto;min-height:2.25em;margin:6px 14px 8px;padding:5px;border-radius:30px;background-color:#e7eff9;border:1px solid #f3f8fe;box-shadow:0 4px 5px #f3f8fe inset,0 4px 5px #c8d5e6;overflow:hidden}
 .bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc(50% - 5px);height:calc(100% - 10px);border-radius:23px;background:#fff;box-shadow:0 2px 6px rgba(26,26,26,.16);transition:transform .4s ease}
 .bev-toggle.bev .bev-toggle-thumb{transform:translateX(100%)}
 .bev-toggle-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;background:transparent;border:0;padding:9px 15px;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7e93ad;cursor:pointer;transition:color .2s}
@@ -215,9 +215,9 @@ img{display:block;max-width:100%}
 .bev-pager::-webkit-scrollbar{display:none}
 .bevpage{flex:0 0 100%;width:100%;height:100%;min-width:0;display:flex;flex-direction:column;scroll-snap-align:start;scroll-snap-stop:always}
 .bev-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}
-.bev-tile{position:relative;border-radius:14px;overflow:hidden;border:4px solid rgba(var(--bt-rgb,214,201,182),.3);background:rgba(var(--bt-rgb,214,201,182),.25);display:flex;align-items:center;justify-content:center;text-align:center;height:45px;min-height:45px;padding:4px 12px;cursor:pointer;outline:none}
+.bev-tile{position:relative;border-radius:16px;overflow:hidden;border:4px solid rgba(var(--bt-rgb,214,201,182),.3);background:rgba(var(--bt-rgb,214,201,182),.25);display:flex;align-items:center;justify-content:center;text-align:center;height:45px;min-height:45px;padding:4px 12px;cursor:pointer;outline:none;box-sizing:border-box}
 .bev-tile:active{filter:brightness(.96)}
-.bev-tile .bt-name{font-size:13px;font-weight:800;color:#1a1a1a;line-height:1.25}
+.bev-tile .bt-name{font-size:16px;font-weight:800;color:#1a1a1a;line-height:1.2}
 .bev-tile.off{opacity:.55}
 .bev-tile.off:active{filter:none}
 .bev-tile.off .bt-name{color:#6f6553}
@@ -229,7 +229,7 @@ img{display:block;max-width:100%}
 .bev-item .mprice{font-size:12.5px}
 .bev-item .mprice em{font-style:normal;font-size:10.5px;color:#a89a7e;font-weight:700}
 .bev-step{flex:0 0 auto}
-.bev-ratio{font-size:10.5px;letter-spacing:.12em;color:#8a7d63;font-weight:800;padding:14px 16px 8px;text-align:center;margin-bottom:20px}
+.bev-ratio{font-size:20px;letter-spacing:.06em;color:#8a7d63;font-weight:800;padding:14px 16px 4px;text-align:center;margin-bottom:20px}
 .bev-ratio.liquors{margin-top:12px;border-top:3px solid rgba(168,154,126,.15)}
 
 /* ---------- CHECKOUT ---------- */
@@ -291,6 +291,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 
 /* ---------- CONTROL BAR (GALLERY) ---------- */
 .cbar2{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.cbar2:empty{display:none}
 .cbtn{font-size:12px;font-weight:800;letter-spacing:.03em;color:#3a3324;padding:9px 15px;border-radius:10px;background:#faf8f2;border:1px solid #ece7db}
 .cbtn:active{background:#f4efe4}
 .cbtn.ic{padding:9px 11px;display:flex;align-items:center;justify-content:center;background:#0a0a0a;border-color:#0a0a0a;color:#ffffff}
@@ -313,9 +314,11 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .bev-result-go{margin-left:auto;font-size:20px;line-height:1;color:#c8bda6;font-weight:700}
 .bev-clear-row{position:sticky;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(255,255,255,0),#ffffff 36%)}
 .bev-clear-row .btn{width:100%;display:flex;background:#0a0a0a;border-color:#0a0a0a;color:#ffffff}
-/* Town row: centred label with comfortable clearance above (overrides the
-   .cbar2+.rest-filter-row padding stack so the button isn't cramped). */
-.rest-filter-row.town-row{padding:14px 12px 12px}
+/* Search pill: direct child of the filter controls (not wrapped in a .cbar2),
+   padded to line up with the filter rows below. */
+.rest-search-row{margin:10px 12px 0}
+/* Town row: centred label, minimal clearance above the town picker. */
+.rest-filter-row.town-row{padding:1px 12px 12px;margin-top:0}
 .rest-filter-row.town-row .cbtn{text-align:center}
 /* Gallery cbar: two value buttons whose text may be long (venue names) */
 .cbtn.gal-val{flex:0 1 auto;min-width:0;max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -4498,7 +4501,7 @@ function buildRestaurantsHTML(){
 function renderRestaurantsPager(){
   const foodOn=(state.restPanel==='food');
   let h='<div class="bev-toggle'+(foodOn?' food':' bev')+'" role="tablist">';
-  h+='<span class="bev-toggle-thumb" aria-hidden="true"></span>';
+  h+='<span class="bev-toggle-thumb ai-custom-slider" aria-hidden="true"></span>';
   h+='<button role="tab" class="bev-toggle-btn'+(foodOn?' on':'')+'" data-act="panelFood" aria-selected="'+(foodOn?'true':'false')+'">Restaurants</button>';
   h+='<button role="tab" class="bev-toggle-btn'+(foodOn?'':' on')+'" data-act="panelBev" aria-selected="'+(foodOn?'false':'true')+'">Beverages</button>';
   h+='</div>';
@@ -5108,10 +5111,10 @@ function renderControlBar(){
     const areaLabel=state.restArea==="All"?"All Areas":state.restArea;
     const typeLabel=!state.restTypes.length?"All Cuisines":state.restTypes.length===1?state.restTypes[0]:state.restTypes.length+" Cuisines";
     let h='<div class="rest-filter-controls">';
-    h+='<div class="cbar2"><div class="csearch">'+
+    h+='<div class="csearch rest-search-row">'+
       '<input id="rsearch" type="search" placeholder="Search restaurants..." aria-label="Search restaurants" value="'+esc(state.restSearch)+'">'+
       (state.restSearch?'<button class="cbtn ic" data-act="closeRestSearch" aria-label="Clear search">'+ICON.close+'</button>':'')+
-      '</div></div>';
+      '</div>';
     h+='<div class="cbar2 rest-filter-row town-row" style="justify-content: center;">'+
       '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(townLabel)+'</span></button></div>';
     h+='<div class="cbar2 rest-filter-row" style="justify-content: space-between;">'+
