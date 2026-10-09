@@ -202,22 +202,23 @@ img{display:block;max-width:100%}
 /* ---------- BEVERAGES PANEL (swipe inside the Restaurants tab) ---------- */
 /* Two-button strip above the pager: tap to jump, or swipe the pages. */
 .bev-toggle{position:relative;display:flex;align-items:center;flex:0 0 auto;min-height:2.25em;margin:6px 14px 8px;padding:5px;border-radius:30px;background-color:#e7eff9;border:1px solid #f3f8fe;box-shadow:0 4px 5px #f3f8fe inset,0 4px 5px #c8d5e6;overflow:hidden}
-.bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc(50% - 5px);height:calc(100% - 10px);border-radius:23px;background:#fff;box-shadow:0 2px 6px rgba(26,26,26,.16);transition:transform .4s ease}
+.bev-toggle.bev{margin-top:20px}
+.bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc(50% - 5px);height:calc(100% - 10px);border-radius:23px;background:#fff;transition:transform .4s ease}
 .bev-toggle.bev .bev-toggle-thumb{transform:translateX(100%)}
 .bev-toggle-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;background:transparent;border:0;padding:9px 15px;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7e93ad;cursor:pointer;transition:color .2s}
 .bev-toggle-btn:first-of-type{text-align:left}
 .bev-toggle-btn:last-of-type{text-align:right}
 .bev-toggle-btn:active{color:#1a1a1a}
-.bev-toggle-btn.on{color:#1a1a1a}
+.bev-toggle-btn.on{color:#7e93ad;font-weight:700;opacity:1}
 /* Horizontal pager: page 1 = Restaurants list, page 2 = Beverages. Native
    scroll-snap does the swiping; each page owns its own vertical .scroll. */
 .bev-pager{flex:1 1 auto;min-height:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .bev-pager::-webkit-scrollbar{display:none}
 .bevpage{flex:0 0 100%;width:100%;height:100%;min-width:0;display:flex;flex-direction:column;scroll-snap-align:start;scroll-snap-stop:always}
 .bev-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}
-.bev-tile{position:relative;border-radius:16px;overflow:hidden;border:4px solid rgba(var(--bt-rgb,214,201,182),.3);background:rgba(var(--bt-rgb,214,201,182),.25);display:flex;align-items:center;justify-content:center;text-align:center;height:45px;min-height:45px;padding:4px 12px;cursor:pointer;outline:none;box-sizing:border-box}
+.bev-tile{position:relative;border-radius:16px;overflow:hidden;border:4px solid rgba(var(--bt-rgb,214,201,182),.3);background:rgba(var(--bt-rgb,214,201,182),.2);display:flex;align-items:center;justify-content:center;text-align:center;height:45px;min-height:45px;padding:4px 12px;cursor:pointer;outline:none;box-sizing:border-box}
 .bev-tile:active{filter:brightness(.96)}
-.bev-tile .bt-name{font-size:16px;font-weight:800;color:#1a1a1a;line-height:1.2}
+.bev-tile .bt-name{font-size:16px;font-weight:800;color:rgb(var(--bt-name-rgb,26,26,26));line-height:1.2}
 .bev-tile.off{opacity:.55}
 .bev-tile.off:active{filter:none}
 .bev-tile.off .bt-name{color:#6f6553}
@@ -229,7 +230,7 @@ img{display:block;max-width:100%}
 .bev-item .mprice{font-size:12.5px}
 .bev-item .mprice em{font-style:normal;font-size:10.5px;color:#a89a7e;font-weight:700}
 .bev-step{flex:0 0 auto}
-.bev-ratio{font-size:20px;letter-spacing:.06em;color:#8a7d63;font-weight:800;padding:14px 16px 4px;text-align:center;margin-bottom:20px}
+.bev-ratio{font-size:20px;letter-spacing:.06em;color:#8a7d63;font-weight:700;padding:14px 16px 4px;text-align:center;margin-bottom:4px}
 .bev-ratio.liquors{margin-top:12px;border-top:3px solid rgba(168,154,126,.15)}
 
 /* ---------- CHECKOUT ---------- */
@@ -315,7 +316,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .bev-clear-row{position:sticky;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(255,255,255,0),#ffffff 36%)}
 .bev-clear-row .btn{width:100%;display:flex;background:#0a0a0a;border-color:#0a0a0a;color:#ffffff}
 /* Town row: centred label, minimal clearance above the town picker. */
-.rest-filter-row.town-row{padding:1px 12px 12px;margin-top:0}
+.rest-filter-row.town-row{padding:6px 12px 12px;margin-top:0}
 .rest-filter-row.town-row .cbtn{text-align:center}
 /* Gallery cbar: two value buttons whose text may be long (venue names) */
 .cbtn.gal-val{flex:0 1 auto;min-width:0;max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -337,6 +338,9 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .rest-type-option{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-bottom:1px solid #f4efe4;text-align:left;font-size:12px;font-weight:700;color:#3a3324;cursor:pointer}
 .rest-type-option input{flex:0 0 18px;width:18px;height:18px;margin:0;accent-color:#1a1a1a}
 .rest-type-option .rest-type-count{margin-left:auto}
+.rest-results-heading{padding:9px 14px;color:#645b48;font-size:10px;font-weight:900;text-transform:uppercase;border-bottom:1px solid #ece7db;background:#faf8f2}
+.rest-result-option{display:flex;align-items:baseline;gap:10px;width:100%;padding:11px 14px;border-bottom:1px solid #f4efe4;text-align:left;font-size:12px;font-weight:700;color:#3a3324;cursor:pointer}
+.rest-result-option .rr-meta{margin-left:auto;font-size:10.5px;font-weight:600;color:#645b48}
 .rest-type-footer{flex:0 0 auto;display:flex;justify-content:center;gap:8px;padding:10px;background:#fff;border-top:1px solid #ece7db}
 .rest-type-footer button{min-width:110px;text-align:center;justify-content:center}
 .rest-type-footer .apply{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
@@ -4193,6 +4197,12 @@ function filteredRestaurants(){
 function restaurantCountByType(type,rows){
   return (rows||restaurantBaseRows()).filter(function(r){return restaurantMatchesType(r,type);}).length;
 }
+function restaurantNameMatches(r,q){
+  if(!q)return true;
+  const names=(r&&r.branchNames&&r.branchNames.length)?r.branchNames.join(" "):"";
+  const places=(r&&r.branchLabels&&r.branchLabels.length)?r.branchLabels.join(" "):(r&&r.placeLabel||"");
+  return (String(r.name||"")+" "+names+" "+places).toLowerCase().indexOf(q)>-1;
+}
 function restaurantCountAt(town,district,districtName,area){
   return allRestaurants().filter(function(r){
     if(!restaurantMatchesLocation(r,town,district,districtName,area))return false;
@@ -4318,31 +4328,48 @@ function renderRestaurantAreaPicker(){
 }
 function renderRestaurantTypePicker(){
   const query=normalizeRestType(state.restTypeSearch);
+  const nameQuery=state.restTypeSearch.trim().toLowerCase();
+  const nameRows=nameQuery?restaurantBaseRows().filter(function(r){return restaurantNameMatches(r,nameQuery);}):[];
+  const activeRows=nameRows.length?nameRows:restaurantBaseRows();
   const groups=restaurantTypeCatalog();
   const baseRows=restaurantBaseRows();
+  const optionVisible=function(group,subgroup,option){
+    if(!nameQuery)return true;
+    const groupMatch=query&&(normalizeRestType(group.name).indexOf(query)>-1||(subgroup&&normalizeRestType(subgroup.name).indexOf(query)>-1));
+    const typeMatch=!query||groupMatch||normalizeRestType(option.name).indexOf(query)>-1;
+    return typeMatch||nameRows.some(function(r){return restaurantMatchesType(r,option.name);});
+  };
   let h='<div class="fpop-scrim" data-act="closeRestTypePicker"></div><div class="fpop rest-type-pop" role="dialog" aria-label="Choose restaurant types">';
-  h+='<div class="rest-type-top"><div class="csearch"><input id="restTypeSearch" type="search" placeholder="Search types..." value="'+esc(state.restTypeSearch)+'" aria-label="Search restaurant types"></div>';
+  h+='<div class="rest-type-top"><div class="csearch"><input id="restTypeSearch" type="search" placeholder="Search types or restaurants..." value="'+esc(state.restTypeSearch)+'" aria-label="Search restaurant types or names"></div>';
   h+='<div class="rest-type-status"><span>'+state.restTypeDraft.length+' selected</span><button type="button" data-act="clearRestTypeDraft">Clear</button></div></div>';
   h+='<div class="rest-type-options">';
   let shown=0;
+  if(nameRows.length){
+    shown++;
+    h+='<div class="rest-results-heading">Restaurants</div>';
+    nameRows.forEach(function(g){
+      const brand=g.brandKey;
+      const bid=(g.branches&&g.branches[0])?g.branches[0].id:brand;
+      const meta=(g.locationCount>1?(g.locationCount+" places"):(g.placeLabel||""))+(g.category?(" · "+g.category):"");
+      h+='<button class="rest-result-option" data-act="openRestFromSearch" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'"><span>'+esc(g.name)+'</span><span class="rr-meta">'+esc(meta)+'</span></button>';
+    });
+  }
   groups.forEach(function(group){
-    const groupMatch=query&&normalizeRestType(group.name).indexOf(query)>-1;
-    const direct=(group.options||[]).filter(function(option){return !query||groupMatch||normalizeRestType(option.name).indexOf(query)>-1;});
+    const direct=(group.options||[]).filter(function(option){return optionVisible(group,null,option);});
     const nested=(group.subgroups||[]).map(function(subgroup){
-      const subMatch=query&&(groupMatch||normalizeRestType(subgroup.name).indexOf(query)>-1);
-      return {name:subgroup.name,options:subgroup.options.filter(function(option){return !query||subMatch||normalizeRestType(option.name).indexOf(query)>-1;})};
+      return {name:subgroup.name,options:subgroup.options.filter(function(option){return optionVisible(group,subgroup,option);})};
     }).filter(function(subgroup){return subgroup.options.length;});
     if(!direct.length&&!nested.length)return;
     shown++;
     h+='<section><div class="rest-type-group-title">'+esc(group.name)+'</div>';
-    direct.forEach(function(option){h+=renderRestaurantTypeOption(option,baseRows);});
+    direct.forEach(function(option){h+=renderRestaurantTypeOption(option,activeRows);});
     nested.forEach(function(subgroup){
       h+='<div class="rest-type-subgroup-title">'+esc(subgroup.name)+'</div>';
-      subgroup.options.forEach(function(option){h+=renderRestaurantTypeOption(option,baseRows);});
+      subgroup.options.forEach(function(option){h+=renderRestaurantTypeOption(option,activeRows);});
     });
     h+='</section>';
   });
-  if(!shown)h+='<div class="rest-type-empty">No matching types</div>';
+  if(!shown)h+='<div class="rest-type-empty">No matching types or restaurants</div>';
   if(restaurantTypeLoadState==="fallback")h+='<div class="rest-type-note">Taxonomy unavailable; showing types found in restaurant listings.</div>';
   h+='</div><div class="rest-type-footer"><button type="button" data-act="closeRestTypePicker">Cancel</button><button type="button" class="apply" data-act="applyRestTypeSelection">Apply</button></div></div>';
   return h;
@@ -5635,6 +5662,7 @@ const BEV_TILE_COLOURS={
   tequila:"255,127,80",vodka:"135,206,235",wines:"0,0,255"
 };
 function bevTileRgb(id){return BEV_TILE_COLOURS[id]||"214,201,182";}
+function bevTileNameRgb(id){return bevTileRgb(id).split(",").map(function(c){return Math.max(0,Math.round(parseInt(c,10)*0.5));}).join(",");}
 function renderBeveragesLanding(){
   const B=window._BEV&&window._BEV.beverages;
   const A=window._BEV&&window._BEV.alcohols;
@@ -5645,7 +5673,7 @@ function renderBeveragesLanding(){
   h+='<div class="bev-ratio">Drinks</div><div class="bev-grid">';
   (subs||[]).forEach(function(sc){
     const off=sc.count<=0;
-    h+='<button class="bev-tile'+(off?' off':'')+'" data-act="bevOpenSub" data-id="'+esc(sc.id)+'" style="--bt-rgb:'+bevTileRgb(sc.id)+'"'+(off?' disabled':'')+'>';
+    h+='<button class="bev-tile'+(off?' off':'')+'" data-act="bevOpenSub" data-id="'+esc(sc.id)+'" style="--bt-rgb:'+bevTileRgb(sc.id)+';--bt-name-rgb:'+bevTileNameRgb(sc.id)+'"'+(off?' disabled':'')+'>';
     h+='<div class="bt-name">'+esc(sc.name)+'</div>';
     h+='</button>';
   });
@@ -5653,7 +5681,7 @@ function renderBeveragesLanding(){
   h+='<div class="bev-ratio liquors">Liquors</div><div class="bev-grid">';
   (bucks||[]).forEach(function(b){
     const off=b.count<=0;
-    h+='<button class="bev-tile sq'+(off?' off':'')+'" data-act="bevOpenBucket" data-id="'+esc(b.id)+'" style="--bt-rgb:'+bevTileRgb(b.id)+'"'+(off?' disabled':'')+'>';
+    h+='<button class="bev-tile sq'+(off?' off':'')+'" data-act="bevOpenBucket" data-id="'+esc(b.id)+'" style="--bt-rgb:'+bevTileRgb(b.id)+';--bt-name-rgb:'+bevTileNameRgb(b.id)+'"'+(off?' disabled':'')+'>';
     h+='<div class="bt-name">'+esc(b.name)+'</div>';
     h+='</button>';
   });
@@ -6867,6 +6895,7 @@ document.addEventListener("click",function(e){
   if(act==="closePickers"){state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;renderControlBar();return;}
   if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;state.restLocPicker=null;state.restNotice=null;syncRestAccordions();return;}
   if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
+  if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;render();return;}
   /* Promos on an expanded restaurant row opens the Gallery tab scoped to
      that venue and its promos. */
