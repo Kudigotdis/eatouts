@@ -48,6 +48,14 @@ setTimeout(() => {
   check('pager has a food page', !!doc.querySelector('#viewport .bevpage[data-page="food"]'));
   check('pager has a beverages page', !!doc.querySelector('#viewport .bevpage[data-page="beverages"]'));
   check('panel toggle strip present', doc.querySelectorAll('.bev-toggle-btn').length === 2);
+  const toggle = doc.querySelector('.bev-toggle');
+  check('toggle rides a sliding thumb', !!doc.querySelector('.bev-toggle-thumb'), toggle ? toggle.outerHTML : 'missing');
+  check('toggle starts in food position', toggle && toggle.classList.contains('food'), toggle && toggle.className);
+  ev('state.restPanel="beverages";render()');
+  check('toggle thumb moves to beverages',
+    doc.querySelector('.bev-toggle').classList.contains('bev'),
+    doc.querySelector('.bev-toggle').className);
+  ev('state.restPanel="food";render()');
 
   /* ---------- landing ---------- */
   ev('state.restPanel="beverages";render()');
