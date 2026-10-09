@@ -5099,10 +5099,10 @@ function renderControlBar(){
       const bevNames=bevTypeOptionNames(state.bevTypes);
       const bevTypeLabel=!state.bevTypes.length?"Beverage Type":state.bevTypes.length===1?bevNames[0]:state.bevTypes.length+" Types";
       let bh='<div class="rest-filter-controls">';
-      bh+='<div class="cbar2 rest-filter-row">'+
-        '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(bevTownLabel)+'</span></button>'+
-        '<button class="cbtn" data-act="openRestAreaPicker" aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(bevAreaLabel)+'</span></button></div>';
-      bh+='<div class="cbar2 rest-filter-row">'+
+      bh+='<div class="cbar2 rest-filter-row town-row" style="justify-content: center;">'+
+        '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(bevTownLabel)+'</span></button></div>';
+      bh+='<div class="cbar2 rest-filter-row" style="justify-content: space-between;">'+
+        '<button class="cbtn" data-act="openRestAreaPicker" aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(bevAreaLabel)+'</span></button>'+
         '<button class="cbtn align-right" data-act="openBevaergeTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.bevTypePicker?'true':'false')+'"><span>'+esc(bevTypeLabel)+'</span></button></div>';
       bh+='</div>';
       if(state.restTownPicker)bh+=renderRestaurantTownPicker();
