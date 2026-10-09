@@ -4323,7 +4323,7 @@ function renderRestaurantAreaPicker(){
       h+='<button class="loc-area-option'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickRestArea" data-area="'+esc(area)+'"><span>'+esc(area)+'</span><span class="loc-count">'+restaurantCountAt(state.restTown,state.restDistrict,state.restDistrictName,area)+'</span></button>';
     });
     if(!shown && query) h+='<div class="fpop-note">No matching areas found.</div>';
-  }else h+='<div class="fpop-note">No neighbourhoods listed</div>';
+  }else h+='<div class="fpop-note">'+(state.restTown==="All"?"Choose a town to list its neighbourhoods.":"No neighbourhoods listed")+'</div>';
   return h+'</div>';
 }
 function renderRestaurantTypePicker(){
@@ -5102,7 +5102,7 @@ function renderControlBar(){
       let bh='<div class="rest-filter-controls">';
       bh+='<div class="cbar2 rest-filter-row">'+
         '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(bevTownLabel)+'</span></button>'+
-        '<button class="cbtn" data-act="openRestAreaPicker"'+(state.restTown==="All"?' disabled':'')+' aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(bevAreaLabel)+'</span></button></div>';
+        '<button class="cbtn" data-act="openRestAreaPicker" aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(bevAreaLabel)+'</span></button></div>';
       bh+='<div class="cbar2 rest-filter-row">'+
         '<button class="cbtn align-right" data-act="openBevaergeTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.bevTypePicker?'true':'false')+'"><span>'+esc(bevTypeLabel)+'</span></button></div>';
       bh+='</div>';
@@ -5130,7 +5130,7 @@ function renderControlBar(){
     h+='<div class="cbar2 rest-filter-row town-row" style="justify-content: center;">'+
       '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(townLabel)+'</span></button></div>';
     h+='<div class="cbar2 rest-filter-row" style="justify-content: space-between;">'+
-      '<button class="cbtn" data-act="openRestAreaPicker"'+(state.restTown==="All"?' disabled':'')+' aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(areaLabel)+'</span></button>'+
+      '<button class="cbtn" data-act="openRestAreaPicker" aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(areaLabel)+'</span></button>'+
       '<button class="cbtn align-right" data-act="openRestaurantTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.restTypePicker?'true':'false')+'"><span>'+esc(typeLabel)+'</span></button></div>';
     h+='</div>';
     if(state.restTownPicker)h+=renderRestaurantTownPicker();
@@ -6955,7 +6955,6 @@ document.addEventListener("click",function(e){
     state.restArea="All";state.restTownPicker=false;render();return;
   }
   if(act==="openRestAreaPicker"){
-    if(state.restTown==="All")return;
     state.restAreaPicker=!state.restAreaPicker;state.restTownPicker=false;state.restTypePicker=false;
     state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";renderControlBar();return;
   }
