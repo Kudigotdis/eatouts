@@ -42,16 +42,23 @@ setTimeout(() => {
   check('blog stub button gone', !vp.querySelector('button[data-notice*="blog is coming soon"]'));
 
   const planner = vp.querySelector('a[href="eatouts-event-planner.html"]');
-  check('event planner link present', !!planner, planner ? 'text=' + planner.textContent.trim() : 'missing');
+  check('event planner link gone', !planner, planner ? 'text=' + planner.textContent.trim() : 'ok');
 
   const suppliers = vp.querySelector('a[href="eatouts-suppliers.html"]');
   check('suppliers link present', !!suppliers, suppliers ? 'text=' + suppliers.textContent.trim() : 'missing');
 
   const cta = vp.querySelector('a[href="get-started.html"]');
-  check('list-your-restaurant CTA present', !!cta, cta ? 'text=' + cta.textContent.trim() : 'missing');
-  check('CTA says List your restaurant', !!cta && /list your restaurant/i.test(cta.textContent));
+  check('list-business CTA present', !!cta, cta ? 'text=' + cta.textContent.trim() : 'missing');
+  check('CTA says List As Restaurant', !!cta && /restaurant/i.test(cta.textContent));
 
-  check('anchors styled as btn', !!cta && cta.classList.contains('btn') && cta.classList.contains('primary'));
+  const settings = vp.querySelector('button[data-act="toggleAboutSettings"]');
+  check('Settings accordion toggle present', !!settings && settings.textContent.trim() === 'Settings');
+  const listBiz = vp.querySelector('button[data-act="toggleAboutList"]');
+  check('List Your Business accordion toggle present', !!listBiz && /list your business/i.test(listBiz.textContent));
+
+  const share = vp.querySelector('a.btn.share');
+  check('Share EatOuts link present', !!share, share ? 'text=' + share.textContent.trim() : 'missing');
+  check('Share EatOuts opens WhatsApp share', !!share && /wa\.me\/\?text=/.test(share.getAttribute('href') || ''));
 
   check('no window errors', errors.length === 0, errors.join(' | '));
 

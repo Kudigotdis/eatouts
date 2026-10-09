@@ -399,6 +399,15 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .social-ico img{width:100%;height:100%;object-fit:contain;display:block}
 .social-ico.off{pointer-events:none;cursor:default}
 
+/* ---------- ABOUT: SETTINGS ACCORDION ---------- */
+/* Centred text rows, no chevron. The whole list collapses behind the
+   "Settings" header; "List Your Business" nests a second accordion. */
+.setlist{margin-top:14px;border-top:1px solid #f1ece1}
+.setrow{display:block;width:100%;text-align:center;padding:16px 14px;font-size:13.5px;font-weight:800;letter-spacing:.01em;color:#1a1a1a;background:#ffffff;border-bottom:1px solid #f1ece1;text-decoration:none;cursor:pointer;min-height:auto}
+.setrow:active{background:#faf8f2}
+.setacc.open>.acc-wrap{grid-template-rows:1fr}
+.btn.share{display:block;text-align:center;background:#25d366;border-color:#25d366;color:#ffffff;font-weight:800;text-decoration:none}
+
 /* ---------- CRUMB ---------- */
 .crumb{display:flex;align-items:center;gap:8px;padding:12px 16px 10px;flex-wrap:wrap;background:#ffffff}
 .crumb button{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#a89a7e;padding:4px 0}
@@ -3303,6 +3312,8 @@ const state = {
   filterOpen:false,
   searchOpen:false,
   aboutView:"main",
+  aboutSettingsOpen:false,
+  aboutListOpen:false,
   operatorView:"about",
   legalView:null,
 
@@ -3821,6 +3832,19 @@ function syncRestAccordions(){
     const on=state.restaurantOpen===el.getAttribute("data-racc");
     el.classList.toggle("open",on);
     const b=el.querySelector('.rrow[data-act="toggleRestaurant"]');
+    if(b) b.setAttribute("aria-expanded",on?"true":"false");
+  });
+}
+
+/* About "Settings" accordion (with the nested "List Your Business" one).
+   Same in-place .open flip as above so .acc-wrap animates shut. */
+function syncAboutAccordions(){
+  const vp=document.getElementById("viewport");
+  if(!vp) return;
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-sacc]"),function(c){
+    const on=c.getAttribute("data-sacc")==="settings"?!!state.aboutSettingsOpen:!!state.aboutListOpen;
+    c.classList.toggle("open",on);
+    const b=c.querySelector('[data-act="toggleAboutSettings"],[data-act="toggleAboutList"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
 }
@@ -6599,24 +6623,32 @@ function renderAbout(){
   h+='<div class="tagwrap center">'+["Restaurant discovery","Daily promos","Venue booking","Local events","Easy WhatsApp"]
      .map(function(t){return '<span class="chip pill">'+esc(t)+'</span>';}).join("")+'</div>';
 
-  h+='<div style="margin-top:22px"><button class="btn primary full" data-act="showRestNotice" '+
-     'data-notice="'+esc("EatOuts APK installer is coming soon - we will notify you here when it drops.")+'">Install EatOuts</button></div>';
-  /* Operator sign-in for restaurant owners, below the install button */
-  h+='<div style="margin-top:10px"><button class="btn primary full" data-act="openOperatorLogin">Operator</button></div>';
-  /* Legal buttons */
-  h+='<div style="margin-top:10px;display:flex;gap:8px">'+
-    '<button class="btn primary half" data-act="openTerms">Terms of Service</button>'+
-    '<button class="btn primary half" data-act="openPrivacy">Privacy Policy</button>'+
-  '</div>';
-  /* Marketing surfaces: onboarding CTA (integration_file.txt step 8b) */
-  h+='<div style="margin-top:10px"><a class="btn primary full" href="get-started.html">List your restaurant &rarr;</a></div>';
-  /* Event planner + suppliers directory (guide 5.2) */
-  h+='<div style="margin-top:10px;display:flex;gap:8px">'+
-    '<a class="btn primary half" href="eatouts-event-planner.html">Event Planner</a>'+
-    '<a class="btn primary half" href="eatouts-suppliers.html">Suppliers</a>'+
-  '</div>';
-  /* Blog (guide 5.3) */
-  h+='<div style="margin-top:10px"><a class="btn primary full" href="eatouts-blog.html">Blog</a></div>';
+  /* Settings accordion: install, blog, event suppliers, legal, operator and a
+     nested "List Your Business" accordion. Centred text rows, no chevrons. */
+  const sOpen=!!state.aboutSettingsOpen, lOpen=!!state.aboutListOpen;
+  h+='<div class="setlist"><div class="setacc'+(sOpen?" open":"")+'" data-sacc="settings">'+
+    '<button class="setrow" data-act="toggleAboutSettings" aria-expanded="'+(sOpen?"true":"false")+'">Settings</button>'+
+    '<div class="acc-wrap"><div class="acc-in">'+
+      '<button class="setrow" data-act="showRestNotice" '+
+        'data-notice="'+esc("EatOuts APK installer is coming soon - we will notify you here when it drops.")+'">Install EatOuts</button>'+
+      '<a class="setrow" href="eatouts-blog.html">Blog</a>'+
+      '<a class="setrow" href="eatouts-suppliers.html">Event Suppliers</a>'+
+      '<button class="setrow" data-act="openTerms">Terms of Service</button>'+
+      '<button class="setrow" data-act="openPrivacy">Privacy Policy</button>'+
+      '<button class="setrow" data-act="openOperatorLogin">Operator</button>'+
+      '<div class="setacc'+(lOpen?" open":"")+'" data-sacc="list">'+
+        '<button class="setrow" data-act="toggleAboutList" aria-expanded="'+(lOpen?"true":"false")+'">List Your Business</button>'+
+        '<div class="acc-wrap"><div class="acc-in">'+
+          '<a class="setrow" href="get-started.html">List As &ldquo;Restaurant&rdquo;</a>'+
+          '<a class="setrow" href="eatouts-suppliers.html">List As &ldquo;Supplier&rdquo;</a>'+
+        '</div></div>'+
+      '</div>'+
+    '</div></div>'+
+  '</div></div>';
+  /* Share EatOuts — opens the WhatsApp share sheet (any contact) */
+  h+='<div style="margin-top:18px"><a class="btn share" href="'+
+    esc(waShareLink("Check out EatOuts - discover restaurants, food, promos & events across Botswana. "+location.origin))+
+    '" target="_blank" rel="noopener noreferrer">Share EatOuts</a></div>';
   h+='</div><div style="height:34px"></div></div>';
   return h;
 }
@@ -7232,6 +7264,8 @@ document.addEventListener("click",function(e){
   /* ABOUT */
   if(act==="openAboutGallery"){state.aboutView="gallery";render();return;}
   if(act==="backAboutGallery"){state.aboutView="main";render();return;}
+  if(act==="toggleAboutSettings"){state.aboutSettingsOpen=!state.aboutSettingsOpen;if(!state.aboutSettingsOpen)state.aboutListOpen=false;syncAboutAccordions();return;}
+  if(act==="toggleAboutList"){state.aboutListOpen=!state.aboutListOpen;syncAboutAccordions();return;}
 
   /* TERMS / PRIVACY */
   if(act==="openTerms"){state.legalView="terms";render();return;}
