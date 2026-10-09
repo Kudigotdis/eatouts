@@ -182,6 +182,10 @@ img{display:block;max-width:100%}
 .cat-ico img{width:100%;height:100%;object-fit:cover;display:block;border-radius:0}
 .cat-name{font-size:14.5px;font-weight:800;color:#1a1a1a;letter-spacing:.01em}
 .cat-meta{font-size:10.5px;color:#a89a7e;margin-top:2px;letter-spacing:.03em;font-weight:600}
+/* Events tab category rows: icon-less, centred, larger label */
+.cat-row.evcat{padding:22px 16px;gap:0}
+.cat-row.evcat .minfo{text-align:center}
+.cat-row.evcat .cat-name{font-size:30px}
 
 .mitem{border-bottom:1px solid #f1ece1;background:#ffffff}
 .mrow{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%}
@@ -6419,10 +6423,8 @@ function renderReserveCats(){
   let h='<div class="scroll">';
   h+='<div class="phead"><h2>Plan Event</h2></div>';
   RESERVE.forEach(c=>{
-    h+='<button class="cat-row" data-act="openResCat" data-id="'+c.id+'">'+
-      '<div class="cat-ico" style="'+artStyle(c.id)+'">'+c.icon+'</div>'+
-      '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div>'+
-      '<div class="cat-meta">'+c.subs.length+' types</div></div></button>';
+    h+='<button class="cat-row evcat" data-act="openResCat" data-id="'+c.id+'">'+
+      '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div></div></button>';
   });
   h+='<div style="height:24px"></div></div>';
   return h;
