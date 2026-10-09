@@ -6871,6 +6871,22 @@ function render(){
    EVENT HANDLING
    ================================================================ */
 document.addEventListener("click",function(e){
+  /* Header logo returns to the Promos home, resetting any open popup / filter. */
+  const homeTap=e.target.closest(".brand-mark");
+  if(homeTap){
+    state.promoTownPicker=state.promoAreaPicker=state.promoTypePicker=false;
+    state.promoFilterOpen=state.bevFilterOpen=state.restFilterOpen=false;
+    if(!(state.tab==="promos" && state.promoView==="feed" && !state.promoId && !state.promoGalleryId && !state.promoExpanded)){
+      state.tab="promos"; state.promoView="feed";
+      state.promoId=null; state.promoGalleryId=null; state.promoExpanded=null;
+      state.restPanel="food"; state.operatorView="about"; state.preview=null;
+      try{history.replaceState(null,"","#promos");}catch(e){}
+      render();
+      return;
+    }
+    renderControlBar();
+    return;
+  }
   const nav=e.target.closest("[data-tab]");
   if(nav){
     const nextTab=nav.getAttribute("data-tab");

@@ -6,27 +6,27 @@
 <title>EatOuts — Pitch One-Pager</title>
 <link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
 <style>
-:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--border:#e7e4dd;--radius:14px}
+:root{--black:#1a1a1a;--bg:#faf8f2;--card:#fff;--text:#1a1a1a;--muted:#a89a7e;--muted-2:#8a8170;--border:#ece7db;--radius:14px}
 *{box-sizing:border-box}
 body{margin:0;background:#e9e5db;color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13.5px;line-height:1.55;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .sheet{max-width:820px;margin:22px auto;background:#fff;border-radius:18px;box-shadow:0 20px 50px -20px rgba(0,0,0,.2);overflow:hidden}
 .hero{background:linear-gradient(160deg,#1a1a1a 0%,#2c2c2c 100%);color:#fff;padding:36px 34px 30px;text-align:center;position:relative}
-.hero .brand{font-size:14px;font-weight:900;letter-spacing:.28em;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
+.hero .brand{font-size:14px;font-weight:900;letter-spacing:.28em;color:#e5ddc8;text-transform:uppercase;margin-bottom:18px}
 .hero h1{margin:0 0 12px;font-size:28px;font-weight:900;letter-spacing:-.025em;line-height:1.15}
 .hero p{margin:0 auto;max-width:520px;color:rgba(255,255,255,.72);font-size:14px;line-height:1.6}
 .hero .row{margin-top:22px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
 .hero .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 14px;font-size:11.5px;font-weight:800;letter-spacing:.05em;color:#fff}
-.hero .pill.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.hero .pill.gold{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
 .body{padding:30px 34px}
 .cols{display:grid;grid-template-columns:1fr;gap:16px}
 @media(min-width:640px){.cols{grid-template-columns:1fr 1fr}}
 .block{background:#faf8f2;border:1px solid var(--border);border-radius:14px;padding:16px}
-.block h3{margin:0 0 8px;font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#8a6a1a}
+.block h3{margin:0 0 8px;font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#8a7a55}
 .block ul{margin:0;padding-left:20px}
 .block li{margin-bottom:5px;font-size:12.5px;color:#3a3324;line-height:1.5}
 .block p{margin:0;font-size:12.5px;color:#3a3324;line-height:1.55}
-.price{margin:18px 0 0;background:#fff;border:2px solid var(--gold);border-radius:14px;padding:18px;text-align:center}
-.price .setup{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8a6a1a;margin-bottom:4px}
+.price{margin:18px 0 0;background:#fff;border:2px solid #1a1a1a;border-radius:14px;padding:18px;text-align:center}
+.price .setup{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8a7a55;margin-bottom:4px}
 .price .amt{font-size:26px;font-weight:900;color:var(--black);letter-spacing:-.02em;margin-bottom:2px}
 .price .sub{font-size:12.5px;color:var(--muted)}
 .price .tiers{margin-top:10px;font-size:13px;font-weight:800;color:var(--black);letter-spacing:.02em}
@@ -40,6 +40,24 @@ body{margin:0;background:#e9e5db;color:var(--text);font-family:Inter,system-ui,-
 .btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;border:0;border-radius:11px;padding:0 18px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none}
 .btn.primary{background:var(--black);color:#fff}
 .btn.ghost{background:#fff;border:1px solid var(--border);color:#3a3324}
+/* ===== APP SHELL PARITY ===== */
+#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+@media(min-width:520px){#shell{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
+#shell .topbar{height:58px;padding:0 14px;padding-top:env(safe-area-inset-top);flex:0 0 auto}
+#shell .brand{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;text-decoration:none}
+#shell .brand img{width:100%;height:100%;object-fit:contain;display:block}
+#shell .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+#shell .hdr-chip{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:4px 9px;background:#faf8f2;white-space:nowrap}
+#shell .sheet{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;max-width:none;margin:0;border-radius:0;box-shadow:none}
+#shell .actions{max-width:460px;margin:0;padding:10px 14px;border-top:1px solid var(--border)}
+.appnav{flex:0 0 auto;display:flex;background:#0a0a0a;padding:8px 6px calc(8px + env(safe-area-inset-bottom));gap:2px}
+.appnav a{flex:1;text-align:center;font-size:10px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.62);text-decoration:none;padding:3px 0 1px}
+.appnav a.on{color:#fff}
+@media print{
+  #shell{position:static;display:block;max-width:none}
+  .topbar,.appnav{display:none!important}
+  .actions{display:none!important}
+}
 @media print{
   body{background:#fff}
   .sheet{margin:0;box-shadow:none;border-radius:0;max-width:100%}
@@ -49,6 +67,12 @@ body{margin:0;background:#e9e5db;color:var(--text);font-family:Inter,system-ui,-
 </style>
 </head>
 <body>
+
+<div id="shell">
+<header class="topbar">
+  <a class="brand" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
+  <div class="hdr-right"><span class="hdr-chip">One-Pager</span></div>
+</header>
 
 <div class="sheet">
   <section class="hero">
@@ -118,6 +142,14 @@ body{margin:0;background:#e9e5db;color:var(--text);font-family:Inter,system-ui,-
 <div class="actions">
   <button class="btn primary" onclick="window.print()">🖨 Print / Save as PDF</button>
   <a class="btn ghost" href="index.html">Back to EatOuts</a>
+</div>
+<nav class="appnav">
+  <a href="index.html#promos" class="on">Promos</a>
+  <a href="index.html#restaurants">Restaurants</a>
+  <a href="index.html#reserve">Reserve</a>
+  <a href="index.html#gallery">Gallery</a>
+  <a href="index.html#about">About</a>
+</nav>
 </div>
 
 </body>

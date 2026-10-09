@@ -32,7 +32,8 @@ const SUITES = [
   'upload.js',
   'beverages.js',
   'promocats.js',
-  'builder-suppliers.js'
+  'builder-suppliers.js',
+  'appshell.js'
 ];
 
 function pad(n, width) {

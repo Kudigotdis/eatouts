@@ -9,13 +9,13 @@
 <link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
 <style>
 :root{
-  --gold:#c9a84c;
-  --black:#151515;
-  --bg:#f7f6f3;
+  --black:#1a1a1a;
+  --bg:#faf8f2;
   --card:#fff;
-  --text:#1b1b1b;
-  --muted:#7a7466;
-  --border:#e7e4dd;
+  --text:#1a1a1a;
+  --muted:#a89a7e;
+  --muted-2:#8a8170;
+  --border:#ece7db;
   --ok:#17834b;
   --danger:#c43c3c;
   --radius:16px;
@@ -35,11 +35,11 @@ img{max-width:100%;display:block}
 
 /* ---------- SHELL ---------- */
 .shell{
-  position:fixed;inset:0;max-width:760px;margin:0 auto;
+  position:fixed;inset:0;max-width:460px;margin:0 auto;
   display:flex;flex-direction:column;background:var(--card);
   box-shadow:0 0 60px -20px rgba(0,0,0,.25);overflow:hidden;
 }
-@media(min-width:760px){
+@media(min-width:520px){
   .shell{border-left:1px solid var(--border);border-right:1px solid var(--border)}
 }
 
@@ -49,14 +49,14 @@ img{max-width:100%;display:block}
   padding:0 14px;background:#fff;border-bottom:1px solid var(--border);
   position:relative;z-index:58;padding-top:env(safe-area-inset-top);
 }
-.brand{font-weight:900;font-size:16px;color:var(--black);text-decoration:none}
-.brand span{color:var(--gold)}
-.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.brand{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;text-decoration:none}
+.brand img{width:100%;height:100%;object-fit:contain;display:block}
+.topbar .page{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 .hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center}
-.chip{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:4px 9px;background:#faf8f2}
-.chip.admin{color:var(--ok);border-color:#b8e6c1;background:#e3f5e9;cursor:pointer}
-.chip.admin:active{background:#c9eed0}
-.hdr-back{font-size:12px;font-weight:800;color:var(--gold);padding:6px 0}
+.hdr-chip{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:4px 9px;background:#faf8f2}
+.hdr-chip.admin{color:var(--ok);border-color:#b8e6c1;background:#e3f5e9;cursor:pointer}
+.hdr-chip.admin:active{background:#c9eed0}
+.hdr-back{font-size:12px;font-weight:800;color:var(--muted-2);padding:6px 0}
 .hdr-back::before{content:"← ";font-weight:900}
 
 /* ---------- VIEWPORT ---------- */
@@ -66,16 +66,17 @@ img{max-width:100%;display:block}
 
 /* ---------- BOTTOM NAV ---------- */
 .bottom-nav{
-  flex:0 0 auto;display:flex;background:#fff;border-top:1px solid var(--border);
+  flex:0 0 auto;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;
   padding-bottom:env(safe-area-inset-bottom);position:relative;z-index:50;
 }
 .nav-btn{
-  flex:1;padding:14px 2px 13px;display:flex;align-items:center;justify-content:center;gap:8px;
-  color:var(--muted);transition:color .18s;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.42);transition:color .18s;
   text-decoration:none;
 }
-.nav-btn.on{color:var(--black)}
-.nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.on{color:rgba(255,255,255,.75)}
+.nav-btn:active{color:rgba(255,255,255,.75)}
+.nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 
 /* ---------- COMMON ---------- */
 .pad{padding:14px}
@@ -89,8 +90,8 @@ img{max-width:100%;display:block}
 .btn:active{background:#efe9da}
 .btn.primary{background:var(--black);border-color:var(--black);color:#fff}
 .btn.primary:active{background:#000}
-.btn.gold{background:var(--gold);border-color:var(--gold);color:#fff}
-.btn.gold:active{background:#b59437}
+.btn.gold{background:var(--black);border-color:var(--black);color:#fff}
+.btn.gold:active{background:#000}
 .btn.wa{background:#dff5e4;border-color:#b8e6c1;color:#1c6b2e}
 .btn.wa:active{background:#c9ecd0}
 .btn.danger{background:#fbeaea;color:var(--danger);border-color:#e0c9c9}
@@ -98,8 +99,8 @@ img{max-width:100%;display:block}
 .btn.half{flex:1}
 .btn.sm{padding:8px 12px;font-size:11.5px;border-radius:9px;min-height:34px}
 .btn.ghost{background:transparent;border-color:#e2dccd;color:#6f6754}
-.btn.link{background:transparent;border-color:transparent;color:var(--gold);padding:6px 8px;min-height:auto}
-.btn.link:active{background:#fdf9ef}
+.btn.link{background:transparent;border-color:transparent;color:var(--muted-2);padding:6px 8px;min-height:auto}
+.btn.link:active{background:#faf8f2}
 .btn[disabled]{opacity:.35;cursor:not-allowed}
 
 /* ---------- SEARCH BAR ---------- */
@@ -114,9 +115,9 @@ img{max-width:100%;display:block}
 .tag-strip{display:flex;gap:6px;overflow-x:auto;padding:0 0 4px;margin-top:10px;-webkit-overflow-scrolling:touch}
 .tag-strip::-webkit-scrollbar{display:none}
 .tag-pill{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.04em;padding:6px 11px;border-radius:999px;background:#faf8f2;border:1px solid var(--border);color:#5c5547;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
-.tag-pill:hover{background:#f4efe4}
+.tag-pill:hover{background:#faf8f2}
 .tag-pill.on{background:var(--black);border-color:var(--black);color:#fff}
-.tag-pill.hash::before{content:"#";color:var(--gold)}
+.tag-pill.hash::before{content:"#";color:var(--muted-2)}
 
 /* ---------- TIMELINE ---------- */
 .timeline{padding:20px 14px 40px;position:relative}
@@ -127,23 +128,23 @@ img{max-width:100%;display:block}
 .tl-item{position:relative;padding-left:44px;margin-bottom:22px}
 .tl-item::before{
   content:"";position:absolute;left:26px;top:8px;width:12px;height:12px;border-radius:50%;
-  background:var(--gold);border:3px solid #fff;box-shadow:0 0 0 1px #e8e3d8;z-index:2;
+  background:#1a1a1a;border:3px solid #fff;box-shadow:0 0 0 1px #e8e3d8;z-index:2;
 }
 .tl-card{
   display:block;width:100%;background:#fff;border:1px solid var(--border);border-radius:14px;
   overflow:hidden;box-shadow:0 2px 8px -4px rgba(0,0,0,.06);
   transition:border-color .15s;text-decoration:none;color:inherit;cursor:pointer;padding:0;
 }
-.tl-card:hover,.tl-card:focus-visible{outline:none;border-color:var(--gold)}
+.tl-card:hover,.tl-card:focus-visible{outline:none;border-color:#1a1a1a}
 .tl-card-img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#f4efe4}
 .tl-card-body{padding:14px 15px}
 .tl-card-date{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
 .tl-card-title{font-size:16px;font-weight:900;color:var(--text);line-height:1.25;letter-spacing:-.01em;margin:0 0 4px}
 .tl-card-sub{font-size:12.5px;color:#8a8170;line-height:1.45;margin:0 0 10px}
 .tl-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
-.tl-card-tag{font-size:9.5px;font-weight:800;letter-spacing:.03em;padding:3px 8px;border-radius:999px;background:#faf8f2;border:1px solid var(--border);color:#8a6a1a}
+.tl-card-tag{font-size:9.5px;font-weight:800;letter-spacing:.03em;padding:3px 8px;border-radius:999px;background:#faf8f2;border:1px solid var(--border);color:#8a7a55}
 .tl-card-foot{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.tl-card-read{color:var(--gold)}
+.tl-card-read{color:var(--muted-2)}
 .tl-empty{padding:60px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
 
 /* ---------- POST VIEW ---------- */
@@ -175,11 +176,11 @@ img{max-width:100%;display:block}
 .blk-gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#f4efe4}
 .blk-gallery img:first-child:last-child{grid-column:1/-1;aspect-ratio:16/9}
 .blk-link{display:block;padding:14px 16px;margin:14px 0;border-radius:12px;background:#faf8f2;border:1px solid var(--border);text-decoration:none;color:inherit;transition:background .15s,border-color .15s}
-.blk-link:hover{background:#f4efe4;border-color:var(--gold)}
+.blk-link:hover{background:#faf8f2;border-color:#1a1a1a}
 .blk-link b{display:block;font-size:13.5px;font-weight:900;color:var(--text);margin-bottom:3px}
 .blk-link span{display:block;font-size:12px;color:#8a8170;line-height:1.45}
 .blk-divider{border:0;height:1px;background:#f1ece1;margin:26px 0}
-.blk-quote{margin:18px 0;padding:4px 0 4px 16px;border-left:3px solid var(--gold)}
+.blk-quote{margin:18px 0;padding:4px 0 4px 16px;border-left:3px solid #1a1a1a}
 .blk-quote p{font-size:15px;font-style:italic;color:#3a3324;line-height:1.6;margin:0 0 6px}
 .blk-quote cite{font-size:11.5px;color:var(--muted);font-weight:800;font-style:normal;letter-spacing:.02em}
 .blk-list{margin:0 0 14px;padding-left:24px}
@@ -190,8 +191,8 @@ img{max-width:100%;display:block}
 .blk-callout.success{background:#e3f5e9;border:1px solid #b8e6c1;color:#1c6b2e}
 .blk-callout.warning{background:#fdf3dc;border:1px solid #ece0be;color:#8a6a1a}
 .blk-callout strong{font-weight:900}
-.tag-inline{color:var(--gold);font-weight:800;text-decoration:none;cursor:pointer;border-bottom:1px dashed rgba(201,168,76,.4)}
-.tag-inline:hover{color:#8a6a1a}
+.tag-inline{color:var(--muted-2);font-weight:800;text-decoration:none;cursor:pointer;border-bottom:1px dashed rgba(26,26,26,.25)}
+.tag-inline:hover{color:#8a7a55}
 
 /* ---------- ADMIN ---------- */
 .admin-wrap{padding:14px 14px 60px;max-width:640px;margin:0 auto}
@@ -201,7 +202,7 @@ img{max-width:100%;display:block}
   display:flex;gap:12px;padding:13px 14px;background:#fff;border:1px solid var(--border);
   border-radius:12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;
 }
-.admin-post-row:hover{border-color:var(--gold)}
+.admin-post-row:hover{border-color:#1a1a1a}
 .admin-post-thumb{width:54px;height:54px;flex:0 0 auto;border-radius:8px;overflow:hidden;background:#f4efe4;position:relative}
 .admin-post-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .admin-post-thumb .placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#c9c2b3}
@@ -217,20 +218,20 @@ img{max-width:100%;display:block}
 .edit-meta .field:last-child{margin-bottom:0}
 .field label{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:6px}
 .field input,.field textarea{width:100%;padding:11px 12px;background:#fff;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13.5px;outline:none;transition:border-color .16s;min-height:44px}
-.field input:focus,.field textarea:focus{border-color:var(--gold)}
+.field input:focus,.field textarea:focus{border-color:#1a1a1a}
 .field textarea{resize:vertical;min-height:76px;line-height:1.5}
 .field .hint{font-size:10.5px;color:var(--muted);margin-top:4px;line-height:1.4}
 
 .tag-input{display:flex;flex-wrap:wrap;gap:5px;padding:7px;background:#fff;border:1px solid var(--border);border-radius:10px;min-height:44px;align-items:center}
 .tag-input input{flex:1;min-width:100px;background:none;border:0;outline:none;padding:6px;font-size:13px;min-height:auto}
-.tag-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;background:#faf8f2;border:1px solid var(--border);border-radius:999px;font-size:11px;font-weight:800;color:#8a6a1a}
+.tag-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;background:#faf8f2;border:1px solid var(--border);border-radius:999px;font-size:11px;font-weight:800;color:#8a7a55}
 .tag-chip button{color:var(--muted);font-size:13px;padding:0 2px;line-height:1;cursor:pointer}
 .tag-chip button:hover{color:var(--danger)}
 
 .block-stack{margin-bottom:14px}
 .block-card{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
 .block-head{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#faf8f2;border-bottom:1px solid var(--border)}
-.block-type{font-size:9.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#8a6a1a;background:#fdf9ef;padding:3px 8px;border-radius:999px;border:1px solid #ece0be}
+.block-type{font-size:9.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#8a7a55;background:#faf8f2;padding:3px 8px;border-radius:999px;border:1px solid #f1ece1}
 .block-num{font-size:10.5px;font-weight:800;color:var(--muted)}
 .block-actions{margin-left:auto;display:flex;gap:4px}
 .block-actions button{width:26px;height:26px;border-radius:6px;background:#fff;border:1px solid var(--border);font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;color:#5c5547;cursor:pointer;padding:0;min-height:auto}
@@ -245,7 +246,7 @@ img{max-width:100%;display:block}
 .add-block-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
 @media(min-width:520px){.add-block-grid{grid-template-columns:repeat(3,1fr)}}
 .add-block-grid button{padding:10px 8px;background:#fff;border:1px solid var(--border);border-radius:10px;font-size:11px;font-weight:800;color:#5c5547;cursor:pointer;text-align:center;transition:background .15s,border-color .15s;min-height:44px}
-.add-block-grid button:hover{background:#f4efe4;border-color:var(--gold)}
+.add-block-grid button:hover{background:#faf8f2;border-color:#1a1a1a}
 .add-block-grid button span{display:block;font-size:16px;margin-bottom:3px;line-height:1}
 
 .admin-bar{flex:0 0 auto;display:flex;gap:8px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--border)}
@@ -310,16 +311,22 @@ meta[name=title],.meta-desc,.meta-og{display:none}
 <div class="shell">
   <header class="topbar">
     <button class="hdr-back" id="hdrBack" style="display:none" type="button">Blog</button>
-    <a class="brand" href="index.html">EAT<span>OUTS</span></a>
+    <a class="brand" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
     <div class="page" id="hdrPage">Blog</div>
     <div class="hdr-right">
-      <span class="chip" id="hdrStatus" type="button">Blog</span>
+      <span class="hdr-chip" id="hdrStatus" type="button">Blog</span>
     </div>
   </header>
 
   <div class="viewport" id="viewport"></div>
 
-  <nav class="bottom-nav" id="bottomNav"></nav>
+  <nav class="bottom-nav" id="bottomNav">
+    <a class="nav-btn" href="index.html#promos" aria-label="Promos"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></a>
+    <a class="nav-btn" href="index.html#restaurants" aria-label="Restaurants"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg></a>
+    <a class="nav-btn" href="index.html#reserve" aria-label="Events"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></a>
+    <a class="nav-btn" href="index.html#gallery" aria-label="Gallery"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></a>
+    <a class="nav-btn" href="index.html#about" aria-label="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></a>
+  </nav>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -375,7 +382,7 @@ meta[name=title],.meta-desc,.meta-og{display:none}
      ============================================================ */
   var chip = document.getElementById('hdrStatus');
   if (isAdmin) {
-    chip.className = 'chip admin';
+    chip.className = 'hdr-chip admin';
     chip.textContent = 'Admin';
     chip.setAttribute('aria-label', 'Toggle admin view');
   } else {
@@ -412,26 +419,25 @@ meta[name=title],.meta-desc,.meta-og{display:none}
   }
 
   /* ============================================================
-     Bottom nav: Blog home + optional Admin button
+     Bottom nav: index tabs (sub-navigation via hdrBack + hdrStatus)
      ============================================================ */
   var nav = document.getElementById('bottomNav');
   nav.innerHTML =
-    '<a class="nav-btn" href="index.html" title="Back to EatOuts">' +
-      '<svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v11h14V10"/></svg>' +
-      'EatOuts' +
+    '<a class="nav-btn" href="index.html#promos" aria-label="Promos">' +
+      '<svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>' +
     '</a>' +
-    '<button class="nav-btn on" data-act="blogHome" type="button">' +
-      '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>' +
-      '<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' +
-      'Blog home' +
-    '</button>' +
-    (isAdmin
-      ? '<button class="nav-btn" data-act="blogAdmin" type="button">' +
-          '<svg viewBox="0 0 24 24"><path d="M12 20h9"/>' +
-          '<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' +
-          'Admin' +
-        '</button>'
-      : '');
+    '<a class="nav-btn" href="index.html#restaurants" aria-label="Restaurants">' +
+      '<svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg>' +
+    '</a>' +
+    '<a class="nav-btn" href="index.html#reserve" aria-label="Events">' +
+      '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
+    '</a>' +
+    '<a class="nav-btn" href="index.html#gallery" aria-label="Gallery">' +
+      '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
+    '</a>' +
+    '<a class="nav-btn" href="index.html#about" aria-label="About">' +
+      '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>' +
+    '</a>';
 
   /* ============================================================
      Back button (top-left) hides until we're in a sub-view
