@@ -98,52 +98,82 @@ function draftWith(venueId, suppliers) {
   const budget = doc.querySelector('[data-sec="suppliers"] .sup-stat .gold');
   check('budget = unit x qty + one add-on (P5850.00)', budget && budget.textContent.trim() === 'P5,850.00', budget && budget.textContent.trim());
 
-  /* ---------- directory popup: all 40 categories + counts ---------- */
+  /* ---------- directory popup: filtered categories + rename ---------- */
   const browse = doc.querySelector('[data-sec="suppliers"] .sup-add-btn[data-cat=""]');
   click(w, browse);
-  const cats = doc.querySelectorAll('.stm-cat');
-  check('directory popup lists all 40 categories', cats.length === 40, 'got ' + cats.length);
-  const firstCatMeta = doc.querySelector('.stm-cat .stm-cat-meta');
-  check('category row shows a live supplier count', firstCatMeta && /suppliers?\s*$/i.test(firstCatMeta.textContent.trim()), firstCatMeta && firstCatMeta.textContent.trim());
+  let cats = doc.querySelectorAll('.stm-cat');
+  check('directory popup lists 36 visible categories', cats.length === 36, 'got ' + cats.length);
+  const catNames = [].slice.call(doc.querySelectorAll('.stm-cat-name')).map(n => n.textContent.trim());
+  const catLower = catNames.map(n => n.toLowerCase());
+  check('hidden categories are absent from the list',
+    ['venues', 'permits,', 'travel, tourism', 'clothing, fashion'].every(frag => !catLower.some(n => n.indexOf(frag) > -1)),
+    catNames.join(' | '));
+  check('Beverages renamed to Bartenders',
+    catLower.indexOf('bartenders') > -1 && catLower.indexOf('beverages, bars and drinks') === -1,
+    catNames.join(' | '));
+  check('category header has no icon or count meta', !doc.querySelector('.stm-cat-ico') && !doc.querySelector('.stm-cat-meta'));
 
   /* ---------- live search ---------- */
   const search = doc.getElementById('stmSearch');
   type(w, search, 'zzzz-no-match');
-  check('no-match search collapses every category to empty', doc.querySelectorAll('.stm-empty').length === 40, 'got ' + doc.querySelectorAll('.stm-empty').length);
-  check('directory note flags demo rates', /not a quote/i.test(doc.querySelector('.fpop-note').textContent));
+  check('no-match search collapses every category to empty', doc.querySelectorAll('.stm-empty').length === 36, 'got ' + doc.querySelectorAll('.stm-empty').length);
+  check('demo-rate note removed', !doc.querySelector('.fpop-note'));
 
   /* ---------- reopen via in-group Add (pre-selected category) ---------- */
   click(w, doc.querySelector('.fpop-close'));
   click(w, doc.querySelector('[data-sec="suppliers"] .sup-group .sup-add-btn'));
   const openCat = doc.querySelector('.stm-cat.open');
   check('in-group Add opens that category expanded', openCat && /event planning/i.test(openCat.querySelector('.stm-cat-name').textContent), openCat && openCat.querySelector('.stm-cat-name').textContent);
-  const addBtns = [].slice.call(openCat.querySelectorAll('.stm-add'));
-  const pickable = addBtns.filter(b => !b.disabled);
-  check('directory offers Add for other suppliers in the category', pickable.length > 0, 'got ' + pickable.length);
+  const rows = [].slice.call(doc.querySelectorAll('.stm-sup'));
+  check('directory offers rows that open a supplier profile', rows.length > 0, 'got ' + rows.length);
 
-  /* ---------- add a supplier (prefer one with add-ons) ---------- */
-  let target = null;
-  for (let i = 0; i < pickable.length; i++) {
-    const id = pickable[i].getAttribute('data-id');
-    const s = w.findSupplier(id);
-    if (s && s.addons && s.addons.length) { target = s; pickable[i].click(); break; }
+  /* ---------- an already-added supplier is flagged and closed via scrim ---------- */
+  const addedRow = rows.find(r => w.findAddedEntry(r.getAttribute('data-id')));
+  if (addedRow) {
+    click(w, addedRow);
+    check('profile labels an already-added supplier', !!doc.querySelector('.sup-profile-added'));
+    click(w, doc.querySelector('[data-act="closeSupplierProfile"]'));
+    check('profile closes on scrim tap', !doc.querySelector('.sup-profile-panel'));
+  } else {
+    console.log('  note: no seeded supplier row found in the open category; skipping already-added branch');
   }
-  if (!target) { target = w.findSupplier(pickable[0].getAttribute('data-id')); pickable[0].click(); }
+
+  /* ---------- add a supplier via its profile popup (prefer one with add-ons) ---------- */
+  const freshRows = [].slice.call(doc.querySelectorAll('.stm-sup'));
+  let target = null;
+  for (let i = 0; i < freshRows.length; i++) {
+    const id = freshRows[i].getAttribute('data-id');
+    const s = w.findSupplier(id);
+    if (s && s.addons && s.addons.length && !w.findAddedEntry(id)) { target = s; click(w, freshRows[i]); break; }
+  }
+  if (!target) { target = w.findSupplier(freshRows[0].getAttribute('data-id')); click(w, freshRows[0]); }
+  check('profile popup opens on row tap', !!doc.querySelector('.sup-profile-panel'));
+  check('profile shows avatar + name', !!(doc.querySelector('.sup-profile-avatar') && doc.querySelector('.sup-profile-name')),
+    doc.querySelector('.sup-profile-name') && doc.querySelector('.sup-profile-name').textContent);
+  const pitCards = doc.querySelectorAll('.sup-profile-panel .pit-card');
+  check('profile lists priced items (base service + add-ons)', pitCards.length >= 1, 'got ' + pitCards.length + ' for ' + target.name);
+  const addonPrice = (target.addons && target.addons.length) ? w.parseAddonPrice(target.addons[0]).price : null;
+  click(w, doc.querySelector('.sup-profile-panel .pit-card .qty-stepper [data-act="incProfileItem"]'));
+  if (addonPrice) {
+    const addonStep = doc.querySelectorAll('.sup-profile-panel .pit-card .qty-stepper')[1];
+    click(w, addonStep.querySelector('[data-act="incProfileItem"]'));
+  }
+  click(w, doc.querySelector('[data-act="addSupplierFromProfile"]'));
   const slots = doc.querySelectorAll('[data-sec="suppliers"] .sup-group .sup-slot');
   check('new supplier added into the category bucket', slots.length === 2, 'got ' + slots.length);
-  check('popup closed after adding', !doc.querySelector('.fpop'));
-  const expected1 = 5500 + 350 + target.price; // sup1 (1x + 1 addon) + new supplier (1x, no addons)
+  check('profile popup closed after adding', !doc.querySelector('.sup-profile-panel') && !doc.querySelector('.fpop'));
+  const expected1 = 5500 + 350 + target.price * 2 + (addonPrice || 0); // sup1 (1x + 1 addon) + new supplier (2x + 1 addon)
   const budget1 = doc.querySelector('[data-sec="suppliers"] .sup-stat .gold').textContent.trim();
-  check('budget reflects the newly added supplier (' + w.fmt(expected1) + ')', budget1 === w.fmt(expected1), budget1 + ' vs ' + w.fmt(expected1));
+  check('budget reflects offering quantities (' + w.fmt(expected1) + ')', budget1 === w.fmt(expected1), budget1 + ' vs ' + w.fmt(expected1));
 
-  /* ---------- qty stepper ------------- */
+  /* ---------- qty stepper ---------- */
+  click(w, doc.querySelectorAll('[data-act="customiseSupplier"]')[1]); // open customise for the new supplier
   click(w, doc.querySelector('[data-act="incSupQty"]'));
-  const expected2 = expected1 + target.price; // qty 2
+  const expected2 = expected1 + target.price; // base qty 3
   const budget2 = doc.querySelector('[data-sec="suppliers"] .sup-stat .gold').textContent.trim();
-  check('+qty doubles that supplier line (' + w.fmt(expected2) + ')', budget2 === w.fmt(expected2), budget2 + ' vs ' + w.fmt(expected2));
+  check('+qty grows that supplier line (' + w.fmt(expected2) + ')', budget2 === w.fmt(expected2), budget2 + ' vs ' + w.fmt(expected2));
 
   /* ---------- add-on stepper ---------- */
-  const addonPrice = (target.addons && target.addons.length) ? w.parseAddonPrice(target.addons[0]).price : 0;
   if (addonPrice) {
     click(w, doc.querySelector('[data-act="incSupAddon"]'));
     const expected3 = expected2 + addonPrice;

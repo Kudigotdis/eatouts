@@ -35,6 +35,7 @@ const SUITES = [
   'checkout-delivery.js',
   'promocats.js',
   'builder-suppliers.js',
+  'builder-preview.js',
   'appshell.js'
 ];
 

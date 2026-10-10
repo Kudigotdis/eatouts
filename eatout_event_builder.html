@@ -332,13 +332,14 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   letter-spacing:.04em}
 
 /* ---------- SUPPLIER FIELD ---------- */
-.sup-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:10px;
+.sup-summary{display:grid;grid-template-columns:1fr;gap:6px;padding:10px;
   background:var(--surface);border-radius:11px;margin-top:20px;margin-bottom:10px;
   border:1px solid var(--border-soft)}
-.sup-stat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px}
-.sup-stat .l{font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+.sup-stat{display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+  gap:8px;padding:2px 4px}
+.sup-stat .l{font-size:11px;letter-spacing:.06em;text-transform:uppercase;
   color:var(--muted-2);font-weight:800}
-.sup-stat b{font-size:14px;font-weight:900;color:var(--text)}
+.sup-stat b{font-size:15px;font-weight:900;color:var(--text)}
 .sup-stat b.gold{color:var(--muted-2)}
 
 .sup-group{border:1px solid var(--border-soft);border-radius:12px;margin-bottom:8px;
@@ -382,10 +383,10 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   font-size:14px;color:var(--muted)}
 .sup-slot-btn:active{background:var(--border-soft)}
 .sup-slot-btn.danger{color:var(--danger)}
-.sup-add-btn{width:100%;padding:10px;border-radius:10px;background:transparent;
-  border:1.5px dashed var(--border);color:var(--muted);font-size:11.5px;font-weight:800;
+.sup-add-btn{width:100%;padding:10px;border-radius:10px;background:rgba(0,0,0,.03);
+  border:1.5px dashed var(--border-soft);color:var(--muted-2);font-size:11.5px;font-weight:800;
   display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
-.sup-add-btn:active{background:var(--surface);border-color:var(--muted)}
+.sup-add-btn:active{background:rgba(0,0,0,.06);border-color:var(--muted)}
 
 /* ---------- EVENT LINKS ---------- */
 .link-card{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
@@ -431,6 +432,49 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   font-weight:900;color:var(--text)}
 .qty-btn:active{background:var(--surface)}
 .qty-val{min-width:24px;text-align:center;font-size:12.5px;font-weight:900}
+
+/* ---------- MENU PAGE (provider menu overlay) ---------- */
+.menu-page-panel{background:#fff;width:100%;max-width:460px;height:94vh;max-height:94vh;
+  border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;
+  animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+@media(min-width:520px){.menu-page-panel{height:88vh;max-height:88vh;border-radius:20px}}
+.menu-page-hdr{padding:14px 14px 12px;border-bottom:1px solid var(--border-soft);
+  display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.menu-page-hdr .mp-title{flex:1;min-width:0}
+.menu-page-hdr h3{margin:0;font-size:15px;font-weight:900;letter-spacing:-.01em;line-height:1.2}
+.menu-page-hdr .mp-sub{font-size:11px;color:var(--muted);font-weight:700;margin-top:2px}
+.menu-page-scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;background:var(--bg)}
+.menu-cat-head{padding:12px 14px 6px;font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:900;background:var(--bg)}
+.menu-page-list{padding:6px 14px 14px}
+.menu-page-empty{padding:34px 20px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.6}
+.menu-page-foot{flex:0 0 auto;padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--border-soft);background:#fafaf7;display:flex;flex-direction:column;gap:9px}
+.menu-cbar{width:100%;display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:14px 12px;border-radius:12px;background:var(--black);color:#fff;font-size:13px;
+  font-weight:900;letter-spacing:.01em}
+.menu-cbar:disabled{opacity:.4}
+.menu-cbar .mc-count{color:rgba(255,255,255,.65);font-weight:800}
+.mp-anim{animation:fadeIn .22s ease}
+.menu-back{display:flex;align-items:center;gap:5px;padding:0 14px 10px;
+  font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.menu-back button{background:none;border:0;padding:8px 0;color:var(--muted);font-size:11px;
+  font-weight:900;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:4px}
+.menu-sum-list{padding:2px 14px}
+.menu-srow{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px dashed var(--border-soft)}
+.menu-srow-name{flex:1;min-width:0;font-size:12.5px;font-weight:800;color:var(--text)}
+.menu-srow-qty{font-size:11px;color:var(--muted);font-weight:800;flex:0 0 auto}
+.menu-srow-tot{font-size:12px;font-weight:900;color:var(--text);flex:0 0 auto}
+.menu-grade{margin:12px 14px 0}
+.menu-sub{display:flex;justify-content:space-between;align-items:center;margin:4px 14px 2px;
+  padding:11px 0;border-top:1px solid var(--border-soft);font-size:12px;font-weight:800;color:var(--muted)}
+.menu-sub b{font-size:14px;font-weight:900;color:var(--text)}
+.menu-notes{padding:10px 14px}
+.menu-notes textarea{width:100%;box-sizing:border-box;min-height:84px;padding:12px 13px;
+  background:var(--surface);border:1px solid var(--border-soft);border-radius:11px;
+  color:var(--text);font-size:13px;outline:none;resize:vertical;font-family:inherit} 
+.menu-notes textarea:focus{border-color:var(--text);background:#fff}
 
 /* ---------- TICKET TIERS ---------- */
 .tier{border:1px solid var(--border-soft);border-radius:11px;padding:10px 12px;
@@ -514,35 +558,72 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 
 /* Supplier type menu (floating) */
 .stm-cat{border-bottom:1px solid var(--border-soft)}
-.stm-cat-hdr{display:flex;align-items:center;gap:11px;padding:12px 16px;background:var(--surface);
-  cursor:pointer;transition:background .15s;width:100%}
+.stm-cat-hdr{display:flex;align-items:center;justify-content:center;padding:13px 16px;
+  background:var(--surface);cursor:pointer;transition:background .15s;width:100%}
 .stm-cat-hdr:active{background:var(--border-soft)}
 .stm-cat.open .stm-cat-hdr{background:#fff;border-bottom:1px solid var(--border-soft)}
-.stm-cat-ico{width:36px;height:36px;border-radius:10px;background:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto;
-  border:1px solid var(--border-soft)}
-.stm-cat-info{flex:1;min-width:0}
-.stm-cat-name{font-size:13px;font-weight:800;color:var(--text);display:block}
-.stm-cat-meta{font-size:10.5px;color:var(--muted);margin-top:2px;display:block}
+.stm-cat-name{font-size:18px;font-weight:800;color:var(--text);display:block;
+  text-transform:capitalize;letter-spacing:-.01em}
 .stm-cat-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
 .stm-cat.open .stm-cat-body{max-height:4000px}
 .stm-sub{padding:8px 16px;background:#f7f5f0;font-size:10px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--muted-2);font-weight:800;border-top:1px solid var(--border-soft)}
 .stm-sup-list{padding:0 16px 12px}
-.stm-sup{display:flex;align-items:center;gap:10px;padding:10px;background:#fff;
-  border:1px solid var(--border-soft);border-radius:10px;margin-bottom:6px}
+.stm-sup{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 2px;
+  background:#fff;border:0;border-bottom:1px solid rgba(0,0,0,.05);cursor:pointer}
+.stm-sup:last-child{border-bottom:0}
+.stm-sup:active{background:var(--surface)}
 .stm-sup-info{flex:1;min-width:0}
-.stm-sup-name{font-size:12.5px;font-weight:800;color:var(--text)}
-.stm-sup-meta{font-size:10.5px;color:var(--muted);margin-top:2px}
-.stm-sup-price{font-size:11px;color:var(--muted-2);font-weight:900;margin-top:3px}
-.stm-add{background:var(--black);color:#fff;font-size:10px;font-weight:900;
-  padding:6px 11px;border-radius:20px;letter-spacing:.04em;flex:0 0 auto}
-.stm-add.on{background:var(--muted-2)}
-.stm-sup-ico{width:36px;height:36px;border-radius:10px;background:var(--surface);
-  display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto;
-  border:1px solid var(--border-soft)}
+.stm-sup-name{font-size:16px;font-weight:800;color:var(--text);text-transform:capitalize}
+.stm-sup-meta{font-size:13px;color:var(--muted);margin-top:3px;text-transform:capitalize}
+.stm-sup-price{font-size:14px;color:var(--muted-2);font-weight:900;margin-top:4px}
 .stm-empty{padding:10px 16px;color:var(--muted);font-size:11.5px;font-style:italic}
-.fpop-note{padding:12px 16px;font-size:10.5px;color:var(--muted);border-top:1px solid var(--border-soft)}
+
+/* Supplier profile (priced offering) */
+.sup-profile-panel{background:#fff;width:100%;max-width:420px;max-height:88vh;
+  border-radius:20px;display:flex;flex-direction:column;overflow:hidden;
+  animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+@media(min-width:520px){.sup-profile-panel{border-radius:20px}}
+.sup-profile-scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;background:var(--bg)}
+.sup-profile-hero{padding:22px 20px 16px;display:flex;flex-direction:column;align-items:center;
+  background:#fff;border-bottom:1px solid var(--border-soft)}
+.sup-profile-avatar{width:96px;height:96px;border-radius:22px;background:var(--surface);
+  border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;
+  font-size:44px;overflow:hidden;margin-bottom:12px}
+.sup-profile-avatar img{width:100%;height:100%;object-fit:cover}
+.sup-profile-name{font-size:19px;font-weight:900;color:var(--text);text-align:center;line-height:1.2}
+.sup-profile-loc{font-size:12.5px;color:var(--muted);font-weight:700;text-align:center;margin-top:5px;
+  text-transform:capitalize}
+.sup-profile-added{display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:4px 11px;
+  border-radius:20px;background:var(--surface);font-size:10px;font-weight:900;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted-2)}
+.sup-profile-items{padding:14px 16px 6px}
+.sup-profile-h{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);
+  font-weight:900;margin:0 0 10px;display:block}
+.pit-card{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px;
+  background:#fff;border:1.5px solid var(--border-soft);border-radius:13px;margin-bottom:8px;
+  transition:border-color .12s,background .12s;cursor:pointer}
+.pit-card.on{border-color:var(--text);background:var(--surface)}
+.pit-thumb{width:52px;height:52px;border-radius:12px;flex:0 0 auto;background:var(--surface);
+  border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;
+  font-size:22px;overflow:hidden}
+.pit-thumb img{width:100%;height:100%;object-fit:cover}
+.pit-info{flex:1;min-width:0}
+.pit-title{font-size:13.5px;font-weight:800;color:var(--text);text-transform:capitalize;line-height:1.3}
+.pit-price{font-size:12.5px;color:var(--muted-2);font-weight:900;margin-top:3px}
+.pit-quote{font-size:11px;color:var(--muted);font-weight:700;margin-top:3px;font-style:italic}
+.pit-step{flex:0 0 auto;width:118px}
+.pit-check{flex:0 0 auto;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border-soft);
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:900}
+.pit-card.on .pit-check{background:var(--text);border-color:var(--text)}
+.pit-card.on .pit-check::after{content:"✓"}
+.pit-total{display:flex;justify-content:space-between;align-items:center;margin:6px 16px 2px;
+  padding:12px 14px;background:#fff;border:1px solid var(--border-soft);border-radius:12px;
+  font-size:12.5px;font-weight:800;color:var(--muted)}
+.pit-total b{font-size:16px;font-weight:900;color:var(--text)}
+.sup-profile-foot{flex:0 0 auto;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--border-soft);background:#fafaf7}
 
 /* Supplier customise panel */
 .sup-custom-meta{font-size:11px;color:var(--muted-2);font-weight:800;margin-bottom:8px}
@@ -659,16 +740,37 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 
 /* ---------- PREVIEW (read-only page) ---------- */
 .preview-page{background:var(--bg);min-height:100%}
-.preview-hero{position:relative;aspect-ratio:16/9;overflow:hidden;background:#151515}
-.preview-hero img{width:100%;height:100%;object-fit:cover;display:block}
-.preview-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85),rgba(0,0,0,.05) 55%);
-  display:flex;flex-direction:column;justify-content:flex-end;padding:16px;color:#fff}
-.preview-hero-overlay .cat{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
-  color:var(--muted-2);font-weight:800;margin-bottom:5px}
-.preview-hero-overlay h1{margin:0;font-size:21px;font-weight:900;letter-spacing:-.015em;
+.preview-hero-track{display:flex;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;background:#151515}
+.preview-hero-track::-webkit-scrollbar{display:none}
+.preview-hero-slide{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;
+  display:flex;align-items:center;justify-content:center}
+.preview-hero-slide img{width:100%;height:auto;display:block}
+.preview-hero-dots{display:flex;justify-content:center;align-items:center;gap:6px;
+  padding:10px 0 4px;background:var(--bg)}
+.preview-hero-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.22);
+  border:0;padding:0;cursor:pointer}
+.preview-hero-dot.on{background:#1a1a1a}
+.preview-hero-ph{padding:26px 18px;text-align:center;
+  background:linear-gradient(135deg,#2c2418,#151515);color:#fff}
+.preview-hero-ph .cat{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:800;margin-bottom:6px}
+.preview-hero-ph h1{margin:0;font-size:21px;font-weight:900;letter-spacing:-.015em;
   line-height:1.15}
-.preview-hero-overlay .sub{font-size:11.5px;color:rgba(255,255,255,.75);margin-top:5px;
+.preview-hero-ph .sub{font-size:11.5px;color:rgba(255,255,255,.75);margin-top:5px;
   font-weight:600}
+.preview-vis{background:#fff;border:1px solid var(--border-soft);border-radius:12px;
+  padding:11px 14px;margin-bottom:12px}
+.preview-vis-hdr{width:100%;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;background:none;border:0;padding:0;cursor:pointer;text-align:left;
+  font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-2);
+  font-weight:800}
+.preview-vis-hdr .chev{font-size:12px;transition:transform .25s}
+.preview-vis.open .preview-vis-hdr .chev{transform:rotate(180deg)}
+.preview-vis-body{max-height:0;overflow:hidden;
+  transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.preview-vis.open .preview-vis-body{max-height:320px}
 .preview-body{padding:14px}
 .preview-card{background:#fff;border:1px solid var(--border-soft);border-radius:14px;
   padding:14px;margin-bottom:12px}
@@ -1114,12 +1216,15 @@ const STATE = {
   // Menu
   menuFood:[],       // [{itemId, qty}]
   menuBeverages:[],  // [{itemId, qty}]
-  menuOpen:{food:false,beverages:false},
+  // Menu page (provider menu overlay)
+  menuPage:{open:false,cat:"food",view:"items"},  // cat: food|beverages, view: items|summary
+  menuOrderNotes:"",
 
   // Suppliers
   suppliers:{},  // {fieldId:[{supplierId,customisations}]}
   supplierCustomising:null,  // {supplierId, fieldId}
   supplierTypeMenu:{open:false,search:"",openCat:null},
+  supplierProfile:{open:false,id:null,cat:"",items:{}},  // id + items:{base,a0,a1..} chosen quantities
 
   // Event details
   eventDetails:{
@@ -1140,6 +1245,8 @@ const STATE = {
   // UI
   openSections:{},
   previewPageOpen:false,
+  previewVisOpen:false,
+  previewHeroIndex:0,
 
   // Modals
   flyerMenuOpen:false,
@@ -1172,6 +1279,7 @@ function saveDraft(){
       venueRules:STATE.venueRules,
       menuFood:STATE.menuFood,
       menuBeverages:STATE.menuBeverages,
+      menuOrderNotes:STATE.menuOrderNotes,
       suppliers:STATE.suppliers,
       eventDetails:STATE.eventDetails,
       guests:STATE.guests,
@@ -1202,6 +1310,7 @@ function loadDraft(){
     STATE.venueRules=d.venueRules||[];
     STATE.menuFood=d.menuFood||[];
     STATE.menuBeverages=d.menuBeverages||[];
+    STATE.menuOrderNotes=d.menuOrderNotes||"";
     STATE.suppliers=d.suppliers||{};
     if(d.eventDetails)Object.assign(STATE.eventDetails,d.eventDetails);
     STATE.guests=d.guests||[];
@@ -1267,6 +1376,8 @@ function findSupplier(id){
   return d?normalizeDemoSupplier(d):null;
 }
 let $supplierCatCache=null;
+const HIDDEN_SUPPLIER_CATS={venues:1,permits_insurance:1,travel_destination:1,fashion_grooming:1};
+const SUPPLIER_CAT_RENAME={"beverage_bars":"Bartenders"};
 function getSupplierCats(){
   if($supplierCatCache) return $supplierCatCache;
   let cats=(window.EATOUTS_SUPPLIER_CATS&&window.EATOUTS_SUPPLIER_CATS.length)?window.EATOUTS_SUPPLIER_CATS:null;
@@ -1276,6 +1387,10 @@ function getSupplierCats(){
       return {id:gid,name:g.name,icon:g.icon||"📦",subs:(g.fields||[]).map(function(f){return {name:f.name,services:[]};})};
     });
   }
+  cats=cats.filter(function(c){return !HIDDEN_SUPPLIER_CATS[c.id];}).map(function(c){
+    if(SUPPLIER_CAT_RENAME[c.id]!==undefined) c={id:c.id,name:SUPPLIER_CAT_RENAME[c.id],icon:c.icon,subs:c.subs};
+    return c;
+  });
   $supplierCatCache=cats;
   return cats;
 }
@@ -1297,6 +1412,39 @@ function isSupplierAdded(id){
   return Object.keys(STATE.suppliers).some(function(k){
     return (STATE.suppliers[k]||[]).some(function(e){return e.supplierId===id;});
   });
+}
+function findAddedEntry(id){
+  for(const k in STATE.suppliers){
+    const arr=STATE.suppliers[k]||[];
+    for(let i=0;i<arr.length;i++){
+      if(arr[i].supplierId===id) return arr[i];
+    }
+  }
+  return null;
+}
+function addonMenuTitle(a){
+  const t=String(a||"").replace(/\([^)]*\)\s*$/,"").trim();
+  return t||String(a||"").trim()||"Add-on";
+}
+/* Priced offering cards for a supplier: base service + parsed add-ons. */
+function supplierProfileItems(s){
+  const out=[];
+  if(s){
+    out.push({
+      key:"base",title:s.service||s.businessName||s.name,
+      price:Number(s.price)||0,unit:s.unit,thumb:s.thumb||"📦",
+      priceLabel:fmt(Number(s.price)||0)
+    });
+  }
+  (s? s.addons||[]:[]).forEach(function(a,i){
+    const pm=parseAddonPrice(a);
+    out.push({
+      key:"a"+i,title:addonMenuTitle(a),
+      price:pm?pm.price:null,unit:"",thumb:(s&&s.thumb)||"📦",
+      priceLabel:pm?(/from\s*[Pp]/i.test(a)?"from "+fmt(pm.price):fmt(pm.price)):""
+    });
+  });
+  return out;
 }
 function parseAddonPrice(str){
   const m=String(str||"").match(/P\s?([\d,]+(?:\.\d+)?)/);
@@ -1334,10 +1482,152 @@ function getAllEventTypes(){
   return out;
 }
 function findEventType(id){return getAllEventTypes().find(function(e){return e.id===id;})||null;}
-function getMenuItemsForVenue(cat){
+/* ---- MENU (provider restaurant) ----
+   The selected venue is a restaurant from the directory. Its menu comes from
+   the imported directory payload (DIRECTORY_RUNTIME_DATA.menusRaw), keyed by
+   the canonical brand key (mozambik, nandos, ...). Demo venues fall back to
+   the venue.menu lists shipped with their data. */
+const DRINK_RE=/drink|beer|wine|cider|lager|spirit|cocktail|mocktail|shake|smoothie|coffee|tea|juice|soda|beverage|bar|vodka|gin|rum|whiskey|whisky|brandy|liqueur|shots?|fizz/i;
+let _menuCacheVenue=null,_menuCacheItems=null;
+function canonicalMenuKey(slug){
+  const s=String(slug||"").toLowerCase().trim();
+  if(s.indexOf("nando")===0)return "nandos";
+  if(s.indexOf("zen-cafe")===0)return "zen-cafe";
+  if(s.indexOf("rocomamas")===0||s==="roco-mamas")return "rocomamas";
+  if(s.indexOf("bull-and-bush")===0)return "bull-and-bush";
+  if(s.indexOf("spur")!==-1)return "spur";
+  if(s.indexOf("chicken-licken")===0)return "chicken-licken";
+  if(s.indexOf("hungry-lion")===0)return "hungry-lion";
+  if(s.indexOf("kfc")===0)return "kfc";
+  if(s.indexOf("pie-city")===0)return "pie-city";
+  if(s.indexOf("butter-chicken")===0)return "butter-chicken-indian-restaurant";
+  if(s.indexOf("the-game-reserve")===0)return "the-game-reserve";
+  if(s.indexOf("mozambik")!==-1)return "mozambik";
+  return s;
+}
+function menuSlugish(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
+function dirRows(){const d=window.DIRECTORY_RUNTIME_DATA;return (d&&Array.isArray(d.restaurants))?d.restaurants:[];}
+function menuRawForVenue(v){
+  if(!v)return null;
+  const row=dirRows().find(function(r){return r.id===v.id;});
+  const slug=(row&&row.slug)||v.slug||menuSlugish(v.name);
+  const key=canonicalMenuKey(slug);
+  const d=window.DIRECTORY_RUNTIME_DATA;
+  const raw=(d&&d.menusRaw)?d.menusRaw[key]:null;
+  return {key:key,row:row||null,raw:raw||null};
+}
+function moneyLike(v){
+  if(typeof v==="string"){
+    const m=String(v).replace(/[^0-9.\-]/g,"");
+    const n=Number(m);
+    return isFinite(n)?n:null;
+  }
+  const n=Number(v);
+  return isFinite(n)?n:null;
+}
+function menuItemBasePrice(raw){
+  if(!raw||typeof raw!=="object")return null;
+  if(Array.isArray(raw.variants)&&raw.variants.length){
+    let m=null;
+    raw.variants.forEach(function(x){const p=moneyLike(x&&x.price);if(p!==null&&(m===null||p<m))m=p;});
+    if(m!==null)return m;
+  }
+  if(Array.isArray(raw.options)&&raw.options.length){
+    const firstHas=raw.options.some(function(o){return o&&typeof o==="object"&&o.price!==undefined&&o.price!==null;});
+    let m=null;
+    raw.options.forEach(function(o){
+      const p=(typeof o==="string")?moneyLike(raw.price):moneyLike(firstHas?o.price:raw.price);
+      if(p!==null&&(m===null||p<m))m=p;
+    });
+    if(m!==null)return m;
+  }
+  let base=raw.price;
+  if(base===undefined||base===null)base=raw.price_token;
+  return moneyLike(base);
+}
+function isMenuDrink(itemName,catName){
+  return DRINK_RE.test(itemName)||DRINK_RE.test(catName);
+}
+/* Flatten the imported menu payload into builder item rows.
+   Handles the four shapes found in menusRaw:
+   - Array / .menu = [{category,items}]           (mozambik, nandos, spur, kfc ...)
+   - .food_menu / .bar_menu = flat item arrays     (zen-cafe)
+   - .menus = {food_menu|beverage_menu:{sections}}  (the-game-reserve) */
+function normaliseMenuRaw(raw){
+  const out=[];
+  const pushRows=function(rows,defCat,defKey){
+    if(!Array.isArray(rows))return;
+    rows.forEach(function(it){
+      if(!it||typeof it!=="object")return;
+      const name=String(it.name||it.item||it.title||"").trim();
+      const price=menuItemBasePrice(it);
+      if(!name||price===null)return;
+      const cat=(String(it.category||it.section||defCat||"Menu").trim()||"Menu");
+      const catKey=defKey||(isMenuDrink(name,cat)?"beverages":"food");
+      out.push({id:"",name:name,price:price,
+        desc:String(it.description||it.desc||it.details||"").trim(),
+        cat:cat,catKey:catKey});
+    });
+  };
+  const menu=(Array.isArray(raw)?raw:(raw&&raw.menu));
+  if(Array.isArray(menu)){
+    menu.forEach(function(g){
+      const cat=g&&g.category?String(g.category):"Menu";
+      pushRows(g&&g.items,cat,null);
+    });
+  }
+  if(raw&&Array.isArray(raw.food_menu)) pushRows(raw.food_menu,"Food","food");
+  if(raw&&Array.isArray(raw.bar_menu)) pushRows(raw.bar_menu,"Beverages","beverages");
+  if(raw&&raw.menus&&typeof raw.menus==="object"){
+    Object.keys(raw.menus).forEach(function(k){
+      const g=raw.menus[k];
+      const defKey=/(bar|beverage|drink)/i.test(k)?"beverages":"food";
+      if(g&&Array.isArray(g.sections)){
+        g.sections.forEach(function(sec){
+          pushRows(sec&&sec.items,String(sec&&sec.section||"Menu").trim(),defKey);
+        });
+      }else if(g&&Array.isArray(g.items)){
+        pushRows(g.items,String(g.name||"Menu").trim(),defKey);
+      }
+    });
+  }
+  out.forEach(function(m,i){m.id="m"+(i+1);});
+  return out;
+}
+/* Full item list for the current venue (memoised per venue). */
+function venueMenuItems(){
   const v=STATE.venue;
-  if(!v||!v.menu) return [];
-  return v.menu.filter(function(m){return m.cat===cat;});
+  if(!v)return [];
+  if(_menuCacheVenue===v)return _menuCacheItems;
+  let items=[];
+  const src=menuRawForVenue(v);
+  if(src&&src.raw)items=normaliseMenuRaw(src.raw);
+  if(!items.length&&Array.isArray(v.menu)){
+    let i=0;
+    items=v.menu.map(function(m){
+      i++;
+      const catKey=String(m.cat||"").toLowerCase()==="beverage"?"beverages":"food";
+      return {id:catalogId(m.id)||("m"+i),name:m.name,price:Number(m.price)||0,
+        desc:"",cat:String(m.cat||""),catKey:catKey};
+    });
+  }
+  _menuCacheVenue=v;_menuCacheItems=items;
+  return items;
+}
+function catalogId(id){
+  const s=String(id||"").replace(/[^a-z0-9_-]/gi,"");
+  return s?("m"+s):"";
+}
+function getMenuItemsForVenue(catKey){
+  return venueMenuItems().filter(function(m){return m.catKey===catKey;});
+}
+function menuCatGroups(catKey){
+  const groups={},order=[];
+  getMenuItemsForVenue(catKey).forEach(function(m){
+    if(!groups[m.cat]){groups[m.cat]=[];order.push(m.cat);}
+    groups[m.cat].push(m);
+  });
+  return order.map(function(cat){return {name:cat,items:groups[cat]};});
 }
 
 /* ============================================================
@@ -1737,13 +2027,12 @@ function renderMenuSection(){
       '<div class="empty">Choose a venue to unlock its menu.</div>',
       {locked:true});
   }
-  const food=getMenuItemsForVenue("Food");
-  const bevs=getMenuItemsForVenue("Beverage");
+  const food=getMenuItemsForVenue("food");
+  const bevs=getMenuItemsForVenue("beverages");
   let body="";
-  // Food sub-accordion
-  body+=menuCatAcc("food","Food",food,STATE.menuFood);
-  // Beverages sub-accordion
-  body+=menuCatAcc("beverages","Beverages",bevs,STATE.menuBeverages);
+  // Food + Beverages rows open the provider's menu in a full-screen page
+  body+=menuLaunchRow("food","Food",food,STATE.menuFood,true);
+  body+=menuLaunchRow("beverages","Beverages",bevs,STATE.menuBeverages,false);
 
   if(!food.length && !bevs.length){
     body+='<div class="field-hint">'+esc(STATE.venue.name)+' has no published menu. Add a caterer under Suppliers.</div>';
@@ -1752,40 +2041,126 @@ function renderMenuSection(){
     (STATE.menuFood.length+STATE.menuBeverages.length)?(STATE.menuFood.length+STATE.menuBeverages.length)+" item"+(STATE.menuFood.length+STATE.menuBeverages.length===1?"":"s")+" selected":"Add food and beverages",
     body, {locked:false});
 }
-function menuCatAcc(key,title,items,selected){
-  const k="menu_"+key;
-  const open=!!STATE.menuOpen[key];
-  const selectedCount=selected.length;
-  let inner="";
-  if(!items.length){
-    inner='<div class="field-hint">No '+title.toLowerCase()+' published for this venue.</div>';
-  } else {
-    inner=items.map(function(m){
-      const entry=selected.find(function(x){return x.itemId===m.id;});
-      const qty=entry?entry.qty:0;
-      return '<div class="menu-item">'+
-        '<div class="menu-item-thumb">'+(key==="beverages"?"🥂":"🍽")+'</div>'+
-        '<div class="menu-item-info">'+
-          '<div class="menu-item-name">'+esc(m.name)+'</div>'+
-          '<div class="menu-item-price"><b>'+fmt(m.price)+'</b> per person'+
-            (m.dietary?' · '+esc(m.dietary.join(", ")):'')+
-          '</div>'+
+function menuLaunchRow(key,title,items,selected,first){
+  const selectedCount=selected.reduce(function(s,x){return s+(Number(x.qty)||0);},0);
+  const count=items.length
+    ? (selectedCount?selectedCount+" added · "+items.length+" items":items.length+" items")
+    : "No menu";
+  return '<div class="subacc"'+(first?' style="margin-top:20px"':'')+'">'+
+    '<button class="subacc-hdr" data-act="openMenuPage" data-key="'+key+'">'+
+      '<span class="subacc-title">'+esc(title)+'</span>'+
+      '<span class="subacc-count">'+esc(count)+'</span>'+
+    '</button>'+
+  '</div>';
+}
+
+/* ------------------------------------------------------------
+   MENU PAGE — full-screen overlay of the venue provider's menu.
+   Items view shows the restaurant's food/beverages with steppers and
+   a bottom cbar (cost · item count); summary view is the order recap
+   with order notes + WhatsApp send. No split bill, no name/contact pad.
+   ------------------------------------------------------------ */
+function menuPageCat(){return STATE.menuPage.cat==="beverages"?"beverages":"food";}
+function menuPageList(){return menuPageCat()==="beverages"?STATE.menuBeverages:STATE.menuFood;}
+function menuPageCost(){return menuPageCat()==="beverages"?menuBeveragesCost():menuFoodCost();}
+function menuPageCount(){return menuPageList().reduce(function(s,x){return s+(Number(x.qty)||0);},0);}
+function menuPageLabel(catKey){return catKey==="beverages"?"Beverages":"Food";}
+function renderMenuPage(){
+  const p=STATE.menuPage;
+  if(!p||!p.open||!STATE.venue) return "";
+  const pang=p.cat==="beverages"?"🥂":"🍽";
+  const catKey=menuPageCat();
+  const list=menuPageList();
+  const items=getMenuItemsForVenue(catKey);
+  const cost=menuPageCost();
+  const count=menuPageCount();
+  let body="";
+  if(p.view==="summary"){
+    body=renderMenuPageSummary(list,cost);
+  }else{
+    let scroll='<div class="menu-page-scroll mp-anim">';
+    if(!items.length){
+      scroll+='<div class="menu-page-empty">'+esc(STATE.venue.name)+' has no '+
+        catKey+" items in its menu yet.</div>";
+    }else{
+      menuCatGroups(catKey).forEach(function(g){
+        scroll+='<div class="menu-cat-head">'+esc(g.name)+'</div>'+
+          '<div class="menu-page-list">'+g.items.map(function(m){
+            const e=list.find(function(x){return x.itemId===m.id;});
+            const qty=e?e.qty:0;
+            return '<div class="menu-item">'+
+              '<div class="menu-item-thumb">'+pang+'</div>'+
+              '<div class="menu-item-info">'+
+                '<div class="menu-item-name">'+esc(m.name)+'</div>'+
+                '<div class="menu-item-price"><b>'+fmt(m.price)+'</b> each</div>'+
+              '</div>'+
+              '<div class="menu-item-qty">'+
+                '<button class="qty-btn" data-act="decMenu" data-cat="'+catKey+'" data-id="'+esc(m.id)+'">−</button>'+
+                '<span class="qty-val">'+qty+'</span>'+
+                '<button class="qty-btn" data-act="incMenu" data-cat="'+catKey+'" data-id="'+esc(m.id)+'">+</button>'+
+              '</div>'+
+            '</div>';
+          }).join("")+'</div>';
+      });
+    }
+    scroll+='</div>';
+    body=scroll+
+      '<div class="menu-page-foot">'+
+        '<button class="menu-cbar" data-act="menuPageSummary"'+(count>0?"":" disabled")+'>'+
+          esc(fmt(cost))+' <span class="mc-count">· '+count+' item'+(count===1?"":"s")+' · View Summary</span>'+
+        '</button>'+
+      '</div>';
+  }
+  return '<div class="fpop-scrim" data-act="closeMenuPage">'+
+    '<div class="menu-page-panel" data-stop="1">'+
+      '<div class="menu-page-hdr">'+
+        '<div class="mp-title">'+
+          '<h3>'+esc(STATE.venue.name)+'</h3>'+
+          '<div class="mp-sub">'+pang+' '+esc(menuPageLabel(catKey))+' · '+(p.view==="summary"?"Order Summary":"select your items")+'</div>'+
         '</div>'+
-        '<div class="menu-item-qty">'+
-          '<button class="qty-btn" data-act="decMenu" data-cat="'+key+'" data-id="'+esc(m.id)+'">−</button>'+
-          '<span class="qty-val">'+qty+'</span>'+
-          '<button class="qty-btn" data-act="incMenu" data-cat="'+key+'" data-id="'+esc(m.id)+'">+</button>'+
-        '</div>'+
+        '<button class="fpop-close" data-act="closeMenuPage" aria-label="Close">×</button>'+
+      '</div>'+
+      body+
+    '</div>'+
+  '</div>';
+}
+function renderMenuPageSummary(list,cost){
+  let rows="";
+  if(!list.length){
+    rows='<div class="menu-page-empty">No items added yet.</div>';
+  }else{
+    rows=list.map(function(e){
+      return '<div class="menu-srow">'+
+        '<span class="menu-srow-name">'+esc(e.name)+'</span>'+
+        '<span class="menu-srow-qty">'+e.qty+'×</span>'+
+        '<span class="menu-srow-tot">'+fmt((Number(e.price)||0)*e.qty)+'</span>'+
       '</div>';
     }).join("");
   }
-  return '<div class="subacc'+(open?" open":"")+'">'+
-    '<button class="subacc-hdr" data-act="toggleMenuCat" data-key="'+key+'">'+
-      '<span class="subacc-title">'+esc(title)+'</span>'+
-      '<span class="subacc-count">'+(selectedCount?selectedCount+" added":items.length+" items")+'</span>'+
-    '</button>'+
-    '<div class="subacc-body"><div class="subacc-in">'+inner+'</div></div>'+
-  '</div>';
+  return '<div class="menu-back"><button data-act="menuPageItems">‹ Back to Menu</button></div>'+
+    '<div class="menu-sum-list mp-anim">'+rows+'</div>'+
+    '<div class="menu-sub"><span>Subtotal</span><b>'+esc(fmt(cost))+'</b></div>'+
+    '<div class="menu-notes"><label style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:900;display:block;margin-bottom:6px">Order Notes</label>'+
+      '<textarea id="menuNotes" placeholder="e.g. all dishes mild, no peanuts, serving time">'+esc(STATE.menuOrderNotes)+'</textarea></div>'+
+    '<div class="menu-page-foot">'+
+      '<button class="btn wa-solid full" data-act="waOrderMenu">Send via WhatsApp</button>'+
+      '<button class="btn primary full" data-act="closeMenuPage">Back to Event Builder</button>'+
+    '</div>';
+}
+function buildMenuOrderMessage(){
+  const v=STATE.venue;
+  const catKey=menuPageCat();
+  const list=menuPageList();
+  const cost=menuPageCost();
+  let msg="*EVENT CATERING ORDER*\nVenue: "+(v?v.name:"EatOuts")+"\nCategory: "+menuPageLabel(catKey);
+  msg+="\n\n*Order Details:*\n";
+  list.forEach(function(e){
+    msg+=e.qty+"x "+e.name+" @"+fmt(e.price)+" — "+fmt((Number(e.price)||0)*e.qty)+"\n";
+  });
+  msg+="\nSubtotal: "+fmt(cost)+"\n";
+  if(STATE.menuOrderNotes.trim()) msg+="Notes: "+STATE.menuOrderNotes.trim()+"\n";
+  msg+="\nSent from EatOuts Event Planner.";
+  return msg;
 }
 
 /* ============================================================
@@ -1797,8 +2172,6 @@ function renderSuppliersSection(){
     totalEngaged+=(STATE.suppliers[k]||[]).length;
   });
   let body='<div class="sup-summary">'+
-    '<div class="sup-stat"><span class="l">Engaged</span><b>'+totalEngaged+'</b></div>'+
-    '<div class="sup-stat"><span class="l">Categories</span><b>'+Object.keys(STATE.suppliers).filter(function(k){return STATE.suppliers[k].length;}).length+'</b></div>'+
     '<div class="sup-stat"><span class="l">Budget</span><b class="gold">'+fmt(supplierCost())+'</b></div>'+
   '</div>';
   // Show added suppliers grouped by directory category
@@ -1854,10 +2227,7 @@ function renderSuppliersSection(){
       '</div>'+
     '</div>';
   }
-  body+='<button class="sup-add-btn" style="margin-top:10px" data-act="openSupplierTypeMenu" data-cat="">+ Browse supplier directory</button>';
-  if(!hasAny){
-    body+='<div class="field-hint" style="text-align:center;padding:14px 0 0">No suppliers added yet. Tap above to browse the full directory.</div>';
-  }
+  body+='<button class="sup-add-btn" style="margin-top:10px" data-act="openSupplierTypeMenu" data-cat="">Supplier Directory</button>';
   return section("suppliers","Suppliers",
     totalEngaged?totalEngaged+" engaged":"Add suppliers to your event",
     body, {locked:!STATE.venue});
@@ -1950,25 +2320,18 @@ function renderSupplierTypeMenu(){
     const open = (p.openCat===cat.id) || (!q && !!preCat && preCat===cat.id);
     body+='<div class="stm-cat'+(open?" open":"")+'">'+
       '<button class="stm-cat-hdr" data-act="toggleStmCat" data-cat="'+esc(cat.id)+'">'+
-        '<span class="stm-cat-ico">'+esc(cat.icon||"📦")+'</span>'+
-        '<span class="stm-cat-info">'+
-          '<span class="stm-cat-name">'+esc(cat.name)+'</span>'+
-          '<span class="stm-cat-meta">'+list.length+(list.length===1?" supplier":" suppliers")+'</span>'+
-        '</span>'+
+        '<span class="stm-cat-name">'+esc(cat.name)+'</span>'+
       '</button>'+
       '<div class="stm-cat-body">'+
         (list.length
           ? '<div class="stm-sup-list">'+list.map(function(s){
-              const added=isSupplierAdded(s.id);
-              return '<div class="stm-sup">'+
-                '<div class="stm-sup-ico">'+esc(s.thumb||"📦")+'</div>'+
+              return '<button class="stm-sup" data-act="openSupplierProfile" data-id="'+esc(s.id)+'" data-cat="'+esc(cat.id)+'">'+
                 '<div class="stm-sup-info">'+
                   '<div class="stm-sup-name">'+esc(s.name)+'</div>'+
-                  '<div class="stm-sup-meta">'+esc(s.subcategory||"")+(s.rating?" · ★ "+esc(s.rating):"")+(s.city?" · "+esc(s.city):"")+'</div>'+
+                  '<div class="stm-sup-meta">'+esc(s.subcategory||s.service||"")+(s.city?" · "+esc(s.city):"")+'</div>'+
                   '<div class="stm-sup-price">'+fmt(s.price)+' '+esc(s.unit)+'</div>'+
                 '</div>'+
-                '<button class="stm-add'+(added?" on":"")+'" data-act="pickSupplier" data-id="'+esc(s.id)+'" data-cat="'+esc(cat.id)+'"'+(added?" disabled":"")+'>'+(added?"Added":"Add")+'</button>'+
-              '</div>';
+              '</button>';
             }).join("")+'</div>'
           : '<div class="stm-empty">No listed suppliers yet</div>')+
       '</div>'+
@@ -1985,7 +2348,66 @@ function renderSupplierTypeMenu(){
       '</div>'+
       '<div class="fpop-body">'+
         (body || '<div class="fpop-empty">No suppliers match your search.</div>')+
-        '<div class="fpop-note">Illustrative demo rates with fictional suppliers — not a quote. Real pricing is confirmed with each provider before booking.</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+/* Supplier profile — floating card with avatar, location and the supplier's
+   priced services/goods. Cards toggle a highlight and carry a - # + stepper;
+   the chosen quantities map into supplier customisations on Add. */
+function renderSupplierProfile(){
+  const pr=STATE.supplierProfile;
+  if(!pr||!pr.open) return "";
+  const s=findSupplier(pr.id);
+  if(!s) return "";
+  const items=supplierProfileItems(s);
+  const qtyOf=function(k){return Number(pr.items[k]||0)||0;};
+  let total=0;
+  const cards=items.map(function(it){
+    const q=qtyOf(it.key);
+    if(it.price!==null) total+=it.price*q;
+    const on=q>0;
+    return '<div class="pit-card'+(on?" on":"")+'" data-act="toggleProfileItem" data-key="'+esc(it.key)+'">'+
+      '<div class="pit-thumb">'+esc(it.thumb)+'</div>'+
+      '<div class="pit-info">'+
+        '<div class="pit-title">'+esc(it.title)+'</div>'+
+        (it.price!==null
+          ? '<div class="pit-price">'+esc(it.priceLabel)+(it.unit?' <span style="color:var(--muted);font-weight:700">'+esc(it.unit)+'</span>':'')+'</div>'
+          : '<div class="pit-quote">On quote</div>')+
+      '</div>'+
+      (it.price!==null
+        ? '<div class="qty-stepper sm" style="flex:0 0 auto;width:118px">'+
+            '<button type="button" data-act="decProfileItem" data-key="'+esc(it.key)+'" aria-label="Decrease">−</button>'+
+            '<input type="number" inputmode="numeric" min="0" value="'+q+'" readonly>'+
+            '<button type="button" data-act="incProfileItem" data-key="'+esc(it.key)+'" aria-label="Increase">+</button>'+
+          '</div>'
+        : '<span class="pit-check"></span>')+
+    '</div>';
+  }).join("");
+  const added=isSupplierAdded(s.id);
+  const locParts=[];
+  if(s.city) locParts.push(s.city);
+  if(Array.isArray(s.serviceArea)&&s.serviceArea.length&&s.serviceArea[0]!==s.city){
+    locParts.push(s.serviceArea.slice(0,3).join(", "));
+  }
+  const locText=locParts.length?locParts.join(" · "):(s.subcategory||s.service||"");
+  return '<div class="fpop-scrim" data-act="closeSupplierProfile">'+
+    '<div class="sup-profile-panel" data-stop="1">'+
+      '<div class="sup-profile-scroll">'+
+        '<div class="sup-profile-hero">'+
+          '<div class="sup-profile-avatar">'+esc(s.thumb||"📦")+'</div>'+
+          '<div class="sup-profile-name">'+esc(s.businessName||s.name)+'</div>'+
+          (locText?'<div class="sup-profile-loc">'+esc(locText)+'</div>':'')+
+          (added?'<span class="sup-profile-added">Already added</span>':'')+
+        '</div>'+
+        '<div class="sup-profile-items">'+
+          '<span class="sup-profile-h">Priced services &amp; goods</span>'+
+          (cards||'<div class="stm-empty">No priced services listed.</div>')+
+        '</div>'+
+        '<div class="pit-total"><span>Offering total</span><b>'+esc(fmt(total))+'</b></div>'+
+      '</div>'+
+      '<div class="sup-profile-foot">'+
+        '<button class="btn primary full" data-act="addSupplierFromProfile">'+esc(added?"Update offering":"Add to Event")+' · '+esc(fmt(total))+'</button>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -2087,7 +2509,7 @@ function renderRsvpSection(){
   STATE.rsvp.forEach(function(r,i){
     body+='<div class="sup-slot">'+
       '<div class="sup-slot-info">'+
-        '<div class="sup-slot-name">'+esc(r.title||"RSVP contact")+' <span style="color:var(--muted-2);font-weight:600;font-size:10.5px">· '+esc(r.contactType||"")+'</span></div>'+
+        '<div class="sup-slot-name">'+esc(r.title||"RSVP contact")+(r.contactType?' <span style="color:var(--muted-2);font-weight:600;font-size:10.5px">· '+esc(r.contactType)+'</span>':'')+'</div>'+
         '<div class="sup-slot-meta">'+esc(r.contactValue||"")+(r.note?" · "+esc(r.note):"")+'</div>'+
       '</div>'+
       '<button class="sup-slot-btn danger" data-act="removeRsvp" data-idx="'+i+'" aria-label="Remove">×</button>'+
@@ -2182,60 +2604,60 @@ function renderPreviewSection(){
   if(!STATE.venue){
     return section("preview","Preview",
       "Fill in the event details first",
-      '<div class="empty">Add a venue and some details to see the full preview.</div>',
-      {locked:true});
+      "", {locked:true});
   }
-  const warnings=getWarnings();
-  let body="";
-
-  // Warnings
-  if(warnings.length){
-    warnings.forEach(function(w){
-      body+='<div class="warning '+w.type+'">'+
-        '<span class="ic">!</span>'+
-        '<div><b>'+esc(w.title)+'</b><br>'+esc(w.msg)+'</div>'+
-      '</div>';
-    });
-  }
-
-  body+='<div class="field-hint" style="margin-bottom:10px">Everything you\'ve detailed and calculated — flat and ready to share. Adjust what guests see below.</div>';
-  body+='<button class="btn preview-open full" data-act="openPreview">Open Full Preview</button>';
-  body+='<div style="height:12px"></div>';
-  body+='<div class="preview-page" style="margin:0 -16px -16px">'+
-    buildPreviewHero()+
-    buildPreviewCards()+
-  '</div>';
-
-  // Preview visibility toggles
-  body+='<div class="review-block" style="margin-top:12px">'+
-    '<h4>Preview Visibility</h4>'+
-    privacyRow("showBudget","Budget","Show the cost breakdown in the shared preview",false)+
-    privacyRow("showGuests","Guest list","Show guest names in the shared preview",false)+
-    privacyRow("showSuppliers","Suppliers","Show the supplier list in the shared preview",true)+
-    privacyRow("showAddress","Exact venue address","Show the full venue address in the preview",true)+
-    privacyRow("showRsvp","RSVP status","Show RSVP contacts and status",true)+
-  '</div>';
-
   return section("preview","Preview",
-    warnings.length?warnings.length+" warning"+(warnings.length===1?"":"s"):"Everything detailed & calculated",
-    body, {locked:false});
+    "Tap to open the full preview",
+    "");
 }
 function buildPreviewHero(){
   const et=findEventType(STATE.eventType.eventId);
   const cat=esc(et?et.name:"Event");
   const h1=esc(STATE.eventTitle||"Untitled Event");
   const sub=STATE.eventDescription?esc(STATE.eventDescription):"";
-  const overlay='<div class="cat">'+cat+'</div>'+
-        '<h1>'+h1+'</h1>'+
-        (sub?'<div class="sub">'+sub+'</div>':'');
-  if(STATE.flyerImages.length){
-    return '<div class="preview-hero"><img src="'+esc(STATE.flyerImages[0])+'" alt="">'+
-      '<div class="preview-hero-overlay">'+overlay+'</div>'+
-    '</div>';
+  const imgs=STATE.flyerImages;
+  if(imgs.length){
+    if(STATE.previewHeroIndex>=imgs.length) STATE.previewHeroIndex=imgs.length-1;
+    if(STATE.previewHeroIndex<0) STATE.previewHeroIndex=0;
+    const slides=imgs.map(function(src){
+      return '<div class="preview-hero-slide"><img src="'+esc(src)+'" alt=""></div>';
+    }).join("");
+    const dots=imgs.length>1
+      ? '<div class="preview-hero-dots">'+imgs.map(function(_,i){
+          return '<button class="preview-hero-dot'+(i===STATE.previewHeroIndex?" on":"")+'" data-act="previewHeroDot" data-idx="'+i+'" aria-label="Image '+(i+1)+'"></button>';
+        }).join("")+'</div>'
+      : '';
+    return '<div class="preview-hero-track">'+slides+'</div>'+(dots||'');
   }
-  return '<div class="preview-hero" style="background:linear-gradient(135deg,#2c2418,#151515)">'+
-      '<div class="preview-hero-overlay" style="background:transparent">'+overlay+'</div>'+
+  return '<div class="preview-hero-ph">'+
+      '<div class="cat">'+cat+'</div>'+
+      '<h1>'+h1+'</h1>'+
+      (sub?'<div class="sub">'+sub+'</div>':'')+
     '</div>';
+}
+function renderPreviewWarnings(){
+  const warnings=getWarnings();
+  if(!warnings.length) return "";
+  return warnings.map(function(w){
+    return '<div class="warning '+w.type+'">'+
+      '<span class="ic">!</span>'+
+      '<div><b>'+esc(w.title)+'</b><br>'+esc(w.msg)+'</div>'+
+    '</div>';
+  }).join("");
+}
+function renderPreviewVis(){
+  const rows=privacyRow("showBudget","Budget","Show the cost breakdown in the shared preview",false)+
+    privacyRow("showGuests","Guest list","Show guest names in the shared preview",false)+
+    privacyRow("showSuppliers","Suppliers","Show the supplier list in the shared preview",true)+
+    privacyRow("showAddress","Exact venue address","Show the full venue address in the preview",true)+
+    privacyRow("showRsvp","RSVP status","Show RSVP contacts and status",true);
+  return '<div class="preview-vis'+(STATE.previewVisOpen?" open":"")+'">'+
+    '<button class="preview-vis-hdr" data-act="togglePreviewVis">'+
+      '<span>Preview Visibility</span>'+
+      '<span class="chev">▾</span>'+
+    '</button>'+
+    '<div class="preview-vis-body">'+rows+'</div>'+
+  '</div>';
 }
 function buildPreviewCards(){
   const v=STATE.venue;
@@ -2244,7 +2666,7 @@ function buildPreviewCards(){
   const showGuests=STATE.showGuests===true;
   const showRsvp=STATE.showRsvp!==false;
   const showBudget=STATE.showBudget===true;
-  let body='<div class="preview-body">';
+  let body='<div class="preview-body">'+renderPreviewWarnings()+renderPreviewVis();
 
   // Venue
   body+='<div class="preview-card">'+
@@ -2354,7 +2776,7 @@ function buildPreviewCards(){
     body+='<div class="preview-card">'+
       '<h3>RSVP</h3>'+
       STATE.rsvp.map(function(r){
-        return '<div class="preview-kv"><span class="k">'+esc(r.title||"")+(r.note?'<br><em style="font-style:normal;font-size:10.5px;color:var(--muted)">'+esc(r.note)+'</em>':'')+'</span><span class="v">'+esc(r.contactType||"")+': '+esc(r.contactValue||"")+'</span></div>';
+        return '<div class="preview-kv"><span class="k">'+esc(r.title||"")+(r.note?'<br><em style="font-style:normal;font-size:10.5px;color:var(--muted)">'+esc(r.note)+'</em>':'')+'</span><span class="v">'+(r.contactType?esc(r.contactType)+': ':'')+esc(r.contactValue||"")+'</span></div>';
       }).join("")+
     '</div>';
   }
@@ -2394,7 +2816,7 @@ function privacyRow(key,title,desc,def){
   const val=STATE[key]===undefined?def:STATE[key];
   return '<div class="privacy-row">'+
     '<div class="lbl">'+esc(title)+'<em>'+esc(desc)+'</em></div>'+
-    '<div class="switch'+(val?" on":"")+'" data-act="togglePrivacy" data-key="'+key+'"></div>'+
+    '<div class="switch'+(val?" on":"")+'" data-act="togglePrivacy" data-key="'+key+'" data-def="'+(def?"1":"0")+'"></div>'+
   '</div>';
 }
 
@@ -2411,11 +2833,11 @@ function renderPreviewPage(){
         buildPreviewHero()+
         buildPreviewCards()+
       '</div>'+
-    '</div>'+
-    '<div class="preview-pg-foot">'+
-      '<button class="btn wa-solid full" data-act="shareWhatsApp">Share via WhatsApp</button>'+
-      '<button class="btn wa-dark full" data-act="sendToVenue">Share with Venue · '+esc(v?v.name:"Venue")+'</button>'+
-      '<button class="btn primary full" data-act="closePreview">Back</button>'+
+      '<div class="preview-pg-foot">'+
+        '<button class="btn wa-solid full" data-act="shareWhatsApp">Share via WhatsApp</button>'+
+        '<button class="btn wa-dark full" data-act="sendToVenue">Share with Venue · '+esc(v?v.name:"Venue")+'</button>'+
+        '<button class="btn primary full" data-act="closePreview">Back</button>'+
+      '</div>'+
     '</div>'+
   '</div>';
 }
@@ -2449,8 +2871,10 @@ function renderPrompt(){
       fields+='<div class="field"><label>'+esc(f.label)+'</label>'+
         '<textarea data-prompt-field="'+esc(f.key)+'" placeholder="'+esc(f.placeholder||"")+'">'+esc(val)+'</textarea></div>';
     } else if(f.type==="select"){
-      fields+='<div class="field"><label>'+esc(f.label)+'</label>'+
-        '<select data-prompt-field="'+esc(f.key)+'">'+
+      fields+='<div class="field"'+(f.center?' style="text-align:center"':'')+'>'+
+        (f.hideLabel?'':'<label>'+esc(f.label)+'</label>')+
+        '<select data-prompt-field="'+esc(f.key)+'" style="text-align:center">'+
+          (f.placeholder && val===""?'<option value="" disabled selected>'+esc(f.placeholder)+'</option>':'')+
           (f.options||[]).map(function(o){
             const vv=typeof o==="string"?o:o.value;
             const ll=typeof o==="string"?o:o.label;
@@ -2618,10 +3042,12 @@ function render(){
   modalHtml+=renderFlyerItemMenu();
   modalHtml+=renderTitleEdit();
   modalHtml+=renderSupplierTypeMenu();
+  modalHtml+=renderSupplierProfile();
   modalHtml+=renderPrompt();
   modalHtml+=renderLinkPicker();
   modalHtml+=renderVenueLogo();
   modalHtml+=renderPreviewPage();
+  modalHtml+=renderMenuPage();
   root.innerHTML=modalHtml;
   // Focus search in STM
   if(STATE.supplierTypeMenu.open){
@@ -2642,6 +3068,8 @@ function render(){
 measureFlyerTrack();
   const _ft=document.querySelector(".flyer-track");
   if(_ft && STATE.flyerIndex>0) _ft.scrollLeft=STATE.flyerIndex*_ft.clientWidth;
+  const _pht=document.querySelector(".preview-hero-track");
+  if(_pht && STATE.previewHeroIndex>0) _pht.scrollLeft=STATE.previewHeroIndex*_pht.clientWidth;
   scheduleSave();
 }
 function measureCalc(){
@@ -2680,6 +3108,8 @@ document.addEventListener("click",function(e){
     if(act==="closeTitleEdit"){STATE.titleEditOpen=false;render();return;}
     if(act==="closePrompt"){STATE.prompt.open=false;render();return;}
     if(act==="closeLinkPicker"){STATE.linkPicker.open=false;render();return;}
+    if(act==="closeMenuPage"){STATE.menuPage={open:false,cat:"food",view:"items"};render();return;}
+    if(act==="closeSupplierProfile"){STATE.supplierProfile={open:false,id:null,cat:"",items:{}};render();return;}
     // fallback: close any open modal
     STATE.flyerMenuOpen=false;STATE.titleEditOpen=false;
     STATE.flyerItemMenu.open=false;
@@ -2689,6 +3119,8 @@ document.addEventListener("click",function(e){
 
   const t=e.target.closest("[data-act]");
   if(!t) return;
+  const _stop=e.target.closest("[data-stop]");
+  if(_stop && t.classList && t.classList.contains("fpop-scrim")) return;
   const act=t.getAttribute("data-act");
 
   // Venue bar
@@ -2710,6 +3142,14 @@ document.addEventListener("click",function(e){
     const track=document.querySelector(".flyer-track");
     if(track) track.scrollLeft=i*track.clientWidth;
     document.querySelectorAll(".flyer-dot").forEach(function(d,k){d.classList.toggle("on",k===i);});
+    return;
+  }
+  if(act==="previewHeroDot"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.previewHeroIndex=i;
+    const ptrack=document.querySelector(".preview-hero-track");
+    if(ptrack) ptrack.scrollLeft=i*ptrack.clientWidth;
+    document.querySelectorAll(".preview-hero-dot").forEach(function(d,k){d.classList.toggle("on",k===i);});
     return;
   }
   if(act==="addFlyerImage"){
@@ -2786,21 +3226,16 @@ document.addEventListener("click",function(e){
   // Section toggle
   if(act==="toggleSec"){
     const key=t.getAttribute("data-sec");
+    if(key==="preview"){ STATE.previewPageOpen=true; render(); return; }
     const open=!STATE.openSections[key];
     closeMainSections(key);
     STATE.openSections[key]=open;
     render();
     return;
   }
-  if(act==="toggleSub"||act==="toggleSupGroup"||act==="toggleMenuCat"){
+  if(act==="toggleSub"||act==="toggleSupGroup"){
     const key=t.getAttribute("data-key");
-    if(act==="toggleMenuCat"){
-      const open=!STATE.menuOpen[key];
-      Object.keys(STATE.menuOpen).forEach(function(k){
-        if(k!==key) STATE.menuOpen[k]=false;
-      });
-      STATE.menuOpen[key]=open;
-    } else if(act==="toggleSub"){
+    if(act==="toggleSub"){
       const open=!STATE.openSections[key];
       closeOpenSectionsByPrefix("sub_",key);
       STATE.openSections[key]=open;
@@ -2808,6 +3243,23 @@ document.addEventListener("click",function(e){
       const open=!STATE.openSections[key];
       closeOpenSectionsByPrefix("sup_added_",key);
       STATE.openSections[key]=open;
+    }
+    render();
+    return;
+  }
+
+  // Menu page (provider menu overlay)
+  if(act==="openMenuPage"||act==="menuPageItems"||act==="menuPageSummary"||act==="closeMenuPage"||act==="waOrderMenu"){
+    const key=t.getAttribute("data-key");
+    if(act==="openMenuPage"&&key) STATE.menuPage={open:true,cat:key,view:"items"};
+    else if(act==="menuPageSummary") STATE.menuPage.view="summary";
+    else if(act==="menuPageItems") STATE.menuPage.view="items";
+    else if(act==="closeMenuPage") STATE.menuPage={open:false,cat:"food",view:"items"};
+    else if(act==="waOrderMenu"){
+      const msg=buildMenuOrderMessage();
+      const number=STATE.venue&&STATE.venue.whatsapp?STATE.venue.whatsapp:"26771844129";
+      window.open("https://wa.me/"+number+"?text="+encodeURIComponent(msg));
+      STATE.menuPage={open:false,cat:"food",view:"items"};
     }
     render();
     return;
@@ -2859,7 +3311,7 @@ document.addEventListener("click",function(e){
     const cat=t.getAttribute("data-cat");
     const id=t.getAttribute("data-id");
     const list=cat==="beverages"?STATE.menuBeverages:STATE.menuFood;
-    const items=getMenuItemsForVenue(cat==="beverages"?"Beverage":"Food");
+    const items=getMenuItemsForVenue(cat==="beverages"?"beverages":"food");
     const m=items.find(function(x){return x.id===id;});
     if(!m) return;
     let entry=list.find(function(x){return x.itemId===id;});
@@ -2891,20 +3343,67 @@ document.addEventListener("click",function(e){
   if(act==="toggleStmCat"){
     const cat=t.getAttribute("data-cat");
     STATE.supplierTypeMenu.openCat = STATE.supplierTypeMenu.openCat===cat?null:cat;
+    const el=t.closest(".stm-cat");
+    if(el) el.classList.toggle("open", STATE.supplierTypeMenu.openCat===cat);
+    return;
+  }
+  if(act==="openSupplierProfile"){
+    const id=t.getAttribute("data-id");
+    const cat=t.getAttribute("data-cat")||"";
+    const s=findSupplier(id);
+    if(!s) return;
+    const items={};
+    const existing=findAddedEntry(id);
+    const c=existing&&existing.customisations?existing.customisations:{};
+    items.base=Number(c.qty)>0?Number(c.qty):1;
+    (s.addons||[]).forEach(function(a,i){
+      items["a"+i]=Number(c["addon_"+i])||0;
+    });
+    STATE.supplierProfile={open:true,id:id,cat:cat||s.catId||"",items:items};
     render();
     return;
   }
-  if(act==="pickSupplier"){
-    const id=t.getAttribute("data-id");
-    const cat=t.getAttribute("data-cat")||t.getAttribute("data-field");
-    if(!cat) return;
-    if(isSupplierAdded(id)){ STATE.supplierTypeMenu.open=false; render(); return; }
-    if(!STATE.suppliers[cat]) STATE.suppliers[cat]=[];
-    STATE.suppliers[cat].push({supplierId:id,customisations:{}});
-    STATE.supplierTypeMenu.open=false;
-    STATE.supplierCustomising={supplierId:id,fieldId:cat};
+  if(act==="closeSupplierProfile"){
+    STATE.supplierProfile={open:false,id:null,cat:"",items:{}};
     render();
-    toast("Supplier added");
+    return;
+  }
+  if(act==="toggleProfileItem"){
+    const k=t.getAttribute("data-key");
+    const pr=STATE.supplierProfile;
+    pr.items[k]=Number(pr.items[k])>0?0:1;
+    render();
+    return;
+  }
+  if(act==="incProfileItem"||act==="decProfileItem"){
+    const k=t.getAttribute("data-key");
+    const pr=STATE.supplierProfile;
+    const cur=Number(pr.items[k])||0;
+    pr.items[k]=act==="incProfileItem"?cur+1:Math.max(0,cur-1);
+    render();
+    return;
+  }
+  if(act==="addSupplierFromProfile"){
+    const pr=STATE.supplierProfile;
+    const s=findSupplier(pr.id);
+    if(!s) return;
+    const c={};
+    if(Number(pr.items.base)>0) c.qty=String(Number(pr.items.base));
+    (s.addons||[]).forEach(function(a,i){
+      const q=Number(pr.items["a"+i])||0;
+      if(q>0) c["addon_"+i]=String(q);
+    });
+    const existing=findAddedEntry(pr.id);
+    if(existing){
+      existing.customisations=c;
+    }else{
+      if(!STATE.suppliers[pr.cat]) STATE.suppliers[pr.cat]=[];
+      STATE.suppliers[pr.cat].push({supplierId:pr.id,customisations:c});
+    }
+    STATE.supplierProfile={open:false,id:null,cat:"",items:{}};
+    STATE.supplierTypeMenu.open=false;
+    render();
+    toast(existing?"Supplier offering updated":"Supplier added");
     return;
   }
   if(act==="removeSupplier"){
@@ -3067,7 +3566,7 @@ document.addEventListener("click",function(e){
     openPrompt("Add RSVP Contact",[
       {key:"title",label:"Title",placeholder:"e.g. RSVP line"},
       {key:"note",label:"Note",type:"textarea",placeholder:"Any notes"},
-      {key:"contactType",label:"Contact type",type:"select",options:["Call","WhatsApp","Facebook","Instagram","TikTok","Twitter/X","YouTube","LinkedIn"]},
+      {key:"contactType",label:"Contact type",type:"select",hideLabel:true,center:true,placeholder:"Contact type",options:["Call","WhatsApp","Facebook","Instagram","TikTok","Twitter/X","YouTube","LinkedIn"]},
       {key:"contactValue",label:"Link or number",placeholder:"+267 ... / @handle / https://..."}
     ],function(v){
       if(!v.title) return;
@@ -3086,7 +3585,9 @@ document.addEventListener("click",function(e){
   // Privacy toggles
   if(act==="togglePrivacy"){
     const key=t.getAttribute("data-key");
-    STATE[key]=!STATE[key];
+    const def=t.getAttribute("data-def")? t.getAttribute("data-def")==="1" : false;
+    const cur=STATE[key]===undefined? def : STATE[key];
+    STATE[key]=!cur;
     render();
     return;
   }
@@ -3095,6 +3596,12 @@ document.addEventListener("click",function(e){
   if(act==="openPreview"){
     STATE.previewPageOpen=true;
     render();
+    return;
+  }
+  if(act==="togglePreviewVis"){
+    STATE.previewVisOpen=!STATE.previewVisOpen;
+    const vis=t.closest(".preview-vis");
+    if(vis) vis.classList.toggle("open",STATE.previewVisOpen);
     return;
   }
   if(act==="closePreview"){
@@ -3154,6 +3661,11 @@ document.addEventListener("input",function(e){
     if(t.matches("[data-sup-qty]")) c.qty=t.value;
     else if(t.matches("[data-sup-addon]")) c["addon_"+t.getAttribute("data-sup-addon")]=t.value;
     else c.notes=t.value;
+    scheduleSave();
+    return;
+  }
+  if(t.id==="menuNotes"){
+    STATE.menuOrderNotes=t.value;
     scheduleSave();
     return;
   }
@@ -3253,7 +3765,16 @@ function buildShareMessage(){
   },{passive:true});
   document.addEventListener("scroll",function(e){
     const track=e.target;
-    if(!track||!track.classList||!track.classList.contains("flyer-track"))return;
+    if(!track||!track.classList)return;
+    if(track.classList.contains("preview-hero-track")){
+      const w=track.clientWidth; if(!w)return;
+      const idx=Math.max(0,Math.min(STATE.flyerImages.length-1,Math.round(track.scrollLeft/w)));
+      if(idx===STATE.previewHeroIndex)return;
+      STATE.previewHeroIndex=idx;
+      document.querySelectorAll(".preview-hero-dot").forEach(function(d,k){d.classList.toggle("on",k===idx);});
+      return;
+    }
+    if(!track.classList.contains("flyer-track"))return;
     const w=track.clientWidth; if(!w)return;
     const idx=Math.max(0,Math.min(STATE.flyerImages.length-1,Math.round(track.scrollLeft/w)));
     if(idx===STATE.flyerIndex)return;
