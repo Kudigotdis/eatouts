@@ -57,9 +57,6 @@ img{display:block;max-width:100%}
 .venue-bar-sub{font-size:10.5px;color:var(--muted);margin-top:2px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .venue-bar-sub b{color:var(--muted-2);font-weight:800}
-.venue-bar-badge{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--muted-2);border:1px solid var(--border);border-radius:10px;padding:3px 7px;
-  background:var(--surface);flex:0 0 auto}
 .venue-bar-expand{border-top:1px solid var(--border-soft);padding:12px 14px;
   background:var(--surface);display:none}
 .venue-bar-expand.open{display:block;animation:fadeIn .18s ease}
@@ -103,26 +100,6 @@ img{display:block;max-width:100%}
 .flyer-title-block .desc{margin-top:6px;font-size:12.5px;color:var(--muted);font-weight:500;
   line-height:1.5;max-width:100%}
 .flyer-title-block .desc.placeholder{font-style:italic;opacity:.7}
-.flyer-title-block .edit-hint{margin-top:6px;font-size:10px;font-weight:800;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
-
-/* ---------- SIDE-SCROLL (no numbers, no pills, snap 4) ---------- */
-.side-scroll-wrap{position:relative;padding:10px 0 12px;
-  border-bottom:1px solid var(--border-soft);background:#fff}
-.side-scroll{display:flex;gap:6px;overflow-x:auto;padding:0 14px;
-  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
-  scroll-padding-left:14px}
-.side-scroll::-webkit-scrollbar{display:none}
-.side-item{flex:0 0 calc((100% - 18px) / 4);scroll-snap-align:start;scroll-snap-stop:always;
-  padding:8px 2px;text-align:center;
-  font-size:11px;font-weight:800;letter-spacing:.01em;
-  color:var(--muted-2);background:transparent;border:0;
-  transition:color .18s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  min-width:0}
-.side-item:active{color:var(--muted)}
-.side-item.on{color:var(--text)}
-.side-item.locked{opacity:.45;pointer-events:none}
-.side-item .side-lbl{display:block;overflow:hidden;text-overflow:ellipsis}
 
 /* ---------- SECTION ---------- */
 .section{background:#fff;border:1px solid var(--border-soft);border-radius:14px;
@@ -447,8 +424,6 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   color:var(--muted-2)}
 .calc-strip-total{font-size:17px;font-weight:900;color:var(--text);margin-top:1px}
 .calc-strip-items{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:2px}
-.calc-actions{display:flex;gap:6px;flex:0 0 auto}
-.calc-actions .btn{min-height:40px;padding:0 14px;font-size:12px}
 .calc-expand{border-top:1px solid var(--border-soft);padding:12px 14px 14px;display:none;
   background:var(--surface);max-height:60vh;overflow-y:auto}
 .calc-expand.open{display:block;animation:fadeIn .18s ease}
@@ -1120,7 +1095,6 @@ const STATE = {
   // UI
   openSections:{},
   calcExpanded:false,
-  activeStep:"event-type",
 
   // Modals
   flyerMenuOpen:false,
@@ -1314,11 +1288,6 @@ function getAllEventTypes(){
   return out;
 }
 function findEventType(id){return getAllEventTypes().find(function(e){return e.id===id;})||null;}
-function venuesForEventType(eventId){
-  return getVenues().filter(function(v){
-    return Array.isArray(v.eventTypes) && v.eventTypes.indexOf(eventId)>-1;
-  });
-}
 function getMenuItemsForVenue(cat){
   const v=STATE.venue;
   if(!v||!v.menu) return [];
@@ -1465,7 +1434,6 @@ function renderVenueBar(){
         '<div class="venue-bar-name" style="color:var(--muted);font-style:italic">No venue provider selected</div>'+
         '<div class="venue-bar-sub">for '+esc(typeName)+'</div>'+
       '</div>'+
-      '<span class="venue-bar-badge">Venue</span>'+
     '</div>';
     return;
   }
@@ -1488,7 +1456,6 @@ function renderVenueBar(){
       '<div class="venue-bar-name">'+esc(v.name)+'</div>'+
       '<div class="venue-bar-sub">for <b>'+esc(typeName)+'</b></div>'+
     '</div>'+
-    '<span class="venue-bar-badge">'+(STATE.venueBarExpanded?"Hide":"Info")+'</span>'+
   '</div>'+expanded;
 }
 
@@ -1556,7 +1523,6 @@ function renderTitleBlock(){
   return '<div class="flyer-title-block" data-act="openTitleEdit">'+
     '<h1>'+esc(name)+'</h1>'+
     '<div class="desc'+(hasDesc?"":" placeholder")+'">'+esc(desc)+'</div>'+
-    '<div class="edit-hint">Tap to edit</div>'+
   '</div>';
 }
 function renderTitleEdit(){
@@ -1587,44 +1553,9 @@ function renderTitleEdit(){
 }
 
 /* ============================================================
-   SIDE-SCROLL (no numbers, no pills)
-   ============================================================ */
-const STEPS=[
-  {id:"event-type",label:"Event Type"},
-  {id:"schedule",label:"Schedule"},
-  {id:"audience",label:"Audience"},
-  {id:"venue",label:"Venue"},
-  {id:"menu",label:"Menu"},
-  {id:"suppliers",label:"Suppliers"},
-  {id:"details",label:"Details"},
-  {id:"guests",label:"Guests"},
-  {id:"rsvp",label:"RSVP"},
-  {id:"share",label:"Share"},
-  {id:"review",label:"Review"},
-  {id:"preview",label:"Preview"}
-];
-function stepLocked(id){
-  if(id==="event-type") return false;
-  if(id==="venue"||id==="schedule"||id==="audience") return !STATE.eventType.eventId;
-  return !STATE.venue && !["share","review","preview"].includes(id);
-}
-function renderSideScroll(){
-  let h='<div class="side-scroll-wrap"><div class="side-scroll">';
-  STEPS.forEach(function(s){
-    const on=STATE.activeStep===s.id;
-    const locked=stepLocked(s.id);
-    h+='<button class="side-item'+(on?" on":"")+(locked?" locked":"")+'" data-act="jumpStep" data-step="'+s.id+'">'+
-      '<span class="side-lbl">'+esc(s.label)+'</span>'+
-    '</button>';
-  });
-  h+='</div></div>';
-  return h;
-}
-
-/* ============================================================
    SECTION HELPER (no acc-ind)
    ============================================================ */
-const MAIN_ACC_IDS=STEPS.map(function(s){return s.id;});
+const MAIN_ACC_IDS=["schedule","audience","menu","suppliers","details","guests","rsvp","share","review","preview"];
 function closeMainSections(keep){
   MAIN_ACC_IDS.forEach(function(id){
     if(id!==keep) STATE.openSections[id]=false;
@@ -1656,69 +1587,6 @@ function section(id,num,title,sub,count,body,opts){
     '</button>'+
     '<div class="section-body"><div class="section-body-in">'+body+'</div></div>'+
   '</div>';
-}
-
-/* ============================================================
-   SECTION 01 — EVENT TYPE
-   ============================================================ */
-function renderEventTypeSection(){
-  let body="";
-  if(STATE.eventType.eventId){
-    const et=findEventType(STATE.eventType.eventId);
-    body+='<div class="eventtype-hero">'+
-      '<div class="icon">'+esc(et.icon||"📌")+'</div>'+
-      '<div class="cat">'+esc(et.categoryName)+' · '+esc(et.subCategoryName)+'</div>'+
-      '<h3>'+esc(et.name)+'</h3>'+
-      '<div class="desc">'+esc(et.description||("A "+et.name.toLowerCase()+" type of event"))+'</div>'+
-      '<div class="actions">'+
-        '<button class="btn tiny" data-act="clearEventType" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">Change type</button>'+
-      '</div>'+
-    '</div>';
-    // Notes for the event type
-    body+='<div class="field"><label>Notes <span style="color:var(--muted-2);font-weight:600;text-transform:none;letter-spacing:0">Add title + note for this event</span></label>';
-    if(STATE.notes.length){
-      STATE.notes.forEach(function(n,i){
-        body+='<div class="note-item">'+
-          '<h5>'+esc(n.title||"Note")+'<button class="rm" data-act="removeNote" data-idx="'+i+'">×</button></h5>'+
-          '<p>'+esc(n.body||"")+'</p>'+
-        '</div>';
-      });
-    }
-    body+='<button class="sup-add-btn" data-act="addNote">+ Add note</button></div>';
-  } else {
-    const tax=getTaxonomy();
-    Object.keys(tax).forEach(function(catId){
-      const cat=tax[catId];
-      const key="et_cat_"+catId;
-      const open=!!STATE.openSections[key];
-      let totalEvents=0;
-      (cat.subCategories||[]).forEach(function(s){totalEvents+=(s.events||[]).length;});
-      body+='<div class="etype-group'+(open?" open":"")+'">'+
-        '<button class="etype-group-hdr" data-act="toggleEtypeGroup" data-key="'+key+'">'+
-          '<span class="etype-ico">'+esc(cat.icon||"📌")+'</span>'+
-          '<span class="etype-info">'+
-            '<span class="etype-name">'+esc(cat.name)+'</span>'+
-            '<span class="etype-meta">'+(cat.subCategories||[]).length+' subcategories · '+totalEvents+' event types</span>'+
-          '</span>'+
-        '</button>'+
-        '<div class="etype-group-body">';
-      (cat.subCategories||[]).forEach(function(sub){
-        body+='<div class="etype-sub">'+esc(sub.name)+'</div>';
-        body+='<div class="etype-list">';
-        (sub.events||[]).forEach(function(ev){
-          body+='<button class="etype-option" data-act="pickEventType" data-id="'+esc(ev.id)+'">'+
-            esc(ev.name)+
-            (ev.description?'<span class="desc">'+esc(ev.description)+'</span>':'')+
-          '</button>';
-        });
-        body+='</div>';
-      });
-      body+='</div></div>';
-    });
-  }
-  return section("event-type","01","Event Type",
-    STATE.eventType.eventId?"You've chosen your event type":"Pick the kind of event you're planning",
-    STATE.notes.length||null, body, {locked:false});
 }
 
 /* ============================================================
@@ -1791,148 +1659,11 @@ function renderAudienceSection(){
 }
 
 /* ============================================================
-   SECTION 04 — VENUE
-   ============================================================ */
-function renderVenueSection(){
-  if(!STATE.eventType.eventId){
-    return section("venue","04","Venue",
-      "Pick an event type first",null,
-      '<div class="empty">Choose an event type to unlock venues.</div>',
-      {locked:true});
-  }
-  const list=venuesForEventType(STATE.eventType.eventId);
-  if(!list.length){
-    return section("venue","04","Venue","No venues listed for this event type yet",0,
-      '<div class="empty">No venues are currently listed for '+esc(STATE.eventType.name)+'.<br>Try a different event type.</div>',
-      {locked:false});
-  }
-  let body="";
-  if(!STATE.venue){
-    body+='<div class="field-hint" style="margin-bottom:10px">'+list.length+' venue'+(list.length===1?"":"s")+' available for '+esc(STATE.eventType.name)+'.</div>';
-  }
-  list.forEach(function(v){
-    body+=renderVenueCard(v,STATE.venue && STATE.venue.id===v.id);
-  });
-
-  // Venue rules added by user (visible when a venue is selected)
-  if(STATE.venue){
-    body+='<div class="field" style="margin-top:16px"><label>Your venue rules & notes</label>';
-    if(STATE.venueRules.length){
-      STATE.venueRules.forEach(function(r,i){
-        body+='<div class="note-item">'+
-          '<h5>'+esc(r.title||"Rule")+'<button class="rm" data-act="removeVenueRule" data-idx="'+i+'">×</button></h5>'+
-          '<p>'+esc(r.note||"")+'</p>'+
-        '</div>';
-      });
-    }
-    body+='<button class="sup-add-btn" data-act="addVenueRule">+ Add rule (title + note)</button></div>';
-  }
-
-  return section("venue","04","Venue",
-    STATE.venue?STATE.venue.name+" selected":"Browse venue providers",
-    STATE.venue?1:null, body, {locked:false});
-}
-function renderVenueCard(v,on){
-  const body=on?renderVenueCardBody(v):"";
-  return '<div class="venue-card'+(on?" on":"")+'">'+
-    '<button class="venue-card-hdr" data-act="pickVenue" data-id="'+esc(v.id)+'">'+
-      '<span class="venue-card-thumb">'+
-        (v.logo && /^(https?:|assets\/|data:)/.test(v.logo) ? '<img src="'+esc(v.logo)+'" alt="">' : esc(v.thumb||"🏛"))+
-      '</span>'+
-      '<span class="venue-card-info">'+
-        '<span class="venue-card-name">'+esc(v.name)+'</span>'+
-        '<span class="venue-card-meta">'+esc(v.city||"")+(v.area?" · "+esc(v.area):"")+(v.capacity?" · up to "+esc(v.capacity)+" guests":"")+'</span>'+
-        '<span class="venue-card-price">From '+fmt(v.fromPrice||0)+'</span>'+
-      '</span>'+
-      '<span class="venue-card-check">'+(on?"✓":"")+'</span>'+
-    '</button>'+
-    '<div class="venue-card-body"><div class="venue-body-in">'+body+'</div></div>'+
-  '</div>';
-}
-function renderVenueCardBody(v){
-  let h="";
-  // Rules (from venue)
-  h+=subacc("rules","Rules",(v.rules?"Provided":"None"),
-    '<div style="font-size:12px;line-height:1.55">'+esc(v.rules||"No rules published by this venue.")+'</div>'
-  );
-  // Seating
-  h+=subacc("seating","Seating",esc(v.seating||"Not specified"),
-    '<div style="font-size:12px;line-height:1.55">'+esc(v.seating||"No seating information published.")+'</div>'
-  );
-  // Spaces with tick + pricing
-  const spaces=v.spaces||[];
-  h+=subacc("spaces","Spaces",spaces.length+" available · tap to select",
-    spaces.length
-      ? '<div class="tick-grid">'+spaces.map(function(s){
-          const on=STATE.venueSpaces.indexOf(s.id)>-1;
-          return '<button class="tick'+(on?" on":"")+'" data-act="toggleSpace" data-id="'+esc(s.id)+'">'+
-            '<span class="bx">✓</span>'+
-            '<span class="tx">'+esc(s.name)+
-              '<em>'+esc(s.type)+' · up to '+esc(s.cap)+
-              (s.price?' · P'+s.price:"")+
-              '</em>'+
-            '</span>'+
-          '</button>';
-        }).join("")+'</div>'
-      : '<div class="field-hint">No spaces listed.</div>'
-  );
-  // Gallery — tap shows detail
-  const gal=v.gallery||[];
-  h+=subacc("gallery","Image gallery",gal.length+" photos · tap for details",
-    gal.length
-      ? '<div class="venue-gallery">'+gal.map(function(g,i){
-          const img = g.url
-            ? '<img src="'+esc(g.url)+'" alt="">'
-            : esc(g.emoji||"🖼");
-          return '<button class="g-item" data-act="openGalleryDetail" data-idx="'+i+'">'+img+'</button>';
-        }).join("")+'</div>'+
-        (STATE.venueGalleryOpen!==null && gal[STATE.venueGalleryOpen]
-          ? renderGalleryDetail(gal[STATE.venueGalleryOpen])
-          : '')
-      : '<div class="field-hint">No photos listed.</div>'
-  );
-  // Pricing
-  const p=v.pricing||{};
-  h+=subacc("pricing","Pricing",p.perPerson?"From P"+p.perPerson+" per person":"Contact venue",
-    '<div class="venue-kv"><span class="k">Per person</span><span class="v">'+(p.perPerson?fmt(p.perPerson):"—")+'</span></div>'+
-    '<div class="venue-kv"><span class="k">Hourly rate</span><span class="v">'+(p.hourly?fmt(p.hourly):"—")+'</span></div>'+
-    '<div class="venue-kv"><span class="k">Minimum spend</span><span class="v">'+(p.minSpend?fmt(p.minSpend):"—")+'</span></div>'+
-    '<div class="venue-kv"><span class="k">Base hire</span><span class="v">'+fmt(v.fromPrice||0)+'</span></div>'
-  );
-  // Location
-  h+=subacc("location","Location",esc(v.city||"")+(v.area?" · "+v.area:""),
-    '<div class="venue-kv"><span class="k">Town</span><span class="v">'+esc(v.city||"—")+'</span></div>'+
-    '<div class="venue-kv"><span class="k">Area</span><span class="v">'+esc(v.area||"—")+'</span></div>'+
-    '<div class="venue-kv"><span class="k">Map</span><span class="v"><a href="https://maps.google.com/?q='+encodeURIComponent(v.name+" "+(v.city||""))+
-      '" target="_blank" rel="noopener" style="color:var(--muted-2);font-weight:800">Open in Maps</a></span></div>'
-  );
-  return h;
-}
-function renderGalleryDetail(g){
-  return '<div class="g-detail">'+
-    '<h5>'+esc(g.title||"Image")+'</h5>'+
-    (g.desc?'<div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+esc(g.desc)+'</div>':'')+
-    (g.price?'<div class="row"><span class="k">Price</span><span class="v">'+fmt(g.price)+'</span></div>':'')+
-  '</div>';
-}
-function subacc(key,title,meta,body){
-  const k="sub_"+key;
-  const open=!!STATE.openSections[k];
-  return '<div class="subacc'+(open?" open":"")+'">'+
-    '<button class="subacc-hdr" data-act="toggleSub" data-key="'+k+'">'+
-      '<span class="subacc-title">'+esc(title)+'</span>'+
-      '<span class="subacc-count">'+esc(meta||"")+'</span>'+
-    '</button>'+
-    '<div class="subacc-body"><div class="subacc-in">'+body+'</div></div>'+
-  '</div>';
-}
-
-/* ============================================================
-   SECTION 05 — MENU (food + beverages)
+   SECTION 04 — MENU (food + beverages)
    ============================================================ */
 function renderMenuSection(){
   if(!STATE.venue){
-    return section("menu","05","Menu",
+    return section("menu","04","Menu",
       "Select a venue first",null,
       '<div class="empty">Choose a venue to unlock its menu.</div>',
       {locked:true});
@@ -1948,7 +1679,7 @@ function renderMenuSection(){
   if(!food.length && !bevs.length){
     body+='<div class="field-hint">'+esc(STATE.venue.name)+' has no published menu. Add a caterer under Suppliers.</div>';
   }
-  return section("menu","05","Menu",
+  return section("menu","04","Menu",
     (STATE.menuFood.length+STATE.menuBeverages.length)?(STATE.menuFood.length+STATE.menuBeverages.length)+" item"+(STATE.menuFood.length+STATE.menuBeverages.length===1?"":"s")+" selected":"Add food and beverages",
     STATE.menuFood.length+STATE.menuBeverages.length, body, {locked:false});
 }
@@ -1989,7 +1720,7 @@ function menuCatAcc(key,title,items,selected){
 }
 
 /* ============================================================
-   SECTION 06 — SUPPLIERS
+   SECTION 05 — SUPPLIERS
    ============================================================ */
 function renderSuppliersSection(){
   let totalEngaged=0;
@@ -2058,7 +1789,7 @@ function renderSuppliersSection(){
   if(!hasAny){
     body+='<div class="field-hint" style="text-align:center;padding:14px 0 0">No suppliers added yet. Tap above to browse the full directory.</div>';
   }
-  return section("suppliers","06","Suppliers",
+  return section("suppliers","05","Suppliers",
     totalEngaged?totalEngaged+" engaged":"Add suppliers to your event",
     totalEngaged, body, {locked:!STATE.venue});
 }
@@ -2192,7 +1923,7 @@ function renderSupplierTypeMenu(){
 }
 
 /* ============================================================
-   SECTION 07 — EVENT DETAILS
+   SECTION 06 — EVENT DETAILS
    ============================================================ */
 function renderDetailsSection(){
   const d=STATE.eventDetails;
@@ -2261,13 +1992,13 @@ function renderDetailsSection(){
   }
   body+='<button class="sup-add-btn" data-act="addTicketLink">+ Add ticket link</button></div>';
 
-  return section("details","07","Event Details",
+  return section("details","06","Event Details",
     (d.mode==="public"?"Public":"Private")+" · "+d.contacts.length+" contact"+(d.contacts.length===1?"":"s"),
     d.contacts.length+d.ticketLinks.length, body, {locked:!STATE.venue});
 }
 
 /* ============================================================
-   SECTION 08 — GUESTS
+   SECTION 07 — GUESTS
    ============================================================ */
 function renderGuestsSection(){
   let body="";
@@ -2286,13 +2017,13 @@ function renderGuestsSection(){
     '</div>';
   });
   body+='<button class="sup-add-btn" data-act="addGuest">+ Add guest</button>';
-  return section("guests","08","Guests",
+  return section("guests","07","Guests",
     totalGuests()+" guest"+(totalGuests()===1?"":"s")+" total",
     STATE.guests.length, body, {locked:!STATE.venue});
 }
 
 /* ============================================================
-   SECTION 09 — RSVP
+   SECTION 08 — RSVP
    ============================================================ */
 function renderRsvpSection(){
   let body="";
@@ -2309,13 +2040,13 @@ function renderRsvpSection(){
     '</div>';
   });
   body+='<button class="sup-add-btn" data-act="addRsvp">+ Add RSVP contact</button>';
-  return section("rsvp","09","RSVP Management",
+  return section("rsvp","08","RSVP Management",
     STATE.rsvp.length+" RSVP contact"+(STATE.rsvp.length===1?"":"s"),
     STATE.rsvp.length, body, {locked:!STATE.venue});
 }
 
 /* ============================================================
-   SECTION 10 — EVENT SHARE OPTIONS
+   SECTION 09 — EVENT SHARE OPTIONS
    ============================================================ */
 function renderShareOptionsSection(){
   const opts=[
@@ -2332,14 +2063,14 @@ function renderShareOptionsSection(){
       '<div class="switch'+(STATE.shareOptions[o.key]?" on":"")+'" data-act="toggleShare" data-key="'+o.key+'"></div>'+
     '</div>';
   });
-  return section("share","10","Event Share Options",
+  return section("share","09","Event Share Options",
     "Channels shown on the preview",
     Object.keys(STATE.shareOptions).filter(function(k){return STATE.shareOptions[k];}).length,
     body, {locked:!STATE.venue});
 }
 
 /* ============================================================
-   SECTION 11 — REVIEW (with warnings)
+   SECTION 10 — REVIEW (with warnings)
    ============================================================ */
 function getWarnings(){
   const w=[];
@@ -2376,7 +2107,7 @@ function getWarnings(){
 }
 function renderReviewSection(){
   if(!STATE.venue){
-    return section("review","11","Review",
+    return section("review","10","Review",
       "Fill in the event details first",null,
       '<div class="empty">Add a venue and some details to see a review.</div>',
       {locked:true});
@@ -2511,7 +2242,7 @@ function renderReviewSection(){
     privacyRow("showRsvp","RSVP status","Show RSVP contacts and status",true)+
   '</div>';
 
-  return section("review","11","Review",
+  return section("review","10","Review",
     warnings.length?warnings.length+" warning"+(warnings.length===1?"":"s"):"All looks good",
     warnings.length||null, body, {locked:false});
 }
@@ -2524,11 +2255,11 @@ function privacyRow(key,title,desc,def){
 }
 
 /* ============================================================
-   SECTION 12 — PREVIEW (read-only detailed page)
+   SECTION 11 — PREVIEW (read-only detailed page)
    ============================================================ */
 function renderPreviewSection(){
   if(!STATE.venue){
-    return section("preview","12","Preview",
+    return section("preview","11","Preview",
       "Fill in the event details first",null,
       '<div class="empty">Add a venue and some details to see the preview.</div>',
       {locked:true});
@@ -2710,7 +2441,7 @@ function renderPreviewSection(){
 
   body+='</div></div>'; // close preview-body + preview-page
 
-  return section("preview","12","Preview",
+  return section("preview","11","Preview",
     "Read-only page your guests will see",
     null, body, {locked:false});
 }
@@ -2795,11 +2526,8 @@ function renderMainScroll(){
   let h="";
   h+=renderFlyer();
   h+=renderTitleBlock();
-  h+=renderSideScroll();
-  h+=renderEventTypeSection();
   h+=renderScheduleSection();
   h+=renderAudienceSection();
-  h+=renderVenueSection();
   h+=renderMenuSection();
   h+=renderSuppliersSection();
   h+=renderDetailsSection();
@@ -2826,10 +2554,6 @@ function renderCalcBar(){
       '<span class="calc-strip-total">'+fmt(total)+'</span>'+
       '<span class="calc-strip-items">'+count+' item'+(count===1?"":"s")+' · tap for breakdown</span>'+
     '</button>'+
-    '<div class="calc-actions">'+
-      '<button class="btn ghost sm" data-act="saveDraftNow">Save</button>'+
-      '<button class="btn primary sm" data-act="jumpStep" data-step="preview"'+(STATE.venue?"":" disabled")+'>Preview</button>'+
-    '</div>'+
   '</div>';
   if(STATE.calcExpanded){
     h+='<div class="calc-expand open">';
@@ -2990,17 +2714,6 @@ document.addEventListener("click",function(e){
     return;
   }
 
-  // Side-scroll / steps
-  if(act==="jumpStep"){
-    STATE.activeStep=t.getAttribute("data-step");
-    render();
-    setTimeout(function(){
-      const el=document.querySelector('[data-sec="'+STATE.activeStep+'"]');
-      if(el && el.scrollIntoView) el.scrollIntoView({behavior:"smooth",block:"start"});
-    },40);
-    return;
-  }
-
   // Section toggle
   if(act==="toggleSec"){
     const key=t.getAttribute("data-sec");
@@ -3027,50 +2740,6 @@ document.addEventListener("click",function(e){
       closeOpenSectionsByPrefix("sup_added_",key);
       STATE.openSections[key]=open;
     }
-    render();
-    return;
-  }
-  if(act==="toggleEtypeGroup"){
-    const key=t.getAttribute("data-key");
-    const open=!STATE.openSections[key];
-    closeOpenSectionsByPrefix("et_cat_",key);
-    STATE.openSections[key]=open;
-    render();
-    return;
-  }
-
-  // Event type
-  if(act==="pickEventType"){
-    const id=t.getAttribute("data-id");
-    const et=findEventType(id);
-    if(!et) return;
-    STATE.eventType={eventId:et.id,name:et.name,categoryId:et.categoryId,categoryName:et.categoryName,subCategoryName:et.subCategoryName,description:et.description,icon:et.icon};
-    STATE.activeStep="schedule";
-    render();
-    toast("Event type set");
-    return;
-  }
-  if(act==="clearEventType"){
-    STATE.eventType={eventId:null,name:null,categoryId:null,categoryName:null,subCategoryName:null,description:null,icon:null};
-    render();
-    return;
-  }
-
-  // Notes
-  if(act==="addNote"){
-    openPrompt("Add Note",[
-      {key:"title",label:"Title",placeholder:"e.g. Cultural protocol"},
-      {key:"body",label:"Note",type:"textarea",placeholder:"Detail the note…"}
-    ],function(v){
-      if(!v.title && !v.body) return;
-      STATE.notes.push({id:uid("n"),title:v.title||"Note",body:v.body||""});
-      render();
-    });
-    return;
-  }
-  if(act==="removeNote"){
-    const i=Number(t.getAttribute("data-idx"));
-    STATE.notes.splice(i,1);
     render();
     return;
   }
@@ -3112,51 +2781,6 @@ document.addEventListener("click",function(e){
   if(act==="removeAudience"){
     const i=Number(t.getAttribute("data-idx"));
     STATE.targetAudience.splice(i,1);
-    render();
-    return;
-  }
-
-  // Venue
-  if(act==="pickVenue"){
-    const id=t.getAttribute("data-id");
-    if(STATE.venue && STATE.venue.id===id){
-      STATE.venue=null;STATE.venueSpaces=[];STATE.venueGalleryOpen=null;
-    } else {
-      STATE.venue=findVenue(id);
-      STATE.venueSpaces=[];
-      STATE.venueGalleryOpen=null;
-      STATE.activeStep="menu";
-    }
-    render();
-    return;
-  }
-  if(act==="toggleSpace"){
-    const id=t.getAttribute("data-id");
-    const i=STATE.venueSpaces.indexOf(id);
-    if(i>-1) STATE.venueSpaces.splice(i,1); else STATE.venueSpaces.push(id);
-    render();
-    return;
-  }
-  if(act==="openGalleryDetail"){
-    const i=Number(t.getAttribute("data-idx"));
-    STATE.venueGalleryOpen = STATE.venueGalleryOpen===i?null:i;
-    render();
-    return;
-  }
-  if(act==="addVenueRule"){
-    openPrompt("Add Venue Rule",[
-      {key:"title",label:"Rule title",placeholder:"e.g. No outside catering"},
-      {key:"note",label:"Note",type:"textarea",placeholder:"Explain the rule"}
-    ],function(v){
-      if(!v.title) return;
-      STATE.venueRules.push({id:uid("r"),title:v.title,note:v.note||""});
-      render();
-    });
-    return;
-  }
-  if(act==="removeVenueRule"){
-    const i=Number(t.getAttribute("data-idx"));
-    STATE.venueRules.splice(i,1);
     render();
     return;
   }
@@ -3410,11 +3034,6 @@ document.addEventListener("click",function(e){
     measureCalc();
     return;
   }
-  if(act==="saveDraftNow"){
-    saveDraft();
-    toast("Draft saved");
-    return;
-  }
 
   // Share
   if(act==="shareWhatsApp"){
@@ -3538,10 +3157,13 @@ function buildShareMessage(){
           return String(x.name||"").trim().toLowerCase()===want;
         })||null;
       }
-      if(v){STATE.venue=v; STATE.venueSpaces=[]; STATE.venueGalleryOpen=null;
-        STATE.activeStep="menu";}
+      if(v){STATE.venue=v; STATE.venueSpaces=[]; STATE.venueGalleryOpen=null;}
     }
   }catch(e){}
+  if(!STATE.eventType.eventId || !STATE.venue){
+    try{ location.replace("index.html"); }catch(err){}
+    return;
+  }
   render();
   /* Connectivity chip - shown only when offline (matches index.html) */
   var netChip=document.querySelector(".hdr-chip");

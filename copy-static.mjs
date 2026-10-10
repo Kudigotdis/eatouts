@@ -28,6 +28,7 @@ const FILES = [
   'menu-onboarding.html',
   'gallery-onboarding.html',
   'event-onboarding.html',
+  'eatout_event_builder.html',
   'one-pager.html',
   'ops-console.html',
   'invoice.html',
