@@ -45,16 +45,16 @@ img{display:block;max-width:100%}
 #venue-bar{flex:0 0 auto;background:#fff;border-bottom:1px solid var(--border);
   position:relative;z-index:30}
 .venue-bar-inner{display:flex;align-items:center;gap:10px;padding:9px 14px;
-  min-height:54px;cursor:pointer;transition:background .15s}
-.venue-bar-inner:active{background:var(--surface)}
-.venue-thumb{width:38px;height:38px;border-radius:10px;flex:0 0 auto;overflow:hidden;
+  min-height:54px;cursor:pointer;background:rgba(0,0,0,.03);transition:background .15s}
+.venue-bar-inner:active{background:rgba(0,0,0,.06)}
+.venue-thumb{width:90px;height:90px;border-radius:10px;flex:0 0 auto;overflow:hidden;
   background:var(--surface);display:flex;align-items:center;justify-content:center;
-  font-size:16px;border:1px solid var(--border-soft)}
+  font-size:16px;border:1px solid var(--border-soft);cursor:pointer}
 .venue-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .venue-bar-info{flex:1;min-width:0}
-.venue-bar-name{font-size:13px;font-weight:800;color:var(--text);line-height:1.2;
+.venue-bar-name{font-size:18px;font-weight:800;color:var(--text);line-height:1.2;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.venue-bar-sub{font-size:10.5px;color:var(--muted);margin-top:2px;
+.venue-bar-sub{font-size:14px;color:var(--muted);margin-top:2px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .venue-bar-sub b{color:var(--muted-2);font-weight:800}
 .venue-bar-expand{border-top:1px solid var(--border-soft);padding:12px 14px;
@@ -67,33 +67,43 @@ img{display:block;max-width:100%}
 .venue-kv:last-child{border-bottom:0}
 .venue-kv .k{color:var(--muted);font-weight:700}
 .venue-kv .v{color:var(--text);font-weight:700;text-align:right;max-width:60%}
+.venue-logo-view{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.92);
+  display:flex;align-items:center;justify-content:center;animation:fadeIn .18s ease}
+.venue-logo-view img{max-width:78%;max-height:72%;border-radius:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);object-fit:contain}
+.venue-logo-fallback{font-size:64px}
+.venue-logo-close{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;
+  width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;
+  font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center}
 
 /* ---------- VIEWPORT ---------- */
 #viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#fff}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff}
 .scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain;padding-bottom:calc(84px + var(--calch) + env(safe-area-inset-bottom))}
+  overscroll-behavior:contain;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 
-/* ---------- FLYER (edge-to-edge) ---------- */
-.flyer{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#f5f3ee,#e8e4d8);
+/* ---------- FLYER (swipe gallery, square) ---------- */
+.flyer-gallery{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#f5f3ee,#e8e4d8);
   cursor:pointer;position:relative;overflow:hidden;display:block;border:0;padding:0}
-.flyer:active{opacity:.9}
-.flyer img{width:100%;height:100%;object-fit:cover;display:block}
+.flyer-gallery:active{opacity:.97}
+.flyer-track{display:flex;height:100%;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none}
+.flyer-track::-webkit-scrollbar{display:none}
+.flyer-slide{flex:0 0 100%;height:100%;scroll-snap-align:start;scroll-snap-stop:always;
+  display:flex;align-items:center;justify-content:center}
+.flyer-slide img{width:100%;height:100%;object-fit:contain;display:block}
+.flyer-dots{display:flex;justify-content:center;align-items:center;gap:6px;
+  padding:12px 0 2px}
+.flyer-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.22);
+  border:0;padding:0;cursor:pointer}
+.flyer-dot.on{background:#1a1a1a}
 .flyer-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
   color:var(--muted-2);font-size:42px;font-weight:200;letter-spacing:-.02em}
-.flyer-add-badge{position:absolute;right:12px;bottom:12px;width:32px;height:32px;
-  border-radius:50%;background:rgba(0,0,0,.72);color:#fff;display:flex;align-items:center;
-  justify-content:center;font-size:20px;font-weight:300;
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.flyer-main-badge{position:absolute;left:12px;top:12px;background:rgba(0,0,0,.72);color:#fff;
-  font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
-  padding:4px 8px;border-radius:20px;backdrop-filter:blur(6px)}
-.flyer-count{position:absolute;right:12px;top:12px;background:rgba(0,0,0,.72);color:#fff;
-  font-size:9.5px;font-weight:800;letter-spacing:.04em;padding:4px 8px;border-radius:20px;
-  backdrop-filter:blur(6px)}
 
 /* ---------- TITLE BLOCK ---------- */
-.flyer-title-block{padding:16px 14px 12px;cursor:pointer;transition:background .15s}
+.flyer-title-block{padding:16px 14px 12px;cursor:pointer;transition:background .15s;
+  text-align:center}
 .flyer-title-block:active{background:var(--surface)}
 .flyer-title-block h1{margin:0;font-size:22px;font-weight:900;letter-spacing:-.015em;
   color:var(--text);line-height:1.15}
@@ -107,18 +117,12 @@ img{display:block;max-width:100%}
 .section.open{border-color:var(--text)}
 .section.locked{opacity:.72}
 .section-hdr{width:100%;padding:14px 16px;display:flex;align-items:center;gap:12px;
-  background:transparent;transition:background .15s}
-.section-hdr:active{background:var(--surface)}
-.section-num{font-size:10px;font-weight:900;letter-spacing:.14em;color:var(--muted-2);
-  min-width:24px;flex:0 0 auto;transition:color .22s}
-.section.open .section-num{color:var(--muted-2)}
-.section-title-block{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.section-title{font-size:14px;font-weight:900;color:var(--text);letter-spacing:.01em}
-.section-sub{font-size:11px;color:var(--muted);font-weight:600;line-height:1.35}
-.section-count{font-size:10.5px;font-weight:800;letter-spacing:.04em;color:var(--muted-2);
-  padding:2px 7px;border-radius:10px;background:var(--surface);
-  border:1px solid var(--border-soft);flex:0 0 auto}
-.section-count.has{color:var(--success);background:#effaf3;border-color:#c7ebd3}
+  background:rgba(0,0,0,.03);transition:background .15s}
+.section-hdr:active{background:rgba(0,0,0,.06)}
+.section-title-block{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;
+  text-align:center}
+.section-title{font-size:16px;font-weight:900;color:var(--text);letter-spacing:.01em}
+.section-sub{font-size:12px;color:var(--muted);font-weight:600;line-height:1.35}
 .section-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
 .section.open .section-body{max-height:10000px}
 .section-body-in{padding:2px 16px 16px;border-top:1px solid var(--border-soft)}
@@ -176,6 +180,11 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .btn.tiny{min-height:28px;padding:5px 10px;font-size:10.5px;border-radius:8px}
 .btn.danger{background:#fbeaea;color:var(--danger);border-color:#f0d1d1}
 .btn[disabled]{opacity:.4;cursor:default;transform:none}
+.back-btn{display:flex;align-items:center;justify-content:center;gap:8px;
+  width:calc(100% - 28px);margin:20px 14px 8px;padding:14px 16px;border-radius:var(--radius);
+  background:#1a1a1a;color:#fff;font-weight:800;font-size:14px;letter-spacing:.02em;
+  text-align:center;transition:opacity .15s}
+.back-btn:active{opacity:.85}
 
 /* ---------- EVENT TYPE GROUPS ---------- */
 .etype-group{border:1px solid var(--border-soft);border-radius:12px;margin-bottom:8px;
@@ -415,15 +424,13 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .tier .notes{font-size:11.5px;color:var(--muted);line-height:1.5}
 
 /* ---------- CALCULATOR BAR ---------- */
-#calc-bar{flex:0 0 auto;background:#fff;border-top:1px solid var(--border);
+#calc-bar{flex:0 0 auto;background:rgba(0,0,0,.03);border-top:1px solid var(--border);
   position:relative;z-index:38;padding-bottom:env(safe-area-inset-bottom)}
 .calc-strip{display:flex;align-items:center;gap:12px;padding:11px 14px;min-height:64px}
-.calc-strip-btn{flex:1;display:flex;flex-direction:column;align-items:flex-start;
-  padding:4px 0;text-align:left}
-.calc-strip-lbl{font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
-  color:var(--muted-2)}
-.calc-strip-total{font-size:17px;font-weight:900;color:var(--text);margin-top:1px}
-.calc-strip-items{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:2px}
+.calc-strip-btn{flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:4px 0;text-align:center}
+.calc-strip-total{font-size:22px;font-weight:900;color:var(--text);margin-top:1px}
+.calc-total-for{color:var(--muted-2);font-weight:600}
 .calc-expand{border-top:1px solid var(--border-soft);padding:12px 14px 14px;display:none;
   background:var(--surface);max-height:60vh;overflow-y:auto}
 .calc-expand.open{display:block;animation:fadeIn .18s ease}
@@ -540,7 +547,7 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .sup-addon-price{font-size:10.5px;color:var(--muted-2);font-weight:900;margin-top:2px}
 
 /* Flyer add menu */
-.flyer-menu-panel{background:#fff;width:100%;max-width:460px;max-height:88vh;
+.flyer-menu-panel{background:#fff;width:100%;max-width:460px;height:88vh;max-height:88vh;
   border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;
   animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
 @media(min-width:520px){.flyer-menu-panel{border-radius:20px}}
@@ -548,19 +555,22 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   display:flex;align-items:center;gap:10px}
 .flyer-menu-hdr h3{margin:0;font-size:15px;font-weight:900;flex:1}
 .flyer-menu-hint{padding:10px 18px;font-size:11.5px;color:var(--muted);font-weight:600;
-  background:var(--surface);border-bottom:1px solid var(--border-soft);line-height:1.5}
-.flyer-menu-stack{flex:1 1 auto;overflow-y:auto;padding:14px 18px}
-.flyer-item{position:relative;border-radius:12px;overflow:hidden;margin-bottom:10px;
-  background:var(--surface);border:1.5px solid var(--border-soft)}
-.flyer-item.main{border-color:#1a1a1a;border-width:2px}
-.flyer-item img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
-.flyer-item-actions{position:absolute;top:8px;right:8px;display:flex;gap:6px}
-.flyer-item-btn{width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
-  backdrop-filter:blur(6px)}
-.flyer-item-btn:active{background:rgba(0,0,0,.9)}
-.flyer-item-btn.make-main{background:rgba(26,26,26,.9);font-size:10.5px;font-weight:900;
-  width:auto;padding:0 10px;border-radius:20px;height:28px;letter-spacing:.04em}
+  background:var(--surface);border-bottom:1px solid var(--border-soft);line-height:1.5;
+  text-align:center}
+.flyer-menu-track{flex:1 1 auto;min-height:0;display:flex;align-items:center;gap:14px;
+  overflow-x:auto;padding:0 18px;scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none}
+.flyer-item{position:relative;flex:0 0 auto;width:var(--flyer-item-size,120px);
+  height:var(--flyer-item-size,120px);aspect-ratio:1;border-radius:12px;overflow:hidden;
+  background:var(--surface);border:1.5px solid var(--border-soft);cursor:pointer;
+  scroll-snap-align:center;scroll-snap-stop:always}
+.flyer-item img{width:100%;height:100%;object-fit:cover;display:block}
+.flyer-add-tile{flex:0 0 auto;width:var(--flyer-item-size,120px);
+  height:var(--flyer-item-size,120px);aspect-ratio:1;border-radius:12px;
+  border:1.5px dashed var(--muted-2);background:transparent;color:var(--muted-2);
+  font-size:44px;font-weight:200;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;scroll-snap-align:center;scroll-snap-stop:always}
+.flyer-add-tile span{line-height:1;margin-top:-6px}
 .flyer-item-main-label{position:absolute;left:8px;top:8px;background:#1a1a1a;color:#fff;
   font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
   padding:4px 9px;border-radius:20px}
@@ -660,6 +670,24 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   border-radius:20px;background:var(--surface);border:1px solid var(--border-soft);
   font-size:11.5px;font-weight:700;color:var(--text);text-decoration:none}
 .preview-social-item:active{background:var(--border-soft)}
+
+/* ---------- PREVIEW PAGE (full-screen) ---------- */
+.preview-pg{position:fixed;inset:0;z-index:75;background:#fff;display:flex;flex-direction:column;
+  animation:fadeIn .18s ease;max-width:460px;margin:0 auto;
+  box-shadow:0 0 80px rgba(0,0,0,.08)}
+.preview-pg-scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain}
+.preview-pg-close{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;z-index:6;
+  width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.22);color:#fff;
+  font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center}
+.preview-pg-foot{padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--border);background:#fff;display:flex;flex-direction:column;gap:9px}
+.btn.wa-solid{background:#25D366;border-color:#25D366;color:#fff}
+.btn.wa-solid:active{background:#1eb85a}
+.btn.wa-dark{background:#128C7E;border-color:#128C7E;color:#fff}
+.btn.wa-dark:active{background:#0f7164}
+.btn.preview-open{background:#fff;border-color:var(--text);color:var(--text)}
+.btn.preview-open:active{background:var(--surface)}
 
 /* ---------- TOAST ---------- */
 #toast{position:fixed;bottom:calc(var(--calch) + var(--navh) + 20px);left:50%;
@@ -1047,6 +1075,7 @@ const STATE = {
 
   // Flyer images (dataURLs)
   flyerImages:[],
+  flyerIndex:0,
   eventTitle:"",
   eventDescription:"",
 
@@ -1094,10 +1123,12 @@ const STATE = {
 
   // UI
   openSections:{},
-  calcExpanded:false,
+  previewPageOpen:false,
 
   // Modals
   flyerMenuOpen:false,
+  flyerItemMenu:{open:false,index:null},
+  venueLogoOpen:false,
   titleEditOpen:false,
   titleEditDraft:{title:"",description:""},
   prompt:{open:false,kind:null,fields:null,onSave:null},
@@ -1416,12 +1447,12 @@ function venueLogoHtml(v){
   if(!v) return '<div class="venue-thumb">📍</div>';
   const logo=v.logo||"";
   if(logo && /^(https?:|assets\/|data:|\.\/)/.test(logo)){
-    return '<div class="venue-thumb"><img src="'+esc(logo)+'" alt=""></div>';
+    return '<div class="venue-thumb" data-act="openVenueLogo"><img src="'+esc(logo)+'" alt=""></div>';
   }
   if(v.thumb && /^(https?:|assets\/|data:|\.\/)/.test(v.thumb)){
-    return '<div class="venue-thumb"><img src="'+esc(v.thumb)+'" alt=""></div>';
+    return '<div class="venue-thumb" data-act="openVenueLogo"><img src="'+esc(v.thumb)+'" alt=""></div>';
   }
-  return '<div class="venue-thumb">'+esc(v.thumb||"🏛")+'</div>';
+  return '<div class="venue-thumb" data-act="openVenueLogo">'+esc(v.thumb||"🏛")+'</div>';
 }
 function renderVenueBar(){
   const el=document.getElementById("venue-bar");
@@ -1458,22 +1489,40 @@ function renderVenueBar(){
     '</div>'+
   '</div>'+expanded;
 }
+function renderVenueLogo(){
+  if(!STATE.venueLogoOpen||!STATE.venue) return "";
+  const v=STATE.venue;
+  const logo=v.logo||"";
+  let src="";
+  if(logo && /^(https?:|assets\/|data:|\.\/)/.test(logo)) src=logo;
+  else if(v.thumb && /^(https?:|assets\/|data:|\.\/)/.test(v.thumb)) src=v.thumb;
+  return '<div class="venue-logo-view" data-act="closeVenueLogo">'+
+    '<button class="venue-logo-close" data-act="closeVenueLogo" aria-label="Close">×</button>'+
+    (src?'<img src="'+esc(src)+'" alt="">':'<div class="venue-logo-fallback">'+esc(v.thumb||"🏛")+'</div>')+
+  '</div>';
+}
 
 /* ============================================================
-   FLYER (edge-to-edge) + ADD MENU
+   FLYER (swipe gallery) + ADD MENU
    ============================================================ */
 function renderFlyer(){
   const imgs=STATE.flyerImages;
   if(imgs.length){
-    const main=imgs[0];
-    return '<button class="flyer" data-act="openFlyerMenu">'+
-      '<img src="'+esc(main)+'" alt="">'+
-      '<span class="flyer-main-badge">Main Flyer</span>'+
-      (imgs.length>1?'<span class="flyer-count">'+imgs.length+' images</span>':'')+
-      '<span class="flyer-add-badge">+</span>'+
-    '</button>';
+    if(STATE.flyerIndex>=imgs.length) STATE.flyerIndex=imgs.length-1;
+    if(STATE.flyerIndex<0) STATE.flyerIndex=0;
+    const slides=imgs.map(function(src){
+      return '<div class="flyer-slide"><img src="'+esc(src)+'" alt=""></div>';
+    }).join("");
+    const dots=imgs.length>1
+      ? '<div class="flyer-dots">'+imgs.map(function(_,i){
+          return '<button class="flyer-dot'+(i===STATE.flyerIndex?" on":"")+'" data-act="flyerDot" data-idx="'+i+'" aria-label="Image '+(i+1)+'"></button>';
+        }).join("")+'</div>'
+      : '';
+    return '<div class="flyer-gallery" data-act="openFlyerMenu">'+
+      '<div class="flyer-track">'+slides+'</div>'+
+    '</div>'+dots;
   }
-  return '<button class="flyer" data-act="openFlyerMenu">'+
+  return '<button class="flyer-gallery" data-act="openFlyerMenu">'+
     '<span class="flyer-empty">+</span>'+
   '</button>';
 }
@@ -1481,33 +1530,45 @@ function renderFlyer(){
 function renderFlyerAddMenu(){
   if(!STATE.flyerMenuOpen) return "";
   const imgs=STATE.flyerImages;
-  let stack='';
-  if(imgs.length){
-    stack=imgs.map(function(src,i){
-      const isMain=i===0;
-      return '<div class="flyer-item'+(isMain?" main":"")+'">'+
-        '<img src="'+esc(src)+'" alt="">'+
-        (isMain?'<span class="flyer-item-main-label">Main</span>':'')+
-        '<div class="flyer-item-actions">'+
-          (!isMain?'<button class="flyer-item-btn make-main" data-act="makeMainFlyer" data-idx="'+i+'">Make main</button>':'')+
-          '<button class="flyer-item-btn" data-act="removeFlyer" data-idx="'+i+'" aria-label="Remove">×</button>'+
-        '</div>'+
-      '</div>';
-    }).join("");
-  }
+  const slides=imgs.map(function(src,i){
+    const isMain=i===0;
+    return '<div class="flyer-item'+(isMain?" main":"")+'" data-act="openFlyerItemMenu" data-idx="'+i+'">'+
+      '<img src="'+esc(src)+'" alt="">'+
+      (isMain?'<span class="flyer-item-main-label">Main</span>':'')+
+    '</div>';
+  }).join("");
   return '<div class="fpop-scrim" data-act="closeFlyerMenu">'+
     '<div class="flyer-menu-panel" data-stop="1">'+
       '<div class="flyer-menu-hdr">'+
         '<h3>Event Images</h3>'+
         '<button class="fpop-close" data-act="closeFlyerMenu" aria-label="Close">×</button>'+
       '</div>'+
-      '<div class="flyer-menu-hint">The first image is your main flyer. Add several to build a gallery.</div>'+
-      '<div class="flyer-menu-stack">'+
-        (stack||'<div class="empty" style="padding:32px 20px">No images yet. Tap below to add.</div>')+
+      '<div class="flyer-menu-hint">The first image is your main flyer. Swipe sideways — tap an image for options, or scroll to the end to add more.</div>'+
+      '<div class="flyer-menu-track">'+
+        slides+
+        (imgs.length<8?'<button class="flyer-add-tile" data-act="addFlyerImage" aria-label="Add image"><span>+</span></button>':'')+
       '</div>'+
       '<div class="flyer-menu-foot">'+
-        '<button class="btn primary full" data-act="addFlyerImage">+ Add Image</button>'+
         '<button class="btn ghost full" data-act="closeFlyerMenu">Done</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderFlyerItemMenu(){
+  const m=STATE.flyerItemMenu;
+  if(!m.open) return "";
+  const canMain=m.index>0;
+  return '<div class="fpop-scrim" data-act="closeFlyerItemMenu">'+
+    '<div class="prompt-panel" data-stop="1">'+
+      '<div class="fpop-hdr">'+
+        '<h3>Image options</h3>'+
+        '<button class="fpop-close" data-act="closeFlyerItemMenu" aria-label="Close">×</button>'+
+      '</div>'+
+      '<div class="prompt-foot" style="flex-direction:column;gap:9px">'+
+        (canMain?'<button class="btn ghost full" data-act="flyerItemMakeMain">Make main</button>':'')+
+        '<button class="btn ghost full" data-act="flyerItemDelete" style="color:var(--danger)">Delete</button>'+
+        '<button class="btn full" data-act="closeFlyerItemMenu">Cancel</button>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -1518,7 +1579,7 @@ function renderFlyerAddMenu(){
    ============================================================ */
 function renderTitleBlock(){
   const name=STATE.eventTitle||"Untitled Event";
-  const desc=STATE.eventDescription||"Add a short description…";
+  const desc=STATE.eventDescription||"Add Description";
   const hasDesc=!!STATE.eventDescription;
   return '<div class="flyer-title-block" data-act="openTitleEdit">'+
     '<h1>'+esc(name)+'</h1>'+
@@ -1566,24 +1627,17 @@ function closeOpenSectionsByPrefix(prefix,keep){
     if(k!==keep && k.indexOf(prefix)===0) STATE.openSections[k]=false;
   });
 }
-function section(id,num,title,sub,count,body,opts){
+function section(id,title,sub,body,opts){
   opts=opts||{};
   const open=!!STATE.openSections[id];
   const locked=!!opts.locked;
   const cls="section"+(open?" open":"")+(locked?" locked":"");
-  let countEl="";
-  if(count!==null && count!==undefined){
-    const has=count>0;
-    countEl='<span class="section-count'+(has?" has":"")+'">'+count+'</span>';
-  }
   return '<div class="'+cls+'" data-sec="'+id+'">'+
     '<button class="section-hdr" data-act="toggleSec" data-sec="'+id+'">'+
-      '<span class="section-num">'+num+'</span>'+
       '<span class="section-title-block">'+
         '<span class="section-title">'+esc(title)+'</span>'+
         '<span class="section-sub">'+esc(sub)+'</span>'+
       '</span>'+
-      countEl+
     '</button>'+
     '<div class="section-body"><div class="section-body-in">'+body+'</div></div>'+
   '</div>';
@@ -1594,8 +1648,8 @@ function section(id,num,title,sub,count,body,opts){
    ============================================================ */
 function renderScheduleSection(){
   if(!STATE.eventType.eventId){
-    return section("schedule","02","Schedule",
-      "Pick an event type first",null,
+    return section("schedule","Schedule",
+      "Pick an event type first",
       '<div class="empty">Choose an event type to unlock the schedule.</div>',
       {locked:true});
   }
@@ -1632,9 +1686,9 @@ function renderScheduleSection(){
   if(STATE.schedule.mode==="multi-day"){
     body+='<button class="sup-add-btn" data-act="addDay">+ Add another day</button>';
   }
-  return section("schedule","02","Schedule",
+  return section("schedule","Schedule",
     STATE.schedule.mode==="multi-day"?STATE.schedule.days.length+" days":"One day event",
-    STATE.schedule.days.length, body, {locked:false});
+    body, {locked:false});
 }
 
 /* ============================================================
@@ -1653,9 +1707,9 @@ function renderAudienceSection(){
     '</div>';
   });
   body+='<button class="sup-add-btn" data-act="addAudience">+ Add target audience</button>';
-  return section("audience","03","Target Audience",
+  return section("audience","Target Audience",
     STATE.targetAudience.length?STATE.targetAudience.length+" audience group"+(STATE.targetAudience.length===1?"":"s"):"Who is this event for?",
-    STATE.targetAudience.length, body, {locked:!STATE.eventType.eventId});
+    body, {locked:!STATE.eventType.eventId});
 }
 
 /* ============================================================
@@ -1663,8 +1717,8 @@ function renderAudienceSection(){
    ============================================================ */
 function renderMenuSection(){
   if(!STATE.venue){
-    return section("menu","04","Menu",
-      "Select a venue first",null,
+    return section("menu","Menu",
+      "Select a venue first",
       '<div class="empty">Choose a venue to unlock its menu.</div>',
       {locked:true});
   }
@@ -1679,9 +1733,9 @@ function renderMenuSection(){
   if(!food.length && !bevs.length){
     body+='<div class="field-hint">'+esc(STATE.venue.name)+' has no published menu. Add a caterer under Suppliers.</div>';
   }
-  return section("menu","04","Menu",
+  return section("menu","Menu",
     (STATE.menuFood.length+STATE.menuBeverages.length)?(STATE.menuFood.length+STATE.menuBeverages.length)+" item"+(STATE.menuFood.length+STATE.menuBeverages.length===1?"":"s")+" selected":"Add food and beverages",
-    STATE.menuFood.length+STATE.menuBeverages.length, body, {locked:false});
+    body, {locked:false});
 }
 function menuCatAcc(key,title,items,selected){
   const k="menu_"+key;
@@ -1789,9 +1843,9 @@ function renderSuppliersSection(){
   if(!hasAny){
     body+='<div class="field-hint" style="text-align:center;padding:14px 0 0">No suppliers added yet. Tap above to browse the full directory.</div>';
   }
-  return section("suppliers","05","Suppliers",
+  return section("suppliers","Suppliers",
     totalEngaged?totalEngaged+" engaged":"Add suppliers to your event",
-    totalEngaged, body, {locked:!STATE.venue});
+    body, {locked:!STATE.venue});
 }
 function renderSupplierSlot(entry,fieldId,idx){
   const s=findSupplier(entry.supplierId);
@@ -1992,9 +2046,9 @@ function renderDetailsSection(){
   }
   body+='<button class="sup-add-btn" data-act="addTicketLink">+ Add ticket link</button></div>';
 
-  return section("details","06","Event Details",
+  return section("details","Event Details",
     (d.mode==="public"?"Public":"Private")+" · "+d.contacts.length+" contact"+(d.contacts.length===1?"":"s"),
-    d.contacts.length+d.ticketLinks.length, body, {locked:!STATE.venue});
+    body, {locked:!STATE.venue});
 }
 
 /* ============================================================
@@ -2017,9 +2071,9 @@ function renderGuestsSection(){
     '</div>';
   });
   body+='<button class="sup-add-btn" data-act="addGuest">+ Add guest</button>';
-  return section("guests","07","Guests",
+  return section("guests","Guests",
     totalGuests()+" guest"+(totalGuests()===1?"":"s")+" total",
-    STATE.guests.length, body, {locked:!STATE.venue});
+    body, {locked:!STATE.venue});
 }
 
 /* ============================================================
@@ -2040,9 +2094,9 @@ function renderRsvpSection(){
     '</div>';
   });
   body+='<button class="sup-add-btn" data-act="addRsvp">+ Add RSVP contact</button>';
-  return section("rsvp","08","RSVP Management",
+  return section("rsvp","RSVP Management",
     STATE.rsvp.length+" RSVP contact"+(STATE.rsvp.length===1?"":"s"),
-    STATE.rsvp.length, body, {locked:!STATE.venue});
+    body, {locked:!STATE.venue});
 }
 
 /* ============================================================
@@ -2063,9 +2117,8 @@ function renderShareOptionsSection(){
       '<div class="switch'+(STATE.shareOptions[o.key]?" on":"")+'" data-act="toggleShare" data-key="'+o.key+'"></div>'+
     '</div>';
   });
-  return section("share","09","Event Share Options",
+  return section("share","Event Share Options",
     "Channels shown on the preview",
-    Object.keys(STATE.shareOptions).filter(function(k){return STATE.shareOptions[k];}).length,
     body, {locked:!STATE.venue});
 }
 
@@ -2105,16 +2158,13 @@ function getWarnings(){
   }
   return w;
 }
-function renderReviewSection(){
+function renderPreviewSection(){
   if(!STATE.venue){
-    return section("review","10","Review",
-      "Fill in the event details first",null,
-      '<div class="empty">Add a venue and some details to see a review.</div>',
+    return section("preview","Preview",
+      "Fill in the event details first",
+      '<div class="empty">Add a venue and some details to see the full preview.</div>',
       {locked:true});
   }
-  const et=findEventType(STATE.eventType.eventId);
-  const v=STATE.venue;
-  const d=STATE.eventDetails;
   const warnings=getWarnings();
   let body="";
 
@@ -2128,112 +2178,16 @@ function renderReviewSection(){
     });
   }
 
-  // Hero
-  body+='<div class="review-hero">'+
-    '<div class="lbl">Event Summary</div>'+
-    '<h2>'+esc(STATE.eventTitle||"Untitled Event")+'</h2>'+
-    '<div class="meta">'+esc(et?et.name:"Event")+' · '+esc(v.name)+'</div>'+
-  '</div>';
-
-  // Venue
-  body+='<div class="review-block">'+
-    '<h4>Venue</h4>'+
-    '<div class="review-row"><span class="k">Name</span><span class="v">'+esc(v.name)+'</span></div>'+
-    '<div class="review-row"><span class="k">Location</span><span class="v">'+esc(v.city||"")+(v.area?" · "+esc(v.area):"")+'</span></div>'+
-    '<div class="review-row"><span class="k">Spaces</span><span class="v">'+
-      (STATE.venueSpaces.length?STATE.venueSpaces.map(function(id){
-        const s=(v.spaces||[]).find(function(x){return x.id===id;});
-        return s?esc(s.name):id;
-      }).join(", "):"—")+'</span></div>'+
-    '<div class="review-row"><span class="k">Capacity</span><span class="v">Up to '+esc(v.capacity||"—")+'</span></div>'+
-  '</div>';
-
-  // Date & time
-  body+='<div class="review-block">'+
-    '<h4>Event Date & Time</h4>'+
-    (STATE.schedule.days.length
-      ? STATE.schedule.days.map(function(d,i){
-          const s=(d.startDate||"")+" "+(d.startTime||"");
-          const e=(d.endDate||"")+" "+(d.endTime||"");
-          return '<div class="review-row"><span class="k">Day '+(i+1)+'</span><span class="v">'+esc(s.trim()||"—")+' → '+esc(e.trim()||"—")+'</span></div>';
-        }).join("")
-      : '<div class="review-row"><span class="k">—</span><span class="v">Not set</span></div>'
-    )+
-  '</div>';
-
-  // Guests
-  body+='<div class="review-block">'+
-    '<h4>Guests · '+totalGuests()+'</h4>'+
-    (STATE.guests.length
-      ? STATE.guests.map(function(g){
-          return '<div class="review-row"><span class="k">'+esc(g.name||"Guest")+(g.role?" ("+esc(g.role)+")":"")+'</span><span class="v">'+(g.plus?"+"+g.plus+" · ":"")+esc(g.dietary||"—")+'</span></div>';
-        }).join("")
-      : '<div class="review-row"><span class="k">—</span><span class="v">No guests added</span></div>'
-    )+
-  '</div>';
-
-  // Menu highlights
-  body+='<div class="review-block">'+
-    '<h4>Menu Highlights</h4>'+
-    ((STATE.menuFood.length+STATE.menuBeverages.length)
-      ? STATE.menuFood.map(function(m){
-          return '<div class="review-row"><span class="k">'+esc(m.name)+' × '+m.qty+'</span><span class="v">'+fmt((Number(m.price)||0)*m.qty)+'</span></div>';
-        }).join("")+
-        STATE.menuBeverages.map(function(m){
-          return '<div class="review-row"><span class="k">'+esc(m.name)+' × '+m.qty+'</span><span class="v">'+fmt((Number(m.price)||0)*m.qty)+'</span></div>';
-        }).join("")
-      : '<div class="review-row"><span class="k">—</span><span class="v">No menu items selected</span></div>'
-    )+
-  '</div>';
-
-  // Suppliers
-  const supLines=[];
-  Object.keys(STATE.suppliers).forEach(function(fid){
-    (STATE.suppliers[fid]||[]).forEach(function(entry){
-      const s=findSupplier(entry.supplierId);
-      if(s) supLines.push({field:fid,sup:s,entry:entry});
-    });
-  });
-  body+='<div class="review-block">'+
-    '<h4>Suppliers · '+supLines.length+'</h4>'+
-    (supLines.length
-      ? supLines.map(function(l){
-          const customBits=Object.keys(l.entry.customisations||{}).map(function(k){
-            return k+": "+l.entry.customisations[k];
-          }).join(" · ");
-          return '<div class="review-row"><span class="k">'+esc(l.sup.name)+'<br><em style="font-style:normal;font-size:10px;color:var(--muted)">'+esc(bucketLabel(l.field))+'</em></span><span class="v">'+esc(customSummary(l.entry,l.sup)||"—")+'</span></div>';
-        }).join("")
-      : '<div class="review-row"><span class="k">—</span><span class="v">No suppliers</span></div>'
-    )+
-  '</div>';
-
-  // Timeline
-  body+='<div class="review-block">'+
-    '<h4>Event Timeline</h4>'+
-    (STATE.schedule.days.length
-      ? STATE.schedule.days.map(function(d,i){
-          return '<div class="review-row"><span class="k">Day '+(i+1)+'</span><span class="v">'+
-            esc((d.startTime||"")+(d.endTime?" → "+d.endTime:""))+'</span></div>';
-        }).join("")
-      : '<div class="review-row"><span class="k">—</span><span class="v">Not set</span></div>'
-    )+
-  '</div>';
-
-  // Cost
-  body+='<div class="review-block">'+
-    '<h4>Cost Breakdown</h4>'+
-    '<div class="review-row"><span class="k">Venue</span><span class="v">'+fmt(venueCost())+'</span></div>'+
-    '<div class="review-row"><span class="k">Food</span><span class="v">'+fmt(menuFoodCost())+'</span></div>'+
-    '<div class="review-row"><span class="k">Beverages</span><span class="v">'+fmt(menuBeveragesCost())+'</span></div>'+
-    '<div class="review-row"><span class="k">Suppliers</span><span class="v">'+fmt(supplierCost())+'</span></div>'+
-    '<div class="review-row" style="padding-top:9px;margin-top:5px;border-top:1px solid var(--border)">'+
-      '<span class="k" style="font-weight:900;color:var(--text)">Total</span>'+
-      '<span class="v" style="font-size:15px;font-weight:900">'+fmt(grandTotal())+'</span>'+
-    '</div>'+
+  body+='<div class="field-hint" style="margin-bottom:10px">Everything you\'ve detailed and calculated — flat and ready to share. Adjust what guests see below.</div>';
+  body+='<button class="btn preview-open full" data-act="openPreview">Open Full Preview</button>';
+  body+='<div style="height:12px"></div>';
+  body+='<div class="preview-page" style="margin:0 -16px -16px">'+
+    buildPreviewHero()+
+    buildPreviewCards()+
   '</div>';
 
   // Preview visibility toggles
-  body+='<div class="review-block">'+
+  body+='<div class="review-block" style="margin-top:12px">'+
     '<h4>Preview Visibility</h4>'+
     privacyRow("showBudget","Budget","Show the cost breakdown in the shared preview",false)+
     privacyRow("showGuests","Guest list","Show guest names in the shared preview",false)+
@@ -2242,57 +2196,35 @@ function renderReviewSection(){
     privacyRow("showRsvp","RSVP status","Show RSVP contacts and status",true)+
   '</div>';
 
-  return section("review","10","Review",
-    warnings.length?warnings.length+" warning"+(warnings.length===1?"":"s"):"All looks good",
-    warnings.length||null, body, {locked:false});
+  return section("preview","Preview",
+    warnings.length?warnings.length+" warning"+(warnings.length===1?"":"s"):"Everything detailed & calculated",
+    body, {locked:false});
 }
-function privacyRow(key,title,desc,def){
-  const val=STATE[key]===undefined?def:STATE[key];
-  return '<div class="privacy-row">'+
-    '<div class="lbl">'+esc(title)+'<em>'+esc(desc)+'</em></div>'+
-    '<div class="switch'+(val?" on":"")+'" data-act="togglePrivacy" data-key="'+key+'"></div>'+
-  '</div>';
-}
-
-/* ============================================================
-   SECTION 11 — PREVIEW (read-only detailed page)
-   ============================================================ */
-function renderPreviewSection(){
-  if(!STATE.venue){
-    return section("preview","11","Preview",
-      "Fill in the event details first",null,
-      '<div class="empty">Add a venue and some details to see the preview.</div>',
-      {locked:true});
-  }
+function buildPreviewHero(){
   const et=findEventType(STATE.eventType.eventId);
-  const v=STATE.venue;
-  const showBudget=STATE.showBudget===true;
-  const showGuests=STATE.showGuests===true;
-  const showSuppliers=STATE.showSuppliers!==false;
-  const showAddress=STATE.showAddress!==false;
-  const showRsvp=STATE.showRsvp!==false;
-
-  let body='<div class="field-hint" style="margin-bottom:12px">This is the read-only page guests will see. Toggle visibility in the Review section.</div>';
-  body+='<div class="preview-page" style="margin:0 -16px -16px">';
-  // Hero
+  const cat=esc(et?et.name:"Event");
+  const h1=esc(STATE.eventTitle||"Untitled Event");
+  const sub=STATE.eventDescription?esc(STATE.eventDescription):"";
+  const overlay='<div class="cat">'+cat+'</div>'+
+        '<h1>'+h1+'</h1>'+
+        (sub?'<div class="sub">'+sub+'</div>':'');
   if(STATE.flyerImages.length){
-    body+='<div class="preview-hero"><img src="'+esc(STATE.flyerImages[0])+'" alt="">'+
-      '<div class="preview-hero-overlay">'+
-        '<div class="cat">'+esc(et?et.name:"Event")+'</div>'+
-        '<h1>'+esc(STATE.eventTitle||"Untitled Event")+'</h1>'+
-        (STATE.eventDescription?'<div class="sub">'+esc(STATE.eventDescription)+'</div>':'')+
-      '</div>'+
-    '</div>';
-  } else {
-    body+='<div class="preview-hero" style="background:linear-gradient(135deg,#2c2418,#151515)">'+
-      '<div class="preview-hero-overlay" style="background:transparent">'+
-        '<div class="cat">'+esc(et?et.name:"Event")+'</div>'+
-        '<h1>'+esc(STATE.eventTitle||"Untitled Event")+'</h1>'+
-        (STATE.eventDescription?'<div class="sub">'+esc(STATE.eventDescription)+'</div>':'')+
-      '</div>'+
+    return '<div class="preview-hero"><img src="'+esc(STATE.flyerImages[0])+'" alt="">'+
+      '<div class="preview-hero-overlay">'+overlay+'</div>'+
     '</div>';
   }
-  body+='<div class="preview-body">';
+  return '<div class="preview-hero" style="background:linear-gradient(135deg,#2c2418,#151515)">'+
+      '<div class="preview-hero-overlay" style="background:transparent">'+overlay+'</div>'+
+    '</div>';
+}
+function buildPreviewCards(){
+  const v=STATE.venue;
+  const showAddress=STATE.showAddress!==false;
+  const showSuppliers=STATE.showSuppliers!==false;
+  const showGuests=STATE.showGuests===true;
+  const showRsvp=STATE.showRsvp!==false;
+  const showBudget=STATE.showBudget===true;
+  let body='<div class="preview-body">';
 
   // Venue
   body+='<div class="preview-card">'+
@@ -2303,18 +2235,27 @@ function renderPreviewSection(){
       const s=(v.spaces||[]).find(function(x){return x.id===id;});
       return s?esc(s.name):id;
     }).join(", ")+'</span></div>':'')+
+    '<div class="preview-kv"><span class="k">Capacity</span><span class="v">Up to '+esc(v.capacity||"—")+'</span></div>'+
   '</div>';
 
-  // Date & time
-  if(STATE.schedule.days.length && (STATE.schedule.days[0].startDate || STATE.schedule.days[0].startTime)){
-    body+='<div class="preview-card">'+
-      '<h3>Date & Time</h3>'+
-      STATE.schedule.days.map(function(d,i){
-        const s=[d.startDate,d.startTime].filter(Boolean).join(" ");
-        const e=[d.endDate,d.endTime].filter(Boolean).join(" ");
-        return '<div class="preview-kv"><span class="k">'+(STATE.schedule.days.length>1?("Day "+(i+1)):"When")+'</span><span class="v">'+esc(s||"—")+(e?" → "+esc(e):"")+'</span></div>';
-      }).join("")+
-    '</div>';
+  // Date & time + timeline
+  if(STATE.schedule.days.length){
+    const anyTime=STATE.schedule.days.some(function(d){return d.startDate||d.startTime||d.endDate||d.endTime;});
+    if(anyTime){
+      body+='<div class="preview-card">'+
+        '<h3>Date & Time</h3>'+
+        STATE.schedule.days.map(function(d,i){
+          const s=[d.startDate,d.startTime].filter(Boolean).join(" ");
+          const e=[d.endDate,d.endTime].filter(Boolean).join(" ");
+          const when=[s||"—",e?"→ "+e:""].filter(Boolean).join(" ").trim();
+          return '<div class="preview-kv"><span class="k">'+(STATE.schedule.days.length>1?("Day "+(i+1)):"When")+'</span><span class="v">'+esc(when||"—")+'</span></div>';
+        }).join("")+
+        STATE.schedule.days.map(function(d,i){
+          const t=(d.startTime||"")+(d.endTime?" → "+d.endTime:"");
+          return t?'<div class="preview-kv"><span class="k">Timeline — Day '+(i+1)+'</span><span class="v">'+esc(t)+'</span></div>':"";
+        }).join("")+
+      '</div>';
+    }
   }
 
   // Dress code
@@ -2327,18 +2268,17 @@ function renderPreviewSection(){
 
   // Menu
   if(STATE.menuFood.length || STATE.menuBeverages.length){
-    body+='<div class="preview-card">'+
-      '<h3>Menu</h3>';
+    body+='<div class="preview-card"><h3>Menu</h3>';
     if(STATE.menuFood.length){
       body+='<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);font-weight:800;margin:4px 0 6px">Food</div>';
       STATE.menuFood.forEach(function(m){
-        body+='<div class="preview-kv"><span class="k">'+esc(m.name)+'</span><span class="v">'+esc(String(m.qty))+' selected</span></div>';
+        body+='<div class="preview-kv"><span class="k">'+esc(m.name)+' × '+m.qty+'</span><span class="v">'+fmt((Number(m.price)||0)*m.qty)+'</span></div>';
       });
     }
     if(STATE.menuBeverages.length){
       body+='<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);font-weight:800;margin:10px 0 6px">Beverages</div>';
       STATE.menuBeverages.forEach(function(m){
-        body+='<div class="preview-kv"><span class="k">'+esc(m.name)+'</span><span class="v">'+esc(String(m.qty))+' selected</span></div>';
+        body+='<div class="preview-kv"><span class="k">'+esc(m.name)+' × '+m.qty+'</span><span class="v">'+fmt((Number(m.price)||0)*m.qty)+'</span></div>';
       });
     }
     body+='</div>';
@@ -2355,12 +2295,12 @@ function renderPreviewSection(){
     });
     if(supLines.length){
       body+='<div class="preview-card">'+
-        '<h3>Suppliers</h3>'+
+        '<h3>Suppliers · '+supLines.length+'</h3>'+
         supLines.map(function(l){
           const customBits=Object.keys(l.entry.customisations||{}).filter(function(k){return l.entry.customisations[k];}).map(function(k){
             return k+": "+l.entry.customisations[k];
           }).join(" · ");
-          return '<div class="preview-kv"><span class="k">'+esc(l.sup.name)+(customBits?'<br><em style="font-style:normal;font-size:10.5px;color:var(--muted)">'+esc(customBits)+'</em>':'')+'</span><span class="v">'+fmt(supplierLineCost(l.entry))+'</span></div>';
+          return '<div class="preview-kv"><span class="k">'+esc(l.sup.name)+'<br><em style="font-style:normal;font-size:10.5px;color:var(--muted)">'+esc(bucketLabel(l.field))+(customBits?" · "+esc(customBits):"")+'</em></span><span class="v">'+fmt(supplierLineCost(l.entry))+'</span></div>';
         }).join("")+
       '</div>';
     }
@@ -2404,20 +2344,30 @@ function renderPreviewSection(){
     body+='<div class="preview-card">'+
       '<h3>Guest List · '+totalGuests()+'</h3>'+
       STATE.guests.map(function(g){
-        return '<div class="preview-kv"><span class="k">'+esc(g.name||"Guest")+(g.role?" ("+esc(g.role)+")":"")+'</span><span class="v">'+(g.plus?"+"+g.plus+"":'')+'</span></div>';
+        const info=[];
+        if(g.plus) info.push("+"+g.plus);
+        if(g.dietary) info.push(esc(g.dietary));
+        return '<div class="preview-kv"><span class="k">'+esc(g.name||"Guest")+(g.role?" ("+esc(g.role)+")":"")+'</span><span class="v">'+info.join(" · ")+'</span></div>';
       }).join("")+
     '</div>';
   }
 
-  // Budget
+  // Budget (cost breakdown)
   if(showBudget){
     body+='<div class="preview-card">'+
       '<h3>Estimated Budget</h3>'+
-      '<div class="preview-kv"><span class="k">Total</span><span class="v" style="color:var(--muted-2);font-weight:900;font-size:15px">'+fmt(grandTotal())+'</span></div>'+
+      '<div class="preview-kv"><span class="k">Venue</span><span class="v">'+fmt(venueCost())+'</span></div>'+
+      '<div class="preview-kv"><span class="k">Food</span><span class="v">'+fmt(menuFoodCost())+'</span></div>'+
+      '<div class="preview-kv"><span class="k">Beverages</span><span class="v">'+fmt(menuBeveragesCost())+'</span></div>'+
+      '<div class="preview-kv"><span class="k">Suppliers</span><span class="v">'+fmt(supplierCost())+'</span></div>'+
+      '<div class="preview-kv" style="padding-top:9px;margin-top:5px;border-top:1px solid var(--border)">'+
+        '<span class="k" style="font-weight:900;color:var(--text)">Total</span>'+
+        '<span class="v" style="font-size:15px;font-weight:900">'+fmt(grandTotal())+'</span>'+
+      '</div>'+
     '</div>';
   }
 
-  // Share row
+  // Share rows
   const shareChannels=[];
   if(STATE.shareOptions.whatsapp) shareChannels.push("WhatsApp");
   if(STATE.shareOptions.facebook) shareChannels.push("Facebook");
@@ -2433,17 +2383,37 @@ function renderPreviewSection(){
     '</div>';
   }
 
-  // Actions
-  body+='<div style="display:flex;flex-direction:column;gap:9px;margin-top:14px">'+
-    '<button class="btn wa full" data-act="shareWhatsApp">Share on WhatsApp</button>'+
-    '<button class="btn primary full" data-act="sendToVenue">Send to Venue Provider</button>'+
+  body+='</div>'; // close preview-body
+  return body;
+}
+function privacyRow(key,title,desc,def){
+  const val=STATE[key]===undefined?def:STATE[key];
+  return '<div class="privacy-row">'+
+    '<div class="lbl">'+esc(title)+'<em>'+esc(desc)+'</em></div>'+
+    '<div class="switch'+(val?" on":"")+'" data-act="togglePrivacy" data-key="'+key+'"></div>'+
   '</div>';
+}
 
-  body+='</div></div>'; // close preview-body + preview-page
-
-  return section("preview","11","Preview",
-    "Read-only page your guests will see",
-    null, body, {locked:false});
+/* ============================================================
+   SECTION 11 — PREVIEW PAGE (full-screen)
+   ============================================================ */
+function renderPreviewPage(){
+  if(!STATE.previewPageOpen) return "";
+  const v=STATE.venue;
+  return '<div class="preview-pg">'+
+    '<button class="preview-pg-close" data-act="closePreview" aria-label="Close">×</button>'+
+    '<div class="preview-pg-scroll">'+
+      '<div class="preview-page">'+
+        buildPreviewHero()+
+        buildPreviewCards()+
+      '</div>'+
+    '</div>'+
+    '<div class="preview-pg-foot">'+
+      '<button class="btn wa-solid full" data-act="shareWhatsApp">Share via WhatsApp</button>'+
+      '<button class="btn wa-dark full" data-act="sendToVenue">Share with Venue · '+esc(v?v.name:"Venue")+'</button>'+
+      '<button class="btn primary full" data-act="closePreview">Back</button>'+
+    '</div>'+
+  '</div>';
 }
 function contactHref(type,value){
   if(!value) return "#";
@@ -2534,9 +2504,9 @@ function renderMainScroll(){
   h+=renderGuestsSection();
   h+=renderRsvpSection();
   h+=renderShareOptionsSection();
-  h+=renderReviewSection();
   h+=renderPreviewSection();
-  h+='<div style="height:16px"></div>';
+  h+='<div style="height:20px"></div>';
+  h+='<button class="back-btn" data-act="backToVenueList">Back to Venues</button>';
   el.innerHTML=h;
 }
 
@@ -2549,44 +2519,10 @@ function renderCalcBar(){
   const count=calculatorItemCount();
   const total=grandTotal();
   let h='<div class="calc-strip">'+
-    '<button class="calc-strip-btn" data-act="toggleCalc">'+
-      '<span class="calc-strip-lbl">'+(STATE.calcExpanded?"Hide breakdown":"Total")+'</span>'+
-      '<span class="calc-strip-total">'+fmt(total)+'</span>'+
-      '<span class="calc-strip-items">'+count+' item'+(count===1?"":"s")+' · tap for breakdown</span>'+
+    '<button class="calc-strip-btn" data-act="openPreview" aria-label="Open full preview">'+
+      '<span class="calc-strip-total">'+fmt(total)+' <span class="calc-total-for">for</span> '+count+' '+(count===1?"item":"items")+'</span>'+
     '</button>'+
   '</div>';
-  if(STATE.calcExpanded){
-    h+='<div class="calc-expand open">';
-    h+='<h4>Breakdown</h4>';
-    if(!count){
-      h+='<div class="calc-empty">Nothing added yet.</div>';
-    } else {
-      if(STATE.venue){
-        h+='<div class="calc-line"><span class="lbl">'+esc(STATE.venue.name)+' · venue</span><span class="val">'+fmt(venueCost())+'</span></div>';
-      }
-      if(STATE.menuFood.length){
-        h+='<div class="calc-line"><span class="lbl">Food items</span><span class="val">'+fmt(menuFoodCost())+'</span></div>';
-        STATE.menuFood.forEach(function(m){
-          h+='<div class="calc-line sub"><span class="lbl">'+esc(m.name)+' × '+m.qty+'</span><span class="val">'+fmt((Number(m.price)||0)*m.qty)+'</span></div>';
-        });
-      }
-      if(STATE.menuBeverages.length){
-        h+='<div class="calc-line"><span class="lbl">Beverages</span><span class="val">'+fmt(menuBeveragesCost())+'</span></div>';
-        STATE.menuBeverages.forEach(function(m){
-          h+='<div class="calc-line sub"><span class="lbl">'+esc(m.name)+' × '+m.qty+'</span><span class="val">'+fmt((Number(m.price)||0)*m.qty)+'</span></div>';
-        });
-      }
-      Object.keys(STATE.suppliers).forEach(function(fid){
-        (STATE.suppliers[fid]||[]).forEach(function(entry){
-          const s=findSupplier(entry.supplierId);
-          if(!s) return;
-          h+='<div class="calc-line sub"><span class="lbl">'+esc(s.name)+'</span><span class="val">'+fmt(supplierLineCost(entry))+'</span></div>';
-        });
-      });
-      h+='<div class="calc-line total"><span class="lbl">Total</span><span class="val">'+fmt(grandTotal())+'</span></div>';
-    }
-    h+='</div>';
-  }
   el.innerHTML=h;
 }
 
@@ -2600,9 +2536,12 @@ function render(){
   const root=document.getElementById("modal-root");
   let modalHtml="";
   modalHtml+=renderFlyerAddMenu();
+  modalHtml+=renderFlyerItemMenu();
   modalHtml+=renderTitleEdit();
   modalHtml+=renderSupplierTypeMenu();
   modalHtml+=renderPrompt();
+  modalHtml+=renderVenueLogo();
+  modalHtml+=renderPreviewPage();
   root.innerHTML=modalHtml;
   // Focus search in STM
   if(STATE.supplierTypeMenu.open){
@@ -2620,6 +2559,9 @@ function render(){
   }
   measureCalc();
   measureNav();
+measureFlyerTrack();
+  const _ft=document.querySelector(".flyer-track");
+  if(_ft && STATE.flyerIndex>0) _ft.scrollLeft=STATE.flyerIndex*_ft.clientWidth;
   scheduleSave();
 }
 function measureCalc(){
@@ -2630,10 +2572,17 @@ function measureNav(){
   const el=document.getElementById("nav");
   if(el) document.documentElement.style.setProperty("--navh",el.offsetHeight+"px");
 }
+function measureFlyerTrack(){
+  const tr=document.querySelector(".flyer-menu-track");
+  if(!tr) return;
+  const s=Math.min(tr.clientWidth,tr.clientHeight);
+  if(s>0) tr.style.setProperty("--flyer-item-size",Math.floor(s)+"px");
+}
 
 /* ============================================================
    EVENT HANDLERS
    ============================================================ */
+let _flyerDrag=null;
 document.addEventListener("click",function(e){
   // bottom-nav tabs return to the main app on the matching tab
   const navTab=e.target.closest(".nav-btn[data-tab]");
@@ -2644,10 +2593,12 @@ document.addEventListener("click",function(e){
     const act=scrim.getAttribute("data-act");
     if(act==="closeSupplierTypeMenu"){STATE.supplierTypeMenu.open=false;render();return;}
     if(act==="closeFlyerMenu"){STATE.flyerMenuOpen=false;render();return;}
+    if(act==="closeFlyerItemMenu"){STATE.flyerItemMenu.open=false;render();return;}
     if(act==="closeTitleEdit"){STATE.titleEditOpen=false;render();return;}
     if(act==="closePrompt"){STATE.prompt.open=false;render();return;}
     // fallback: close any open modal
     STATE.flyerMenuOpen=false;STATE.titleEditOpen=false;
+    STATE.flyerItemMenu.open=false;
     STATE.supplierTypeMenu.open=false;STATE.prompt.open=false;
     render();return;
   }
@@ -2658,11 +2609,27 @@ document.addEventListener("click",function(e){
 
   // Venue bar
   if(act==="toggleVenueBar"){ STATE.venueBarExpanded=!STATE.venueBarExpanded; render(); return; }
+  if(act==="openVenueLogo"){ STATE.venueLogoOpen=true; render(); return; }
+  if(act==="closeVenueLogo"){ STATE.venueLogoOpen=false; render(); return; }
 
   // Flyer
-  if(act==="openFlyerMenu"){ STATE.flyerMenuOpen=true; render(); return; }
+  if(act==="openFlyerMenu"){
+    const _tr=t.querySelector(".flyer-track");
+    if(_flyerDrag && _tr && Math.abs(_tr.scrollLeft-_flyerDrag.scrollLeft)>8) return;
+    STATE.flyerItemMenu.open=false;
+    STATE.flyerMenuOpen=true; render(); return;
+  }
   if(act==="closeFlyerMenu"){ STATE.flyerMenuOpen=false; render(); return; }
+  if(act==="flyerDot"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.flyerIndex=i;
+    const track=document.querySelector(".flyer-track");
+    if(track) track.scrollLeft=i*track.clientWidth;
+    document.querySelectorAll(".flyer-dot").forEach(function(d,k){d.classList.toggle("on",k===i);});
+    return;
+  }
   if(act==="addFlyerImage"){
+    if(STATE.flyerImages.length>=8){toast("Maximum 8 images");return;}
     const input=document.createElement("input");
     input.type="file";input.accept="image/*";
     input.onchange=function(){
@@ -2679,20 +2646,30 @@ document.addEventListener("click",function(e){
     input.click();
     return;
   }
-  if(act==="removeFlyer"){
-    const i=Number(t.getAttribute("data-idx"));
-    STATE.flyerImages.splice(i,1);
+  if(act==="openFlyerItemMenu"){
+    STATE.flyerItemMenu={open:true,index:Number(t.getAttribute("data-idx"))};
     render();
     return;
   }
-  if(act==="makeMainFlyer"){
-    const i=Number(t.getAttribute("data-idx"));
-    if(i<=0||i>=STATE.flyerImages.length) return;
-    const [img]=STATE.flyerImages.splice(i,1);
-    STATE.flyerImages.unshift(img);
-    render();
-    toast("Main flyer updated");
-    return;
+  if(act==="closeFlyerItemMenu"){ STATE.flyerItemMenu.open=false; render(); return; }
+  if(act==="flyerItemMakeMain"){
+    const i=STATE.flyerItemMenu.index;
+    if(i>0 && i<STATE.flyerImages.length){
+      const img=STATE.flyerImages.splice(i,1)[0];
+      STATE.flyerImages.unshift(img);
+      STATE.flyerIndex=0;
+      toast("Main flyer updated");
+    }
+    STATE.flyerItemMenu.open=false; render(); return;
+  }
+  if(act==="flyerItemDelete"){
+    const i=STATE.flyerItemMenu.index;
+    if(i>=0 && i<STATE.flyerImages.length){
+      STATE.flyerImages.splice(i,1);
+      if(STATE.flyerIndex>=STATE.flyerImages.length) STATE.flyerIndex=Math.max(0,STATE.flyerImages.length-1);
+      toast("Image removed");
+    }
+    STATE.flyerItemMenu.open=false; render(); return;
   }
 
   // Title edit
@@ -2711,6 +2688,14 @@ document.addEventListener("click",function(e){
     STATE.titleEditOpen=false;
     render();
     toast("Saved");
+    return;
+  }
+
+  if(act==="backToVenueList"){
+    const eid=(STATE.eventType&&STATE.eventType.eventId)||"";
+    window.location.href=eid
+      ? "index.html?resEvent="+encodeURIComponent(eid)+"#reserve"
+      : "index.html#reserve";
     return;
   }
 
@@ -3027,11 +3012,15 @@ document.addEventListener("click",function(e){
     return;
   }
 
-  // Calculator
-  if(act==="toggleCalc"){
-    STATE.calcExpanded=!STATE.calcExpanded;
-    renderCalcBar();
-    measureCalc();
+  // Preview page
+  if(act==="openPreview"){
+    STATE.previewPageOpen=true;
+    render();
+    return;
+  }
+  if(act==="closePreview"){
+    STATE.previewPageOpen=false;
+    render();
     return;
   }
 
@@ -3171,7 +3160,20 @@ function buildShareMessage(){
   window.addEventListener("online",refreshNetChip);
   window.addEventListener("offline",refreshNetChip);
   refreshNetChip();
-  window.addEventListener("resize",function(){measureCalc();measureNav();});
+  window.addEventListener("resize",function(){measureCalc();measureNav();measureFlyerTrack();});
+  document.addEventListener("pointerdown",function(e){
+    const track=e.target.closest?e.target.closest(".flyer-track"):null;
+    _flyerDrag=track?{scrollLeft:track.scrollLeft}:null;
+  },{passive:true});
+  document.addEventListener("scroll",function(e){
+    const track=e.target;
+    if(!track||!track.classList||!track.classList.contains("flyer-track"))return;
+    const w=track.clientWidth; if(!w)return;
+    const idx=Math.max(0,Math.min(STATE.flyerImages.length-1,Math.round(track.scrollLeft/w)));
+    if(idx===STATE.flyerIndex)return;
+    STATE.flyerIndex=idx;
+    document.querySelectorAll(".flyer-dot").forEach(function(d,k){d.classList.toggle("on",k===idx);});
+  },{capture:true,passive:true});
   window.addEventListener("beforeunload",saveDraft);
 })();
 </script>

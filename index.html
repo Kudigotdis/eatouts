@@ -7642,6 +7642,25 @@ bootEatoutsBridge();
 try{
   const hashTab=(window.location.hash||"").replace(/^#\/?/,"").toLowerCase();
   if(NAV_TABS.some(function(t){return t.id===hashTab;})) state.tab=hashTab;
+  /* Deep-link straight back to a venue-provider list (e.g. from the event
+     builder's "Back to Venues") by restoring the reserve breadcrumb. */
+  const resEvent=(new URLSearchParams(window.location.search||"")).get("resEvent");
+  if(resEvent){
+    for(let i=0;i<RESERVE.length;i++){
+      const cat=RESERVE[i];
+      for(let j=0;j<cat.groups.length;j++){
+        const grp=cat.groups[j];
+        for(let k=0;k<grp.events.length;k++){
+          if(grp.events[k].id===resEvent){
+            state.tab="reserve";
+            state.reserveCat=cat.id;
+            state.reserveGroup=grp.name;
+            state.reserveSub=grp.events[k].id;
+          }
+        }
+      }
+    }
+  }
 }catch(e){}
 render();
 loadRestaurantTypeFilters();
