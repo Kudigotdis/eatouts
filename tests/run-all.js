@@ -36,6 +36,9 @@ const SUITES = [
   'promocats.js',
   'builder-suppliers.js',
   'builder-preview.js',
+  'builder-guests.js',
+  'builder-schedule.js',
+  'builder-audience.js',
   'appshell.js'
 ];
 

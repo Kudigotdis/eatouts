@@ -39,20 +39,17 @@ a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:
 
 /* Accordion */
 .acc{margin:12px 14px;background:#fff;border:1px solid var(--bd);border-radius:14px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
-.acc.open{border-color:var(--ink)}
+.acc.open{border-color:rgba(0,0,0,.05)}
 .acc-hdr{width:100%;padding:14px 16px 14px 22px;display:flex;align-items:center;gap:12px;position:relative}
 .acc-hdr:active{background:var(--bg)}
 .acc-hdr::before{content:'';position:absolute;left:10px;top:14px;bottom:14px;width:3px;border-radius:3px;background:transparent;transition:background .15s}
 .acc.open .acc-hdr::before{background:var(--ink)}
-.acc-num{flex:0 0 auto;font-size:11px;font-weight:900;letter-spacing:.08em;color:var(--muted);padding-top:2px}
-.acc.open .acc-num{color:var(--ink)}
 .acc-title{flex:1;min-width:0}
-.acc-lbl{font-size:14px;font-weight:900;color:var(--ink);line-height:1.25;display:block;letter-spacing:-.01em}
+.acc-lbl{font-size:18px;font-weight:900;color:var(--ink);line-height:1.25;display:block;text-align:center;letter-spacing:-.01em}
 .acc-val{font-size:11.5px;color:var(--muted2);margin-top:3px;line-height:1.4;display:block;font-weight:600}
 .acc-val.done{color:var(--ok);font-weight:800}
 .acc-val.warn{color:var(--warn);font-weight:800}
 .acc-status{flex:0 0 auto;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);border:1px solid var(--bd);border-radius:999px;padding:4px 9px;background:var(--bg);white-space:nowrap}
-.acc-status.req{color:var(--warn);border-color:#ece0be;background:#fdf9ef}
 .acc-status.done{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
 .acc-status.auto{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
 .acc-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
@@ -94,7 +91,6 @@ a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:
 .sugg-opt{padding:12px 14px;font-size:13px;font-weight:700;color:var(--ink);border-bottom:1px solid var(--bd2);cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%;text-align:left}
 .sugg-opt:last-child{border-bottom:0}
 .sugg-opt:active{background:var(--bg)}
-.sugg-opt .sugg-tap{font-size:10px;color:var(--muted2);font-weight:800;letter-spacing:.05em;text-transform:uppercase}
 
 /* Image picker */
 .imgs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
@@ -123,12 +119,6 @@ a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:
 .btn.sm{min-height:36px;padding:8px 13px;font-size:11.5px}
 .btn[disabled]{opacity:.4;cursor:not-allowed}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-
-/* Bottom bar */
-.bar{flex:0 0 auto;background:#fff;border-top:1px solid var(--bd);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px}
-.bar-info{flex:1;min-width:0}
-.bar-lbl{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block}
-.bar-tot{font-size:13.5px;font-weight:900;color:var(--ink);margin-top:2px;display:block}
 
 /* Sheet */
 .sheet-scrim{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:100;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
@@ -165,7 +155,6 @@ a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:
     </div>
   </header>
   <div class="viewport"><div class="scroll" id="scroll"></div></div>
-  <div class="bar" id="bar"></div>
   <nav id="nav">
     <a class="nav-btn" href="index.html#promos" aria-label="Promos"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></a>
     <a class="nav-btn" href="index.html#restaurants" aria-label="Restaurants"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg></a>
@@ -369,14 +358,12 @@ function render(){
   if(STATE.submitted){ renderSuccess(); return }
   document.getElementById('scroll').innerHTML =
     renderIntro() +
-    acc('type','01','Feedback type') +
-    acc('message','02','Your message') +
-    acc('extra','03', STATE.type && EXTRA_DETAILS[STATE.type] ? EXTRA_DETAILS[STATE.type].title : 'Extra details') +
-    acc('shot','04','Screenshot') +
-    acc('device','05','Device & app') +
-    acc('contact','06','Contact') +
-    renderFooter();
-  renderBar();
+    acc('type','Feedback type') +
+    acc('message','Your message') +
+    acc('extra', STATE.type && EXTRA_DETAILS[STATE.type] ? EXTRA_DETAILS[STATE.type].title : 'Extra details') +
+    acc('shot','Screenshot') +
+    acc('device','Device & app') +
+    acc('contact','Contact');
   bindAll();
 }
 
@@ -387,20 +374,19 @@ function renderIntro(){
   '</div>';
 }
 
-function acc(id,num,title){
+function acc(id,title){
   var open=STATE.open===id;
   var st=sectionStatus(id);
   var val=sectionValue(id);
-  var badgeCls = st.cls==='done' ? 'done' : (st.cls==='req' ? 'req' : (st.cls==='auto' ? 'auto' : ''));
+  var badgeCls = st.cls==='done' ? 'done' : (st.cls==='auto' ? 'auto' : '');
   var body = open ? renderBody(id) : '';
   return '<div class="acc'+(open?' open':'')+'" data-accbox="'+id+'">'+
     '<button class="acc-hdr" data-acc="'+id+'">'+
-      '<span class="acc-num">'+esc(num)+'</span>'+
       '<span class="acc-title">'+
         '<span class="acc-lbl">'+esc(title)+'</span>'+
         (val?'<span class="acc-val'+(st.cls==='done'?' done':'')+'">'+esc(val)+'</span>':'')+
       '</span>'+
-      '<span class="acc-status '+badgeCls+'">'+esc(st.text)+'</span>'+
+      (st.cls==='req' ? '' : '<span class="acc-status '+badgeCls+'">'+esc(st.text)+'</span>')+
     '</button>'+
     '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
   '</div>';
@@ -420,7 +406,7 @@ function renderBody(id){
 }
 
 function renderType(){
-  var b='<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">What would you like to tell us?</div>';
+  var b='<div style="font-size:12.5px;color:var(--muted);margin-top:8px;margin-bottom:12px">What would you like to tell us?</div>';
   TYPES.forEach(function(t){
     var on=STATE.type===t.id;
     b+='<button class="fchoice'+(on?' on':'')+'" data-act="pickType" data-val="'+esc(t.id)+'">'+
@@ -441,7 +427,7 @@ function renderMessage(){
   if(sugg.length){
     b+='<div class="sugg-list">';
     sugg.forEach(function(s){
-      b+='<button class="sugg-opt" data-sugg="'+esc(s)+'">'+esc(s)+' <span class="sugg-tap">Tap</span></button>';
+      b+='<button class="sugg-opt" data-sugg="'+esc(s)+'">'+esc(s)+'</button>';
     });
     b+='</div>';
     b+='<div class="hint" style="margin-top:8px">Tap a suggestion or type your own.</div>';
@@ -459,7 +445,7 @@ function renderExtra(){
   }
   var t=EXTRA_DETAILS[STATE.type];
   if(!t) return '<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">No extra details for this type.</div>';
-  var b='<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">All fields here are optional. Answer what you can.</div>';
+  var b='<div style="font-size:12.5px;color:var(--muted);margin-top:8px;margin-bottom:12px">All fields here are optional. Answer what you can.</div>';
   t.fields.forEach(function(f){
     var v=STATE.extra[f.id]||'';
     b+='<div class="fld"><label>'+esc(f.label)+'</label>';
@@ -485,7 +471,7 @@ function renderExtra(){
 
 function renderShot(){
   var b='';
-  b+='<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">A screenshot can help us understand what happened. Hide any passwords or personal information before attaching it.</div>';
+  b+='<div style="font-size:12.5px;color:var(--muted);margin-top:8px;margin-bottom:12px">A screenshot can help us understand what happened. Hide any passwords or personal information before attaching it.</div>';
   if(STATE.screenshots.length<3){
     b+='<label class="pickimg" for="shotfile">Choose image</label>'+
        '<input type="file" id="shotfile" accept="image/*" multiple style="display:none">';
@@ -556,21 +542,6 @@ function renderContact(){
   return b;
 }
 
-function renderFooter(){
-  return '<div style="padding:6px 20px 26px;text-align:center;font-size:11.5px;color:var(--muted);line-height:1.55">Required fields are marked <span style="color:var(--danger);font-weight:900">*</span>.<br>Device details are best-effort and never block submission.</div>';
-}
-
-function renderBar(){
-  var bar=document.getElementById('bar');
-  if(!bar) return;
-  var ready = STATE.type && STATE.summary && STATE.details;
-  bar.innerHTML='<div class="bar-info">'+
-      '<span class="bar-lbl">'+(ready?'Ready to send':'Complete required fields')+'</span>'+
-      '<span class="bar-tot">'+(ready?'All required fields filled':'01 Feedback type · 02 Your message')+'</span>'+
-    '</div>'+
-    '<button class="btn primary" data-act="barSend"'+(ready?'':' disabled')+'>Send feedback</button>';
-}
-
 function renderSuccess(){
   document.getElementById('scroll').innerHTML =
     '<div class="success">'+
@@ -582,8 +553,6 @@ function renderSuccess(){
       '<button class="btn primary full" style="margin-top:20px" data-act="again">Send another</button>'+
       '<div class="note">If you left a WhatsApp number or email, we may reach out for more detail.</div>'+
     '</div>';
-  var bar=document.getElementById('bar');
-  if(bar) bar.innerHTML='<div class="bar-info"><span class="bar-lbl">Submitted</span><span class="bar-tot">'+esc(STATE.ref)+'</span></div>';
 }
 
 /* ============================================================
@@ -604,7 +573,6 @@ function bindAll(){
       }
       /* Live-update status pills only — don't re-render the whole page (would lose focus) */
       updateStatusPills();
-      renderBar();
     };
   });
   /* extra-detail textareas / inputs */
@@ -649,8 +617,12 @@ function updateStatusPills(){
     var st=sectionStatus(id);
     var badge=box.querySelector('.acc-status');
     if(badge){
-      badge.textContent=st.text;
-      badge.className='acc-status '+(st.cls==='done'?'done':(st.cls==='req'?'req':(st.cls==='auto'?'auto':(st.cls==='warn'?'warn':''))));
+      if(st.cls==='req'){ badge.style.display='none'; }
+      else {
+        badge.style.display='';
+        badge.textContent=st.text;
+        badge.className='acc-status '+(st.cls==='done'?'done':(st.cls==='auto'?'auto':(st.cls==='warn'?'warn':'')));
+      }
     }
     var valEl=box.querySelector('.acc-val');
     if(!valEl){
@@ -897,8 +869,8 @@ document.addEventListener('click',function(e){
     return;
   }
 
-  /* send from bar */
-  if(e.target.closest('[data-act="barSend"]')){
+  /* send from section 06 (bottom of page) */
+  if(e.target.closest('[data-act="send"]')){
     if(!canSubmit()){
       /* open the first incomplete required section */
       STATE.open = !STATE.type ? 'type' : 'message';
@@ -913,9 +885,6 @@ document.addEventListener('click',function(e){
     submit();
     return;
   }
-
-  /* send from section 06 */
-  if(e.target.closest('[data-act="send"]')){ submit(); return }
 
   /* send another */
   if(e.target.closest('[data-act="again"]')){

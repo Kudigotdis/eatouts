@@ -133,6 +133,7 @@ img{display:block;max-width:100%}
 .field label{display:block;margin-bottom:6px;font-size:10px;font-weight:800;
   letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
 .field-hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.45}
+[data-sec="audience"] .field-hint{font-size:14px}
 input[type="text"],input[type="tel"],input[type="email"],input[type="number"],
 input[type="date"],input[type="time"],input[type="url"],textarea,select{
   width:100%;min-height:44px;padding:11px 13px;background:var(--surface);
@@ -319,6 +320,8 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   align-items:center;justify-content:center;color:var(--danger);font-size:15px;font-weight:900}
 .schedule-day-hdr .day-remove:active{background:#fbeaea}
 .schedule-day-in{padding:11px}
+.sched-note-box{margin-top:4px;border:1px solid var(--border-soft);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.sched-note-box .field:last-child{margin-bottom:0}
 
 .audience-card{border:1px solid var(--border-soft);border-radius:11px;padding:11px 12px;
   margin-bottom:8px;background:var(--surface)}
@@ -378,6 +381,10 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .sup-slot-meta{font-size:10.5px;color:var(--muted);margin-top:2px}
 .sup-slot-price{font-size:12px;font-weight:900;color:var(--muted-2);margin-top:3px}
 .sup-slot-acts{display:flex;gap:4px;flex:0 0 auto}
+.sup-slot-thumb{flex:0 0 auto;width:44px;height:44px;border-radius:12px;background:#fff;
+  border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;
+  overflow:hidden;font-size:16px;color:var(--muted-2)}
+.sup-slot-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .sup-slot-btn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;
   justify-content:center;background:#fff;border:1px solid var(--border-soft);
   font-size:14px;color:var(--muted)}
@@ -693,6 +700,15 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 @media(min-width:520px){.prompt-panel{border-radius:20px}}
 .prompt-body{padding:16px 18px}
 .prompt-body .field{margin-bottom:12px}
+.prompt-thumb{width:96px;height:96px;border-radius:20px;margin:0 auto 14px;background:var(--surface);
+  border:1.5px dashed var(--border-soft);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;font-size:10px;font-weight:800;color:var(--muted-2);
+  cursor:pointer;overflow:hidden;text-align:center;line-height:1.3}
+.prompt-thumb:active{background:rgba(0,0,0,.05)}
+.prompt-thumb img{width:100%;height:100%;object-fit:cover;display:block;border-radius:20px}
+.prompt-thumb .pt-plus{font-size:22px;font-weight:800;color:var(--muted)}
+.prompt-note-box{border:1px solid var(--border-soft);border-radius:10px;padding:10px 12px;
+  background:var(--surface);margin-bottom:12px}
 .prompt-foot{padding:12px 18px 16px;display:flex;gap:10px;
   padding-bottom:calc(12px + env(safe-area-inset-bottom))}
 
@@ -723,7 +739,6 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 }
 .warning.capacity{background:#fdf3dc;border:1px solid #f0dcae;color:#7a5a0a}
 .warning.budget{background:#fbeaea;border:1px solid #f0c8c8;color:#8a2a2a}
-.warning.dietary{background:#eaf4ea;border:1px solid #c8e0c8;color:#1c5a1c}
 .warning .ic{
   width:22px;height:22px;border-radius:50%;display:flex;align-items:center;
   justify-content:center;font-size:13px;font-weight:900;flex:0 0 auto;
@@ -1201,7 +1216,7 @@ const STATE = {
   eventDescription:"",
 
   // Schedule
-  schedule:{mode:"one-day",days:[{id:"d1",startDate:"",startTime:"",endDate:"",endTime:""}]},
+  schedule:{mode:"one-day",days:[{id:"d1",startDate:"",startTime:"",endDate:"",endTime:"",noteTitle:"",noteText:""}]},
 
   // Target audience
   targetAudience:[],  // {id,title,note,ageGroup}
@@ -1232,18 +1247,20 @@ const STATE = {
     entryType:"free",  // free | ticket
     tiers:[],  // {id,name,price,notes}
     dresscode:"",
+    guestCount:"",
     contacts:[],  // {id,type,title,value,notes}
     ticketLinks:[]  // {id,url,notes}
   },
 
   // Guests
-  guests:[],  // {id,name,role,dietary,plus}
+  guests:[],  // {id,name,role,plus,thumb,note:{title,text}}
 
   // RSVP
   rsvp:[],  // {id,title,note,contactType,contactValue}
 
   // UI
   openSections:{},
+  dayNoteOpen:{},
   previewPageOpen:false,
   previewVisOpen:false,
   previewHeroIndex:0,
@@ -1951,6 +1968,19 @@ function section(id,title,sub,body,opts){
 /* ============================================================
    SECTION 02 — SCHEDULE
    ============================================================ */
+function scheduleDayNote(i,d){
+  const has=!!(((d.noteTitle||"")+(d.noteText||"")).trim());
+  const open=STATE.dayNoteOpen[i]!==undefined?STATE.dayNoteOpen[i]:has;
+  return '<button class="sup-add-btn" data-act="toggleDayNote" data-idx="'+i+'">'+
+      (open?"Note":(has?"✓ Note added"+(d.noteTitle?" · "+esc(d.noteTitle):""):"＋ Add Note"))+
+    '</button>'+
+    (open?'<div class="sched-note-box">'+
+      '<div class="field"><label>Note title</label>'+
+        '<input type="text" data-day="'+i+'" data-dfield="noteTitle" value="'+esc(d.noteTitle||"")+'" placeholder="e.g. Setup & soundcheck"></div>'+
+      '<div class="field"><label>Note</label>'+
+        '<textarea data-day="'+i+'" data-dfield="noteText" placeholder="Anything specific to this day">'+esc(d.noteText||"")+'</textarea></div>'+
+    '</div>':'');
+}
 function renderScheduleSection(){
   if(!STATE.eventType.eventId){
     return section("schedule","Schedule",
@@ -1959,7 +1989,7 @@ function renderScheduleSection(){
       {locked:true});
   }
   let body='';
-  body+='<div class="field"><label>Schedule type</label>'+
+  body+='<div class="field" style="margin-top:24px"><label>Schedule type</label>'+
     '<div class="chip-row">'+
       '<span class="chip'+(STATE.schedule.mode==="one-day"?" on":"")+'" data-act="setScheduleMode" data-val="one-day">One Day</span>'+
       '<span class="chip'+(STATE.schedule.mode==="multi-day"?" on":"")+'" data-act="setScheduleMode" data-val="multi-day">Multiple Days</span>'+
@@ -1985,6 +2015,7 @@ function renderScheduleSection(){
             '<input type="time" data-day="'+i+'" data-dfield="endTime" value="'+esc(d.endTime||"")+'">'+
           '</div>'+
         '</div>'+
+        scheduleDayNote(i,d)+
       '</div>'+
     '</div>';
   });
@@ -2000,7 +2031,14 @@ function renderScheduleSection(){
    SECTION 03 — TARGET AUDIENCE
    ============================================================ */
 function renderAudienceSection(){
+  const d=STATE.eventDetails;
   let body="";
+  // Optional guest headcount (planning only)
+  body+='<div class="field" style="margin-top:24px"><label>Number of guests (optional)</label>'+
+    '<input type="number" min="0" inputmode="numeric" data-field="guestCount" placeholder="e.g. 120" value="'+esc(d.guestCount)+'">'+
+    '<div class="field-hint">A rough headcount to help with planning. You can leave this blank.</div>'+
+  '</div>';
+  // Audience groups
   if(!STATE.targetAudience.length){
     body+='<div class="field-hint" style="margin-bottom:10px">Describe who this event is for — audience groups, age brackets, special notes.</div>';
   }
@@ -2012,6 +2050,18 @@ function renderAudienceSection(){
     '</div>';
   });
   body+='<button class="sup-add-btn" data-act="addAudience">+ Add target audience</button>';
+  // Event Rules
+  body+='<div class="field" style="margin-top:24px"><label>Event Rules</label>';
+  if(!STATE.venueRules.length){
+    body+='<div class="field-hint" style="margin-bottom:10px">Add the rules guests should know — dress, timing, prohibited items.</div>';
+  }
+  STATE.venueRules.forEach(function(r,i){
+    body+='<div class="audience-card">'+
+      '<h5>'+esc(r.title||"Rule")+'<button class="rm" data-act="removeRule" data-idx="'+i+'">×</button></h5>'+
+      (r.note?'<p>'+esc(r.note)+'</p>':'')+
+    '</div>';
+  });
+  body+='<button class="sup-add-btn" data-act="addRule">+ Add rule</button></div>';
   return section("audience","Target Audience",
     STATE.targetAudience.length?STATE.targetAudience.length+" audience group"+(STATE.targetAudience.length===1?"":"s"):"Who is this event for?",
     body, {locked:!STATE.eventType.eventId});
@@ -2479,15 +2529,17 @@ function renderDetailsSection(){
 function renderGuestsSection(){
   let body="";
   if(!STATE.guests.length){
-    body+='<div class="field-hint" style="margin-top:24px;margin-bottom:10px;text-align:center;font-size:15px">Add guests, speakers, VIPs, performers and helpers. Each with name, role and dietary notes.</div>';
+    body+='<div class="field-hint" style="margin-top:24px;margin-bottom:10px;text-align:center;font-size:15px">Add guests, speakers, VIPs, performers and helpers. Give each a photo, role, plus-ones and any notes.</div>';
   }
   STATE.guests.forEach(function(g,i){
+    const meta=[esc(g.role||"Guest")];
+    if(g.note && (g.note.title||g.note.text)) meta.push(esc(g.note.title||"Note"));
+    if(g.plus) meta.push("+"+g.plus+" plus");
     body+='<div class="sup-slot">'+
-      '<div class="sup-slot-info">'+
-        '<div class="sup-slot-name">'+esc(g.name||"Guest "+(i+1))+
-          (g.plus?' <span style="color:var(--muted-2);font-weight:800">+'+g.plus+'</span>':'')+
-        '</div>'+
-        '<div class="sup-slot-meta">'+esc(g.role||"Guest")+(g.dietary?" · "+esc(g.dietary):"")+'</div>'+
+      '<div class="sup-slot-thumb">'+(g.thumb?'<img src="'+esc(g.thumb)+'" alt="">':'👤')+'</div>'+
+      '<div class="sup-slot-info" data-act="editGuest" data-idx="'+i+'" style="cursor:pointer">'+
+        '<div class="sup-slot-name">'+esc(g.name||"Guest "+(i+1))+'</div>'+
+        '<div class="sup-slot-meta">'+meta.join(" · ")+'</div>'+
       '</div>'+
       '<button class="sup-slot-btn danger" data-act="removeGuest" data-idx="'+i+'" aria-label="Remove">×</button>'+
     '</div>';
@@ -2575,21 +2627,6 @@ function getWarnings(){
     if(STATE.venue.capacity && g>STATE.venue.capacity){
       w.push({type:"capacity",title:"Capacity exceeded",
         msg:"Guest count ("+g+") exceeds venue capacity ("+STATE.venue.capacity+"). Consider a larger venue or trimming the list."});
-    }
-    // Dietary
-    const hasDietary=STATE.guests.some(function(g){return g.dietary && g.dietary.trim();});
-    if(hasDietary){
-      const hasDietaryMenu=(STATE.venue.menu||[]).some(function(m){
-        if(!m.dietary) return false;
-        const selected=STATE.menuFood.some(function(f){return f.itemId===m.id;})||
-                       STATE.menuBeverages.some(function(b){return b.itemId===m.id;});
-        return selected;
-      });
-      const hasDietarySupplier=(STATE.suppliers["speciality_diets"]||[]).length>0;
-      if(!hasDietaryMenu && !hasDietarySupplier){
-        w.push({type:"dietary",title:"Dietary requirements not covered",
-          msg:"Some guests have dietary requirements but no matching menu items or dietary supplier are selected."});
-      }
     }
     // Budget
     const b=STATE.eventDetails.budget;
@@ -2787,8 +2824,8 @@ function buildPreviewCards(){
       '<h3>Guest List · '+totalGuests()+'</h3>'+
       STATE.guests.map(function(g){
         const info=[];
+        if(g.note && (g.note.title||g.note.text)) info.push(esc(g.note.title||"Note"));
         if(g.plus) info.push("+"+g.plus);
-        if(g.dietary) info.push(esc(g.dietary));
         return '<div class="preview-kv"><span class="k">'+esc(g.name||"Guest")+(g.role?" ("+esc(g.role)+")":"")+'</span><span class="v">'+info.join(" · ")+'</span></div>';
       }).join("")+
     '</div>';
@@ -2867,7 +2904,28 @@ function renderPrompt(){
   let fields='';
   (p.fields||[]).forEach(function(f){
     const val=p.values && p.values[f.key]!==undefined?p.values[f.key]:"";
-    if(f.type==="textarea"){
+    if(f.type==="thumb"){
+      fields+='<div class="prompt-thumb" data-act="pickPromptThumb" data-key="'+esc(f.key)+'" role="button" aria-label="Add photo">'+
+        (val?'<img src="'+esc(val)+'" alt="">':'<span class="pt-plus">＋</span><span>Add photo</span>')+'</div>';
+    } else if(f.type==="stepper"){
+      fields+='<div class="field"><label>'+esc(f.label)+'</label>'+
+        '<div class="qty-stepper">'+
+          '<button type="button" data-act="promptStepper" data-key="'+esc(f.key)+'" data-delta="-1" aria-label="Decrease">−</button>'+
+          '<input type="number" data-prompt-field="'+esc(f.key)+'" value="'+esc(val||0)+'" min="0">'+
+          '<button type="button" data-act="promptStepper" data-key="'+esc(f.key)+'" data-delta="1" aria-label="Increase">+</button>'+
+        '</div></div>';
+    } else if(f.type==="note"){
+      const open=!!val;
+      const noteTitle=p.values&&p.values[f.key+"Title"]!==undefined?p.values[f.key+"Title"]:"";
+      const noteText=p.values&&p.values[f.key+"Text"]!==undefined?p.values[f.key+"Text"]:"";
+      const hasNote=!!(noteTitle||noteText);
+      fields+='<button type="button" class="sup-add-btn" style="margin-bottom:12px" data-act="togglePromptNote" data-key="'+esc(f.key)+'">'+
+        (hasNote?'✓ Note added'+(noteTitle?' · '+esc(noteTitle):''):'＋ Add Note')+'</button>'+
+        '<div class="prompt-note-box" data-note-box="'+esc(f.key)+'"'+(open?'':' style="display:none"')+'>'+
+          '<div class="field"><label>Note title</label><input type="text" data-prompt-field="'+esc(f.key)+'Title" value="'+esc(noteTitle)+'" placeholder="e.g. VIP welcome package"></div>'+
+          '<div class="field" style="margin-bottom:0"><label>Note</label><textarea data-prompt-field="'+esc(f.key)+'Text" placeholder="Any notes for this guest">'+esc(noteText)+'</textarea></div>'+
+        '</div>';
+    } else if(f.type==="textarea"){
       fields+='<div class="field"><label>'+esc(f.label)+'</label>'+
         '<textarea data-prompt-field="'+esc(f.key)+'" placeholder="'+esc(f.placeholder||"")+'">'+esc(val)+'</textarea></div>';
     } else if(f.type==="select"){
@@ -3275,7 +3333,17 @@ document.addEventListener("click",function(e){
     return;
   }
   if(act==="addDay"){
-    STATE.schedule.days.push({id:uid("d"),startDate:"",startTime:"",endDate:"",endTime:""});
+    STATE.schedule.days.push({id:uid("d"),startDate:"",startTime:"",endDate:"",endTime:"",noteTitle:"",noteText:""});
+    render();
+    return;
+  }
+  if(act==="toggleDayNote"){
+    const i=Number(t.getAttribute("data-idx"));
+    const d=STATE.schedule.days[i];
+    if(!d) return;
+    const has=!!(((d.noteTitle||"")+(d.noteText||"")).trim());
+    const cur=STATE.dayNoteOpen[i]!==undefined?STATE.dayNoteOpen[i]:has;
+    STATE.dayNoteOpen[i]=!cur;
     render();
     return;
   }
@@ -3302,6 +3370,23 @@ document.addEventListener("click",function(e){
   if(act==="removeAudience"){
     const i=Number(t.getAttribute("data-idx"));
     STATE.targetAudience.splice(i,1);
+    render();
+    return;
+  }
+  if(act==="addRule"){
+    openPrompt("Add Event Rule",[
+      {key:"title",label:"Title",placeholder:"e.g. No outside alcohol"},
+      {key:"note",label:"Note",type:"textarea",placeholder:"Describe the rule"}
+    ],function(v){
+      if(!v.title) return;
+      STATE.venueRules.push({id:uid("r"),title:v.title,note:v.note||""});
+      render();
+    });
+    return;
+  }
+  if(act==="removeRule"){
+    const i=Number(t.getAttribute("data-idx"));
+    STATE.venueRules.splice(i,1);
     render();
     return;
   }
@@ -3541,16 +3626,36 @@ document.addEventListener("click",function(e){
   }
 
   // Guests
-  if(act==="addGuest"){
-    openPrompt("Add Guest",[
+  const guestFields=function(){
+    return [
+      {type:"thumb",key:"thumb"},
       {key:"name",label:"Name",placeholder:"e.g. Kagiso M."},
       {key:"role",label:"Role",placeholder:"Guest / Speaker / VIP / Performer"},
-      {key:"dietary",label:"Dietary notes",placeholder:"e.g. Vegetarian, Nut allergy"},
-      {key:"plus",label:"Plus ones",type:"number",placeholder:"0"}
-    ],function(v){
-      if(!v.name) return;
-      STATE.guests.push({id:uid("g"),name:v.name,role:v.role||"Guest",dietary:v.dietary||"",plus:Number(v.plus)||0});
-      render();
+      {type:"stepper",key:"plus",label:"Plus ones"},
+      {type:"note",key:"note"}
+    ];
+  };
+  const saveGuest=function(v,idx){
+    if(!v.name) return;
+    const guest={id:idx!=null?STATE.guests[idx].id:uid("g"),name:v.name,role:v.role||"Guest",
+      plus:Math.max(0,Number(v.plus)||0),thumb:v.thumb||"",
+      note:(v.noteTitle||v.noteText)?{title:v.noteTitle||"",text:v.noteText||""}:null};
+    if(idx!=null) STATE.guests[idx]=guest;
+    else STATE.guests.push(guest);
+    render();
+  };
+  if(act==="addGuest"){
+    openPrompt("Add Guest",guestFields(),function(v){ saveGuest(v,null); });
+    return;
+  }
+  if(act==="editGuest"){
+    const idx=Number(t.getAttribute("data-idx"));
+    const g=STATE.guests[idx];
+    if(!g) return;
+    openPrompt("Edit Guest",guestFields(),function(v){ saveGuest(v,idx); },{
+      values:{thumb:g.thumb||"",name:g.name||"",role:g.role||"",plus:String(g.plus||0),
+        note:!!(g.note&&(g.note.title||g.note.text)),noteTitle:g.note?g.note.title||"":"",noteText:g.note?g.note.text||"":""},
+      onDelete:function(){ STATE.guests.splice(idx,1); render(); }
     });
     return;
   }
@@ -3627,6 +3732,41 @@ document.addEventListener("click",function(e){
   // Prompt
   if(act==="closePrompt"){ STATE.prompt.open=false; render(); return; }
   if(act==="savePrompt"){ savePromptFromForm(); return; }
+  if(act==="promptStepper"){
+    const key=t.getAttribute("data-key");
+    const delta=Number(t.getAttribute("data-delta"))||0;
+    const input=document.querySelector('[data-prompt-field="'+key+'"]');
+    if(input) input.value=Math.max(0,(Number(input.value)||0)+delta);
+    return;
+  }
+  if(act==="togglePromptNote"){
+    const key=t.getAttribute("data-key");
+    STATE.prompt.values=STATE.prompt.values||{};
+    const open=!STATE.prompt.values[key];
+    STATE.prompt.values[key]=open;
+    const box=document.querySelector('[data-note-box="'+key+'"]');
+    if(box) box.style.display=open?"":"none";
+    return;
+  }
+  if(act==="pickPromptThumb"){
+    const key=t.getAttribute("data-key");
+    const input=document.createElement("input");
+    input.type="file";input.accept="image/*";
+    input.onchange=function(){
+      const f=input.files&&input.files[0];
+      if(!f) return;
+      const reader=new FileReader();
+      reader.onload=function(ev){
+        STATE.prompt.values=STATE.prompt.values||{};
+        STATE.prompt.values[key]=ev.target.result;
+        const thumb=document.querySelector('[data-act="pickPromptThumb"][data-key="'+key+'"]');
+        if(thumb) thumb.innerHTML='<img src="'+ev.target.result+'" alt="">';
+      };
+      reader.readAsDataURL(f);
+    };
+    input.click();
+    return;
+  }
   if(act==="deletePrompt"){
     const dp=STATE.prompt;
     dp.open=false;
@@ -3649,6 +3789,7 @@ document.addEventListener("input",function(e){
   if(t.matches("[data-field]")){
     const k=t.getAttribute("data-field");
     if(k==="dresscode") STATE.eventDetails.dresscode=t.value;
+    else if(k==="guestCount") STATE.eventDetails.guestCount=t.value;
     scheduleSave();
     return;
   }
