@@ -20,9 +20,7 @@ img{display:block;max-width:100%}
 #hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;border-bottom:1px solid var(--bd);z-index:58;padding-top:env(safe-area-inset-top)}
 a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;text-decoration:none}
 .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
-.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center}
-.hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--bd);border-radius:20px;padding:4px 9px;background:var(--bg);white-space:nowrap}
-.hdr-chip.ok{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
+
 .viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#fff}
 .scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff}
 #nav{flex:0 0 auto;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
@@ -46,12 +44,7 @@ a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:
 .acc.open .acc-hdr::before{background:var(--ink)}
 .acc-title{flex:1;min-width:0}
 .acc-lbl{font-size:18px;font-weight:900;color:var(--ink);line-height:1.25;display:block;text-align:center;letter-spacing:-.01em}
-.acc-val{font-size:11.5px;color:var(--muted2);margin-top:3px;line-height:1.4;display:block;font-weight:600}
-.acc-val.done{color:var(--ok);font-weight:800}
-.acc-val.warn{color:var(--warn);font-weight:800}
-.acc-status{flex:0 0 auto;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);border:1px solid var(--bd);border-radius:999px;padding:4px 9px;background:var(--bg);white-space:nowrap}
-.acc-status.done{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
-.acc-status.auto{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
+
 .acc-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
 .acc.open .acc-body{max-height:20000px}
 .acc-in{padding:2px 16px 18px 22px;border-top:1px solid var(--bd2)}
@@ -150,9 +143,6 @@ a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:
 <div id="shell">
   <header id="hdr">
     <a class="brand-mark" href="index.html#promos" aria-label="EatOuts"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
-    <div class="hdr-right">
-      <span class="hdr-chip">Feedback</span>
-    </div>
   </header>
   <div class="viewport"><div class="scroll" id="scroll"></div></div>
   <nav id="nav">
@@ -302,55 +292,6 @@ function ref(){ return 'FB-' + String(Math.floor(Math.random()*900000)+100000); 
 
 function typeLabel(){ var t=TYPES.filter(function(x){return x.id===STATE.type})[0]; return t?t.label:''; }
 
-function sectionStatus(id){
-  var t=STATE.type;
-  switch(id){
-    case 'type':
-      return t ? { text:typeLabel(), cls:'done' } : { text:'Required', cls:'req' };
-    case 'message':
-      if(!t) return { text:'Required', cls:'req' };
-      if(STATE.summary && STATE.details) return { text:'Done ✓', cls:'done' };
-      return { text:'Tap to fill', cls:'' };
-    case 'extra':
-      if(!t) return { text:'Optional', cls:'' };
-      var has = false;
-      var fd = EXTRA_DETAILS[t] ? EXTRA_DETAILS[t].fields : [];
-      fd.forEach(function(f){ if(STATE.extra[f.id]) has=true });
-      return has ? { text:'Done ✓', cls:'done' } : { text:'Optional', cls:'' };
-    case 'shot':
-      if(STATE.screenshots.length) return { text:STATE.screenshots.length+' attached', cls:'done' };
-      return { text:'Optional', cls:'' };
-    case 'device':
-      var d=STATE.device;
-      if(d.deviceType && d.os && d.browser) return { text:'Auto ✓', cls:'auto' };
-      return { text:'Partly auto', cls:'warn' };
-    case 'contact':
-      if(STATE.contact.first || STATE.contact.last || STATE.contact.whatsapp || STATE.contact.email) return { text:'Done ✓', cls:'done' };
-      return { text:'Optional', cls:'' };
-  }
-  return { text:'', cls:'' };
-}
-
-function sectionValue(id){
-  switch(id){
-    case 'type': return typeLabel();
-    case 'message': return STATE.summary || '';
-    case 'extra':
-      if(!STATE.type) return 'Changes according to the feedback type';
-      var t=EXTRA_DETAILS[STATE.type]; return t?t.title:'';
-    case 'shot': return STATE.screenshots.length ? STATE.screenshots.length+' image'+(STATE.screenshots.length===1?'':'s') : '';
-    case 'device': return STATE.device.deviceType ? STATE.device.deviceType+(STATE.device.os?' · '+STATE.device.os:'')+(STATE.device.browser?' · '+STATE.device.browser:'') : 'Best-effort detection';
-    case 'contact': 
-      var c=STATE.contact;
-      var parts=[];
-      if(c.first||c.last) parts.push(((c.first||'')+' '+(c.last||'')).trim());
-      if(c.whatsapp) parts.push(c.whatsappCC+' '+c.whatsapp);
-      if(c.email) parts.push(c.email);
-      return parts.join(' · ');
-  }
-  return '';
-}
-
 /* ============================================================
    RENDER
    ============================================================ */
@@ -376,17 +317,12 @@ function renderIntro(){
 
 function acc(id,title){
   var open=STATE.open===id;
-  var st=sectionStatus(id);
-  var val=sectionValue(id);
-  var badgeCls = st.cls==='done' ? 'done' : (st.cls==='auto' ? 'auto' : '');
   var body = open ? renderBody(id) : '';
   return '<div class="acc'+(open?' open':'')+'" data-accbox="'+id+'">'+
     '<button class="acc-hdr" data-acc="'+id+'">'+
       '<span class="acc-title">'+
         '<span class="acc-lbl">'+esc(title)+'</span>'+
-        (val?'<span class="acc-val'+(st.cls==='done'?' done':'')+'">'+esc(val)+'</span>':'')+
       '</span>'+
-      (st.cls==='req' ? '' : '<span class="acc-status '+badgeCls+'">'+esc(st.text)+'</span>')+
     '</button>'+
     '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
   '</div>';
@@ -571,8 +507,6 @@ function bindAll(){
       } else if(k==='first'||k==='last'||k==='whatsapp'||k==='whatsappCC'||k==='email'){
         STATE.contact[k]=el.value;
       }
-      /* Live-update status pills only — don't re-render the whole page (would lose focus) */
-      updateStatusPills();
     };
   });
   /* extra-detail textareas / inputs */
@@ -580,7 +514,6 @@ function bindAll(){
     el.oninput = el.onchange = function(){
       var k = el.getAttribute('data-extra-input');
       STATE.extra[k]=el.value;
-      updateStatusPills();
     };
   });
   /* file input */
@@ -610,37 +543,6 @@ function addScreenshot(file){
   r.readAsDataURL(file);
 }
 
-function updateStatusPills(){
-  ['type','message','extra','shot','device','contact'].forEach(function(id){
-    var box=document.querySelector('[data-accbox="'+id+'"]');
-    if(!box) return;
-    var st=sectionStatus(id);
-    var badge=box.querySelector('.acc-status');
-    if(badge){
-      if(st.cls==='req'){ badge.style.display='none'; }
-      else {
-        badge.style.display='';
-        badge.textContent=st.text;
-        badge.className='acc-status '+(st.cls==='done'?'done':(st.cls==='auto'?'auto':(st.cls==='warn'?'warn':'')));
-      }
-    }
-    var valEl=box.querySelector('.acc-val');
-    if(!valEl){
-      var title=box.querySelector('.acc-title');
-      var v=sectionValue(id);
-      if(v && title){
-        var span=document.createElement('span');
-        span.className='acc-val'+(st.cls==='done'?' done':'');
-        span.textContent=v;
-        title.appendChild(span);
-      }
-    } else {
-      var v2=sectionValue(id);
-      if(v2){ valEl.textContent=v2; valEl.className='acc-val'+(st.cls==='done'?' done':'') }
-      else { valEl.remove() }
-    }
-  });
-}
 
 /* ============================================================
    VALIDATION
@@ -904,7 +806,6 @@ window.addEventListener('resize',function(){
   clearTimeout(resizeT);
   resizeT=setTimeout(function(){
     STATE.device.viewport=(window.innerWidth||0)+' × '+(window.innerHeight||0)+' CSS px';
-    updateStatusPills();
     /* if device section is open, refresh the visible value */
     var devInput=document.querySelector('[data-field="viewport"]');
     if(devInput) devInput.value=STATE.device.viewport;
