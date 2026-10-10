@@ -144,6 +144,7 @@ a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:
 <div class="sheet-scrim" id="sheet"></div>
 <div id="toast"></div>
 
+<script src="assets/data/deliveries/yellow_giraffe_50_scheduled_deliveries.js"></script>
 <script>
 (function(){
 'use strict';
@@ -180,21 +181,53 @@ WINDOWS.forEach(function(w){ STATE.slots[w]={cap:6, accepted:0, route:'', closed
  ['19:00–20:00',6,'Gaborone West'],['20:00–21:00',3,'Broadhurst'],['21:00–22:00',4,'Village']
 ].forEach(function(x){ STATE.slots[x[0]].accepted=x[1]; STATE.slots[x[0]].route=x[2]; });
 
+/* ---- Demo dataset backfill ------------------------------------------
+   assets/data/deliveries/yellow_giraffe_50_scheduled_deliveries.js holds
+   the 50-order scheduled-delivery snapshot. It seeds this page whenever no
+   live orders exist in storage yet; stored orders always win. */
+function bd(){ return window.EATOUTS_DELIVERY_BACKFILL||null; }
+function bdStatus(s){
+  return {'Pending dispatch':'awaiting','En route':'ready','Arrived · handover pending':'ready','Delivered':'delivered'}[s]||'awaiting';
+}
+function bdItems(s){
+  var n=0;
+  String(s||'').split(';').forEach(function(part){
+    var m=part.match(/(\d+)\s*x/i);
+    n+=(m?parseInt(m[1],10):0)||(part.trim()?1:0);
+  });
+  return n||1;
+}
+function bdOrders(){
+  var b=bd(); if(!b||!b.orders) return [];
+  return b.orders.map(function(o){
+    return {
+      ref:o.id, name:o.customer, phone:'',
+      type:'scheduled', window:o.window,
+      items:bdItems(o.itemsSummary), subtotal:o.foodSubtotal, fee:o.deliveryFee, total:o.total,
+      area:o.area, status:bdStatus(o.status)
+    };
+  });
+}
+function bdDrivers(){
+  var b=bd(); if(!b||!b.drivers||!b.drivers.length) return null;
+  return b.drivers.map(function(d){
+    return {id:String(d.name).toLowerCase().split(' ')[0], name:d.name, tier:d.areaTier, status:'on duty', assigned:d.assignedOrders};
+  });
+}
+
 var incoming=[];
 try{
   var raw=safeGet('eatouts_delivery_orders_v1');
   if(raw){ var parsed=JSON.parse(raw); if(Array.isArray(parsed)) incoming=parsed; }
 }catch(e){ incoming=[]; }
 if(!incoming.length){
-  incoming=[
-    {ref:'EO-1042',name:'Kagiso Sithole',phone:'+267 71 100 001',type:'scheduled',window:'14:00–15:00',items:4,subtotal:185,fee:15,total:200,area:'Gaborone · Block 6',status:'awaiting'},
-    {ref:'EO-1043',name:'Lindelwa Radebe',phone:'+267 71 100 031',type:'scheduled',window:'12:00–13:00',items:2,subtotal:155,fee:15,total:170,area:'Gaborone · Gaborone West Ext 5',status:'accepted'},
-    {ref:'EO-1044',name:'Mpho Dlamini',phone:'+267 71 100 011',type:'immediate',window:'',items:3,subtotal:245,fee:40,total:285,area:'Gaborone · Gaborone West',status:'preparing'},
-    {ref:'EO-1045',name:'Zanele Motsumi',phone:'+267 71 100 033',type:'scheduled',window:'13:00–14:00',items:2,subtotal:135,fee:15,total:150,area:'Gaborone · Block 6 Ext 40',status:'ready'}
-  ];
+  incoming=bdOrders();
+  incoming.forEach(function(o){
+    if(STATE.slots[o.window]) STATE.slots[o.window].accepted+=1;
+  });
 }
 
-var DRIVERS = [
+var DRIVERS=bdDrivers()||[
   {id:'thabo', name:'Thabo Molefe', tier:'core', status:'on duty', assigned:4},
   {id:'dumisani', name:'Dumisani Ncube', tier:'peripheral', status:'on duty', assigned:2},
   {id:'tawanda', name:'Tawanda Zhou', tier:'core', status:'on break', assigned:0}

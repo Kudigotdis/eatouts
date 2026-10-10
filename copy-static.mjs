@@ -42,6 +42,14 @@ const FILES = [
   'eatouts-event-planner.html',
   'eatouts-suppliers.html',
 
+  // Delivery interfaces
+  'customer-delivery.html',
+  'driver-delivery.html',
+  'restaurant-delivery.html',
+
+  // Feedback page
+  'eatouts_feedback.html',
+
   // Cloudflare Pages config
   '_headers',
   '_redirects',

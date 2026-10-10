@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * App-shell parity audit for the 20 root HTML files.
+ * App-shell parity audit for the 24 root HTML files.
  *
  * Verifies that every page now matches the index.html shell standard:
  *   - zero brand-gold tokens (--gold | c9a84c | b59437 | 201,168,76)
@@ -43,7 +43,11 @@ const MODES = {
   'partner-terms.html': 'static',
   'seed-demo.html': 'static',
   'one-pager.html': 'static',
-  '404.html': 'static'
+  '404.html': 'static',
+  'customer-delivery.html': 'opinion',
+  'driver-delivery.html': 'opinion',
+  'restaurant-delivery.html': 'opinion',
+  'eatouts_feedback.html': 'opinion'
 };
 
 const indexTabs = (s) => new Set(Array.from(s.matchAll(/href="index\.html#([a-z]+)"/g), (m) => m[1]));

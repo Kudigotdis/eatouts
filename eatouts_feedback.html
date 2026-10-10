@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Send feedback — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--ink:#1a1a1a;--bg:#faf8f2;--muted:#a89a7e;--muted2:#8a8170;--bd:#ece7db;--bd2:#f1ece1;--ok:#17834b;--warn:#8a7a55;--danger:#c43c3c;--wa:#dff5e4;--wabd:#b8e6c1}
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#e9e5db;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit;font-family:inherit}
+button{cursor:pointer;border:0;background:none;text-align:left;padding:0}
+img{display:block;max-width:100%}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+@media(min-width:520px){#shell{border-left:1px solid var(--bd);border-right:1px solid var(--bd)}}
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;border-bottom:1px solid var(--bd);z-index:58;padding-top:env(safe-area-inset-top)}
+a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;text-decoration:none}
+.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--bd);border-radius:20px;padding:4px 9px;background:var(--bg);white-space:nowrap}
+.hdr-chip.ok{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
+.viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#fff}
+.scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff}
+#nav{flex:0 0 auto;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
+.nav-btn{flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.42);text-decoration:none}
+.nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.on{color:#ffffff}
+.nav-btn.on svg{transform:translateY(-1px);filter:drop-shadow(0 0 8px rgba(255,255,255,.35))}
+.nav-btn:active{color:rgba(255,255,255,.75)}
+
+/* Intro block */
+.intro{padding:20px 18px 4px}
+.intro h1{margin:0 0 6px;font-size:22px;font-weight:900;letter-spacing:-.02em;line-height:1.2}
+.intro p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
+
+/* Accordion */
+.acc{margin:12px 14px;background:#fff;border:1px solid var(--bd);border-radius:14px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.acc.open{border-color:var(--ink)}
+.acc-hdr{width:100%;padding:14px 16px 14px 22px;display:flex;align-items:center;gap:12px;position:relative}
+.acc-hdr:active{background:var(--bg)}
+.acc-hdr::before{content:'';position:absolute;left:10px;top:14px;bottom:14px;width:3px;border-radius:3px;background:transparent;transition:background .15s}
+.acc.open .acc-hdr::before{background:var(--ink)}
+.acc-num{flex:0 0 auto;font-size:11px;font-weight:900;letter-spacing:.08em;color:var(--muted);padding-top:2px}
+.acc.open .acc-num{color:var(--ink)}
+.acc-title{flex:1;min-width:0}
+.acc-lbl{font-size:14px;font-weight:900;color:var(--ink);line-height:1.25;display:block;letter-spacing:-.01em}
+.acc-val{font-size:11.5px;color:var(--muted2);margin-top:3px;line-height:1.4;display:block;font-weight:600}
+.acc-val.done{color:var(--ok);font-weight:800}
+.acc-val.warn{color:var(--warn);font-weight:800}
+.acc-status{flex:0 0 auto;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);border:1px solid var(--bd);border-radius:999px;padding:4px 9px;background:var(--bg);white-space:nowrap}
+.acc-status.req{color:var(--warn);border-color:#ece0be;background:#fdf9ef}
+.acc-status.done{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
+.acc-status.auto{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
+.acc.open .acc-body{max-height:20000px}
+.acc-in{padding:2px 16px 18px 22px;border-top:1px solid var(--bd2)}
+
+/* Fields */
+.fld{margin-bottom:14px}
+.fld:last-child{margin-bottom:0}
+.fld label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.fld label .req{color:var(--danger);font-weight:900}
+.fld input[type=text],.fld input[type=tel],.fld input[type=email],.fld textarea{width:100%;min-height:46px;padding:12px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:11px;font-size:14px;color:var(--ink);outline:none;transition:border-color .15s,background .15s}
+.fld input:focus,.fld textarea:focus{border-color:var(--ink);background:#fff}
+.fld textarea{min-height:110px;resize:vertical;line-height:1.55}
+.fld .hint{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.5}
+.fld .err{font-size:11.5px;color:var(--danger);margin-top:6px;line-height:1.5;font-weight:700;display:none}
+.fld.err-on .err{display:block}
+.fld.err-on input,.fld.err-on textarea{border-color:var(--danger);background:#fdf6f6}
+
+/* Feedback-type choice cards */
+.fchoice{width:100%;padding:14px 14px;border:1.5px solid var(--bd);border-radius:12px;background:#fff;text-align:left;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;min-height:56px}
+.fchoice:active{background:var(--bg)}
+.fchoice.on{border-color:var(--ink);background:var(--bg)}
+.fchoice-txt{flex:1;min-width:0}
+.fchoice b{font-size:13.5px;font-weight:900;color:var(--ink);display:block;line-height:1.25}
+.fchoice small{font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.4;display:block;margin-top:3px}
+.fchoice-radio{flex:0 0 auto;width:18px;height:18px;border-radius:50%;border:2px solid var(--bd);margin-top:2px;position:relative}
+.fchoice.on .fchoice-radio{border-color:var(--ink)}
+.fchoice.on .fchoice-radio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--ink)}
+
+/* Choice chips (segmented style) */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:10px 14px;border:1.5px solid var(--bd);border-radius:11px;background:#fff;font-size:12.5px;font-weight:800;color:var(--ink);min-height:42px;line-height:1.25;text-align:left}
+.chip:active{background:var(--bg)}
+.chip.on{border-color:var(--ink);background:var(--bg)}
+
+/* Inline suggestion list */
+.sugg-list{margin-top:6px;border:1px solid var(--bd);border-radius:11px;overflow:hidden;background:#fff}
+.sugg-opt{padding:12px 14px;font-size:13px;font-weight:700;color:var(--ink);border-bottom:1px solid var(--bd2);cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%;text-align:left}
+.sugg-opt:last-child{border-bottom:0}
+.sugg-opt:active{background:var(--bg)}
+.sugg-opt .sugg-tap{font-size:10px;color:var(--muted2);font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+
+/* Image picker */
+.imgs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.imgcard{border:1px solid var(--bd);border-radius:11px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+.imgcard img{width:100%;height:88px;object-fit:cover;display:block;background:#fff}
+.imgcard-meta{padding:8px 10px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.imgcard-name{font-size:10.5px;color:var(--muted);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.imgcard-rm{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--danger);padding:4px 8px;border-radius:6px;background:#fbeaea;border:1px solid #f0d1d1;cursor:pointer;font-family:inherit;flex:0 0 auto}
+.pickimg{width:100%;min-height:52px;padding:12px 14px;border:1.5px dashed var(--bd);border-radius:12px;background:var(--bg);font-size:13px;font-weight:800;color:var(--ink);text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* Device info grid */
+.devgrid{margin-top:6px;border-top:1px solid var(--bd2);padding-top:12px}
+.devrow{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--bd2);font-size:12px;color:var(--muted2);font-weight:700}
+.devrow:last-child{border-bottom:0}
+.devrow b{color:var(--ink);font-weight:900;text-align:right;max-width:60%;word-break:break-word}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:12px 16px;border-radius:11px;font-size:13px;font-weight:800;letter-spacing:.02em;background:var(--bg);border:1px solid var(--bd);color:var(--ink);font-family:inherit;cursor:pointer;text-decoration:none}
+.btn:active{background:var(--bd2)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.primary:active{background:#000}
+.btn.ghost{background:transparent;color:var(--muted2)}
+.btn.wa{background:var(--wa);border-color:var(--wabd);color:#1c6b2e}
+.btn.full{width:100%}
+.btn.half{flex:1}
+.btn.sm{min-height:36px;padding:8px 13px;font-size:11.5px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+/* Bottom bar */
+.bar{flex:0 0 auto;background:#fff;border-top:1px solid var(--bd);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px}
+.bar-info{flex:1;min-width:0}
+.bar-lbl{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block}
+.bar-tot{font-size:13.5px;font-weight:900;color:var(--ink);margin-top:2px;display:block}
+
+/* Sheet */
+.sheet-scrim{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:100;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sheet-scrim.on{display:flex;animation:fadeIn .18s ease}
+.sheet{background:#fff;width:100%;max-width:460px;max-height:88vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+@media(min-width:520px){.sheet{border-radius:20px}}
+.sheet-hdr{padding:14px 18px;border-bottom:1px solid var(--bd2);display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.sheet-hdr h3{margin:0;font-size:14.5px;font-weight:900;flex:1}
+.sheet-body{flex:1 1 auto;overflow-y:auto;padding:14px 18px}
+.sheet-foot{padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--bd2);background:#fafaf7;display:flex;gap:9px;flex:0 0 auto}
+.msgbox{background:var(--bg);border:1px solid var(--bd);border-radius:11px;padding:14px;font-size:11.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;max-height:340px;overflow-y:auto}
+
+/* Success screen */
+.success{padding:48px 24px;text-align:center}
+.success-icon{width:64px;height:64px;border-radius:50%;background:#e3f5e9;border:1.5px solid var(--wabd);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:30px;color:var(--ok);font-weight:900}
+.success h2{margin:0 0 10px;font-size:22px;font-weight:900;letter-spacing:-.02em}
+.success p{margin:0 0 8px;font-size:13.5px;color:var(--muted2);line-height:1.55;font-weight:600}
+.success .ref{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;font-weight:900;color:var(--ink);padding:10px 16px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;display:inline-block;margin:14px 0 18px}
+.success .note{font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:14px}
+
+/* Toast */
+#toast{position:fixed;bottom:calc(150px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:12.5px;font-weight:800;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 40px);text-align:center}
+#toast.on{opacity:1}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="hdr">
+    <a class="brand-mark" href="index.html#promos" aria-label="EatOuts"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
+    <div class="hdr-right">
+      <span class="hdr-chip">Feedback</span>
+    </div>
+  </header>
+  <div class="viewport"><div class="scroll" id="scroll"></div></div>
+  <div class="bar" id="bar"></div>
+  <nav id="nav">
+    <a class="nav-btn" href="index.html#promos" aria-label="Promos"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></a>
+    <a class="nav-btn" href="index.html#restaurants" aria-label="Restaurants"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg></a>
+    <a class="nav-btn" href="index.html#reserve" aria-label="Events"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></a>
+    <a class="nav-btn" href="index.html#gallery" aria-label="Gallery"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></a>
+    <a class="nav-btn on" href="index.html#about" aria-label="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></a>
+  </nav>
+</div>
+<div class="sheet-scrim" id="sheet"></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   SAFE STORAGE — file:// blocks localStorage in Firefox
+   ============================================================ */
+function safeGet(key){ try { return (window.localStorage ? window.localStorage.getItem(key) : null); } catch(e){ return null; } }
+function safeSet(key,val){ try { if(window.localStorage) window.localStorage.setItem(key,val); } catch(e){} }
+
+/* ============================================================
+   CONSTANTS
+   ============================================================ */
+var APP_VERSION = '1.0.0';
+var WHATSAPP_TO = '26771844129'; /* The Yellow Giraffe / EatOuts support line */
+
+var TYPES = [
+  { id:'bug',         label:'Bug',         blurb:"Something isn't working" },
+  { id:'feature',     label:'Feature idea', blurb:"Something new you'd like" },
+  { id:'improvement', label:'Improvement',  blurb:'Make an existing feature better' },
+  { id:'question',    label:'Question',     blurb:'I need help with something' },
+  { id:'other',       label:'Other',        blurb:'' }
+];
+
+var SUMMARY_SUGGESTIONS = {
+  bug: ['Save button does nothing','Saved changes disappear','Page will not load','An error message appears','The app closes unexpectedly','I cannot log in','Items are missing','A price or total looks wrong'],
+  feature: ['Add dark mode','Add search filters','Save favourite places','Share with a friend','Calendar reminders','Group ordering','Better notifications'],
+  improvement: ['Make checkout faster','Improve search results','Cleaner home screen','Clearer menu photos','Better map view','Simpler delivery form'],
+  question: ['How do I cancel an order?','Can I change my address?','How does scheduled delivery work?','Where are my past orders?','Do you deliver to my area?'],
+  other: []
+};
+
+var EXTRA_DETAILS = {
+  bug: {
+    title:'Bug details',
+    fields:[
+      { id:'freq', kind:'chips', label:'How often does it happen?', options:['Happened once','Sometimes','Often','Every time'] },
+      { id:'severity', kind:'chips', label:'How serious is it?', options:['I cannot continue','I can work around it','Minor inconvenience'] },
+      { id:'steps', kind:'textarea', label:'What steps led to the problem?', placeholder:'Optional · e.g. I opened Settings, tapped Save, nothing happened' },
+      { id:'expected', kind:'textarea', label:'What did you expect to happen?', placeholder:'Optional · e.g. The changes should be saved' }
+    ]
+  },
+  feature: {
+    title:'Your idea',
+    fields:[
+      { id:'problem', kind:'textarea', label:'What problem would this solve?', placeholder:'Optional' },
+      { id:'usage', kind:'textarea', label:'How would you use this feature?', placeholder:'Optional' },
+      { id:'benefit', kind:'chips', label:'Who would benefit?', options:['Me','Other users','Everyone','Not sure'] }
+    ]
+  },
+  improvement: {
+    title:'Suggested improvement',
+    fields:[
+      { id:'feature', kind:'text', label:'Which feature needs improving?', placeholder:'Optional · e.g. Checkout screen' },
+      { id:'better', kind:'textarea', label:'What would make it better?', placeholder:'Optional' }
+    ]
+  },
+  question: {
+    title:'What do you need help with?',
+    fields:[
+      { id:'trying', kind:'textarea', label:'What are you trying to do?', placeholder:'Optional' },
+      { id:'stuck', kind:'textarea', label:'Where did you get stuck?', placeholder:'Optional' }
+    ]
+  },
+  other: {
+    title:'More details',
+    fields:[
+      { id:'anything', kind:'textarea', label:'Anything else we should know?', placeholder:'Optional' }
+    ]
+  }
+};
+
+/* ============================================================
+   DEVICE DETECTION — best effort only
+   ============================================================ */
+function detectDevice(){
+  var ua = (navigator && navigator.userAgent) || '';
+  var out = {
+    deviceType:'',
+    model:'',
+    os:'',
+    osVersion:'',
+    browser:'',
+    browserVersion:'',
+    viewport: (window.innerWidth || 0) + ' × ' + (window.innerHeight || 0) + ' CSS px',
+    language: (navigator && (navigator.language || navigator.userLanguage)) || '',
+    appVersion: APP_VERSION,
+    page: (location && (location.pathname + (location.hash || ''))) || '',
+    time: new Date().toISOString()
+  };
+  /* device type */
+  if(/iPad|Tablet|PlayBook|Silk/i.test(ua) || (/Android/i.test(ua) && !/Mobile/i.test(ua))) out.deviceType='Tablet';
+  else if(/Mobi|iPhone|iPod|Android|BlackBerry|IEMobile|Opera Mini/i.test(ua)) out.deviceType='Phone';
+  else if(ua) out.deviceType='Desktop';
+  /* OS */
+  if(/Windows NT 10/i.test(ua)){ out.os='Windows'; out.osVersion='10/11'; }
+  else if(/Windows/i.test(ua)){ out.os='Windows'; }
+  else if(/Android/i.test(ua)){ out.os='Android'; var mA=ua.match(/Android\s+([\d.]+)/i); if(mA) out.osVersion=mA[1]; }
+  else if(/iPhone|iPad|iPod/i.test(ua)){ out.os='iOS'; var mi=ua.match(/OS\s+([\d_]+)/); if(mi) out.osVersion=mi[1].replace(/_/g,'.'); }
+  else if(/Mac OS X/i.test(ua)){ out.os='macOS'; var mm=ua.match(/Mac OS X\s+([\d_.]+)/); if(mm) out.osVersion=mm[1].replace(/_/g,'.'); }
+  else if(/Linux/i.test(ua)){ out.os='Linux'; }
+  /* Browser */
+  if(/Edg\//i.test(ua)){ out.browser='Edge'; var mE=ua.match(/Edg\/([\d.]+)/); if(mE) out.browserVersion=mE[1]; }
+  else if(/OPR\//i.test(ua) || /Opera/i.test(ua)){ out.browser='Opera'; var mO=ua.match(/(?:OPR|Opera)\/([\d.]+)/); if(mO) out.browserVersion=mO[1]; }
+  else if(/Chrome\//i.test(ua)){ out.browser='Chrome'; var mC=ua.match(/Chrome\/([\d.]+)/); if(mC) out.browserVersion=mC[1]; }
+  else if(/Firefox\//i.test(ua)){ out.browser='Firefox'; var mF=ua.match(/Firefox\/([\d.]+)/); if(mF) out.browserVersion=mF[1]; }
+  else if(/Safari\//i.test(ua)){ out.browser='Safari'; var mS=ua.match(/Version\/([\d.]+)/); if(mS) out.browserVersion=mS[1]; }
+  return out;
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+var STATE = {
+  open: 'type',
+  type: '',
+  summary:'',
+  details:'',
+  extra:{},          /* per-type field values, keyed by field id, namespaced to current type */
+  screenshots:[],    /* {name, size, type, dataUrl} */
+  device: detectDevice(),
+  contact:{ first:'', last:'', whatsappCC:'+267', whatsapp:'', email:'' },
+  submitted: false,
+  ref: '',
+  errors: {}         /* {sectionId: true} */
+};
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function toast(m){var t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('on')},2200)}
+function ref(){ return 'FB-' + String(Math.floor(Math.random()*900000)+100000); }
+
+function typeLabel(){ var t=TYPES.filter(function(x){return x.id===STATE.type})[0]; return t?t.label:''; }
+
+function sectionStatus(id){
+  var t=STATE.type;
+  switch(id){
+    case 'type':
+      return t ? { text:typeLabel(), cls:'done' } : { text:'Required', cls:'req' };
+    case 'message':
+      if(!t) return { text:'Required', cls:'req' };
+      if(STATE.summary && STATE.details) return { text:'Done ✓', cls:'done' };
+      return { text:'Tap to fill', cls:'' };
+    case 'extra':
+      if(!t) return { text:'Optional', cls:'' };
+      var has = false;
+      var fd = EXTRA_DETAILS[t] ? EXTRA_DETAILS[t].fields : [];
+      fd.forEach(function(f){ if(STATE.extra[f.id]) has=true });
+      return has ? { text:'Done ✓', cls:'done' } : { text:'Optional', cls:'' };
+    case 'shot':
+      if(STATE.screenshots.length) return { text:STATE.screenshots.length+' attached', cls:'done' };
+      return { text:'Optional', cls:'' };
+    case 'device':
+      var d=STATE.device;
+      if(d.deviceType && d.os && d.browser) return { text:'Auto ✓', cls:'auto' };
+      return { text:'Partly auto', cls:'warn' };
+    case 'contact':
+      if(STATE.contact.first || STATE.contact.last || STATE.contact.whatsapp || STATE.contact.email) return { text:'Done ✓', cls:'done' };
+      return { text:'Optional', cls:'' };
+  }
+  return { text:'', cls:'' };
+}
+
+function sectionValue(id){
+  switch(id){
+    case 'type': return typeLabel();
+    case 'message': return STATE.summary || '';
+    case 'extra':
+      if(!STATE.type) return 'Changes according to the feedback type';
+      var t=EXTRA_DETAILS[STATE.type]; return t?t.title:'';
+    case 'shot': return STATE.screenshots.length ? STATE.screenshots.length+' image'+(STATE.screenshots.length===1?'':'s') : '';
+    case 'device': return STATE.device.deviceType ? STATE.device.deviceType+(STATE.device.os?' · '+STATE.device.os:'')+(STATE.device.browser?' · '+STATE.device.browser:'') : 'Best-effort detection';
+    case 'contact': 
+      var c=STATE.contact;
+      var parts=[];
+      if(c.first||c.last) parts.push(((c.first||'')+' '+(c.last||'')).trim());
+      if(c.whatsapp) parts.push(c.whatsappCC+' '+c.whatsapp);
+      if(c.email) parts.push(c.email);
+      return parts.join(' · ');
+  }
+  return '';
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  if(STATE.submitted){ renderSuccess(); return }
+  document.getElementById('scroll').innerHTML =
+    renderIntro() +
+    acc('type','01','Feedback type') +
+    acc('message','02','Your message') +
+    acc('extra','03', STATE.type && EXTRA_DETAILS[STATE.type] ? EXTRA_DETAILS[STATE.type].title : 'Extra details') +
+    acc('shot','04','Screenshot') +
+    acc('device','05','Device & app') +
+    acc('contact','06','Contact') +
+    renderFooter();
+  renderBar();
+  bindAll();
+}
+
+function renderIntro(){
+  return '<div class="intro">'+
+    '<h1>Send feedback</h1>'+
+    '<p>Report a bug, suggest an idea or help us improve. About 1 minute.</p>'+
+  '</div>';
+}
+
+function acc(id,num,title){
+  var open=STATE.open===id;
+  var st=sectionStatus(id);
+  var val=sectionValue(id);
+  var badgeCls = st.cls==='done' ? 'done' : (st.cls==='req' ? 'req' : (st.cls==='auto' ? 'auto' : ''));
+  var body = open ? renderBody(id) : '';
+  return '<div class="acc'+(open?' open':'')+'" data-accbox="'+id+'">'+
+    '<button class="acc-hdr" data-acc="'+id+'">'+
+      '<span class="acc-num">'+esc(num)+'</span>'+
+      '<span class="acc-title">'+
+        '<span class="acc-lbl">'+esc(title)+'</span>'+
+        (val?'<span class="acc-val'+(st.cls==='done'?' done':'')+'">'+esc(val)+'</span>':'')+
+      '</span>'+
+      '<span class="acc-status '+badgeCls+'">'+esc(st.text)+'</span>'+
+    '</button>'+
+    '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
+  '</div>';
+}
+
+/* ---- Section bodies ---- */
+function renderBody(id){
+  switch(id){
+    case 'type': return renderType();
+    case 'message': return renderMessage();
+    case 'extra': return renderExtra();
+    case 'shot': return renderShot();
+    case 'device': return renderDevice();
+    case 'contact': return renderContact();
+  }
+  return '';
+}
+
+function renderType(){
+  var b='<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">What would you like to tell us?</div>';
+  TYPES.forEach(function(t){
+    var on=STATE.type===t.id;
+    b+='<button class="fchoice'+(on?' on':'')+'" data-act="pickType" data-val="'+esc(t.id)+'">'+
+      '<span class="fchoice-radio"></span>'+
+      '<span class="fchoice-txt"><b>'+esc(t.label)+'</b>'+(t.blurb?'<small>'+esc(t.blurb)+'</small>':'')+'</span>'+
+    '</button>';
+  });
+  return b;
+}
+
+function renderMessage(){
+  var errSum=STATE.errors['message'] && !STATE.summary ? ' err-on' : '';
+  var errDet=STATE.errors['message'] && !STATE.details ? ' err-on' : '';
+  var sugg = STATE.summary ? [] : (SUMMARY_SUGGESTIONS[STATE.type]||[]);
+  var b='';
+  b+='<div class="fld'+errSum+'"><label>Summary <span class="req">*</span></label>'+
+    '<input type="text" data-field="summary" value="'+esc(STATE.summary)+'" placeholder="One line describing it"></div>';
+  if(sugg.length){
+    b+='<div class="sugg-list">';
+    sugg.forEach(function(s){
+      b+='<button class="sugg-opt" data-sugg="'+esc(s)+'">'+esc(s)+' <span class="sugg-tap">Tap</span></button>';
+    });
+    b+='</div>';
+    b+='<div class="hint" style="margin-top:8px">Tap a suggestion or type your own.</div>';
+  }
+  b+='<div class="fld'+errDet+'" style="margin-top:14px"><label>Details <span class="req">*</span></label>'+
+    '<textarea data-field="details" placeholder="Tell us what happened and what you expected instead.">'+esc(STATE.details)+'</textarea>'+
+    '<div class="hint">A few sentences are enough to get started.</div></div>';
+  b+='<button class="btn primary full" style="margin-top:6px" data-act="continue" data-next="extra">Continue</button>';
+  return b;
+}
+
+function renderExtra(){
+  if(!STATE.type){
+    return '<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">Choose a feedback type first. This section will adapt.</div>';
+  }
+  var t=EXTRA_DETAILS[STATE.type];
+  if(!t) return '<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">No extra details for this type.</div>';
+  var b='<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">All fields here are optional. Answer what you can.</div>';
+  t.fields.forEach(function(f){
+    var v=STATE.extra[f.id]||'';
+    b+='<div class="fld"><label>'+esc(f.label)+'</label>';
+    if(f.kind==='chips'){
+      b+='<div class="chips">';
+      f.options.forEach(function(o){
+        b+='<button class="chip'+(v===o?' on':'')+'" data-extra="'+esc(f.id)+'" data-val="'+esc(o)+'">'+esc(o)+'</button>';
+      });
+      b+='</div>';
+    } else if(f.kind==='text'){
+      b+='<input type="text" data-extra-input="'+esc(f.id)+'" value="'+esc(v)+'" placeholder="'+esc(f.placeholder||'')+'">';
+    } else {
+      b+='<textarea data-extra-input="'+esc(f.id)+'" placeholder="'+esc(f.placeholder||'')+'">'+esc(v)+'</textarea>';
+    }
+    b+='</div>';
+  });
+  b+='<div class="row2" style="margin-top:6px">'+
+    '<button class="btn ghost" data-act="continue" data-next="shot">Skip</button>'+
+    '<button class="btn primary" data-act="continue" data-next="shot">Continue</button>'+
+  '</div>';
+  return b;
+}
+
+function renderShot(){
+  var b='';
+  b+='<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">A screenshot can help us understand what happened. Hide any passwords or personal information before attaching it.</div>';
+  if(STATE.screenshots.length<3){
+    b+='<label class="pickimg" for="shotfile">Choose image</label>'+
+       '<input type="file" id="shotfile" accept="image/*" multiple style="display:none">';
+  }
+  b+='<div class="hint" style="margin-top:8px">Up to 3 images. Small screenshots are fine.</div>';
+  if(STATE.screenshots.length){
+    b+='<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px">Attached images</div>';
+    b+='<div class="imgs">';
+    STATE.screenshots.forEach(function(s,i){
+      b+='<div class="imgcard">'+
+        '<img src="'+s.dataUrl+'" alt="">'+
+        '<div class="imgcard-meta">'+
+          '<span class="imgcard-name">'+esc(s.name)+'</span>'+
+          '<button class="imgcard-rm" data-rm-img="'+i+'">Remove</button>'+
+        '</div>'+
+      '</div>';
+    });
+    b+='</div>';
+  }
+  b+='<div class="row2" style="margin-top:16px">'+
+    '<button class="btn ghost" data-act="continue" data-next="device">Skip</button>'+
+    '<button class="btn primary" data-act="continue" data-next="device">Continue</button>'+
+  '</div>';
+  return b;
+}
+
+function renderDevice(){
+  var d=STATE.device;
+  var b='';
+  b+='<div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">We collect technical details to help diagnose problems. Review or correct the information below.</div>';
+  b+='<div class="fld"><label>Device type</label><input type="text" data-field="deviceType" value="'+esc(d.deviceType)+'" placeholder="Not detected"></div>';
+  b+='<div class="fld"><label>Phone model</label><input type="text" data-field="model" value="'+esc(d.model)+'" placeholder="Not detected — enter if known"></div>';
+  b+='<div class="fld"><label>Operating system</label><input type="text" data-field="os" value="'+esc(d.os)+'" placeholder="Not detected"></div>';
+  b+='<div class="fld"><label>OS version</label><input type="text" data-field="osVersion" value="'+esc(d.osVersion)+'" placeholder="Not detected — enter if known"></div>';
+  b+='<div class="fld"><label>Browser</label><input type="text" data-field="browser" value="'+esc(d.browser)+'" placeholder="Not detected"></div>';
+  b+='<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:18px 0 4px">Technical details included</div>';
+  b+='<div class="devgrid">'+
+    devrow('App version', d.appVersion)+
+    devrow('Current page', d.page||'—')+
+    devrow('Viewport', d.viewport)+
+    devrow('Language', d.language||'—')+
+    '</div>';
+  b+='<button class="btn ghost sm full" style="margin-top:12px" data-act="openTech">View full technical details</button>';
+  b+='<div class="row2" style="margin-top:16px">'+
+    '<button class="btn ghost" data-act="continue" data-next="contact">Skip</button>'+
+    '<button class="btn primary" data-act="continue" data-next="contact">Continue</button>'+
+  '</div>';
+  return b;
+}
+
+function devrow(k,v){ return '<div class="devrow"><span>'+esc(k)+'</span><b>'+esc(v)+'</b></div>' }
+
+function renderContact(){
+  var c=STATE.contact;
+  var b='';
+  b+='<div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Optional. Only used to follow up on this feedback. No marketing messages.</div>';
+  b+='<div class="fld"><label>First name</label><input type="text" data-field="first" value="'+esc(c.first)+'" placeholder="Optional"></div>';
+  b+='<div class="fld"><label>Surname</label><input type="text" data-field="last" value="'+esc(c.last)+'" placeholder="Optional"></div>';
+  b+='<div class="fld"><label>WhatsApp number</label>'+
+    '<div style="display:grid;grid-template-columns:110px 1fr;gap:8px">'+
+      '<input type="text" data-field="whatsappCC" value="'+esc(c.whatsappCC)+'" placeholder="+267">'+
+      '<input type="tel" data-field="whatsapp" value="'+esc(c.whatsapp)+'" placeholder="71 234 567">'+
+    '</div>'+
+    '<div class="hint">We may contact you here if we need more detail about this feedback.</div>'+
+  '</div>';
+  b+='<div class="fld"><label>Email</label><input type="email" data-field="email" value="'+esc(c.email)+'" placeholder="Optional · you@example.com"></div>';
+  b+='<button class="btn primary full" style="margin-top:6px" data-act="send">Send feedback</button>';
+  return b;
+}
+
+function renderFooter(){
+  return '<div style="padding:6px 20px 26px;text-align:center;font-size:11.5px;color:var(--muted);line-height:1.55">Required fields are marked <span style="color:var(--danger);font-weight:900">*</span>.<br>Device details are best-effort and never block submission.</div>';
+}
+
+function renderBar(){
+  var bar=document.getElementById('bar');
+  if(!bar) return;
+  var ready = STATE.type && STATE.summary && STATE.details;
+  bar.innerHTML='<div class="bar-info">'+
+      '<span class="bar-lbl">'+(ready?'Ready to send':'Complete required fields')+'</span>'+
+      '<span class="bar-tot">'+(ready?'All required fields filled':'01 Feedback type · 02 Your message')+'</span>'+
+    '</div>'+
+    '<button class="btn primary" data-act="barSend"'+(ready?'':' disabled')+'>Send feedback</button>';
+}
+
+function renderSuccess(){
+  document.getElementById('scroll').innerHTML =
+    '<div class="success">'+
+      '<div class="success-icon">✓</div>'+
+      '<h2>Thank you!</h2>'+
+      '<p>Your feedback has been received.</p>'+
+      '<div class="ref">'+esc(STATE.ref)+'</div>'+
+      '<p>Your report will help us improve the app.</p>'+
+      '<button class="btn primary full" style="margin-top:20px" data-act="again">Send another</button>'+
+      '<div class="note">If you left a WhatsApp number or email, we may reach out for more detail.</div>'+
+    '</div>';
+  var bar=document.getElementById('bar');
+  if(bar) bar.innerHTML='<div class="bar-info"><span class="bar-lbl">Submitted</span><span class="bar-tot">'+esc(STATE.ref)+'</span></div>';
+}
+
+/* ============================================================
+   BINDINGS
+   ============================================================ */
+function bindAll(){
+  /* text/email/tel inputs */
+  document.querySelectorAll('[data-field]').forEach(function(el){
+    el.oninput = el.onchange = function(){
+      var k = el.getAttribute('data-field');
+      if(k==='summary'||k==='details'){
+        STATE[k]=el.value;
+        if(STATE.errors['message'] && STATE.summary && STATE.details){ STATE.errors['message']=false }
+      } else if(k==='deviceType'||k==='model'||k==='os'||k==='osVersion'||k==='browser'){
+        STATE.device[k]=el.value;
+      } else if(k==='first'||k==='last'||k==='whatsapp'||k==='whatsappCC'||k==='email'){
+        STATE.contact[k]=el.value;
+      }
+      /* Live-update status pills only — don't re-render the whole page (would lose focus) */
+      updateStatusPills();
+      renderBar();
+    };
+  });
+  /* extra-detail textareas / inputs */
+  document.querySelectorAll('[data-extra-input]').forEach(function(el){
+    el.oninput = el.onchange = function(){
+      var k = el.getAttribute('data-extra-input');
+      STATE.extra[k]=el.value;
+      updateStatusPills();
+    };
+  });
+  /* file input */
+  var fi=document.getElementById('shotfile');
+  if(fi){
+    fi.onchange=function(e){
+      var files=e.target.files||[];
+      for(var i=0;i<files.length;i++){
+        if(STATE.screenshots.length>=3) break;
+        var f=files[i];
+        if(!/^image\//.test(f.type)){ toast('Only images are allowed'); continue }
+        if(f.size>4*1024*1024){ toast('Image too large (max 4 MB)'); continue }
+        addScreenshot(f);
+      }
+      e.target.value='';
+    };
+  }
+}
+
+function addScreenshot(file){
+  var r=new FileReader();
+  r.onload=function(ev){
+    STATE.screenshots.push({ name:file.name, size:file.size, type:file.type, dataUrl:ev.target.result });
+    render();
+  };
+  r.onerror=function(){ toast('Could not read that file') };
+  r.readAsDataURL(file);
+}
+
+function updateStatusPills(){
+  ['type','message','extra','shot','device','contact'].forEach(function(id){
+    var box=document.querySelector('[data-accbox="'+id+'"]');
+    if(!box) return;
+    var st=sectionStatus(id);
+    var badge=box.querySelector('.acc-status');
+    if(badge){
+      badge.textContent=st.text;
+      badge.className='acc-status '+(st.cls==='done'?'done':(st.cls==='req'?'req':(st.cls==='auto'?'auto':(st.cls==='warn'?'warn':''))));
+    }
+    var valEl=box.querySelector('.acc-val');
+    if(!valEl){
+      var title=box.querySelector('.acc-title');
+      var v=sectionValue(id);
+      if(v && title){
+        var span=document.createElement('span');
+        span.className='acc-val'+(st.cls==='done'?' done':'');
+        span.textContent=v;
+        title.appendChild(span);
+      }
+    } else {
+      var v2=sectionValue(id);
+      if(v2){ valEl.textContent=v2; valEl.className='acc-val'+(st.cls==='done'?' done':'') }
+      else { valEl.remove() }
+    }
+  });
+}
+
+/* ============================================================
+   VALIDATION
+   ============================================================ */
+function validate(sectionId){
+  if(sectionId==='message'){
+    if(!STATE.summary || !STATE.details){
+      STATE.errors['message']=true;
+      /* focus the first empty field */
+      setTimeout(function(){
+        var f = document.querySelector('[data-field="summary"]');
+        if(!STATE.summary && f){ f.focus(); return }
+        f = document.querySelector('[data-field="details"]');
+        if(f) f.focus();
+      },50);
+      return false;
+    }
+    STATE.errors['message']=false;
+  }
+  return true;
+}
+
+function canSubmit(){
+  return !!(STATE.type && STATE.summary && STATE.details);
+}
+
+/* ============================================================
+   SUBMISSION
+   ============================================================ */
+function buildRecord(){
+  var d=STATE.device, c=STATE.contact;
+  return {
+    id: STATE.ref,
+    submittedAt: d.time,
+    type: STATE.type,
+    typeLabel: typeLabel(),
+    summary: STATE.summary,
+    details: STATE.details,
+    extra: Object.assign({}, STATE.extra),
+    screenshots: STATE.screenshots.map(function(s){ return {name:s.name,size:s.size,type:s.type} }),
+    screenshotCount: STATE.screenshots.length,
+    device: {
+      deviceType:d.deviceType, model:d.model, os:d.os, osVersion:d.osVersion,
+      browser:d.browser, browserVersion:d.browserVersion,
+      viewport:d.viewport, language:d.language
+    },
+    appVersion: d.appVersion,
+    page: d.page,
+    contact: {
+      first:c.first, last:c.last,
+      whatsapp: (c.whatsapp ? (c.whatsappCC+' '+c.whatsapp) : ''),
+      email: c.email
+    },
+    status: 'New'
+  };
+}
+
+function buildWhatsAppText(rec){
+  var lines=[];
+  lines.push('EATOUTS FEEDBACK');
+  lines.push('Reference: '+rec.id);
+  lines.push('Type: '+rec.typeLabel);
+  lines.push('');
+  lines.push('SUMMARY');
+  lines.push(rec.summary||'—');
+  lines.push('');
+  lines.push('DETAILS');
+  lines.push(rec.details||'—');
+  if(rec.extra && Object.keys(rec.extra).length){
+    lines.push('');
+    lines.push('EXTRA DETAILS');
+    Object.keys(rec.extra).forEach(function(k){
+      if(rec.extra[k]) lines.push(k+': '+rec.extra[k]);
+    });
+  }
+  if(rec.screenshotCount){
+    lines.push('');
+    lines.push('SCREENSHOTS: '+rec.screenshotCount+' attached on the device (not sent by WhatsApp).');
+  }
+  lines.push('');
+  lines.push('DEVICE');
+  lines.push('Type: '+(rec.device.deviceType||'—'));
+  lines.push('Model: '+(rec.device.model||'—'));
+  lines.push('OS: '+(rec.device.os||'—')+(rec.device.osVersion?' '+rec.device.osVersion:''));
+  lines.push('Browser: '+(rec.device.browser||'—')+(rec.device.browserVersion?' '+rec.device.browserVersion:''));
+  lines.push('Viewport: '+(rec.device.viewport||'—'));
+  lines.push('App: '+rec.appVersion);
+  lines.push('Page: '+(rec.page||'—'));
+  lines.push('');
+  lines.push('CONTACT');
+  lines.push('Name: '+(((rec.contact.first||'')+' '+(rec.contact.last||'')).trim()||'—'));
+  lines.push('WhatsApp: '+(rec.contact.whatsapp||'—'));
+  lines.push('Email: '+(rec.contact.email||'—'));
+  return lines.join('\n');
+}
+
+function submit(){
+  if(!validate('message')){
+    STATE.open='message';
+    render();
+    var el=document.querySelector('[data-accbox="message"]');
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    toast('Please complete 02 Your message');
+    return;
+  }
+  STATE.ref = ref();
+  var rec = buildRecord();
+  var text = buildWhatsAppText(rec);
+
+  /* Save locally so we can retry or review. */
+  var queue=[];
+  try { queue = JSON.parse(safeGet('eatouts_feedback_queue_v1')||'[]'); } catch(e){ queue=[] }
+  if(!Array.isArray(queue)) queue=[];
+  queue.push(rec);
+  safeSet('eatouts_feedback_queue_v1', JSON.stringify(queue));
+
+  /* Hand off to WhatsApp — this is the demo "submission" channel. */
+  window.open('https://wa.me/'+WHATSAPP_TO+'?text='+encodeURIComponent(text),'_blank');
+
+  STATE.submitted = true;
+  render();
+}
+
+/* ============================================================
+   EVENT DELEGATION
+   ============================================================ */
+document.addEventListener('click',function(e){
+  /* sheet close */
+  if(e.target.closest('[data-sheet-close]')){ document.getElementById('sheet').classList.remove('on'); return }
+  if(e.target.id==='sheet'){ document.getElementById('sheet').classList.remove('on'); return }
+
+  /* accordion toggle */
+  var accBtn=e.target.closest('[data-acc]');
+  if(accBtn){
+    var id=accBtn.getAttribute('data-acc');
+    STATE.open = STATE.open===id ? null : id;
+    /* never wipe errors just because the user closes a section */
+    render();
+    /* scroll the opened section to the top of the viewport */
+    if(STATE.open){
+      setTimeout(function(){
+        var el=document.querySelector('[data-accbox="'+STATE.open+'"]');
+        if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+      },30);
+    }
+    return;
+  }
+
+  /* type pick */
+  var tp=e.target.closest('[data-act="pickType"]');
+  if(tp){
+    STATE.type=tp.getAttribute('data-val');
+    STATE.extra={}; /* reset per-type fields on change */
+    STATE.open='message'; /* auto-advance */
+    render();
+    setTimeout(function(){
+      var el=document.querySelector('[data-accbox="message"]');
+      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    },30);
+    return;
+  }
+
+  /* summary suggestion */
+  var sug=e.target.closest('[data-sugg]');
+  if(sug){
+    STATE.summary=sug.getAttribute('data-sugg');
+    render();
+    setTimeout(function(){ var f=document.querySelector('[data-field="details"]'); if(f) f.focus() },50);
+    return;
+  }
+
+  /* chips (extra) */
+  var chip=e.target.closest('[data-extra]');
+  if(chip){
+    var key=chip.getAttribute('data-extra');
+    var val=chip.getAttribute('data-val');
+    STATE.extra[key] = (STATE.extra[key]===val) ? '' : val;
+    render();
+    return;
+  }
+
+  /* remove image */
+  var rm=e.target.closest('[data-rm-img]');
+  if(rm){
+    var i=Number(rm.getAttribute('data-rm-img'));
+    STATE.screenshots.splice(i,1);
+    render();
+    return;
+  }
+
+  /* continue / skip */
+  var cont=e.target.closest('[data-act="continue"]');
+  if(cont){
+    var next=cont.getAttribute('data-next');
+    if(next==='extra' && !validate('message')){
+      render();
+      var el=document.querySelector('[data-accbox="message"]');
+      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+      return;
+    }
+    STATE.open=next;
+    render();
+    setTimeout(function(){
+      var el=document.querySelector('[data-accbox="'+next+'"]');
+      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    },30);
+    return;
+  }
+
+  /* tech details sheet */
+  if(e.target.closest('[data-act="openTech"]')){
+    var d=STATE.device;
+    var msg = buildRecord();
+    var s=document.getElementById('sheet');
+    s.innerHTML='<div class="sheet" data-stop="1">'+
+      '<div class="sheet-hdr"><h3>Technical details</h3><button class="btn ghost sm" data-sheet-close>Close</button></div>'+
+      '<div class="sheet-body"><div class="msgbox">'+esc(JSON.stringify({
+        deviceType:d.deviceType, model:d.model, os:d.os, osVersion:d.osVersion,
+        browser:d.browser, browserVersion:d.browserVersion, viewport:d.viewport,
+        language:d.language, appVersion:d.appVersion, page:d.page,
+        userAgent:(navigator && navigator.userAgent) || ''
+      }, null, 2))+'</div></div>'+
+      '<div class="sheet-foot"><button class="btn ghost half" data-sheet-close>Close</button></div>'+
+    '</div>';
+    s.classList.add('on');
+    return;
+  }
+
+  /* send from bar */
+  if(e.target.closest('[data-act="barSend"]')){
+    if(!canSubmit()){
+      /* open the first incomplete required section */
+      STATE.open = !STATE.type ? 'type' : 'message';
+      render();
+      setTimeout(function(){
+        var el=document.querySelector('[data-accbox="'+STATE.open+'"]');
+        if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+      },30);
+      toast(!STATE.type ? 'Choose a feedback type first' : 'Complete 02 Your message');
+      return;
+    }
+    submit();
+    return;
+  }
+
+  /* send from section 06 */
+  if(e.target.closest('[data-act="send"]')){ submit(); return }
+
+  /* send another */
+  if(e.target.closest('[data-act="again"]')){
+    STATE.submitted=false;
+    STATE.type=''; STATE.summary=''; STATE.details=''; STATE.extra={};
+    STATE.screenshots=[]; STATE.contact={ first:'',last:'',whatsappCC:'+267',whatsapp:'',email:'' };
+    STATE.errors={}; STATE.open='type';
+    /* keep device info as-is */
+    render();
+    return;
+  }
+});
+
+/* Re-render on resize so the viewport reading stays accurate */
+var resizeT;
+window.addEventListener('resize',function(){
+  clearTimeout(resizeT);
+  resizeT=setTimeout(function(){
+    STATE.device.viewport=(window.innerWidth||0)+' × '+(window.innerHeight||0)+' CSS px';
+    updateStatusPills();
+    /* if device section is open, refresh the visible value */
+    var devInput=document.querySelector('[data-field="viewport"]');
+    if(devInput) devInput.value=STATE.device.viewport;
+  },300);
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+try {
+  render();
+} catch (err) {
+  var el=document.getElementById('scroll');
+  if(el) el.innerHTML=
+    '<div style="padding:40px 20px;color:#c43c3c;font-family:-apple-system,sans-serif;font-size:13px;line-height:1.7">'+
+      '<b>EatOuts Feedback failed to start.</b><br><br>'+
+      (err && err.message ? err.message : String(err))+
+      '<br><br><span style="color:#7a7466;font-size:11px">Press F12 → Console for the full stack.</span>'+
+    '</div>';
+  if(window.console && console.error) console.error(err);
+}
+})();
+</script>
+</body>
+</html>

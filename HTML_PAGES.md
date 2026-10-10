@@ -30,6 +30,10 @@ share, and how they line up against `MARKETING_ONBOARDING_PLAN.md`.
 | `ops-console.html` | Internal ops tracker | `eatouts_ops_v1` | Yes |
 | `partner-terms.html`, `one-pager.html`, `404.html` | Static | none | No |
 | `seed-demo.html` | Developer harness | `eatouts_db_v2` (+ `eatouts_db_v1`) | No |
+| `customer-delivery.html` | Customers (post-checkout) | reads/writes `eatouts_order_v1` | No |
+| `driver-delivery.html` | Delivery rider (demo) | none (reads demo dataset) | No |
+| `restaurant-delivery.html` | Restaurant dispatch (demo) | reads `eatouts_delivery_orders_v1` | No |
+| `eatouts_feedback.html` | Customers / visitors | writes `eatouts_feedback_queue_v1` (WhatsApp to `+267 71 844 129`) | No |
 
 The eight operator pages share one tab bar (Restaurant · Menu · Promos · Events · Gallery · Dashboard), so they behave as one back-office app. `seed-demo.html` is a developer page and is **not** in the tab bar.
 
@@ -63,11 +67,11 @@ These limits apply to every page above.
 - Cannot display owner-side edits made in the dashboard — it reads the static directory JSON, not `localStorage` forks.
 - No server-side data; per-device only.
 
-## restaurant-onboarding.html — operator profile (741 lines, 14 sections)
+## restaurant-onboarding.html — operator profile (798 lines, 15 sections)
 
 **Purpose:** the master profile editor for a single restaurant.
 
-**Can do** — 14 sections: Identity (name, description, logo/cover URLs, types), Location (town/area/plot/street/building/landmark, lat/lng, GPS button, Google Maps link), Contacts (CRUD, duplicate, reorder, primary/WhatsApp/active, purpose), Socials (7 platforms), Operating hours (weekly + custom schedules), Character, Amenities, Menu tags (cuisine/meal/dietary), Capacity, Payments, Reservations (enable, WhatsApp/call contacts, guest min/max, same-day/advance, cancellation notes), Reservation services (CRUD/dup/reorder), Service staff (CRUD/reorder), Users (roles + **hashed login credentials**). Plus a completeness meter and Save-draft / Publish / Preview actions.
+**Can do** — 15 sections: Identity (name, description, logo/cover URLs, types), Location (town/area/plot/street/building/landmark, lat/lng, GPS button, Google Maps link), Contacts (CRUD, duplicate, reorder, primary/WhatsApp/active, purpose), Socials (7 platforms), Operating hours (weekly + custom schedules), Character, Amenities, Menu tags (cuisine/meal/dietary), Capacity, Payments, Reservations (enable, WhatsApp/call contacts, guest min/max, same-day/advance, cancellation notes), Reservation services (CRUD/dup/reorder), Service staff (CRUD/reorder), Users (roles + **hashed login credentials**), and **Delivery & Dispatch** (buttons to the restaurant and driver delivery boards). Plus a completeness meter and Save-draft / Publish / Preview actions.
 
 **Cannot do**
 - No image upload or embedded map (URLs / external link only).
@@ -188,6 +192,26 @@ These limits apply to every page above.
 ## partner-terms.html, one-pager.html, 404.html
 
 Static legal/marketing pages and the custom 404. No storage, no auth. The 404 is served by Cloudflare Pages (`404.html` at the build root).
+
+## Delivery interfaces — customer / restaurant / driver (demo)
+
+Three standalone pages share the customer shell (logo header → `index.html#promos`, five-tab bottom nav) but keep their own header chip:
+
+- **`customer-delivery.html`** — the customer's post-checkout delivery flow. Reads the order the main app wrote to `eatouts_order_v1` and writes back the chosen delivery details; delivery zones come from `assets/data/delivery_zones.js` (`window.EatoutsDelivery`).
+- **`restaurant-delivery.html`** — the restaurant's dispatch board (incoming requests, immediate orders, scheduled rounds, kitchen prep, routes & drivers, settings, comms templates, exceptions). Persists accepted orders under `eatouts_delivery_orders_v1`.
+- **`driver-delivery.html`** — a rider's board (duty status, rounds, active stop checklist, problems, feedback, completed log). Demo-only; no storage.
+
+The two operator boards are seeded from the **50-order scheduled-delivery snapshot** at `assets/data/deliveries/yellow_giraffe_50_scheduled_deliveries.js` (`window.EATOUTS_DELIVERY_BACKFILL`) when no stored orders exist yet: `restaurant-delivery.html` maps its 50 orders / 2 riders / analytics into the board and window slot counts, and `driver-delivery.html` builds Thabo Molefe's 10 round-ledger from the same snapshot (street-level plot/property/landmark/phone fields the dataset does not carry render blank). Sibling files in that folder — raw `.json`, flat `.txt`, and the two `.md` shift/driver manifest summaries — are data assets, not deploy targets (`copy-static.mjs` copies the whole `assets` folder).
+
+**Cannot do (architecture planned for a later session)** — no role enforcement: the "Operators" sign-in currently lands on `restaurant-dashboard.html`, and `restaurant-onboarding.html` offers both delivery views to anyone holding a session. Real per-role gating (owner/manager vs rider), a shared `EatoutsDelivery` state module, and a live customer→restaurant→driver order flow are deliberately deferred.
+
+## eatouts_feedback.html - feedback form (961 lines)
+
+**Purpose:** collect structured feedback and deliver it to the EatOuts support line over WhatsApp.
+
+**Can do** - multi-step accordion form (feedback-type chips → "Summary" + "Details" with tap-in suggestions per type → optional extra fields that adapt to the type → screenshot web URL → device chips → contact info), input validation, saves each submission to `eatouts_feedback_queue_v1`, then opens a `https://wa.me/26771844129` compose with the packaged message. Reached from the About tab Settings accordion (Feedback row, below Privacy Policy).
+
+**Cannot do** - No server, no attachments: the screenshot is a pasted web URL and the resulting WhatsApp compose is a manual "Send" intent, not an automatic upload.
 
 ## Gaps vs MARKETING_ONBOARDING_PLAN.md
 

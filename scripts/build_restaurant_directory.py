@@ -4,6 +4,7 @@ import csv
 import json
 import re
 import sqlite3
+import time
 import unicodedata
 from collections import OrderedDict
 from pathlib import Path
@@ -508,6 +509,7 @@ def main() -> None:
     if FILTER_JSON_PATH.exists():
         filter_payload = FILTER_JSON_PATH.read_text(encoding="utf-8").strip()
         write_js(FILTER_JS_PATH, "RESTAURANT_TYPES_FILTER_DATA", filter_payload, "Cuisine type filter copy of restaurant_types_filter.json.")
+    manifest["buildStamp"] = int(time.time() * 1000)
     manifest_payload = json.dumps(manifest, ensure_ascii=False, separators=(",", ":"))
     write_js(MANIFEST_JS_PATH, "EATOUTS_MANIFEST", manifest_payload, "Hand-maintained logo mapping + extra listings (edit eatouts_manifest.json).")
     used = set()

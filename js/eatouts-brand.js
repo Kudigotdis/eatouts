@@ -185,18 +185,39 @@ function hasRealLogo(slug) {
     return null;
   }
 
+  /* Cache-bust stamp: the build writes a fresh buildStamp into
+     EATOUTS_MANIFEST on every launch/deploy, so edited logo art is
+     fetched with a new URL instead of a year-old cached copy. */
+  function logoRev() {
+    try {
+      if (window && window.EATOUTS_MANIFEST && window.EATOUTS_MANIFEST.buildStamp) {
+        return String(window.EATOUTS_MANIFEST.buildStamp);
+      }
+    } catch (e) {}
+    return '0';
+  }
+
+  /* Only local assets/logo files get the ?v= query - external and
+     data: URLs are served as written. */
+  function bustPath(p) {
+    if (!p) return p;
+    var s = String(p);
+    if (!/^assets\/logo\//i.test(s.split('?')[0])) return p;
+    return s + (s.indexOf('?') > -1 ? '&' : '?') + 'v=' + logoRev();
+  }
+
   /** Logo URL for a restaurant, or null when it should use a tile. */
   function logoFor(restaurant) {
     if (!restaurant) return null;
     var slug = restaurant.slug || slugify(restaurant.name);
     var manifestPath = manifestLogo(slug);
-    if (manifestPath) return manifestPath;
-    if (restaurant.logo) return restaurant.logo;
+    if (manifestPath) return bustPath(manifestPath);
+    if (restaurant.logo) return bustPath(restaurant.logo);
     if (hasRealLogo(slug)) {
       var rl = REAL_LOGOS[slug];
-      if (rl) return rl;
+      if (rl) return bustPath(rl);
     }
-    return 'assets/logo/logo_placement_image.png';
+    return bustPath('assets/logo/logo_placement_image.png');
   }
 
   /**

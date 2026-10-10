@@ -130,38 +130,66 @@ a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:
 <div class="sheet-scrim" id="sheet"></div>
 <div id="toast"></div>
 
+<script src="assets/data/deliveries/yellow_giraffe_50_scheduled_deliveries.js"></script>
 <script>
 (function(){
 'use strict';
 
 var RESTAURANT = { name:'The Yellow Giraffe Coffee Club', meta:'Café & Bar · Gaborone · CBD', metaSub:'Shift 06:00–16:00 · Rider: Thabo Molefe', thumb:'🦒', whatsapp:'26771844129' };
 
-var ROUNDS = [
-  { window:'12:00–13:00', route:'Central Blocks', stops: [
-    {ref:'EO-1030',name:'Lerato Nkosi',phone:'+267 71 100 030',area:'Gaborone · Bontleng Ext 8',plot:'3030',prop:'Apartment Kgale View 4A',landmark:'Grey building beside the small supermarket',items:2,total:150,fee:15,payment:'Card swipe · Bank Gaborone',status:'delivered'},
-    {ref:'EO-1031',name:'Lindelwa Radebe',phone:'+267 71 100 031',area:'Gaborone · Gaborone West Ext 5',plot:'3031',prop:'Townhouse Unit 12',landmark:'Compound entrance beside the local clinic',items:2,total:170,fee:15,payment:'Cash on delivery',status:'pending'},
-    {ref:'EO-1032',name:'Sipho Dube',phone:'+267 71 100 032',area:'Gaborone · Gaborone West Ext 6',plot:'3032',prop:'Stand-alone house · Cream House',landmark:'White apartment block with visitor parking',items:3,total:140,fee:15,payment:'Card swipe · Stanbic',status:'arrived'},
-    {ref:'EO-1033',name:'Zanele Motsumi',phone:'+267 71 100 033',area:'Gaborone · Block 6 Ext 40',plot:'3033',prop:'Commercial office building',landmark:'Grey building beside the small supermarket',items:2,total:150,fee:15,payment:'Cash on delivery',status:'en route'}
-  ]},
-  { window:'13:00–14:00', route:'Central Blocks', stops: [
-    {ref:'EO-1036',name:'Ayanda Sechele',phone:'+267 71 100 036',area:'Gaborone · Block 6 Ext 42',plot:'3036',prop:'Flat 1A · Block 5',landmark:'Brown gate near main road',items:2,total:135,fee:15,payment:'Card swipe · First Capital Bank',status:'pending'},
-    {ref:'EO-1037',name:'Lunga Sibanda',phone:'+267 71 100 037',area:'Gaborone · Block 8 Ext 35',plot:'3037',prop:'Commercial office building',landmark:'Corner unit behind the petrol station',items:2,total:135,fee:15,payment:'Cash on delivery',status:'pending'}
-  ]},
-  { window:'14:00–15:00', route:'Central Extensions', stops: [
-    {ref:'EO-1039',name:'Nokuthula Ncube',phone:'+267 71 100 039',area:'Gaborone · Block 8 Ext 36',plot:'3039',prop:'Commercial office building',landmark:'Red roof',items:2,total:150,fee:15,payment:'Cash on delivery',status:'pending'},
-    {ref:'EO-1040',name:'Mpho Tshiamo',phone:'+267 71 100 040',area:'Gaborone · Ext 5 (Botswelelo)',plot:'3040',prop:'Apartment Sunrise 5B',landmark:'White apartment block',items:2,total:135,fee:15,payment:'Card swipe · Stanbic',status:'pending'},
-    {ref:'EO-1041',name:'Kgomotso Motswana',phone:'+267 71 100 041',area:'Gaborone · Ext 6 (Madirelo)',plot:'3041',prop:'Hotel Kalahari · Room 101',landmark:'Brick house near the bus stop',items:2,total:135,fee:15,payment:'Cash on delivery',status:'pending'},
-    {ref:'EO-1042',name:'Karabo Mokoena',phone:'+267 71 100 042',area:'Gaborone · Ext 10 (Boitshoko)',plot:'3042',prop:'Apartment Kgale View 7A',landmark:'Cream house with a blue gate',items:2,total:135,fee:15,payment:'Card swipe · First Capital Bank',status:'pending'}
-  ]}
-];
+/* ---- Demo dataset backfill ------------------------------------------
+   assets/data/deliveries/yellow_giraffe_50_scheduled_deliveries.js holds
+   the 50-order scheduled-delivery snapshot. Rounds are built from it for
+   the assigned rider (first driver in the snapshot). Street-level detail
+   the dataset does not carry (plot, property, landmark, phone) renders
+   blank. */
+function bd(){ return window.EATOUTS_DELIVERY_BACKFILL||null; }
+function bdStatus(s){
+  return {'Delivered':'delivered','En route':'en route','Arrived · handover pending':'arrived','Pending dispatch':'pending'}[s]||'pending';
+}
+function bdItems(s){
+  var n=0;
+  String(s||'').split(';').forEach(function(part){
+    var m=part.match(/(\d+)\s*x/i);
+    n+=(m?parseInt(m[1],10):0)||(part.trim()?1:0);
+  });
+  return n||1;
+}
+function buildRounds(){
+  var b=bd();
+  if(!b||!b.orders||!b.orders.length) return [];
+  var rider=b.drivers&&b.drivers.length?b.drivers[0].name:'Thabo Molefe';
+  var routeLabel=b.drivers&&b.drivers.length&&b.drivers[0].areaTier==='core'?'Gaborone core':'Near & Around Gaborone';
+  var groups={};
+  b.orders.forEach(function(o){
+    if(o.driver!==rider) return;
+    var byWindow=groups[o.window]||(groups[o.window]=[]);
+    byWindow.push(o);
+  });
+  return Object.keys(groups).map(function(w){
+    return {
+      window:w, route:routeLabel,
+      stops:groups[w].map(function(o){
+        return {
+          ref:o.id, name:o.customer, phone:'',
+          area:o.area, plot:'—', prop:'—', landmark:'',
+          items:bdItems(o.itemsSummary), total:o.total, fee:o.deliveryFee,
+          payment:o.payment, status:bdStatus(o.status)
+        };
+      })
+    };
+  });
+}
+
+var ROUNDS=buildRounds();
 
 var STATE = {
   openAcc:{'duty':true,'rounds':true},
-  openRound:'12:00–13:00',
+  openRound:ROUNDS.length?ROUNDS[0].window:null,
   openStop:null,
   openDrp:null,
   duty:'On route',
-  selectedStop:'EO-1032'
+  selectedStop:ROUNDS.length?ROUNDS[0].stops[0].ref:''
 };
 
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}

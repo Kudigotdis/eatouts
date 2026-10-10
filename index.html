@@ -6200,9 +6200,8 @@ function renderBevSplit(){
    ================================================================ */
 function renderMenuCategories(noWrap){
   const M=curMenu();
-  const itemCount=M.reduce(function(s,c){return s+c.items.length;},0);
   let h=noWrap?"":'<div class="scroll">';
-  h+='<div class="phead"><h2>Menu</h2><p>'+esc(curRestaurantName())+' &middot; '+M.length+' categories · '+itemCount+' items · '+(cartCount()>0?cartCount()+" in cart":"Tap a category to explore")+'</p></div>';
+  h+='<div class="phead"><h2>Menu</h2><p>'+esc(curRestaurantName())+'</p></div>';
   M.forEach(c=>{
     const cth=menuCatThumb(c);
     h+='<button class="cat-row" data-act="openCat" data-id="'+c.id+'">'+
@@ -6892,8 +6891,9 @@ function renderAbout(){
   h+='<div class="tagwrap center">'+["Restaurant discovery","Daily promos","Venue booking","Local events","Easy WhatsApp"]
      .map(function(t){return '<span class="chip pill">'+esc(t)+'</span>';}).join("")+'</div>';
 
-  /* Settings accordion: install, blog, event suppliers, legal, operator and a
-     nested "List Your Business" accordion. Centred text rows, no chevrons. */
+  /* Settings accordion: install, blog, event suppliers, legal, feedback,
+     operator and a nested "List Your Business" accordion. Centred text rows,
+     no chevrons. */
   const sOpen=!!state.aboutSettingsOpen, lOpen=!!state.aboutListOpen;
   h+='<div class="setlist"><div class="setacc'+(sOpen?" open":"")+'" data-sacc="settings">'+
     '<button class="setrow" data-act="toggleAboutSettings" aria-expanded="'+(sOpen?"true":"false")+'">Settings</button>'+
@@ -6904,6 +6904,7 @@ function renderAbout(){
       '<a class="setrow" href="eatouts-suppliers.html">Event Suppliers</a>'+
       '<button class="setrow" data-act="openTerms">Terms of Service</button>'+
       '<button class="setrow" data-act="openPrivacy">Privacy Policy</button>'+
+      '<a class="setrow" href="eatouts_feedback.html">Feedback</a>'+
       '<button class="setrow" data-act="openOperatorLogin">Operator</button>'+
       '<div class="setacc'+(lOpen?" open":"")+'" data-sacc="list">'+
         '<button class="setrow" data-act="toggleAboutList" aria-expanded="'+(lOpen?"true":"false")+'">List Your Business</button>'+
