@@ -31,6 +31,8 @@ const SUITES = [
   'contracts.js',
   'upload.js',
   'beverages.js',
+  'delivery.js',
+  'checkout-delivery.js',
   'promocats.js',
   'builder-suppliers.js',
   'appshell.js'

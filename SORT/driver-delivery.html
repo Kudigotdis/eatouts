@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Driver Delivery — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--ink:#1a1a1a;--bg:#faf8f2;--muted:#a89a7e;--muted2:#8a8170;--bd:#ece7db;--bd2:#f1ece1;--ok:#17834b;--warn:#8a7a55;--danger:#c43c3c;--wa:#dff5e4;--wabd:#b8e6c1}
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#e9e5db;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit;font-family:inherit}
+button{cursor:pointer;border:0;background:none;text-align:left;padding:0}
+img{display:block;max-width:100%}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+@media(min-width:520px){#shell{border-left:1px solid var(--bd);border-right:1px solid var(--bd)}}
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;border-bottom:1px solid var(--bd);z-index:58;padding-top:env(safe-area-inset-top)}
+a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;text-decoration:none}
+.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--bd);border-radius:20px;padding:4px 9px;background:var(--bg);white-space:nowrap}
+.hdr-chip.ok{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
+/* ---- scroll fix ---- */
+.viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#fff}
+.scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff}
+#nav{flex:0 0 auto;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
+.nav-btn{flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.42);text-decoration:none}
+.nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.rcard{display:flex;gap:12px;padding:14px;background:#fff;border-bottom:1px solid var(--bd)}
+.rthumb{width:90px;height:90px;flex:0 0 auto;border-radius:12px;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:38px;border:1px solid var(--bd2)}
+.rinfo{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.rname{font-size:18px;font-weight:900;color:var(--ink);line-height:1.2}
+.rmeta{font-size:14px;color:var(--muted);margin-top:5px;font-weight:600;line-height:1.4}
+.rmeta b{color:var(--ok);font-weight:800}
+.osum{padding:14px;background:#fff;border-bottom:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;gap:12px;width:100%}
+.osum-info{flex:1;min-width:0;text-align:left}
+.osum-lbl{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.osum-tot{font-size:20px;font-weight:900;color:var(--ink);letter-spacing:-.02em}
+.osum-items{font-size:13px;color:var(--ink);font-weight:700;margin-top:3px}
+.osum-tap{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2)}
+.acc{margin:12px 14px;background:#fff;border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.acc.open{border-color:var(--ink)}
+.acc-hdr{width:100%;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.acc-title{flex:1;min-width:0}
+.acc-lbl{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:block}
+.acc-val{font-size:13.5px;font-weight:800;color:var(--ink);line-height:1.3;display:block}
+.acc-val.muted{color:var(--muted);font-style:italic;font-weight:600}
+.acc-ctl{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.acc.open .acc-body{max-height:20000px}
+.acc-in{padding:14px 16px 16px;border-top:1px solid var(--bd2)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fld textarea{width:100%;min-height:80px;padding:11px 13px;background:var(--bg);border:1px solid var(--bd);border-radius:11px;font-size:13.5px;outline:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:11px 16px;border-radius:11px;font-size:12.5px;font-weight:800;letter-spacing:.02em;background:var(--bg);border:1px solid var(--bd);color:var(--ink);font-family:inherit;cursor:pointer;text-decoration:none}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--muted2)}
+.btn.wa{background:var(--wa);border-color:var(--wabd);color:#1c6b2e}
+.btn.danger{background:#fbeaea;color:var(--danger);border-color:#f0d1d1}
+.btn.full{width:100%}
+.btn.half{flex:1}
+.btn.sm{min-height:34px;padding:7px 12px;font-size:11px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.st{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.st.pending{background:#f0eee8;color:#7a7466}
+.st.active{background:#eef4ff;color:#24476e}
+.st.ready{background:#fdf3dc;color:#8a7a55}
+.st.delivered{background:#e3f5e9;color:#17834b}
+.st.exception{background:#fbeaea;color:#c43c3c}
+.drp{width:100%;min-height:44px;padding:11px 13px;background:var(--bg);border:1px solid var(--bd);border-radius:11px;font-size:13.5px;color:var(--ink);display:flex;align-items:center;cursor:pointer;text-align:left}
+.drpset{position:relative}
+.drp-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--bd);border-radius:11px;box-shadow:0 10px 28px -10px rgba(0,0,0,.2);max-height:260px;overflow-y:auto;z-index:30;display:none}
+.drp-list.open{display:block}
+.drp-opt{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--bd2);cursor:pointer}
+.drp-opt:active{background:var(--bg)}
+.orow{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--bd2);align-items:flex-start;cursor:pointer;width:100%;text-align:left}
+.orow:last-child{border-bottom:0}
+.orow-info{flex:1;min-width:0}
+.orow-ref{font-size:12.5px;font-weight:900;color:var(--ink);letter-spacing:.02em}
+.orow-meta{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45;font-weight:600}
+.orow-amt{font-size:12.5px;font-weight:900;color:var(--ink);flex:0 0 auto}
+.bar{flex:0 0 auto;background:#fff;border-top:1px solid var(--bd);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px;flex-direction:column}
+.bar-top{display:flex;align-items:center;gap:10px;width:100%}
+.bar-info{flex:1;min-width:0}
+.bar-lbl{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block}
+.bar-tot{font-size:15px;font-weight:900;color:var(--ink);margin-top:2px;display:block}
+.bar-acts{display:flex;gap:8px;width:100%}
+.bar-acts .btn{flex:1}
+.round-hdr{padding:11px 12px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px;cursor:pointer;width:100%;text-align:left}
+.round-lbl{font-size:12.5px;font-weight:800}
+.round-sub{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:2px}
+.round-cap{font-size:11px;font-weight:800;flex:0 0 auto}
+#toast{position:fixed;bottom:calc(150px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:12.5px;font-weight:800;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 40px);text-align:center}
+#toast.on{opacity:1}
+.sheet-scrim{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:100;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)}
+.sheet-scrim.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:460px;max-height:88vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+.sheet-hdr{padding:14px 18px;border-bottom:1px solid var(--bd2);display:flex;align-items:center;gap:10px}
+.sheet-hdr h3{margin:0;font-size:14.5px;font-weight:900;flex:1}
+.sheet-body{flex:1 1 auto;overflow-y:auto;padding:14px 18px}
+.sheet-foot{padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--bd2);background:#fafaf7;display:flex;gap:9px}
+.msgbox{background:var(--bg);border:1px solid var(--bd);border-radius:11px;padding:14px;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="hdr">
+    <a class="brand-mark" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
+    <div class="hdr-right">
+      <span class="hdr-chip">Driver</span>
+      <span class="hdr-chip ok" id="dutyChip">On duty</span>
+    </div>
+  </header>
+  <div class="viewport"><div class="scroll" id="scroll"></div></div>
+  <div class="bar" id="bar"></div>
+  <nav id="nav">
+    <a class="nav-btn" href="index.html#promos" aria-label="Promos"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></a>
+    <a class="nav-btn" href="index.html#restaurants" aria-label="Restaurants"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg></a>
+    <a class="nav-btn" href="index.html#reserve" aria-label="Events"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></a>
+    <a class="nav-btn" href="index.html#gallery" aria-label="Gallery"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></a>
+    <a class="nav-btn" href="index.html#about" aria-label="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></a>
+  </nav>
+</div>
+<div class="sheet-scrim" id="sheet"></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+var RESTAURANT = { name:'The Yellow Giraffe Coffee Club', meta:'Café & Bar · Gaborone · CBD', metaSub:'Shift 06:00–16:00 · Rider: Thabo Molefe', thumb:'🦒', whatsapp:'26771844129' };
+
+var ROUNDS = [
+  { window:'12:00–13:00', route:'Central Blocks', stops: [
+    {ref:'EO-1030',name:'Lerato Nkosi',phone:'+267 71 100 030',area:'Gaborone · Bontleng Ext 8',plot:'3030',prop:'Apartment Kgale View 4A',landmark:'Grey building beside the small supermarket',items:2,total:150,fee:15,payment:'Card swipe · Bank Gaborone',status:'delivered'},
+    {ref:'EO-1031',name:'Lindelwa Radebe',phone:'+267 71 100 031',area:'Gaborone · Gaborone West Ext 5',plot:'3031',prop:'Townhouse Unit 12',landmark:'Compound entrance beside the local clinic',items:2,total:170,fee:15,payment:'Cash on delivery',status:'pending'},
+    {ref:'EO-1032',name:'Sipho Dube',phone:'+267 71 100 032',area:'Gaborone · Gaborone West Ext 6',plot:'3032',prop:'Stand-alone house · Cream House',landmark:'White apartment block with visitor parking',items:3,total:140,fee:15,payment:'Card swipe · Stanbic',status:'arrived'},
+    {ref:'EO-1033',name:'Zanele Motsumi',phone:'+267 71 100 033',area:'Gaborone · Block 6 Ext 40',plot:'3033',prop:'Commercial office building',landmark:'Grey building beside the small supermarket',items:2,total:150,fee:15,payment:'Cash on delivery',status:'en route'}
+  ]},
+  { window:'13:00–14:00', route:'Central Blocks', stops: [
+    {ref:'EO-1036',name:'Ayanda Sechele',phone:'+267 71 100 036',area:'Gaborone · Block 6 Ext 42',plot:'3036',prop:'Flat 1A · Block 5',landmark:'Brown gate near main road',items:2,total:135,fee:15,payment:'Card swipe · First Capital Bank',status:'pending'},
+    {ref:'EO-1037',name:'Lunga Sibanda',phone:'+267 71 100 037',area:'Gaborone · Block 8 Ext 35',plot:'3037',prop:'Commercial office building',landmark:'Corner unit behind the petrol station',items:2,total:135,fee:15,payment:'Cash on delivery',status:'pending'}
+  ]},
+  { window:'14:00–15:00', route:'Central Extensions', stops: [
+    {ref:'EO-1039',name:'Nokuthula Ncube',phone:'+267 71 100 039',area:'Gaborone · Block 8 Ext 36',plot:'3039',prop:'Commercial office building',landmark:'Red roof',items:2,total:150,fee:15,payment:'Cash on delivery',status:'pending'},
+    {ref:'EO-1040',name:'Mpho Tshiamo',phone:'+267 71 100 040',area:'Gaborone · Ext 5 (Botswelelo)',plot:'3040',prop:'Apartment Sunrise 5B',landmark:'White apartment block',items:2,total:135,fee:15,payment:'Card swipe · Stanbic',status:'pending'},
+    {ref:'EO-1041',name:'Kgomotso Motswana',phone:'+267 71 100 041',area:'Gaborone · Ext 6 (Madirelo)',plot:'3041',prop:'Hotel Kalahari · Room 101',landmark:'Brick house near the bus stop',items:2,total:135,fee:15,payment:'Cash on delivery',status:'pending'},
+    {ref:'EO-1042',name:'Karabo Mokoena',phone:'+267 71 100 042',area:'Gaborone · Ext 10 (Boitshoko)',plot:'3042',prop:'Apartment Kgale View 7A',landmark:'Cream house with a blue gate',items:2,total:135,fee:15,payment:'Card swipe · First Capital Bank',status:'pending'}
+  ]}
+];
+
+var STATE = {
+  openAcc:{'duty':true,'rounds':true},
+  openRound:'12:00–13:00',
+  openStop:null,
+  openDrp:null,
+  duty:'On route',
+  selectedStop:'EO-1032'
+};
+
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function money(n){return 'P'+(Number(n)||0).toFixed(2)}
+function toast(m){var t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('on')},2000)}
+function findStop(ref){
+  for(var i=0;i<ROUNDS.length;i++){
+    var r=ROUNDS[i];
+    for(var j=0;j<r.stops.length;j++){ if(r.stops[j].ref===ref) return {round:r,stop:r.stops[j]} }
+  }
+  return null;
+}
+
+function render(){
+  var ctx=findStop(STATE.selectedStop)||findStop(ROUNDS[0].stops[0].ref);
+  document.getElementById('scroll').innerHTML=
+    renderRestaurant()+
+    renderFocused(ctx.stop)+
+    renderDuty()+
+    renderImmediate()+
+    renderRounds()+
+    renderActive(ctx.stop,ctx.round)+
+    renderProblems(ctx.stop)+
+    renderFeedback()+
+    renderCompleted();
+  renderBar(ctx.stop);
+}
+
+function renderRestaurant(){
+  return '<div class="rcard">'+
+    '<div class="rthumb">'+RESTAURANT.thumb+'</div>'+
+    '<div class="rinfo">'+
+      '<div class="rname">'+esc(RESTAURANT.name)+'</div>'+
+      '<div class="rmeta">'+esc(RESTAURANT.meta)+'<br><b>'+esc(RESTAURANT.metaSub)+'</b></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderFocused(s){
+  if(!s) return '<div class="osum"><div class="osum-info"><div class="osum-lbl">Current stop</div><div class="osum-tot">P0.00</div><div class="osum-items">No stop selected</div></div><span class="osum-tap">View order</span></div>';
+  return '<button class="osum" data-act="openStopSheet">'+
+    '<div class="osum-info">'+
+      '<div class="osum-lbl">Current stop · '+esc(s.ref)+'</div>'+
+      '<div class="osum-tot">'+money(s.total)+'</div>'+
+      '<div class="osum-items">'+s.items+' item'+(s.items===1?'':'s')+' · '+esc(s.name)+'</div>'+
+    '</div>'+
+    '<span class="osum-tap">View order</span>'+
+  '</button>';
+}
+
+function accOpen(id){return !!STATE.openAcc[id]}
+function accBox(id,label,val,valClass,body){
+  var open=accOpen(id);
+  return '<div class="acc'+(open?' open':'')+'">'+
+    '<button class="acc-hdr" data-acc="'+id+'">'+
+      '<span class="acc-title"><span class="acc-lbl">'+esc(label)+'</span><span class="acc-val'+(valClass==='muted'?' muted':'')+'">'+esc(val)+'</span></span>'+
+      '<span class="acc-ctl">'+(open?'Hide details':'View details')+'</span>'+
+    '</button>'+
+    '<div class="acc-body"><div class="acc-in">'+(open?body:'')+'</div></div>'+
+  '</div>';
+}
+
+function renderDuty(){
+  var body='';
+  var opts=[['Off duty','Off duty'],['Available','Available'],['Assigned','Assigned'],['On route','On route'],['On break','On break'],['Unavailable','Temporarily unavailable']];
+  opts.forEach(function(o){
+    var on=STATE.duty===o[1];
+    body+='<button class="slot-r'+(on?' on':'')+'" data-act="pickDuty" data-val="'+esc(o[1])+'">'+
+      '<span><span class="lbl">'+esc(o[0])+'</span></span>'+
+      (on?'<span class="cap">●</span>':'')+
+    '</button>';
+  });
+  var assigned=ROUNDS.reduce(function(n,r){return n+r.stops.length},0);
+  var delivered=ROUNDS.reduce(function(n,r){return n+r.stops.filter(function(s){return s.status==='delivered'}).length},0);
+  body+='<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd2);font-size:12px;line-height:1.55;color:var(--muted2);font-weight:700">Assigned today: '+assigned+' · Delivered: '+delivered+' · Outstanding: '+(assigned-delivered)+'</div>';
+  return accBox('duty','Driver Status',STATE.duty,null,body);
+}
+
+function renderImmediate(){
+  return accBox('immediate','Immediate Deliveries','None','muted','<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">No immediate stops assigned right now.</div>');
+}
+
+function renderRounds(){
+  var total=ROUNDS.reduce(function(n,r){return n+r.stops.length},0);
+  var val=ROUNDS.length+' rounds · '+total+' stops';
+  var body='';
+  ROUNDS.forEach(function(r){
+    var open=STATE.openRound===r.window;
+    var done=r.stops.filter(function(s){return s.status==='delivered'}).length;
+    body+='<button class="round-hdr" data-round="'+esc(r.window)+'">'+
+      '<span><span class="round-lbl">'+esc(r.window)+'</span><span class="round-sub">'+esc(r.route)+' · '+r.stops.length+' stops · '+done+' done</span></span>'+
+      '<span class="round-cap">'+(r.stops.length-done)+' left</span>'+
+    '</button>';
+    if(open){
+      r.stops.forEach(function(s,i){
+        body+='<button class="orow" data-stop-pick="'+esc(s.ref)+'">'+
+          '<div class="orow-info">'+
+            '<div class="orow-ref">Stop '+(i+1)+' · '+esc(s.ref)+'</div>'+
+            '<div class="orow-meta">'+esc(s.name)+' · '+esc(s.area)+'</div>'+
+          '</div>'+
+          '<div class="orow-amt"><span class="st '+statusClass(s.status)+'">'+esc(s.status)+'</span></div>'+
+        '</button>';
+      });
+    }
+  });
+  return accBox('rounds','Scheduled Delivery Rounds',val,null,body);
+}
+
+function statusClass(s){
+  if(s==='delivered') return 'delivered';
+  if(s==='arrived') return 'ready';
+  if(s==='en route') return 'active';
+  if(s==='exception') return 'exception';
+  return 'pending';
+}
+
+function renderActive(s,r){
+  if(!s) return accBox('active','Active Delivery Stop','No stop selected','muted','<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">Select a round above to load a stop.</div>');
+  var body='';
+  body+='<div style="padding:12px;background:var(--bg);border-radius:10px;margin-bottom:12px">'+
+    '<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">'+esc(s.ref)+(r?' · '+esc(r.window):'')+'</div>'+
+    '<div style="font-size:14px;font-weight:900">'+esc(s.name)+'</div>'+
+    '<div style="font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:700">'+esc(s.phone)+'</div>'+
+  '</div>';
+  body+='<div class="fld"><label>Destination</label>'+
+    '<div style="font-size:12.5px;line-height:1.55">'+esc(s.area)+'<br>Plot '+esc(s.plot)+'<br>'+esc(s.prop)+'<br><em style="color:var(--muted);font-style:italic">'+esc(s.landmark)+'</em></div>'+
+  '</div>';
+  body+='<div class="fld"><label>Order (read-only)</label>'+
+    '<div style="font-size:12.5px;line-height:1.55">'+s.items+' items · subtotal '+money(s.total-s.fee)+'<br>Delivery fee '+money(s.fee)+'<br>Total '+money(s.total)+'</div>'+
+  '</div>';
+  body+='<div class="fld"><label>Payment</label><div style="font-size:12.5px">'+esc(s.payment)+'</div></div>';
+  body+='<div class="fld"><label>Delivery checklist</label>';
+  [['addr','Address and property identified'],['contact','Recipient contacted or located'],['hand','Correct order handed over'],['pay','Payment collected (if due)'],['done','Handover confirmed']].forEach(function(x){
+    body+='<label style="display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12.5px;font-weight:700"><input type="checkbox" style="width:auto;min-height:auto;accent-color:#1a1a1a"> '+esc(x[1])+'</label>';
+  });
+  body+='</div>';
+  body+='<div class="fld"><label>Handover to</label><div class="drpset"><div class="drp'+(STATE.handover?'':' ph')+'" data-ho-open="1">'+(STATE.handover||'Choose recipient')+'</div>';
+  if(STATE.openDrp==='ho'){
+    body+='<div class="drp-list open">'+['Chosen recipient','Family member / roommate','Security guard / gatehouse','Receptionist','Other'].map(function(o){
+      return '<div class="drp-opt" data-ho-pick="'+esc(o)+'">'+esc(o)+'</div>';
+    }).join('')+'</div>';
+  }
+  body+='</div></div>';
+  body+='<div class="row3" style="margin-top:12px">'+
+    '<a class="btn ghost sm" href="tel:'+esc(s.phone.replace(/\s/g,''))+'">Call</a>'+
+    '<button class="btn wa sm" data-act="waStop" data-ref="'+esc(s.ref)+'">WhatsApp</button>'+
+    '<button class="btn ghost sm" data-act="reportProb" data-ref="'+esc(s.ref)+'">Problem</button>'+
+  '</div>';
+  body+='<div class="row2" style="margin-top:8px">'+
+    '<button class="btn ghost sm" data-act="markArrived" data-ref="'+esc(s.ref)+'">Mark arrived</button>'+
+    '<button class="btn primary sm" data-act="markDelivered" data-ref="'+esc(s.ref)+'">Mark delivered</button>'+
+  '</div>';
+  return accBox('active','Active Delivery Stop',s.ref,null,body);
+}
+
+function renderProblems(s){
+  var body='';
+  body+='<div class="fld"><label>Problem type</label><div class="drpset"><div class="drp'+(STATE.problem?'':' ph')+'" data-prob-open="1">'+(STATE.problem||'Choose problem')+'</div>';
+  if(STATE.openDrp==='prob'){
+    body+='<div class="drp-list open">'+['Customer not answering','Incorrect or incomplete address','Plot or property cannot be identified','Recipient unavailable','Customer rejected order','Order damaged','Cash not available','POS terminal failed','Unsafe or inaccessible delivery','No safe parking or stopping point','Vehicle problem','Other'].map(function(o){
+      return '<div class="drp-opt" data-prob-pick="'+esc(o)+'">'+esc(o)+'</div>';
+    }).join('')+'</div>';
+  }
+  body+='</div></div>';
+  if(STATE.problem==='Customer not answering'){
+    body+='<div style="padding:12px;background:#fdf9ef;border:1px solid #ece0be;border-radius:11px;font-size:12.5px;color:#8a7a55;line-height:1.5;margin-top:8px">Fallback timer started · 5:00 remaining. If unresolved, the restaurant is notified.</div>';
+  }
+  body+='<button class="btn ghost sm full" data-act="sendExc" style="margin-top:12px">Send exception report to restaurant</button>';
+  return accBox('prob','Delivery Problems',STATE.problem||'None selected',STATE.problem?'':'muted',body);
+}
+
+function renderFeedback(){
+  var body='';
+  var tags=['Address accurate','Landmark helpful','Directions unclear','Bad roads','Gate code required','Aggressive dogs','No parking space','Security gate delays','Property difficult to identify','Recipient contact unavailable'];
+  body+='<div class="fld"><label>Quick tags</label><div style="display:flex;flex-wrap:wrap;gap:6px">';
+  tags.forEach(function(t){
+    body+='<button class="btn ghost sm" data-tag="'+esc(t)+'">'+esc(t)+'</button>';
+  });
+  body+='</div></div>';
+  body+='<div class="fld"><label>Optional note</label><textarea placeholder="Anything helpful for the next delivery"></textarea></div>';
+  return accBox('fb','Delivery Feedback','Taps and notes',null,body);
+}
+
+function renderCompleted(){
+  var done=[];
+  ROUNDS.forEach(function(r){ r.stops.forEach(function(s){ if(s.status==='delivered') done.push({r:r,s:s}) }) });
+  var val=done.length+' completed';
+  var body='';
+  if(!done.length){ body+='<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">No completed deliveries yet.</div>' }
+  else {
+    done.forEach(function(x){
+      body+='<div class="orow">'+
+        '<div class="orow-info"><div class="orow-ref">'+esc(x.s.ref)+' · '+esc(x.s.name)+'</div><div class="orow-meta">'+esc(x.r.window)+' · '+esc(x.s.area)+'</div></div>'+
+        '<div class="orow-amt"><span class="st delivered">Delivered</span></div>'+
+      '</div>';
+    });
+  }
+  return accBox('done','Completed Deliveries',val,null,body);
+}
+
+function renderBar(s){
+  var bar=document.getElementById('bar');
+  if(!s){
+    bar.innerHTML='<div class="bar-top"><div class="bar-info"><span class="bar-lbl">No current stop</span><span class="bar-tot">Choose a round above</span></div></div>';
+    return;
+  }
+  var title='CURRENT STOP · '+s.ref;
+  var sub=s.status==='pending'?'Not yet arrived':(s.status==='arrived'?'Handover pending':(s.status==='delivered'?'Delivered':'En route'));
+  bar.innerHTML='<div class="bar-top">'+
+      '<div class="bar-info"><span class="bar-lbl">'+esc(title)+'</span><span class="bar-tot">'+esc(sub)+'</span></div>'+
+    '</div>'+
+    '<div class="bar-acts">'+
+      (s.status==='pending'?'<button class="btn primary" data-act="markArrived" data-ref="'+esc(s.ref)+'">Mark arrived</button>'
+        :(s.status==='arrived'?'<button class="btn primary" data-act="markDelivered" data-ref="'+esc(s.ref)+'">Mark delivered</button>'
+        :'<button class="btn ghost" data-act="reportProb" data-ref="'+esc(s.ref)+'">Report problem</button>'))+
+    '</div>';
+}
+
+function openStopSheet(ref){
+  var ctx=findStop(ref); if(!ctx) return;
+  var s=ctx.stop;
+  var scrim=document.getElementById('sheet');
+  scrim.innerHTML='<div class="sheet" data-stop="1">'+
+    '<div class="sheet-hdr"><h3>'+esc(s.ref)+'</h3><button class="btn ghost sm" data-sheet-close>Close</button></div>'+
+    '<div class="sheet-body">'+
+      '<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Order</div>'+
+      '<div style="font-size:13px;font-weight:800;margin-bottom:12px">'+s.items+' items · '+money(s.total)+'</div>'+
+      '<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Recipient</div>'+
+      '<div style="font-size:12.5px;line-height:1.55;margin-bottom:12px">'+esc(s.name)+'<br>'+esc(s.phone)+'</div>'+
+      '<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Address</div>'+
+      '<div style="font-size:12.5px;line-height:1.55;margin-bottom:12px">'+esc(s.area)+'<br>Plot '+esc(s.plot)+'<br>'+esc(s.prop)+'<br><em style="color:var(--muted);font-style:italic">'+esc(s.landmark)+'</em></div>'+
+      '<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Payment</div>'+
+      '<div style="font-size:12.5px">'+esc(s.payment)+'</div>'+
+    '</div>'+
+    '<div class="sheet-foot">'+
+      '<button class="btn ghost half" data-sheet-close>Close</button>'+
+      '<a class="btn wa half" href="tel:'+esc(s.phone.replace(/\s/g,''))+'">Call recipient</a>'+
+    '</div>'+
+  '</div>';
+  scrim.classList.add('on');
+}
+
+document.addEventListener('click',function(e){
+  if(e.target.closest('[data-sheet-close]')||e.target.id==='sheet'){ document.getElementById('sheet').classList.remove('on'); return }
+
+  var d=e.target.closest('[data-act="pickDuty"]');
+  if(d){ STATE.duty=d.getAttribute('data-val'); var chip=document.getElementById('dutyChip'); if(chip) chip.textContent=STATE.duty; render(); return }
+
+  var acc=e.target.closest('[data-acc]'); if(acc){ var id=acc.getAttribute('data-acc'); STATE.openAcc[id]=!STATE.openAcc[id]; render(); return }
+
+  var r=e.target.closest('[data-round]'); if(r){ STATE.openRound=STATE.openRound===r.getAttribute('data-round')?null:r.getAttribute('data-round'); render(); return }
+
+  var st=e.target.closest('[data-stop-pick]'); if(st){ STATE.selectedStop=st.getAttribute('data-stop-pick'); render(); return }
+
+  if(e.target.closest('[data-act="openStopSheet"]')){ openStopSheet(STATE.selectedStop); return }
+
+  var ho=e.target.closest('[data-ho-open]'); if(ho){ STATE.openDrp=STATE.openDrp==='ho'?null:'ho'; render(); return }
+  var hp=e.target.closest('[data-ho-pick]'); if(hp){ STATE.handover=hp.getAttribute('data-ho-pick'); STATE.openDrp=null; render(); return }
+
+  var po=e.target.closest('[data-prob-open]'); if(po){ STATE.openDrp=STATE.openDrp==='prob'?null:'prob'; render(); return }
+  var pp=e.target.closest('[data-prob-pick]'); if(pp){ STATE.problem=pp.getAttribute('data-prob-pick'); STATE.openDrp=null; render(); return }
+
+  var ma=e.target.closest('[data-act="markArrived"]');
+  if(ma){
+    var ctx=findStop(ma.getAttribute('data-ref'));
+    if(ctx){ ctx.stop.status='arrived'; toast(ctx.stop.ref+' · arrived'); render(); }
+    return;
+  }
+  var md=e.target.closest('[data-act="markDelivered"]');
+  if(md){
+    var ctx2=findStop(md.getAttribute('data-ref'));
+    if(ctx2){ ctx2.stop.status='delivered'; toast(ctx2.stop.ref+' · delivered'); render(); }
+    return;
+  }
+  var ws=e.target.closest('[data-act="waStop"]');
+  if(ws){
+    var c3=findStop(ws.getAttribute('data-ref'));
+    if(c3){
+      var msg='EATOUTS DELIVERY UPDATE\n\nOrder '+c3.stop.ref+'\nYour delivery driver has arrived at your delivery location.';
+      window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+    }
+    return;
+  }
+  var rp=e.target.closest('[data-act="reportProb"]');
+  if(rp){ STATE.openAcc['prob']=true; STATE.selectedStop=rp.getAttribute('data-ref'); render(); setTimeout(function(){var el=document.querySelector('[data-acc="prob"]');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},40); return }
+  var se=e.target.closest('[data-act="sendExc"]');
+  if(se){
+    var msg2='EATOUTS DELIVERY EXCEPTION\n\nStop: '+STATE.selectedStop+'\nIssue: '+(STATE.problem||'—')+'\nAction required from restaurant.\n\nThe order has not been marked Delivered.';
+    window.open('https://wa.me/'+RESTAURANT.whatsapp+'?text='+encodeURIComponent(msg2),'_blank');
+    return;
+  }
+  var tg=e.target.closest('[data-tag]'); if(tg){ toast('Tag saved · '+tg.getAttribute('data-tag')); return }
+});
+
+try {
+  render();
+} catch (err) {
+  var el=document.getElementById('scroll');
+  if(el) el.innerHTML=
+    '<div style="padding:40px 20px;color:#c43c3c;font-family:-apple-system,sans-serif;font-size:13px;line-height:1.7">'+
+      '<b>EatOuts Driver failed to start.</b><br><br>'+
+      (err && err.message ? err.message : String(err))+
+      '<br><br><span style="color:#7a7466;font-size:11px">Press F12 → Console for the full stack.</span>'+
+    '</div>';
+  if(window.console && console.error) console.error(err);
+}
+})();
+</script>
+</body>
+</html>

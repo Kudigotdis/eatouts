@@ -114,7 +114,7 @@ img{display:block;max-width:100%}
 /* ---------- SECTION ---------- */
 .section{background:#fff;border:1px solid var(--border-soft);border-radius:14px;
   margin:12px 14px;overflow:hidden;transition:border-color .22s}
-.section.open{border-color:var(--text)}
+.section.open{border-color:rgba(0,0,0,.03)}
 .section.locked{opacity:.72}
 .section-hdr{width:100%;padding:14px 16px;display:flex;align-items:center;gap:12px;
   background:rgba(0,0,0,.03);transition:background .15s}
@@ -333,7 +333,7 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 
 /* ---------- SUPPLIER FIELD ---------- */
 .sup-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:10px;
-  background:var(--surface);border-radius:11px;margin-bottom:10px;
+  background:var(--surface);border-radius:11px;margin-top:20px;margin-bottom:10px;
   border:1px solid var(--border-soft)}
 .sup-stat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px}
 .sup-stat .l{font-size:9px;letter-spacing:.08em;text-transform:uppercase;
@@ -386,6 +386,25 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   border:1.5px dashed var(--border);color:var(--muted);font-size:11.5px;font-weight:800;
   display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
 .sup-add-btn:active{background:var(--surface);border-color:var(--muted)}
+
+/* ---------- EVENT LINKS ---------- */
+.link-card{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:9px 11px;background:var(--surface);border:1px solid var(--border-soft);
+  border-radius:10px;margin-bottom:6px;transition:background .15s}
+.link-card:active{background:var(--border-soft)}
+.link-card-ico{flex:0 0 auto;width:38px;height:38px;border-radius:10px;background:#fff;
+  border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.link-card-ico img{width:22px;height:22px;object-fit:contain;display:block}
+.link-card-info{flex:1;min-width:0}
+.link-card-title{display:block;font-size:12.5px;font-weight:800;color:var(--text)}
+.link-card-sub{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.link-icon-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:16px 18px 20px;
+  place-items:center}
+.link-icon{background:none;border:0;padding:6px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;cursor:pointer}
+.link-icon:active{background:var(--border-soft)}
+.link-icon img{width:40px;height:40px;object-fit:contain;display:block}
 
 .sup-custom{background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;
   padding:11px 12px;margin:-4px 0 8px;animation:fadeIn .18s ease}
@@ -567,7 +586,7 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .flyer-item img{width:100%;height:100%;object-fit:cover;display:block}
 .flyer-add-tile{flex:0 0 auto;width:var(--flyer-item-size,120px);
   height:var(--flyer-item-size,120px);aspect-ratio:1;border-radius:12px;
-  border:1.5px dashed var(--muted-2);background:transparent;color:var(--muted-2);
+  border:1.5px dashed var(--muted-2);background:rgba(0,0,0,.03);color:var(--muted-2);
   font-size:44px;font-weight:200;display:flex;align-items:center;justify-content:center;
   cursor:pointer;scroll-snap-align:center;scroll-snap-stop:always}
 .flyer-add-tile span{line-height:1;margin-top:-6px}
@@ -1118,9 +1137,6 @@ const STATE = {
   // RSVP
   rsvp:[],  // {id,title,note,contactType,contactValue}
 
-  // Share
-  shareOptions:{whatsapp:true,facebook:false,instagram:false,tiktok:false,twitter:false},
-
   // UI
   openSections:{},
   previewPageOpen:false,
@@ -1131,7 +1147,8 @@ const STATE = {
   venueLogoOpen:false,
   titleEditOpen:false,
   titleEditDraft:{title:"",description:""},
-  prompt:{open:false,kind:null,fields:null,onSave:null},
+  linkPicker:{open:false},
+  prompt:{open:false,kind:null,fields:null,onSave:null,values:{},onDelete:null},
 
   draftKey:"eatouts.event.draft.v2",
   toastTimer:null
@@ -1158,8 +1175,7 @@ function saveDraft(){
       suppliers:STATE.suppliers,
       eventDetails:STATE.eventDetails,
       guests:STATE.guests,
-      rsvp:STATE.rsvp,
-      shareOptions:STATE.shareOptions
+      rsvp:STATE.rsvp
     };
     localStorage.setItem(STATE.draftKey,JSON.stringify(toSave));
   }catch(e){console.warn("save failed",e);}
@@ -1190,7 +1206,6 @@ function loadDraft(){
     if(d.eventDetails)Object.assign(STATE.eventDetails,d.eventDetails);
     STATE.guests=d.guests||[];
     STATE.rsvp=d.rsvp||[];
-    if(d.shareOptions)Object.assign(STATE.shareOptions,d.shareOptions);
   }catch(e){console.warn("load draft failed",e);}
 }
 
@@ -1616,7 +1631,7 @@ function renderTitleEdit(){
 /* ============================================================
    SECTION HELPER (no acc-ind)
    ============================================================ */
-const MAIN_ACC_IDS=["schedule","audience","menu","suppliers","details","guests","rsvp","share","review","preview"];
+const MAIN_ACC_IDS=["schedule","audience","menu","suppliers","details","guests","rsvp","links","review","preview"];
 function closeMainSections(keep){
   MAIN_ACC_IDS.forEach(function(id){
     if(id!==keep) STATE.openSections[id]=false;
@@ -1983,7 +1998,7 @@ function renderDetailsSection(){
   const d=STATE.eventDetails;
   let body="";
   // Public / Private
-  body+='<div class="field"><label>Event visibility</label>'+
+  body+='<div class="field" style="margin-top:24px"><label>Event visibility</label>'+
     '<div class="chip-row">'+
       '<span class="chip'+(d.mode==="private"?" on":"")+'" data-act="setEventMode" data-val="private">Private</span>'+
       '<span class="chip'+(d.mode==="public"?" on":"")+'" data-act="setEventMode" data-val="public">Public</span>'+
@@ -2016,21 +2031,6 @@ function renderDetailsSection(){
   body+='<div class="field" style="margin-top:12px"><label>Dress code</label>'+
     '<textarea data-field="dresscode" placeholder="e.g. Smart casual, Black tie, Traditional attire welcome">'+esc(d.dresscode)+'</textarea></div>';
 
-  // Contact links
-  body+='<div class="field"><label>Contact links</label>';
-  if(d.contacts.length){
-    d.contacts.forEach(function(c,i){
-      body+='<div class="sup-slot">'+
-        '<div class="sup-slot-info">'+
-          '<div class="sup-slot-name">'+esc(c.title||c.type||"Contact")+' <span style="color:var(--muted-2);font-weight:600;font-size:10.5px">· '+esc(c.type||"")+'</span></div>'+
-          '<div class="sup-slot-meta">'+esc(c.value||"")+(c.notes?" · "+esc(c.notes):"")+'</div>'+
-        '</div>'+
-        '<button class="sup-slot-btn danger" data-act="removeContact" data-idx="'+i+'" aria-label="Remove">×</button>'+
-      '</div>';
-    });
-  }
-  body+='<button class="sup-add-btn" data-act="addContact">+ Add contact link</button></div>';
-
   // Ticket site links
   body+='<div class="field"><label>External ticket site links</label>';
   if(d.ticketLinks.length){
@@ -2047,7 +2047,7 @@ function renderDetailsSection(){
   body+='<button class="sup-add-btn" data-act="addTicketLink">+ Add ticket link</button></div>';
 
   return section("details","Event Details",
-    (d.mode==="public"?"Public":"Private")+" · "+d.contacts.length+" contact"+(d.contacts.length===1?"":"s"),
+    (d.mode==="public"?"Public":"Private")+" event",
     body, {locked:!STATE.venue});
 }
 
@@ -2057,7 +2057,7 @@ function renderDetailsSection(){
 function renderGuestsSection(){
   let body="";
   if(!STATE.guests.length){
-    body+='<div class="field-hint" style="margin-bottom:10px">Add guests, speakers, VIPs, performers and helpers. Each with name, role and dietary notes.</div>';
+    body+='<div class="field-hint" style="margin-top:24px;margin-bottom:10px;text-align:center;font-size:15px">Add guests, speakers, VIPs, performers and helpers. Each with name, role and dietary notes.</div>';
   }
   STATE.guests.forEach(function(g,i){
     body+='<div class="sup-slot">'+
@@ -2082,7 +2082,7 @@ function renderGuestsSection(){
 function renderRsvpSection(){
   let body="";
   if(!STATE.rsvp.length){
-    body+='<div class="field-hint" style="margin-bottom:10px">RSVP contacts — the people or channels your guests reply to (name, note, contact type and handle/number).</div>';
+    body+='<div class="field-hint" style="margin-top:24px;margin-bottom:10px;text-align:center;font-size:15px">RSVP contacts — the people or channels your guests reply to (name, note, contact type and handle/number).</div>';
   }
   STATE.rsvp.forEach(function(r,i){
     body+='<div class="sup-slot">'+
@@ -2100,26 +2100,46 @@ function renderRsvpSection(){
 }
 
 /* ============================================================
-   SECTION 09 — EVENT SHARE OPTIONS
+   SECTION 09 — EVENT LINKS
    ============================================================ */
-function renderShareOptionsSection(){
-  const opts=[
-    {key:"whatsapp",label:"WhatsApp"},
-    {key:"facebook",label:"Facebook"},
-    {key:"instagram",label:"Instagram"},
-    {key:"tiktok",label:"TikTok"},
-    {key:"twitter",label:"Twitter / X"}
-  ];
-  let body='<div class="field-hint" style="margin-bottom:10px">Choose which channels appear on your event preview so guests can share.</div>';
-  opts.forEach(function(o){
-    body+='<div class="toggle-row">'+
-      '<div class="lbl">'+esc(o.label)+'</div>'+
-      '<div class="switch'+(STATE.shareOptions[o.key]?" on":"")+'" data-act="toggleShare" data-key="'+o.key+'"></div>'+
-    '</div>';
+const LINK_TYPES=[
+  {type:"Call",icon:"Call_icon.png",valueLabel:"Number",valuePlaceholder:"71 234 567"},
+  {type:"WhatsApp",icon:"whatsApp_icon_on.png",valueLabel:"Number or wa.me link",valuePlaceholder:"+267 71 234 567"},
+  {type:"Facebook",icon:"facebook_icon.png",valueLabel:"Page / handle",valuePlaceholder:"@yourpage"},
+  {type:"Instagram",icon:"Instagram_icon.png",valueLabel:"Handle",valuePlaceholder:"@yourhandle"},
+  {type:"TikTok",icon:"TikTok_icon.png",valueLabel:"Handle",valuePlaceholder:"@yourhandle"},
+  {type:"Twitter",icon:"Twitter_icon.png",valueLabel:"Handle",valuePlaceholder:"@yourhandle"},
+  {type:"Website",icon:"Website_icon.png",valueLabel:"URL",valuePlaceholder:"https://..."},
+  {type:"YouTube",icon:"YouTube_icon.png",valueLabel:"Channel",valuePlaceholder:"@yourchannel"}
+];
+const LINK_CC=[
+  {value:"+267",label:"+267  Botswana"},
+  {value:"+27",label:"+27  South Africa"},
+  {value:"+263",label:"+263  Zimbabwe"},
+  {value:"+260",label:"+260  Zambia"},
+  {value:"+264",label:"+264  Namibia"}
+];
+function linkIcon(type){
+  const t=LINK_TYPES.filter(function(x){return x.type===type;})[0];
+  return t?t.icon:"Website_icon.png";
+}
+function renderEventLinksSection(){
+  const c=STATE.eventDetails.contacts;
+  let body="";
+  if(!c.length){
+    body+='<div class="field-hint" style="margin-top:24px;margin-bottom:10px;text-align:center;font-size:15px">Add the links and contacts guests can use — tap a link to edit or remove it.</div>';
+  }
+  c.forEach(function(ct,i){
+    body+='<button class="link-card" data-act="openLinkCard" data-idx="'+i+'">'+
+      '<span class="link-card-ico"><img src="assets/icons/'+esc(linkIcon(ct.type))+'" alt=""></span>'+
+      '<span class="link-card-info">'+
+        '<span class="link-card-title">'+esc(ct.title||ct.type||"Link")+'</span>'+
+        '<span class="link-card-sub">'+esc(ct.value||"")+(ct.notes?" · "+esc(ct.notes):"")+'</span>'+
+      '</span>'+
+    '</button>';
   });
-  return section("share","Event Share Options",
-    "Channels shown on the preview",
-    body, {locked:!STATE.venue});
+  body+='<button class="sup-add-btn" data-act="openLinkPicker">+ Add Link</button>';
+  return section("links","Event Links","Event Contacts",body,{locked:!STATE.venue});
 }
 
 /* ============================================================
@@ -2367,22 +2387,6 @@ function buildPreviewCards(){
     '</div>';
   }
 
-  // Share rows
-  const shareChannels=[];
-  if(STATE.shareOptions.whatsapp) shareChannels.push("WhatsApp");
-  if(STATE.shareOptions.facebook) shareChannels.push("Facebook");
-  if(STATE.shareOptions.instagram) shareChannels.push("Instagram");
-  if(STATE.shareOptions.tiktok) shareChannels.push("TikTok");
-  if(STATE.shareOptions.twitter) shareChannels.push("Twitter / X");
-  if(shareChannels.length){
-    body+='<div class="preview-card">'+
-      '<h3>Share this event</h3>'+
-      '<div class="preview-tags">'+
-        shareChannels.map(function(c){return '<span class="preview-tag gold">'+esc(c)+'</span>';}).join("")+
-      '</div>'+
-    '</div>';
-  }
-
   body+='</div>'; // close preview-body
   return body;
 }
@@ -2465,16 +2469,91 @@ function renderPrompt(){
         '<button class="fpop-close" data-act="closePrompt" aria-label="Close">×</button>'+
       '</div>'+
       '<div class="prompt-body">'+fields+'</div>'+
-      '<div class="prompt-foot">'+
-        '<button class="btn ghost half" data-act="closePrompt">Cancel</button>'+
-        '<button class="btn primary half" data-act="savePrompt">Save</button>'+
+      '<div class="prompt-foot" style="flex-wrap:wrap">'+
+        (p.onDelete?'<button class="btn danger full" data-act="deletePrompt" style="margin-bottom:10px">Delete</button>':'')+
+        '<div style="display:flex;gap:10px;width:100%">'+
+          '<button class="btn ghost half" data-act="closePrompt">Cancel</button>'+
+          '<button class="btn primary half" data-act="savePrompt">Save</button>'+
+        '</div>'+
       '</div>'+
     '</div>'+
   '</div>';
 }
-function openPrompt(title,fields,onSave){
-  STATE.prompt={open:true,title:title,fields:fields,values:{},onSave:onSave};
+function openPrompt(title,fields,onSave,opts){
+  opts=opts||{};
+  STATE.prompt={open:true,title:title,fields:fields,values:opts.values||{},onSave:onSave,onDelete:opts.onDelete||null};
   render();
+}
+
+/* ============================================================
+   LINK PICKER MODAL (icon grid)
+   ============================================================ */
+function renderLinkPicker(){
+  if(!STATE.linkPicker.open) return "";
+  var grid="";
+  LINK_TYPES.forEach(function(t){
+    grid+='<button class="link-icon" data-act="pickLinkType" data-type="'+esc(t.type)+'" aria-label="'+esc(t.type)+'">'+
+      '<img src="assets/icons/'+esc(t.icon)+'" alt="'+esc(t.type)+'"></button>';
+  });
+  return '<div class="fpop-scrim" data-act="closeLinkPicker">'+
+    '<div class="prompt-panel" data-stop="1">'+
+      '<div class="fpop-hdr">'+
+        '<h3>Add Link</h3>'+
+        '<button class="fpop-close" data-act="closeLinkPicker" aria-label="Close">×</button>'+
+      '</div>'+
+      '<div class="link-icon-grid">'+grid+'</div>'+
+    '</div>'+
+  '</div>';
+}
+function openLinkForm(type,index){
+  const existing=index!=null?STATE.eventDetails.contacts[index]:null;
+  let fields;
+  let values={};
+  if(type==="Call"){
+    let cc="+267",num="";
+    if(existing){
+      const m=String(existing.value||"").match(/^(\+\d+)\s*(.*)$/);
+      if(m){cc=m[1];num=m[2];} else {num=String(existing.value||"").trim();}
+    }
+    fields=[
+      {key:"title",label:"Title",placeholder:"e.g. RSVP line"},
+      {key:"cc",label:"Country code",type:"select",options:LINK_CC},
+      {key:"number",label:"Number",type:"tel",placeholder:"71 234 567"},
+      {key:"notes",label:"Note",type:"textarea",placeholder:"Any notes"}
+    ];
+    values={title:existing?existing.title:"",cc:cc,number:num,notes:existing?existing.notes:""};
+  } else {
+    const meta=LINK_TYPES.filter(function(x){return x.type===type;})[0]||LINK_TYPES[0];
+    fields=[
+      {key:"title",label:"Title",placeholder:"e.g. "+type},
+      {key:"value",label:meta.valueLabel,placeholder:meta.valuePlaceholder},
+      {key:"notes",label:"Note",type:"textarea",placeholder:"Any notes"}
+    ];
+    values={title:existing?existing.title:"",value:existing?existing.value:"",notes:existing?existing.notes:""};
+  }
+  openPrompt(index!=null?"Edit Link":"Add "+type,fields,function(v){
+    const title=String(v.title||"").trim();
+    const notes=String(v.notes||"").trim();
+    const isCall=type==="Call";
+    const number=String(v.number||"").trim();
+    const value=isCall?((v.cc||"+267")+" "+number).trim():String(v.value||"").trim();
+    if(isCall?(!number):(!value)) return;
+    if(index!=null){
+      const c=STATE.eventDetails.contacts[index];
+      if(c){c.type=type;c.title=title;c.value=value;c.notes=notes;}
+    } else {
+      STATE.eventDetails.contacts.push({id:uid("c"),type:type,title:title,value:value,notes:notes});
+    }
+    render();
+    if(index==null) toast("Link added");
+  },{
+    values:values,
+    onDelete:index!=null?function(){
+      STATE.eventDetails.contacts.splice(index,1);
+      render();
+      toast("Link removed");
+    }:null
+  });
 }
 function savePromptFromForm(){
   const p=STATE.prompt;
@@ -2503,7 +2582,7 @@ function renderMainScroll(){
   h+=renderDetailsSection();
   h+=renderGuestsSection();
   h+=renderRsvpSection();
-  h+=renderShareOptionsSection();
+  h+=renderEventLinksSection();
   h+=renderPreviewSection();
   h+='<div style="height:20px"></div>';
   h+='<button class="back-btn" data-act="backToVenueList">Back to Venues</button>';
@@ -2540,6 +2619,7 @@ function render(){
   modalHtml+=renderTitleEdit();
   modalHtml+=renderSupplierTypeMenu();
   modalHtml+=renderPrompt();
+  modalHtml+=renderLinkPicker();
   modalHtml+=renderVenueLogo();
   modalHtml+=renderPreviewPage();
   root.innerHTML=modalHtml;
@@ -2575,7 +2655,10 @@ function measureNav(){
 function measureFlyerTrack(){
   const tr=document.querySelector(".flyer-menu-track");
   if(!tr) return;
-  const s=Math.min(tr.clientWidth,tr.clientHeight);
+  const cs=getComputedStyle(tr);
+  const availW=tr.clientWidth-parseFloat(cs.paddingLeft||0)-parseFloat(cs.paddingRight||0);
+  const availH=tr.clientHeight-parseFloat(cs.paddingTop||0)-parseFloat(cs.paddingBottom||0);
+  const s=Math.min(availW,availH);
   if(s>0) tr.style.setProperty("--flyer-item-size",Math.floor(s)+"px");
 }
 
@@ -2596,10 +2679,11 @@ document.addEventListener("click",function(e){
     if(act==="closeFlyerItemMenu"){STATE.flyerItemMenu.open=false;render();return;}
     if(act==="closeTitleEdit"){STATE.titleEditOpen=false;render();return;}
     if(act==="closePrompt"){STATE.prompt.open=false;render();return;}
+    if(act==="closeLinkPicker"){STATE.linkPicker.open=false;render();return;}
     // fallback: close any open modal
     STATE.flyerMenuOpen=false;STATE.titleEditOpen=false;
     STATE.flyerItemMenu.open=false;
-    STATE.supplierTypeMenu.open=false;STATE.prompt.open=false;
+    STATE.supplierTypeMenu.open=false;STATE.prompt.open=false;STATE.linkPicker.open=false;
     render();return;
   }
 
@@ -2917,23 +3001,26 @@ document.addEventListener("click",function(e){
     render();
     return;
   }
-  if(act==="addContact"){
-    openPrompt("Add Contact Link",[
-      {key:"type",label:"Type",type:"select",options:["Call","WhatsApp","Facebook","Instagram","TikTok","Twitter/X","YouTube","LinkedIn"]},
-      {key:"title",label:"Title",placeholder:"e.g. RSVP line"},
-      {key:"value",label:"Link or number",placeholder:"+267 71 234 567 / @handle / https://..."},
-      {key:"notes",label:"Notes",type:"textarea",placeholder:"Any notes for guests"}
-    ],function(v){
-      if(!v.value) return;
-      STATE.eventDetails.contacts.push({id:uid("c"),type:v.type,title:v.title||"",value:v.value,notes:v.notes||""});
-      render();
-    });
+  if(act==="openLinkPicker"){
+    STATE.prompt.open=false;
+    STATE.linkPicker.open=true;
+    render();
     return;
   }
-  if(act==="removeContact"){
-    const i=Number(t.getAttribute("data-idx"));
-    STATE.eventDetails.contacts.splice(i,1);
+  if(act==="closeLinkPicker"){
+    STATE.linkPicker.open=false;
     render();
+    return;
+  }
+  if(act==="pickLinkType"){
+    STATE.linkPicker.open=false;
+    openLinkForm(t.getAttribute("data-type"),null);
+    return;
+  }
+  if(act==="openLinkCard"){
+    const i=Number(t.getAttribute("data-idx"));
+    const c=STATE.eventDetails.contacts[i];
+    if(c) openLinkForm(c.type,i);
     return;
   }
   if(act==="addTicketLink"){
@@ -2996,14 +3083,6 @@ document.addEventListener("click",function(e){
     return;
   }
 
-  // Share options
-  if(act==="toggleShare"){
-    const key=t.getAttribute("data-key");
-    STATE.shareOptions[key]=!STATE.shareOptions[key];
-    render();
-    return;
-  }
-
   // Privacy toggles
   if(act==="togglePrivacy"){
     const key=t.getAttribute("data-key");
@@ -3041,6 +3120,13 @@ document.addEventListener("click",function(e){
   // Prompt
   if(act==="closePrompt"){ STATE.prompt.open=false; render(); return; }
   if(act==="savePrompt"){ savePromptFromForm(); return; }
+  if(act==="deletePrompt"){
+    const dp=STATE.prompt;
+    dp.open=false;
+    if(dp.onDelete) dp.onDelete();
+    render();
+    return;
+  }
 });
 
 // Input handler

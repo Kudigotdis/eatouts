@@ -214,8 +214,7 @@ img{display:block;max-width:100%}
 
 /* ---------- BEVERAGES PANEL (swipe inside the Restaurants tab) ---------- */
 /* Two-button strip above the pager: tap to jump, or swipe the pages. */
-.bev-toggle{position:relative;display:flex;align-items:center;flex:0 0 auto;min-height:2.25em;margin:0 0 8px;padding:5px;border-radius:0;background-color:#e7eff9;border:1px solid #f3f8fe;overflow:hidden}
-.bev-toggle.food,.bev-toggle.bev{margin-top:1px}
+.bev-toggle{position:relative;display:flex;align-items:center;flex:0 0 auto;min-height:2.25em;margin:0 0 8px;padding:5px;border-radius:0;background-color:#e7eff9;border:0;overflow:hidden}
 .bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc(50% - 5px);height:calc(100% - 10px);border-radius:3px;background:#fff;transition:transform .4s ease}
 .bev-toggle.bev .bev-toggle-thumb{transform:translateX(100%)}
 .bev-toggle-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;background:transparent;border:0;padding:9px 15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:11.5px;font-weight:700;line-height:normal;letter-spacing:.06em;text-transform:uppercase;color:#7e93ad;cursor:pointer;transition:color .2s}
@@ -248,15 +247,8 @@ img{display:block;max-width:100%}
 /* ---------- CHECKOUT ---------- */
 .cbwrap{flex:0 0 auto;border-top:1px solid #ece7db;background:#ffffff}
 .cbar{display:flex;align-items:center;gap:12px;padding:11px 14px}
-.cbtot{flex:1;display:flex;flex-direction:column}
-.cbtot span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#a89a7e;font-weight:800}
-.cbtot b{font-size:17px;font-weight:900;color:#1a1a1a}
-.cbbtn{padding:13px 24px;border-radius:12px;font-size:12.5px;font-weight:900;letter-spacing:.04em;background:#0d0d0d;color:#ffffff}
-.cbbtn:active{background:#000000}
-.cbbtn[disabled]{opacity:.35}
-
-/* cart summary strip: whole left block is a tap target for checkout */
-.cbtot{flex:1;display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:4px 0;border-radius:8px;transition:opacity .15s}
+.cbtot{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px 0;border-radius:8px;transition:opacity .15s}
+.cbtot span{font-size:17px;font-weight:900;color:#1a1a1a}
 button.cbtot{cursor:pointer;-webkit-tap-highlight-color:transparent}
 button.cbtot:active{opacity:.55}
 button.cbtot[disabled]{opacity:.4;cursor:default}
@@ -423,7 +415,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .crumb .cur{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#1a1a1a}
 .phead{width:100vw;box-sizing:border-box;margin-left:calc(-50vw + 50%);margin-right:calc(-50vw + 50%);padding:20px 16px 16px;text-align:center;border-radius:0;background-color:rgba(211,211,211,.2)}
 .phead h2{margin:0 0 4px;font-size:19px;font-weight:900;letter-spacing:-.01em;color:#1a1a1a}
-.phead p{margin:0;font-size:11.5px;color:#a89a7e;line-height:1.5}
+.phead p{margin:0;font-size:15px;font-weight:700;color:#a89a7e;line-height:1.5}
 .empty{padding:44px 20px;text-align:center;color:#a89a7e;font-size:12.5px;line-height:1.6}
 
 /* ---------- PROMO FILTER BAR (rises above nav) ---------- */
@@ -3302,6 +3294,7 @@ const state = {
   orderName:"",
   orderContact:"",
   orderNotes:"",
+  delivery:null,
   splitOpen:false,
   splitPeople:[],
   splitAssign:{},
@@ -3572,6 +3565,129 @@ function restaurantContact(venue){
 }
 /* WhatsApp share link with no phone number -> opens the contact picker */
 function waShareLink(text){return "https://wa.me/?text="+encodeURIComponent(text);}
+
+/* ================================================================
+   CROSS-PAGE ORDER CONTEXT
+   index.html keeps its cart in memory, so before handing off to the
+   standalone delivery page (customer-delivery.html) we snapshot the
+   order into one shared key. The delivery page reads it, adds the
+   delivery block, and index reads it back on return
+   (index.html?resume=1) to show the fee + include it in the message.
+   ================================================================ */
+const ORDER_KEY="eatouts_order_v1";
+function readOrder(){try{const raw=localStorage.getItem(ORDER_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}}
+function writeOrder(obj){try{localStorage.setItem(ORDER_KEY,JSON.stringify(obj));return true;}catch(e){return false;}}
+function clearOrder(){try{localStorage.removeItem(ORDER_KEY);}catch(e){}}
+
+/* The restaurant the customer is ordering from, in a plain shape the
+   standalone page can render without the bridge/database. */
+function orderRestaurant(){
+  const r=curRestaurant();
+  const loc=(r&&r.location)||{};
+  let meta=[loc.town||(r&&r.town)||"",loc.area||(r&&r.area)||""].filter(Boolean).join(" · ");
+  return {
+    id:r?r.id:null,
+    name:curRestaurantName(),
+    meta:meta,
+    logo:(r&&r.logo)||null,
+    whatsapp:resolveVenueWhatsapp(r)
+  };
+}
+function orderItemsFromCart(){
+  clearEmptyCart();
+  const out=[];
+  cartKeys().forEach(function(k){
+    const l=state.cart[k];if(!l.qty&&!Object.keys(l.extras||{}).length)return;
+    const it=getMenuItem(l.itemId);if(!it)return;
+    const sz=itemSizes(it)[l.sizeIdx];if(!sz)return;
+    const extras=[];
+    Object.keys(l.extras||{}).forEach(function(ei){
+      const q=l.extras[ei];const ex=it.extras&&it.extras[ei];
+      if(q>0&&ex)extras.push({name:ex[0],qty:q,price:ex[1]});
+    });
+    out.push({name:it.name,size:sz[0]||null,qty:l.qty,unit:sz[1],extras:extras,lineTotal:cartLineTotal(l.itemId,l.sizeIdx)});
+  });
+  return out;
+}
+function orderItemsFromBev(){
+  return bevLines().map(function(l){
+    return {name:l.name,size:l.size||null,qty:l.qty,unit:l.price,extras:[],lineTotal:l.total};
+  });
+}
+function saveOrderContext(source){
+  const prev=readOrder();
+  const base={
+    v:1,source:source,savedAt:Date.now(),
+    restaurant:orderRestaurant(),
+    contact:{name:state.orderName,phone:state.orderContact,notes:state.orderNotes},
+    menu:null,bev:null,items:[],subtotal:0,split:null,
+    delivery:(prev&&prev.source===source&&prev.delivery)?prev.delivery:null
+  };
+  if(source==="bev"){
+    base.bev={cart:state.bevCart};
+    base.items=orderItemsFromBev();
+    base.subtotal=bevCartTotal();
+    base.split=(state.bevSplitPeople||[]).map(function(p){return {name:p.name,total:bevPersonTotal(p.id)};});
+    base.restaurant.whatsapp="26771829765"; /* beverages route to the flagship line */
+  }else{
+    base.menu={restId:activeRestId(),cart:state.cart};
+    base.items=orderItemsFromCart();
+    base.subtotal=cartTotal();
+    base.split=(state.splitPeople||[]).map(function(p){return {name:p.name,total:personTotal(p.id)};});
+  }
+  writeOrder(base);
+  return base;
+}
+function goDelivery(source){
+  if(source!=="bev"){
+    const n=document.getElementById("orderName");if(n)state.orderName=n.value;
+    const c=document.getElementById("orderContact");if(c)state.orderContact=c.value;
+    const o=document.getElementById("orderNotes");if(o)state.orderNotes=o.value;
+  }
+  saveOrderContext(source||"menu");
+  window.location.href="customer-delivery.html";
+}
+/* Rebuild the in-memory checkout after returning from the delivery page. */
+function restoreOrder(){
+  const o=readOrder();
+  if(!o)return false;
+  state.orderName=(o.contact&&o.contact.name)||"";
+  state.orderContact=(o.contact&&o.contact.phone)||"";
+  state.orderNotes=(o.contact&&o.contact.notes)||"";
+  state.delivery=o.delivery||null;
+  if(o.source==="bev"){
+    if(o.bev&&o.bev.cart)state.bevCart=o.bev.cart;
+    state.tab="restaurants";
+    state.restPanel="beverages";
+    state.bevView=null;
+    state.bevSplitOpen=false;
+    state.bevCheckout=Object.keys(state.bevCart||{}).length>0;
+    return true;
+  }
+  if(o.menu&&o.menu.cart)state.cart=o.menu.cart;
+  const rid=(o.menu&&o.menu.restId)||(o.restaurant&&o.restaurant.id);
+  if(rid&&hasBridge()&&EatoutsBridge.setActive)EatoutsBridge.setActive(rid);
+  const r=rid&&hasBridge()?EatoutsBridge.byId(rid):null;
+  const brand=r&&EatoutsBridge.brandKeyOf?EatoutsBridge.brandKeyOf(r):rid;
+  state.tab="restaurants";
+  state.restaurantOpen=brand;
+  state.restaurantView={id:rid,brand:brand,view:"menu",promoId:null};
+  state.menuCat=null;
+  state.checkoutView=true;
+  state.splitOpen=false;
+  return true;
+}
+/* Delivery line appended to a checkout summary + WA message when the
+   customer has chosen delivery on the standalone page. */
+function deliverySummaryLine(){
+  const d=state.delivery;
+  if(!d)return null;
+  const mode=d.mode==="schedule"?"Schedule Delivery":"Deliver Now";
+  const bits=[];
+  if(d.area)bits.push(d.area);
+  if(d.tier)bits.push(d.tier==="core"?"Gaborone":"Near & Around Gaborone");
+  return {label:mode,area:bits.join(" · "),fee:Number(d.fee)||0};
+}
 /* Promos/events now live per-restaurant in the v2 database. These lookups
    search every restaurant that owns promos, so the feed and the detail
    views work no matter which venue a promo came from. */
@@ -3924,9 +4040,7 @@ function syncCart(){
 
   const n=cartCount(), tot=cartTotal();
   const cs=vp.querySelector("[data-cartcount]");
-  if(cs) cs.textContent="Cart · "+n+" item"+(n===1?"":"s");
-  const ct=vp.querySelector("[data-carttotal]");
-  if(ct) ct.textContent=fmt(tot);
+  if(cs) cs.textContent=fmt(tot)+" for "+n+" item"+(n===1?"":"s");
   Array.prototype.forEach.call(vp.querySelectorAll("[data-act='openCheckout']"),function(b){
     if(tot>0) b.removeAttribute("disabled"); else b.setAttribute("disabled","");
   });
@@ -4559,11 +4673,16 @@ function buildRestaurantsHTML(){
 }
 function renderRestaurantsPager(){
   const foodOn=(state.restPanel==='food');
-  let h='<div class="bev-toggle'+(foodOn?' food':' bev')+'" role="tablist">';
-  h+='<span class="bev-toggle-thumb ai-custom-slider" aria-hidden="true"></span>';
-  h+='<button role="tab" class="bev-toggle-btn'+(foodOn?' on':'')+'" data-act="panelFood" aria-selected="'+(foodOn?'true':'false')+'">Restaurants</button>';
-  h+='<button role="tab" class="bev-toggle-btn'+(foodOn?'':' on')+'" data-act="panelBev" aria-selected="'+(foodOn?'false':'true')+'">Beverages</button>';
-  h+='</div>';
+  const hideToggle = state.restPanel==='beverages'
+    && (state.bevView || state.bevCheckout || state.bevTypes.length>0);
+  let h='';
+  if(!hideToggle){
+    h+='<div class="bev-toggle'+(foodOn?' food':' bev')+'" role="tablist">';
+    h+='<span class="bev-toggle-thumb ai-custom-slider" aria-hidden="true"></span>';
+    h+='<button role="tab" class="bev-toggle-btn'+(foodOn?' on':'')+'" data-act="panelFood" aria-selected="'+(foodOn?'true':'false')+'">Restaurants</button>';
+    h+='<button role="tab" class="bev-toggle-btn'+(foodOn?'':' on')+'" data-act="panelBev" aria-selected="'+(foodOn?'false':'true')+'">Beverages</button>';
+    h+='</div>';
+  }
   h+='<div class="bev-pager" id="bev-pager">';
   h+='<div class="bevpage" data-page="food">'+renderRestaurants()+'</div>';
   h+='<div class="bevpage" data-page="beverages">'+(state.bevCheckout?renderBeveragesCheckout():state.bevView?renderBeveragesCategory():(state.bevTypes.length?renderBeveragesResults():renderBeveragesLanding()))+'</div>';
@@ -5730,6 +5849,13 @@ function bevOrderText(){
     const un=bevUnassignedTotal();
     if(un>0.005)out+="• Unassigned: "+formatBWP(un)+"\n";
   }
+  const dl=deliverySummaryLine();
+  if(dl){
+    const rc=(state.delivery&&state.delivery.recipient)||{};
+    out+="\nDelivery: "+dl.label+(dl.area?" · "+dl.area:"")+" — "+formatBWP(dl.fee)+"\n";
+    if(rc.name||rc.phone)out+="Recipient: "+[rc.name,rc.phone].filter(Boolean).join(" · ")+"\n";
+    out+="Grand total: "+formatBWP(bevCartTotal()+dl.fee)+"\n";
+  }
   return out.replace(/\n$/,"");
 }
 /* 25%-tint palette for the bev-grid category buttons (rgb triplets) */
@@ -5853,8 +5979,7 @@ function renderBeveragesCategory(){
   h+='</div>';
   if(c>0){
     h+='<div class="cbwrap"><div class="cbar">'+
-      '<button class="cbtot" data-act="bevGoCheckout"><span>Cart &middot; '+c+' item'+(c===1?'':'s')+'</span><b>'+formatBWP(bevCartTotal())+'</b></button>'+
-      '<button class="cbbtn" data-act="bevGoCheckout" data-cbbtn>Checkout</button>'+
+      '<button class="cbtot" data-act="bevGoCheckout"><span>'+formatBWP(bevCartTotal())+' for '+c+' item'+(c===1?'':'s')+'</span></button>'+
     '</div></div>';
   }
   return h;
@@ -5927,12 +6052,13 @@ function renderBeveragesCheckout(){
   if(state.bevSplitOpen)return renderBevSplit();
   let h='<div class="scroll">';
   h+='<div class="crumb"><button data-act="bevBackFromCheckout">Beverages</button><span class="sep">/</span><span class="cur">Checkout</span></div>';
-  h+='<div class="phead" style="padding-top:0"><h2>Review & Send</h2><p>'+bevCartCount()+' items · '+formatBWP(bevCartTotal())+'</p></div>';
+  h+='<div class="phead" style="padding-top:12px"><h2>Review & Send</h2><p>'+bevCartCount()+' items · '+formatBWP(bevCartTotal())+'</p></div>';
   const c=state.bevCart;
   const keys=Object.keys(c);
   if(keys.length===0){
     h+='<div class="empty">Your cart is empty.</div>';
   }else{
+    h+='<div class="pad" style="padding-top:12px">';
     keys.forEach(function(k){
       const row=c[k];
       const it=row.item;
@@ -5941,11 +6067,17 @@ function renderBeveragesCheckout(){
       h+='<div class="co-info"><div class="co-name">'+esc(it.name)+(it.size?'<em> · '+esc(it.size)+'</em>':'')+'</div>';
       h+='<div class="co-sub">'+formatBWP(bevPrice(it))+' × '+row.qty+'</div></div></div>';
       h+='<div class="co-edit" style="display:flex;gap:8px;align-items:center">';
-      h+='<button class="cbtn" data-act="bevDec" data-id="'+esc(it.id)+'">−</button><div style="min-width:22px;text-align:center;font-weight:800">'+row.qty+'</div><button class="cbtn" data-act="bevInc" data-id="'+esc(it.id)+'">+</button>';
+      h+='<button class="cbtn" data-act="bevDec" data-id="'+esc(it.id)+'">−</button><div style="min-width:22px;text-align:center;font-weight:800;font-size:14px">'+row.qty+'</div><button class="cbtn" data-act="bevInc" data-id="'+esc(it.id)+'">+</button>';
       h+='</div></div></div>';
     });
+    h+='</div>';
   }
-  h+='<div class="tbar" style="margin:12px 14px"><span class="tl">Total</span><span class="tv">'+formatBWP(bevCartTotal())+'</span></div>';
+  const bevDelivery=deliverySummaryLine();
+  h+='<div class="tbar" style="margin:12px 14px"><span class="tl">'+(bevDelivery?'Subtotal':'Total')+'</span><span class="tv">'+formatBWP(bevCartTotal())+'</span></div>';
+  if(bevDelivery){
+    h+='<div class="pad" style="padding-top:0"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;color:#8a8170"><span>Delivery · '+esc(bevDelivery.label)+(bevDelivery.area?' · '+esc(bevDelivery.area):'')+'</span><b style="color:#1a1a1a">'+formatBWP(bevDelivery.fee)+'</b></div></div>';
+    h+='<div class="tbar" style="margin:0 14px 12px"><span class="tl">Grand Total</span><span class="tv">'+formatBWP(bevCartTotal()+bevDelivery.fee)+'</span></div>';
+  }
   /* split-the-bill entry point + a compact preview once names exist */
   if(keys.length){
     h+='<div class="pad" style="padding-top:0">';
@@ -5965,9 +6097,10 @@ function renderBeveragesCheckout(){
   }
   h+='<div style="height:12px"></div>';
   h+='<div class="pad" style="display:flex;flex-direction:column;gap:10px">';
-  h+='<button class="btn wa" data-act="bevSendWaGeneric">Send to +267 718 29765 (WhatsApp)</button>';
-  h+='<button class="btn" data-act="bevShareWa" style="background:#1f7a3e;color:#fff">Share to WhatsApp (choose contact)</button>';
-  h+='<button class="btn ghost full" data-act="bevBackFromCheckout">Back to listing</button>';
+  h+='<button class="btn full" data-act="bevGoDelivery">'+(bevDelivery?'Edit delivery':'Add Delivery Details')+'</button>';
+  h+='<button class="btn wa" data-act="bevSendWaGeneric">Send</button>';
+  h+='<button class="btn" data-act="bevShareWa" style="background:#1f7a3e;color:#fff">Share via WhatsApp</button>';
+  h+='<button class="btn ghost full" data-act="bevBackFromCheckout">Back</button>';
   h+='</div>';
   h+='<div style="height:24px"></div>';
   h+='</div>';
@@ -6138,9 +6271,8 @@ function renderMenuCategory(){
   const count=cartCount();
   h+='<div class="cbwrap"><div class="cbar">'+
     '<button class="cbtot" data-act="openCheckout"'+(total>0?"":" disabled")+'>'+
-    '<span data-cartcount>Cart &middot; '+count+' item'+(count===1?"":"s")+'</span>'+
-    '<b data-carttotal>'+fmt(total)+'</b></button>'+
-    '<button class="cbbtn" data-act="openCheckout" data-cbbtn'+(total>0?"":" disabled")+'>Checkout</button>'+
+    '<span data-cartcount>'+fmt(total)+' for '+count+' item'+(count===1?"":"s")+'</span>'+
+    '</button>'+
     '</div></div>';
   return h;
 }
@@ -6176,12 +6308,12 @@ function renderCheckout(){
   const restName=curRestaurantName();
   let h='<div class="scroll">';
   h+='<div class="crumb"><button data-act="backFromCheckout">'+esc(restName)+'</button><span class="cur">Checkout</span></div>';
-  h+='<div class="phead" style="padding-top:0"><h2>Order Summary</h2><p>'+esc(restName)+' &middot; review your items and send your order via WhatsApp</p></div>';
+  h+='<div class="phead" style="padding-top:12px"><h2>Order Summary</h2><p>'+esc(restName)+' &middot; review your items and send your order via WhatsApp</p></div>';
   if(!lines.length){
     h+='<div class="empty">Your cart is empty.</div>';
-    h+='<div class="pad"><button class="btn ghost full" data-act="backFromCheckout">Back to Menu</button></div>';
+    h+='<div class="pad"><button class="btn ghost full" data-act="backFromCheckout">Back</button></div>';
   } else {
-    h+='<div class="pad" style="padding-top:0">';
+    h+='<div class="pad" style="padding-top:12px">';
     lines.forEach(function(l){
       const key=l.itemId+":"+l.sizeIdx;
       const open=state.checkoutOpen===key;
@@ -6220,7 +6352,12 @@ function renderCheckout(){
       h+='</div>';
     });
     h+='</div>';
-    h+='<div class="tbar" style="margin:12px 14px"><span class="tl">Total</span><span class="tv">'+fmt(total)+'</span></div>';
+    const foodDelivery=deliverySummaryLine();
+    h+='<div class="tbar" style="margin:12px 14px"><span class="tl">'+(foodDelivery?'Subtotal':'Total')+'</span><span class="tv">'+fmt(total)+'</span></div>';
+    if(foodDelivery){
+      h+='<div class="pad" style="padding-top:0"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;color:#8a8170"><span>Delivery · '+esc(foodDelivery.label)+(foodDelivery.area?' · '+esc(foodDelivery.area):'')+'</span><b style="color:#1a1a1a">'+fmt(foodDelivery.fee)+'</b></div></div>';
+      h+='<div class="tbar" style="margin:0 14px 12px"><span class="tl">Grand Total</span><span class="tv">'+fmt(total+foodDelivery.fee)+'</span></div>';
+    }
     /* split-the-bill entry point + a compact preview once names exist */
     h+='<div class="pad" style="padding-top:0">';
     if(state.splitPeople.length){
@@ -6240,7 +6377,8 @@ function renderCheckout(){
     h+='<div class="fld"><label>Your Name</label><input id="orderName" type="text" placeholder="e.g. Kagiso M." value="'+esc(state.orderName)+'"></div>';
     h+='<div class="fld"><label>Contact Number</label><input id="orderContact" type="tel" placeholder="e.g. +267 71 234 567" value="'+esc(state.orderContact)+'"></div>';
     h+='<div class="fld"><label>Notes</label><textarea id="orderNotes" rows="3" placeholder="e.g. extra spicy, pickup time, table number">'+esc(state.orderNotes)+'</textarea></div>';
-    h+='<button class="btn ghost full" style="margin-bottom:9px" data-act="backFromCheckout">Back to Menu</button>';
+    h+='<button class="btn full" style="margin-bottom:9px" data-act="goDelivery">'+(foodDelivery?'Edit delivery':'Add Delivery Details')+'</button>';
+    h+='<button class="btn ghost full" style="margin-bottom:9px" data-act="backFromCheckout">Back</button>';
     h+='<button class="btn wa full" data-act="waOrder">Send via WhatsApp</button>';
     h+='</div>';
   }
@@ -6399,7 +6537,24 @@ function buildFullBillMessage(){
     const un=unassignedTotal();
     if(un>0.005) msg+="Unassigned: "+fmt(un)+"\n";
   }
-  msg+="\n*Total:* "+fmt(total);
+  const dl=deliverySummaryLine();
+  if(dl){
+    const dd=state.delivery||{};
+    const rc=dd.recipient||{};
+    msg+="\n*Delivery:*\n";
+    msg+="Type: "+dl.label+"\n";
+    if(dl.area) msg+="Area: "+dl.area+"\n";
+    if(dd.date||dd.window) msg+="Window: "+[dd.date,dd.window].filter(Boolean).join(" · ")+"\n";
+    if(dd.address&&dd.address.plot) msg+="Plot: "+dd.address.plot+"\n";
+    if(dd.address&&dd.address.directions) msg+="Directions: "+dd.address.directions+"\n";
+    if(rc.name||rc.phone) msg+="Recipient: "+[rc.name,rc.phone].filter(Boolean).join(" · ")+"\n";
+    if(dd.payment) msg+="Payment: "+(dd.payment==="cash"?"Cash on Delivery":"Card on Delivery")+"\n";
+    msg+="\n*Subtotal:* "+fmt(total);
+    msg+="\n*Delivery fee:* "+fmt(dl.fee);
+    msg+="\n*Total:* "+fmt(total+dl.fee);
+  }else{
+    msg+="\n*Total:* "+fmt(total);
+  }
   return msg;
 }
 function buildPersonMessage(p){
@@ -7097,9 +7252,9 @@ document.addEventListener("click",function(e){
   if(act==="openPromoTypePicker"){state.promoTypePicker=true;state.promoTownPicker=false;state.promoAreaPicker=false;state.promoSubtypeSearch="";renderControlBar();return;}
   if(act==="closePickers"){state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;renderControlBar();return;}
   if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;state.restLocPicker=null;state.restNotice=null;syncRestAccordions();return;}
-  if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
-  if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
-  if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;render();return;}
+  if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
+  if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
+  if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;render();return;}
   /* Promos on an expanded restaurant row opens the Gallery tab scoped to
      that venue and its promos. */
   if(act==="openRestGallery"){
@@ -7200,7 +7355,7 @@ document.addEventListener("click",function(e){
   if(act==="panelBev"){switchRestPanel('beverages');return;}
   if(act==="bevOpenSub"){state.bevView={type:'subcat',id:id};state.bevCheckout=false;render();return;}
   if(act==="bevOpenBucket"){state.bevView={type:'bucket',id:id};state.bevCheckout=false;render();return;}
-  if(act==="bevBackLanding"){state.bevView=null;state.bevCheckout=false;render();return;}
+  if(act==="bevBackLanding"){state.bevView=null;state.bevCheckout=false;state.delivery=null;render();return;}
   if(act==="bevInc"||act==="bevDec"){
     const it=bevFindItem(id);
     if(!it)return;
@@ -7214,6 +7369,7 @@ document.addEventListener("click",function(e){
   }
   if(act==="bevGoCheckout"){if(bevCartCount()<=0)return;state.bevCheckout=true;resetBevSplit();render();return;}
   if(act==="bevBackFromCheckout"){state.bevCheckout=false;resetBevSplit();render();return;}
+  if(act==="bevGoDelivery"){goDelivery("bev");return;}
   if(act==="bevPhoto"){
     const it=bevFindItem(id);
     if(it&&it.image){state.preview={src:it.image,name:it.name};render();}
@@ -7268,6 +7424,7 @@ document.addEventListener("click",function(e){
   if(act==="exMinus"){const ei=parseInt(t.getAttribute("data-ei"),10);const si=t.hasAttribute("data-si")?parseInt(t.getAttribute("data-si"),10):0;const nid=parseInt(id,10);const l=cartLine(nid,si);if(!l.extras)l.extras={};l.extras[ei]=Math.max(0,(l.extras[ei]||0)-1);if(!l.qty&&!Object.keys(l.extras).length)delete state.cart[cartKey(nid,si)];syncCart();return;}
   if(act==="openCheckout"){if(cartTotal()<=0)return;state.checkoutView=true;render();return;}
   if(act==="backFromCheckout"){state.checkoutView=false;state.checkoutOpen=null;state.splitOpen=false;render();return;}
+  if(act==="goDelivery"){goDelivery("menu");return;}
   if(act==="toggleCheckoutRow"){const k=t.getAttribute("data-key");state.checkoutOpen=(state.checkoutOpen===k?null:k);render();return;}
 
   /* SPLIT THE BILL */
@@ -7661,11 +7818,16 @@ try{
       }
     }
   }
+  /* Returning from customer-delivery.html (its total bar links back here
+     with ?resume=1): rebuild the in-memory checkout from the shared key. */
+  const resume=(new URLSearchParams(window.location.search||"")).get("resume");
+  if(resume) restoreOrder();
 }catch(e){}
 render();
 loadRestaurantTypeFilters();
 loadDirectoryMenus(function(){
   bootEatoutsBridge();
+  if((new URLSearchParams(window.location.search||"")).get("resume")) restoreOrder();
   render();
 });
 window.addEventListener("storage",function(e){

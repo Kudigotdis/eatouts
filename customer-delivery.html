@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Delivery — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--ink:#1a1a1a;--bg:#faf8f2;--card:#ffffff;--muted:#a89a7e;--muted2:#8a8170;--bd:#ece7db;--bd2:#f1ece1;--ok:#17834b;--warn:#8a7a55;--danger:#c43c3c;--wa:#dff5e4;--wabd:#b8e6c1}
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#e9e5db;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit;font-family:inherit}
+button{cursor:pointer;border:0;background:none;text-align:left;padding:0}
+img{display:block;max-width:100%}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+@media(min-width:520px){#shell{border-left:1px solid var(--bd);border-right:1px solid var(--bd)}}
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;border-bottom:1px solid var(--bd);position:relative;z-index:58;padding-top:env(safe-area-inset-top)}
+.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden;text-decoration:none}
+.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--bd);border-radius:20px;padding:4px 9px;background:var(--bg);white-space:nowrap}
+.hdr-chip.ok{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
+/* ---- scroll fix: viewport is a positioning context, .scroll fills it ---- */
+.viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#fff}
+.scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff}
+#nav{flex:0 0 auto;position:relative;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
+.nav-btn{flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.42);text-decoration:none;transition:color .18s}
+.nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn:active{color:rgba(255,255,255,.75)}
+/* Restaurant + order cards */
+.rcard{display:flex;gap:12px;padding:14px;background:#fff;border-bottom:1px solid var(--bd)}
+.rthumb{width:90px;height:90px;flex:0 0 auto;border-radius:12px;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:38px;border:1px solid var(--bd2)}
+.rthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.rinfo{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.rname{font-size:18px;font-weight:900;color:var(--ink);line-height:1.2;letter-spacing:-.01em}
+.rmeta{font-size:14px;color:var(--muted);margin-top:5px;font-weight:600;line-height:1.4}
+.rmeta b{color:var(--ok);font-weight:800}
+.osum{padding:16px 14px;background:#fff;border-bottom:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;width:100%}
+.osum:active{background:var(--bg)}
+.osum-info{flex:1;min-width:0;text-align:center}
+.osum-lbl{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.osum-tot{font-size:20px;font-weight:900;color:var(--ink);letter-spacing:-.02em;line-height:1.1}
+.osum-items{font-size:13px;color:var(--ink);font-weight:700;margin-top:3px}
+.osum-back{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);margin-top:5px}
+/* Accordion */
+.acc{margin:12px 14px;background:#fff;border:1px solid var(--bd);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.acc.open{border-color:rgba(26,26,26,.05)}
+.acc-hdr{width:100%;padding:14px 16px;display:flex;align-items:center;justify-content:center;gap:12px;background:transparent}
+.acc-hdr:active{background:var(--bg)}
+.acc-title{flex:1;min-width:0;text-align:center}
+.acc-lbl{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:block}
+.acc-val{font-size:13.5px;font-weight:800;color:var(--ink);line-height:1.3;display:block}
+.acc-val.muted{color:var(--muted);font-style:italic;font-weight:600}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.acc.open .acc-body{max-height:20000px}
+.acc-in{padding:14px 16px 16px;border-top:1px solid var(--bd2)}
+/* Fields */
+.fld{margin-bottom:12px}
+.fld:last-child{margin-bottom:0}
+.fld label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fld input[type=text],.fld input[type=tel],.fld input[type=number],.fld input[type=date],.fld textarea{width:100%;min-height:44px;padding:11px 13px;background:var(--bg);border:1px solid var(--bd);border-radius:11px;font-size:13.5px;color:var(--ink);outline:none;transition:border-color .15s,background .15s}
+.fld input:focus,.fld textarea:focus{border-color:var(--ink);background:#fff}
+.fld textarea{min-height:80px;resize:vertical;line-height:1.5}
+.fld .hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.45}
+/* Searchable dropdown */
+.drpset{position:relative}
+.drp{width:100%;min-height:44px;padding:11px 13px;background:var(--bg);border:1px solid var(--bd);border-radius:11px;font-size:13.5px;color:var(--ink);display:flex;align-items:center;gap:8px;cursor:pointer;text-align:left}
+.drp.ph{color:var(--muted)}
+.drp:active{background:#f4efe4}
+.drp-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--bd);border-radius:11px;box-shadow:0 10px 28px -10px rgba(0,0,0,.2);max-height:260px;overflow-y:auto;z-index:30;display:none}
+.drp-list.open{display:block}
+.drp-search{width:100%;padding:11px 13px;border:0;border-bottom:1px solid var(--bd2);font-size:13px;outline:none;background:var(--bg);border-radius:11px 11px 0 0}
+.drp-opt{padding:11px 14px;font-size:13px;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--bd2);display:flex;justify-content:space-between;gap:10px;align-items:center}
+.drp-opt:last-child{border-bottom:0}
+.drp-opt:hover,.drp-opt:active{background:var(--bg)}
+.drp-opt.sel{background:var(--bg);font-weight:800}
+.drp-opt small{font-size:10.5px;color:var(--muted);font-weight:700}
+.drp-empty{padding:14px;font-size:12px;color:var(--muted);text-align:center}
+/* Choice cards */
+.choose{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.choose-card{padding:14px 12px;border:1.5px solid var(--bd);border-radius:12px;background:#fff;text-align:left;cursor:pointer;min-height:98px;display:flex;flex-direction:column}
+.choose-card:active{background:var(--bg)}
+.choose-card.on{border-color:var(--ink);background:var(--bg)}
+.choose-card b{font-size:12.5px;font-weight:900;color:var(--ink);line-height:1.2;margin-bottom:4px;display:block}
+.choose-card .price{font-size:15px;font-weight:900;color:var(--ink);letter-spacing:-.01em;margin-bottom:4px;display:block}
+.choose-card small{font-size:10.5px;color:var(--muted);font-weight:600;line-height:1.4;flex:1;display:block}
+.choose-card.dim{opacity:.45}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:11px 16px;border-radius:11px;font-size:12.5px;font-weight:800;letter-spacing:.02em;background:var(--bg);border:1px solid var(--bd);color:var(--ink);font-family:inherit;cursor:pointer;text-decoration:none;transition:background .15s}
+.btn:active{background:var(--bd2)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.primary:active{background:#000}
+.btn.ghost{background:transparent;color:var(--muted2)}
+.btn.wa{background:var(--wa);border-color:var(--wabd);color:#1c6b2e}
+.btn.full{width:100%}
+.btn.half{flex:1}
+.btn.sm{min-height:34px;padding:7px 12px;font-size:11px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+/* Slots */
+.slots{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.slot{padding:12px 14px;border:1px solid var(--bd);border-radius:11px;background:#fff;text-align:left;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%}
+.slot:active{background:var(--bg)}
+.slot.on{border-color:var(--ink);background:var(--bg)}
+.slot.full{opacity:.5;cursor:not-allowed}
+.slot-lbl{font-size:13px;font-weight:800;color:var(--ink)}
+.slot-sub{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:2px;letter-spacing:.03em}
+.slot-cap{font-size:11px;font-weight:800;color:var(--ok);flex:0 0 auto}
+.slot.full .slot-cap,.slot.off .slot-cap{color:var(--muted2)}
+/* Bar above nav */
+.bar{flex:0 0 auto;background:#fff;border-top:1px solid var(--bd);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px}
+.bar .btn.primary{flex:1;width:auto}
+/* Sheet */
+.sheet-scrim{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:100;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sheet-scrim.on{display:flex;animation:fadeIn .18s ease}
+.sheet{background:#fff;width:100%;max-width:460px;max-height:88vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+@media(min-width:520px){.sheet{border-radius:20px}}
+.sheet-hdr{padding:14px 18px;border-bottom:1px solid var(--bd2);display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.sheet-hdr h3{margin:0;font-size:14.5px;font-weight:900;flex:1;color:var(--ink)}
+.sheet-body{flex:1 1 auto;overflow-y:auto;padding:14px 18px}
+.sheet-foot{padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--bd2);background:#fafaf7;display:flex;gap:9px;flex:0 0 auto}
+/* Line items */
+.oline{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd2);align-items:flex-start}
+.oline:last-child{border-bottom:0;padding-bottom:0}
+.oline-info{flex:1;min-width:0;text-align:left}
+.oline-name{font-size:13px;font-weight:800;color:var(--ink)}
+.oline-meta{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.oline-price{font-size:13px;font-weight:900;color:var(--ink);flex:0 0 auto;padding-top:1px}
+.oline-rm{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--danger);padding:5px 9px;border-radius:7px;background:#fbeaea;border:1px solid #f0d1d1;cursor:pointer;font-family:inherit;flex:0 0 auto}
+/* Textarea wrapper */
+.wrap-tot{margin-top:12px;padding-top:12px;border-top:1px solid var(--bd2)}
+.wrap-row{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:12.5px;color:var(--muted2);font-weight:700}
+.wrap-row.total{border-top:1px solid var(--bd);margin-top:6px;padding-top:9px;font-size:14px;color:var(--ink);font-weight:900}
+.wrap-row.total b{font-weight:900;color:var(--ink)}
+.msgbox{background:var(--bg);border:1px solid var(--bd);border-radius:11px;padding:14px;font-size:12px;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;max-height:340px;overflow-y:auto}
+#toast{position:fixed;bottom:calc(150px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:12.5px;font-weight:800;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 40px);text-align:center}
+#toast.on{opacity:1}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="hdr">
+    <a class="brand-mark" href="index.html#promos" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
+    <div class="hdr-right"><span class="hdr-chip">Delivery</span></div>
+  </header>
+  <div class="viewport"><div class="scroll" id="scroll"></div></div>
+  <div class="bar" id="bar"></div>
+  <nav id="nav">
+    <a class="nav-btn" href="index.html#promos" aria-label="Promos"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></a>
+    <a class="nav-btn" href="index.html#restaurants" aria-label="Restaurants"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg></a>
+    <a class="nav-btn" href="index.html#reserve" aria-label="Events"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></a>
+    <a class="nav-btn" href="index.html#gallery" aria-label="Gallery"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></a>
+    <a class="nav-btn" href="index.html#about" aria-label="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></a>
+  </nav>
+</div>
+<div id="toast"></div>
+
+<script src="assets/data/delivery_zones.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   SAFE STORAGE — file:// blocks localStorage in Firefox and some
+   Chrome configurations. Every read/write goes through these
+   wrappers so the page never crashes.
+   ============================================================ */
+function safeGet(key){
+  try { return (window.localStorage ? window.localStorage.getItem(key) : null); }
+  catch(e){ return null; }
+}
+function safeSet(key,val){
+  try { if(window.localStorage) window.localStorage.setItem(key,val); }
+  catch(e){}
+}
+
+/* ============================================================
+   SHARED ORDER CONTEXT
+   index.html writes eatouts_order_v1 when the customer taps
+   "Delivery" on a checkout. We read the restaurant + itemised
+   order from it, and write the chosen delivery back so index can
+   show the fee and fold it into the WhatsApp message.
+   ============================================================ */
+var ORDER_KEY='eatouts_order_v1';
+
+var DEMO_ORDER = {
+  v:1, source:'menu',
+  restaurant:{id:'the-yellow-giraffe',name:'The Yellow Giraffe Coffee Club',meta:'Gaborone · Kgale View',logo:null,whatsapp:'26771844129'},
+  contact:{name:'',phone:'',notes:''},
+  items:[
+    {name:'The Big G Burger',size:null,qty:1,unit:125,extras:[{name:'Extra cheese',qty:1,price:10}],lineTotal:135},
+    {name:'Cappuccino (Double)',size:null,qty:1,unit:35,extras:[],lineTotal:35},
+    {name:'Chips',size:null,qty:2,unit:20,extras:[],lineTotal:40}
+  ],
+  subtotal:210, split:null, delivery:null
+};
+
+function loadOrder(){
+  var raw=safeGet(ORDER_KEY);
+  if(raw){ try{ var o=JSON.parse(raw); if(o&&o.restaurant) return o; }catch(e){} }
+  return JSON.parse(JSON.stringify(DEMO_ORDER));
+}
+function saveOrder(){
+  safeSet(ORDER_KEY,JSON.stringify(ORDER));
+}
+var ORDER=loadOrder();
+var RESTAURANT=ORDER.restaurant||DEMO_ORDER.restaurant;
+
+/* Delivery-zone API from assets/data/delivery_zones.js */
+function DL(){ return window.EatoutsDelivery||null; }
+function tierLabel(id){ return id==='core'?'Gaborone':(id==='peripheral'?'Near & Around Gaborone':''); }
+function modeLabel(id){ return id==='schedule'?'Schedule Delivery':'Deliver Now'; }
+function modeBlurb(id){
+  var m=DL()&&DL().modes?DL().modes().filter(function(x){return x.id===id;})[0]:null;
+  return m?m.blurb:(id==='schedule'?'Pick a delivery window. Lower priority, lower fee.':'Same-day dispatch. Higher priority, higher fuel cost.');
+}
+function feeFor(area,modeId){
+  if(!area||!DL()) return 0;
+  var f=DL().feeFor(area,modeId);
+  return f==null?0:f;
+}
+
+var WINDOWS = [
+  '06:00–07:00','07:00–08:00','08:00–09:00','09:00–10:00',
+  '10:00–11:00','11:00–12:00','12:00–13:00','13:00–14:00',
+  '14:00–15:00','15:00–16:00','16:00–17:00','17:00–18:00',
+  '18:00–19:00','19:00–20:00','20:00–21:00','21:00–22:00',
+  '22:00–23:00','23:00–00:00'
+];
+var WINDOW_HINTS = {
+  '06:00–07:00':'Early morning','07:00–08:00':'Morning','08:00–09:00':'Morning',
+  '09:00–10:00':'Morning','10:00–11:00':'Late morning','11:00–12:00':'Lunch build-up',
+  '12:00–13:00':'Lunch','13:00–14:00':'Afternoon','14:00–15:00':'Afternoon',
+  '15:00–16:00':'Afternoon','16:00–17:00':'Afternoon','17:00–18:00':'Early evening',
+  '18:00–19:00':'Dinner peak','19:00–20:00':'Dinner peak','20:00–21:00':'Dinner',
+  '21:00–22:00':'Late evening','22:00–23:00':'Late evening','23:00–00:00':'Final window'
+};
+var SLOT_CAPACITY = {
+  '06:00–07:00':{cap:6, taken:3},'07:00–08:00':{cap:6, taken:5},
+  '08:00–09:00':{cap:6, taken:6},'09:00–10:00':{cap:6, taken:0},
+  '10:00–11:00':{cap:6, taken:2},'11:00–12:00':{cap:6, taken:4},
+  '12:00–13:00':{cap:6, taken:6},'13:00–14:00':{cap:6, taken:1},
+  '14:00–15:00':{cap:6, taken:3},'15:00–16:00':{cap:6, taken:0},
+  '16:00–17:00':{cap:6, taken:0},'17:00–18:00':{cap:6, taken:4},
+  '18:00–19:00':{cap:6, taken:5},'19:00–20:00':{cap:6, taken:6},
+  '20:00–21:00':{cap:6, taken:3},'21:00–22:00':{cap:6, taken:4},
+  '22:00–23:00':{cap:6, taken:0},'23:00–00:00':{cap:6, taken:0}
+};
+
+var PROPERTY_TYPES = [
+  {id:'house',   name:'Stand-alone house',           cond:[{k:'house',   l:'House number / name'}]},
+  {id:'cluster', name:'Townhouse / cluster home',    cond:[{k:'unit',    l:'Unit number'}]},
+  {id:'flat',    name:'Flat / block of flats',       cond:[{k:'block',   l:'Block / unit identifier'},{k:'flat',l:'Flat number'}]},
+  {id:'complex', name:'Apartment / residential complex',cond:[{k:'complex',l:'Complex / gate name'},{k:'apt',l:'Apartment number'}]},
+  {id:'estate',  name:'Estate / gated community',    cond:[{k:'estate',  l:'Estate name'},{k:'phase',l:'Phase / stand number'}]},
+  {id:'backroom',name:'Backroom / outbuilding',      cond:[{k:'yard',    l:'Main yard identifier'},{k:'where',l:'Location inside the yard'}]},
+  {id:'office',  name:'Commercial office building',  cond:[{k:'company', l:'Company name'},{k:'floor',l:'Floor'},{k:'room',l:'Room / suite number'}]},
+  {id:'mall',    name:'Retail shopping mall / centre',cond:[{k:'shop',   l:'Shop name'},{k:'shopno',l:'Shop number'},{k:'entrance',l:'Entrance / delivery bay'}]},
+  {id:'industrial',name:'Industrial park / warehouse',cond:[{k:'company',l:'Company name'},{k:'depot',l:'Unit / depot identifier'},{k:'gate',l:'Gate or entrance'}]},
+  {id:'school',  name:'School / university',         cond:[{k:'inst',    l:'Institution name'},{k:'bldg',l:'Building'},{k:'room',l:'Room / office'}]},
+  {id:'hospital',name:'Hospital / clinic',           cond:[{k:'facility',l:'Facility name'},{k:'dept',l:'Block / department'},{k:'drop',l:'Permitted drop-off area'}]},
+  {id:'hotel',   name:'Hotel / lodge',               cond:[{k:'est',     l:'Establishment name'},{k:'room',l:'Reception / room number'}]},
+  {id:'venue',   name:'Religious / community venue', cond:[{k:'venue',   l:'Venue name'},{k:'gate',l:'Building or gate description'}]},
+  {id:'farm',    name:'Farm / rural homestead / plot',cond:[{k:'farm',   l:'Farm / homestead name'},{k:'plot',l:'Plot identifier'},{k:'dirs',l:'Directions'}]}
+];
+
+var COUNTRIES = [
+  {code:'+267', name:'Botswana', len:8, prefix:'267', hint:'71 234 567'},
+  {code:'+27',  name:'South Africa', len:9, prefix:'27', hint:'82 123 4567'},
+  {code:'+263', name:'Zimbabwe', len:9, prefix:'263', hint:'77 123 4567'}
+];
+
+var BANKS_BW = [
+  'First National Bank Botswana (FNBB)','Absa Bank Botswana','Access Bank Botswana',
+  'Stanbic Bank Botswana','Standard Chartered Bank Botswana','Bank Gaborone',
+  'Botswana Savings Bank (BSB)','First Capital Bank','Other Bank Card'
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+var STATE = {
+  basket: (ORDER.items||[]).slice(),
+  openAcc: {},
+  openDrp:null,
+  orderRef:'EO-' + (Math.floor(Math.random()*9000)+1000),
+  deliveryMode:null,
+  destination:{ area:'', street:'', plot:'', propType:'', cond:{}, directions:'', mapLink:'', tier:null },
+  slotDate:'',
+  slotWindow:'',
+  recipient:{isSelf:true, first:'', last:'', gender:'Prefer not to say', country:'+267', number:''},
+  payment:{method:'', bank:''},
+  sent:false
+};
+
+/* Hydrate from any delivery the customer already chose. */
+(function(){
+  var d=ORDER.delivery;
+  if(!d) return;
+  STATE.deliveryMode=d.mode||null;
+  STATE.destination.area=d.area||'';
+  STATE.destination.tier=d.tier||(d.area&&DL()&&DL().tierFor(d.area)?DL().tierFor(d.area).id:null);
+  if(d.address){
+    STATE.destination.plot=d.address.plot||'';
+    STATE.destination.street=d.address.street||'';
+    STATE.destination.propType=d.address.propType||'';
+    STATE.destination.cond=d.address.cond||{};
+    STATE.destination.directions=d.address.directions||'';
+  }
+  STATE.slotDate=d.date||'';
+  STATE.slotWindow=d.window||'';
+  if(d.recipient){
+    STATE.recipient.isSelf=false;
+    STATE.recipient.first=d.recipient.first||'';
+    STATE.recipient.last=d.recipient.last||'';
+    STATE.recipient.number=d.recipient.number||'';
+    STATE.recipient.country=d.recipient.country||'+267';
+  }
+  if(d.payment){ STATE.payment.method=d.payment; STATE.payment.bank=d.bank||''; }
+})();
+var toastTimer=null;
+if(!STATE.deliveryMode) STATE.openAcc.method=true;
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function money(n){return 'P'+(Number(n)||0).toFixed(2)}
+function todayISO(){var d=new Date();return d.toISOString().slice(0,10)}
+function formatDate(iso){if(!iso)return '';var d=new Date(iso+'T12:00:00');return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}
+function toast(m){var t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('on')},2000)}
+
+function basketSubtotal(){return STATE.basket.reduce(function(s,x){return s+(Number(x.lineTotal)||(Number(x.unit)||0)*(Number(x.qty)||0))},0)}
+function basketCount(){return STATE.basket.reduce(function(s,x){return s+(Number(x.qty)||0)},0)}
+function tierOf(){ return STATE.destination.tier || (STATE.destination.area&&DL()&&DL().tierFor(STATE.destination.area)?DL().tierFor(STATE.destination.area).id:null) }
+function deliveryFee(){ return STATE.deliveryMode ? feeFor(STATE.destination.area, STATE.deliveryMode) : 0 }
+function grandTotal(){ return basketSubtotal() + deliveryFee() }
+function isComplete(){
+  var d=STATE.destination;
+  return !!(STATE.deliveryMode && d.area && d.plot && (STATE.deliveryMode!=='schedule'||STATE.slotWindow) && (STATE.recipient.first||STATE.recipient.isSelf) && STATE.payment.method);
+}
+function waTarget(){ return (RESTAURANT&&RESTAURANT.whatsapp)||'26771844129' }
+
+/* Write the delivery selection back into the shared order key so
+   index.html shows the fee and adds it to the WhatsApp message. */
+function persistDelivery(){
+  ORDER.delivery={
+    mode:STATE.deliveryMode,
+    tier:tierOf(),
+    area:STATE.destination.area,
+    fee:deliveryFee(),
+    date:STATE.slotDate,
+    window:STATE.slotWindow,
+    recipient:{
+      first:STATE.recipient.first||'',
+      last:STATE.recipient.last||'',
+      name:((STATE.recipient.first||'')+' '+(STATE.recipient.last||'')).trim(),
+      phone:((STATE.recipient.country||'')+' '+(STATE.recipient.number||'')).trim(),
+      country:STATE.recipient.country||'+267',
+      number:STATE.recipient.number||''
+    },
+    payment:STATE.payment.method,
+    bank:STATE.payment.bank||'',
+    address:{
+      plot:STATE.destination.plot,
+      street:STATE.destination.street,
+      propType:STATE.destination.propType,
+      cond:STATE.destination.cond||{},
+      directions:STATE.destination.directions
+    }
+  };
+  saveOrder();
+}
+
+/* ============================================================
+   DROPDOWN
+   ============================================================ */
+function closeDropdowns(){STATE.openDrp=null}
+document.addEventListener('click',function(e){
+  if(e.target.closest('.drp-opt')) return;
+  if(e.target.closest('.drp')) return;
+  if(!e.target.closest('.drp-list')) closeDropdowns();
+});
+
+function renderDropdown(id,value,options,placeholder){
+  var open=STATE.openDrp===id;
+  var label=value?value:placeholder;
+  var opts=(options||[]).map(function(o){
+    var v=typeof o==='string'?o:o.value;
+    var l=typeof o==='string'?o:o.label;
+    var sub=(o && typeof o==='object' && o.sub) ? ('<small>'+esc(o.sub)+'</small>') : '';
+    return '<div class="drp-opt'+(v===value?' sel':'')+'" data-drp-pick="'+esc(id)+'" data-drp-val="'+esc(v)+'"><span>'+esc(l)+'</span>'+sub+'</div>';
+  }).join('');
+  return '<div class="drpset">'+
+    '<div class="drp'+(value?'':' ph')+'" data-drp-open="'+esc(id)+'">'+esc(label)+'</div>'+
+    (open?'<div class="drp-list open">'+
+      ((options||[]).length>6?'<input class="drp-search" data-drp-search="'+esc(id)+'" placeholder="Search…" autocomplete="off">':'')+
+      (opts||'<div class="drp-empty">No matches</div>')+
+    '</div>':'')+
+  '</div>';
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  var scroll=document.getElementById('scroll');
+  scroll.innerHTML=
+    renderRestaurantCard()+
+    renderOrderSummary()+
+    renderMethod()+
+    renderDestination()+
+    (STATE.deliveryMode==='schedule' ? renderSchedule() : '')+
+    renderRecipient()+
+    renderPayment()+
+    renderReview()+
+    renderWhatsApp();
+  renderBar();
+  bindInputs();
+  persistDelivery();
+}
+
+function renderRestaurantCard(){
+  var thumb=RESTAURANT.logo
+    ? '<img src="'+esc(RESTAURANT.logo)+'" alt="'+esc(RESTAURANT.name)+'">'
+    : '🍽';
+  var meta=RESTAURANT.meta||'';
+  return '<div class="rcard">'+
+    '<div class="rthumb">'+thumb+'</div>'+
+    '<div class="rinfo">'+
+      '<div class="rname">'+esc(RESTAURANT.name||'')+'</div>'+
+      (meta?'<div class="rmeta">'+esc(meta)+'</div>':'')+
+    '</div>'+
+  '</div>';
+}
+
+function renderOrderSummary(){
+  var sub=basketSubtotal();
+  var fee=deliveryFee();
+  var lbl=STATE.deliveryMode?'Estimated total':'Items subtotal';
+  var tot=STATE.deliveryMode?sub+fee:sub;
+  var extra=STATE.deliveryMode?(' · + '+money(fee)+' delivery'):'';
+  return '<button class="osum" data-act="backToOrder">'+
+    '<div class="osum-info">'+
+      '<div class="osum-lbl">'+esc(lbl)+'</div>'+
+      '<div class="osum-tot">'+money(tot)+'</div>'+
+      '<div class="osum-items">'+basketCount()+' item'+(basketCount()===1?'':'s')+esc(extra)+'</div>'+
+      '<div class="osum-back">Back to order summary</div>'+
+    '</div>'+
+  '</button>';
+}
+
+/* --- 1. Method --- */
+function renderMethod(){
+  var m=STATE.deliveryMode;
+  var val=m?(modeLabel(m)+(deliveryFee()?(' · '+money(deliveryFee())):'')) : 'Not selected';
+  var body='';
+  body+='<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Choose how you want to receive your order. The final fee depends on the destination.</div>';
+  body+='<div class="choose">';
+  ['now','schedule'].forEach(function(k){
+    var on=STATE.deliveryMode===k;
+    var fees=(DL()&&DL().modes?DL().modes().filter(function(x){return x.id===k;})[0]:null);
+    var price;
+    if(STATE.destination.area){ price=money(feeFor(STATE.destination.area,k)); }
+    else if(fees&&fees.fees){ price='P'+fees.fees.core+' / P'+fees.fees.peripheral; }
+    else { price=k==='schedule'?'P15 / P30':'P40 / P60'; }
+    body+='<button class="choose-card'+(on?' on':'')+'" data-act="pickMode" data-val="'+k+'">'+
+      '<b>'+esc(modeLabel(k))+'</b>'+
+      '<span class="price">'+esc(price)+'</span>'+
+      '<small>'+esc(modeBlurb(k))+'</small>'+
+    '</button>';
+  });
+  body+='</div>';
+  return '<div class="acc'+(STATE.openAcc['method']?' open':'')+'">'+
+    '<button class="acc-hdr" data-acc="method">'+
+      '<span class="acc-title"><span class="acc-lbl">Delivery Method</span><span class="acc-val'+(m?'':' muted')+'">'+esc(val)+'</span></span>'+
+    '</button>'+
+    '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
+  '</div>';
+}
+
+/* --- 2. Destination --- */
+function renderDestination(){
+  var d=STATE.destination;
+  var summary=[];
+  if(d.area) summary.push(d.area);
+  if(d.tier) summary.push(tierLabel(d.tier));
+  if(d.plot) summary.push('Plot '+d.plot);
+  if(d.propType){ var pt=PROPERTY_TYPES.filter(function(x){return x.id===d.propType})[0]; if(pt) summary.push(pt.name.split('/')[0].trim()) }
+  var val=summary.length?summary.join(' · '):'No address set';
+
+  var areaOpts=(DL()&&DL().allAreas?DL().allAreas():[]).map(function(a){
+    return {value:a.area,label:a.area,sub:tierLabel(a.tierId)};
+  });
+
+  var body='';
+  body+='<div class="fld"><label>Area / Neighbourhood</label>'+renderDropdown('area',d.area,areaOpts,'Choose an area')+
+    '<div class="hint">'+(d.tier?('Tier: '+tierLabel(d.tier)):'Pick an area to resolve the delivery tier and fee.')+'</div></div>';
+  body+='<div class="fld"><label>Street name (optional)</label><input type="text" data-field="street" value="'+esc(d.street)+'" placeholder="For newer developments"></div>';
+  body+='<div class="fld"><label>Plot / Erf / Stand number</label><input type="text" data-field="plot" value="'+esc(d.plot)+'" placeholder="e.g. 1234"></div>';
+  var propOpts=PROPERTY_TYPES.map(function(p){return {value:p.id,label:p.name}});
+  var propName=PROPERTY_TYPES.filter(function(x){return x.id===d.propType})[0];
+  body+='<div class="fld"><label>Property type</label>'+renderDropdown('propType',propName?propName.name:'',propOpts,'Choose property type')+'</div>';
+  if(propName){
+    body+='<div style="padding:12px 14px;background:var(--bg);border-radius:11px;border:1px solid var(--bd);margin-bottom:12px">';
+    body+='<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">'+esc(propName.name)+'</div>';
+    propName.cond.forEach(function(c){
+      body+='<div class="fld"><label>'+esc(c.l)+'</label><input type="text" data-cond="'+esc(c.k)+'" value="'+esc(d.cond[c.k]||'')+'"></div>';
+    });
+    body+='</div>';
+  }
+  body+='<div class="fld"><label>Directions and landmark</label><textarea data-field="directions" placeholder="e.g. Cream house with a blue gate, next to the tuckshop">'+esc(d.directions)+'</textarea><div class="hint">Help the driver find you. Gate colour, road name, nearby landmark.</div></div>';
+  body+='<div class="fld"><label>Map link (optional)</label><input type="url" data-field="mapLink" value="'+esc(d.mapLink)+'" placeholder="Paste a Google Maps link"></div>';
+  if(STATE.deliveryMode){
+    body+='<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd2);display:flex;justify-content:space-between;align-items:baseline">'+
+      '<span style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)">Delivery fee for this destination</span>'+
+      '<span style="font-size:16px;font-weight:900;color:var(--ink)">'+money(deliveryFee())+'</span>'+
+    '</div>';
+  }
+
+  return '<div class="acc'+(STATE.openAcc['dest']?' open':'')+'">'+
+    '<button class="acc-hdr" data-acc="dest">'+
+      '<span class="acc-title"><span class="acc-lbl">Delivery Destination</span><span class="acc-val'+(summary.length?'':' muted')+'">'+esc(val)+'</span></span>'+
+    '</button>'+
+    '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
+  '</div>';
+}
+
+/* --- 3. Schedule --- */
+function renderSchedule(){
+  var d=STATE.slotDate||todayISO();
+  var w=STATE.slotWindow;
+  var val=w?(formatDate(d)+' · '+w):'Choose a date and window';
+  var body='';
+  body+='<div class="fld"><label>Delivery date</label><input type="date" data-field="slotDate" value="'+esc(d)+'"></div>';
+  body+='<div class="fld"><label>Available delivery windows</label>';
+  body+='<div class="slots">';
+  WINDOWS.forEach(function(win){
+    var cap=SLOT_CAPACITY[win]||{cap:6,taken:0};
+    var remaining=cap.cap-cap.taken;
+    var isPast=new Date(d+'T00:00:00')<new Date(todayISO()+'T00:00:00');
+    var isToday=d===todayISO();
+    if(isToday){
+      var now=new Date();
+      var hh=parseInt(win.slice(0,2),10);
+      if(hh<now.getHours()){ isPast=true }
+    }
+    if(isPast) return;
+    var full=remaining<=0;
+    var on=STATE.slotWindow===win;
+    var capLabel=full?'Full':(remaining===1?'1 slot remaining':(remaining+' slots remaining'));
+    body+='<button class="slot'+(on?' on':'')+(full?' full':'')+'" data-act="pickSlot" data-val="'+esc(win)+'"'+(full?' disabled':'')+'>'+
+      '<span><span class="slot-lbl">'+esc(win)+'</span><span class="slot-sub">'+esc(WINDOW_HINTS[win]||'')+'</span></span>'+
+      '<span class="slot-cap">'+esc(capLabel)+'</span>'+
+    '</button>';
+  });
+  body+='</div>';
+  body+='<div class="hint">Only windows the restaurant has opened for this destination appear. A slot is confirmed once the restaurant accepts your request.</div>';
+  body+='</div>';
+  return '<div class="acc'+(STATE.openAcc['schedule']?' open':'')+'">'+
+    '<button class="acc-hdr" data-acc="schedule">'+
+      '<span class="acc-title"><span class="acc-lbl">Delivery Date &amp; Time</span><span class="acc-val'+(w?'':' muted')+'">'+esc(val)+'</span></span>'+
+    '</button>'+
+    '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
+  '</div>';
+}
+
+/* --- 4. Recipient --- */
+function renderRecipient(){
+  var r=STATE.recipient;
+  var val=(r.isSelf?'My details':(r.first||'Recipient not set'));
+  if(!r.isSelf && r.first) val=r.first+' '+(r.last||'');
+  var body='';
+  body+='<div class="fld"><label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink);font-weight:700">'+
+    '<input type="checkbox" data-field="isSelf"'+(r.isSelf?' checked':'')+' style="width:auto;min-height:auto;accent-color:#1a1a1a"> I am receiving this order</label></div>';
+  body+='<div class="row2">'+
+    '<div class="fld"><label>First name</label><input type="text" data-field="first" value="'+esc(r.first)+'" placeholder="Kagiso"></div>'+
+    '<div class="fld"><label>Surname</label><input type="text" data-field="last" value="'+esc(r.last)+'" placeholder="Sithole"></div>'+
+  '</div>';
+  var genders=['Male','Female','Prefer not to say'];
+  body+='<div class="fld"><label>Gender</label>'+renderDropdown('gender',r.gender,genders,'Choose')+'</div>';
+  body+='<div class="fld"><label>Mobile number</label><div class="row3">'+
+    '<div>'+renderDropdown('mobileCC',r.country||'+267',COUNTRIES.map(function(c){return {value:c.code,label:c.code+' '+c.name}}),'Code')+'</div>'+
+    '<div style="grid-column:span 2"><input type="tel" data-field="number" value="'+esc(r.number)+'" placeholder="71 234 567"></div>'+
+  '</div></div>';
+  return '<div class="acc'+(STATE.openAcc['recip']?' open':'')+'">'+
+    '<button class="acc-hdr" data-acc="recip">'+
+      '<span class="acc-title"><span class="acc-lbl">Recipient Details</span><span class="acc-val'+(val?'':' muted')+'">'+esc(val)+'</span></span>'+
+    '</button>'+
+    '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
+  '</div>';
+}
+
+/* --- 5. Payment --- */
+function renderPayment(){
+  var p=STATE.payment;
+  var val=p.method?({cash:'Cash on Delivery',card:'Card / Swipe on Delivery'}[p.method]):'Not selected';
+  var body='';
+  body+='<div class="choose">';
+  body+='<button class="choose-card'+(p.method==='cash'?' on':'')+'" data-act="pickPay" data-val="cash">'+
+    '<b>Cash on Delivery</b><small>Pay the driver in cash when the order arrives.</small></button>';
+  body+='<button class="choose-card'+(p.method==='card'?' on':'')+'" data-act="pickPay" data-val="card">'+
+    '<b>Card / Swipe on Delivery</b><small>Pay using the driver’s card terminal.</small></button>';
+  body+='</div>';
+  if(p.method==='card'){
+    body+='<div class="fld" style="margin-top:14px"><label>Terminal / bank (optional)</label>'+renderDropdown('bank',p.bank,BANKS_BW,'Choose a bank')+'<div class="hint">A normal card swipe does not need the bank. Only select if the restaurant asked.</div></div>';
+  }
+  body+='<div style="margin-top:12px;font-size:11.5px;color:var(--muted);line-height:1.5">Payment preference recorded. Payment has not yet been collected or verified.</div>';
+  return '<div class="acc'+(STATE.openAcc['pay']?' open':'')+'">'+
+    '<button class="acc-hdr" data-acc="pay">'+
+      '<span class="acc-title"><span class="acc-lbl">Payment Preference</span><span class="acc-val'+(p.method?'':' muted')+'">'+esc(val)+'</span></span>'+
+    '</button>'+
+    '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
+  '</div>';
+}
+
+/* --- 6. Review --- */
+function renderReview(){
+  var d=STATE.destination;
+  var r=STATE.recipient;
+  var complete=isComplete();
+  var val=complete?'Ready to review':'Complete the sections above';
+  var body='';
+  body+='<div style="margin-bottom:12px"><div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Restaurant</div><div style="font-size:13px;font-weight:800">'+esc(RESTAURANT.name||'')+'</div></div>';
+  body+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--bd2)">'+
+    '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)">Order</span><span style="font-size:13px;font-weight:800">'+money(basketSubtotal())+' · '+basketCount()+' item'+(basketCount()===1?'':'s')+'</span></div>'+
+    '<div style="margin-top:8px">'+renderItemLines()+'</div>'+
+  '</div>';
+  if(STATE.deliveryMode){
+    body+='<div class="wrap-row"><span>'+esc(modeLabel(STATE.deliveryMode))+(d.area?' · '+esc(d.area):'')+'</span><b>'+money(deliveryFee())+'</b></div>';
+  }
+  if(d.area){
+    body+='<div style="margin:12px 0"><div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Destination</div>'+
+      '<div style="font-size:12.5px;line-height:1.55">'+esc(d.area)+(d.plot?' · Plot '+esc(d.plot):'')+
+      (d.propType?'<br>'+esc((PROPERTY_TYPES.filter(function(x){return x.id===d.propType})[0]||{}).name||''):'')+
+      (d.directions?'<br><em style="color:var(--muted);font-style:italic">'+esc(d.directions)+'</em>':'')+
+      '</div></div>';
+  }
+  if(STATE.deliveryMode==='schedule' && STATE.slotWindow){
+    body+='<div class="wrap-row"><span>Window</span><b>'+esc(formatDate(STATE.slotDate)+' · '+STATE.slotWindow)+'</b></div>';
+    body+='<div class="wrap-row"><span>Slot status</span><b>Requested, awaiting restaurant confirmation</b></div>';
+  }
+  if(r.first||r.isSelf){
+    body+='<div class="wrap-row"><span>Recipient</span><b>'+esc((r.first||'')+' '+(r.last||''))+'</b></div>';
+    body+='<div class="wrap-row"><span>Mobile</span><b>'+esc((r.country||'+267')+' '+esc(r.number||''))+'</b></div>';
+  }
+  if(STATE.payment.method){
+    body+='<div class="wrap-row"><span>Payment</span><b>'+esc({cash:'Cash on Delivery',card:'Card / Swipe on Delivery'}[STATE.payment.method])+(STATE.payment.bank?' · '+esc(STATE.payment.bank):'')+'</b></div>';
+  }
+  body+='<div class="wrap-row total"><span>Estimated total</span><b>'+money(grandTotal())+'</b></div>';
+  body+='<div class="row2" style="margin-top:14px">'+
+    '<button class="btn ghost" data-act="openMethod">Edit delivery</button>'+
+    '<button class="btn primary"'+(complete?'':' disabled')+' data-act="openWA">Prepare WhatsApp</button>'+
+  '</div>';
+
+  return '<div class="acc'+(STATE.openAcc['review']?' open':'')+'">'+
+    '<button class="acc-hdr" data-acc="review">'+
+      '<span class="acc-title"><span class="acc-lbl">Delivery Review</span><span class="acc-val'+(complete?'':' muted')+'">'+esc(val)+'</span></span>'+
+    '</button>'+
+    '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
+  '</div>';
+}
+
+function renderItemLines(){
+  if(!STATE.basket.length) return '<div style="font-size:12.5px;color:var(--muted)">No items.</div>';
+  return STATE.basket.map(function(it){
+    var ex=(it.extras||[]).filter(function(x){return x.qty>0}).map(function(x){return esc(x.qty)+' × '+esc(x.name)}).join(', ');
+    return '<div class="oline">'+
+      '<div class="oline-info">'+
+        '<div class="oline-name">'+esc(it.qty)+' × '+esc(it.name)+(it.size?' <em>('+esc(it.size)+')</em>':'')+'</div>'+
+        (ex?'<div class="oline-meta">'+ex+'</div>':'')+
+      '</div>'+
+      '<div class="oline-price">'+money(it.lineTotal||(it.unit||0)*it.qty)+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+/* --- 7. WhatsApp --- */
+function buildWAMessage(){
+  var d=STATE.destination, r=STATE.recipient, p=STATE.payment;
+  var lines=[];
+  lines.push('EATOUTS DELIVERY REQUEST');
+  lines.push('Order reference: '+STATE.orderRef);
+  lines.push('Restaurant: '+(RESTAURANT.name||''));
+  lines.push('');
+  lines.push('DELIVERY TYPE');
+  lines.push(STATE.deliveryMode?modeLabel(STATE.deliveryMode):'—');
+  if(STATE.deliveryMode==='schedule' && STATE.slotWindow){
+    lines.push('');
+    lines.push('REQUESTED WINDOW');
+    lines.push(formatDate(STATE.slotDate)+' · '+STATE.slotWindow);
+  }
+  lines.push('');
+  lines.push('ITEMS');
+  STATE.basket.forEach(function(it){
+    lines.push(it.qty+' x '+it.name+(it.size?' ('+it.size+')':'')+'  '+money(it.lineTotal||(it.unit||0)*it.qty));
+    (it.extras||[]).forEach(function(x){ if(x.qty>0) lines.push('   + '+x.qty+' x '+x.name); });
+  });
+  lines.push('');
+  lines.push('ITEM SUBTOTAL: '+money(basketSubtotal()));
+  lines.push('DELIVERY FEE: '+money(deliveryFee()));
+  lines.push('ESTIMATED TOTAL: '+money(grandTotal()));
+  lines.push('');
+  lines.push('DESTINATION');
+  if(d.area) lines.push('Area: '+d.area);
+  if(d.tier) lines.push('Tier: '+tierLabel(d.tier));
+  if(d.plot) lines.push('Plot: '+d.plot);
+  if(d.propType){ var pt=PROPERTY_TYPES.filter(function(x){return x.id===d.propType})[0]; if(pt){ lines.push('Property: '+pt.name); } }
+  Object.keys(d.cond||{}).forEach(function(k){
+    if(!d.cond[k])return;
+    var lbl=k;
+    if(d.propType){ var p2=PROPERTY_TYPES.filter(function(x){return x.id===d.propType})[0]; if(p2){ p2.cond.forEach(function(c){if(c.k===k) lbl=c.l}) } }
+    lines.push(lbl+': '+d.cond[k]);
+  });
+  if(d.street) lines.push('Street: '+d.street);
+  if(d.directions){ lines.push(''); lines.push('DIRECTIONS'); lines.push(d.directions); }
+  lines.push('');
+  lines.push('RECIPIENT');
+  lines.push('Name: '+(r.first||'')+' '+(r.last||''));
+  lines.push('Mobile: '+(r.country||'+267')+' '+(r.number||''));
+  lines.push('');
+  lines.push('PAYMENT PREFERENCE');
+  lines.push(p.method==='cash'?'Cash on Delivery':(p.method==='card'?'Card / Swipe on Delivery'+(p.bank?' · '+p.bank:''):'—'));
+  lines.push('');
+  lines.push('SLOT STATUS');
+  lines.push('Requested. Awaiting restaurant confirmation.');
+  lines.push('');
+  lines.push('Please confirm order acceptance and the requested delivery window.');
+  return lines.join('\n');
+}
+
+function renderWhatsApp(){
+  var complete=isComplete();
+  var val=STATE.sent?'Message sent to WhatsApp':'Request not yet prepared';
+  var msg=complete?buildWAMessage():'';
+  var body='';
+  if(!complete){
+    body+='<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">Complete all sections above to prepare your WhatsApp request.</div>';
+  } else {
+    body+='<div class="fld"><label>Message preview</label><div class="msgbox">'+esc(msg)+'</div></div>';
+    body+='<div class="row2" style="margin-top:12px">'+
+      '<button class="btn ghost" data-act="copyWA">Copy message</button>'+
+      '<button class="btn wa" data-act="openWA">Open WhatsApp</button>'+
+    '</div>';
+    body+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd2)">'+
+      '<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Confirmation state</div>'+
+      '<div style="font-size:12.5px">'+(STATE.sent?'Request handed to WhatsApp.':'Request prepared. Not yet sent.')+'</div>'+
+      '<button class="btn ghost sm" data-act="markSent" style="margin-top:8px">'+(STATE.sent?'Undo “I sent this”':'I have sent this on WhatsApp')+'</button>'+
+    '</div>';
+  }
+  return '<div class="acc'+(STATE.openAcc['wa']?' open':'')+'">'+
+    '<button class="acc-hdr" data-acc="wa">'+
+      '<span class="acc-title"><span class="acc-lbl">WhatsApp Request</span><span class="acc-val'+(STATE.sent?'':' muted')+'">'+esc(val)+'</span></span>'+
+    '</button>'+
+    '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
+  '</div>';
+}
+
+/* ============================================================
+   BOTTOM BAR — a single wide primary button (no left info block).
+   ============================================================ */
+function renderBar(){
+  var bar=document.getElementById('bar');
+  var complete=isComplete();
+  var label;
+  if(!STATE.deliveryMode) label='Choose delivery';
+  else if(!complete) label='Complete the required details';
+  else label='Review & send · '+money(grandTotal());
+  bar.innerHTML='<button class="btn primary" data-act="barPrimary">'+esc(label)+'</button>';
+}
+
+/* ============================================================
+   BINDINGS
+   ============================================================ */
+function bindInputs(){
+  document.querySelectorAll('[data-field]').forEach(function(el){
+    el.oninput=el.onchange=function(){
+      var k=el.getAttribute('data-field');
+      if(k==='street'||k==='plot'||k==='directions'||k==='mapLink'){ STATE.destination[k]=el.value; persistDelivery(); }
+      else if(k==='slotDate'){ STATE.slotDate=el.value; if(STATE.slotWindow){ STATE.slotWindow='' } persistDelivery(); render(); return; }
+      else if(k==='isSelf'){ STATE.recipient.isSelf=el.checked; if(el.checked){STATE.recipient.first='Kagiso';STATE.recipient.last='Sithole';STATE.recipient.number='71100001'} persistDelivery(); render(); return; }
+      else if(k==='first'||k==='last'||k==='number'){ STATE.recipient[k]=el.value; persistDelivery(); }
+      renderBar();
+    };
+  });
+  document.querySelectorAll('[data-cond]').forEach(function(el){
+    el.oninput=function(){ STATE.destination.cond[el.getAttribute('data-cond')]=el.value; persistDelivery(); };
+  });
+}
+
+/* ============================================================
+   EVENT DELEGATION
+   ============================================================ */
+document.addEventListener('click',function(e){
+  var drpSearch=e.target.closest('[data-drp-search]');
+  if(drpSearch){
+    var q=drpSearch.value.toLowerCase();
+    var list=drpSearch.parentElement.querySelectorAll('.drp-opt');
+    Array.prototype.forEach.call(list,function(o){
+      o.style.display=o.textContent.toLowerCase().indexOf(q)>-1?'':'none';
+    });
+    return;
+  }
+
+  var drpOpen=e.target.closest('[data-drp-open]');
+  if(drpOpen){
+    var id=drpOpen.getAttribute('data-drp-open');
+    STATE.openDrp=STATE.openDrp===id?null:id;
+    render();
+    if(STATE.openDrp){
+      var s=document.querySelector('[data-drp-search="'+STATE.openDrp+'"]');
+      if(s) s.focus();
+    }
+    return;
+  }
+  var drpPick=e.target.closest('[data-drp-pick]');
+  if(drpPick){
+    var id2=drpPick.getAttribute('data-drp-pick');
+    var val=drpPick.getAttribute('data-drp-val');
+    applyPick(id2,val);
+    STATE.openDrp=null;
+    render();
+    return;
+  }
+
+  if(e.target.closest('[data-act="backToOrder"]')){
+    window.location.href='index.html?resume=1#restaurants';
+    return;
+  }
+
+  var acc=e.target.closest('[data-acc]');
+  if(acc){
+    var id3=acc.getAttribute('data-acc');
+    STATE.openAcc[id3]=!STATE.openAcc[id3];
+    render();
+    return;
+  }
+  var mode=e.target.closest('[data-act="pickMode"]');
+  if(mode){ STATE.deliveryMode=mode.getAttribute('data-val'); if(STATE.deliveryMode!=='schedule'){ STATE.slotWindow='' } persistDelivery(); render(); return }
+  var slot=e.target.closest('[data-act="pickSlot"]');
+  if(slot){ STATE.slotWindow=slot.getAttribute('data-val'); persistDelivery(); render(); return }
+  var pay=e.target.closest('[data-act="pickPay"]');
+  if(pay){ STATE.payment.method=pay.getAttribute('data-val'); persistDelivery(); render(); return }
+  if(e.target.closest('[data-act="openWA"]')){
+    if(!isComplete()){ toast('Complete the delivery sections first'); return }
+    var msg=buildWAMessage();
+    window.open('https://wa.me/'+waTarget()+'?text='+encodeURIComponent(msg),'_blank');
+    return;
+  }
+  if(e.target.closest('[data-act="copyWA"]')){
+    var txt=buildWAMessage();
+    if(navigator.clipboard) navigator.clipboard.writeText(txt).then(function(){toast('Message copied')},function(){toast('Copy failed')});
+    else toast('Copy not available');
+    return;
+  }
+  if(e.target.closest('[data-act="markSent"]')){ STATE.sent=!STATE.sent; render(); return }
+  if(e.target.closest('[data-act="barPrimary"]')){
+    if(!STATE.deliveryMode){ STATE.openAcc['method']=true; render(); scrollToAcc('method'); return }
+    if(!isComplete()){
+      STATE.openAcc['dest']=true;
+      render();
+      toast('Complete the required fields');
+      scrollToAcc('dest');
+      return;
+    }
+    STATE.openAcc['wa']=true; render(); scrollToAcc('wa');
+    return;
+  }
+  if(e.target.closest('[data-act="openMethod"]')){ STATE.openAcc['method']=true; render(); scrollToAcc('method'); return }
+});
+
+function scrollToAcc(id){
+  setTimeout(function(){
+    var el=document.querySelector('[data-acc="'+id+'"]');
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  },40);
+}
+
+/* ============================================================
+   APPLY PICK
+   ============================================================ */
+function applyPick(id,val){
+  var d=STATE.destination;
+  if(id==='area'){
+    d.area=val;
+    var t=DL()&&DL().tierFor?DL().tierFor(val):null;
+    d.tier=t?t.id:null;
+  }
+  else if(id==='propType'){ d.propType=val; d.cond={}; }
+  else if(id==='gender'){ STATE.recipient.gender=val; }
+  else if(id==='mobileCC'){ STATE.recipient.country=val; }
+  else if(id==='bank'){ STATE.payment.bank=val; }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+STATE.slotDate=STATE.slotDate||todayISO();
+if(STATE.recipient.isSelf && !STATE.recipient.first){
+  STATE.recipient.first='Kagiso';
+  STATE.recipient.last='Sithole';
+  STATE.recipient.number='71100001';
+}
+
+try {
+  render();
+} catch (err) {
+  var el=document.getElementById('scroll');
+  if(el) el.innerHTML=
+    '<div style="padding:40px 20px;color:#c43c3c;font-family:-apple-system,sans-serif;font-size:13px;line-height:1.7">'+
+      '<b>EatOuts Delivery failed to start.</b><br><br>'+
+      (err && err.message ? err.message : String(err))+
+      '<br><br><span style="color:#7a7466;font-size:11px">Press F12 → Console for the full stack.</span>'+
+    '</div>';
+  if(window.console && console.error) console.error(err);
+}
+})();
+</script>
+</body>
+</html>

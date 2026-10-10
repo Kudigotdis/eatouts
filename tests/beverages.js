@@ -116,7 +116,8 @@ setTimeout(() => {
   const waShare = doc.querySelector('[data-act="bevShareWa"]');
   check('generic EatOuts WhatsApp button', !!waGeneric);
   check('share-to-contact WhatsApp button', !!waShare);
-  check('generic button carries the EatOuts number', !!waGeneric && waGeneric.textContent.indexOf('267 718 29765') > -1, waGeneric ? waGeneric.textContent : '');
+  check('generic button labelled Send', !!waGeneric && waGeneric.textContent === 'Send', waGeneric ? waGeneric.textContent : '');
+  check('share button labelled Share via WhatsApp', !!waShare && waShare.textContent === 'Share via WhatsApp', waShare ? waShare.textContent : '');
   const text = ev('bevOrderText()');
   check('order text lists items', /×\s*\d/.test(text), text.slice(0, 120));
   check('order text shows a Pula total', /Total: P\d/.test(text), text.slice(-80));
