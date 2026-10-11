@@ -50,6 +50,43 @@ const FILES = [
   // Feedback page
   'eatouts_feedback.html',
 
+  // Auth / onboarding
+  'eatouts-login.html',
+  'eatouts-user-onboarding.html',
+  'eatouts-business-signup.html',
+  'bottle-store-onboarding.html',
+  'caterer-onboarding.html',
+  'lodge-onboarding.html',
+  'supplier-onboarding.html',
+
+  // Business manager
+  'staff-manager.html',
+  'delivery-manager.html',
+  'order-manager.html',
+  'reservation-manager.html',
+  'room-manager.html',
+  'billing-manager.html',
+  'analytics-manager.html',
+  'quote-manager.html',
+  'booking-manager.html',
+
+  // Platform admin
+  'eatouts-admin-dashboard.html',
+  'eatouts-users-manager.html',
+  'feedback-manager.html',
+  'blog-creator-dashboard.html',
+  'eatouts-verification-queue.html',
+  'eatouts-disputes.html',
+  'eatouts-platform-analytics.html',
+  'eatouts-notifications.html',
+  'eatouts-settings.html',
+
+  // Customer account
+  'eatouts-favourites.html',
+  'eatouts-orders.html',
+  'eatouts-profile.html',
+  'eatouts-addresses.html',
+
   // Cloudflare Pages config
   '_headers',
   '_redirects',

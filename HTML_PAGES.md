@@ -213,6 +213,60 @@ The two operator boards are seeded from the **50-order scheduled-delivery snapsh
 
 **Cannot do** - No server, no attachments: the screenshot is a pasted web URL and the resulting WhatsApp compose is a manual "Send" intent, not an automatic upload.
 
+## Manager / auth / admin / customer accounts (staged package)
+
+These pages were dropped in from a received package and normalized to the platform
+shell (top header + bottom nav). They share a **namespaced** store
+`EatoutsMgrDB` (`localStorage` key `eatouts_manager_v1`) so they never touch the
+customer app's `eatouts_db_v2`, and a role layer merged onto `EatoutsAuth`
+(`getUser/hasRole/can/routeFor`). They load
+`js/eatouts-manager-db.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`,
+`js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`,
+`js/eatouts-manager.js`, plus `assets/eatouts-manager.css`.
+
+**Demo credentials** (all PIN `1234`): customer `26770000001`, restaurant owner
+`26770000002`, bottle store `26770000003`, caterer `26770000004`, lodge
+`26770000005`, supplier `26770000006`, platform admin `26770000099`. Universal
+sign-in is `eatouts-login.html` (also reachable from `index.html` → About →
+Operator Sign in → "Universal sign-in").
+
+Navigation is role-based (rendered by `EO.shell`): **customer** (Promos · Saved ·
+Orders · Addresses · Profile), **operator** (Dashboard · Orders · Menu · Staff ·
+More) and **admin** (Admin · Users · Feedback · Analytics · Settings). Auth and
+onboarding screens use the centred `.login` card with a platform logo header.
+
+| Page | Who | Purpose |
+|------|-----|---------|
+| `eatouts-login.html` | all | Universal WhatsApp + PIN sign-in, routes by role |
+| `eatouts-user-onboarding.html` | customer | Customer account creation (18+ gate) |
+| `eatouts-business-signup.html` | new business | Business-type chooser |
+| `bottle-store-onboarding.html` / `caterer-onboarding.html` / `lodge-onboarding.html` / `supplier-onboarding.html` | each type | Per-type business onboarding |
+| `staff-manager.html` | biz owner/admin/manager | Staff CRUD, employment records, roles |
+| `delivery-manager.html` | biz owner/admin | Zones, fees, capacity, drivers, windows |
+| `order-manager.html` | biz + staff | Live order queue |
+| `reservation-manager.html` | biz owner/admin | Table bookings, guests, deposits |
+| `room-manager.html` | lodge owners | Rooms, rates, housekeeping |
+| `billing-manager.html` | biz owner | Subscription and invoices |
+| `analytics-manager.html` | biz owner/admin | Order / delivery analytics |
+| `quote-manager.html` | caterer/supplier | Quote builder |
+| `booking-manager.html` | supplier/lodge | Booking requests |
+| `eatouts-admin-dashboard.html` | platform admin | Platform control centre |
+| `eatouts-users-manager.html` | platform admin/ops | Users and role management |
+| `feedback-manager.html` | platform admin/support | Feedback ticket queue |
+| `blog-creator-dashboard.html` | platform author | Blog writer/publisher (uses `EatoutsBlogAdmin`) |
+| `eatouts-verification-queue.html` | platform ops | Business verification |
+| `eatouts-disputes.html` | platform admin/ops | Issues / refunds / escalations |
+| `eatouts-platform-analytics.html` | platform admin/analyst | Cross-platform analytics |
+| `eatouts-notifications.html` | platform admin | Segment notifications |
+| `eatouts-settings.html` | platform admin | Platform configuration |
+| `eatouts-favourites.html` / `eatouts-orders.html` / `eatouts-profile.html` / `eatouts-addresses.html` | customer | Account surfaces |
+
+Dropped on merge (the existing root page won): the package's stubs of
+`restaurant-onboarding.html`, `restaurant-dashboard.html`, `menu-onboarding.html`,
+`eatouts-suppliers.html`, `eatouts_feedback.html`. Dropped by decision: reviews
+(`review-manager.html`). The original package is kept verbatim under
+`staging/package/`.
+
 ## Gaps vs MARKETING_ONBOARDING_PLAN.md
 
 The plan's paid, launch-ready model assumes an owner can get a venue onto the public site. The current build does not close that loop:

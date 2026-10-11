@@ -315,6 +315,99 @@
     return false;
   }
 
+  /* ============================================================
+     MANAGER / ADMIN ROLE LAYER
+     Backs the onboarding, manager and platform-admin pages. Uses its
+     own store (EatoutsMgrDB, key "eatouts_manager_v1") and its own
+     session keys, so the hashed operator login above is untouched.
+     ============================================================ */
+
+  var MGR_SESSION_KEY = 'eatouts_active_session_v2';
+  var MGR_BUSINESS_KEY = 'eatouts_active_business_v2';
+
+  var demoRoleCredentials = {
+    customer:       { whatsapp: '26770000001', pin: '1234' },
+    restaurant:     { whatsapp: '26770000002', pin: '1234' },
+    bottle_store:   { whatsapp: '26770000003', pin: '1234' },
+    caterer:        { whatsapp: '26770000004', pin: '1234' },
+    lodge:          { whatsapp: '26770000005', pin: '1234' },
+    supplier:       { whatsapp: '26770000006', pin: '1234' },
+    platform_admin: { whatsapp: '26770000099', pin: '1234' }
+  };
+
+  function getUser() {
+    try {
+      var id = globalThis.localStorage ? localStorage.getItem(MGR_SESSION_KEY) : null;
+      if (!id) return null;
+      return (globalThis.EatoutsUsers && EatoutsUsers.find(id)) || null;
+    } catch (e) { return null; }
+  }
+
+  function roles() {
+    var u = getUser();
+    return (u && globalThis.EatoutsRoles) ? EatoutsRoles.roles(u) : [];
+  }
+
+  function hasRole(r) { return roles().indexOf(r) >= 0; }
+
+  function can(perm) {
+    var u = getUser();
+    return !!u && !!globalThis.EatoutsRoles && EatoutsRoles.can(u, perm);
+  }
+
+  function setActiveBusiness(id) {
+    try {
+      if (id) localStorage.setItem(MGR_BUSINESS_KEY, id);
+      else localStorage.removeItem(MGR_BUSINESS_KEY);
+    } catch (e) { /* ignore */ }
+    return id;
+  }
+
+  function getActiveBusiness() {
+    var u = getUser();
+    var id = null;
+    try { id = globalThis.localStorage ? localStorage.getItem(MGR_BUSINESS_KEY) : null; } catch (e) { /* ignore */ }
+    if (!id && u) id = u.businessId;
+    return (id && globalThis.EatoutsMgrDB) ? EatoutsMgrDB.find('businesses', id) : null;
+  }
+
+  function isLoggedIn() { return !!getUser(); }
+
+  function routeFor(u) {
+    if (!u) return 'eatouts-login.html';
+    var r = u.roles || [];
+    if (r.some(function (x) { return String(x).indexOf('platform_') === 0; }) || u.type === 'platform_admin') {
+      return 'eatouts-admin-dashboard.html';
+    }
+    if (u.type === 'customer') return 'eatouts-profile.html';
+    if (u.type === 'supplier') return 'quote-manager.html';
+    var b = globalThis.EatoutsMgrDB ? EatoutsMgrDB.find('businesses', u.businessId) : null;
+    if (b && b.type === 'lodge') return 'room-manager.html';
+    return 'restaurant-dashboard.html';
+  }
+
+  function loginManager(whatsapp, pin) {
+    var u = globalThis.EatoutsUsers ? EatoutsUsers.byWhatsapp(normaliseWhatsapp(whatsapp)) : null;
+    if (!u) return Promise.resolve({ ok: false, message: 'No EatOuts account matches that WhatsApp number.' });
+    if (u.status !== 'active') return Promise.resolve({ ok: false, message: 'This account is not active.' });
+    if (String(pin || '') !== '1234') return Promise.resolve({ ok: false, message: 'Incorrect PIN. Demo PIN: 1234.' });
+    try { localStorage.setItem(MGR_SESSION_KEY, u.id); } catch (e) { /* ignore */ }
+    if (u.businessId) setActiveBusiness(u.businessId);
+    return Promise.resolve({ ok: true, user: u, route: routeFor(u) });
+  }
+
+  function loginDemoRole(type) {
+    var d = demoRoleCredentials[type] || demoRoleCredentials.restaurant;
+    return loginManager(d.whatsapp, d.pin);
+  }
+
+  function logoutManager() {
+    try {
+      localStorage.removeItem(MGR_SESSION_KEY);
+      localStorage.removeItem(MGR_BUSINESS_KEY);
+    } catch (e) { /* ignore */ }
+  }
+
   globalThis.EatoutsAuth = {
     SESSION_KEY: SESSION_KEY,
     FLAGSHIP_SLUG: FLAGSHIP_SLUG,
@@ -329,6 +422,22 @@
     redirectToLogin: redirectToLogin,
     isUnlocked: isUnlocked,
     applyActive: applyActive,
+
+    /* manager / admin role layer */
+    SESSION: MGR_SESSION_KEY,
+    BUSINESS: MGR_BUSINESS_KEY,
+    demoRoleCredentials: demoRoleCredentials,
+    getUser: getUser,
+    roles: roles,
+    hasRole: hasRole,
+    can: can,
+    setActiveBusiness: setActiveBusiness,
+    getActiveBusiness: getActiveBusiness,
+    isLoggedIn: isLoggedIn,
+    routeFor: routeFor,
+    loginManager: loginManager,
+    loginDemoRole: loginDemoRole,
+    logoutManager: logoutManager,
 
     /* exposed for the seeding code and the test harness */
     normaliseWhatsapp: normaliseWhatsapp,

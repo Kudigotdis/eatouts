@@ -7013,6 +7013,11 @@ function renderOperatorLogin(){
     'Opens the owner console as The Yellow Giraffe so you can view and change its information. '+
     'Credentials above are <b>'+esc(demo?demo.whatsapp:"0")+'</b> / <b>'+esc(demo?demo.password:"0")+'</b> &mdash; still a demo.</p>';
 
+  h+='<div class="subh" style="margin-top:22px">Business, supplier &amp; admin</div>';
+  h+='<button class="btn ghost full" data-act="openUniversalLogin">Universal sign-in (WhatsApp + PIN)</button>';
+  h+='<p style="font-size:11px;color:#a89a7e;text-align:center;margin:9px 0 0;line-height:1.5">'+
+    'Sign in as a customer, business manager, supplier or platform admin.</p>';
+
   h+='<div style="margin-top:20px"><button class="btn ghost full" data-act="backFromOperatorLogin">Back to About Us</button></div>';
   h+='</div><div style="height:34px"></div></div>';
   return h;
@@ -7569,6 +7574,7 @@ document.addEventListener("click",function(e){
     state.operatorView="login";render();return;
   }
   if(act==="backFromOperatorLogin"){state.operatorView="about";state.aboutView="main";render();return;}
+  if(act==="openUniversalLogin"){location.href="eatouts-login.html";return;}
   if(act==="doOperatorLogin"){
     const wEl=document.getElementById("opWhats"), pEl=document.getElementById("opPass");
     const errEl=document.getElementById("opErr");
