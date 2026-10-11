@@ -27,11 +27,11 @@
       ["eatouts-profile.html","Profile"]
     ],
     operator:[
-      ["restaurant-dashboard.html","Dashboard"],
+      ["operator-dashboard1.html","Dashboard"],
       ["order-manager.html","Orders"],
       ["menu-onboarding.html","Menu"],
       ["staff-manager.html","Staff"],
-      ["eatouts-settings.html","More"]
+      ["operator-dashboard1.html?tab=settings","More"]
     ],
     admin:[
       ["eatouts-admin-dashboard.html","Admin"],
@@ -45,18 +45,28 @@
     const u=currentUser();
     if(!u)return "public";
     const r=u.roles||[];
-    if(r.some(x=>String(x).indexOf("platform_")===0)||u.type==="platform_admin")return "admin";
+    const isPlatform = u.type==="platform_admin"
+      || (u.platformRole&&/^(platform_|staff_)/.test(u.platformRole))
+      || r.some(x=>/^(platform_|staff_)/.test(String(x))||String(x)==="super_admin"||String(x)==="moderator");
+    if(isPlatform)return "admin";
     if(u.type==="customer")return "customer";
     if(u.type==="supplier")return "operator";
     return "operator";
   }
   function homeFor(group){
     if(group==="admin")return "eatouts-admin-dashboard.html";
-    if(group==="operator")return "restaurant-dashboard.html";
+    if(group==="operator"){
+      const u=currentUser();
+      if(window.EatoutsAuth&&EatoutsAuth.routeFor){try{const r=EatoutsAuth.routeFor(u);if(r)return r}catch(e){}}
+      return "operator-dashboard1.html";
+    }
     return "index.html#promos";
   }
   function ensureDemo(){
-    if(!EatoutsAuth.isLoggedIn()){localStorage.setItem(EatoutsAuth.SESSION,"u-owner");localStorage.setItem(EatoutsAuth.BUSINESS,"biz-restaurant")}
+    if(!EatoutsAuth.isLoggedIn()){
+      const seed=EatoutsUsers.find("u-owner");
+      if(seed){EatoutsAuth.startSession(seed)}else{localStorage.setItem(EatoutsAuth.SESSION,"u-owner");localStorage.setItem(EatoutsAuth.BUSINESS,"biz-restaurant")}
+    }
   }
   function guard(opts={}){
     const u=currentUser();
@@ -86,8 +96,24 @@
   function status(s){return `<span class="status ${String(s).replace(/\s+/g,"-").toLowerCase()}">${esc(s)}</span>`}
   function formField(name,label,type="text",value="",extra=""){return `<label class="field"><span>${esc(label)}</span><input name="${esc(name)}" type="${type}" value="${esc(value)}" ${extra}></label>`}
   function selectField(name,label,options,value=""){return `<label class="field"><span>${esc(label)}</span><select name="${esc(name)}">${options.map(o=>`<option value="${esc(o)}" ${o===value?"selected":""}>${esc(o)}</option>`).join("")}</select></label>`}
+  /* ---- Phase 8 safety/UX helpers (shared, non-breaking) ---- */
+  function uid(prefix){return (prefix||"id")+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7)}
+  /* Normalize a phone number for matching: digits only, drop a leading 267. */
+  function phone(v){var d=String(v==null?"":v).replace(/\D/g,"");if(d.length>8&&d.slice(0,3)==="267")d=d.slice(3);return d}
+  /* Readable display form while storing/ matching on the normalized value. */
+  function phoneDisplay(v){var d=String(v==null?"":v).replace(/\D/g,"");if(!d)return "";if(d.length>8&&d.slice(0,3)==="267")d=d.slice(3);if(d.length===8)return "+267 "+d.slice(0,2)+" "+d.slice(2,5)+" "+d.slice(5);return String(v)}
+  /* International digits (country code kept) for wa.me / tel: links. */
+  function phoneIntl(v){var d=String(v==null?"":v).replace(/\D/g,"");if(d.length===8)d="267"+d;if(d.length===9&&d[0]==="0")d="267"+d.slice(1);return d}
+  /* Paginate a list: 50 rows per page by default (Phase 8). */
+  function page(rows,pageNo,size){var s=Number(size)>0?Number(size):50;var all=Array.isArray(rows)?rows:[];var total=all.length;var pages=Math.max(1,Math.ceil(total/s));var p=Math.min(Math.max(1,Number(pageNo)||1),pages);return {rows:all.slice((p-1)*s,p*s),page:p,pages:pages,size:s,total:total,hasPrev:p>1,hasNext:p<pages}}
+  /* Pagination controls. Click target exposes state attr (default data-page). */
+  function pager(state,attr){attr=attr||"data-page";if(!state||state.pages<=1)return "";var h='<div class="actions" style="justify-content:center;align-items:center;gap:8px">';if(state.hasPrev)h+='<button class="btn" type="button" '+attr+'="'+(state.page-1)+'">\u2039 Prev</button>';h+='<span class="minor">Page '+state.page+' of '+state.pages+' \u00b7 '+state.total+' records</span>';if(state.hasNext)h+='<button class="btn" type="button" '+attr+'="'+(state.page+1)+'">Next \u203a</button>';return h+'</div>'}
+  /* Standard empty state. */
+  function empty(msg,hint){return '<div class="empty"><strong>'+esc(msg||"Nothing here yet")+'</strong>'+(hint?'<p>'+esc(hint)+'</p>':'')+'</div>'}
+  /* Explicit confirmation for destructive actions. */
+  function confirmAction(msg){try{return window.confirm(String(msg||"Are you sure?"))}catch(e){return true}}
   function logout(){if(EatoutsAuth.logoutManager)EatoutsAuth.logoutManager();else EatoutsAuth.logout();location.href="eatouts-login.html"}
-  function bindCommon(){document.addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const act=a.dataset.action;if(act==="logout"){logout()}if(act==="back")history.back();if(act==="reset-demo"){EatoutsMgrDB.reset();toast("Demo data reset")}})}
-  window.EO={esc,money,toast,currentUser,business,guard,shell,card,metric,table,status,formField,selectField,bindCommon,NAV};
+  function bindCommon(){document.addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const act=a.dataset.action;if(act==="logout"){logout()}if(act==="back")history.back();if(act==="reset-demo"){EatoutsMgrDB.reset();toast("Demo data reset")}});if(window.EatoutsAnalytics){try{EatoutsAnalytics.track("page.view",{file:currentFile()})}catch(e){}}}
+  window.EO={esc,money,toast,currentUser,business,guard,shell,card,metric,table,status,formField,selectField,bindCommon,NAV,uid,phone,phoneDisplay,phoneIntl,page,pager,empty,confirm:confirmAction,ask:confirmAction};
   document.addEventListener("DOMContentLoaded",bindCommon);
 })();

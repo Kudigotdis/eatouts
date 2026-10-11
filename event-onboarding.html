@@ -84,12 +84,12 @@ input:focus,textarea:focus,select:focus{border-color:#1a1a1a;box-shadow:0 0 0 3p
   <div class="hdr-right"><span class="hdr-chip">Events &amp; Performers</span></div>
 </header>
 <nav class="tabs">
-  <a class="tab" href="restaurant-onboarding.html">Restaurant</a>
+  <a class="tab" href="business-onboarding1.html?type=restaurant">Restaurant</a>
   <a class="tab" href="menu-onboarding.html">Menu</a>
   <a class="tab" href="promo-onboarding.html">Promos</a>
   <a class="tab active" href="event-onboarding.html">Events</a>
   <a class="tab" href="gallery-onboarding.html">Gallery</a>
-  <a class="tab" href="restaurant-dashboard.html">Dashboard</a>
+  <a class="tab" href="operator-dashboard1.html">Dashboard</a>
 </nav>
 <main id="app" class="app"></main>
 <div class="action-bar">
@@ -248,7 +248,7 @@ function renderEditor(){
       <button type="button" class="btn btn-ghost btn-sm" id="addPerf">+ Add Performer</button>
     `)}
     ${sec('srv','07 · Services',`
-      ${(ev.serviceIds||[]).length?`<div style="font-size:12.5px">${(ev.serviceIds||[]).map(id=>{const s=(DB.restaurant.reservationServices||[]).find(x=>x.id===id);return s?esc(s.name):'';}).filter(Boolean).join(', ')}</div>`:'<div style="font-size:12px;color:var(--muted)">No services linked.</div>'}
+      ${(ev.serviceIds||[]).length?`<div style="font-size:12.5px">${(ev.serviceIds||[]).map(id=>{const s=(DB.restaurant.reservationServices||[]).find(x=>(typeof x==='string'?x===id:x.id===id));return s?(typeof s==='string'?esc(s):esc(s.name)):'';}).filter(Boolean).join(', ')}</div>`:'<div style="font-size:12px;color:var(--muted)">No services linked.</div>'}
       <button type="button" class="btn btn-ghost btn-sm" id="linkSvc" style="margin-top:6px">+ Add Service</button>
     `)}
     ${sec('rsvp','08 · RSVP / Booking',`
@@ -300,7 +300,7 @@ function wireEditor(ev){
   const addP=document.getElementById('addPerf');
   if(addP)addP.onclick=()=>addPerformerToEvent(ev);
   const linkS=document.getElementById('linkSvc');
-  if(linkS)linkS.onclick=()=>alert('Service linker coming next.');
+  if(linkS)linkS.onclick=()=>linkServices(ev);
   document.getElementById('btnCancel').onclick=()=>{VIEW={mode:'list',id:null};render();};
   document.getElementById('btnSaveEv').onclick=()=>{
     if(!ev.name){toast('Event name is required');return;}
@@ -340,6 +340,59 @@ function createPerformer(ev,v){
     ev.performances.push({id:uid('perf'),performerId:perf.id,title:v.title,startTime:v.startTime,endTime:v.endTime});
     dbSave(DB);renderEditor();
   }});
+}
+
+function linkServices(ev){
+  ev.serviceIds=ev.serviceIds||[];
+  const raw=DB.restaurant.reservationServices=(Array.isArray(DB.restaurant.reservationServices)?DB.restaurant.reservationServices:[]);
+  raw.forEach((s,i)=>{if(typeof s==='string'&&String(s).trim()){raw[i]={id:String(s).trim(),name:String(s).trim(),price:null,description:''};}});
+  const picked=ev.serviceIds.slice();
+  const scrim=document.createElement('div');scrim.className='modal-scrim';
+  scrim.innerHTML=`<div class="modal">
+    <div class="modal-hdr"><h3>Link Services</h3><button class="btn btn-ghost btn-sm" data-close>Close</button></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Choose the reservation services offered during this event. Linked services appear on the published event.</div>
+      <div id="svcList">
+        ${raw.length?raw.map(s=>`<label style="display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer">
+          <input type="checkbox" data-svc="${esc(s.id)}" ${picked.includes(s.id)?'checked':''}>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-weight:800">${esc(s.name||'Service')}</span>
+            <span style="display:block;font-size:11.5px;color:var(--muted)">${s.price!=null?'P'+Number(s.price).toFixed(2):'Price set by request'}${s.description?' · '+esc(s.description):''}</span>
+          </span>
+        </label>`).join(''):'<div class="empty">No reservation services yet. Add one below.</div>'}
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:12px">
+        <div style="font-size:12px;font-weight:800;color:#3a3324;margin-bottom:8px">Quick add</div>
+        <input data-new-name placeholder="Service name (e.g. VIP booth)">
+        <input data-new-price type="number" placeholder="Optional price (P)">
+        <button type="button" class="btn btn-ghost btn-sm" id="addNewSvc" style="margin-top:8px">+ Add Service</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close>Cancel</button>
+      <button class="btn btn-gold" data-save>Save</button>
+    </div></div>`;
+  document.body.appendChild(scrim);
+  scrim.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>scrim.remove());
+  scrim.querySelector('#addNewSvc').onclick=()=>{
+    const name=scrim.querySelector('[data-new-name]').value.trim();
+    if(!name){toast('Service name required');return;}
+    const price=scrim.querySelector('[data-new-price]').value===''?null:Number(scrim.querySelector('[data-new-price]').value);
+    const s={id:uid('svc'),name,price,description:''};
+    raw.push(s);dbSave(DB);
+    scrim.querySelector('[data-new-name]').value='';scrim.querySelector('[data-new-price]').value='';
+    const list=scrim.querySelector('#svcList');
+    const empty=list.querySelector('.empty');if(empty)empty.remove();
+    const label=document.createElement('label');
+    label.style.cssText='display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer';
+    label.innerHTML=`<input type="checkbox" data-svc="${esc(s.id)}" checked><span style="flex:1;min-width:0"><span style="display:block;font-weight:800">${esc(s.name)}</span><span style="display:block;font-size:11.5px;color:var(--muted)">${s.price!=null?'P'+Number(s.price).toFixed(2):'Price set by request'}</span></span>`;
+    list.appendChild(label);
+    toast('Service added');
+  };
+  scrim.querySelector('[data-save]').onclick=()=>{
+    ev.serviceIds=[...scrim.querySelectorAll('#svcList [data-svc]:checked')].map(x=>x.getAttribute('data-svc'));
+    dbSave(DB);scrim.remove();renderEditor();toast(ev.serviceIds.length?ev.serviceIds.length+' service(s) linked.':'No services linked.');
+  };
 }
 
 function renderPerformers(){

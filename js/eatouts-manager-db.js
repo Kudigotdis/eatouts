@@ -59,7 +59,7 @@
     disputes:[
       {id:"DSP-01",orderId:"EO-0990",businessId:"biz-restaurant",customer:"Kea",reason:"Missing item",status:"open",amount:45}
     ],
-    settings:{currency:"BWP",setupFee:450,defaultDeliveryFee:35,zones:["Gaborone CBD","Broadhurst","Block 8"],featureFlags:{reviews:true,delivery:true,quotes:true}}
+    settings:{currency:"BWP",setupFee:300,defaultDeliveryFee:35,zones:["Gaborone CBD","Broadhurst","Block 8"],featureFlags:{reviews:true,delivery:true,quotes:true}}
   };
   function clone(x){return JSON.parse(JSON.stringify(x));}
   function load(){
@@ -77,7 +77,7 @@
     collection(k){return ensure(k)},
     find(k,id){return ensure(k).find(x=>String(x.id)===String(id))||null},
     filter(k,fn){return ensure(k).filter(fn)},
-    upsert(k,obj){const a=ensure(k);const i=a.findIndex(x=>String(x.id)===String(obj.id));if(i<0)a.push(obj);else a[i]=Object.assign({},a[i],obj);save();return obj},
+    upsert(k,obj){if(!obj||typeof obj!=="object"||obj.id==null||String(obj.id)==="")return null;const a=ensure(k);const i=a.findIndex(x=>String(x.id)===String(obj.id));if(i<0)a.push(obj);else a[i]=Object.assign({},a[i],obj);save();return obj},
     remove(k,id){const a=ensure(k);const i=a.findIndex(x=>String(x.id)===String(id));if(i>=0)a.splice(i,1);save()},
     resolveContent(id){return this.find("businesses",id)||null}
   };

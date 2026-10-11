@@ -7583,7 +7583,7 @@ document.addEventListener("click",function(e){
     if(!window.EatoutsAuth){show("Sign-in is unavailable.");return;}
     setTimeout(function(){
       EatoutsAuth.login(whats,pass).then(function(res){
-        if(res.ok){location.href="restaurant-dashboard.html";return;}
+        if(res.ok){location.href=(res.user&&EatoutsAuth.routeFor)?EatoutsAuth.routeFor(res.user):"operator-dashboard1.html";return;}
         show(res.message||"Sign-in failed.");
         if(pEl){pEl.value="";pEl.focus();}
       }).catch(function(){show("Sign-in failed. Check the console.");});
@@ -7593,7 +7593,7 @@ document.addEventListener("click",function(e){
   if(act==="doOperatorDemo"){
     if(!window.EatoutsAuth){alert("Sign-in is unavailable.");return;}
     EatoutsAuth.loginDemo().then(function(res){
-      if(res.ok){location.href="restaurant-dashboard.html";return;}
+      if(res.ok){location.href=(res.user&&EatoutsAuth.routeFor)?EatoutsAuth.routeFor(res.user):"operator-dashboard1.html";return;}
       alert(res.message||"Demo login failed.");
     });
     return;

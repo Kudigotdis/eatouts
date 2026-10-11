@@ -255,6 +255,91 @@ function exportVenue(){
   toast('Exported venue_'+slug+'.json');
 }
 
+/* ========== REPORTS (local, no backend) ==========
+   Weekly/monthly report built from the same deriveAnalytics()
+   aggregate shown on the dashboard. Rendered in an on-screen
+   panel, downloadable as CSV and printable. No server call. */
+function reportData(kind,A,name){
+  const period=kind==='monthly'?'Last 30 days':'Last 7 days';
+  const rows=[['Profile views',A.profileViews],['Menu views',A.menuViews],['WhatsApp actions',A.whatsapp],['Reservation requests',A.reservations]];
+  if(kind==='monthly'){rows.push(['Promo interactions',A.promoInteractions]);rows.push(['Event interactions',A.eventInteractions]);}
+  return {kind:kind,title:(kind==='monthly'?'Monthly':'Weekly')+' report',name:name||'Restaurant',period:period,rows:rows,breakdown:(A.menuBreakdown||[]).slice(0,5),whatsappTypes:A.whatsappTypes||[],generated:new Date()};
+}
+function reportRow(label,val){return '<tr><td style="padding:8px 4px;border-bottom:1px solid #ece7db">'+esc(label)+'</td><td style="padding:8px 4px;border-bottom:1px solid #ece7db;text-align:right;font-weight:800">'+Number(val||0).toLocaleString()+'</td></tr>';}
+function reportHTML(kind,A,name){
+  const d=reportData(kind,A,name);
+  let h='<div style="font-family:Inter,system-ui,sans-serif;color:#1a1a1a">'
+    +'<div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e">Eatouts '+d.title+'</div>'
+    +'<h2 style="margin:6px 0 2px;font-size:18px;font-weight:900">'+esc(d.name)+'</h2>'
+    +'<div style="font-size:12px;color:#8a8170">'+esc(d.period)+' · generated '+d.generated.toLocaleString()+'</div>'
+    +'<table style="width:100%;border-collapse:collapse;margin-top:12px"><tbody>';
+  d.rows.forEach(function(r){h+=reportRow(r[0],r[1]);});
+  h+='</tbody></table>';
+  if(kind!=='monthly'&&d.breakdown.length){
+    h+='<div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;margin:16px 0 4px">Top menu items</div><table style="width:100%;border-collapse:collapse"><tbody>';
+    d.breakdown.forEach(function(m){h+=reportRow(m.name,m.views);});
+    h+='</tbody></table>';
+  }
+  if(kind==='monthly'&&d.whatsappTypes.length){
+    h+='<div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;margin:16px 0 4px">WhatsApp action types</div><table style="width:100%;border-collapse:collapse"><tbody>';
+    d.whatsappTypes.forEach(function(w){h+=reportRow(w.type,w.v);});
+    h+='</tbody></table>';
+  }
+  h+='<div style="font-size:11px;color:#8a8170;margin-top:14px">Generated from your local Eatouts data. Live analytics arrive with the analytics engine.</div></div>';
+  return h;
+}
+function reportCSV(kind,A,name){
+  const d=reportData(kind,A,name);
+  const cell=function(v){const s=String(v==null?'':v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  const lines=[['Eatouts '+d.title],['Business',d.name],['Period',d.period],['Generated',d.generated.toISOString()],[],['Metric','Value']];
+  d.rows.forEach(function(r){lines.push([r[0],r[1]]);});
+  if(kind!=='monthly'&&d.breakdown.length){lines.push([]);lines.push(['Top menu items','Views']);d.breakdown.forEach(function(m){lines.push([m.name,m.views]);});}
+  if(kind==='monthly'&&d.whatsappTypes.length){lines.push([]);lines.push(['WhatsApp action type','Count']);d.whatsappTypes.forEach(function(w){lines.push([w.type,w.v]);});}
+  return '\ufeff'+lines.map(function(row){return row.map(cell).join(',');}).join('\r\n');
+}
+function downloadReport(kind,A,name){
+  try{
+    const blob=new Blob([reportCSV(kind,A,name)],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='eatouts_'+kind+'_report.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);toast('Report downloaded');
+  }catch(e){toast('Download unavailable on this device');}
+}
+function printReport(kind,A,name){
+  try{
+    const frame=document.createElement('iframe');
+    frame.setAttribute('aria-hidden','true');
+    frame.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+    document.body.appendChild(frame);
+    const w=frame.contentWindow;if(!w)return;
+    w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Eatouts '+reportData(kind,A,name).title+'</title></head><body style="margin:24px">'+reportHTML(kind,A,name)+'</body></html>');w.document.close();
+    const run=function(){try{if(typeof w.print==='function')w.print();}catch(e){}setTimeout(function(){frame.remove();},600);};
+    if(w.document.readyState==='complete')run();else frame.onload=run;
+  }catch(e){toast('Print unavailable on this device');}
+}
+function closeReport(){const s=document.getElementById('reportScrim');if(s)s.remove();document.removeEventListener('keydown',onReportKey);}
+function onReportKey(e){if(e.key==='Escape')closeReport();}
+function showReport(kind,A,name){
+  closeReport();
+  const scrim=document.createElement('div');
+  scrim.id='reportScrim';
+  scrim.style.cssText='position:fixed;inset:0;background:rgba(10,10,10,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center;overflow:auto';
+  scrim.innerHTML='<div id="reportPanel" style="background:#fff;width:100%;max-width:520px;max-height:90vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 18px 22px;box-shadow:0 -12px 40px rgba(0,0,0,.28)">'
+    +reportHTML(kind,A,name)
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">'
+    +'<button id="repCsv" type="button" style="border:1px solid #ece7db;border-radius:12px;padding:12px;font:inherit;font-weight:800;background:#1a1a1a;color:#fff;cursor:pointer">Download CSV</button>'
+    +'<button id="repPrint" type="button" style="border:1px solid #ece7db;border-radius:12px;padding:12px;font:inherit;font-weight:800;background:#fff;color:#1a1a1a;cursor:pointer">Print</button>'
+    +'</div>'
+    +'<button id="repClose" type="button" style="width:100%;margin-top:8px;border:0;background:transparent;color:#8a8170;font:inherit;font-weight:700;padding:10px;cursor:pointer">Close</button>'
+    +'</div>';
+  document.body.appendChild(scrim);
+  scrim.addEventListener('click',function(e){if(e.target===scrim)closeReport();});
+  document.addEventListener('keydown',onReportKey);
+  document.getElementById('repCsv').onclick=function(){downloadReport(kind,A,name);};
+  document.getElementById('repPrint').onclick=function(){printReport(kind,A,name);};
+  document.getElementById('repClose').onclick=closeReport;
+}
+
 function render(){
   const r=DB.restaurant||{};const id=r.identity||{};
   const A=deriveAnalytics();
@@ -378,17 +463,13 @@ function render(){
   <div class="card">
     <button class="btn btn-ghost btn-full" id="btnWeekly">Weekly Report</button>
     <button class="btn btn-ghost btn-full" id="btnMonthly" style="margin-top:8px">Monthly Report</button>
-    <div class="hint" style="margin-top:10px">Reports are generated from your local Eatouts data. Downloadable versions arrive with the live analytics engine.</div>
+    <div class="hint" style="margin-top:10px">Reports are generated from your local Eatouts data. Open one to view, download as CSV or print.</div>
   </div>
   `;
   document.getElementById('app').innerHTML=h;
 
-  document.getElementById('btnWeekly').onclick=()=>{
-    alert(`EATOUTS WEEKLY REPORT — ${id.name||'Restaurant'}\n\nProfile views: ${A.profileViews.toLocaleString()}\nMenu views: ${A.menuViews.toLocaleString()}\nWhatsApp actions: ${A.whatsapp.toLocaleString()}\nReservation requests: ${A.reservations.toLocaleString()}\n\nMost viewed menu item: ${A.menuBreakdown[0]?A.menuBreakdown[0].name:'—'}\n\nThis is a preview generated from local data.`);
-  };
-  document.getElementById('btnMonthly').onclick=()=>{
-    alert(`EATOUTS MONTHLY REPORT — ${id.name||'Restaurant'}\n\nProfile views: ${A.profileViews.toLocaleString()}\nMenu views: ${A.menuViews.toLocaleString()}\nWhatsApp actions: ${A.whatsapp.toLocaleString()}\nReservation requests: ${A.reservations.toLocaleString()}\nPromo interactions: ${A.promoInteractions}\nEvent interactions: ${A.eventInteractions}\n\nThis is a preview generated from local data.`);
-  };
+  document.getElementById('btnWeekly').onclick=()=>showReport('weekly',A,id.name);
+  document.getElementById('btnMonthly').onclick=()=>showReport('monthly',A,id.name);
   document.getElementById('btnChangePlan').onclick=()=>{
     const next={starter:'growth',growth:'pro',pro:'starter'}[plan];
     DB.settings=DB.settings||{};DB.settings.plan=next;dbSave(DB);

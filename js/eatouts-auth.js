@@ -127,6 +127,11 @@
   function saveSession(session) {
     try {
       localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      try {
+        if (session && session.userId) {
+          localStorage.setItem(AUTH_SESSION_KEY, String(session.userId));
+        }
+      } catch (e2) { /* ignore */ }
       if (typeof globalThis !== 'undefined' && globalThis.dispatchEvent) {
         globalThis.dispatchEvent(new CustomEvent('eatouts:auth', { detail: session }));
       }
@@ -137,8 +142,15 @@
     }
   }
 
-  function logout() {
+  function clearAllSessions() {
     try { localStorage.removeItem(SESSION_KEY); } catch (e) { /* ignore */ }
+    try { localStorage.removeItem(AUTH_SESSION_KEY); } catch (e) { /* ignore */ }
+    try { localStorage.removeItem(MGR_SESSION_KEY); } catch (e) { /* ignore */ }
+    try { localStorage.removeItem(MGR_BUSINESS_KEY); } catch (e) { /* ignore */ }
+  }
+
+  function logout() {
+    clearAllSessions();
     if (typeof globalThis !== 'undefined' && globalThis.dispatchEvent) {
       globalThis.dispatchEvent(new CustomEvent('eatouts:auth', { detail: null }));
     }
@@ -324,6 +336,7 @@
 
   var MGR_SESSION_KEY = 'eatouts_active_session_v2';
   var MGR_BUSINESS_KEY = 'eatouts_active_business_v2';
+  var AUTH_SESSION_KEY = 'eatouts_auth_session_v1';
 
   var demoRoleCredentials = {
     customer:       { whatsapp: '26770000001', pin: '1234' },
@@ -335,12 +348,40 @@
     platform_admin: { whatsapp: '26770000099', pin: '1234' }
   };
 
+  /* Canonical manager session id. Falls back to the legacy manager key and to
+     the root operator session's userId so one login is visible everywhere. */
+  function getActiveSession() {
+    try {
+      if (!globalThis.localStorage) return null;
+      var id = localStorage.getItem(AUTH_SESSION_KEY);
+      if (id) return id;
+      id = localStorage.getItem(MGR_SESSION_KEY);
+      if (id) return id;
+      var s = currentSession();
+      return (s && s.userId) || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   function getUser() {
     try {
-      var id = globalThis.localStorage ? localStorage.getItem(MGR_SESSION_KEY) : null;
+      var id = getActiveSession();
       if (!id) return null;
       return (globalThis.EatoutsUsers && EatoutsUsers.find(id)) || null;
     } catch (e) { return null; }
+  }
+
+  /* Canonical start of a manager/workspace session. Keeps the legacy manager
+     key in sync so older pages that read it directly keep working. */
+  function startSession(user) {
+    if (!user || !user.id) return null;
+    try {
+      localStorage.setItem(AUTH_SESSION_KEY, user.id);
+      localStorage.setItem(MGR_SESSION_KEY, user.id);
+    } catch (e) { /* ignore */ }
+    if (user.businessId) setActiveBusiness(user.businessId);
+    return user;
   }
 
   function roles() {
@@ -348,7 +389,11 @@
     return (u && globalThis.EatoutsRoles) ? EatoutsRoles.roles(u) : [];
   }
 
-  function hasRole(r) { return roles().indexOf(r) >= 0; }
+  function hasRole(r) {
+    var u = getUser();
+    if (u && globalThis.EatoutsRoles && EatoutsRoles.hasRole) return EatoutsRoles.hasRole(u, r);
+    return roles().indexOf(r) >= 0;
+  }
 
   function can(perm) {
     var u = getUser();
@@ -382,8 +427,14 @@
     if (u.type === 'customer') return 'eatouts-profile.html';
     if (u.type === 'supplier') return 'quote-manager.html';
     var b = globalThis.EatoutsMgrDB ? EatoutsMgrDB.find('businesses', u.businessId) : null;
-    if (b && b.type === 'lodge') return 'room-manager.html';
-    return 'restaurant-dashboard.html';
+    if (b) {
+      var bt = globalThis.EatoutsBusinessTypes;
+      var btype = (bt && typeof bt.normalize === 'function') ? bt.normalize(b.type) : b.type;
+      if (btype === 'lodge') return 'room-manager.html';
+      if (btype === 'foodtruck') return 'food-truck-schedule1.html?biz=' + encodeURIComponent(b.id);
+      return 'operator-dashboard1.html?biz=' + encodeURIComponent(b.id);
+    }
+    return 'eatouts-business-signup.html';
   }
 
   function loginManager(whatsapp, pin) {
@@ -391,8 +442,22 @@
     if (!u) return Promise.resolve({ ok: false, message: 'No EatOuts account matches that WhatsApp number.' });
     if (u.status !== 'active') return Promise.resolve({ ok: false, message: 'This account is not active.' });
     if (String(pin || '') !== '1234') return Promise.resolve({ ok: false, message: 'Incorrect PIN. Demo PIN: 1234.' });
-    try { localStorage.setItem(MGR_SESSION_KEY, u.id); } catch (e) { /* ignore */ }
+    startSession(u);
     if (u.businessId) setActiveBusiness(u.businessId);
+    /* Mirror into the operator session only when the business maps to a real
+       venue on the customer side, so legacy operator pages stay consistent. */
+    var b = globalThis.EatoutsMgrDB ? EatoutsMgrDB.find('businesses', u.businessId) : null;
+    if (b && b.restaurantId) {
+      saveSession({
+        userId: u.id,
+        userName: [u.firstName, u.surname].filter(Boolean).join(' ') || u.name || 'Owner',
+        role: 'Owner',
+        restaurantId: b.restaurantId,
+        restaurantName: b.name || '',
+        demo: false,
+        at: Date.now()
+      });
+    }
     return Promise.resolve({ ok: true, user: u, route: routeFor(u) });
   }
 
@@ -402,10 +467,7 @@
   }
 
   function logoutManager() {
-    try {
-      localStorage.removeItem(MGR_SESSION_KEY);
-      localStorage.removeItem(MGR_BUSINESS_KEY);
-    } catch (e) { /* ignore */ }
+    clearAllSessions();
   }
 
   globalThis.EatoutsAuth = {
@@ -424,9 +486,12 @@
     applyActive: applyActive,
 
     /* manager / admin role layer */
-    SESSION: MGR_SESSION_KEY,
+    SESSION: AUTH_SESSION_KEY,
     BUSINESS: MGR_BUSINESS_KEY,
+    AUTH_SESSION_KEY: AUTH_SESSION_KEY,
     demoRoleCredentials: demoRoleCredentials,
+    getActiveSession: getActiveSession,
+    startSession: startSession,
     getUser: getUser,
     roles: roles,
     hasRole: hasRole,

@@ -70,6 +70,12 @@ const FILES = [
   'quote-manager.html',
   'booking-manager.html',
 
+  // Spec workspaces (business / staff / food truck)
+  'business-onboarding1.html',
+  'operator-dashboard1.html',
+  'eatouts-staff-admin1.html',
+  'food-truck-schedule1.html',
+
   // Platform admin
   'eatouts-admin-dashboard.html',
   'eatouts-users-manager.html',

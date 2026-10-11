@@ -261,6 +261,28 @@ onboarding screens use the centred `.login` card with a platform logo header.
 | `eatouts-settings.html` | platform admin | Platform configuration |
 | `eatouts-favourites.html` / `eatouts-orders.html` / `eatouts-profile.html` / `eatouts-addresses.html` | customer | Account surfaces |
 
+### Spec workspaces (recovered `*1` pages)
+
+Four next-iteration workspaces came in with the package and replaced their root
+duplicates (`business-onboarding.html`, `operator-dashboard.html`,
+`eatouts-staff-admin.html`, `food-truck-schedule.html` were deleted; the `*1`
+variants are canonical). They load the same manager stack plus
+`js/eatouts-data.js` (adapter exposing `EatoutsDB.collection/find/upsert/remove`
+and `EatoutsBlog.all()` over `EatoutsMgrDB` + legacy keys) and
+`assets/data/business_types.js` (`EatoutsBusinessTypes`).
+
+| Page | Who | Purpose |
+|------|-----|---------|
+| `business-onboarding1.html` | any owner, or admin-assisted | Unified per-type business setup (module rail, draft autosave, preview, Save & publish → `operator-dashboard1.html`); entry links normalized to `eatouts-business-signup.html` |
+| `operator-dashboard1.html` | linked business owner/admin | Role-gated business workspace (orders, staff, reports, settings tabs; business switcher); entry links normalized to `eatouts-login.html` |
+| `eatouts-staff-admin1.html` | platform staff roles | Restricted staff workspace (role-limited tabs, read-only feedback for unauth ops); links normalized to `eatouts-login.html` / `eatouts-admin-dashboard.html` / `feedback-manager.html` / `blog-creator-dashboard.html` |
+| `food-truck-schedule1.html` | food truck owner | Food truck location / service-day schedule management |
+
+All four read/write through the adapted `EatoutsDB` namespace (root `eatouts_db_v2`
+for `restaurants`, `EatoutsMgrDB` under `eatouts_manager_v1` for the rest; blog
+union includes legacy `eatouts_blog_posts_v1`) and record actions via
+`EatoutsAudit.log` (`js/eatouts-audit.js`, key `eatouts_audit_v1`).
+
 Dropped on merge (the existing root page won): the package's stubs of
 `restaurant-onboarding.html`, `restaurant-dashboard.html`, `menu-onboarding.html`,
 `eatouts-suppliers.html`, `eatouts_feedback.html`. Dropped by decision: reviews

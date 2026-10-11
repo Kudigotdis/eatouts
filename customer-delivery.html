@@ -324,6 +324,33 @@ var STATE = {
   }
   if(d.payment){ STATE.payment.method=d.payment; STATE.payment.bank=d.bank||''; }
 })();
+
+/* Prefill the destination from the customer's saved default address
+   (address book or profile delivery location) when they open the
+   delivery step without a prior choice. No session / no saved address
+   means nothing changes. */
+(function(){
+  if(ORDER.delivery) return;
+  var uid=null;
+  try{ uid=safeGet('eatouts_auth_session_v1')||safeGet('eatouts_active_session_v2'); }catch(e){}
+  if(!uid) return;
+  var store={}; try{ store=JSON.parse(safeGet('eatouts_manager_v1')||'{}')||{}; }catch(e){ store={}; }
+  var list=(store.addresses||[]).filter(function(x){return x.userId===uid;});
+  var addr=list.filter(function(x){return x.isDefault;})[0]||list[0]||null;
+  var user=(store.users||[]).filter(function(x){return x.id===uid;})[0]||null;
+  if(!addr&&user&&user.deliveryLocation){ addr={area:user.deliveryLocation.area,town:user.deliveryLocation.town,street:user.deliveryLocation.plot,contact:user.whatsapp}; }
+  if(!addr) return;
+  var wanted=String(addr.area||addr.town||'').toLowerCase();
+  if(wanted&&DL()&&DL().allAreas){
+    var match=null;
+    (DL().allAreas()||[]).forEach(function(a){ var name=(a&&a.area)?a.area:(typeof a==='string'?a:''); if(!match&&String(name).toLowerCase()===wanted) match=name; });
+    if(match){ STATE.destination.area=match; var tr=DL().tierFor(match); STATE.destination.tier=tr?tr.id:null; }
+  }
+  if(addr.street||addr.plot) STATE.destination.street=addr.street||addr.plot;
+  var num=String(addr.contact||(user&&user.whatsapp)||'').replace(/\D/g,'');
+  if(num.indexOf('267')===0&&num.length>8) num=num.slice(3);
+  if(num){ STATE.recipient.number=num; STATE.recipient.country='+267'; }
+})();
 var toastTimer=null;
 if(!STATE.deliveryMode) STATE.openAcc.method=true;
 
@@ -376,6 +403,67 @@ function persistDelivery(){
     }
   };
   saveOrder();
+}
+
+/* ============================================================
+   ORDER BRIDGE — persist a completed order into the shared
+   stores the manager/customer/operator surfaces read:
+     - EatoutsMgrDB 'orders'  (order-manager.html, eatouts-orders.html,
+       and via the EatoutsData adapter the operator *1 workspaces)
+     - eatouts_order_v1_history (the legacy union key the operator
+       workspaces also merge against, deduped by id)
+   Idempotent per order ref, so re-marking sent never duplicates.
+   ============================================================ */
+function resolveBusinessId(){
+  var rid='';
+  try{ rid=String((ORDER.restaurant&&(ORDER.restaurant.id||ORDER.restaurant.slug))||''); }catch(e){}
+  var store={}; try{ store=JSON.parse(safeGet('eatouts_manager_v1')||'{}')||{}; }catch(e){ store={}; }
+  var buses=Array.isArray(store.businesses)?store.businesses:[];
+  function slugOf(b){ return String(b&&(b.slug||(b.identity&&b.identity.slug))||''); }
+  var hit=buses.filter(function(b){ return String(b&&b.restaurantId||'')===rid || slugOf(b)===rid; })[0];
+  if(hit) return hit.id;
+  var rest=buses.filter(function(b){ return String(b&&b.type||'')==='restaurant'; })[0];
+  return rest?rest.id:'biz-restaurant';
+}
+function persistCompletedOrder(){
+  try{
+    var d=new Date();
+    function p(n){ return String(n).length<2?('0'+n):String(n); }
+    var order={
+      id:String(STATE.orderRef||('EO-'+Math.floor(Math.random()*9000)+1000)),
+      businessId:resolveBusinessId(),
+      customer:((ORDER.contact&&ORDER.contact.name)||'').trim()||'Delivery customer',
+      items:(STATE.basket||[]).map(function(x){
+        var n=String(x&&x.name||'Item');
+        if(x&&x.size) n+=' ('+String(x.size)+')';
+        if(x&&x.qty>1) n+=' x'+x.qty;
+        return n;
+      }),
+      total:grandTotal(),
+      status:'new',
+      created:d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()),
+      delivery:STATE.deliveryMode==='schedule'?'Schedule delivery':'Deliver now',
+      source:'whatsapp',
+      restaurantId:(ORDER.restaurant&&ORDER.restaurant.id)||null,
+      restaurant:{id:(ORDER.restaurant&&ORDER.restaurant.id)||null,name:(ORDER.restaurant&&ORDER.restaurant.name)||'',whatsapp:(ORDER.restaurant&&ORDER.restaurant.whatsapp)||'',meta:(ORDER.restaurant&&(ORDER.restaurant.meta||ORDER.restaurant.town||''))||''},
+      meta:{
+        subtotal:basketSubtotal(),
+        deliveryFee:deliveryFee(),
+        area:STATE.destination.area,
+        tier:tierOf(),
+        slotDate:STATE.slotDate||'',
+        slotWindow:STATE.slotWindow||'',
+        recipient:(STATE.recipient.first||STATE.recipient.isSelf)?{name:((STATE.recipient.first||'')+' '+(STATE.recipient.last||'')).trim()||(STATE.recipient.isSelf?'Self':'Recipient'),phone:((STATE.recipient.country||'')+' '+(STATE.recipient.number||'')).trim()}:null,
+        payment:STATE.payment.method||'',
+        notes:(ORDER.contact&&ORDER.contact.notes)||''
+      }
+    };
+    var store={}; try{ store=JSON.parse(safeGet('eatouts_manager_v1')||'{}')||{}; }catch(e){ store={}; }
+    if(!Array.isArray(store.orders)) store.orders=[];
+    if(!store.orders.some(function(o){return String(o&&o.id||'')===String(order.id)})){ store.orders.unshift(order); safeSet('eatouts_manager_v1',JSON.stringify(store)); }
+    var hist=[]; try{ hist=JSON.parse(safeGet('eatouts_order_v1_history')||'[]'); if(!Array.isArray(hist))hist=[]; }catch(e){ hist=[]; }
+    if(!hist.some(function(o){return String(o&&o.id||o&&o.orderId||'')===String(order.id)})){ hist.unshift(order); safeSet('eatouts_order_v1_history',JSON.stringify(hist)); }
+  }catch(e){}
 }
 
 /* ============================================================
@@ -859,7 +947,12 @@ document.addEventListener('click',function(e){
     else toast('Copy not available');
     return;
   }
-  if(e.target.closest('[data-act="markSent"]')){ STATE.sent=!STATE.sent; render(); return }
+  if(e.target.closest('[data-act="markSent"]')){
+    STATE.sent=!STATE.sent;
+    if(STATE.sent){ persistCompletedOrder(); toast('Order added to the venue queue'); }
+    render();
+    return;
+  }
   if(e.target.closest('[data-act="barPrimary"]')){
     if(!STATE.deliveryMode){ STATE.openAcc['method']=true; render(); scrollToAcc('method'); return }
     if(!isComplete()){
