@@ -104,6 +104,8 @@ table tr:last-child td{border-bottom:0}
 .fbadge.archived,.fbadge.closed_lost,.fbadge.rejected{background:#3a3324;color:#fff}
 .famark{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;color:var(--danger);margin-top:4px}
 .famark.ok{color:var(--ok)}
+.rep-badge{display:inline-flex;align-items:center;vertical-align:-3px;gap:5px}
+.rep-badge .rep-av{width:20px;height:20px;border-radius:50%;object-fit:cover;background:#f0eee8;display:inline-block}
 .detail{min-height:100%}
 .dhead{display:flex;align-items:flex-start;gap:10px;padding:12px 12px 0}
 .dhead .dh-body{flex:1 1 auto;min-width:0}
@@ -546,6 +548,23 @@ table tr:last-child td{border-bottom:0}
     return r ? EatoutsField.repLabel(r) : null;
   }
 
+  var REP_PHOTO = {
+    'u-kudi':'assets/images/profile-pics/admin/Kudi.jpg',
+    'u-tiro':'assets/images/profile-pics/admin/tiro.jpg',
+    'u-nartey':'assets/images/profile-pics/admin/nartey.jpg'
+  };
+  function repPhoto(id){
+    return REP_PHOTO[String(id||'')] || null;
+  }
+  function repBadge(id){
+    var name = repName(id);
+    if(!name && !repPhoto(id)) return null;
+    var src = repPhoto(id);
+    return '<span class="rep-badge">' +
+      (src ? '<img class="rep-av" src="'+esc(src)+'" alt="" loading="lazy">' : '') +
+      '<span>'+esc(name||'')+'</span></span>';
+  }
+
   function renderChips(){
     var b = EatoutsField.statusBuckets();
     var chips = [
@@ -594,7 +613,7 @@ table tr:last-child td{border-bottom:0}
         return '<button class="frow" data-fo="open" data-id="'+esc(v.id)+'">' +
           '<div class="fr-main"><b>'+esc(v.name)+'</b>' +
           '<div class="fr-sub">'+esc(EatoutsField.venueTypeLabel(v.business_type))+' · '+esc(v.town||'—')+' · '+esc(v.area||'—')+
-          (repName(v.assigned_rep_id)?' · '+esc(repName(v.assigned_rep_id)):'')+'</div></div>' +
+          (repName(v.assigned_rep_id)?' · '+repBadge(v.assigned_rep_id):'')+'</div></div>' +
           '<div class="fr-side">'+side+'</div></button>';
       }).join('');
     }
@@ -698,7 +717,7 @@ table tr:last-child td{border-bottom:0}
     h += '<div class="ll">Contact log</div>';
     (v.contact_log || []).length ?
       h += v.contact_log.slice().reverse().map(function(e){
-        return '<div class="logitem"><div class="li-meta">'+EatoutsField.pretty(e.occurred_at)+' · '+esc(e.outcome||'note')+' · '+esc(repName(e.rep_id)||'')+'</div>' +
+        return '<div class="logitem"><div class="li-meta">'+EatoutsField.pretty(e.occurred_at)+' · '+esc(e.outcome||'note')+' · '+(repName(e.rep_id)?repBadge(e.rep_id):'')+'</div>' +
           '<div style="margin-top:4px">'+esc(e.body||'')+'</div>' +
           ((e.photo_urls && e.photo_urls.length) ? '<div style="margin-top:6px;font-size:11px;color:var(--muted)">'+e.photo_urls.map(function(p){return '<a href="'+esc(p)+'" target="_blank" rel="noopener">photo</a> ';}).join('')+'</div>' : '') +
         '</div>';
@@ -716,7 +735,7 @@ table tr:last-child td{border-bottom:0}
     if (v.payments && v.payments.length){
       h += (v.payments || []).slice().reverse().map(function(p){
         return '<div class="logitem"><div class="li-meta">'+fmtP(p.amount)+' · '+esc(p.method||'cash')+' · '+EatoutsField.pretty(p.received_at)+'</div>' +
-          '<div style="margin-top:3px;font-size:11.5px;color:var(--muted)">'+(p.reference?esc(p.reference)+' · ':'')+esc(repName(p.received_by_rep_id)||'')+' · '+esc(p.notes||'')+'</div></div>';
+          '<div style="margin-top:3px;font-size:11.5px;color:var(--muted)">'+(p.reference?esc(p.reference)+' · ':'')+(repName(p.received_by_rep_id)?repBadge(p.received_by_rep_id):'')+' · '+esc(p.notes||'')+'</div></div>';
       }).join('');
     } else {
       h += '<div class="notice">One full setup payment required — '+fmtP(EatoutsField.feeFor(v, false))+' (P'+EatoutsField.BASE_FEE+" first branch"+((v.branch_count||1)>1?' + P'+EatoutsField.BRANCH_FEE+'×'+(v.branch_count-1)+' extra branch': '')+').</div>';
@@ -753,7 +772,7 @@ table tr:last-child td{border-bottom:0}
 
     h += '<div class="ll">Audit trail ('+(v.audit_log||[]).length+')</div>';
     h += (v.audit_log || []).slice().reverse().map(function(a){
-      return '<div class="logitem"><div class="li-meta">'+esc(a.action)+' · '+EatoutsField.pretty(a.at)+' · '+esc(repName(a.actor_user_id)||'system')+'</div>' +
+      return '<div class="logitem"><div class="li-meta">'+esc(a.action)+' · '+EatoutsField.pretty(a.at)+' · '+(repName(a.actor_user_id)?repBadge(a.actor_user_id):'system')+'</div>' +
         '<div style="margin-top:3px;font-size:11.5px;color:var(--muted)">'+
         ((a.before)?'<span>'+esc(JSON.stringify(a.before))+'</span><br>':'')+
         ((a.after)?esc(JSON.stringify(a.after)):'')+'</div></div>';
