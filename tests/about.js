@@ -65,8 +65,18 @@ setTimeout(() => {
   const needDesign = vp.querySelector('a[href="designer-services.html"]');
   check('Need Design link present', !!needDesign, needDesign ? 'text=' + needDesign.textContent.trim() : 'missing');
   check('Need Design labelled correctly', !!needDesign && /need design/i.test(needDesign.textContent.trim()));
-  const firstBizRow = listBiz && listBiz.parentElement.querySelector('.acc-in > a.setrow');
-  check('Need Design is the first row under List Business', !!firstBizRow && /need design/i.test(firstBizRow.textContent.trim()));
+  const listBizDetails = listBiz && listBiz.parentElement;
+  const needDesignRow = needDesign && needDesign.closest('.acc-in');
+  check('Need Design is a Settings-level row (not inside List Business)',
+    !!needDesignRow && !needDesign.closest('details.setacc'), needDesignRow ? 'inside settings panel' : 'missing');
+  check('Need Design sits directly after the List Business panel',
+    !!needDesign && !!listBizDetails && needDesign.previousElementSibling === listBizDetails,
+    'expected the Need Design anchor to immediately follow <details.setacc>');
+  const bizPanel = listBizDetails && listBizDetails.querySelector('.acc-in');
+  const bizLinks = bizPanel ? Array.from(bizPanel.querySelectorAll('a[href^="eatouts-business-signup.html?type="]')) : [];
+  check('List Business panel holds only the 5 List As links',
+    !!bizPanel && bizLinks.length === 5 && !bizPanel.querySelector('a[href="designer-services.html"]'),
+    'count=' + bizLinks.length);
 
   const share = vp.querySelector('a.btn.share');
   check('Share EatOuts link present', !!share, share ? 'text=' + share.textContent.trim() : 'missing');
