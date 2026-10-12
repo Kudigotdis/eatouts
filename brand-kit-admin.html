@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Brand Jobs — EatOuts Admin</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--line:#ece7db;--soft:#faf8f2;--ok:#17834b;--warn:#946200;--danger:#a63d34;--r:12px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;line-height:1.45}
+button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;border:0;background:none;text-align:left}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.topbar{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:14px}
+.brand{font-weight:900;font-size:16px;letter-spacing:-.02em;color:var(--black)}.brand span{color:var(--gold)}
+.page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.top-actions{display:flex;gap:8px;align-items:center}.demo-note{font-size:10px;color:var(--warn);font-weight:800}
+.tabs{background:#fff;border-bottom:1px solid var(--line);display:flex;overflow-x:auto;padding:0 12px;position:sticky;top:57px;z-index:29}
+.tab{flex:0 0 auto;padding:13px 14px;font-size:12.5px;font-weight:800;color:var(--muted);border-bottom:2px solid transparent;text-decoration:none;white-space:nowrap}
+.tab.active{color:var(--black);border-bottom-color:var(--gold)}
+.app{max-width:1300px;margin:0 auto;padding:20px 20px 60px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;min-width:0}
+.stat label{font-size:10px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.stat strong{font-size:22px;font-weight:900;letter-spacing:-.02em;display:block;overflow-wrap:anywhere}
+.stat em{font-style:normal;font-size:10.5px;color:var(--muted);font-weight:600}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);margin-bottom:16px;padding:18px;min-width:0}
+.card h2{margin:0 0 12px;font-size:15px;font-weight:900;letter-spacing:-.01em}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filter{border:1px solid var(--line);background:#fff;padding:8px 12px;font-size:11.5px;font-weight:800;border-radius:8px;color:#5c5547}
+.filter.active{background:var(--black);color:#fff;border-color:var(--black)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.toolbar input,.toolbar select,.field input,.field select,.field textarea{min-width:0;width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.toolbar .search{flex:1 1 230px}.toolbar select{width:auto;flex:0 1 180px}
+.table-wrap{width:100%;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:740px}
+th{text-align:left;background:#faf8f2;color:var(--muted);padding:11px 10px;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}tr:last-child td{border-bottom:0}
+.biz{font-weight:900;font-size:12.5px}.sub{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.pill{display:inline-flex;align-items:center;font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:var(--soft);border:1px solid var(--line);color:#5c5547;white-space:nowrap}
+.pill.ok{background:#f5faf6;border-color:#b9d2c0;color:var(--ok)}.pill.warn{background:#fffbef;border-color:#ead8a8;color:var(--warn)}.pill.bad{background:#fff7f6;border-color:#e9c6c1;color:var(--danger)}.pill.neutral{background:#f7f7f7;color:#666}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 12px;border-radius:8px;font-size:11.5px;font-weight:800;background:var(--soft);border:1px solid var(--line);color:#3a3324;text-decoration:none;gap:6px;cursor:pointer;white-space:nowrap}
+.btn.primary{background:var(--black);color:#fff;border-color:var(--black)}.btn.ok{background:#e3f5e9;color:var(--ok);border-color:#b8e6c1}.btn.bad{background:#fbeaea;color:var(--danger);border-color:#e0c9c9}.btn.sm{min-height:28px;padding:0 10px;font-size:11px}
+.empty{padding:36px 20px;text-align:center;color:var(--muted);font-size:13px}.muted{color:var(--muted)}.footnote{font-size:11px;color:var(--muted);line-height:1.55;margin-top:12px}
+.notice{background:#fffbef;border:1px solid #ead8a8;color:#694d00;border-radius:8px;padding:11px 13px;font-size:11.5px;line-height:1.5;margin-bottom:16px}
+.notice.bad{background:#fff7f6;border-color:#e9c6c1;color:#8a2e27}.notice.ok{background:#f5faf6;border-color:#b9d2c0;color:#17663d}
+.job-detail{background:#fbfaf8;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+.job-detail h3{margin:0 0 8px;font-size:14px;font-weight:900}.job-detail h4{margin:16px 0 7px;font-size:12px}
+.brow{display:flex;gap:8px;padding:7px 0;font-size:12px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.brow:last-of-type{border:0}
+.brow strong{flex:0 0 140px;color:var(--muted);font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;padding-top:1px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.portfolio-thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.portfolio-thumbs .th{width:56px;height:56px;border-radius:6px;background:var(--soft);overflow:hidden;border:1px solid var(--line)}
+.portfolio-thumbs .th img{width:100%;height:100%;object-fit:cover}.fallback{width:100%;height:100%;background:linear-gradient(135deg,#f1ede0,#e4ddc9);display:flex;align-items:center;justify-content:center;color:#8d805e;font-size:10px;font-weight:900}
+.ds-av-wrap{position:relative;flex:0 0 auto;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#f1ede0,#e4ddc9);display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-right:8px}
+.ds-av-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.ds-av-ini{display:inline-flex;align-items:center;justify-content:center;width:100%;height:100%;color:#8d805e;font-weight:900;letter-spacing:.04em;text-transform:uppercase;border-radius:50%}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:11px;min-width:0}.field label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:900;color:var(--muted)}
+.field textarea{min-height:78px;resize:vertical}.field input[type=checkbox]{width:auto;min-height:auto}
+.inline-check{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin:8px 0}.inline-check input{width:auto}
+.service-category{margin:17px 0 8px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:900}
+.small{font-size:11px}.right{text-align:right}.nowrap{white-space:nowrap}
+.footer-note{padding:4px 2px 22px;color:var(--muted);font-size:10.5px;line-height:1.5}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.app{padding:14px 12px 40px}.card{padding:14px}.topbar{padding:12px}.brow strong{flex-basis:112px}}
+@media(max-width:520px){.page{font-size:10px}.stats{gap:8px}.stat{padding:11px}.stat strong{font-size:20px}.grid2{grid-template-columns:1fr}.top-actions .demo-note{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand" aria-label="EatOuts">EAT<span>OUTS</span></div>
+  <div class="page">Brand & Design Services Admin</div>
+  <div class="top-actions"><span id="mode-note" class="demo-note"></span><button class="btn sm" id="refresh-btn" type="button">Refresh</button></div>
+</header>
+<nav class="tabs" aria-label="Admin sections">
+  <a class="tab active" href="#jobs" data-tab="jobs">Jobs</a>
+  <a class="tab" href="#designers" data-tab="designers">Designers</a>
+  <a class="tab" href="#payouts" data-tab="payouts">Payouts</a>
+  <a class="tab" href="#services" data-tab="services">Services</a>
+</nav>
+<main class="app" id="app" aria-live="polite"></main>
+<footer class="app footer-note">Prototype note: browser storage is device-specific. For real multi-user locking, payment handling and role enforcement, connect these actions to a shared backend with server-side permission checks.</footer>
+
+<!-- Optional project modules. The page has a localStorage fallback so it remains inspectable if a module is not yet installed. -->
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-services-seed.js"></script>
+<script src="js/eatouts-designers-seed.js"></script>
+<script src="js/eatouts-brand-kit.js"></script>
+<script>
+(function(){
+'use strict';
+var KEYS={jobs:'eatouts_jobs_v1',oldJobs:'eatouts_brand_jobs_v1',designers:'eatouts_designers_v1',services:'eatouts_services_v1',audit:'eatouts_audit_log_v1',session:'eatouts_auth_session_v1',users:'eatouts_users_v1',db:'eatouts_db_v2'};
+var state={tab:'jobs',filter:'all',openJob:null,query:'',serviceCategory:'all',payoutFilter:'pending',onlyAvailable:false};
+var app=document.getElementById('app');
+var serviceFallback=[
+{id:'svc_logo_cleanup',category:'identity',name:'Logo clean-up',base_price:250,delivery_days:2,revision_rounds:1,deliverables:['Refined logo files'],is_recurring:false,recurrence:null,is_featured:true},
+{id:'svc_brand_kit',category:'identity',name:'Brand Kit',base_price:350,delivery_days:5,revision_rounds:2,deliverables:['PNG','SVG','Cover banner','WhatsApp profile image','Colour palette'],is_recurring:false,recurrence:null,is_featured:true},
+{id:'svc_brand_kit_plus',category:'identity',name:'Brand Kit Plus',base_price:500,delivery_days:10,revision_rounds:3,deliverables:['Extended identity set','Social templates','Print-ready files'],is_recurring:false,recurrence:null,is_featured:true},
+{id:'svc_promo_single',category:'promo',name:'Single promo card',base_price:80,delivery_days:1,revision_rounds:1,deliverables:['One promo graphic'],is_recurring:false,recurrence:null,is_featured:true},
+{id:'svc_promo_5',category:'promo',name:'Pack of 5 promo cards',base_price:300,delivery_days:3,revision_rounds:1,deliverables:['Five promo graphics'],is_recurring:false,recurrence:null,is_featured:true},
+{id:'svc_promo_10',category:'promo',name:'Pack of 10 promo cards',base_price:550,delivery_days:5,revision_rounds:2,deliverables:['Ten promo graphics'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_promo_monthly',category:'promo',name:'Monthly promo retainer — up to 8 designs',base_price:500,delivery_days:30,revision_rounds:2,deliverables:['Up to eight designs per month'],is_recurring:true,recurrence:'monthly',is_featured:true},
+{id:'svc_event_single',category:'event',name:'Single event flyer',base_price:120,delivery_days:2,revision_rounds:1,deliverables:['One event flyer'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_event_pack',category:'event',name:'Event pack',base_price:280,delivery_days:3,revision_rounds:2,deliverables:['Event flyer','Three social tiles','WhatsApp status'],is_recurring:false,recurrence:null,is_featured:true},
+{id:'svc_menu_refresh',category:'menu',name:'Menu refresh',base_price:400,delivery_days:5,revision_rounds:2,deliverables:['Redesigned existing menu'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_menu_full',category:'menu',name:'Full menu design',base_price:700,delivery_days:8,revision_rounds:2,deliverables:['Menu structure and layout'],is_recurring:false,recurrence:null,is_featured:true},
+{id:'svc_menu_photo',category:'menu',name:'Menu + photo layout',base_price:1200,delivery_days:12,revision_rounds:2,deliverables:['Menu layout using client-supplied photos'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_business_cards',category:'print',name:'Business cards',base_price:200,delivery_days:3,revision_rounds:2,deliverables:['Print-ready business card artwork'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_a5_flyer',category:'print',name:'A5 flyer',base_price:180,delivery_days:2,revision_rounds:1,deliverables:['Print-ready A5 flyer'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_table_tent',category:'print',name:'Table tent / menu stand',base_price:220,delivery_days:3,revision_rounds:2,deliverables:['Print-ready table tent'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_shopfront',category:'print',name:'Shopfront sign design',base_price:800,delivery_days:7,revision_rounds:2,deliverables:['Print-ready signage artwork'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_vehicle_wrap',category:'print',name:'Vehicle wrap',base_price:1500,delivery_days:10,revision_rounds:2,deliverables:['Vehicle wrap artwork'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_weekly_social',category:'social',name:'Weekly social pack',base_price:350,delivery_days:4,revision_rounds:2,deliverables:['Five posts','Three stories'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_monthly_social',category:'social',name:'Monthly social pack',base_price:1200,delivery_days:30,revision_rounds:2,deliverables:['Twenty posts','Twelve stories','One reel cover'],is_recurring:true,recurrence:'monthly',is_featured:true},
+{id:'svc_bag',category:'packaging',name:'Takeaway bag design',base_price:500,delivery_days:5,revision_rounds:2,deliverables:['Takeaway bag design'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_packaging_system',category:'packaging',name:'Full packaging system',base_price:1800,delivery_days:14,revision_rounds:3,deliverables:['Bag','Box','Cup','Label'],is_recurring:false,recurrence:null,is_featured:true},
+{id:'svc_animated_promo',category:'motion',name:'Animated promo (5–10 seconds)',base_price:400,delivery_days:4,revision_rounds:2,deliverables:['5–10 second animation'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_event_teaser',category:'motion',name:'Event teaser reel (15–30 seconds)',base_price:800,delivery_days:7,revision_rounds:2,deliverables:['15–30 second reel'],is_recurring:false,recurrence:null,is_featured:false},
+{id:'svc_social_video',category:'motion',name:'Full social video (30–60 seconds)',base_price:1200,delivery_days:10,revision_rounds:2,deliverables:['30–60 second edit from supplied footage'],is_recurring:false,recurrence:null,is_featured:false}
+];
+var categoryNames={identity:'Identity',promo:'Promo graphics',event:'Event flyers',menu:'Menu design',print:'Print & signage',social:'Social media packs',packaging:'Packaging',motion:'Motion graphics'};
+
+function parseJSON(raw,fallback){try{var v=JSON.parse(raw);return v==null?fallback:v;}catch(e){return fallback;}}
+function readArray(key){var a=parseJSON(localStorage.getItem(key),[]);return Array.isArray(a)?a:[];}
+function writeArray(key,a){localStorage.setItem(key,JSON.stringify(a));}
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function money(v){var n=Number(v);if(!Number.isFinite(n))n=0;try{return new Intl.NumberFormat('en-BW',{style:'currency',currency:'BWP',maximumFractionDigits:2}).format(n);}catch(e){return 'P'+n.toFixed(2);}}
+function safeDate(v){var d=typeof v==='number'?new Date(v):new Date(v||0);return isNaN(d.getTime())?'—':d.toLocaleDateString();}
+function stamp(){return Date.now();}
+function makeId(prefix){return prefix+'_'+stamp().toString(36)+'_'+Math.random().toString(36).slice(2,7);}
+function getDBSettings(){try{if(window.EatoutsDB&&typeof window.EatoutsDB.load==='function'){var db=window.EatoutsDB.load();return db&&db.settings||{};}}catch(e){}return {};}
+function logAudit(action,target,before,after){
+  var logs=readArray(KEYS.audit);
+  logs.push({id:makeId('audit'),at:stamp(),actor:getAdminLabel(),action:action,target:target||'',before:before==null?null:before,after:after==null?null:after});
+  if(logs.length>5000)logs=logs.slice(-5000);
+  try{writeArray(KEYS.audit,logs);}catch(e){console.warn('Audit log could not be saved',e);}
+}
+function getAdminLabel(){try{if(window.EatoutsAuth&&typeof window.EatoutsAuth.getUser==='function'){var u=window.EatoutsAuth.getUser();if(u)return u.name||u.fullName||u.id||u.platformRole||'admin';}}catch(e){}return 'local-admin';}
+function jobs(){
+  var canonical=readArray(KEYS.jobs);
+  if(canonical.length)return canonical;
+  var old=readArray(KEYS.oldJobs);
+  if(old.length){writeArray(KEYS.jobs,old);if(!localStorage.getItem(KEYS.oldJobs+'_migrated_at'))localStorage.setItem(KEYS.oldJobs+'_migrated_at',String(stamp()));return old;}
+  return canonical;
+}
+function saveJobs(a){writeArray(KEYS.jobs,a);}
+function designers(){
+  var a=readArray(KEYS.designers);
+  if(a.length)return a;
+  try{if(window.EatoutsBrandKit&&typeof window.EatoutsBrandKit.designers==='function'){var b=window.EatoutsBrandKit.designers();if(b&&b.length)return b;}}catch(e){}
+  return a;
+}
+function saveDesigners(a){writeArray(KEYS.designers,a);}
+function services(){return readArray(KEYS.services);}
+function saveServices(a){writeArray(KEYS.services,a);}
+function normalizeJob(j){
+  j=j||{};if(!j.id)j.id=makeId('job');if(!j.status)j.status='awaiting_admin';
+  if(!j.price_breakdown){var total=Number(j.total||j.base_price||j.price||0);j.price_breakdown={gross:total,platform_cut:round2(total*.15),designer_payout:round2(total-round2(total*.15))};}
+  if(!j.brief)j.brief={};if(!j.payout_status)j.payout_status='pending';
+  if(j.is_recurring==null)j.is_recurring=!!(j.recurrence||j.slot_type==='retainer');
+  if(!j.created_at)j.created_at=stamp();if(!j.updated_at)j.updated_at=j.created_at;
+  return j;
+}
+function round2(n){return Math.round((Number(n)+Number.EPSILON)*100)/100;}
+function seedIfNeeded(){
+  /* Let the project's service module seed first if it exposes the expected API. */
+  try{if(window.EatoutsBrandKit&&typeof window.EatoutsBrandKit.seedIfEmpty==='function')window.EatoutsBrandKit.seedIfEmpty();}catch(e){console.warn('Brand Kit seed module unavailable',e);}
+  var ss=services();
+  if(!ss.length){ss=serviceFallback.map(function(s){return Object.assign({tagline:'Design service for EatOuts businesses.',description:'Brief and deliverables confirmed during approval.',image:'',is_active:true},s);});saveServices(ss);}
+  var ds=designers();
+  if(!ds.length){
+    var seedDes=(window.EATOUTS_DESIGNERS_SEED&&window.EATOUTS_DESIGNERS_SEED.designers)||null;
+    if(seedDes&&seedDes.length){ds=seedDes.map(function(d){return Object.assign({},d);});}
+    else ds=[
+      {id:'des_001',portfolio_style:'Restaurant identity',portfolio:[],specialties:['identity','menu','print'],slot_type:['project'],active_projects:0,active_retainers:0,max_projects:1,max_retainers:3,jobs_completed:0,avg_turnaround_days:4,available:true,locked_by_admin:false},
+      {id:'des_002',portfolio_style:'Promotional artwork',portfolio:[],specialties:['promo','event','social'],slot_type:['project','retainer'],active_projects:0,active_retainers:0,max_projects:1,max_retainers:3,jobs_completed:0,avg_turnaround_days:3,available:true,locked_by_admin:false},
+      {id:'des_003',portfolio_style:'Digital & motion',portfolio:[],specialties:['promo','social','packaging','motion'],slot_type:['project','retainer'],active_projects:0,active_retainers:0,max_projects:1,max_retainers:3,jobs_completed:0,avg_turnaround_days:5,available:true,locked_by_admin:false}
+    ];
+    saveDesigners(ds);
+  }
+  /* Do not seed fake jobs. Real and demo jobs should only enter through a request or explicit demo action. */
+}
+function moneyFromJob(j,key){return Number((j.price_breakdown||{})[key]||0);}
+function statusLabel(s){return ({awaiting_admin:'Awaiting admin',awaiting_match:'Awaiting match',assigned:'Assigned',in_progress:'In progress',revision:'Revision requested',delivered:'Delivered',client_approved:'Client approved',closed:'Closed',cancelled:'Cancelled',stalled:'Stalled',paused:'Paused'})[s]||String(s||'Unknown').replace(/_/g,' ');}
+function pill(status){
+  var cls=({awaiting_admin:'warn',awaiting_match:'warn',assigned:'warn',in_progress:'warn',revision:'warn',delivered:'ok',client_approved:'ok',closed:'ok',cancelled:'bad',stalled:'bad',paused:'neutral'})[status]||'neutral';
+  return '<span class="pill '+cls+'">'+esc(statusLabel(status))+'</span>';
+}
+function tabTitle(){return ({jobs:'Brand & Design Jobs',designers:'Designer Roster',payouts:'Payouts & Earnings',services:'Service Catalogue'})[state.tab]||'Admin';}
+function currentUserDenied(){
+  var auth=window.EatoutsAuth;
+  if(!auth)return false; /* local prototype mode if the auth module has not been integrated */
+  try{
+    var u=typeof auth.getUser==='function'?auth.getUser():null;
+    if(!u)return false;
+    var roles=[u.platformRole].concat(Array.isArray(u.roles)?u.roles:[]).filter(Boolean);
+    var explicit=roles.some(function(r){return ['super_admin','platform_admin','platform_admin_owner','admin'].indexOf(r)>=0;});
+    if(explicit)return false;
+    if(typeof auth.can==='function' && (auth.can('brand_jobs.manage')||auth.can('platform.super_admin')||auth.can('jobs.assign')))return false;
+    return true;
+  }catch(e){return false;}
+}
+function renderAccessDenied(){
+  app.innerHTML='<div class="card"><h2>Admin access required</h2><p>This workspace is restricted to EatOuts platform administrators. Sign in with an authorised account, then reopen this page.</p><a class="btn primary" href="eatouts_login.html">Go to login</a><p class="footnote">This browser-only check is a convenience guard, not a substitute for server-side permissions.</p></div>';
+}
+function getPendingCount(d,slot,excludeId){
+  return jobs().filter(function(j){
+    if(j.id===excludeId||j.designer_id!==d.id||j.status!=='awaiting_admin')return false;
+    var jt=j.slot_type||(j.is_recurring?'retainer':'project');
+    return jt===slot;
+  }).length;
+}
+function getActiveCount(d,slot){
+  var key=slot==='retainer'?'active_retainers':'active_projects';
+  var stored=Math.max(0,Number(d[key]||0));
+  var derived=jobs().filter(function(j){
+    if(j.designer_id!==d.id)return false;
+    var type=j.slot_type||(j.is_recurring?'retainer':'project');
+    if(type!==slot)return false;
+    if(slot==='retainer')return ['assigned','in_progress','revision','delivered','client_approved','stalled'].indexOf(j.status)>=0 && j.retainer_state!=='ended' && j.retainer_state!=='paused';
+    return ['assigned','in_progress','revision','delivered','client_approved'].indexOf(j.status)>=0;
+  }).length;
+  /* Protect capacity if either the stored counter or the job ledger says the slot is occupied. */
+  return Math.max(stored,derived);
+}
+function designerCanTake(d,slot,excludingJobId){
+  if(!d||d.locked_by_admin)return false;
+  var used=getActiveCount(d,slot)+getPendingCount(d,slot,excludingJobId);
+  var limit=Number(slot==='retainer'?(d.max_retainers||3):(d.max_projects||1));
+  return used<limit;
+}
+function reservePendingSlot(designer,jobId){
+  if(!designer)return;
+  if(!Array.isArray(designer.pending_job_ids))designer.pending_job_ids=[];
+  if(designer.pending_job_ids.indexOf(jobId)<0)designer.pending_job_ids.push(jobId);
+  designer.reserved_by_job_id=designer.pending_job_ids[0]||null;
+}
+function runAutoStall(){
+  var all=jobs(),ds=designers(),now=stamp(),cutoff=14*24*60*60*1000,changed=[];
+  all.forEach(function(j){
+    if(j.is_recurring||['assigned','in_progress','revision','delivered'].indexOf(j.status)<0)return;
+    var last=Number(j.client_activity_at||j.created_at||now);
+    if(now-last<cutoff)return;
+    var before=JSON.parse(JSON.stringify(j));
+    j.status='stalled';j.stalled_at=now;j.stall_reason='No client activity for 14 days';j.updated_at=now;
+    changed.push({id:j.id,before:before,after:j});
+    var d=ds.findIndex(function(x){return x.id===j.designer_id;});
+    if(d>=0)ds[d].active_projects=Math.max(0,Number(ds[d].active_projects||0)-1);
+  });
+  if(changed.length){
+    saveAndAudit(KEYS.jobs,all,'job.auto_stalled',changed.map(function(x){return x.id;}).join(','),null,changed.map(function(x){return {id:x.id,status:x.after.status};}));
+    saveDesigners(ds);
+    changed.forEach(function(x){logAudit('designer.project.slot.released.stalled',x.after.designer_id,x.before,x.after);});
+  }
+}
+function assignedDesigner(did){return designers().filter(function(d){return d.id===did;})[0]||null;}
+function renderStats(allJobs,allDesigners){
+  var relevant=allJobs.filter(function(j){return j.status!=='cancelled';});
+  var awaiting=relevant.filter(function(j){return j.status==='awaiting_admin'||j.status==='awaiting_match';}).length;
+  var active=relevant.filter(function(j){return ['assigned','in_progress','revision','delivered','client_approved'].indexOf(j.status)>=0;}).length;
+  var gross=relevant.reduce(function(sum,j){return sum+Number(j.total||j.base_price||j.price||0);},0);
+  var commission=relevant.reduce(function(sum,j){return sum+moneyFromJob(j,'platform_cut');},0);
+  var owed=relevant.filter(function(j){return j.payout_status!=='received'&&['closed','client_approved','delivered'].indexOf(j.status)>=0;}).reduce(function(sum,j){return sum+moneyFromJob(j,'designer_payout');},0);
+  return '<div class="stats">'+
+    stat('Awaiting approval',awaiting,'Needs admin action')+
+    stat('Active jobs',active,'Projects and delivery cycles')+
+    stat('Total job value',money(gross),'Non-cancelled records · all time')+
+    stat('Outstanding designer payouts',money(owed),'Not marked received')+
+    '</div>'+
+    '<div class="notice">Commission shown in job records is the calculated 15% platform share. This page does not confirm that a client payment was collected. Reconcile payment receipts separately.</div>';
+}
+function stat(label,value,note){return '<div class="stat"><label>'+esc(label)+'</label><strong>'+esc(value)+'</strong><em>'+esc(note)+'</em></div>';}
+function render(){
+  if(currentUserDenied()){renderAccessDenied();return;}
+  var all=jobs().map(normalizeJob), ds=designers();
+  try{saveJobs(all);}catch(e){}
+  document.querySelectorAll('[data-tab]').forEach(function(a){a.classList.toggle('active',a.getAttribute('data-tab')===state.tab);});
+  document.querySelector('.page').textContent=tabTitle();
+  var h=renderStats(all,ds);
+  if(state.tab==='jobs')h+=renderJobsTab(all,ds);
+  else if(state.tab==='designers')h+=renderDesignersTab(ds);
+  else if(state.tab==='payouts')h+=renderPayoutsTab(all);
+  else if(state.tab==='services')h+=renderServicesTab();
+  app.innerHTML=h;
+}
+function renderJobsTab(all,ds){
+  var statuses=['all','awaiting_admin','assigned','in_progress','revision','delivered','client_approved','closed','stalled','cancelled'];
+  var list=all.filter(function(j){
+    var matchesStatus=state.filter==='all'||j.status===state.filter;
+    var hay=[j.id,j.business_name,j.business_whatsapp,j.service_name,j.service_category,j.designer_id].join(' ').toLowerCase();
+    return matchesStatus&&(!state.query||hay.indexOf(state.query.toLowerCase())>=0);
+  }).sort(function(a,b){return Number(b.created_at||0)-Number(a.created_at||0);});
+  var h='';
+  h+='<div class="card"><div class="card-head"><div><h2>Brand & design jobs ('+list.length+')</h2><div class="sub">One-time projects, bundles and recurring artwork arrangements.</div></div><button class="btn" data-act="export-jobs">Export CSV</button></div>';
+  h+='<div class="toolbar"><input class="search" data-input="query" type="search" placeholder="Search business, job, service or designer…" value="'+esc(state.query)+'" aria-label="Search jobs"></div>';
+  h+='<div class="filters">'+statuses.map(function(s){return '<button class="filter'+(state.filter===s?' active':'')+'" data-act="filter" data-id="'+s+'">'+esc(s==='all'?'All':statusLabel(s))+'</button>';}).join('')+'</div>';
+  if(state.openJob){
+    var selected=all.filter(function(j){return j.id===state.openJob;})[0];
+    if(selected){h+=renderJobDetail(selected,ds);h+='<button class="btn" data-act="close-detail">← Back to list</button><div style="height:14px"></div>';}
+  }
+  if(!list.length)h+='<div class="empty">No jobs match this filter yet.<br><span class="small">Submitted requests will appear here after they are saved to the jobs store.</span></div>';
+  else{
+    h+='<div class="table-wrap"><table><thead><tr><th>Business / Job</th><th>Service</th><th>Type</th><th>Designer</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>';
+    list.forEach(function(j){
+      var des=assignedDesigner(j.designer_id);
+      h+='<tr><td><div class="biz">'+esc(j.business_name||'Business not supplied')+'</div><div class="sub">'+esc(j.id)+' · '+esc(safeDate(j.created_at))+'</div></td>'+
+        '<td>'+esc(j.service_name||j.service_id||'—')+'<div class="sub">'+esc(categoryNames[j.service_category]||j.service_category||'')+'</div></td>'+
+        '<td><span class="pill">'+(j.is_recurring?'Retainer':'Project')+'</span></td>'+
+        '<td>'+esc(j.designer_id||'Unassigned')+(des?'<div class="sub">'+esc(des.portfolio_style||'Portfolio')+'</div>':'')+'</td>'+
+        '<td class="nowrap">'+money(j.total||j.base_price||j.price||0)+'<div class="sub">Designer '+money(moneyFromJob(j,'designer_payout'))+'</div></td>'+
+        '<td>'+pill(j.status)+'</td><td><button class="btn sm" data-act="open-job" data-id="'+esc(j.id)+'">Open</button></td></tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+  h+='</div>';
+  return h;
+}
+function renderJobDetail(j,ds){
+  var des=assignedDesigner(j.designer_id)||{};
+  var brief=j.brief||{}, delivery=j.delivery||{}, breakdown=j.price_breakdown||{};
+  var h='<div class="job-detail"><div class="card-head"><div><h3>'+esc(j.id)+' · '+esc(j.business_name||'Business')+'</h3><div class="sub">Submitted '+esc(safeDate(j.created_at))+' · Updated '+esc(safeDate(j.updated_at))+'</div></div>'+pill(j.status)+'</div>';
+  function row(label,val){h+='<div class="brow"><strong>'+esc(label)+'</strong><span>'+esc(val==null||val===''?'—':val)+'</span></div>';}
+  row('Service',j.service_name||j.service_id);row('Category',categoryNames[j.service_category]||j.service_category);row('Order type',j.is_recurring?'Monthly retainer':'One-time project');row('Business WhatsApp',j.business_whatsapp);
+  row('Industry',brief.industry);row('What they like',brief.likes);row('What to avoid',brief.dislikes);row('Reference links',(brief.references||[]).join(' · '));
+  row('Designer ID',j.designer_id);row('Portfolio specialty',des.portfolio_style);row('Base price',money(j.base_price||j.price||0));row('Add-ons',(j.add_ons||[]).map(function(a){return (a.label||a.code)+' '+money(a.price);}).join(' · '));row('Bundle discount',money(j.bundle_discount||0));row('Agreed total',money(j.total||0));row('EatOuts commission (15%)',money(breakdown.platform_cut||0));row('Designer payout',money(breakdown.designer_payout||0));row('Payout status',j.payout_status||'pending');
+  if(j.onboard_upsell_checked)row('EatOuts listing','Client expressed interest in listing');
+  if(j.founding_gift)row('Founding offer','Founding promotion selected');
+  h+='<h4>Portfolio preview</h4><div class="portfolio-thumbs">';
+  var imgs=Array.isArray(des.portfolio)?des.portfolio:[];
+  if(!imgs.length)h+='<div class="th"><div class="fallback">No images</div></div>';
+  else imgs.slice(0,5).forEach(function(src,i){h+='<div class="th">'+(src?'<img src="'+esc(src)+'" alt="Portfolio example '+(i+1)+'" onerror="this.style.display=\'none\'">':'<div class="fallback">'+(i+1)+'</div>')+'</div>';});
+  h+='</div>';
+  h+='<h4>Delivery progress</h4>';
+  row('Draft submitted',safeDate(delivery.draft_submitted_at));row('Client review',safeDate(delivery.client_reviewed_at));row('Final submitted',safeDate(delivery.final_submitted_at));row('Revisions used',String(delivery.revisions_used||0)+' / '+String(delivery.revisions_included==null?'—':delivery.revisions_included));
+  if(j.is_recurring){row('Retainer cycle',String(j.cycle_number||1));row('Retainer state',j.retainer_state||'active');row('Monthly amount',money(j.total||j.base_price||0));}
+  if(j.status==='awaiting_admin'||j.status==='awaiting_match'){
+    var slot=getSlot(j);
+    h+='<h4>Assign a designer</h4><div class="grid2"><div class="field"><label for="assign-designer-'+esc(j.id)+'">Eligible portfolio</label><select id="assign-designer-'+esc(j.id)+'" aria-label="Select designer for '+esc(j.id)+'">';
+    h+='<option value="">Choose available portfolio…</option>';
+    ds.forEach(function(candidate){
+      var eligible=candidate.id===j.designer_id||designerCanTake(candidate,slot,j.id);
+      if(eligible){
+        h+='<option value="'+esc(candidate.id)+'" '+(candidate.id===j.designer_id?'selected':'')+'>'+esc(candidate.portfolio_style||candidate.id)+' · '+esc(candidate.id)+'</option>';
+      }
+    });
+    h+='</select></div><div class="field"><label>Capacity type</label><input value="'+(slot==='retainer'?'Monthly retainer — max 3':'One-time project — max 1')+'" readonly></div></div><button class="btn" data-act="assign-designer" data-id="'+esc(j.id)+'">Save / change designer</button>';
+  }
+  h+='<div class="actions">';
+  if(j.status==='awaiting_admin'||j.status==='awaiting_match'){
+    h+='<button class="btn primary" data-act="approve-job" data-id="'+esc(j.id)+'">Approve & assign</button><button class="btn bad" data-act="reject-job" data-id="'+esc(j.id)+'">Reject request</button>';
+  }
+  if(['assigned','in_progress','revision'].indexOf(j.status)>=0)h+='<button class="btn" data-act="mark-delivered" data-id="'+esc(j.id)+'">Record delivery received</button>';
+  if(j.status==='delivered')h+='<button class="btn ok" data-act="client-approved" data-id="'+esc(j.id)+'">Record client approval</button>';
+  if(j.status==='client_approved'){
+    if(j.is_recurring)h+='<button class="btn ok" data-act="close-cycle" data-id="'+esc(j.id)+'">Approve cycle (keep retainer active)</button><button class="btn bad" data-act="end-retainer" data-id="'+esc(j.id)+'">End retainer & release slot</button>';
+    else h+='<button class="btn primary" data-act="close-job" data-id="'+esc(j.id)+'">Close job & release designer</button>';
+  }
+  if(j.status==='closed'&&j.payout_status!=='received'){
+    if(j.payout_status==='pending')h+='<button class="btn ok" data-act="payout-sent" data-id="'+esc(j.id)+'">Mark payout sent</button>';
+    if(j.payout_status==='sent')h+='<button class="btn ok" data-act="payout-received" data-id="'+esc(j.id)+'">Mark payout received</button>';
+  }
+  if(j.status!=='closed'&&j.status!=='cancelled')h+='<a class="btn" href="'+esc(whatsappLink(j))+'" target="_blank" rel="noopener">WhatsApp business</a>';
+  if(j.status!=='closed'&&j.status!=='cancelled'&&j.status!=='stalled')h+='<button class="btn" data-act="stall-job" data-id="'+esc(j.id)+'">Mark stalled</button>';
+  if(j.status==='stalled')h+='<button class="btn" data-act="resume-job" data-id="'+esc(j.id)+'">Resume job</button>';
+  if(j.status==='awaiting_admin'||j.status==='awaiting_match'||j.status==='assigned')h+='<button class="btn bad" data-act="cancel-job" data-id="'+esc(j.id)+'">Cancel</button>';
+  h+='</div><p class="footnote">Actions here update this browser’s job and designer stores and write an audit entry. For use across clients, designers and administrators on separate devices, enforce the same transitions on a shared backend.</p></div>';
+  return h;
+}
+function dsAvatar(d,size){
+  var name=(d.full_name||d.portfolio_style||d.id||'?');
+  var ini=name.split(/\s+/).map(function(w){return w.charAt(0);}).slice(0,2).join('').toUpperCase();
+  var fs=Math.max(8,Math.round(size*0.34));
+  return '<span class="ds-av-wrap" style="width:'+size+'px;height:'+size+'px">'
+    +'<span class="ds-av-ini" style="font-size:'+fs+'px">'+esc(ini)+'</span>'
+    +(d.photo?'<img src="'+esc(d.photo)+'" alt="'+esc(name)+'" onerror="this.style.display=\'none\'">':'')
+    +'</span>';
+}
+function renderDesignersTab(ds){
+  var projects=0,retainers=0,freeProjects=0,freeRetainers=0;
+  ds.forEach(function(d){projects+=getActiveCount(d,'project');retainers+=getActiveCount(d,'retainer');if(!d.locked_by_admin&&getActiveCount(d,'project')<Number(d.max_projects||1))freeProjects++;if(!d.locked_by_admin&&getActiveCount(d,'retainer')<Number(d.max_retainers||3))freeRetainers++;});
+  var h='<div class="stats">'+stat('Designers',ds.length,'All roster records')+stat('Active projects',projects,'Current project slots used')+stat('Active retainers',retainers,'Current retainer slots used')+stat('Design capacity',freeProjects+' project / '+freeRetainers+' retainer','Designers with at least one free slot')+'</div>';
+  h+='<div class="card"><div class="card-head"><div><h2>Designer roster</h2><div class="sub">Public portfolios are anonymous; private identity fields are admin-only.</div></div><div class="actions"><button class="btn" data-act="export-designers">Export CSV</button><button class="btn primary" data-act="add-designer">Add designer</button></div></div>';
+  if(!ds.length)h+='<div class="empty">No designer records yet.</div>';
+  else{
+    h+='<div class="table-wrap"><table><thead><tr><th>Portfolio</th><th>Specialties</th><th>Project capacity</th><th>Retainer capacity</th><th>Jobs completed</th><th>Private identity</th><th>Admin controls</th></tr></thead><tbody>';
+    ds.forEach(function(d){
+      var ap=getActiveCount(d,'project'),ar=getActiveCount(d,'retainer'),mp=Number(d.max_projects||1),mr=Number(d.max_retainers||3);
+      var reservedP=getPendingCount(d,'project',null),reservedR=getPendingCount(d,'retainer',null);
+      var projectFull=ap+reservedP>=mp,retainerFull=ar+reservedR>=mr;
+      h+='<tr><td>'+dsAvatar(d,36)+'<div class="biz" style="display:inline-block;vertical-align:middle">'+esc(d.portfolio_style||'Anonymous portfolio')+'</div><div class="sub" style="padding-left:44px">'+esc(d.id)+'</div><div class="portfolio-thumbs">';
+      (Array.isArray(d.portfolio)?d.portfolio:[]).slice(0,3).forEach(function(src,i){h+='<div class="th">'+(src?'<img src="'+esc(src)+'" alt="Portfolio '+(i+1)+'" onerror="this.style.display=\'none\'">':'<div class="fallback">'+(i+1)+'</div>')+'</div>';});
+      h+='</div></td><td>'+esc((d.specialties||[]).map(function(c){return categoryNames[c]||c;}).join(' · ')||'—')+'</td>'+
+        '<td><span class="pill '+(projectFull?'bad':'ok')+'">'+ap+' active · '+reservedP+' pending / '+mp+'</span></td>'+
+        '<td><span class="pill '+(retainerFull?'bad':'ok')+'">'+ar+' active · '+reservedR+' pending / '+mr+'</span></td>'+
+        '<td>'+Number(d.jobs_completed||0)+'</td><td>'+esc(d.full_name||'Not entered')+'<div class="sub">'+esc(d.phone||'')+'</div></td>'+
+        '<td><div class="actions">'+(d.locked_by_admin?'<button class="btn sm ok" data-act="unlock-designer" data-id="'+esc(d.id)+'">Unlock</button>':'<button class="btn sm bad" data-act="lock-designer" data-id="'+esc(d.id)+'">Pause availability</button>')+
+        '<button class="btn sm" data-act="edit-designer" data-id="'+esc(d.id)+'">Edit</button></div></td></tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+  h+='<p class="footnote">Capacity rule from the marketplace spec: 1 active project and up to 3 active retainers by default. Pending requests also count against available capacity. Pausing a designer prevents new assignments; it does not silently close existing work.</p></div>';
+  return h;
+}
+function renderPayoutsTab(all){
+  var filtered=all.filter(function(j){if(j.status==='cancelled')return false;if(state.payoutFilter==='all')return !!j.price_breakdown;if(state.payoutFilter==='pending')return (j.payout_status||'pending')==='pending'&&['closed','client_approved','delivered'].indexOf(j.status)>=0;if(state.payoutFilter==='sent')return j.payout_status==='sent';if(state.payoutFilter==='received')return j.payout_status==='received';return false;});
+  var pending=all.filter(function(j){return j.status!=='cancelled'&&(j.payout_status||'pending')==='pending'&&['closed','client_approved','delivered'].indexOf(j.status)>=0;}).reduce(function(sum,j){return sum+moneyFromJob(j,'designer_payout');},0);
+  var sent=all.filter(function(j){return j.payout_status==='sent';}).reduce(function(sum,j){return sum+moneyFromJob(j,'designer_payout');},0);
+  var received=all.filter(function(j){return j.payout_status==='received';}).reduce(function(sum,j){return sum+moneyFromJob(j,'designer_payout');},0);
+  var h='<div class="stats">'+stat('Pending',money(pending),'Payable jobs shown below')+stat('Marked sent',money(sent),'Awaiting receipt confirmation')+stat('Marked received',money(received),'Recorded designer payouts')+stat('Eligible records',filtered.length,'Matching payout filter')+'</div>';
+  h+='<div class="card"><div class="card-head"><div><h2>Payout reconciliation</h2><div class="sub">Payment statuses are manually recorded; this page does not transfer money.</div></div><button class="btn" data-act="export-payouts">Export CSV</button></div>';
+  h+='<div class="filters">'+[{id:'pending',label:'Pending'}, {id:'sent',label:'Sent'}, {id:'received',label:'Received'}, {id:'all',label:'All payout records'}].map(function(f){return '<button class="filter'+(state.payoutFilter===f.id?' active':'')+'" data-act="payout-filter" data-id="'+f.id+'">'+f.label+'</button>';}).join('')+'</div>';
+  if(!filtered.length)h+='<div class="empty">No payout records match this filter.</div>';
+  else{
+    h+='<div class="table-wrap"><table><thead><tr><th>Business / Job</th><th>Designer</th><th>Type</th><th>Total</th><th>EatOuts 15%</th><th>Designer payout</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+    filtered.forEach(function(j){
+      var ps=j.payout_status||'pending';
+      h+='<tr><td><div class="biz">'+esc(j.business_name||'—')+'</div><div class="sub">'+esc(j.id)+' · '+esc(safeDate(j.updated_at||j.created_at))+'</div></td><td>'+esc(j.designer_id||'—')+'</td><td>'+(j.is_recurring?'Retainer':'Project')+'</td><td>'+money(j.total||0)+'</td><td>'+money(moneyFromJob(j,'platform_cut'))+'</td><td>'+money(moneyFromJob(j,'designer_payout'))+'</td><td>'+pill(ps==='received'?'closed':ps==='sent'?'delivered':'awaiting_admin')+'<div class="sub">'+esc(ps)+'</div></td><td>'+(ps==='pending'?'<button class="btn sm ok" data-act="payout-sent" data-id="'+esc(j.id)+'">Mark sent</button>':ps==='sent'?'<button class="btn sm ok" data-act="payout-received" data-id="'+esc(j.id)+'">Mark received</button>':'—')+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+  h+='<p class="footnote">Only mark “sent” after you have initiated the payout. Mark “received” after it is confirmed. Do not treat calculated commission as collected revenue without a payment record.</p></div>';
+  return h;
+}
+function renderServicesTab(){
+  var ss=services().slice().sort(function(a,b){return (a.category||'').localeCompare(b.category||'')||(a.name||'').localeCompare(b.name||'');});
+  var filtered=ss.filter(function(s){return state.serviceCategory==='all'||s.category===state.serviceCategory;});
+  var h='<div class="card"><div class="card-head"><div><h2>Service catalogue ('+ss.length+')</h2><div class="sub">Prices are stored as numeric BWP values. Edits apply to new requests; existing job totals remain frozen.</div></div><div class="actions"><button class="btn" data-act="export-services">Export CSV</button><button class="btn primary" data-act="add-service">Add service</button></div></div>';
+  h+='<div class="notice">The supplied pricing document says there are 30 services, but the eight category tables list 24. The 24 listed services are seeded here; add the missing six only after their names and prices are confirmed. Bundle prices are not applied automatically by this admin screen until their arithmetic is reconciled.</div>';
+  h+='<div class="filters"><button class="filter'+(state.serviceCategory==='all'?' active':'')+'" data-act="service-filter" data-id="all">All</button>';
+  Object.keys(categoryNames).forEach(function(c){h+='<button class="filter'+(state.serviceCategory===c?' active':'')+'" data-act="service-filter" data-id="'+c+'">'+esc(categoryNames[c])+'</button>';});
+  h+='</div>';
+  if(!filtered.length)h+='<div class="empty">No services in this category.</div>';
+  else{
+    h+='<div class="table-wrap"><table><thead><tr><th>Service</th><th>Category</th><th>Base price</th><th>Delivery</th><th>Revisions</th><th>Billing</th><th>Featured</th><th>Actions</th></tr></thead><tbody>';
+    filtered.forEach(function(s){
+      h+='<tr><td><div class="biz">'+esc(s.name)+'</div><div class="sub">'+esc(s.id)+'</div></td><td>'+esc(categoryNames[s.category]||s.category)+'</td><td>'+money(s.base_price)+'</td><td>'+Number(s.delivery_days||0)+' days</td><td>'+Number(s.revision_rounds||0)+'</td><td>'+(s.is_recurring?'Monthly':'One-time')+'</td><td>'+(s.is_featured?'<span class="pill ok">Featured</span>':'<span class="pill">Standard</span>')+'</td><td><div class="actions"><button class="btn sm" data-act="edit-service" data-id="'+esc(s.id)+'">Edit</button><button class="btn sm" data-act="toggle-service" data-id="'+esc(s.id)+'">'+(s.is_active===false?'Enable':'Disable')+'</button></div></td></tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+  h+='<p class="footnote">Do not delete a service already referenced by historical jobs. Disable it for new requests instead.</p></div>';
+  return h;
+}
+function whatsappLink(j){
+  var settings=getDBSettings(), wa=settings.whatsapp||{};
+  var admin=typeof wa==='string'?wa:(wa.admin||wa.support||wa.flagship||'');
+  var number=String(j.business_whatsapp||'').replace(/\D/g,'');
+  var text='EatOuts design job '+(j.id||'')+' update\nBusiness: '+(j.business_name||'')+'\nService: '+(j.service_name||'')+'\nStatus: '+statusLabel(j.status);
+  if(number)return 'https://wa.me/'+number+'?text='+encodeURIComponent(text);
+  if(admin)return 'https://wa.me/'+String(admin).replace(/\D/g,'')+'?text='+encodeURIComponent(text);
+  return 'https://wa.me/?text='+encodeURIComponent(text);
+}
+function saveAndAudit(key,rows,action,target,before,after){writeArray(key,rows);logAudit(action,target,before,after);}
+function updateJob(id,action,mutator){
+  var all=jobs(),idx=all.findIndex(function(j){return j.id===id;});
+  if(idx<0){notify('Job not found.');return;}
+  var before=JSON.parse(JSON.stringify(all[idx])),j=all[idx];
+  mutator(j);
+  j.updated_at=stamp();
+  all[idx]=j;
+  saveAndAudit(KEYS.jobs,all,action,id,before,j);
+  return j;
+}
+function clearReservation(designer,jobId){
+  if(!designer)return;
+  if(Array.isArray(designer.pending_job_ids))designer.pending_job_ids=designer.pending_job_ids.filter(function(id){return id!==jobId;});
+  if(designer.reserved_by_job_id===jobId)designer.reserved_by_job_id=null;
+  if(Array.isArray(designer.reserved_jobs))designer.reserved_jobs=designer.reserved_jobs.filter(function(id){return id!==jobId;});
+}
+function getSlot(j){return j.slot_type||(j.is_recurring?'retainer':'project');}
+function adjustCounter(d,slot,delta){
+  var key=slot==='retainer'?'active_retainers':'active_projects';
+  d[key]=Math.max(0,Number(d[key]||0)+delta);
+}
+function assignPendingDesigner(jobId,designerId){
+  var j=jobs().filter(function(x){return x.id===jobId;})[0];
+  if(!j||['awaiting_admin','awaiting_match'].indexOf(j.status)<0){notify('Only pending requests can be assigned here.');return;}
+  if(!designerId){notify('Choose a designer portfolio first.');return;}
+  var next=assignedDesigner(designerId);
+  if(!next){notify('Designer record not found.');return;}
+  var slot=getSlot(j);
+  if(!designerCanTake(next,slot,jobId)&&next.id!==j.designer_id){notify('That designer has no available '+slot+' slot.');return;}
+  if(!confirm('Assign this request to '+(next.portfolio_style||next.id)+'? The public portfolio remains anonymous.'))return;
+  var old=assignedDesigner(j.designer_id);
+  if(old&&old.id!==next.id){
+    var oldBefore=JSON.parse(JSON.stringify(old));clearReservation(old,jobId);
+    var oldList=designers(),oi=oldList.findIndex(function(x){return x.id===old.id;});
+    if(oi>=0){oldList[oi]=old;saveAndAudit(KEYS.designers,oldList,'designer.pending.reservation.removed',old.id,oldBefore,old);}
+  }
+  updateJob(jobId,'job.designer.assigned',function(x){x.designer_id=next.id;x.slot_type=slot;x.assigned_candidate_at=stamp();});
+  var ds=designers(),ni=ds.findIndex(function(x){return x.id===next.id;});
+  if(ni>=0){var before=JSON.parse(JSON.stringify(ds[ni]));reservePendingSlot(ds[ni],jobId);saveAndAudit(KEYS.designers,ds,'designer.pending.reservation.added',next.id,before,ds[ni]);}
+  notify('Designer portfolio assigned to the pending request.');
+}
+function approveJob(id){
+  var all=jobs(),j=all.filter(function(x){return x.id===id;})[0];if(!j)return;
+  var d=assignedDesigner(j.designer_id);if(!d){notify('This job has no valid designer assigned. Assign a designer first.');return;}
+  if(d.locked_by_admin){notify('This designer is paused by admin. Unlock or reassign before approving.');return;}
+  var slot=getSlot(j),active=getActiveCount(d,slot),pendingOther=getPendingCount(d,slot,id),max=Number(slot==='retainer'?d.max_retainers||3:d.max_projects||1);
+  if(active+pendingOther>=max){notify('That designer has no available '+slot+' slot. Reassign the job before approving.');return;}
+  if(!confirm('Approve '+j.id+' and assign it to '+(d.portfolio_style||d.id)+'? This will occupy a '+slot+' slot.'))return;
+  var before=JSON.parse(JSON.stringify(j));
+  updateJob(id,'job.approved',function(x){x.status='assigned';x.assigned_at=stamp();x.approved_by=getAdminLabel();x.slot_type=slot;});
+  var ds=designers(),di=ds.findIndex(function(x){return x.id===d.id;});if(di>=0){clearReservation(ds[di],id);adjustCounter(ds[di],slot,1);saveAndAudit(KEYS.designers,ds,'designer.slot.occupied',d.id,d,ds[di]);}
+  notify('Job approved and designer capacity updated.');
+}
+function rejectJob(id){
+  var reason=prompt('Reason for rejecting this request (saved in the job record):','Not approved by EatOuts admin');
+  if(reason===null)return;
+  var j=jobs().filter(function(x){return x.id===id;})[0];if(!j)return;
+  updateJob(id,'job.rejected',function(x){x.status='cancelled';x.cancel_reason=reason;x.cancelled_at=stamp();x.cancelled_by=getAdminLabel();});
+  var ds=designers(),d=ds.findIndex(function(x){return x.id===j.designer_id;});if(d>=0){clearReservation(ds[d],id);saveAndAudit(KEYS.designers,ds,'designer.reservation.cleared',ds[d].id,designers()[d],ds[d]);}
+  notify('Request rejected and pending reservation cleared.');
+}
+function deliverJob(id){
+  if(!confirm('Confirm that the designer has submitted the delivery for client review?'))return;
+  updateJob(id,'job.delivery_recorded',function(j){j.status='delivered';j.delivery=j.delivery||{};j.delivery.final_submitted_at=stamp();j.delivery.draft_submitted_at=j.delivery.draft_submitted_at||stamp();});
+  notify('Delivery recorded. Designer stays occupied until client approval and admin closure.');
+}
+function clientApproved(id){
+  if(!confirm('Confirm the client has explicitly said they are happy with the work?'))return;
+  updateJob(id,'job.client_approved',function(j){j.status='client_approved';j.delivery=j.delivery||{};j.delivery.client_reviewed_at=stamp();j.client_approved_at=stamp();});
+  notify('Client approval recorded. Next step is admin closure or retainer-cycle approval.');
+}
+function closeJob(id){
+  var j=jobs().filter(function(x){return x.id===id;})[0];if(!j)return;
+  if(j.is_recurring){notify('Use “End retainer” to release a recurring designer slot.');return;}
+  if(j.status!=='client_approved'){notify('Record client approval before closing this job.');return;}
+  if(!confirm('Close this job and release the designer project slot?'))return;
+  updateJob(id,'job.closed',function(x){x.status='closed';x.closed_at=stamp();x.closed_by=getAdminLabel();});
+  var ds=designers(),idx=ds.findIndex(function(d){return d.id===j.designer_id;});
+  if(idx>=0){clearReservation(ds[idx],id);adjustCounter(ds[idx],'project',-1);ds[idx].jobs_completed=Number(ds[idx].jobs_completed||0)+1;saveAndAudit(KEYS.designers,ds,'designer.project.released',ds[idx].id,designers()[idx],ds[idx]);}
+  notify('Job closed. Designer project slot released.');
+}
+function closeRetainerCycle(id){
+  var j=jobs().filter(function(x){return x.id===id;})[0];if(!j)return;
+  if(!confirm('Mark this monthly cycle approved? The retainer stays active and its slot remains occupied.'))return;
+  updateJob(id,'retainer.cycle.closed',function(x){
+    x.last_cycle_approved_at=stamp();x.cycle_number=Number(x.cycle_number||1)+1;x.status='in_progress';
+    x.delivery={draft_submitted_at:null,client_reviewed_at:null,final_submitted_at:null,revisions_used:0,revisions_included:Number((x.delivery||{}).revisions_included||2)};
+    x.payout_status='pending';
+  });
+  notify('Cycle recorded. Retainer remains active for the next cycle.');
+}
+function endRetainer(id){
+  var j=jobs().filter(function(x){return x.id===id;})[0];if(!j)return;
+  var reason=prompt('Reason for ending this retainer (saved to record):','Retainer ended by admin');
+  if(reason===null)return;
+  if(!confirm('End the retainer and release one retainer slot?'))return;
+  updateJob(id,'retainer.ended',function(x){x.status='closed';x.retainer_state='ended';x.retainer_end_reason=reason;x.closed_at=stamp();x.closed_by=getAdminLabel();});
+  var ds=designers(),idx=ds.findIndex(function(d){return d.id===j.designer_id;});
+  if(idx>=0){clearReservation(ds[idx],id);adjustCounter(ds[idx],'retainer',-1);ds[idx].jobs_completed=Number(ds[idx].jobs_completed||0)+1;saveAndAudit(KEYS.designers,ds,'designer.retainer.released',ds[idx].id,designers()[idx],ds[idx]);}
+  notify('Retainer ended and capacity released.');
+}
+function cancelJob(id){
+  var j=jobs().filter(function(x){return x.id===id;})[0];if(!j)return;
+  var reason=prompt('Reason for cancellation:','Cancelled by admin');if(reason===null)return;
+  if(!confirm('Cancel this job? If it occupies an active slot, that slot will be released.'))return;
+  updateJob(id,'job.cancelled',function(x){x.status='cancelled';x.cancel_reason=reason;x.cancelled_at=stamp();});
+  var ds=designers(),idx=ds.findIndex(function(d){return d.id===j.designer_id;});
+  if(idx>=0){
+    clearReservation(ds[idx],id);
+    if(['assigned','in_progress','revision','delivered','client_approved'].indexOf(j.status)>=0)adjustCounter(ds[idx],getSlot(j),-1);
+    saveAndAudit(KEYS.designers,ds,'designer.capacity.released.cancel',ds[idx].id,designers()[idx],ds[idx]);
+  }
+  notify('Job cancelled.');
+}
+function setPayout(id,status){
+  var j=jobs().filter(function(x){return x.id===id;})[0];if(!j)return;
+  if(status==='sent'&&!confirm('Confirm that the designer payout has been initiated?'))return;
+  if(status==='received'&&!confirm('Confirm the designer has received the payout?'))return;
+  updateJob(id,'payout.'+status,function(x){x.payout_status=status;x.payout_updated_at=stamp();x.payout_updated_by=getAdminLabel();});
+  notify('Payout status updated to '+status+'.');
+}
+function setStalled(id){
+  var j=jobs().filter(function(x){return x.id===id;})[0];if(!j)return;
+  var reason=prompt('Why is this job stalled?','Awaiting client response');if(reason===null)return;
+  updateJob(id,'job.stalled',function(x){x.status='stalled';x.stalled_at=stamp();x.stall_reason=reason;});
+  /* Keep the assignment counter intact unless the project is manually reassigned. */
+  notify('Job marked stalled. Review whether it should be reassigned or resumed.');
+}
+function resumeJob(id){
+  if(!confirm('Resume this job and return it to in-progress?'))return;
+  updateJob(id,'job.resumed',function(x){x.status='in_progress';x.resumed_at=stamp();});
+  notify('Job resumed.');
+}
+function lockDesigner(id,locked){
+  var ds=designers(),i=ds.findIndex(function(d){return d.id===id;});if(i<0)return;
+  var before=JSON.parse(JSON.stringify(ds[i]));
+  ds[i].locked_by_admin=locked;ds[i].locked_at=locked?stamp():null;ds[i].locked_by=locked?getAdminLabel():null;
+  saveAndAudit(KEYS.designers,ds,locked?'designer.paused':'designer.unpaused',id,before,ds[i]);
+  notify(locked?'Designer paused for new assignments.':'Designer can accept new eligible assignments.');
+}
+function editDesigner(id){
+  var ds=designers(),idx=ds.findIndex(function(d){return d.id===id;});if(idx<0)return;
+  var d=ds[idx],style=prompt('Internal portfolio label (not a designer name):',d.portfolio_style||'');if(style===null)return;
+  var specs=prompt('Specialties, comma separated: (identity, promo, event, menu, print, social, packaging, motion)',(d.specialties||[]).join(', '));if(specs===null)return;
+  var full=prompt('Private designer name (admin-only):',d.full_name||'');if(full===null)return;
+  var phone=prompt('Private designer phone (admin-only):',d.phone||'');if(phone===null)return;
+  var portfolio=prompt('Portfolio image paths/URLs, comma separated (admin-curated):',(d.portfolio||[]).join(', '));if(portfolio===null)return;
+  var before=JSON.parse(JSON.stringify(d));
+  d.portfolio_style=style.trim();d.specialties=specs.split(',').map(function(s){return s.trim().toLowerCase();}).filter(Boolean);d.full_name=full.trim();d.phone=phone.trim();
+  d.portfolio=portfolio.split(',').map(function(s){return s.trim();}).filter(Boolean);
+  d.updated_at=stamp();
+  ds[idx]=d;saveAndAudit(KEYS.designers,ds,'designer.updated',id,before,d);notify('Designer record saved.');
+}
+function addDesigner(){
+  var style=prompt('Internal portfolio label (not a designer name):','Restaurant & social artwork');if(!style||!style.trim())return;
+  var specs=prompt('Specialties, comma separated (identity, promo, event, menu, print, social, packaging, motion):','identity, promo');if(specs===null)return;
+  var portfolio=prompt('Portfolio image paths/URLs, comma separated:','');if(portfolio===null)return;
+  var full=prompt('Private designer name (admin-only; optional):','');if(full===null)return;
+  var phone=prompt('Private phone (admin-only; optional):','');if(phone===null)return;
+  var d={id:makeId('des'),portfolio_style:style.trim(),portfolio:portfolio.split(',').map(function(s){return s.trim();}).filter(Boolean),specialties:specs.split(',').map(function(s){return s.trim().toLowerCase();}).filter(Boolean),slot_type:['project','retainer'],active_projects:0,active_retainers:0,max_projects:1,max_retainers:3,jobs_completed:0,avg_turnaround_days:4,available:true,locked_by_admin:false,full_name:full.trim(),phone:phone.trim(),created_at:stamp(),updated_at:stamp()};
+  var ds=designers();ds.push(d);saveAndAudit(KEYS.designers,ds,'designer.created',d.id,null,d);notify('Designer added to the private roster.');
+}
+function toggleFeatured(id){
+  var ss=services(),i=ss.findIndex(function(x){return x.id===id;});if(i<0)return;
+  var before=JSON.parse(JSON.stringify(ss[i]));ss[i].is_featured=!ss[i].is_featured;ss[i].updated_at=stamp();
+  saveAndAudit(KEYS.services,ss,'service.featured.changed',id,before,ss[i]);notify(ss[i].is_featured?'Service featured.':'Featured flag removed.');
+}
+function editService(id){
+  var ss=services(),i=ss.findIndex(function(s){return s.id===id;});if(i<0)return;
+  var s=ss[i],name=prompt('Service name:',s.name||'');if(name===null)return;
+  var price=prompt('Base price in BWP (number):',String(Number(s.base_price||0)));if(price===null)return;
+  var days=prompt('Delivery estimate in days:',String(Number(s.delivery_days||0)));if(days===null)return;
+  var revisions=prompt('Included revision rounds:',String(Number(s.revision_rounds||0)));if(revisions===null)return;
+  if(!name.trim()||!Number.isFinite(Number(price))||Number(price)<0||!Number.isFinite(Number(days))||Number(days)<0||!Number.isFinite(Number(revisions))||Number(revisions)<0){notify('Please enter a valid name and non-negative numeric values.');return;}
+  var before=JSON.parse(JSON.stringify(s));
+  s.name=name.trim();s.base_price=Number(price);s.delivery_days=Number(days);s.revision_rounds=Number(revisions);s.updated_at=stamp();
+  ss[i]=s;saveAndAudit(KEYS.services,ss,'service.updated',id,before,s);notify('Service updated. Existing job totals remain unchanged.');
+}
+function toggleService(id){
+  var ss=services(),i=ss.findIndex(function(s){return s.id===id;});if(i<0)return;
+  var before=JSON.parse(JSON.stringify(ss[i]));ss[i].is_active=ss[i].is_active===false;ss[i].updated_at=stamp();
+  saveAndAudit(KEYS.services,ss,'service.availability.changed',id,before,ss[i]);notify(ss[i].is_active?'Service enabled for new orders.':'Service disabled for new orders.');
+}
+function addService(){
+  var name=prompt('New service name:');if(!name||!name.trim())return;
+  var category=prompt('Category: identity, promo, event, menu, print, social, packaging, motion','promo');if(!category)return;
+  if(!categoryNames[category.trim().toLowerCase()]){notify('Use one of the eight catalogue category keys.');return;}
+  var price=prompt('Base price in BWP:','80');if(price===null||!Number.isFinite(Number(price))||Number(price)<0){notify('Enter a valid numeric price.');return;}
+  var recurrent=confirm('Is this service recurring monthly? Press OK for recurring, Cancel for one-time.');
+  var s={id:makeId('svc'),category:category.trim().toLowerCase(),name:name.trim(),tagline:'',description:'',base_price:Number(price),delivery_days:3,revision_rounds:1,deliverables:[],image:'',is_recurring:recurrent,recurrence:recurrent?'monthly':null,is_featured:false,is_active:true,created_at:stamp(),updated_at:stamp()};
+  var ss=services();ss.push(s);saveAndAudit(KEYS.services,ss,'service.created',s.id,null,s);notify('Service created.');
+}
+function exportCSV(filename,rows){
+  if(!rows.length){notify('Nothing to export for this selection.');return;}
+  var headers=Object.keys(rows[0]),csv=[headers.join(',')].concat(rows.map(function(row){return headers.map(function(k){var v=row[k];if(v&&typeof v==='object')v=JSON.stringify(v);return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}).join(',');})).join('\r\n');
+  var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+function notify(msg){
+  var old=document.getElementById('admin-toast');if(old)old.remove();
+  var t=document.createElement('div');t.id='admin-toast';t.textContent=msg;
+  t.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);max-width:calc(100vw - 24px);z-index:100;background:#151515;color:#fff;padding:12px 16px;border-radius:8px;font-size:12px;font-weight:800;box-shadow:0 8px 24px #0002';
+  document.body.appendChild(t);setTimeout(function(){if(t.parentNode)t.remove();},3500);
+}
+function handleClick(e){
+  var target=e.target.closest('[data-act],[data-tab]');if(!target)return;
+  if(target.hasAttribute('data-tab')){e.preventDefault();state.tab=target.getAttribute('data-tab');state.openJob=null;render();return;}
+  var act=target.getAttribute('data-act'),id=target.getAttribute('data-id');
+  switch(act){
+    case 'filter':state.filter=id;state.openJob=null;render();break;
+    case 'open-job':state.openJob=id;render();break;
+    case 'close-detail':state.openJob=null;render();break;
+    case 'payout-filter':state.payoutFilter=id;render();break;
+    case 'service-filter':state.serviceCategory=id;render();break;
+    case 'assign-designer':var sel=document.getElementById('assign-designer-'+id);assignPendingDesigner(id,sel?sel.value:'');render();break;
+    case 'approve-job':approveJob(id);render();break;
+    case 'reject-job':rejectJob(id);state.openJob=null;render();break;
+    case 'mark-delivered':deliverJob(id);render();break;
+    case 'client-approved':clientApproved(id);render();break;
+    case 'close-job':closeJob(id);render();break;
+    case 'close-cycle':closeRetainerCycle(id);render();break;
+    case 'end-retainer':endRetainer(id);render();break;
+    case 'cancel-job':cancelJob(id);render();break;
+    case 'payout-sent':setPayout(id,'sent');render();break;
+    case 'payout-received':setPayout(id,'received');render();break;
+    case 'stall-job':setStalled(id);render();break;
+    case 'resume-job':resumeJob(id);render();break;
+    case 'lock-designer':lockDesigner(id,true);render();break;
+    case 'unlock-designer':lockDesigner(id,false);render();break;
+    case 'edit-designer':editDesigner(id);render();break;
+    case 'add-designer':addDesigner();render();break;
+    case 'edit-service':editService(id);render();break;
+    case 'toggle-featured':toggleFeatured(id);render();break;
+    case 'toggle-service':toggleService(id);render();break;
+    case 'add-service':addService();render();break;
+    case 'export-jobs':exportCSV('eatouts-jobs.csv',jobs().map(function(j){return Object.assign({},j,{brief:JSON.stringify(j.brief||{}),price_breakdown:JSON.stringify(j.price_breakdown||{})});}));break;
+    case 'export-designers':exportCSV('eatouts-designers.csv',designers().map(function(d){return Object.assign({},d,{portfolio:JSON.stringify(d.portfolio||[]),specialties:(d.specialties||[]).join('|')});}));break;
+    case 'export-payouts':exportCSV('eatouts-payouts.csv',jobs().filter(function(j){return j.payout_status;}).map(function(j){return {job_id:j.id,business_name:j.business_name,designer_id:j.designer_id,total:j.total,platform_cut:moneyFromJob(j,'platform_cut'),designer_payout:moneyFromJob(j,'designer_payout'),payout_status:j.payout_status,status:j.status,updated_at:j.updated_at};}));break;
+    case 'export-services':exportCSV('eatouts-services.csv',services());break;
+  }
+}
+function handleInput(e){
+  var t=e.target;
+  if(t.matches('[data-input="query"]')){var pos=t.selectionStart;state.query=t.value;var currentScroll=window.scrollY;render();var n=app.querySelector('[data-input="query"]');if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(err){}}window.scrollTo(0,currentScroll);}
+}
+function whatsappAdminNumber(){
+  var s=getDBSettings(),w=s.whatsapp||{};
+  var raw=typeof w==='string'?w:(w.admin||w.support||w.flagship||'');
+  return String(raw||'').replace(/\D/g,'');
+}
+function initialize(){
+  try{seedIfNeeded();runAutoStall();}catch(e){console.error(e);app.innerHTML='<div class="notice bad">Unable to initialise the service workspace. Check browser storage permissions and the shared modules.</div>';return;}
+  var session=parseJSON(localStorage.getItem(KEYS.session),null);
+  if(session)document.getElementById('mode-note').textContent='Admin workspace';
+  else document.getElementById('mode-note').textContent='Local preview mode';
+  if(!localStorage.getItem(KEYS.jobs)&&localStorage.getItem(KEYS.oldJobs)){jobs();}
+  document.querySelector('.tabs').addEventListener('click',handleClick);
+  app.addEventListener('click',handleClick);
+  app.addEventListener('input',handleInput);
+  document.getElementById('refresh-btn').addEventListener('click',function(){runAutoStall();render();notify('Data refreshed from this browser.');});
+  window.addEventListener('storage',function(e){if([KEYS.jobs,KEYS.oldJobs,KEYS.designers,KEYS.services,KEYS.audit].indexOf(e.key)>=0)render();});
+  render();
+}
+initialize();
+})();
+</script>
+</body>
+</html>

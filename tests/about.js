@@ -60,7 +60,13 @@ setTimeout(() => {
   const settings = vp.querySelector('button[data-act="toggleAboutSettings"]');
   check('Settings accordion toggle present', !!settings && settings.textContent.trim() === 'Settings');
   const listBiz = vp.querySelector('details.setacc summary.setrow');
-  check('List Your Business accordion toggle present', !!listBiz && /list your business/i.test(listBiz.textContent));
+  check('List Business accordion toggle present', !!listBiz && /list business/i.test(listBiz.textContent));
+
+  const needDesign = vp.querySelector('a[href="designer-services.html"]');
+  check('Need Design link present', !!needDesign, needDesign ? 'text=' + needDesign.textContent.trim() : 'missing');
+  check('Need Design labelled correctly', !!needDesign && /need design/i.test(needDesign.textContent.trim()));
+  const firstBizRow = listBiz && listBiz.parentElement.querySelector('.acc-in > a.setrow');
+  check('Need Design is the first row under List Business', !!firstBizRow && /need design/i.test(firstBizRow.textContent.trim()));
 
   const share = vp.querySelector('a.btn.share');
   check('Share EatOuts link present', !!share, share ? 'text=' + share.textContent.trim() : 'missing');

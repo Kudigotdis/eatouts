@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -41,7 +41,7 @@ img{display:block;max-width:100%}
 /* #hdr is gone in this mode, so a popup pinned below it would float over a
    66px dead gap — tuck it against the top edge instead. */
 #shell.promos-tab.promo-focus .fpop{top:16px}
-.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden}
+.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden;padding:0;margin:0}
 .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
 .hdr-right{margin-left:auto}
 .hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;border:1px solid #ece7db;border-radius:20px;padding:4px 9px;background:#faf8f2}
@@ -123,7 +123,9 @@ img{display:block;max-width:100%}
 
 /* ---------- CALENDAR (STICKY) ---------- */
 .cal{flex:0 0 auto;background:#ffffff;border-bottom:1px solid #ece7db;padding:11px 0 10px;position:relative;z-index:5;box-shadow:0 4px 10px -8px rgba(0,0,0,.12)}
-.cal-title{padding:0 16px 10px;font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:#a89a7e;font-weight:800}
+.cal-title{padding:0 16px 10px;font-size:14px;letter-spacing:.17em;text-transform:uppercase;color:#a89a7e;font-weight:800;display:flex;align-items:baseline;justify-content:space-between}
+.cal-title-btn{font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;font-weight:inherit;padding:0;background:none;border:0;cursor:pointer;min-height:28px}
+.cal-title-btn:active{color:#1a1a1a}
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:0 16px;width:100%;box-sizing:border-box;overflow:visible}
 .day{width:100%;height:56px;min-width:0;border-radius:14px;border:1px solid #ece7db;background:#faf8f2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#a89a7e;transition:all .16s;padding:0}
 .day b{font-size:9.5px;font-weight:800;letter-spacing:.09em}
@@ -131,6 +133,32 @@ img{display:block;max-width:100%}
 .day.on{background:#0d0d0d;border-color:#0d0d0d;color:#ffffff}
 .day.on span{color:#ffffff}
 .day.td:not(.on){border-color:#1a1a1a}
+
+/* ---------- MONTH / WEEK PICKERS ---------- */
+.fpop.month-pop,.fpop.week-pop{max-height:min(70vh,600px,calc(100vh - 66px - var(--navh,68px) - 16px));overflow-y:auto;padding:6px 0}
+.month-year{font-size:22px;font-weight:900;color:#1a1a1a;text-align:center;padding:14px 12px 10px;border-bottom:1px solid #f4efe4;margin-bottom:4px;letter-spacing:-.01em}
+.fpop .month-row{display:block;width:100%;text-align:center;padding:14px 12px;font-size:20px;font-weight:700;color:#3a3324;background:#fff;border-bottom:1px solid #f4efe4;opacity:.25;transition:opacity .15s}
+.fpop .month-row:last-child{border-bottom:0}
+.fpop .month-row.on{background:#faf8f2;color:#1a1a1a;font-weight:900;opacity:1}
+.fpop .month-row:active{background:#f4efe4}
+.fpop .week-row{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px 16px;font-size:20px;font-weight:800;color:#3a3324;background:#fff;border-bottom:1px solid #f4efe4;min-height:48px}
+.fpop .week-row.on{background:#faf8f2;color:#1a1a1a}
+.fpop .week-row.expanded{background:#f4efe4}
+.fpop .week-row:active{background:#efe9da}
+.fpop .week-row-label{transition:opacity .18s}
+.fpop.week-pop.expanded-open .week-row:not(.expanded) .week-row-label{opacity:.25}
+.fpop .week-days{overflow:hidden;transition:max-height .24s ease,opacity .18s ease;background:#faf8f2;border-bottom:1px solid #f4efe4}
+.fpop .day-row{display:grid;grid-template-columns:44px 40px 1fr;align-items:center;gap:10px;width:100%;padding:10px 18px;font-size:13px;font-weight:700;color:#3a3324;background:transparent;border-bottom:1px solid #f1ece1;text-align:left;min-height:44px}
+.fpop .day-row:last-child{border-bottom:0}
+.fpop .day-row-name{color:#a89a7e;font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:10.5px}
+.fpop .day-row-num{font-size:15px;font-weight:900;color:#1a1a1a}
+.fpop .day-row-count{font-size:11.5px;font-weight:700;color:#8a8170;text-align:right}
+.fpop .day-row.on{background:#ffffff}
+.fpop .day-row.on .day-row-num{color:#1a1a1a}
+.fpop .day-row-empty{opacity:.42}
+.fpop .day-row-empty .day-row-num{color:#b5a888}
+.fpop .day-row-empty .day-row-count{color:#b5a888;font-style:italic}
+.fpop .day-row-out{opacity:.35}
 
 /* ---------- PROMO CARD (ACCORDION, IMAGE-ONLY) ---------- */
 .pcard{margin:12px 14px;border-radius:16px;overflow:hidden;background:#ffffff;border:1px solid #ece7db;box-shadow:0 2px 8px -4px rgba(0,0,0,.06)}
@@ -160,7 +188,7 @@ img{display:block;max-width:100%}
 .acc-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
 .acc-wrap>.acc-in{overflow:hidden;min-height:0}
 .ecard.open>.acc-wrap,.mitem.open>.acc-wrap,.ritem.open>.acc-wrap{grid-template-rows:1fr}
-@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}#cbar.on{animation:none}.bev-toggle-thumb{transition:none}::view-transition-old(app-vp),::view-transition-new(app-vp){animation:none}.panelfade-out{animation:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}}
+@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}#cbar.on{animation:none}.bev-toggle-thumb{transition:none}::view-transition-old(app-vp),::view-transition-new(app-vp){animation:none}.panelfade-out{animation:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}.fpop .week-days{transition:none}}
 
 /* ---------- COUNTERS ---------- */
 .ctr{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#faf8f2;border:1px solid #f1ece1;border-radius:12px;margin-bottom:7px}
@@ -228,9 +256,9 @@ img{display:block;max-width:100%}
 .bev-pager::-webkit-scrollbar{display:none}
 .bevpage{flex:0 0 100%;width:100%;height:100%;min-width:0;display:flex;flex-direction:column;scroll-snap-align:start;scroll-snap-stop:always}
 .bev-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}
-.bev-tile{position:relative;border-radius:16px;overflow:hidden;border:4px solid rgba(var(--bt-rgb,214,201,182),.3);background:rgba(var(--bt-rgb,214,201,182),.2);display:flex;align-items:center;justify-content:center;text-align:center;height:45px;min-height:45px;padding:4px 12px;cursor:pointer;outline:none;box-sizing:border-box}
+.bev-tile{position:relative;border-radius:9px;overflow:hidden;border:3px solid rgba(var(--bt-rgb,214,201,182),.3);background:transparent;display:flex;align-items:center;justify-content:center;text-align:center;height:45px;min-height:45px;padding:4px 12px;cursor:pointer;outline:none;box-sizing:border-box}
 .bev-tile:active{filter:brightness(.96)}
-.bev-tile .bt-name{font-size:16px;font-weight:800;color:rgb(var(--bt-name-rgb,26,26,26));line-height:1.2}
+.bev-tile .bt-name{font-size:16px;font-weight:800;color:rgb(var(--bt-rgb,214,201,182));line-height:1.2}
 .bev-tile.off{opacity:.55}
 .bev-tile.off:active{filter:none}
 .bev-tile.off .bt-name{color:#6f6553}
@@ -401,7 +429,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 
 /* ---------- ABOUT: SETTINGS ACCORDION ---------- */
 /* Centred text rows, no chevron. The whole list collapses behind the
-   "Settings" header; "List Your Business" nests a second accordion. */
+   "Settings" header; "List Business" nests a second accordion. */
 .setlist{margin-top:14px;border-top:1px solid #f1ece1}
 .setrow{display:block;width:100%;text-align:center;padding:16px 14px;font-size:13.5px;font-weight:800;letter-spacing:.01em;color:#1a1a1a;background:#ffffff;border-bottom:1px solid #f1ece1;text-decoration:none;cursor:pointer;min-height:auto}
 .setrow:active{background:#faf8f2}
@@ -412,12 +440,12 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .setacc>summary::before,.setacc>summary::after{content:"";display:none}
 .setacc[data-sacc="settings"].open>.setrow{background:rgba(0,0,0,.04)}
 .btn.share{display:block;text-align:center;background:#25d366;border-color:#25d366;color:#ffffff;font-weight:800;text-decoration:none}
-.signup-banner{display:block;max-width:480px;margin:14px auto 6px;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.signup-banner{display:block;max-width:480px;margin:14px auto 6px;border-radius:0;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .signup-banner img{display:block;width:100%;height:auto}
 @media (prefers-reduced-motion:reduce){.signup-banner img{filter:none}}
 
 /* ---------- CRUMB ---------- */
-.crumb{display:flex;align-items:center;gap:8px;padding:12px 16px 10px;flex-wrap:wrap;background:#ffffff}
+.crumb{display:flex;align-items:center;gap:8px;padding:12px 16px 10px;flex-wrap:wrap;background:rgba(0,0,0,.04)}
 .crumb button{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#a89a7e;padding:4px 0}
 .crumb button:active{color:#1a1a1a}
 .crumb .sep{color:#e2dcc9;font-size:10px}
@@ -609,7 +637,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 <body>
 <div id="shell">
   <header id="hdr" data-act="closePickers">
-    <div class="brand-mark"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></div>
+    <button class="brand-mark" type="button" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
     <div class="hdr-right"><span class="hdr-chip">Offline</span></div>
   </header>
   <div id="viewport"></div>
@@ -3296,6 +3324,10 @@ const RESERVE = Object.keys(window.EATOUTS_EVENT_TAXONOMY||{}).map(function(k){
 const state = {
   tab:"promos",
   promoDay:new Date().getDay(),
+  promoWeekStart:null,
+  promoMonthPicker:false,
+  promoWeekPicker:false,
+  promoWeekExpanded:null,
   promoExpanded:null,
   poetryAll:false,
   promoView:"feed",
@@ -3946,21 +3978,47 @@ function eventFor(dayIdx){
   }
   return EVENTS[DAY_NAMES[dayIdx]];
 }
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
+function startOfWeek(d){
+  const x=new Date(d);x.setHours(0,0,0,0);
+  const day=x.getDay();
+  const diff=(day===0?-6:1-day);
+  x.setDate(x.getDate()+diff);
+  return x;
+}
 function getWeekDays(){
-  const today=new Date();
-  const day=today.getDay();
-  const monday=new Date(today);
-  monday.setDate(today.getDate()-((day+6)%7));
+  const monday=state.promoWeekStart||startOfWeek(new Date());
   const arr=[];
   for(let i=0;i<7;i++){const d=new Date(monday);d.setDate(monday.getDate()+i);arr.push(d);}
   return arr;
+}
+function weeksInMonth(year,monthIndex){
+  const firstOfMonth=new Date(year,monthIndex,1);
+  const lastOfMonth=new Date(year,monthIndex+1,0);
+  const firstMonday=startOfWeek(firstOfMonth);
+  const lastMonday=startOfWeek(lastOfMonth);
+  const diff=Math.round((lastMonday-firstMonday)/(7*86400000));
+  return diff+1;
 }
 function weekLabel(){
   const days=getWeekDays();
   const first=days[0];
   const month=first.toLocaleString("en",{month:"long"});
-  const weekNum=Math.ceil(first.getDate()/7);
-  return month+" – Week "+weekNum;
+  const year=first.getFullYear();
+  const monthIndex=first.getMonth();
+  const firstOfMonth=new Date(year,monthIndex,1);
+  const firstMonday=startOfWeek(firstOfMonth);
+  const diffDays=Math.round((first-firstMonday)/86400000);
+  const totalWeeks=weeksInMonth(year,monthIndex);
+  const weekNum=Math.max(1,Math.min(totalWeeks,Math.floor(diffDays/7)+1));
+  return {month:month,monthIndex:monthIndex,year:year,weekNum:weekNum,totalWeeks:totalWeeks};
+}
+function renderCalTitle(){
+  const w=weekLabel();
+  return '<div class="cal-title">'+
+    '<button type="button" class="cal-title-btn" data-act="openMonthPicker">'+esc(w.month)+'</button>'+
+    '<button type="button" class="cal-title-btn" data-act="openWeekPicker">Week '+w.weekNum+'</button>'+
+  '</div>';
 }
 function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
 
@@ -4022,7 +4080,7 @@ function syncRestAccordions(){
   });
 }
 
-/* About "Settings" accordion (with the nested "List Your Business" one).
+/* About "Settings" accordion (with the nested "List Business" one).
    Same in-place .open flip as above so .acc-wrap animates shut. */
 function syncAboutAccordions(){
   const vp=document.getElementById("viewport");
@@ -4790,10 +4848,14 @@ function syncBeveragesPanel(){
   const at=pageW>0?(pager.scrollLeft/pageW):0;
   const panel=at>=0.5?'beverages':'food';
   if(panel!==state.restPanel){
-    state.restPanel=panel;
-    /* keep the swipe animation smooth: only the toolbar + shell class move,
-       the pages themselves are already in the DOM */
-    renderControlBar();
+    /* route through the existing crossfade; do NOT clear view state
+       if the user was mid-scroll inside a sub-view (bottle menu, category) */
+    if(state.bevView||state.bevCheckout){
+      state.restPanel=panel;
+      renderControlBar();
+    }else{
+      switchRestPanel(panel);
+    }
   }
   const shellEl=document.getElementById('shell');
   if(shellEl) shellEl.classList.toggle('bev-panel', state.tab==='restaurants' && state.restPanel==='beverages' && !state.restaurantView && !state.bevView && !state.bevCheckout);
@@ -5625,7 +5687,9 @@ function renderControlBar(){
    silently: no .anim replay, and the scroll position is kept. */
 let lastViewKey=null;
 function viewKey(){
-  return [state.tab,state.promoView,state.restaurantView&&state.restaurantView.view,state.menuCat,
+  return [state.tab,state.promoView,state.promoDay,
+    state.promoWeekStart&&state.promoWeekStart.getTime(),
+    state.restaurantView&&state.restaurantView.view,state.menuCat,
     state.reserveCat,state.reserveGroup,state.reserveSub,
     state.reserveVenueTown,state.reserveVenueQuery,state.reserveVenueTownPicker,
     state.galleryView,state.aboutView,
@@ -5646,7 +5710,7 @@ function renderViewport(){
   /* a panel switch crossfades: suppress the slide so the two don't fight */
   const doFade=panelFade&&!document.startViewTransition&&!reduceMotion();
 
-  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'">'+renderScreen()+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderRestNotice();
+  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'">'+renderScreen()+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderRestNotice()+renderPromoMonthPicker()+renderPromoWeekPicker();
   if(doFade&&prevScreen){
     const old=prevScreen.cloneNode(true);
     old.classList.remove("anim");
@@ -5872,7 +5936,7 @@ function renderPromosFeed(){
   const feat=featuredEventsForDay(dayIdx);
 
     let cal='<div class="cal">';
-    cal+='<div class="cal-title">'+esc(weekLabel())+'</div>';
+    cal+=renderCalTitle();
   cal+='<div class="cal-days">';
   days.forEach(function(d){
     const idx=d.getDay();
@@ -5915,6 +5979,93 @@ function renderPromosFeed(){
   }
   body+='<div style="height:24px"></div></div>';
   return cal+body;
+}
+
+function promosCountForDate(d){
+  const idx=d.getDay();
+  const dayName=DAY_NAMES[idx];
+  let count=0;
+  if(hasBridge()){
+    count+=EatoutsBridge.promosForDay(idx,state.promoTown,null,state.promoArea,state.promoDistrict,state.promoDistrictName).length;
+  }else{
+    count+=(PROMOS[dayName]||[]).length;
+  }
+  count+=beveragePromosOnDay(dayName).length;
+  count+=featuredEventsForDay(idx).length;
+  if(hasBridge()){
+    count+=EatoutsBridge.eventsForDay(idx,state.promoTown,state.promoArea,state.promoDistrict,state.promoDistrictName).length;
+  }else if(EVENTS[dayName]){
+    count+=1;
+  }
+  return count;
+}
+
+function renderPromoMonthPicker(){
+  if(!state.promoMonthPicker)return "";
+  const year=2026;
+  const months=["January","February","March","April","May","June","July",
+                "August","September","October","November","December"];
+  let h='<div class="fpop-scrim" data-act="closePromoMonthPicker"></div>';
+  h+='<div class="fpop month-pop" role="listbox" aria-label="Choose month">';
+  h+='<div class="month-year">'+year+'</div>';
+  const w=weekLabel();
+  months.forEach(function(name,i){
+    const active=(w.year===year&&w.monthIndex===i);
+    h+='<button type="button" class="month-row'+(active?' on':'')+'" data-act="pickPromoMonth" data-month="'+(i+1)+'" role="option" aria-selected="'+active+'">'+esc(name)+'</button>';
+  });
+  h+='</div>';
+  return h;
+}
+
+function renderPromoWeekPicker(){
+  if(!state.promoWeekPicker)return "";
+  const w=weekLabel();
+  const year=w.year,monthIndex=w.monthIndex;
+  const firstOfMonth=new Date(year,monthIndex,1);
+  const firstMonday=startOfWeek(firstOfMonth);
+  const totalWeeks=w.totalWeeks;
+  let h='<div class="fpop-scrim" data-act="closePromoWeekPicker"></div>';
+  h+='<div class="fpop week-pop'+(state.promoWeekExpanded?' expanded-open':'')+'" role="dialog" aria-label="Choose week">';
+  h+='<div class="month-year">'+esc(w.month)+' '+year+'</div>';
+  for(let i=0;i<totalWeeks;i++){
+    const weekNumber=i+1;
+    const expanded=(state.promoWeekExpanded===weekNumber);
+    const isCurrentWeek=(w.weekNum===weekNumber);
+    h+='<button type="button" class="week-row'+(isCurrentWeek?' on':'')+(expanded?' expanded':'')+'" '+
+       'data-act="toggleWeek" data-week="'+weekNumber+'" '+
+       'aria-expanded="'+expanded+'" '+
+       'aria-controls="week-'+weekNumber+'-days">'+
+       '<span class="week-row-label">Week '+weekNumber+'</span>'+
+       '</button>';
+    h+='<div class="week-days" id="week-'+weekNumber+'-days" '+
+       'style="max-height:'+(expanded?'400px':'0')+';opacity:'+(expanded?'1':'0')+'">';
+    if(expanded){
+      const monday=addDays(firstMonday,i*7);
+      for(let di=0;di<7;di++){
+        const day=addDays(monday,di);
+        const dayName=DAY_NAMES[day.getDay()];
+        const dayNum=day.getDate();
+        const inMonth=(day.getMonth()===monthIndex);
+        const count=promosCountForDate(day);
+        const empty=(count===0);
+        const wkIdx=PROMO_WEEK_ORDER.indexOf(state.promoDay);
+        const isSelected=sameDay(day,getWeekDays()[wkIdx>=0?wkIdx:0]);
+        h+='<button type="button" class="day-row'+
+           (empty?' day-row-empty':'')+
+           (isSelected?' on':'')+
+           (inMonth?'':' day-row-out')+'" '+
+           'data-act="pickDayFromWeek" data-week="'+weekNumber+'" data-offset="'+di+'" '+
+           (empty?' aria-disabled="true"':'')+'>'+
+           '<span class="day-row-name">'+esc(dayName.slice(0,3))+'</span>'+
+           '<span class="day-row-num">'+dayNum+'</span>'+
+           '<span class="day-row-count">'+(empty?'No promos':(count+(count===1?' promo':' promos'))) + '</span>'+
+           '</button>';
+      }
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
 }
 
 function renderPromoDetail(){
@@ -6010,7 +6161,7 @@ function renderPromoGallery(){
   for(let i=0;i<3;i++) imgs.push(evImg(dayIdx*3+i));
   for(let i=0;i<2;i++) imgs.push(foodImg(dayIdx*7+i*3));
   return '<div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#0a0a0a">'+
-    '<div class="crumb" style="background:#ffffff"><button data-act="backPromoGallery">Back to Promo</button><span class="cur">Gallery</span></div>'+
+    '<div class="crumb"><button data-act="backPromoGallery">Back to Promo</button><span class="cur">Gallery</span></div>'+
     '<div class="swiper">'+imgs.map(function(src){
       return '<div class="slide">'+imgTag(src,p.title)+'</div>';
     }).join("")+'</div>'+
@@ -6133,7 +6284,6 @@ const BEV_TILE_COLOURS={
   tequila:"255,127,80",vodka:"135,206,235",wines:"0,0,255"
 };
 function bevTileRgb(id){return BEV_TILE_COLOURS[id]||"214,201,182";}
-function bevTileNameRgb(id){return bevTileRgb(id).split(",").map(function(c){return Math.max(0,Math.round(parseInt(c,10)*0.5));}).join(",");}
 function renderBottleMenu(){
   const B=window._BEV&&window._BEV.beverages;
   const A=window._BEV&&window._BEV.alcohols;
@@ -6146,7 +6296,7 @@ function renderBottleMenu(){
   h+='<div class="bev-ratio">Drinks</div><div class="bev-grid">';
   (subs||[]).forEach(function(sc){
     const off=sc.count<=0;
-    h+='<button class="bev-tile'+(off?' off':'')+'" data-act="bevOpenSub" data-id="'+esc(sc.id)+'" style="--bt-rgb:'+bevTileRgb(sc.id)+';--bt-name-rgb:'+bevTileNameRgb(sc.id)+'"'+(off?' disabled':'')+'>';
+    h+='<button class="bev-tile'+(off?' off':'')+'" data-act="bevOpenSub" data-id="'+esc(sc.id)+'" style="--bt-rgb:'+bevTileRgb(sc.id)+'"'+(off?' disabled':'')+'>';
     h+='<div class="bt-name">'+esc(sc.name)+'</div>';
     h+='</button>';
   });
@@ -6154,7 +6304,7 @@ function renderBottleMenu(){
   h+='<div class="bev-ratio liquors">Liquors</div><div class="bev-grid">';
   (bucks||[]).forEach(function(b){
     const off=b.count<=0;
-    h+='<button class="bev-tile sq'+(off?' off':'')+'" data-act="bevOpenBucket" data-id="'+esc(b.id)+'" style="--bt-rgb:'+bevTileRgb(b.id)+';--bt-name-rgb:'+bevTileNameRgb(b.id)+'"'+(off?' disabled':'')+'>';
+    h+='<button class="bev-tile sq'+(off?' off':'')+'" data-act="bevOpenBucket" data-id="'+esc(b.id)+'" style="--bt-rgb:'+bevTileRgb(b.id)+'"'+(off?' disabled':'')+'>';
     h+='<div class="bt-name">'+esc(b.name)+'</div>';
     h+='</button>';
   });
@@ -7106,7 +7256,7 @@ function renderPhoto(){
   let start=0;
   for(let i=0;i<items.length;i++){ if(items[i].id===state.galleryPhoto){ start=i; break; } }
   return '<div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#0a0a0a">'+
-    '<div class="crumb" style="background:#ffffff"><button data-act="backAlbum">Gallery</button>'+
+    '<div class="crumb"><button data-act="backAlbum">Gallery</button>'+
     '<span class="sep">/</span><span class="cur">'+esc(items[start].cat)+'</span></div>'+
     '<div class="swiper" id="photsw">'+items.map(function(g){
       return '<div class="slide">'+imgTag(g.src,g.label)+'</div>';
@@ -7129,7 +7279,7 @@ function renderRestaurantGallery(){
   const imgs=IMG.gallery.map(function(f,i){return {src:IMG.dirGallery+f,label:"Gallery "+((i+1<10?"0":"")+(i+1))};})
     .concat(IMG.events.slice(0,4).map(function(f,i){return {src:IMG.dirEvents+f,label:"Event "+((i+1<10?"0":"")+(i+1))};}));
   return '<div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#0a0a0a">'+
-    '<div class="crumb" style="background:#ffffff"><button data-act="backAboutGallery">About</button><span class="sep">/</span><span class="cur">Restaurant Gallery</span></div>'+
+    '<div class="crumb"><button data-act="backAboutGallery">About</button><span class="sep">/</span><span class="cur">Restaurant Gallery</span></div>'+
     '<div class="swiper">'+imgs.map(function(im){
       return '<div class="slide">'+imgTag(im.src,im.label)+'</div>';
     }).join("")+'</div>'+
@@ -7176,7 +7326,7 @@ function renderAbout(){
      .map(function(t){return '<span class="chip pill">'+esc(t)+'</span>';}).join("")+'</div>';
 
   /* Settings accordion: install, blog, event suppliers, legal, feedback,
-     operator and a nested "List Your Business" accordion. Centred text rows,
+     operator and a nested "List Business" accordion. Centred text rows,
      no chevrons. The nested list is a native <details>/<summary> so it also
      works without JavaScript. */
   const sOpen=!!state.aboutSettingsOpen;
@@ -7193,14 +7343,15 @@ function renderAbout(){
       '<a class="setrow" href="eatouts_feedback.html">Feedback</a>'+
       '<button class="setrow" data-act="openOperatorLogin">Operator</button>'+
       '<details class="setacc">'+
-        '<summary class="setrow">List Your Business</summary>'+
+        '<summary class="setrow">List Business</summary>'+
         '<div class="acc-wrap"><div class="acc-in">'+
+          '<a class="setrow" href="designer-services.html">Need Design</a>'+
           '<a class="setrow" href="eatouts-business-signup.html?type=restaurant">List As &ldquo;Restaurant&rdquo;</a>'+
           '<a class="setrow" href="eatouts-business-signup.html?type=liquor_store">List As &ldquo;Liquor Store&rdquo;</a>'+
           '<a class="setrow" href="eatouts-business-signup.html?type=event_supplier">List As &ldquo;Event Supplier&rdquo;</a>'+
           '<a class="setrow" href="eatouts-business-signup.html?type=food_truck">List As &ldquo;Food Truck&rdquo;</a>'+
           '<a class="setrow" href="eatouts-business-signup.html?type=caterer">List As &ldquo;Caterer&rdquo;</a>'+
-        '</div></div>'+
+          '</div></div>'+
       '</details>'+
     '</div></div>'+
   '</div></div>';
@@ -7333,6 +7484,7 @@ function bootEatoutsBridge(){
 
 function render(){
   bootEatoutsBridge();
+  if(!state.promoWeekStart) state.promoWeekStart = startOfWeek(new Date());
   renderViewport();
 }
 
@@ -7547,6 +7699,59 @@ document.addEventListener("click",function(e){
   if(act==="openAreaPicker"){if(state.promoTown==="All")return;state.promoAreaPicker=true;state.promoTownPicker=false;state.promoTypePicker=false;renderControlBar();return;}
   if(act==="openPromoTypePicker"){state.promoTypePicker=true;state.promoTownPicker=false;state.promoAreaPicker=false;state.promoSubtypeSearch="";renderControlBar();return;}
   if(act==="closePickers"){state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;renderControlBar();return;}
+  if(act==="openMonthPicker"){
+    state.promoMonthPicker=true;state.promoWeekPicker=false;state.promoWeekExpanded=null;
+    state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;
+    render(); return;
+  }
+  if(act==="closePromoMonthPicker"){state.promoMonthPicker=false;render();return;}
+  if(act==="pickPromoMonth"){
+    const m=parseInt(t.getAttribute("data-month"),10);
+    const y=2026;
+    const firstOfMonth=new Date(y,m-1,1);
+    state.promoWeekStart=startOfWeek(firstOfMonth);
+    state.promoDay=1;
+    state.promoMonthPicker=false;
+    state.promoExpanded=null;
+    render(); return;
+  }
+  if(act==="openWeekPicker"){
+    state.promoWeekPicker=true;state.promoMonthPicker=false;
+    state.promoWeekExpanded=null;
+    state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;
+    render(); return;
+  }
+  if(act==="closePromoWeekPicker"){state.promoWeekPicker=false;state.promoWeekExpanded=null;render();return;}
+  if(act==="toggleWeek"){
+    const n=parseInt(t.getAttribute("data-week"),10);
+    state.promoWeekExpanded=(state.promoWeekExpanded===n)?null:n;
+    render(); return;
+  }
+  if(act==="pickPromoWeek"){
+    const n=parseInt(t.getAttribute("data-week"),10);
+    const ref=state.promoWeekStart||startOfWeek(new Date());
+    const firstOfMonth=new Date(ref.getFullYear(),ref.getMonth(),1);
+    const firstMonday=startOfWeek(firstOfMonth);
+    state.promoWeekStart=addDays(firstMonday,(n-1)*7);
+    state.promoDay=1;
+    state.promoWeekPicker=false;state.promoWeekExpanded=null;
+    state.promoExpanded=null;
+    render(); return;
+  }
+  if(act==="pickDayFromWeek"){
+    const n=parseInt(t.getAttribute("data-week"),10);
+    const offset=parseInt(t.getAttribute("data-offset"),10);
+    const ref=state.promoWeekStart||startOfWeek(new Date());
+    const firstOfMonth=new Date(ref.getFullYear(),ref.getMonth(),1);
+    const firstMonday=startOfWeek(firstOfMonth);
+    const monday=addDays(firstMonday,(n-1)*7);
+    state.promoWeekStart=monday;
+    state.promoDay=PROMO_WEEK_ORDER[offset];
+    state.promoWeekPicker=false;
+    state.promoWeekExpanded=null;
+    state.promoExpanded=null;
+    render(); return;
+  }
   if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;state.restLocPicker=null;state.restNotice=null;syncRestAccordions();return;}
   if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
@@ -7962,7 +8167,9 @@ document.addEventListener("keydown",function(e){
     return;
   }
   if(e.key==="Escape"||e.keyCode===27){
-    if(state.preview){state.preview=null;render();}
+    if(state.promoMonthPicker){state.promoMonthPicker=false;render();}
+    else if(state.promoWeekPicker){state.promoWeekPicker=false;state.promoWeekExpanded=null;render();}
+    else if(state.preview){state.preview=null;render();}
     else if(state.restLocPicker){state.restLocPicker=null;render();}
     else if(state.restNotice){state.restNotice=null;render();}
     else if(state.restTownPicker||state.restAreaPicker||state.restTypePicker){
@@ -7993,6 +8200,59 @@ document.addEventListener("keydown",function(e){
     if(Math.abs(dx)<SWIPE||Math.abs(dx)<Math.abs(dy)*1.4)return;
     origin=null;
     cyclePromoType(dx<0?1:-1);
+  },{passive:true});
+  ["pointerup","pointercancel","pointerleave"].forEach(function(ev){
+    document.addEventListener(ev,function(){origin=null;},true);
+  });
+})();
+
+/* --------------------------------------------------------------
+   Promos feed: swipe left/right to walk the days of the week.
+   Not triggered by touches on the header, the bottom nav, the
+   calendar strip itself, or any open popup.
+   -------------------------------------------------------------- */
+const PROMO_WEEK_ORDER=[1,2,3,4,5,6,0];
+function stepPromoDay(dir){
+  let idx=PROMO_WEEK_ORDER.indexOf(state.promoDay);
+  if(idx<0)idx=0;
+  let next=idx+dir;
+  if(next>6){
+    state.promoWeekStart=addDays(state.promoWeekStart||startOfWeek(new Date()),7);
+    next=0;
+  }else if(next<0){
+    state.promoWeekStart=addDays(state.promoWeekStart||startOfWeek(new Date()),-7);
+    next=6;
+  }
+  state.promoDay=PROMO_WEEK_ORDER[next];
+  state.promoExpanded=null;
+  render();
+}
+(function(){
+  let origin=null;
+  const SWIPE=50;
+  const H_RATIO=1.4;
+  function allowed(e){
+    if(state.tab!=="promos")return false;
+    if(state.promoView!=="feed")return false;
+    if(state.promoExpanded)return false;
+    if(state.promoTypePicker||state.promoTownPicker||state.promoAreaPicker)return false;
+    if(state.promoMonthPicker||state.promoWeekPicker)return false;
+    if(e.target.closest&&e.target.closest("#hdr, #nav, .cal, .cal-days, .fpop, .fpop-scrim, .preview-layer"))return false;
+    return true;
+  }
+  document.addEventListener("pointerdown",function(e){
+    origin=null;
+    if(!allowed(e))return;
+    origin={x:e.clientX,y:e.clientY};
+  },true);
+  document.addEventListener("pointermove",function(e){
+    if(!origin)return;
+    const dx=e.clientX-origin.x;
+    const dy=e.clientY-origin.y;
+    if(Math.abs(dx)<SWIPE)return;
+    if(Math.abs(dx)<Math.abs(dy)*H_RATIO)return;
+    origin=null;
+    stepPromoDay(dx<0?1:-1);
   },{passive:true});
   ["pointerup","pointercancel","pointerleave"].forEach(function(ev){
     document.addEventListener(ev,function(){origin=null;},true);
@@ -8171,7 +8431,6 @@ try{
 render();
 loadRestaurantTypeFilters();
 loadDirectoryMenus(function(){
-  bootEatoutsBridge();
   if((new URLSearchParams(window.location.search||"")).get("resume")) restoreOrder();
   render();
 });

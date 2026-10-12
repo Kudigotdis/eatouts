@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Design Services — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--line:#ece7db;--soft:#faf8f2;--ok:#17834b;--warn:#946200;--danger:#a63d34;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#e9e5db;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:var(--text);font-size:14px;line-height:1.45}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;text-align:left}
+img{display:block;max-width:100%}
+#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+@media(min-width:520px){#shell{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.brand{font-weight:900;font-size:16px;letter-spacing:-.02em;color:var(--black)}
+.brand span{color:var(--gold)}
+.hdr-back{font-size:12.5px;font-weight:800;color:var(--gold)}
+.hdr-back::before{content:"← ";font-weight:900}
+.hdr-right{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff;padding-bottom:120px}
+.hero{padding:22px 16px 18px;background:#fff;border-bottom:1px solid var(--line)}
+.hero .tag{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.hero h1{margin:0 0 8px;font-size:24px;font-weight:900;letter-spacing:-.03em;line-height:1.15}
+.hero p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
+.hero .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.hero .badge{font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--soft);border:1px solid var(--line);color:#5c5547}
+.hero .badge.gold{background:#fdf9ef;border-color:#e8dfc8;color:#8a6a1a}
+.cats{padding:12px 14px 10px;border-bottom:1px solid var(--line);background:#fff}
+.cats-h{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.cat-chips{display:flex;gap:6px;flex-wrap:wrap}
+.cat-chip{border:1px solid var(--line);background:#fff;padding:8px 11px;font-size:11px;font-weight:800;border-radius:999px;color:#5c5547;min-height:34px;display:inline-flex;align-items:center;gap:5px}
+.cat-chip.active{background:var(--black);border-color:var(--black);color:#fff}
+.cat-chip .ico{font-size:13px}
+.list{padding:12px 14px}
+.card{border:1px solid var(--line);background:#fff;margin-bottom:10px;overflow:hidden;border-radius:var(--r)}
+.card-img{height:118px;background:var(--soft);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;position:relative;overflow:hidden}
+.card-img img{width:100%;height:100%;object-fit:cover}
+.card-img .fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f1ede0 0%,#e4ddc9 100%);color:#a89a7e}
+.card-head{display:flex;align-items:flex-start;gap:10px;padding:12px 13px;width:100%;text-align:left}
+.card-head .grow{flex:1;min-width:0}
+.service-name{font-size:15px;font-weight:900;letter-spacing:-.01em;line-height:1.2}
+.service-sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:600}
+.price{font-size:14px;font-weight:900;color:var(--text);white-space:nowrap}
+.price.mo small{font-size:10px;font-weight:700;color:var(--muted)}
+.plus{color:var(--muted);font-size:16px;line-height:1;flex:0 0 auto;transition:transform .2s}
+.card.open .plus{transform:rotate(45deg);color:var(--black)}
+.card-body{display:none;border-top:1px solid var(--line);padding:12px 13px 14px;background:#fbfaf8}
+.card.open .card-body{display:block}
+.card-body p{margin:0 0 10px;font-size:12.5px;color:#3a3324;line-height:1.5}
+.subh{font-size:10.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
+.deliv{margin:0;padding:0 0 0 15px;font-size:12px;color:#3a3324;line-height:1.6}
+.deliv li{margin:3px 0}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.micro{font-size:10.5px;color:var(--muted);font-weight:700}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:var(--soft);border:1px solid var(--line);color:#5c5547}
+.pill.ok{background:#f5faf6;border-color:#b9d2c0;color:var(--ok)}
+.pill.warn{background:#fffbef;border-color:#ead8a8;color:var(--warn)}
+.pill.bad{background:#fff7f6;border-color:#e9c6c1;color:var(--danger)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:11px;font-size:12.5px;font-weight:800;background:var(--soft);border:1px solid var(--line);color:#3a3324;text-decoration:none;gap:6px}
+.btn:active{background:#efe9da}
+.btn.primary{background:var(--black);color:#fff;border-color:var(--black)}
+.btn.primary:active{background:#000}
+.btn.full{width:100%;margin-top:10px}
+.designer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.designer-card{border:1px solid var(--line);padding:8px;border-radius:12px;background:#fff;overflow:hidden}
+.designer-card.locked{opacity:.45;pointer-events:none}
+.mosaic{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.mosaic .cell{height:50px;background:var(--soft);border-radius:5px;overflow:hidden}
+.mosaic .cell:first-child{grid-row:span 2;height:103px}
+.mosaic .cell img{width:100%;height:100%;object-fit:cover}
+.mosaic .cell .fallback{width:100%;height:100%;background:linear-gradient(135deg,#f1ede0,#e4ddc9);display:flex;align-items:center;justify-content:center;color:#a89a7e;font-size:9px;font-weight:900;letter-spacing:.08em}
+.designer-card h4{font-size:11px;font-weight:900;margin:8px 0 3px;letter-spacing:-.01em;line-height:1.2}
+.designer-card p{font-size:10px;color:var(--muted);margin:0 0 7px;line-height:1.3}
+.designer-top{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.designer-top .min{min-width:0}
+.designer-top h4{margin:0 0 2px}
+.designer-top .designer-name{font-size:10px;color:var(--muted);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av-wrap{position:relative;flex:0 0 auto;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#f1ede0,#e4ddc9);display:inline-flex;align-items:center;justify-content:center}
+.av-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.av-ini{display:inline-flex;align-items:center;justify-content:center;width:100%;height:100%;color:#a89a7e;font-weight:900;letter-spacing:.04em;text-transform:uppercase;border-radius:50%}
+.designer-card .btn{min-height:34px;font-size:11px;padding:0 10px;width:100%;margin-top:0}
+.field{margin:10px 0}
+.field label{display:block;font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.input{border:1px solid var(--line);min-height:44px;padding:11px 12px;background:#fbfaf8;border-radius:10px;font-size:13px;color:var(--text);outline:none;width:100%}
+.input:focus{border-color:var(--black);background:#fff}
+.input.area{min-height:76px;resize:vertical;font-family:inherit}
+.summary{border:1px solid var(--line);padding:12px;margin:12px 0;background:#fbfaf8;border-radius:12px}
+.sumrow{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:5px 0}
+.sumrow.total{border-top:1px solid var(--line);margin-top:6px;padding-top:9px;font-size:14px;font-weight:900}
+.sumrow.dim{color:var(--muted);font-size:11.5px}
+.checkline{display:flex;gap:9px;align-items:flex-start;padding:11px 12px;background:#f5faf6;border:1px solid #d5e4d6;border-radius:10px;font-size:12px;line-height:1.5;margin:10px 0}
+.checkline.alt{background:#fff;border-color:var(--line)}
+.check{width:16px;height:16px;border:1.5px solid #777;border-radius:3px;flex:0 0 auto;margin-top:1px;background:#fff;position:relative}
+.check.on{background:var(--black);border-color:var(--black)}
+.check.on::after{content:"✓";position:absolute;top:-2px;left:2px;color:#fff;font-size:13px;font-weight:900}
+.status-strip{border-left:3px solid var(--warn);padding:10px 12px;background:#fffbef;font-size:12px;margin:10px 0;border-radius:0 10px 10px 0;line-height:1.5}
+.status-strip.ok{border-color:var(--ok);background:#f5faf6}
+.step-wrap{position:relative;padding-left:26px}
+.step-wrap:before{content:"";position:absolute;left:8px;top:20px;bottom:20px;width:1px;background:#cfc6b3}
+.step{position:relative;border:1px solid var(--line);margin-bottom:10px;background:#fff;border-radius:var(--r);overflow:hidden}
+.step:before{content:attr(data-n);position:absolute;z-index:2;left:-26px;top:16px;width:20px;height:20px;border:1px solid #b9a77f;background:#fff;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:900}
+.step.open{border-color:#b9a77f}
+.step-img{height:96px;background:var(--soft);position:relative;overflow:hidden}
+.step-img img{width:100%;height:100%;object-fit:cover}
+.step-img .fallback{position:absolute;inset:0;background:linear-gradient(135deg,#f1ede0,#e4ddc9);display:flex;align-items:center;justify-content:center;color:#a89a7e;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.step-head{display:flex;align-items:center;gap:10px;padding:12px 13px;width:100%;text-align:left}
+.step-head .grow{flex:1;min-width:0}
+.step-title{font-size:14px;font-weight:900;letter-spacing:-.01em}
+.step-sub{font-size:11.5px;color:var(--muted);margin-top:2px;font-weight:600}
+.step-body{display:none;padding:12px 14px 15px;border-top:1px solid var(--line);background:#fbfaf8;font-size:12.5px;color:#3a3324;line-height:1.55}
+.step.open .step-body{display:block}
+.step-body h5{margin:0 0 6px;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.deliv-tier{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px}
+.deliv-tier:last-child{border:0}
+.deliv-tier strong{font-weight:900;min-width:110px;flex:0 0 auto}
+.summary-card{border:1px solid var(--line);padding:14px;background:#fff;border-radius:var(--r);margin:12px 0}
+.action-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:460px;background:#fff;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;z-index:40}
+.action-bar .btn{flex:1;min-height:48px}
+@media(min-width:520px){.action-bar{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+.hidden{display:none!important}
+.toast{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;max-width:92%;text-align:center}
+.toast.on{opacity:1}
+.empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
+.footnote{padding:14px 16px 22px;font-size:10.5px;color:var(--muted);line-height:1.55}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="hdr">
+    <button class="hdr-back" id="hdrBack" type="button">EatOuts</button>
+    <div class="brand">EAT<span>OUTS</span></div>
+    <div class="hdr-right">Design Services</div>
+  </header>
+
+  <div class="scroll" id="view"></div>
+
+  <div class="action-bar hidden" id="actionBar">
+    <button class="btn ghost" id="btnBackStep">Back</button>
+    <button class="btn primary" id="btnNextStep">Continue</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-services-seed.js"></script>
+<script src="js/eatouts-designers-seed.js"></script>
+<script src="js/eatouts-brand-kit.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  var S = window.EatoutsBrandKit;
+  if(!S){ document.getElementById('view').innerHTML = '<div class="empty">Catalog unavailable.</div>'; return; }
+  S.seedIfEmpty();
+
+  /* ---------- state ---------- */
+  var state = {
+    step: 'catalogue',       /* catalogue | service | designer | brief | summary | done */
+    category: null,
+    serviceId: null,
+    openServiceId: null,     /* which card is expanded in the list */
+    designerId: null,
+    /* brief */
+    businessName: '',
+    businessWhatsapp: '',
+    industry: '',
+    likes: '',
+    dislikes: '',
+    references: '',
+    /* options */
+    rush: false,
+    extraRevisions: false,
+    revealOptIn: false,
+    onboardUpsell: true,
+    founding: false,
+    termsAccepted: false,
+    /* output */
+    job: null
+  };
+
+  /* ---------- helpers ---------- */
+  function esc(s){
+    return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function money(n){ return S.money(n); }
+  function toast(m){
+    var t = document.getElementById('toast');
+    t.textContent = m; t.classList.add('on');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ t.classList.remove('on'); }, 2200);
+  }
+  function el(id){ return document.getElementById(id); }
+  function view(){ return el('view'); }
+  function imgOrFallback(src, label, extraClass){
+    var cls = extraClass ? ' '+extraClass : '';
+    return '<div class="fallback'+cls+'">'+esc(label)+'</div>';
+  }
+
+  /* ---------- pricing preview ---------- */
+  function currentPrice(){
+    if(!state.serviceId) return null;
+    var svc = S.serviceById(state.serviceId);
+    if(!svc) return null;
+    var codes = [];
+    if(state.rush && !svc.is_recurring) codes.push('rush_48h');
+    if(state.extraRevisions && !svc.is_recurring) codes.push('extra_rev_2');
+    return S.calculatePrice(state.serviceId, {
+      addOnCodes: codes,
+      itemCount: 1,
+      foundingGift: state.founding && svc.id === 'svc_brand_kit'
+    });
+  }
+
+  /* ---------- availability ---------- */
+  function designerAvailableFor(d, svc){
+    if(S.isDesignerReserved(d.id)) return false;
+    return svc && svc.is_recurring ? S.designerCanTakeRetainer(d) : S.designerCanTakeProject(d);
+  }
+
+  /* ---------- renderers ---------- */
+  function renderCatalogue(){
+    var cats = S.allCategories();
+    var services = S.allServices();
+    var cat = state.category;
+    var list = cat ? services.filter(function(s){ return s.category === cat; }) : services;
+    var remaining = S.foundingRemaining();
+
+    var h = '';
+    h += '<div class="hero">';
+    h += '<div class="tag">Design Services</div>';
+    h += '<h1>Get anything designed for your business.</h1>';
+    h += '<p>Logos, menus, promo graphics, event flyers, packaging and video — from Botswana designers, delivered in a few days.</p>';
+    h += '<div class="badges">';
+    h += '<span class="badge">From P80</span>';
+    h += '<span class="badge">15% platform fee</span>';
+    if(remaining > 0){
+      h += '<span class="badge gold">Founding: '+remaining+' of 20 left</span>';
+    }
+    h += '</div></div>';
+
+    h += '<div class="cats">';
+    h += '<div class="cats-h">What do you need?</div>';
+    h += '<div class="cat-chips">';
+    h += '<button class="cat-chip'+(cat?'':' active')+'" data-act="cat" data-val="">All</button>';
+    cats.forEach(function(c){
+      h += '<button class="cat-chip'+(cat===c.id?' active':'')+'" data-act="cat" data-val="'+esc(c.id)+'">'+
+           '<span class="ico">'+esc(c.icon)+'</span>'+esc(c.name)+'</button>';
+    });
+    h += '</div></div>';
+
+    h += '<div class="list">';
+    if(!list.length){
+      h += '<div class="empty">No services in this category yet.</div>';
+    }
+    list.forEach(function(s){ h += renderServiceCard(s); });
+    h += '</div>';
+
+    h += '<div class="footnote">Every price includes the EatOuts 15% platform fee. The designer receives 85% on completion. Prices are one-time unless marked /month.</div>';
+
+    view().innerHTML = h;
+    updateActionBar();
+  }
+
+  function renderServiceCard(s){
+    var open = state.openServiceId === s.id;
+    var priceLabel = s.is_recurring ? money(s.base_price) + '/mo' : money(s.base_price);
+    var img = s.image ? '<img src="'+esc(s.image)+'" alt="">' : imgOrFallback(s.name, s.name);
+    var h = '';
+    h += '<div class="card'+(open?' open':'')+'" data-service="'+esc(s.id)+'">';
+    h += '<div class="card-img">'+img+'</div>';
+    h += '<button class="card-head" data-act="openService" data-id="'+esc(s.id)+'">';
+    h += '<div class="grow"><div class="service-name">'+esc(s.name)+'</div>'+
+         '<div class="service-sub">'+(s.is_recurring?'Recurring · ':'One-time · ')+
+         (s.delivery_days>0? s.delivery_days+' working days · ':'')+
+         s.revision_rounds+' revision'+(s.revision_rounds===1?'':'s')+'</div></div>';
+    h += '<div class="price'+(s.is_recurring?' mo':'')+'">'+esc(priceLabel)+'</div>';
+    h += '<span class="plus">+</span>';
+    h += '</button>';
+    h += '<div class="card-body">';
+    h += '<p>'+esc(s.description)+'</p>';
+    h += '<div class="subh">What you get</div>';
+    h += '<ul class="deliv">'+s.deliverables.map(function(d){ return '<li>'+esc(d)+'</li>'; }).join('')+'</ul>';
+    h += '<div class="row" style="margin-top:12px">';
+    h += '<span class="pill">'+esc(s.category)+'</span>';
+    if(s.is_recurring) h += '<span class="pill warn">Recurring monthly</span>';
+    if(s.id === 'svc_brand_kit' && S.foundingRemaining() > 0) h += '<span class="pill ok">Founding discount available</span>';
+    h += '</div>';
+    h += '<button class="btn primary full" data-act="pickService" data-id="'+esc(s.id)+'">Choose this service</button>';
+    h += '</div></div>';
+    return h;
+  }
+
+  function renderServiceDetail(){
+    var svc = S.serviceById(state.serviceId);
+    if(!svc){ state.step = 'catalogue'; return renderCatalogue(); }
+
+    var h = '';
+    h += '<div class="hero" style="padding-bottom:14px">';
+    h += '<div class="tag">'+esc(svc.category)+'</div>';
+    h += '<h1 style="font-size:21px">'+esc(svc.name)+'</h1>';
+    h += '<p>'+esc(svc.tagline)+'</p>';
+    h += '</div>';
+    h += '<div class="list">';
+
+    h += '<div class="summary-card">';
+    h += '<div class="sumrow"><span>'+esc(svc.name)+'</span><strong>'+esc(money(svc.base_price))+(svc.is_recurring?'/mo':'')+'</strong></div>';
+    h += '<div class="sumrow dim"><span>Delivery</span><span>'+(svc.is_recurring?'Monthly cycle':svc.delivery_days+' working days')+'</span></div>';
+    h += '<div class="sumrow dim"><span>Revision rounds</span><span>'+svc.revision_rounds+' included</span></div>';
+    h += '</div>';
+
+    h += '<div class="summary-card">';
+    h += '<div class="subh" style="margin-top:0">Deliverables</div>';
+    h += '<ul class="deliv">'+svc.deliverables.map(function(d){ return '<li>'+esc(d)+'</li>'; }).join('')+'</ul>';
+    h += '</div>';
+
+    if(!svc.is_recurring){
+      h += '<div class="summary-card">';
+      h += '<div class="subh" style="margin-top:0">Add-ons (optional)</div>';
+      h += '<div class="checkline alt" data-act="toggleRush">'+
+           '<span class="check'+(state.rush?' on':'')+'"></span>'+
+           '<span><strong>Rush — deliver in under 48 hours</strong><br><span class="micro">+40% of the base price.</span></span></div>';
+      h += '<div class="checkline alt" data-act="toggleExtraRev">'+
+           '<span class="check'+(state.extraRevisions?' on':'')+'"></span>'+
+           '<span><strong>2 extra revision rounds</strong><br><span class="micro">+P80.</span></span></div>';
+      h += '</div>';
+    }
+
+    if(svc.id === 'svc_brand_kit' && S.foundingRemaining() > 0){
+      h += '<div class="checkline" data-act="toggleFounding">'+
+           '<span class="check'+(state.founding?' on':'')+'"></span>'+
+           '<span><strong>Apply Founding-20 discount</strong><br><span class="micro">'+S.foundingRemaining()+' of 20 remaining. P350 → P150.</span></span></div>';
+    }
+
+    var price = currentPrice();
+    if(price){
+      h += '<div class="summary">';
+      h += '<div class="sumrow"><span>Base</span><span>'+money(price.base)+'</span></div>';
+      price.addOns.forEach(function(a){
+        h += '<div class="sumrow dim"><span>'+esc(a.label)+'</span><span>+'+money(a.price)+'</span></div>';
+      });
+      if(price.foundingDiscount){
+        h += '<div class="sumrow dim"><span>Founding-20 discount</span><span>−'+money(price.foundingDiscount)+'</span></div>';
+      }
+      h += '<div class="sumrow total"><span>Total</span><span>'+money(price.gross)+'</span></div>';
+      h += '<div class="sumrow dim" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px"><span>EatOuts fee (15%)</span><span>'+money(price.platformCut)+'</span></div>';
+      h += '<div class="sumrow dim"><span>Designer payout</span><span>'+money(price.designerPayout)+'</span></div>';
+      h += '</div>';
+    }
+
+    h += '</div>';
+    view().innerHTML = h;
+    updateActionBar();
+  }
+
+  function renderDesignerPicker(){
+    var svc = S.serviceById(state.serviceId);
+    if(!svc){ state.step='catalogue'; return renderCatalogue(); }
+
+    var matching = S.designersForCategory(svc.category, svc.is_recurring);
+    var all = S.designers();
+
+    var h = '';
+    h += '<div class="hero" style="padding-bottom:14px">';
+    h += '<div class="tag">Step 2 of 3</div>';
+    h += '<h1 style="font-size:21px">Pick a style</h1>';
+    h += '<p>Designers work one project at a time. If one is engaged, they are finishing another business\'s brand — pick the style you like and we\'ll match you with the artist behind it.</p>';
+    h += '</div>';
+    h += '<div class="list">';
+
+    if(!matching.length){
+      h += '<div class="status-strip">All designers are engaged on this category right now. Choose another service category or message us on WhatsApp to join the waitlist.</div>';
+      h += '<button class="btn full" data-act="waitlist">Join the waitlist on WhatsApp</button>';
+    } else {
+      h += '<div class="designer-grid">';
+      matching.forEach(function(d){ h += renderDesignerCard(d, svc); });
+      h += '</div>';
+    }
+
+    /* show busy designers below as locked */
+    var busy = all.filter(function(d){ return matching.indexOf(d) === -1; });
+    if(busy.length){
+      h += '<div class="subh" style="margin-top:18px">Currently engaged</div>';
+      h += '<div class="designer-grid">';
+      busy.forEach(function(d){ h += renderDesignerCard(d, svc, true); });
+      h += '</div>';
+    }
+
+    h += '</div>';
+    view().innerHTML = h;
+    updateActionBar();
+  }
+
+  function designerAvatarHtml(d, size){
+    var name = (d.private && d.private.full_name) || d.portfolio_style || d.id || '?';
+    var ini = name.split(/\s+/).map(function(w){ return w.charAt(0); }).slice(0,2).join('').toUpperCase();
+    var fs = Math.max(9, Math.round(size * 0.34));
+    return '<span class="av-wrap" style="width:'+size+'px;height:'+size+'px">'
+      + '<span class="av-ini" style="font-size:'+fs+'px">'+esc(ini)+'</span>'
+      + (d.photo ? '<img src="'+esc(d.photo)+'" alt="'+esc(name)+'" onerror="this.style.display=\'none\'">' : '')
+      + '</span>';
+  }
+
+  function renderDesignerCard(d, svc, forceLocked){
+    var locked = forceLocked || !designerAvailableFor(d, svc);
+    var style = d.portfolio_style || '';
+    var fullName = (d.private && d.private.full_name) || '';
+    var specialtyText = (d.specialties || []).map(function(s){
+      var cat = S.allCategories().filter(function(c){ return c.id === s; })[0];
+      return cat ? cat.name : s;
+    }).join(' · ');
+    var h = '';
+    h += '<div class="designer-card'+(locked?' locked':'')+'">';
+    h += '<div class="designer-top">'+designerAvatarHtml(d, 56)+'<div class="min"><h4>'+esc(style)+'</h4>'+(fullName?'<div class="designer-name">'+esc(fullName)+'</div>':'')+'</div></div>';
+    h += '<div class="mosaic">';
+    for(var i=0;i<4;i++){
+      var src = d.portfolio[i] || '';
+      h += '<div class="cell">'+(src?'<img src="'+esc(src)+'" alt="">':'<div class="fallback">'+(i+1)+'</div>')+'</div>';
+    }
+    h += '</div>';
+    h += '<h4>'+esc(style)+'</h4>';
+    h += '<p>'+esc(specialtyText)+'</p>';
+    if(locked){
+      h += '<span class="pill bad">Engaged</span>';
+    } else {
+      h += '<span class="pill ok">Available</span>';
+      h += '<button class="btn primary full" data-act="pickDesigner" data-id="'+esc(d.id)+'">Pick this style</button>';
+    }
+    h += '</div>';
+    return h;
+  }
+
+  function renderBrief(){
+    var svc = S.serviceById(state.serviceId);
+    var des = S.designerById(state.designerId);
+    if(!svc || !des){ state.step='catalogue'; return renderCatalogue(); }
+
+    var h = '';
+    h += '<div class="hero" style="padding-bottom:14px">';
+    h += '<div class="tag">Step 3 of 3</div>';
+    h += '<h1 style="font-size:21px">Tell us about your business</h1>';
+    h += '<p>Five minutes. Everything here goes straight to the EatOuts team on WhatsApp.</p>';
+    h += '</div>';
+    h += '<div class="list">';
+
+    h += '<div class="field"><label>Business name *</label><input class="input" id="fName" value="'+esc(state.businessName)+'" placeholder="e.g. The Yellow Giraffe"></div>';
+    h += '<div class="field"><label>WhatsApp number *</label><input class="input" id="fWhats" type="tel" value="'+esc(state.businessWhatsapp)+'" placeholder="+267 71 234 567"></div>';
+    h += '<div class="field"><label>Industry</label><input class="input" id="fIndustry" value="'+esc(state.industry)+'" placeholder="Restaurant, bottle store, hotel…"></div>';
+    h += '<div class="field"><label>What style do you like?</label><textarea class="input area" id="fLikes" placeholder="Warm, bold, locally recognisable…">'+esc(state.likes)+'</textarea></div>';
+    h += '<div class="field"><label>What do you NOT want?</label><textarea class="input area" id="fDislikes" placeholder="Anything overly corporate, neon colours…">'+esc(state.dislikes)+'</textarea></div>';
+    h += '<div class="field"><label>Reference links (up to 3, comma-separated)</label><input class="input" id="fRefs" value="'+esc(state.references)+'" placeholder="https://…, https://…"></div>';
+
+    h += '<div class="checkline" data-act="toggleOnboard">'+
+         '<span class="check'+(state.onboardUpsell?' on':'')+'"></span>'+
+         '<span><strong>Add my EatOuts business listing</strong><br><span class="micro">P300 setup + P100/month. EatOuts team will confirm before anything is charged.</span></span></div>';
+    h += '<div class="checkline alt" data-act="toggleReveal">'+
+         '<span class="check'+(state.revealOptIn?' on':'')+'"></span>'+
+         '<span><strong>Allow EatOuts to feature my brand on their WhatsApp channel</strong><br><span class="micro">Optional. Helps other local businesses find the service.</span></span></div>';
+    h += '<div class="checkline alt" data-act="toggleTerms">'+
+         '<span class="check'+(state.termsAccepted?' on':'')+'"></span>'+
+         '<span><strong>I accept the service terms</strong><br><span class="micro">Full copyright transfers to me on full payment. Designer keeps portfolio-display rights. Revisions per tier. First concepts in 2–5 working days, final delivery in the tier\'s stated days.</span></span></div>';
+
+    h += '</div>';
+    view().innerHTML = h;
+    updateActionBar();
+
+    /* wire live text inputs */
+    ['fName','fWhats','fIndustry','fLikes','fDislikes','fRefs'].forEach(function(id){
+      var n = el(id); if(!n) return;
+      n.oninput = function(){
+        state.businessName = el('fName').value;
+        state.businessWhatsapp = el('fWhats').value;
+        state.industry = el('fIndustry').value;
+        state.likes = el('fLikes').value;
+        state.dislikes = el('fDislikes').value;
+        state.references = el('fRefs').value;
+      };
+    });
+  }
+
+  function renderSummary(){
+    var svc = S.serviceById(state.serviceId);
+    var des = S.designerById(state.designerId);
+    var price = currentPrice();
+    if(!svc || !des || !price){ state.step='catalogue'; return renderCatalogue(); }
+
+    var h = '';
+    h += '<div class="hero" style="padding-bottom:14px">';
+    h += '<div class="tag">Review & submit</div>';
+    h += '<h1 style="font-size:21px">Your design request</h1>';
+    h += '<p>We\'ll confirm the designer and send you a payment link on WhatsApp.</p>';
+    h += '</div>';
+    h += '<div class="list">';
+
+    h += '<div class="summary-card">';
+    h += '<div class="subh" style="margin-top:0">Service</div>';
+    h += '<div class="sumrow"><span>'+esc(svc.name)+'</span><strong>'+money(svc.base_price)+'</strong></div>';
+    h += '<div class="sumrow dim"><span>Delivery</span><span>'+(svc.is_recurring?'Monthly cycle':svc.delivery_days+' working days')+'</span></div>';
+    h += '</div>';
+
+    h += '<div class="summary-card">';
+    h += '<div class="subh" style="margin-top:0">Style chosen</div>';
+    h += '<div class="sumrow"><span>'+esc(des.portfolio_style || '')+'</span><span class="pill ok">Available</span></div>';
+    h += '<div class="sumrow dim"><span>Specialties</span><span>'+esc((des.specialties||[]).join(' · '))+'</span></div>';
+    h += '</div>';
+
+    h += '<div class="summary">';
+    h += '<div class="sumrow"><span>Base</span><span>'+money(price.base)+'</span></div>';
+    price.addOns.forEach(function(a){
+      h += '<div class="sumrow dim"><span>'+esc(a.label)+'</span><span>+'+money(a.price)+'</span></div>';
+    });
+    if(price.foundingDiscount){
+      h += '<div class="sumrow dim"><span>Founding-20 discount</span><span>−'+money(price.foundingDiscount)+'</span></div>';
+    }
+    h += '<div class="sumrow total"><span>Total</span><span>'+money(price.gross)+'</span></div>';
+    h += '<div class="sumrow dim" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px"><span>EatOuts fee (15%)</span><span>'+money(price.platformCut)+'</span></div>';
+    h += '<div class="sumrow dim"><span>Designer receives</span><span>'+money(price.designerPayout)+'</span></div>';
+    h += '</div>';
+
+    if(state.onboardUpsell){
+      h += '<div class="status-strip ok"><strong>EatOuts listing requested</strong><br>P300 setup + P100/month. We\'ll confirm before charging.</div>';
+    }
+
+    h += '<div class="status-strip">This is a request, not an assignment. We confirm the designer on WhatsApp before the job starts.</div>';
+
+    h += '</div>';
+    view().innerHTML = h;
+    updateActionBar();
+  }
+
+  function renderDone(){
+    var j = state.job;
+    var h = '';
+    h += '<div style="text-align:center;padding:38px 20px 18px">';
+    h += '<div style="font-size:44px">✓</div>';
+    h += '<h1 style="font-size:23px;margin:8px 0 6px;font-weight:900;letter-spacing:-.02em">Request submitted</h1>';
+    h += '<p style="color:var(--muted);font-size:13px;margin:0">Your request is with the EatOuts team. It is not an approved assignment yet.</p>';
+    h += '</div>';
+    h += '<div class="list">';
+    if(j){
+      h += '<div class="summary">';
+      h += '<div class="sumrow"><span>Reference</span><strong>'+esc(j.id)+'</strong></div>';
+      h += '<div class="sumrow dim"><span>Service</span><span>'+esc(j.service_name)+'</span></div>';
+      h += '<div class="sumrow dim"><span>Type</span><span>'+(j.is_recurring?'Monthly retainer':'One-time project')+'</span></div>';
+      h += '<div class="sumrow dim"><span>Status</span><span class="pill warn">Awaiting approval</span></div>';
+      h += '</div>';
+    }
+    h += '<div class="status-strip">We\'ll confirm availability and terms on WhatsApp within 24 hours. Your designer becomes formally engaged only after our approval.</div>';
+    h += '<a class="btn primary full" id="sendWa" href="#">Message EatOuts on WhatsApp</a>';
+    h += '<a class="btn full" href="index.html" style="margin-top:8px">Return to EatOuts</a>';
+    h += '<div class="footnote">Keep your reference number. We may quote it if you contact us later.</div>';
+    h += '</div>';
+    view().innerHTML = h;
+    var wa = el('sendWa');
+    if(wa && j) wa.href = S.whatsappLink(j);
+    updateActionBar();
+  }
+
+  /* ---------- action bar ---------- */
+  function updateActionBar(){
+    var bar = el('actionBar');
+    var step = state.step;
+    if(step === 'catalogue'){
+      bar.classList.add('hidden');
+      return;
+    }
+    bar.classList.remove('hidden');
+    if(step === 'done'){
+      bar.classList.add('hidden');
+      return;
+    }
+    var btnBack = el('btnBackStep');
+    var btnNext = el('btnNextStep');
+    if(step === 'brief'){
+      btnBack.textContent = 'Back';
+      btnNext.textContent = 'Review request';
+    } else if(step === 'summary'){
+      btnBack.textContent = 'Back';
+      btnNext.textContent = 'Send my request';
+    } else {
+      btnBack.textContent = 'Back';
+      btnNext.textContent = 'Continue';
+    }
+  }
+
+  /* ---------- navigation ---------- */
+  function goto(step){
+    state.step = step;
+    render();
+    view().scrollTop = 0;
+  }
+
+  function render(){
+    if(state.step === 'catalogue') return renderCatalogue();
+    if(state.step === 'service')   return renderServiceDetail();
+    if(state.step === 'designer')  return renderDesignerPicker();
+    if(state.step === 'brief')     return renderBrief();
+    if(state.step === 'summary')   return renderSummary();
+    if(state.step === 'done')      return renderDone();
+  }
+
+  function validateBrief(){
+    if(!state.businessName.trim()){ toast('Business name is required'); return false; }
+    if(!state.businessWhatsapp.trim()){ toast('WhatsApp number is required'); return false; }
+    if(!state.termsAccepted){ toast('Please accept the service terms'); return false; }
+    return true;
+  }
+
+  function submitRequest(){
+    if(!validateBrief()) return;
+    var price = currentPrice();
+    var svc = S.serviceById(state.serviceId);
+    var refs = state.references.split(',').map(function(r){ return r.trim(); }).filter(Boolean).slice(0, 3);
+
+    var job = S.createJob({
+      service_id: svc.id,
+      service_category: svc.category,
+      service_name: svc.name,
+      is_recurring: svc.is_recurring,
+      business_name: state.businessName.trim(),
+      business_whatsapp: state.businessWhatsapp.trim(),
+      base_price: svc.base_price,
+      add_ons: price.addOns,
+      bundle_discount: 0,
+      founding_discount: price.foundingDiscount,
+      total: price.gross,
+      platform_cut: price.platformCut,
+      designer_payout: price.designerPayout,
+      designer_id: state.designerId,
+      brief: {
+        industry: state.industry.trim(),
+        likes: state.likes.trim(),
+        dislikes: state.dislikes.trim(),
+        references: refs
+      },
+      reveal_opt_in: state.revealOptIn,
+      founding_gift: state.founding,
+      onboard_upsell_checked: state.onboardUpsell,
+      revision_rounds: svc.revision_rounds
+    });
+
+    state.job = job;
+    state.step = 'done';
+    render();
+
+    /* Automatically open WhatsApp */
+    setTimeout(function(){
+      try{ window.open(S.whatsappLink(job), '_blank'); }catch(e){}
+    }, 400);
+  }
+
+  /* ---------- click delegation ---------- */
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-act]');
+    if(!t) return;
+    var act = t.getAttribute('data-act');
+
+    if(act === 'cat'){
+      state.category = t.getAttribute('data-val') || null;
+      state.openServiceId = null;
+      renderCatalogue();
+      return;
+    }
+    if(act === 'openService'){
+      var id = t.getAttribute('data-id');
+      state.openServiceId = (state.openServiceId === id) ? null : id;
+      renderCatalogue();
+      return;
+    }
+    if(act === 'pickService'){
+      state.serviceId = t.getAttribute('data-id');
+      state.rush = false;
+      state.extraRevisions = false;
+      state.founding = false;
+      goto('service');
+      return;
+    }
+    if(act === 'toggleRush'){ state.rush = !state.rush; renderServiceDetail(); return; }
+    if(act === 'toggleExtraRev'){ state.extraRevisions = !state.extraRevisions; renderServiceDetail(); return; }
+    if(act === 'toggleFounding'){ state.founding = !state.founding; renderServiceDetail(); return; }
+    if(act === 'pickDesigner'){ state.designerId = t.getAttribute('data-id'); goto('brief'); return; }
+    if(act === 'waitlist'){
+      var n = S.adminWhatsapp();
+      var msg = 'Hi EatOuts — I want to join the design services waitlist. All designers are currently engaged.';
+      window.location.href = 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
+      return;
+    }
+    if(act === 'toggleOnboard'){ state.onboardUpsell = !state.onboardUpsell; renderBrief(); return; }
+    if(act === 'toggleReveal'){ state.revealOptIn = !state.revealOptIn; renderBrief(); return; }
+    if(act === 'toggleTerms'){ state.termsAccepted = !state.termsAccepted; renderBrief(); return; }
+  });
+
+  /* ---------- header back ---------- */
+  el('hdrBack').addEventListener('click', function(){
+    var step = state.step;
+    if(step === 'catalogue'){ window.location.href = 'index.html'; return; }
+    if(step === 'service'){ goto('catalogue'); return; }
+    if(step === 'designer'){ goto('service'); return; }
+    if(step === 'brief'){ goto('designer'); return; }
+    if(step === 'summary'){ goto('brief'); return; }
+    if(step === 'done'){ window.location.href = 'index.html'; return; }
+  });
+
+  /* ---------- action bar buttons ---------- */
+  el('btnBackStep').addEventListener('click', function(){
+    var step = state.step;
+    if(step === 'service'){ goto('catalogue'); return; }
+    if(step === 'designer'){ goto('service'); return; }
+    if(step === 'brief'){ goto('designer'); return; }
+    if(step === 'summary'){ goto('brief'); return; }
+  });
+
+  el('btnNextStep').addEventListener('click', function(){
+    var step = state.step;
+    if(step === 'service'){
+      /* require nothing specific; go to designer */
+      goto('designer'); return;
+    }
+    if(step === 'designer'){
+      if(!state.designerId){ toast('Pick a designer first'); return; }
+      goto('brief'); return;
+    }
+    if(step === 'brief'){
+      if(!validateBrief()) return;
+      goto('summary'); return;
+    }
+    if(step === 'summary'){
+      submitRequest(); return;
+    }
+  });
+
+  /* ---------- boot ---------- */
+  render();
+})();
+</script>
+</body>
+</html>

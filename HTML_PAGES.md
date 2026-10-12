@@ -50,7 +50,7 @@ These limits apply to every page above.
 7. **No owner → live publish path.** The public directory in `index.html` is built from the static file `assets/data/restaurant_listings/directory_runtime_data.json`; owner edits only ever touch `localStorage`. The two are disconnected (this is the gap called out in `MARKETING_ONBOARDING_PLAN.md`).
 8. **Demo vs real session.** A real (non-demo) session locks the operator switcher to that restaurant; Demo mode keeps a `<select>` so all venues stay reachable (`js/eatouts-owner-compat.js:155-176`).
 
-## index.html — customer app (6295 lines)
+## index.html — customer app (8445 lines)
 
 **Purpose:** the public, mobile-first customer experience and the entry point to operator sign-in.
 

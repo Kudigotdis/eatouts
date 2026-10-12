@@ -50,6 +50,11 @@ const FILES = [
   // Feedback page
   'eatouts_feedback.html',
 
+  // Design marketplace (reached from index.html About -> Settings -> Need Design)
+  'designer-services.html',
+  'designer-dashboard.html',
+  'brand-kit-admin.html',
+
   // Auth / onboarding
   'eatouts-login.html',
   'eatouts-user-onboarding.html',

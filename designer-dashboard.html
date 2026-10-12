@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Designer Workspace — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--gold:#c9a84c;--black:#151515;--bg:#f7f6f3;--card:#fff;--text:#1b1b1b;--muted:#7a7466;--line:#ece7db;--soft:#faf8f2;--ok:#17834b;--warn:#946200;--danger:#a63d34;--r:14px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#e9e5db;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:var(--text);font-size:14px;line-height:1.45}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;text-align:left}
+img{display:block;max-width:100%}
+#shell{position:fixed;inset:0;max-width:520px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.brand{font-weight:900;font-size:16px;letter-spacing:-.02em;color:var(--black)}
+.brand span{color:var(--gold)}
+.hdr-right{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff;padding:14px 14px 40px}
+.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}
+.metric{border:1px solid var(--line);padding:12px;border-radius:12px;background:#fff}
+.metric label{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:900}
+.metric strong{display:block;font-size:22px;letter-spacing:-.03em;margin-top:4px;font-weight:900}
+.metric em{font-style:normal;color:var(--muted);font-size:10.5px;font-weight:600}
+.section-h{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
+.job{border:1px solid var(--line);padding:12px;border-radius:12px;background:#fff;margin-bottom:8px}
+.job .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.job .title{font-size:13px;font-weight:900;letter-spacing:-.01em}
+.job .sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:600}
+.pill{display:inline-flex;align-items:center;font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:var(--soft);border:1px solid var(--line);color:#5c5547}
+.pill.ok{background:#f5faf6;border-color:#b9d2c0;color:var(--ok)}
+.pill.warn{background:#fffbef;border-color:#ead8a8;color:var(--warn)}
+.pill.bad{background:#fff7f6;border-color:#e9c6c1;color:var(--danger)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;border-radius:11px;font-size:12.5px;font-weight:800;background:var(--soft);border:1px solid var(--line);color:#3a3324;text-decoration:none;gap:6px;width:100%;margin-top:10px}
+.btn.primary{background:var(--black);color:#fff;border-color:var(--black)}
+.btn.full{width:100%}
+.field{margin:10px 0}
+.field label{display:block;font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.input{border:1px solid var(--line);min-height:44px;padding:11px 12px;background:#fbfaf8;border-radius:10px;font-size:13px;color:var(--text);outline:none;width:100%}
+.input.area{min-height:80px;resize:vertical;font-family:inherit}
+.input:focus{border-color:var(--black);background:#fff}
+.stepper{display:flex;gap:4px;align-items:center;margin:10px 0}
+.stepper span{height:5px;flex:1;background:#e7e4dd;border-radius:2px}
+.stepper span.done{background:#111}
+.stepper span.now{background:var(--gold)}
+.brief{border:1px solid var(--line);border-radius:12px;background:#fbfaf8;padding:12px;margin:10px 0}
+.brief .brow{font-size:12px;padding:4px 0;border-bottom:1px solid var(--line)}
+.brief .brow:last-child{border:0}
+.brief .brow strong{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:900;margin-bottom:3px}
+.empty{padding:36px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
+.splash{display:flex;align-items:center;justify-content:center;flex-direction:column;padding:60px 24px;text-align:center;height:100%}
+.splash h2{margin:0 0 8px;font-size:20px;font-weight:900}
+.splash p{margin:0 0 16px;color:var(--muted);font-size:13px;max-width:320px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:11px 20px;border-radius:11px;font-size:12.5px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;max-width:92%}
+.toast.on{opacity:1}
+.footnote{font-size:10.5px;color:var(--muted);line-height:1.55;margin-top:14px}
+.av-wrap{position:relative;flex:0 0 auto;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#f1ede0,#e4ddc9);display:inline-flex;align-items:center;justify-content:center}
+.av-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.av-ini{display:inline-flex;align-items:center;justify-content:center;width:100%;height:100%;color:#a89a7e;font-weight:900;letter-spacing:.04em;text-transform:uppercase;border-radius:50%}
+.pickrow{display:flex;align-items:center;gap:11px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:8px}
+.pickrow .grow{flex:1;min-width:0}
+.profile-hd{display:flex;align-items:center;gap:12px;margin:2px 0 4px}
+.profile-hd .grow{flex:1;min-width:0}
+.profile-hd h1{margin:0;font-size:20px;font-weight:900;letter-spacing:-.02em}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="hdr">
+    <div class="brand">EAT<span>OUTS</span></div>
+    <div class="hdr-right">Designer Workspace</div>
+  </header>
+  <div class="scroll" id="view"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-services-seed.js"></script>
+<script src="js/eatouts-designers-seed.js"></script>
+<script src="js/eatouts-brand-kit.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  var S = window.EatoutsBrandKit;
+  if(!S){ document.getElementById('view').innerHTML = '<div class="empty">Module unavailable.</div>'; return; }
+  S.seedIfEmpty();
+
+  var DESIGNER_KEY = 'eatouts_designer_session_v1';
+  var view = document.getElementById('view');
+
+  function esc(s){
+    return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function money(n){ return S.money(n); }
+  function el(id){ return document.getElementById(id); }
+  function toast(m){
+    var t = el('toast'); t.textContent = m; t.classList.add('on');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ t.classList.remove('on'); }, 2000);
+  }
+  function currentDesignerId(){
+    try{ return localStorage.getItem(DESIGNER_KEY); }catch(e){ return null; }
+  }
+  function avatarHtml(d, size){
+    var name = (d.private && d.private.full_name) || d.portfolio_style || d.id || '?';
+    var ini = name.split(/\s+/).map(function(w){ return w.charAt(0); }).slice(0,2).join('').toUpperCase();
+    var fs = Math.max(9, Math.round(size * 0.34));
+    return '<span class="av-wrap" style="width:'+size+'px;height:'+size+'px">'
+      + '<span class="av-ini" style="font-size:'+fs+'px">'+esc(ini)+'</span>'
+      + (d.photo ? '<img src="'+esc(d.photo)+'" alt="'+esc(name)+'" onerror="this.style.display=\'none\'">' : '')
+      + '</span>';
+  }
+  function setDesignerId(id){
+    try{ if(id) localStorage.setItem(DESIGNER_KEY, id); else localStorage.removeItem(DESIGNER_KEY); }catch(e){}
+  }
+
+  /* ---------- unauthenticated: pick a designer (prototype login) ---------- */
+  function renderPicker(){
+    var designers = S.designers();
+    var h = '';
+    h += '<div style="padding:20px 4px">';
+    h += '<div style="font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Designer sign-in</div>';
+    h += '<h2 style="margin:0 0 8px;font-size:22px;font-weight:900;letter-spacing:-.02em">Choose your portfolio</h2>';
+    h += '<p style="color:var(--muted);font-size:13px;margin:0 0 18px">Prototype mode. In production this would be your account sign-in.</p>';
+    designers.forEach(function(d){
+      h += '<div class="pickrow">'+avatarHtml(d, 46)+
+           '<div class="grow"><div class="title">'+esc(d.portfolio_style || d.id)+'</div>'+
+           '<div class="sub">'+esc((d.private&&d.private.full_name)||d.id)+' · '+(d.specialties||[]).join(' · ')+'</div></div>'+
+           '<button class="btn primary" style="width:auto;margin-top:0;min-height:34px;font-size:11px;padding:0 12px" data-act="pick" data-id="'+esc(d.id)+'">Open</button>'+
+           '</div>';
+    });
+    h += '</div>';
+    view.innerHTML = h;
+  }
+
+  /* ---------- dashboard home ---------- */
+  function renderHome(){
+    var id = currentDesignerId();
+    var d = S.designerById(id);
+    if(!d){ setDesignerId(null); return renderPicker(); }
+
+    var myJobs = S.jobs().filter(function(j){ return j.designer_id === d.id; });
+    var activeProject = myJobs.filter(function(j){
+      return j.slot_type === 'project' && j.status !== 'closed' && j.status !== 'cancelled';
+    })[0] || null;
+    var activeRetainers = myJobs.filter(function(j){
+      return j.slot_type === 'retainer' && j.status !== 'closed' && j.status !== 'cancelled';
+    });
+    var pendingPayout = myJobs.filter(function(j){ return j.payout_status === 'pending' && j.status === 'closed'; })
+      .reduce(function(s,j){ return s + j.price_breakdown.designer_payout; }, 0);
+
+    var h = '';
+    h += '<div style="padding:8px 2px 4px">';
+    h += '<div style="font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Your workspace</div>';
+    h += '<div class="profile-hd">'+avatarHtml(d, 58)+'<div class="grow"><h1 style="margin:0;font-size:22px;font-weight:900;letter-spacing:-.02em">'+esc(d.portfolio_style || d.id)+'</h1>';
+    h += '<div style="font-size:11.5px;color:var(--muted);margin-top:3px">'+esc((d.private&&d.private.full_name)||d.id)+' · '+esc((d.specialties||[]).join(' · '))+'</div></div>';
+    h += '<button class="btn" style="margin-top:0;min-height:34px;width:auto;font-size:11px;padding:0 12px" data-act="signOut">Sign out</button></div>';
+    h += '</div>';
+
+    h += '<div class="metric-grid">';
+    h += '<div class="metric"><label>Active project</label><strong>'+(d.active_projects||0)+' / '+(d.max_projects||1)+'</strong><em>'+((d.active_projects||0) >= (d.max_projects||1) ? 'Capacity full' : 'One slot open')+'</em></div>';
+    h += '<div class="metric"><label>Active retainers</label><strong>'+(d.active_retainers||0)+' / '+(d.max_retainers||3)+'</strong><em>'+((d.active_retainers||0) >= (d.max_retainers||3) ? 'Full' : ((d.max_retainers||3) - (d.active_retainers||0)) + ' open')+'</em></div>';
+    h += '<div class="metric"><label>Jobs completed</label><strong>'+(d.jobs_completed||0)+'</strong><em>All time</em></div>';
+    h += '<div class="metric"><label>Payout pending</label><strong>'+money(pendingPayout)+'</strong><em>Awaiting admin</em></div>';
+    h += '</div>';
+
+    h += '<div class="section-h">Active project</div>';
+    if(activeProject){
+      h += renderJobCard(activeProject, true);
+    } else {
+      h += '<div class="empty" style="padding:20px 8px">No project assigned right now.</div>';
+    }
+
+    h += '<div class="section-h">Active retainers ('+activeRetainers.length+')</div>';
+    if(activeRetainers.length){
+      activeRetainers.forEach(function(j){ h += renderJobCard(j, false); });
+    } else {
+      h += '<div class="empty" style="padding:20px 8px">No retainers yet.</div>';
+    }
+
+    h += '<div class="footnote">You cannot close your own jobs. Admin releases the slot after the client confirms they are happy.</div>';
+
+    view.innerHTML = h;
+  }
+
+  function renderJobCard(j, isProject){
+    var days = isProject ? serviceDeliveryDays(j.service_id) : null;
+    var statusPill = pillForStatus(j.status);
+    var h = '';
+    h += '<div class="job">';
+    h += '<div class="row"><div class="title">'+esc(j.service_name)+' · '+esc(j.id)+'</div>'+statusPill+'</div>';
+    h += '<div class="sub">'+esc(j.business_name)+' · '+money(j.total)+' total</div>';
+    if(isProject && days != null){
+      h += '<div class="sub" style="margin-top:2px">Delivery estimate: '+days+' working days</div>';
+    }
+    h += '<div class="stepper">'+stepperFor(j)+'</div>';
+    h += '<button class="btn primary full" data-act="openJob" data-id="'+esc(j.id)+'">Open job</button>';
+    h += '</div>';
+    return h;
+  }
+
+  function serviceDeliveryDays(id){
+    var s = S.serviceById(id);
+    return s ? s.delivery_days : null;
+  }
+
+  function pillForStatus(status){
+    var map = {
+      'awaiting_admin': ['warn','Awaiting admin'],
+      'assigned':       ['warn','Assigned'],
+      'in_progress':    ['warn','In progress'],
+      'revision':       ['warn','Revision'],
+      'delivered':      ['ok','Delivered'],
+      'client_approved':['ok','Client approved'],
+      'closed':         ['ok','Closed'],
+      'cancelled':      ['bad','Cancelled'],
+      'stalled':        ['bad','Stalled']
+    };
+    var m = map[status] || ['','—'];
+    return '<span class="pill '+m[0]+'">'+esc(m[1])+'</span>';
+  }
+
+  function stepperFor(j){
+    var stages = ['assigned','in_progress','delivered','client_approved','closed'];
+    var idx = stages.indexOf(j.status);
+    if(idx < 0) idx = 0;
+    var out = '';
+    for(var i=0;i<5;i++){
+      var cls = i < idx ? 'done' : (i === idx ? 'now' : '');
+      out += '<span class="'+cls+'"></span>';
+    }
+    return out;
+  }
+
+  /* ---------- job detail ---------- */
+  function renderJobDetail(jobId){
+    var j = S.jobById(jobId);
+    if(!j){ renderHome(); return; }
+    var id = currentDesignerId();
+    if(j.designer_id !== id){ renderHome(); return; }
+
+    var h = '';
+    h += '<button class="btn" style="min-height:34px;width:auto;font-size:11px;margin-bottom:14px" data-act="back">← Back</button>';
+    h += '<div style="font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">'+esc(j.id)+'</div>';
+    h += '<h2 style="margin:0 0 6px;font-size:21px;font-weight:900;letter-spacing:-.02em">'+esc(j.business_name)+'</h2>';
+    h += '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">'+esc(j.service_name)+' · '+(j.is_recurring?'Monthly retainer':'One-time project')+'</div>';
+    h += '<div class="row" style="margin-bottom:12px">'+pillForStatus(j.status)+'</div>';
+    h += '<div class="stepper">'+stepperFor(j)+'</div>';
+
+    h += '<div class="brief">';
+    h += '<div class="brow"><strong>Industry</strong>'+esc(j.brief.industry || '—')+'</div>';
+    h += '<div class="brow"><strong>Direction</strong>'+esc(j.brief.likes || '—')+'</div>';
+    h += '<div class="brow"><strong>Avoid</strong>'+esc(j.brief.dislikes || '—')+'</div>';
+    if(j.brief.references && j.brief.references.length){
+      h += '<div class="brow"><strong>References</strong>'+esc(j.brief.references.join(' · '))+'</div>';
+    }
+    h += '</div>';
+
+    h += '<div class="brief">';
+    h += '<div class="brow"><strong>Agreed total</strong>'+money(j.total)+'</div>';
+    h += '<div class="brow"><strong>EatOuts fee</strong>'+money(j.price_breakdown.platform_cut)+'</div>';
+    h += '<div class="brow"><strong>Your payout</strong>'+money(j.price_breakdown.designer_payout)+'</div>';
+    h += '<div class="brow"><strong>Payout status</strong>'+esc(j.payout_status)+'</div>';
+    h += '</div>';
+
+    /* progress / delivery form */
+    if(j.status !== 'closed' && j.status !== 'cancelled'){
+      h += '<div class="field"><label>Progress note</label><textarea class="input area" id="note">'+(j.progress_note||'')+'</textarea></div>';
+      h += '<div class="field"><label>Deliverable URL (or paste from WhatsApp)</label><input class="input" id="deliver" value="'+esc(j.delivery_link||'')+'" placeholder="https://…"></div>';
+      h += '<button class="btn primary full" data-act="submitDelivery" data-id="'+esc(j.id)+'">Submit draft for review</button>';
+      h += '<button class="btn full" data-act="requestRevision" data-id="'+esc(j.id)+'">Request client clarification</button>';
+    }
+
+    h += '<div class="footnote">Designers cannot close their own job or release the slot. Admin closes the job after the client confirms they are happy.</div>';
+
+    view.innerHTML = h;
+  }
+
+  /* ---------- click router ---------- */
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-act]');
+    if(!t) return;
+    var act = t.getAttribute('data-act');
+    var id = t.getAttribute('data-id');
+
+    if(act === 'pick'){ setDesignerId(id); renderHome(); return; }
+    if(act === 'signOut'){ setDesignerId(null); renderPicker(); return; }
+    if(act === 'openJob'){ renderJobDetail(id); view.scrollTop = 0; return; }
+    if(act === 'back'){ renderHome(); view.scrollTop = 0; return; }
+    if(act === 'submitDelivery'){
+      var note = (el('note')||{}).value || '';
+      var link = (el('deliver')||{}).value || '';
+      S.updateJob(id, {
+        progress_note: note,
+        delivery_link: link,
+        status: 'delivered',
+        'delivery.draft_submitted_at': Date.now()
+      });
+      toast('Draft submitted');
+      renderJobDetail(id);
+      return;
+    }
+    if(act === 'requestRevision'){
+      S.updateJob(id, { status:'revision' });
+      toast('Marked as needing clarification');
+      renderJobDetail(id);
+      return;
+    }
+  });
+
+  /* ---------- boot ---------- */
+  if(currentDesignerId()) renderHome();
+  else renderPicker();
+})();
+</script>
+</body>
+</html>
