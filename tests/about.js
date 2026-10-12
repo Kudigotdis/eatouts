@@ -47,13 +47,19 @@ setTimeout(() => {
   const suppliers = vp.querySelector('a[href="eatouts-suppliers.html"]');
   check('suppliers link present', !!suppliers, suppliers ? 'text=' + suppliers.textContent.trim() : 'missing');
 
-  const cta = vp.querySelector('a[href="get-started.html"]');
-  check('list-business CTA present', !!cta, cta ? 'text=' + cta.textContent.trim() : 'missing');
-  check('CTA says List As Restaurant', !!cta && /restaurant/i.test(cta.textContent));
+  const typeLinks = vp.querySelectorAll('a[href^="eatouts-business-signup.html?type="]');
+  check('list-business CTA present', typeLinks.length > 0, 'count=' + typeLinks.length);
+  check('five business-type links present', typeLinks.length === 5, 'count=' + typeLinks.length);
+  const typeSlugs = Array.from(typeLinks).map(a => (a.getAttribute('href') || '').split('type=')[1]).sort();
+  check('type links are the five canonical slugs',
+    JSON.stringify(typeSlugs) === JSON.stringify(['caterer', 'event_supplier', 'food_truck', 'liquor_store', 'restaurant']),
+    typeSlugs.join(','));
+  check('CTA offers List As "Restaurant"',
+    Array.from(typeLinks).some(a => /list as .*restaurant/i.test(a.textContent)));
 
   const settings = vp.querySelector('button[data-act="toggleAboutSettings"]');
   check('Settings accordion toggle present', !!settings && settings.textContent.trim() === 'Settings');
-  const listBiz = vp.querySelector('button[data-act="toggleAboutList"]');
+  const listBiz = vp.querySelector('details.setacc summary.setrow');
   check('List Your Business accordion toggle present', !!listBiz && /list your business/i.test(listBiz.textContent));
 
   const share = vp.querySelector('a.btn.share');

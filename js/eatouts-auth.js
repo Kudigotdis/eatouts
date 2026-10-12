@@ -345,7 +345,11 @@
     caterer:        { whatsapp: '26770000004', pin: '1234' },
     lodge:          { whatsapp: '26770000005', pin: '1234' },
     supplier:       { whatsapp: '26770000006', pin: '1234' },
-    platform_admin: { whatsapp: '26770000099', pin: '1234' }
+    investor:      { whatsapp: '26773456789', pin: '1234' },
+    platform_admin: { whatsapp: '26770000099', pin: '1234' },
+    rep:           { whatsapp: '26775896569', pin: '1234' },
+    rep_nartey:    { whatsapp: '26771844129', pin: '1234' },
+    field_admin:   { whatsapp: '26771829765', pin: '1234' }
   };
 
   /* Canonical manager session id. Falls back to the legacy manager key and to
@@ -421,11 +425,15 @@
   function routeFor(u) {
     if (!u) return 'eatouts-login.html';
     var r = u.roles || [];
+    if (r.some(function (x) { return x === 'rep'; }) || u.type === 'rep') {
+      return 'ops-console.html#field';
+    }
     if (r.some(function (x) { return String(x).indexOf('platform_') === 0; }) || u.type === 'platform_admin') {
       return 'eatouts-admin-dashboard.html';
     }
     if (u.type === 'customer') return 'eatouts-profile.html';
     if (u.type === 'supplier') return 'quote-manager.html';
+    if (u.type === 'investor') return 'analytics-manager.html';
     var b = globalThis.EatoutsMgrDB ? EatoutsMgrDB.find('businesses', u.businessId) : null;
     if (b) {
       var bt = globalThis.EatoutsBusinessTypes;
@@ -444,6 +452,18 @@
     if (String(pin || '') !== '1234') return Promise.resolve({ ok: false, message: 'Incorrect PIN. Demo PIN: 1234.' });
     startSession(u);
     if (u.businessId) setActiveBusiness(u.businessId);
+    /* field activity: stamp the user's last_login_at and, when they own a
+       tracked venue, the venue's last_login_at so the at-risk clock moves. */
+    try {
+      var mgr = globalThis.EatoutsMgrDB;
+      if (mgr) {
+        mgr.upsert('users', Object.assign({}, mgr.find('users', u.id) || u, { last_login_at: Date.now() }));
+      }
+      if (globalThis.EatoutsField && u.businessId) {
+        var owned = globalThis.EatoutsField.venueById(u.businessId);
+        if (owned) globalThis.EatoutsField.touchLogin(owned);
+      }
+    } catch (e) { /* non-fatal */ }
     /* Mirror into the operator session only when the business maps to a real
        venue on the customer side, so legacy operator pages stay consistent. */
     var b = globalThis.EatoutsMgrDB ? EatoutsMgrDB.find('businesses', u.businessId) : null;

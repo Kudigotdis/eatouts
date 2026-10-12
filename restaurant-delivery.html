@@ -144,7 +144,7 @@ a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:
 <div class="sheet-scrim" id="sheet"></div>
 <div id="toast"></div>
 
-<script src="assets/data/deliveries/yellow_giraffe_50_scheduled_deliveries.js"></script>
+<script src="assets/data/deliveries/the_food_place_50_scheduled_deliveries.js"></script>
 <script>
 (function(){
 'use strict';
@@ -159,7 +159,7 @@ function safeSet(key,val){
   catch(e){}
 }
 
-var RESTAURANT = { name:'The Yellow Giraffe Coffee Club', meta:'Café & Bar · Gaborone · CBD', metaSub:'Open · 07:30–21:00', thumb:'🦒', whatsapp:'26771844129' };
+var RESTAURANT = { name:'The Food Place', meta:'Café & Bar · Gaborone · CBD', metaSub:'Open · 07:30–21:00', thumb:'🍽', whatsapp:'26771844129' };
 
 var WINDOWS = ['06:00–07:00','07:00–08:00','08:00–09:00','09:00–10:00','10:00–11:00','11:00–12:00','12:00–13:00','13:00–14:00','14:00–15:00','15:00–16:00','16:00–17:00','17:00–18:00','18:00–19:00','19:00–20:00','20:00–21:00','21:00–22:00','22:00–23:00','23:00–00:00'];
 
@@ -182,10 +182,10 @@ WINDOWS.forEach(function(w){ STATE.slots[w]={cap:6, accepted:0, route:'', closed
 ].forEach(function(x){ STATE.slots[x[0]].accepted=x[1]; STATE.slots[x[0]].route=x[2]; });
 
 /* ---- Demo dataset backfill ------------------------------------------
-   assets/data/deliveries/yellow_giraffe_50_scheduled_deliveries.js holds
+   assets/data/deliveries/the_food_place_50_scheduled_deliveries.js holds
    the 50-order scheduled-delivery snapshot. It seeds this page whenever no
    live orders exist in storage yet; stored orders always win. */
-function bd(){ return window.EATOUTS_DELIVERY_BACKFILL||null; }
+function bd(){ return window.EATOUTS_FOOD_PLACE_DELIVERY_BACKFILL||null; }
 function bdStatus(s){
   return {'Pending dispatch':'awaiting','En route':'ready','Arrived · handover pending':'ready','Delivered':'delivered'}[s]||'awaiting';
 }

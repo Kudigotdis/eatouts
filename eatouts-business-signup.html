@@ -1,12 +1,502 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Business signup · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"></head><body>
-<div class="login"><div class="loginbox"><header class="topbar loginbar"><a class="brand" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts" style="height:30px;width:auto;display:block"></a><div class="hdr-right"><span class="hdr-chip">EatOuts</span></div></header><div class="crumb">New business</div><h1>Choose your business type</h1><p>This provisions the correct onboarding track and manager modules.</p>
-<div class="choice-grid">
-<a class="choice" href="business-onboarding1.html?type=restaurant"><strong>Restaurant</strong><small>Menus, tables, orders, delivery and reservations.</small></a>
-<a class="choice" href="business-onboarding1.html?type=bottlestore"><strong>Bottle store</strong><small>Beverages, age-gated sales, delivery and stock.</small></a>
-<a class="choice" href="business-onboarding1.html?type=caterer"><strong>Caterer</strong><small>Per-head menus, quotes and event orders.</small></a>
-<a class="choice" href="business-onboarding1.html?type=lodge"><strong>Lodge</strong><small>Rooms, nightly rates, housekeeping and bookings.</small></a>
-<a class="choice" href="business-onboarding1.html?type=bakery"><strong>Bakery / Pastry</strong><small>Baked goods, product catalog, orders and delivery.</small></a>
-<a class="choice" href="business-onboarding1.html?type=foodtruck"><strong>Food truck</strong><small>Weekly route, live status and mobile ordering.</small></a>
-<a class="choice" href="business-onboarding1.html?type=supplier"><strong>Supplier</strong><small>Event catalogue, custom quotes and bookings.</small></a>
-</div><div style="margin-top:12px"><a class="btn full" href="eatouts-login.html">Already registered? Sign in</a></div>
-</div></div><script src="js/eatouts-manager-db.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-manager.js"></script><script></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#ffffff">
+<title>List your business · EatOuts</title>
+<link rel="stylesheet" href="assets/eatouts-manager.css">
+<style>
+  .sg-hero{font-size:24px;font-weight:900;letter-spacing:-.03em;margin:2px 0 6px}
+  .sg-sub{font-size:12.5px;color:#6f685d;line-height:1.5;margin:0 0 14px}
+  .sg-type{font-size:21px;font-weight:900;letter-spacing:-.02em;margin:18px 0 2px}
+  .sg-hint{margin:2px 0 12px;color:#6f685d}
+  .sg-note{font-size:11.5px;color:#6f685d;background:#faf8f2;border:1px solid #e6dfd2;border-radius:4px;padding:9px 11px;margin:12px 0;line-height:1.5}
+  .sg-results{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+  .res{padding:12px 13px;border:1px solid #e6dfd2;background:#fff;border-radius:4px}
+  .res .t{font-weight:850;font-size:13.5px}
+  .res .m{font-size:11px;color:#6f685d;margin-top:3px;line-height:1.4}
+  .res .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:9px}
+  .chip{display:inline-block;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;background:#f0eee8;color:#7a7466}
+  .chip.live{background:#e3f5e9;color:#17834b}
+  .chip.pending_payment{background:#fdf3dc;color:#9a6a0a}
+  .chip.closed_lost,.chip.archived,.chip.rejected{background:#fbeaea;color:#b5483c}
+  .sg-links{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+  .btn.btn-sm{width:auto;padding:7px 11px;font-size:11px}
+  .sg-actions{display:flex;gap:8px;margin-top:12px}
+  .sg-actions .btn{width:auto}
+  .fixed{background:#fffaf0;border:1px solid #f0e1b8;color:#7a6410;border-radius:4px;padding:9px 11px;font-size:11.5px;line-height:1.5;margin:12px 0}
+  .demo-card{border:1px solid #e6dfd2;border-radius:6px;overflow:hidden;background:#fff;margin:10px 0}
+  .demo-head{display:flex;gap:12px;align-items:center;padding:13px;background:#faf8f2}
+  .demo-logo{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid #e6dfd2;background:#efe9dc}
+  .demo-name{font-size:17px;font-weight:900}
+  .demo-meta{font-size:11px;color:#6f685d;margin-top:2px;line-height:1.4}
+  .demo-menu{width:100%;border-collapse:collapse;font-size:12px}
+  .demo-menu td{padding:8px 13px;border-top:1px solid #f0ece4}
+  .demo-menu .p{text-align:right;color:#6f685d;font-weight:700}
+  .demo-cat{font-size:9.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#9b917f;padding:10px 13px 4px}
+  .mt{margin-top:12px}
+</style>
+</head>
+<body>
+<div class="login">
+  <div class="loginbox">
+    <header class="topbar loginbar">
+      <a class="brand" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts" style="height:30px;width:auto;display:block"></a>
+      <div class="hdr-right"><span class="hdr-chip">EatOuts</span></div>
+    </header>
+    <div class="crumb">List your business</div>
+    <div id="sg-app"></div>
+  </div>
+</div>
+
+<script src="js/eatouts-manager-db.js"></script>
+<script src="js/eatouts-roles.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-field.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script>
+(function () {
+  var F = window.EatoutsField;
+  var A = window.EatoutsAuth;
+  var app = document.getElementById('sg-app');
+
+  var TYPES = {
+    restaurant: { label: 'Restaurant', icon: '🍽', blurb: 'Menus, orders, tables and delivery.' },
+    liquor_store: { label: 'Liquor store', icon: '🍾', blurb: 'Beverages, age-gated sales and delivery.' },
+    event_supplier: { label: 'Event supplier', icon: '📦', blurb: 'MC, decor, security, AV and entertainment.' },
+    food_truck: { label: 'Food truck', icon: '🚚', blurb: 'Weekly route, live status and mobile ordering.' },
+    caterer: { label: 'Caterer', icon: '🍲', blurb: 'Per-head menus, quotes and event orders.' }
+  };
+
+  var S = {
+    type: null,
+    stage: 'type',
+    town: '',
+    area: '',
+    mode: 'claim',          /* 'claim' | 'register' */
+    targetId: null,         /* venue id to claim */
+    newCat: null,           /* type of business being registered */
+    claimedId: null,        /* venue id after a successful claim */
+    demoLoaded: false
+  };
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function user() {
+    return A && A.isLoggedIn() ? A.getUser() : null;
+  }
+  function uid() {
+    var u = user(); return u ? u.id : null;
+  }
+  function isAgent() {
+    var u = user();
+    return !!u && !!window.EatoutsRoles && ['rep', 'admin', 'platform_admin'].some(function (r) { return EatoutsRoles.hasRole(u, r); });
+  }
+  function toast(m) {
+    try { if (window.EO && EO.toast) { EO.toast(m); return; } } catch (e) { /* fall through */ }
+    window.alert(m);
+  }
+  function href(p) { return location.pathname.split('/').pop() + p; }
+
+  function normWa(raw) {
+    var d = String(raw || '').replace(/\D/g, '');
+    if (d.indexOf('267') === 0 && d.length > 8) d = d.slice(3);
+    if (d.charAt(0) === '0') d = d.slice(1);
+    if (!/^[67]\d{7}$/.test(d)) return null;
+    return '267' + d;
+  }
+  function waLink(num) {
+    return 'https://wa.me/' + String(num || '').replace(/\D/g, '');
+  }
+  function statusChip(v) {
+    if (v.closed_outcome === 'closed_lost') return '<span class="chip closed_lost">Lost</span>';
+    if (v.status === 'live') return '<span class="chip live">On EatOuts</span>';
+    if (v.status === 'archived') return '<span class="chip archived">Archived</span>';
+    if (v.status === 'rejected') return '<span class="chip rejected">Rejected</span>';
+    if (v.status === 'pending_payment') return '<span class="chip pending_payment">Payment pending</span>';
+    if (v.status === 'onboarding') return '<span class="chip pending_payment">Onboarding</span>';
+    if (v.status === 'pending_verification') return '<span class="chip">Verifying</span>';
+    return '<span class="chip">Unclaimed</span>';
+  }
+  function mine(v) {
+    var u = uid();
+    return !!u && String(v.claimed_by_user_id || v.ownerUserId || v.ownerId || '') === String(u);
+  }
+  function claimable(v) {
+    return v.status === 'unclaimed';
+  }
+
+  /* ---- data lookups ---- */
+  function venuesOfType(t) {
+    return F.fieldVenues().filter(function (v) { return v.business_type === t; });
+  }
+  function townsOf(t) {
+    var seen = [];
+    venuesOfType(t).forEach(function (v) {
+      if (v.town && seen.indexOf(v.town) < 0) seen.push(v.town);
+    });
+    return seen.sort();
+  }
+  function areasOf(t, town) {
+    var seen = [];
+    venuesOfType(t).forEach(function (v) {
+      if (v.town === town && v.area && seen.indexOf(v.area) < 0) seen.push(v.area);
+    });
+    return seen.sort();
+  }
+  function resultsOf(t, town, area) {
+    return venuesOfType(t).filter(function (v) {
+      if (town && v.town !== town) return false;
+      if (area && v.area !== area) return false;
+      return true;
+    }).sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+  }
+
+  /* ---- account creation ---- */
+  function createAccount(name, whatsapp, pin) {
+    if (String(pin || '') !== '1234') return { ok: false, error: 'Incorrect PIN. Your PIN is 1234.' };
+    var norm = normWa(whatsapp);
+    if (!norm) return { ok: false, error: 'Enter a valid Botswana phone like 71 234 567.' };
+    var parts = String(name || '').trim().split(/\s+/);
+    var u = window.EatoutsUsers.create({
+      firstName: parts.shift() || 'New',
+      surname: parts.join(' ') || '',
+      name: String(name || '').trim(),
+      whatsapp: norm,
+      type: 'business_owner',
+      status: 'active',
+      roles: []
+    });
+    if (!u) return { ok: false, error: 'Could not create the account.' };
+    window.EatoutsMgrDB.upsert('users', Object.assign({}, u, { last_login_at: Date.now() }));
+    A.startSession(u);
+    return { ok: true, user: u };
+  }
+
+  /* ---- venue actions ---- */
+  function doClaim(id) {
+    var v = F.venueById(id);
+    var u = user();
+    if (!v) return { ok: false, error: 'Venue not found.' };
+    if (!u) return { ok: false, error: 'Sign in first.' };
+    var r = F.claim(v, u.id);
+    if (!r.ok) return r;
+    var b = F.bindOwner(r.venue, u.id, u.id);
+    if (!b.ok) return b;
+    S.claimedId = r.venue.id;
+    return { ok: true, venue: b.venue };
+  }
+  function doRegister(cat, name) {
+    var u = user();
+    if (!u) return { ok: false, error: 'Sign in first.' };
+    var v = F.normaliseVenue({ name: String(name || '').trim(), business_type: cat });
+    v.status = 'unclaimed';
+    v.branch_count = 1;
+    v.fee_amount = F.feeFor(v, false);
+    if (isAgent()) { v.pre_registered_by_rep_id = u.id; v.assigned_rep_id = u.id; }
+    v.first_contacted_at = F.now();
+    v.audit_log = [];
+    if (!v.whatsapp) v.whatsapp = '';
+    window.EatoutsMgrDB.upsert('businesses', v);
+    var r = F.claim(v, u.id, isAgent() ? u.id : null);
+    if (!r.ok) return r;
+    var b = F.bindOwner(r.venue, u.id, u.id);
+    S.claimedId = r.venue.id;
+    return { ok: true, venue: b.venue };
+  }
+  function doSaveProfile(id, vals) {
+    var v = F.venueById(id);
+    if (!v) return { ok: false, error: 'Venue not found.' };
+    return F.updateProfile(v, vals, uid());
+  }
+
+  /* ---- demo bundle ---- */
+  function loadDemo(cb) {
+    if (window.EATOUTS_DEMO && window.EATOUTS_DEMO.businesses && window.EATOUTS_DEMO.menu) { S.demoLoaded = true; cb(); return; }
+    var left = 2;
+    function done() { if (--left === 0) { S.demoLoaded = true; cb(); } }
+    ['business.js', 'menu.js'].forEach(function (f) {
+      var s = document.createElement('script');
+      s.src = 'assets/data/demo/the-food-place/' + f;
+      s.onload = done;
+      s.onerror = done;
+      document.body.appendChild(s);
+    });
+  }
+
+  /* ---- renderers ---- */
+  function renderTypes() {
+    app.innerHTML =
+      '<h1 class="sg-hero">Get your business on EatOuts</h1>' +
+      '<p class="sg-sub">List and manage your business so customers across Botswana can <strong>find you, browse what you offer and order from you</strong> in the EatOuts app.</p>' +
+      '<div class="choice-grid">' +
+      Object.keys(TYPES).map(function (k) {
+        return '<a class="choice" href="' + href('eatouts-business-signup.html') + '?type=' + k + '">' +
+          '<strong>' + TYPES[k].icon + ' ' + TYPES[k].label + '</strong><small>' + TYPES[k].blurb + '</small></a>';
+      }).join('') +
+      '</div>' +
+      '<div class="fixed">Curious what a finished listing looks like? <a href="#" data-a="demo">See a sample \u2192</a></div>' +
+      '<div class="sg-links">' +
+      '<a class="btn" href="eatouts-login.html">Already registered? Sign in</a>' +
+      '<a class="btn" href="ops-console.html#field">I am a field agent</a>' +
+      '</div>';
+    bind();
+  }
+
+  function renderSearch() {
+    var t = S.type, T = TYPES[t];
+    var towns = townsOf(t);
+    var areas = towns && S.town ? areasOf(t, S.town) : [];
+    var list = resultsOf(t, S.town, S.area);
+
+    var sel = '<option value=""' + (S.town === '' ? ' selected' : '') + '>' + (towns.length ? 'All towns' : 'No towns yet') + '</option>' +
+      towns.map(function (x) { return '<option value="' + esc(x) + '"' + (x === S.town ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
+    var area = '<option value=""' + (S.area === '' ? ' selected' : '') + '>All areas</option>' +
+      areas.map(function (x) { return '<option value="' + esc(x) + '"' + (x === S.area ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
+
+    var rows;
+    if (!list.length) {
+      rows = '<div class="sg-note">Nothing matches yet for this area. Your business can be the first — register it below.</div>';
+    } else {
+      rows = '<div class="sg-results">' + list.map(function (v) {
+        var chips = statusChip(v);
+        var btn = '';
+        if (mine(v)) {
+          btn = '<a class="btn btn-sm primary" href="' + href('business-onboarding1.html') + '?biz=' + encodeURIComponent(v.id) + '">Continue editing</a>';
+        } else if (claimable(v)) {
+          btn = '<a class="btn btn-sm primary" data-a="claim" data-id="' + esc(v.id) + '">Claim it</a>';
+        } else if (v.whatsapp) {
+          btn = '<a class="btn btn-sm" target="_blank" rel="noopener" href="' + waLink(v.whatsapp) + '">Talk to EatOuts</a>';
+        } else {
+          btn = '<span class="chip">' + esc(v.status) + '</span>';
+        }
+        return '<div class="res"><div class="t">' + esc(v.name) + '</div>' +
+          '<div class="m">' + esc([v.area, v.town].filter(Boolean).join(', ') || T.label) + (v.whatsapp ? ' \u00b7 +' + esc(v.whatsapp).replace(/^267/, '') : '') + '</div>' +
+          '<div class="row"><span>' + chips + '</span>' + btn + '</div></div>';
+      }).join('') + '</div>';
+    }
+
+    app.innerHTML =
+      '<a class="btn btn-sm" data-a="back">&lsaquo; All types</a>' +
+      '<div class="sg-type">' + T.icon + ' ' + T.label + '</div>' +
+      '<p class="sg-hint">Find your business to <strong>claim it</strong>, or register a brand-new one.</p>' +
+      '<label class="field"><span>Town</span><select data-c="town">' + sel + '</select></label>' +
+      '<label class="field"><span>Area</span><select data-c="area"' + (S.town ? '' : ' disabled') + '>' + area + '</select></label>' +
+      rows +
+      '<div class="sg-links">' +
+      '<a class="btn primary" data-a="register">Register a new ' + T.label + '</a>' +
+      '<a href="#" data-a="demo" class="btn">See a sample listing</a>' +
+      '<a class="btn" href="ops-console.html#field">I am a field agent</a>' +
+      '</div>' +
+      '<div class="fixed">Claiming a listed business? A EatOuts field agent may already have started it. Claiming hands it to you; your listing stays hidden until it goes live.</div>';
+    bind();
+  }
+
+  function renderAccount() {
+    app.innerHTML =
+      '<a class="btn btn-sm" data-a="back">&lsaquo; Back</a>' +
+      '<div class="sg-type">' + (S.mode === 'register' ? 'Register your ' + TYPES[S.newCat].label : 'Claim your business') + '</div>' +
+      '<p class="sg-hint">Create your free EatOuts business account to continue.</p>' +
+      '<div class="fixed">During setup, the demo PIN is <strong>1234</strong> on WhatsApp.</div>' +
+      '<label class="field"><span>Your name</span><input id="acc-name" autocomplete="name" placeholder="e.g. Boitumelo Phiri"></label>' +
+      '<label class="field"><span>WhatsApp number</span><input id="acc-wa" inputmode="tel" autocomplete="tel" placeholder="e.g. 71 829 765"></label>' +
+      '<label class="field"><span>PIN</span><input id="acc-pin" inputmode="numeric" autocomplete="current-password" maxlength="4" value="1234" placeholder="1234"></label>' +
+      '<div class="sg-actions"><a class="btn" data-a="back">Back</a><a class="btn primary" data-a="acc-ok">Create account &amp; continue</a></div>' +
+      '<div class="sg-note">Signing in as an existing EatOuts member? <a href="eatouts-login.html">Sign in instead</a>.</div>';
+    bind();
+  }
+
+  function renderRegister() {
+    app.innerHTML =
+      '<a class="btn btn-sm" data-a="back">&lsaquo; Back</a>' +
+      '<div class="sg-type">' + TYPES[S.newCat].icon + ' Register a ' + TYPES[S.newCat].label + '</div>' +
+      '<p class="sg-hint">Tell us the business name to get started.</p>' +
+      '<label class="field"><span>Business name</span><input id="reg-name" placeholder="e.g. Kgale Kitchen"></label>' +
+      '<div class="sg-actions"><a class="btn" data-a="back">Back</a><a class="btn primary" data-a="reg-ok">Create listing</a></div>';
+    bind();
+  }
+
+  function renderProfile() {
+    var v = F.venueById(S.claimedId);
+    if (!v) { renderSearch(); return; }
+    var n = function (k, vv) { var s = vv == null ? '' : String(vv); return ' value="' + esc(s) + '"'; };
+    app.innerHTML =
+      '<div class="sg-type">Your business</div>' +
+      '<p class="sg-hint">Add the essentials people see before they order. You can keep editing later.</p>' +
+      '<div class="fixed">Your listing stays hidden to customers and only goes live after your EatOuts field agent records your setup fee.</div>' +
+      '<label class="field"><span>Country</span><input value="Botswana" disabled></label>' +
+      '<label class="field"><span>Business name</span><input id="p-name"' + n('name', v.name) + '></label>' +
+      '<label class="field"><span>Contact WhatsApp</span><input id="p-wa" inputmode="tel"' + n('wa', v.whatsapp) + '></label>' +
+      '<label class="field"><span>Order WhatsApp</span><input id="p-owa" inputmode="tel"' + n('owa', v.order_whatsapp || v.whatsapp) + '></label>' +
+      '<div class="sg-actions">' +
+      '<label class="field" style="flex:1"><span>Town</span><input id="p-town"' + n('town', v.town) + '></label>' +
+      '<label class="field" style="flex:1"><span>Area</span><input id="p-area"' + n('area', v.area) + '></label>' +
+      '</div>' +
+      '<label class="field"><span>Address (optional)</span><input id="p-addr"' + n('addr', v.address) + '></label>' +
+      '<label class="field"><span>Description</span><textarea id="p-desc" placeholder="What do you serve? What makes you special?">' + esc(v.description) + '</textarea></label>' +
+      '<div class="sg-actions">' +
+      '<label class="field" style="flex:1"><span>Opening hours</span><input id="p-hours" placeholder="e.g. Mon–Sat 8:00–22:00"' + n('hours', v.working_hours) + '></label>' +
+      '<label class="field" style="flex:1"><span>Years in business</span><input id="p-years" inputmode="numeric"' + n('years', v.years_in_business) + '></label>' +
+      '</div>' +
+      '<div class="sg-actions"><a class="btn primary" data-a="profile-save">Save profile</a>' +
+      '<a class="btn" href="' + href('business-onboarding1.html') + '?biz=' + encodeURIComponent(v.id) + '">Menus &amp; photos &rarr;</a></div>' +
+'<div class="sg-links">' +
+      (isAgent() ? '<a class="btn" href="ops-console.html#field">Open my workspace</a>' : '') +
+      '<a class="btn" data-a="done">Done \u2014 I\u2019ll keep going later</a>' +
+      '</div>';
+    bind();
+  }
+
+  function renderDemo() {
+    app.innerHTML = '<div class="fixed">Sample only — this is a preview of a fully built listing. Your listing starts at the search step and grows with you.</div>';
+    var open = function () {
+      var biz = (window.EATOUTS_DEMO.businesses || [])[0] || {};
+      var menu = window.EATOUTS_DEMO.menu || { categories: [], items: [] };
+      var cats = menu.categories || [];
+      var items = (menu.items || []).slice(0, 8);
+      var catName = function (c) { for (var i = 0; i < cats.length; i++) if (cats[i].id === c) return cats[i].name; return ''; };
+      var rows = items.map(function (it) {
+        return '<tr><td><strong>' + esc(it.name) + '</strong><br><span style="font-size:10.5px;color:#6f685d">' + esc(catName(it.category)) + '</span></td>' +
+          '<td class="p">P' + (isFinite(it.price) ? Number(it.price).toFixed(2).replace(/\.00$/, '') : esc(it.price)) + '</td></tr>';
+      }).join('');
+      app.innerHTML =
+        '<a href="#" data-a="back" class="btn btn-sm">&lsaquo; Back</a>' +
+        '<div class="sg-type">Sample listing</div>' +
+        '<div class="demo-card">' +
+        '<div class="demo-head">' +
+        '<img class="demo-logo" src="' + esc(biz.logo || '') + '" alt="">' +
+        '<div><div class="demo-name">' + esc(biz.name || 'The Food Place') + '</div>' +
+        '<div class="demo-meta">' + esc([biz.area, biz.town, biz.address].filter(Boolean).join(' \u00b7 ') || 'Gaborone') + '</div></div>' +
+        '</div>' +
+        '<div style="padding:0 13px 10px;font-size:12px;color:#4a443a">' + esc((biz.about || '').slice(0, 170)) + (biz.about && biz.about.length > 170 ? '\u2026' : '') + '</div>' +
+        '<div class="demo-cat">From the menu</div>' +
+        '<table class="demo-menu">' + rows + '</table>' +
+        '</div>' +
+        '<div class="fixed">#ref:demo-caveat# This is <strong>the same profile, menu and photos flow</strong> your listing gets \u2014 built step by step as you go.</div>' +
+        '<div class="sg-links"><a href="#" class="btn primary" data-a="back">Back to signing up</a></div>';
+      bind();
+    };
+    loadDemo(open);
+  }
+
+  function bind() {
+    app.querySelectorAll('[data-a]').forEach(function (el) {
+      el.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        var a = el.getAttribute('data-a');
+        if (a === 'back') {
+          if (S.stage === 'demo') { S.stage = S.type ? 'search' : 'type'; render(); }
+          else if (S.stage === 'account') { S.stage = S.type ? 'search' : 'type'; render(); }
+          else if (S.stage === 'register') { S.stage = S.type ? 'search' : 'type'; render(); }
+          else if (S.stage === 'profile') { S.stage = 'search'; render(); }
+          else { S.stage = 'type'; S.type = null; render(); }
+          return;
+        }
+        if (a === 'demo') { S.stage = 'demo'; renderDemo(); return; }
+        if (a === 'claim') {
+          S.mode = 'claim'; S.targetId = el.getAttribute('data-id');
+          if (!user()) { S.stage = 'account'; renderAccount(); }
+          else proceedClaim();
+          return;
+        }
+        if (a === 'register') {
+          S.mode = 'register'; S.newCat = S.type;
+          if (!user()) { S.stage = 'account'; renderAccount(); }
+          else { S.stage = 'register'; renderRegister(); }
+          return;
+        }
+        if (a === 'acc-ok') {
+          var name = document.getElementById('acc-name').value;
+          var wa = document.getElementById('acc-wa').value;
+          var pin = document.getElementById('acc-pin').value;
+          var r = createAccount(name, wa, pin);
+          if (!r.ok) { toast(r.error); return; }
+          if (S.mode === 'register') { S.stage = 'register'; renderRegister(); }
+          else proceedClaim();
+          return;
+        }
+        if (a === 'reg-ok') {
+          var nm = document.getElementById('reg-name').value.trim();
+          if (!nm) { toast('Enter the business name.'); return; }
+          var r = doRegister(S.newCat, nm);
+          if (!r.ok) { toast(r.error); return; }
+          S.stage = 'profile'; renderProfile();
+          return;
+        }
+        if (a === 'profile-save') {
+          var id = S.claimedId;
+          var wa2 = document.getElementById('p-wa').value;
+          var owa = document.getElementById('p-owa').value;
+          var w1 = normWa(wa2), w2 = normWa(owa);
+          if (wa2.trim() && !w1) { toast('Contact WhatsApp must be a valid Botswana number.'); return; }
+          if (owa.trim() && !w2) { toast('Order WhatsApp must be a valid Botswana number.'); return; }
+          var r2 = doSaveProfile(id, {
+            name: document.getElementById('p-name').value.trim(),
+            whatsapp: w1 || document.getElementById('p-wa').value.trim(),
+            order_whatsapp: w2 || (owa.trim() ? owa.trim() : (w1 || '')),
+            town: document.getElementById('p-town').value.trim(),
+            area: document.getElementById('p-area').value.trim(),
+            address: document.getElementById('p-addr').value.trim(),
+            description: document.getElementById('p-desc').value.trim(),
+            working_hours: document.getElementById('p-hours').value.trim(),
+            years_in_business: document.getElementById('p-years').value.trim()
+          });
+          if (!r2.ok) { toast(r2.error); return; }
+          toast('Saved');
+          renderProfile();
+          return;
+        }
+        if (a === 'done') { location.href = 'index.html#promos'; return; }
+      });
+    });
+    app.querySelectorAll('[data-c]').forEach(function (el) {
+      el.addEventListener('change', function () {
+        var c = el.getAttribute('data-c');
+        if (c === 'town') { S.town = el.value; S.area = ''; }
+        if (c === 'area') S.area = el.value;
+        renderSearch();
+      });
+    });
+  }
+
+  function proceedClaim() {
+    var r = doClaim(S.targetId);
+    if (!r.ok) { toast(r.error); S.stage = S.type ? 'search' : 'type'; render(); return; }
+    toast('Claimed \u2014 welcome!');
+    S.stage = 'profile'; renderProfile();
+  }
+
+  function render() {
+    if (S.stage === 'type') renderTypes();
+    else if (S.stage === 'search') renderSearch();
+    else if (S.stage === 'account') renderAccount();
+    else if (S.stage === 'register') renderRegister();
+    else if (S.stage === 'profile') renderProfile();
+    else renderTypes();
+  }
+
+  /* boot from query params */
+  var params = new URLSearchParams(location.search);
+  var t = params.get('type');
+  var claim = params.get('claim');
+  if (t && TYPES[t]) {
+    S.type = t; S.stage = 'search';
+  } else if (claim) {
+    S.mode = 'claim'; S.targetId = claim; S.stage = 'search';
+    if (S.type === null) {
+      var cv = F.venueById(claim);
+      if (cv && TYPES[cv.business_type]) S.type = cv.business_type;
+    }
+    if (S.type === null) { S.stage = 'type'; S.targetId = null; }
+  }
+  render();
+})();
+</script>
+</body>
+</html>

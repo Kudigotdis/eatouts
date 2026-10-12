@@ -74,6 +74,59 @@ table tr:last-child td{border-bottom:0}
 #shell .tabs{position:static;flex:0 0 auto}
 #shell .app{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;max-width:none;width:100%;padding-bottom:24px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .toast{bottom:84px}
+/* ===== FIELD ===== */
+.pagetabs{display:flex;gap:8px;padding:10px 12px 0}
+.pagetab{flex:1 1 0;min-height:42px;border:1px solid var(--border);background:#fff;border-radius:12px 12px 0 0;font:inherit;font-size:12.5px;font-weight:800;color:var(--muted);cursor:pointer;border-bottom:0}
+.pagetab.active{color:var(--black);box-shadow:inset 0 -2px 0 #1a1a1a}
+#panel-ops{display:none}
+.fbar{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.fchip{flex:1 1 0;min-width:74px;border:1px solid var(--border);border-radius:12px;background:#fff;padding:8px 6px;text-align:center;cursor:pointer}
+.fchip .n{display:block;font-size:18px;font-weight:900;letter-spacing:-.02em}
+.fchip .l{display:block;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.fchip.active{border-color:#1a1a1a;color:var(--black)}
+.ftools{display:flex;gap:8px;margin:6px 0 12px;flex-wrap:wrap}
+.ftools input{flex:1 1 180px;min-width:120px}
+.ftools select{flex:0 1 auto;min-width:128px}
+.fseg{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.fseg button{border:0;background:#fff;padding:10px 12px;font:inherit;font-size:11.5px;font-weight:800;color:var(--muted);cursor:pointer}
+.fseg button.active{background:#1a1a1a;color:#fff}
+.frow{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px 12px;margin:0 0 8px;cursor:pointer;text-align:left;width:100%;font:inherit}
+.frow .fr-main{flex:1 1 auto;min-width:0}
+.frow .fr-main b{display:block;font-size:13.5px;color:var(--black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frow .fr-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.frow .fr-side{flex:0 0 auto;text-align:right}
+.fbadge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.fbadge.pending_verification,.fbadge.unclaimed{background:#f0eee8;color:#7a7466}
+.fbadge.onboarding{background:#e7effb;color:#2b5bb5}
+.fbadge.pending_payment{background:#fdf3dc;color:#9a6a0a}
+.fbadge.overdue{background:#fbeaea;color:var(--danger)}
+.fbadge.live,.fbadge.closed_won,.fbadge.paid{background:#e3f5e9;color:#17834b}
+.fbadge.archived,.fbadge.closed_lost,.fbadge.rejected{background:#3a3324;color:#fff}
+.famark{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;color:var(--danger);margin-top:4px}
+.famark.ok{color:var(--ok)}
+.detail{min-height:100%}
+.dhead{display:flex;align-items:flex-start;gap:10px;padding:12px 12px 0}
+.dhead .dh-body{flex:1 1 auto;min-width:0}
+.dhead h3{margin:0 0 2px;font-size:17px;font-weight:900;letter-spacing:-.01em}
+.dhead .dh-sub{font-size:11.5px;color:var(--muted)}
+.dcards{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px}
+.dstat{border:1px solid var(--border);border-radius:12px;padding:10px;background:#fff}
+.dstat .l{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dstat .v{font-size:15px;font-weight:900;margin-top:3px}
+.dsec{margin:0 12px 12px}
+.dgrid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:520px){.dgrid2{grid-template-columns:1fr}}
+.actz{display:flex;flex-wrap:wrap;gap:8px;margin:0 12px 14px}
+.actz .btn{flex:1 1 calc(50% - 8px);min-width:120px} .actz select.rd{flex:0 0 auto;border:1px solid var(--line);background:#faf8f2;border-radius:2px;padding:7px 8px;font-size:11px;font-weight:700;color:#3a3324}
+.ll{font-size:12.5px;font-weight:700;color:#3a3324;margin:14px 4px 8px;display:flex;align-items:center;gap:6px}
+.kv{font-size:12.5px;color:#3a3324;padding:8px 0;border-bottom:1px solid var(--border)}
+.kv b{color:var(--black)}
+.logitem{border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fff;font-size:12px}
+.logitem .li-meta{font-size:10.5px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.frame{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff;margin-bottom:12px}
+.mini-input{margin-bottom:8px}
+.mini-input label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.mini-input input,.mini-input select,.mini-input textarea{min-height:38px;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -94,6 +147,12 @@ table tr:last-child td{border-bottom:0}
 </nav>
 
 <main class="app">
+  <div class="pagetabs" id="pagetabs">
+    <button class="pagetab active" data-panel="field">Field</button>
+    <button class="pagetab" data-panel="ops">Ops</button>
+  </div>
+  <section id="panel-field"></section>
+  <section id="panel-ops">
   <div class="card">
     <h2>Add / edit venue</h2>
     <div class="grid2">
@@ -157,16 +216,25 @@ table tr:last-child td{border-bottom:0}
       <b>Prototype note.</b> This is a single-device tracker. It stores everything under <b>eatouts_ops_v1</b> in this browser's localStorage. It is not security, not multi-user, and not a deploy system. Do not link it from public pages.
     </div>
   </div>
+  </section>
 </main>
 </div>
 <div id="toast" class="toast"></div>
 
 <script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-manager-db.js"></script>
+<script src="js/eatouts-roles.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-field.js"></script>
 <script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-brand.js"></script>
 <script>
-if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
-else{EatoutsAuth.applyActive();}
+(function(){
+  var ok = globalThis.EatoutsAuth && EatoutsAuth.isLoggedIn() &&
+    (EatoutsAuth.hasRole('rep') || EatoutsAuth.hasRole('admin') || EatoutsAuth.hasRole('platform_admin'));
+  if(!ok){ location.replace('eatouts-login.html'); return; }
+  if(globalThis.EatoutsField) EatoutsField.seedFieldVenues();
+})();
 </script>
 <script>
 (function(){
@@ -399,6 +467,673 @@ else{EatoutsAuth.applyActive();}
 
   function renderAll(){ renderVenues(); renderStats(); renderSubmissions(); renderInvoices(); }
   renderAll();
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+
+  /* ---- Field tab: rep onboarding + venue tracking ---- */
+
+  var panel = document.getElementById('panel-field');
+  var tabs = document.getElementById('pagetabs');
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function toast(m){ var t = document.getElementById('toast'); t.textContent = m; t.classList.add('on'); setTimeout(function(){ t.classList.remove('on'); }, 1900); }
+  function fmtP(n){ return 'P' + Number(n||0).toFixed(0); }
+  function mm(n){ return String(n||'').replace(/\D/g,''); }
+
+  var S = { scope:'mine', filter:'open', q:'', sort:'updated', view:'list', detailId:null };
+
+  var LOOK = {
+    pending_verification:'Verification', unclaimed:'Unclaimed', onboarding:'Onboarding',
+    pending_payment:'Payment due', live:'Live', archived:'Archived', rejected:'Rejected'
+  };
+
+  function scopeInfo(){
+    var c = EatoutsField.currentScope();
+    return c;
+  }
+
+  function scopedVenues(){
+    var c = scopeInfo();
+    var q = S.q.trim().toLowerCase();
+    var list;
+    if (S.scope === 'all') { list = EatoutsField.fieldVenues(); }
+    else {
+      var uid = c.user && c.user.id;
+      if (S.scope === 'mirereport') {}
+      list = EatoutsField.fieldVenues().filter(function(v){
+        if (!uid) return false;
+        var mine = String(v.assigned_rep_id||'') === String(uid) || String(v.pre_registered_by_rep_id||'') === String(uid) || String(v.claimed_by_user_id||'') === String(uid);
+        if (mine) return true;
+        return v.assigned_rep_id == null && ['live','archived','rejected'].indexOf(v.status) < 0;
+      });
+    }
+    list = list.filter(function(v){
+      if (S.filter === 'open') return isOpenish(v);
+      if (S.filter === 'won') return v.closed_outcome === 'closed_won';
+      if (S.filter === 'lost') return v.closed_outcome === 'closed_lost';
+      if (S.filter === 'overdue') return EatoutsField.isOverdue(v);
+      if (S.filter === 'at_risk') return EatoutsField.isAtRisk(v);
+      return true;
+    });
+    if (q){
+      list = list.filter(function(v){
+        return (String(v.name||'')+' '+String(v.town||'')+' '+String(v.area||'')).toLowerCase().indexOf(q) > -1;
+      });
+    }
+    if (S.sort === 'fee') list = list.slice().sort(function(a,b){ return (b.fee_amount||0)-(a.fee_amount||0); });
+    else if (S.sort === 'name') list = list.slice().sort(function(a,b){ return String(a.name||'').localeCompare(String(b.name||'')); });
+    else list = list.slice().sort(function(a,b){ return (b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0); });
+    return list;
+  }
+
+  function isOpenish(v){
+    if (v.closed_outcome) return false;
+    return ['live','archived','rejected'].indexOf(v.status) < 0 && v.status !== 'unclaimed';
+  }
+
+  function statusMeta(v){
+    if (v.closed_outcome === 'closed_won') return { label:'Won', cls:'closed_won' };
+    if (v.closed_outcome === 'closed_lost') return { label:'Lost', cls:'closed_lost' };
+    if (EatoutsField.isOverdue(v)) return { label:'Overdue', cls:'overdue' };
+    return { label: LOOK[v.status] || v.status, cls: v.status };
+  }
+
+  function repName(id){
+    var r = EatoutsField.reps().filter(function(u){ return String(u.id) === String(id); })[0];
+    return r ? EatoutsField.repLabel(r) : null;
+  }
+
+  function renderChips(){
+    var b = EatoutsField.statusBuckets();
+    var chips = [
+      { k:'open', n:b.open, l:'Open' },
+      { k:'won', n:b.won, l:'Won' },
+      { k:'lost', n:b.lost, l:'Lost' },
+      { k:'overdue', n:b.overdue, l:'Overdue' },
+      { k:'at_risk', n:b.atRisk, l:'At risk' }
+    ];
+    return '<div class="fbar">' + chips.map(function(c){
+      return '<button class="fchip' + (S.filter===c.k ? ' active' : '') + '" data-fo="filter" data-k="'+c.k+'">' +
+        '<span class="n">'+c.n+'</span><span class="l">'+esc(c.l)+'</span></button>';
+    }).join('') + '</div>';
+  }
+
+  function renderList(){
+    var c = scopeInfo();
+    var venues = scopedVenues();
+    var allScopeAllowed = c.isAdmin;
+    var h = '';
+    h += renderChips();
+    h += '<div class="ftools">' +
+      '<input id="f-search" placeholder="Search name, town, area…" value="'+esc(S.q)+'">' +
+      '<select id="f-sort">' +
+        '<option value="updated"'+(S.sort==='updated'?' selected':'')+'>Sort: recently updated</option>' +
+        '<option value="fee"'+(S.sort==='fee'?' selected':'')+'>Sort: fee owed</option>' +
+        '<option value="name"'+(S.sort==='name'?' selected':'')+'>Sort: name</option>' +
+      '</select>' +
+      '<button class="btn btn-primary btn-sm" data-fo="prenew">+ Pre-register</button>' +
+    '</div>';
+    if (allScopeAllowed){
+      h += '<div class="ftools" style="margin-top:-6px"><div class="fseg">' +
+        '<button data-fo="scope" data-k="mine"'+(S.scope==='mine'?' class="active"':'')+'>My businesses</button>' +
+        '<button data-fo="scope" data-k="all"'+(S.scope==='all'?' class="active"':'')+'>All reps</button>' +
+      '</div></div>';
+    }
+    if (!venues.length){
+      h += '<div class="empty">No venues match here yet. Pre-register one, or claim a venue from the business signup page.</div>';
+    } else {
+      h += venues.map(function(v){
+        var m = statusMeta(v);
+        var side = '';
+        if (v.fee_status !== 'paid' && v.fee_amount) side += '<span class="fbadge ' + (m.cls==='overdue'?'overdue':'pending_payment') + '">'+fmtP(v.fee_amount)+'</span> ';
+        side += '<span class="fbadge ' + esc(m.cls) + '">'+esc(m.label)+'</span>';
+        if (EatoutsField.isAtRisk(v)) side += '<span class="famark">At risk</span>';
+        return '<button class="frow" data-fo="open" data-id="'+esc(v.id)+'">' +
+          '<div class="fr-main"><b>'+esc(v.name)+'</b>' +
+          '<div class="fr-sub">'+esc(EatoutsField.venueTypeLabel(v.business_type))+' · '+esc(v.town||'—')+' · '+esc(v.area||'—')+
+          (repName(v.assigned_rep_id)?' · '+esc(repName(v.assigned_rep_id)):'')+'</div></div>' +
+          '<div class="fr-side">'+side+'</div></button>';
+      }).join('');
+    }
+    return h;
+  }
+
+  function renderDetail(id){
+    var v = EatoutsField.venueById(id);
+    if (!v) { S.view='list'; return renderList(); }
+    var c = scopeInfo();
+    var uid = c.user && c.user.id;
+    var admin = c.isAdmin;
+    var m = statusMeta(v);
+    var editable = EatoutsField.canEditProfile(v);
+    var h = '<div class="detail">';
+    h += '<div class="dhead">' +
+      '<button class="btn btn-ghost btn-sm" data-fo="back">‹ Back</button>' +
+      '<div class="dh-body"><h3>'+esc(v.name)+'</h3>' +
+      '<div class="dh-sub">' + esc(EatoutsField.venueTypeLabel(v.business_type)) +
+        ' · '+esc(v.town||'—')+' · '+esc(v.area||'—') +
+        (repName(v.assigned_rep_id) ? ' · ' + esc(repName(v.assigned_rep_id)) : '') + '</div></div>' +
+      '<span class="fbadge ' + esc(m.cls) + '">'+esc(m.label)+'</span></div>';
+
+    h += '<div class="dcards">' +
+      '<div class="dstat"><div class="l">Setup fee</div><div class="v">'+fmtP(v.fee_amount)+'</div>' +
+        '<div style="font-size:10.5px;color:var(--muted);margin-top:2px">'+(v.fee_status==='paid'?'Paid':(v.fee_status==='escalated'?'Escalated':'Due '+EatoutsField.pretty(v.fee_due_at)))+'</div></div>' +
+      '<div class="dstat"><div class="l">Branches</div><div class="v">'+v.branch_count+'</div>' +
+        '<div style="font-size:10.5px;color:var(--muted);margin-top:2px">+'+fmtP(EatoutsField.BRANCH_FEE*(v.branch_count-1))+' fee</div></div>' +
+      '<div class="dstat"><div class="l">Contact</div><div class="v" style="font-size:13px">'+esc(v.order_whatsapp||v.whatsapp||'—')+'</div></div>' +
+      '<div class="dstat"><div class="l">Last contact</div><div class="v" style="font-size:13px">'+EatoutsField.pretty(v.last_contacted_at)+'</div></div>' +
+    '</div>';
+
+    var acts = '';
+    if (v.status === 'pending_verification' || (v.status === 'onboarding' && !v.onboarded_at)){
+      acts += '<button class="btn btn-primary" data-fo="do" data-action="start" data-id="'+esc(v.id)+'">Start onboarding</button>';
+    }
+    if (v.status === 'onboarding'){
+      acts += '<button class="btn btn-ghost" data-fo="do" data-action="ready" data-id="'+esc(v.id)+'">Ready for payment</button>';
+    }
+    if ((v.status === 'onboarding' || v.status === 'pending_payment') && v.fee_status !== 'paid' && v.fee_status !== 'escalated'){
+      acts += '<button class="btn btn-ghost" data-fo="do" data-action="escalate" data-id="'+esc(v.id)+'">Escalate fee (day '+EatoutsField.ESCALATE_DAYS+')</button>';
+    }
+    if ((v.status === 'onboarding' || v.status === 'pending_payment') && v.fee_status !== 'paid'){
+      acts += '<button class="btn btn-ok" data-fo="javapay">Record payment</button>';
+      acts += '<select class="rd" data-fo="rdays" data-id="'+esc(v.id)+'" title="Reminder day">' +
+        [1,3,5,7,10].map(function(d){ return '<option value="'+d+'"'+(d===7?' selected':'')+'>day '+d+'</option>'; }).join('') +
+        '</select>';
+      acts += '<button class="btn btn-ghost" data-fo="remind" data-id="'+esc(v.id)+'">Compose reminder</button>';
+    }
+    if (admin){
+      acts += '<button class="btn btn-ghost" data-fo="reassign-open">Reassign</button>';
+      if (!v.closed_outcome && ['live','archived','rejected'].indexOf(v.status) < 0){
+        acts += '<button class="btn btn-ghost" data-fo="do" data-action="lost" data-id="'+esc(v.id)+'">Mark lost</button>';
+      }
+      if (v.status === 'pending_payment' && EatoutsField.isOverdue(v)){
+        acts += '<button class="btn btn-danger" data-fo="do" data-action="archive" data-id="'+esc(v.id)+'">Archive overdue</button>';
+      }
+      if (v.status === 'archived' && v.closed_outcome !== 'closed_lost'){
+        acts += '<button class="btn btn-ghost" data-fo="do" data-action="reopen" data-id="'+esc(v.id)+'">Reopen</button>';
+      }
+      if (v.closed_outcome === 'closed_lost'){
+        acts += '<button class="btn btn-ghost" data-fo="do" data-action="reopen" data-id="'+esc(v.id)+'">Reopen</button>';
+      }
+      acts += '<button class="btn btn-danger" data-fo="do" data-action="del" data-id="'+esc(v.id)+'">Delete</button>';
+    }
+    if (acts) h += '<div class="actz">' + acts + '</div>';
+
+    h += '<div id="f-paybox"></div>';
+    h += '<div id="f-reassignbox"></div>';
+
+    /* profile editor (owners/reps may edit while pending_verification / onboarding) */
+    h += '<div class="ll">Profile</div>';
+    if (!editable){
+      h += '<div class="notice">Profile is only editable while the status is <b>pending_verification</b> or <b>onboarding</b>. Once it moves to payment/live, details are locked for the customer (except menu source below).</div>';
+    }
+    h += '<div class="frame">' + profileForm(v, editable) + '</div>';
+
+    /* menu source — editable by reps always */
+    h += '<div class="frame"><div class="ll" style="margin-top:0">Menu source</div>' +
+      '<div class="mini-input"><label>How will the menu be provided?</label>' +
+      '<select id="f-menu-source">' + EatoutsField.MENU_SOURCES.map(function(s){
+        return '<option value="'+esc(s)+'"'+(v.menu_source===s?' selected':'')+'>'+esc(s)+'</option>';
+      }).join('') + '</select></div>' +
+      '<div class="mini-input"><label>Menu document URL</label><input id="f-menu-url" value="'+esc(v.menu_document_url||'')+'" placeholder="https://…"></div>' +
+      '<button class="btn btn-ghost btn-sm" data-fo="menu-save" data-id="'+esc(v.id)+'">Save menu source</button></div>';
+
+    /* contacts */
+    h += '<div class="ll">Contacts ('+v.venue_contacts.length+')</div>';
+    (v.venue_contacts || []).forEach(function(cnt){
+      h += '<div class="logitem"><div class="li-meta">'+esc(cnt.name||'No name')+' <span style="text-transform:none">'+esc(cnt.role||'')+'</span></div>' +
+        '<div style="margin-top:4px">'+esc(cnt.whatsapp||'—')+(cnt.profile_pic_url?' <a href="'+esc(cnt.profile_pic_url)+'" target="_blank" rel="noopener">photo</a>':'')+'</div>' +
+        '<div style="margin-top:6px"><button class="btn btn-danger btn-sm" data-fo="contact-del" data-id="'+esc(v.id)+'" data-cid="'+esc(cnt.id)+'">Remove</button></div></div>';
+    });
+    h += '<div class="frame"><div class="mini-input"><label>Name</label><input id="f-cname"></div>' +
+      '<div class="dgrid2"><div class="mini-input"><label>WhatsApp</label><input id="f-cwhatsapp" placeholder="+267 7X XXX XXX"></div>' +
+      '<div class="mini-input"><label>Role</label><input id="f-crole" placeholder="Owner / manager / cashier"></div></div>' +
+      '<div class="mini-input"><label>Profile photo URL (optional)</label><input id="f-ccon" placeholder="https://…"></div>' +
+      '<button class="btn btn-ghost btn-sm" data-fo="contact-add" data-id="'+esc(v.id)+'">Add contact</button></div>';
+
+    /* contact log */
+    h += '<div class="ll">Contact log</div>';
+    (v.contact_log || []).length ?
+      h += v.contact_log.slice().reverse().map(function(e){
+        return '<div class="logitem"><div class="li-meta">'+EatoutsField.pretty(e.occurred_at)+' · '+esc(e.outcome||'note')+' · '+esc(repName(e.rep_id)||'')+'</div>' +
+          '<div style="margin-top:4px">'+esc(e.body||'')+'</div>' +
+          ((e.photo_urls && e.photo_urls.length) ? '<div style="margin-top:6px;font-size:11px;color:var(--muted)">'+e.photo_urls.map(function(p){return '<a href="'+esc(p)+'" target="_blank" rel="noopener">photo</a> ';}).join('')+'</div>' : '') +
+        '</div>';
+      }).join('') : h += '<div class="notice">No conversations logged yet.</div>';
+    h += '<div class="frame"><div class="dgrid2">' +
+      '<div class="mini-input"><label>Outcome</label><select id="f-outcome"><option value="">— note only —</option>' +
+        EatoutsField.CONTACT_OUTCOMES.map(function(o){ return '<option value="'+esc(o)+'">'+esc(o)+'</option>'; }).join('') + '</select></div>' +
+      '<div class="mini-input"><label>Photo URLs (comma-separated)</label><input id="f-logs-pl" placeholder="https://…"></div></div>' +
+      '<div class="mini-input"><label>Note / conversation</label><textarea id="f-logs-body" rows="3" placeholder="Write what happened…"></textarea></div>' +
+      '<div class="row"><button class="btn btn-primary btn-sm" data-fo="log-save" data-id="'+esc(v.id)+'">Log contact</button>' +
+      '<button class="btn btn-ghost btn-sm" data-fo="log-clear">Clear</button></div></div>';
+
+    /* payments (admin records the single full fee) */
+    h += '<div class="ll">Payments ('+v.payments.length+')</div>';
+    if (v.payments && v.payments.length){
+      h += (v.payments || []).slice().reverse().map(function(p){
+        return '<div class="logitem"><div class="li-meta">'+fmtP(p.amount)+' · '+esc(p.method||'cash')+' · '+EatoutsField.pretty(p.received_at)+'</div>' +
+          '<div style="margin-top:3px;font-size:11.5px;color:var(--muted)">'+(p.reference?esc(p.reference)+' · ':'')+esc(repName(p.received_by_rep_id)||'')+' · '+esc(p.notes||'')+'</div></div>';
+      }).join('');
+    } else {
+      h += '<div class="notice">One full setup payment required — '+fmtP(EatoutsField.feeFor(v, false))+' (P'+EatoutsField.BASE_FEE+" first branch"+((v.branch_count||1)>1?' + P'+EatoutsField.BRANCH_FEE+'×'+(v.branch_count-1)+' extra branch': '')+').</div>';
+    }
+    h += '<div class="frame"><div class="dgrid2">' +
+      '<div class="mini-input"><label>Amount (defaults to fee)</label><input id="f-pay-amount" type="number" step="10" value="'+v.fee_amount+'"></div>' +
+      '<div class="mini-input"><label>Method</label><select id="f-pay-method"><option>cash</option><option>card</option><option>Orange Money</option><option>MyZaka</option><option>bank transfer</option></select></div></div>' +
+      '<div class="dgrid2"><div class="mini-input"><label>Reference</label><input id="f-pay-ref" placeholder="e.g. payment code"></div>' +
+      '<div class="mini-input"><label>Notes</label><input id="f-pay-notes" placeholder="optional"></div></div>' +
+      '<button class="btn btn-ok btn-sm" data-fo="pay-save" data-id="'+esc(v.id)+'">Record full payment</button></div>';
+
+    /* admin-only gallery/proof (element absent for non-admins) */
+    if (admin){
+      h += '<div class="ll">Photos / proof ('+(v.photos||[]).length+')</div>';
+      h += '<div class="frame"><div class="row" style="align-items:center">' +
+        '<label class="btn btn-ghost btn-sm" style="cursor:pointer">Upload photo<input type="file" id="f-gallery" accept="image/*" data-fo="photo-file" style="display:none"></label>' +
+        '<span class="small">Saved to this device only — no EXIF stripping, no OCR.</span></div>';
+      (v.photos || []).forEach(function(p,pi){
+        h += '<div class="logitem" style="display:flex;align-items:center;gap:10px"><img src="'+esc(p)+'" alt="proof" style="width:52px;height:52px;object-fit:cover;border-radius:8px">' +
+          '<button class="btn btn-danger btn-sm" data-fo="photo-del" data-id="'+esc(v.id)+'" data-pi="'+pi+'">Remove</button></div>';
+      });
+      h += '</div>';
+    }
+
+    /* activity + audit */
+    h += '<div class="ll">Activity</div><div class="frame">' +
+      '<div class="kv"><b>First contacted</b> &nbsp; '+EatoutsField.pretty(v.first_contacted_at)+'</div>' +
+      '<div class="kv"><b>Last owner login</b> &nbsp; '+EatoutsField.pretty(v.last_login_at)+'</div>' +
+      '<div class="kv"><b>Last order</b> &nbsp; '+EatoutsField.pretty(v.last_order_at)+'</div>' +
+      '<div class="kv"><b>Fee due</b> &nbsp; '+EatoutsField.pretty(v.fee_due_at)+(EatoutsField.isOverdue(v)?' <span class="famark" style="margin:0;display:inline">overdue</span>':'')+'</div>' +
+      '<div class="kv"><b>Onboarded</b> &nbsp; '+EatoutsField.pretty(v.onboarded_at)+'</div>' +
+      (v.closed_at?'<div class="kv"><b>Closed</b> &nbsp; '+EatoutsField.pretty(v.closed_at)+' <span class="fbadge '+(v.closed_outcome==='closed_won'?'closed_won':'closed_lost')+'">'+esc(v.closed_outcome||'closed')+'</span></div>':'') +
+    '</div>';
+
+    h += '<div class="ll">Audit trail ('+(v.audit_log||[]).length+')</div>';
+    h += (v.audit_log || []).slice().reverse().map(function(a){
+      return '<div class="logitem"><div class="li-meta">'+esc(a.action)+' · '+EatoutsField.pretty(a.at)+' · '+esc(repName(a.actor_user_id)||'system')+'</div>' +
+        '<div style="margin-top:3px;font-size:11.5px;color:var(--muted)">'+
+        ((a.before)?'<span>'+esc(JSON.stringify(a.before))+'</span><br>':'')+
+        ((a.after)?esc(JSON.stringify(a.after)):'')+'</div></div>';
+    }).join('') || '<div class="notice">No audit entries yet.</div>';
+
+    h += '</div>';
+    return h;
+  }
+
+  function profileForm(v, editable){
+    var f = [
+      ['name','Public business name','text'],
+      ['tagline','Tagline','text'],
+      ['description','Description','textarea'],
+      ['town','Town / city','text'],
+      ['area','Area / neighbourhood','text'],
+      ['address','Address / plot','text'],
+      ['landmark','Landmark','text'],
+      ['map_link','Map link','url'],
+      ['whatsapp','WhatsApp number','tel'],
+      ['order_whatsapp','Order WhatsApp','tel'],
+      ['email','Email','email'],
+      ['website','Website','url'],
+      ['working_hours','Working hours (e.g. Mon–Sat 08:00–20:00)','text'],
+      ['years_in_business','Years in business','text'],
+      ['branch_count','Branch count','number'],
+      ['supplier_categories','Supplier categories (comma-separated)','text'],
+      ['services','Services (comma-separated)','text'],
+      ['delivery_notes','Delivery notes','text']
+    ];
+    return '<div class="mini-input"><label>Menu source applies to every status</label><div class="small" style="text-transform:none;letter-spacing:0">Set it in the "Menu source" section below — reps can edit it even after payments.</div></div>' +
+      f.map(function(row){
+        var k=row[0], label=row[1], type=row[2];
+        var val = v[k];
+        if (Array.isArray(val)) val = val.join(', ');
+        if (type==='textarea'){
+          return '<div class="mini-input"><label>'+esc(label)+'</label><textarea id="pe-'+k+'" rows="2" '+(editable?'':'disabled')+'>'+esc(val||'')+'</textarea></div>';
+        }
+        return '<div class="mini-input"><label>'+esc(label)+'</label><input id="pe-'+k+'" type="'+type+'" value="'+esc(val==null?'':val)+'" '+(editable?'':'disabled')+'></div>';
+      }).join('') +
+      '<button class="btn btn-primary btn-sm" data-fo="profile-save" data-id="'+esc(v.id)+'" '+(editable?'':'disabled')+'>Save profile</button>';
+  }
+
+  function renderPrereg(){
+    var h = '<div class="dhead"><button class="btn btn-ghost btn-sm" data-fo="back">‹ Back</button>' +
+      '<div class="dh-body"><h3>Pre-register a venue</h3><div class="dh-sub">Creates an unclaimed venue assigned to you.</div></div></div>';
+    h += '<div class="frame">' +
+      '<div class="mini-input"><label>Business type</label><select id="pr-type">' +
+        Object.keys(EatoutsField.FIELD_TYPES).map(function(k){ return '<option value="'+k+'">'+esc(EatoutsField.FIELD_TYPES[k].label)+'</option>'; }).join('') +
+      '</select></div>' +
+      '<div class="mini-input"><label>Venue name</label><input id="pr-name" placeholder="e.g. Kaya Bar & Grill"></div>' +
+      '<div class="dgrid2"><div class="mini-input"><label>Town / city</label><input id="pr-town" placeholder="Gaborone"></div>' +
+      '<div class="mini-input"><label>Area</label><input id="pr-area" placeholder="CBD"></div></div>' +
+      '<div class="mini-input"><label>Order WhatsApp</label><input id="pr-whatsapp" placeholder="+267 7X XXX XXX"></div>' +
+      '<div class="mini-input"><label>Notes / first contact</label><textarea id="pr-notes" rows="2" placeholder="What you know about this venue…"></textarea></div>' +
+      '<button class="btn btn-primary" data-fo="prereg-save">Save pre-registration</button></div>';
+    return h;
+  }
+
+  function render(){
+    if (!panel) return;
+    var html;
+    if (S.view==='list') html = renderList();
+    else if (S.view==='detail') html = renderDetail(S.detailId);
+    else if (S.view==='prereg') html = renderPrereg();
+    panel.innerHTML = html;
+    syncSearchUI();
+  }
+
+  function syncSearchUI(){
+    var i = document.getElementById('f-search');
+    if (i && document.activeElement !== i) i.value = S.q;
+  }
+
+  function pickPanel(name){
+    var go = name || (location.hash === '#ops' ? 'ops' : 'field');
+    if (go === 'field') go = 'field';
+    setPanel(go);
+  }
+  function setPanel(name){
+    var field = document.getElementById('panel-field');
+    var ops = document.getElementById('panel-ops');
+    var btns = document.querySelectorAll('.pagetab');
+    if (!field || !ops) return;
+    field.style.display = name === 'field' ? '' : 'none';
+    ops.style.display = name === 'ops' ? '' : 'none';
+    btns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-panel') === name); });
+  }
+
+  function fresh(id){ return EatoutsField.venueById(id); }
+
+  function refresh(id){
+    S.detailId = id;
+    S.view = id ? 'detail' : S.view;
+    render();
+  }
+
+  /* ---- actions ---- */
+
+  function runAction(action, id){
+    var v = fresh(id);
+    if (!v) return;
+    var scope = scopeInfo();
+    var uid = scope.user && scope.user.id;
+    var r;
+    if (action === 'start') r = EatoutsField.startOnboarding(v, uid);
+    if (action === 'ready') r = EatoutsField.readyForPayment(v, uid);
+    if (action === 'escalate') r = EatoutsField.escalateFee(v, uid);
+    if (action === 'lost'){
+      if (!confirm('Mark "' + v.name + '" as lost (closed_lost)? This is separate from a won closure.')) return;
+      r = EatoutsField.markLost(v, uid);
+    }
+    if (action === 'archive'){
+      if (!confirm('Archive "' + v.name + '" as overdue?')) return;
+      r = EatoutsField.archive(v, uid);
+    }
+    if (action === 'reopen') r = EatoutsField.reopen(v, uid);
+    if (action === 'del'){
+      if (!confirm('Delete "' + v.name + '" and remove it from the directory? This cannot be undone.')) return;
+      r = EatoutsField.deleteVenue(v, uid);
+      if (r.ok){ toast('Venue deleted'); S.view = 'list'; S.detailId = null; render(); return; }
+    }
+    if (r && r.ok) toast('Done');
+    else if (r && r.error) toast(r.error);
+    render();
+  }
+
+  panel.addEventListener('click', function(e){
+    var t = e.target.closest('[data-fo]');
+    if (!t) return;
+    var fo = t.getAttribute('data-fo');
+    var id = t.getAttribute('data-id');
+    if (fo === 'filter'){ S.filter = t.getAttribute('data-k'); render(); return; }
+    if (fo === 'scope'){ S.scope = t.getAttribute('data-k'); render(); return; }
+    if (fo === 'open'){ S.detailId = t.getAttribute('data-id'); S.view='detail'; render(); return; }
+    if (fo === 'back'){ S.view='list'; S.detailId=null; render(); return; }
+    if (fo === 'prenew'){ S.view='prereg'; render(); return; }
+    if (fo === 'prereg-save'){ doPrereg(); return; }
+    if (fo === 'do'){ runAction(t.getAttribute('data-action'), id); return; }
+    if (fo === 'javapay'){ showPayBox(id); return; }
+    if (fo === 'pay-save'){ doPayment(id); return; }
+    if (fo === 'reassign-open'){ showReassign(id); return; }
+    if (fo === 'profile-save'){ doProfileSave(id); return; }
+    if (fo === 'menu-save'){ doMenuSave(id); return; }
+    if (fo === 'contact-add'){ doContactAdd(id); return; }
+    if (fo === 'contact-del'){ doContactDel(id, t.getAttribute('data-cid')); return; }
+    if (fo === 'remind'){
+      var rd = t.previousElementSibling;
+      doComposeReminder(id, rd && rd.classList && rd.classList.contains('rd') ? rd.value : null);
+      return;
+    }
+    if (fo === 'log-save'){ doLogSave(id); return; }
+    if (fo === 'log-clear'){ clearLogForm(); return; }
+    if (fo === 'photo-del'){ doPhotoDel(id, t.getAttribute('data-pi')); return; }
+    if (fo === 'photo-file'){ /* handled by change event */ }
+  });
+
+  panel.addEventListener('input', function(e){
+    if (e.target && e.target.id === 'f-search'){
+      S.q = e.target.value;
+      render();
+    }
+  });
+  panel.addEventListener('change', function(e){
+    if (e.target && e.target.id === 'f-sort'){ S.sort = e.target.value; render(); }
+    if (e.target && e.target.id === 'f-gallery'){ doPhotoFile(e.target); }
+  });
+
+  function doPrereg(){
+    var type = document.getElementById('pr-type').value;
+    var name = document.getElementById('pr-name').value.trim();
+    if (!name){ toast('Venue name required'); return; }
+    var scope = scopeInfo();
+    var uid = scope.user && scope.user.id;
+    var v = EatoutsField.normaliseVenue({ name:name, business_type:type });
+    v.name = name;
+    v.status = 'unclaimed';
+    v.branch_count = 1;
+    v.whatsapp = document.getElementById('pr-whatsapp').value.trim();
+    v.order_whatsapp = v.whatsapp || '';
+    v.pre_registered_by_rep_id = uid;
+    v.assigned_rep_id = uid;
+    v.first_contacted_at = EatoutsField.now();
+    v.fee_amount = EatoutsField.feeFor(v, false);
+    var notes = document.getElementById('pr-notes').value.trim();
+    v.contact_log = notes ? [{ id:'log-'+EatoutsField.now().toString(36), rep_id:uid, occurred_at:EatoutsField.now(), outcome:null, body:notes, photo_urls:[] }] : [];
+    v.audit_log = [];
+    var d = EatoutsMgrDB;
+    if (!d){ toast('Store unavailable'); return; }
+    d.upsert('businesses', v);
+    toast('Pre-registered ' + name);
+    S.detailId = v.id;
+    S.view = 'detail';
+    render();
+  }
+
+  function doPayment(id){
+    var v = fresh(id);
+    if (!v) return;
+    var amount = parseFloat(document.getElementById('f-pay-amount').value);
+    var r = EatoutsField.recordPayment(v, {
+      amount: isFinite(amount) ? amount : v.fee_amount,
+      method: document.getElementById('f-pay-method').value,
+      reference: document.getElementById('f-pay-ref').value.trim(),
+      notes: document.getElementById('f-pay-notes').value.trim()
+    }, (scopeInfo().user && scopeInfo().user.id));
+    if (r.ok) toast('Payment recorded — ' + v.name + ' is live');
+    else toast(r.error);
+    render();
+  }
+
+  function showPayBox(id){
+    var pay = document.querySelector('[data-fo="javapay"]');
+    var frame = pay ? pay.closest('.frame') : null;
+    var t = document.getElementById('f-paybox');
+    if (frame) frame.scrollIntoView({ behavior:'smooth', block:'center' });
+    else if (t) t.scrollIntoView({ behavior:'smooth', block:'center' });
+    var amountEl = document.getElementById('f-pay-amount');
+    if (amountEl && !amountEl.value) amountEl.value = fresh(id) ? fresh(id).fee_amount : '';
+  }
+
+  function showReassign(id){
+    var box = document.getElementById('f-reassignbox');
+    if (!box) return;
+    if (box.innerHTML){ box.innerHTML=''; return; }
+    var v = fresh(id);
+    var opts = EatoutsField.reps().map(function(u){
+      return '<option value="'+esc(u.id)+'"'+(String(v.assigned_rep_id||'')===String(u.id)?' selected':'')+'>'+esc(EatoutsField.repLabel(u))+'</option>';
+    }).join('');
+    box.innerHTML = '<div class="frame"><div class="mini-input"><label>Assign to rep</label><select id="f-rep">'+opts+'</select></div>' +
+      '<button class="btn btn-primary btn-sm" data-fo="reassign-save" data-id="'+esc(id)+'">Save</button></div>';
+  }
+
+  panel.addEventListener('click', function(e){
+    var t = e.target.closest('[data-fo="reassign-save"]');
+    if (!t) return;
+    var id = t.getAttribute('data-id');
+    var v = fresh(id);
+    var r = EatoutsField.assign(v, document.getElementById('f-rep').value, (scopeInfo().user&&scopeInfo().user.id));
+    toast(r.ok ? 'Reassigned' : r.error);
+    render();
+  });
+
+  function doMenuSave(id){
+    var v = fresh(id);
+    if (!v) return;
+    var r = EatoutsField.updateMenuSource(v,
+      document.getElementById('f-menu-source').value,
+      document.getElementById('f-menu-url').value.trim(),
+      (scopeInfo().user && scopeInfo().user.id));
+    toast(r.ok ? 'Menu source saved' : r.error);
+    render();
+  }
+
+  function doProfileSave(id){
+    var v = fresh(id);
+    if (!v) return;
+    var patch = {};
+    ['name','tagline','description','town','area','address','landmark','map_link',
+     'whatsapp','order_whatsapp','email','website','working_hours','years_in_business',
+     'branch_count','supplier_categories','services','delivery_notes'].forEach(function(k){
+      var el = document.getElementById('pe-'+k);
+      if (!el) return;
+      var val = el.value.trim();
+      if (k === 'branch_count') val = parseInt(el.value,10)||1;
+      if (k === 'supplier_categories' || k === 'services') val = val ? val.split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+      patch[k] = val;
+    });
+    var r = EatoutsField.updateProfile(v, patch, (scopeInfo().user&&scopeInfo().user.id));
+    toast(r.ok ? 'Profile saved' : r.error);
+    render();
+  }
+
+  function doContactAdd(id){
+    var v = fresh(id);
+    if (!v) return;
+    var r = EatoutsField.addVenueContact(v, {
+      name: document.getElementById('f-cname').value.trim(),
+      whatsapp: mm(document.getElementById('f-cwhatsapp').value),
+      role: document.getElementById('f-crole').value.trim(),
+      profile_pic_url: document.getElementById('f-ccon').value.trim()
+    }, (scopeInfo().user&&scopeInfo().user.id));
+    toast(r.ok ? 'Contact added' : r.error);
+    render();
+  }
+
+  function doContactDel(id, cid){
+    var v = fresh(id);
+    if (!v) return;
+    var r = EatoutsField.removeVenueContact(v, cid, (scopeInfo().user&&scopeInfo().user.id));
+    toast(r.ok ? 'Contact removed' : r.error);
+    render();
+  }
+
+  function daySince(v, what){
+    if (what==='onboard'){ return v.onboarded_at ? Math.max(1, Math.min(30, Math.floor((EatoutsField.now()-v.onboarded_at)/EatoutsField.DAY)+1)) : 1; }
+    return 1;
+  }
+
+  function doComposeReminder(id, day){
+    var v = fresh(id);
+    if (!v) return;
+    var d = day ? parseInt(day,10) : daySince(v, 'onboard');
+    var body = document.getElementById('f-logs-body');
+    if (body){ body.value = EatoutsField.reminderCopy(v, d); body.focus(); }
+    var out = document.getElementById('f-outcome');
+    if (out) out.value = 'other';
+    toast('Reminder composed — review then Log contact');
+  }
+
+  function doLogSave(id){
+    var v = fresh(id);
+    if (!v) return;
+    var body = document.getElementById('f-logs-body');
+    var photos = (document.getElementById('f-logs-pl').value||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+    var r = EatoutsField.logContact(v, {
+      outcome: document.getElementById('f-outcome').value,
+      body: body ? body.value : '',
+      photo_urls: photos
+    }, (scopeInfo().user&&scopeInfo().user.id));
+    toast(r.ok ? 'Contact logged' : r.error);
+    render();
+  }
+
+  function clearLogForm(){
+    var b = document.getElementById('f-logs-body'); if (b) b.value='';
+    var o = document.getElementById('f-outcome'); if (o) o.value='';
+    var p = document.getElementById('f-logs-pl'); if (p) p.value='';
+  }
+
+  function doPhotoFile(input){
+    var f = input && input.files && input.files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var v = fresh(S.detailId);
+      if (!v) return;
+      var dataUrl = reader.result;
+      var next = EatoutsField.normaliseVenue(v);
+      next.photos.push(dataUrl);
+      next.updatedAt = EatoutsField.now();
+      next.contact_log.push({
+        id:'log-'+EatoutsField.now().toString(36),
+        rep_id:(scopeInfo().user&&scopeInfo().user.id)||null,
+        occurred_at:EatoutsField.now(),
+        outcome:null,
+        body:'Uploaded proof photo by '+(scopeInfo().user&&scopeInfo().user.firstName||'field agent'),
+        photo_urls:[dataUrl]
+      });
+      EatoutsMgrDB.upsert('businesses', next);
+      toast('Photo saved');
+      render();
+    };
+    reader.readAsDataURL(f);
+    input.value='';
+  }
+
+  function doPhotoDel(id, pi){
+    var v = fresh(id);
+    if (!v) return;
+    var next = EatoutsField.normaliseVenue(v);
+    next.photos.splice(pi, 1);
+    next.updatedAt = EatoutsField.now();
+    EatoutsMgrDB.upsert('businesses', next);
+    toast('Photo removed');
+    render();
+  }
+
+  /* ---- boots ---- */
+  tabs.addEventListener('click', function(e){
+    var t = e.target.closest('[data-panel]');
+    if (!t) return;
+    setPanel(t.getAttribute('data-panel'));
+  });
+
+  var bootScope = scopeInfo();
+  var defaultPanel = (bootScope.user && bootScope.user.type === 'rep') || bootScope.isRep ? 'field' : 'field';
+  pickPanel(location.hash === '#ops' ? 'ops' : defaultPanel);
+  if (location.hash === '#field') setTimeout(function(){ panel.scrollTop = panel.scrollTop; }, 0);
+  render();
 })();
 </script>
 </body>

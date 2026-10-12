@@ -57,8 +57,20 @@ setTimeout(() => {
     doc.querySelector('.bev-toggle').className);
   ev('state.restPanel="food";render()');
 
-  /* ---------- landing ---------- */
+  /* ---------- landing is now the bottle-store directory ---------- */
   ev('state.restPanel="beverages";render()');
+  const storeCards = doc.querySelectorAll('.bevpage[data-page="beverages"] [data-bacc]');
+  check('bottle store list is the beverages landing', storeCards.length > 0, storeCards.length);
+  check('store card offers a Menu button',
+    !!doc.querySelector('.bevpage[data-page="beverages"] [data-act="openBottleMenu"]'));
+  check('store card offers a Promos button',
+    !!doc.querySelector('.bevpage[data-page="beverages"] [data-act="openBottlePromos"]'));
+  check('store list no longer shows the drinks grid',
+    !doc.querySelector('.bevpage[data-page="beverages"] .bev-grid'));
+
+  /* ---------- a store's Menu opens the shared Drinks/Liquors grid ---------- */
+  ev('state.bevView={type:"store",id:window.EatoutsBottleStores.all()[0].slug};render()');
+  check('store Menu opens the beverage grid', !!doc.querySelector('.bevpage[data-page="beverages"] .bev-grid'));
   const tiles = doc.querySelectorAll('.bevpage[data-page="beverages"] .bev-tile[data-act="bevOpenSub"]');
   check('6 drink tiles', tiles.length === 6, tiles.length);
   const empty = doc.querySelector('.bevpage[data-page="beverages"] .bev-tile.off');
@@ -181,6 +193,11 @@ setTimeout(() => {
   check('apply commits the beverage types', ev('state.bevTypes.length') === 1, ev('state.bevTypes.length'));
   check('filtered results list renders', doc.querySelectorAll('.bevpage[data-page="beverages"] .bev-result').length > 0,
     doc.querySelectorAll('.bevpage[data-page="beverages"] .bev-result').length);
+  const offerLine = doc.querySelector('.bevpage[data-page="beverages"] .bev-result .bev-offer');
+  check('result card shows the offering line', !!offerLine && /At .|No bottle stores/.test(offerLine.textContent),
+    offerLine ? offerLine.textContent : 'none');
+  check('result card has a thumbnail',
+    !!doc.querySelector('.bevpage[data-page="beverages"] .bev-result .mthumb'));
   check('landing grids replaced by results', !doc.querySelector('.bevpage[data-page="beverages"] .bev-grid'));
   const firstResult = doc.querySelector('.bevpage[data-page="beverages"] .bev-result[data-act="bevGotoCat"]');
   check('result rows navigate to their category', !!firstResult &&
@@ -190,7 +207,10 @@ setTimeout(() => {
   click(doc.querySelector('.bevpage[data-page="beverages"] [data-act="bevBackLanding"]'));
   check('back from a result keeps the filter', ev('state.bevView') === null && ev('state.bevTypes.length') === 1);
   click(doc.querySelector('[data-act="bevClearTypes"]'));
-  check('Clear Search resets the filter', ev('state.bevTypes.length') === 0 && !!doc.querySelector('.bevpage[data-page="beverages"] .bev-grid'));
+  check('Clear Search resets the filter and returns to the store list',
+    ev('state.bevTypes.length') === 0 &&
+    doc.querySelectorAll('.bevpage[data-page="beverages"] [data-bacc]').length > 0 &&
+    !doc.querySelector('.bevpage[data-page="beverages"] .bev-grid'));
 
   /* ---------- back to food ---------- */
   click(doc.querySelector('.bev-toggle-btn[data-act="panelFood"]'));

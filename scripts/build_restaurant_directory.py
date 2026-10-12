@@ -379,9 +379,23 @@ def add_manifest_extras(records: OrderedDict, manifest: dict[str, Any]) -> None:
         record = new_record(name, town, text(extra.get("district")), text(extra.get("districtName")), "eatouts_manifest.json")
         record["district"] = text(extra.get("district")) or text(extra.get("districtName"))
         record["districtName"] = text(extra.get("districtName"))
-        record["area"] = text(extra.get("area"))
         record["category"] = text(extra.get("category"))
         record["logo"] = text(extra.get("logo"))
+        record["description"] = text(extra.get("description"))
+        record["website"] = text(extra.get("website"))
+        area = text(extra.get("area"))
+        if area:
+            add_unique(record["areas"], area)
+        address = text(extra.get("address"))
+        if address:
+            add_unique(record["addresses"], address)
+        for label, key in (("Phone", "phones"), ("WhatsApp", "whatsapp"), ("Email", "emails")):
+            for value in (extra.get(key) or []):
+                value = text(value)
+                if value:
+                    contact = {"label": label, "value": value}
+                    if contact not in record["contacts"]:
+                        record["contacts"].append(contact)
         for kind in (extra.get("types") or []):
             add_unique(record["types"], kind)
         key = (canonical_name(name), slugify(town or "unknown"))

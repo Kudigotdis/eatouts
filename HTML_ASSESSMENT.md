@@ -4,7 +4,9 @@ Status ledger for every `.html` page in the project root (57 files), built
 2026-10-11 from a fresh source scan (JS-marker + storage-key probe of each file)
 plus the capability audit in `HTML_PAGES.md`. This is the **per-page
 complement** to `INTEGRATION_AUDIT.md` / `INTEGRATION_DECISIONS.md`; it records
-what each page is, what it does, what is missing, and what should change.
+what each page is, what it does, what is missing, and what should change. For the
+numbered page index (purpose, audience, navigation, size), see **`HTML_CATALOG.md`**
+(generated — `npm run catalog`).
 
 Run the app with **`run-eatouts.bat`** (serves the root over `http://127.0.0.1`;
 `file://` isolates `localStorage` and breaks `crypto.subtle` sign-in).

@@ -1,4 +1,4 @@
-# The Yellow Giraffe — Scheduled Delivery Shift Manifest
+# The Food Place — Scheduled Delivery Shift Manifest
 
 **DEMO DATA — all customers, contact placeholders, plots, order IDs and delivery events are fictional.**
 

@@ -201,7 +201,7 @@ Three standalone pages share the customer shell (logo header → `index.html#pro
 - **`restaurant-delivery.html`** — the restaurant's dispatch board (incoming requests, immediate orders, scheduled rounds, kitchen prep, routes & drivers, settings, comms templates, exceptions). Persists accepted orders under `eatouts_delivery_orders_v1`.
 - **`driver-delivery.html`** — a rider's board (duty status, rounds, active stop checklist, problems, feedback, completed log). Demo-only; no storage.
 
-The two operator boards are seeded from the **50-order scheduled-delivery snapshot** at `assets/data/deliveries/yellow_giraffe_50_scheduled_deliveries.js` (`window.EATOUTS_DELIVERY_BACKFILL`) when no stored orders exist yet: `restaurant-delivery.html` maps its 50 orders / 2 riders / analytics into the board and window slot counts, and `driver-delivery.html` builds Thabo Molefe's 10 round-ledger from the same snapshot (street-level plot/property/landmark/phone fields the dataset does not carry render blank). Sibling files in that folder — raw `.json`, flat `.txt`, and the two `.md` shift/driver manifest summaries — are data assets, not deploy targets (`copy-static.mjs` copies the whole `assets` folder).
+The two operator boards are seeded from the **50-order scheduled-delivery snapshot** at `assets/data/deliveries/the_food_place_50_scheduled_deliveries.js` (`window.EATOUTS_FOOD_PLACE_DELIVERY_BACKFILL`) when no stored orders exist yet: `restaurant-delivery.html` maps its 50 orders / 2 riders / analytics into the board and window slot counts, and `driver-delivery.html` builds Thabo Molefe's 10 round-ledger from the same snapshot (street-level plot/property/landmark/phone fields the dataset does not carry render blank). Sibling files in that folder — raw `.json`, flat `.txt`, and the two `.md` shift/driver manifest summaries — are data assets, not deploy targets (`copy-static.mjs` copies the whole `assets` folder).
 
 **Cannot do (architecture planned for a later session)** — no role enforcement: the "Operators" sign-in currently lands on `restaurant-dashboard.html`, and `restaurant-onboarding.html` offers both delivery views to anyone holding a session. Real per-role gating (owner/manager vs rider), a shared `EatoutsDelivery` state module, and a live customer→restaurant→driver order flow are deliberately deferred.
 
@@ -241,7 +241,7 @@ onboarding screens use the centred `.login` card with a platform logo header.
 | `eatouts-user-onboarding.html` | customer | Customer account creation (18+ gate) |
 | `eatouts-business-signup.html` | new business | Business-type chooser |
 | `bottle-store-onboarding.html` / `caterer-onboarding.html` / `lodge-onboarding.html` / `supplier-onboarding.html` | each type | Per-type business onboarding |
-| `staff-manager.html` | biz owner/admin/manager | Staff CRUD, employment records, roles |
+| `staff-manager.html` | biz owner/admin/manager | Staff CRUD, employment records, roles, attendance, tips, performance, payroll tabs |
 | `delivery-manager.html` | biz owner/admin | Zones, fees, capacity, drivers, windows |
 | `order-manager.html` | biz + staff | Live order queue |
 | `reservation-manager.html` | biz owner/admin | Table bookings, guests, deposits |

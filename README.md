@@ -126,3 +126,10 @@ The supplier, blog and event pages can store media in a Cloudflare R2 bucket thr
 3. In `js/eatouts-cloud.js`, set `window.EATOUTS_CLOUD.workerUrl` to the deployed Worker URL (e.g. `https://eatouts-media.YOUR-NAME.workers.dev`) and `secret` to the same value as the Worker's `SECRET`.
 
 Until step 3 is done, `EatoutsCloud` reports "not configured" and callers fall back to local behaviour. The `workerUrl` and `secret` values are intentionally left blank in the repo; fill them in per environment.
+
+## Documentation
+
+- `HTML_CATALOG.md` — the numbered, always-current index of every root page (purpose, audience, how you reach and use it, size, store keys). **Generated:** edit `scripts/html_catalog.meta.json`, then `npm run catalog`. `npm test` fails if a page is not catalogued.
+- `HTML_ASSESSMENT.md` — per-page status ledger and gaps.
+- `HTML_PAGES.md` — the longer per-page capability narrative.
+- `INTEGRATION_AUDIT.md` / `INTEGRATION_DECISIONS.md` — integration status and locked decisions (D1…).

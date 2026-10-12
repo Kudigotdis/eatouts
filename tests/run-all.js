@@ -31,6 +31,8 @@ const SUITES = [
   'contracts.js',
   'upload.js',
   'beverages.js',
+  'bottle-stores.js',
+  'demo-seed.js',
   'delivery.js',
   'checkout-delivery.js',
   'promocats.js',
@@ -39,7 +41,9 @@ const SUITES = [
   'builder-guests.js',
   'builder-schedule.js',
   'builder-audience.js',
-  'appshell.js'
+  'appshell.js',
+  'html-catalog.js',
+  'field.js'
 ];
 
 function pad(n, width) {

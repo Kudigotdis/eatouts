@@ -117,7 +117,17 @@ console.log('\n-- Contract #4: auth gate --');
     check('auth: ' + rel + ' requireSession() is false without a session',
       b.window.EatoutsAuth.requireSession() === false);
   }
-  check('auth: ' + rel + ' redirectToLogin ran', b.state.redirected === true);
+  if (rel === 'ops-console.html') {
+    /* ops-console moved from the legacy operator gate to a manager/role gate:
+       it bounces to eatouts-login.html via location.replace, not redirectToLogin. */
+    check('auth: ' + rel + ' isLoggedIn() is false without a session',
+      typeof b.window.EatoutsAuth.isLoggedIn === 'function' &&
+      b.window.EatoutsAuth.isLoggedIn() === false);
+    check('auth: ' + rel + ' role-gate redirects to eatouts-login.html',
+      /location\.replace\(['"]eatouts-login\.html['"]\)/.test(read(rel)));
+  } else {
+    check('auth: ' + rel + ' redirectToLogin ran', b.state.redirected === true);
+  }
 });
 
 ['pricing.html', 'get-started.html', 'partner-terms.html'].forEach(function (rel) {

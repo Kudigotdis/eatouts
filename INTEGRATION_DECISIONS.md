@@ -387,3 +387,16 @@ override. Companion doc: `INTEGRATION_AUDIT.md`.
   media uploads, customer-review submit flow + `review-manager`, real APK,
   publish verification gate, one-pager QR/URL, partner-terms legal review, event
   RSVP submit flow.
+
+## D23 - 2026-10-11 remove superseded integration input docs
+- **Removed** `EatOuts_HTML_Function_Guide.md` and
+  `EatOuts_VSCode_Integration_Prompt.md` from the root. Both were one-time inputs
+  from the received `EatOuts_Manager_Auth_Build.zip` package: the prompt told the
+  agent how to run the integration, and the guide described the 35 supplied
+  pages. The integration is complete (see `INTEGRATION_AUDIT.md`), so their live
+  content is now covered by `INTEGRATION_AUDIT.md`, this decision log, and
+  `HTML_ASSESSMENT.md`. Nothing referenced them except each other; both remain in
+  git history if the original acceptance criteria are ever needed.
+- **Kept:** `README.md`, `FEATURES.md`, `MARKETING_ONBOARDING_PLAN.md`,
+  `HTML_PAGES.md`, `HTML_ASSESSMENT.md`, `INTEGRATION_AUDIT.md`, this file,
+  `INTEGRATION_TEST_PLAN.md`, and the local-only (gitignored) `SESSION_NOTES.md`.

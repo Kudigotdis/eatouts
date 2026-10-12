@@ -6,7 +6,10 @@
   const seed={
     users:[
       {id:"u-admin",firstName:"Demo",surname:"Admin",whatsapp:"26770000099",type:"platform_admin",status:"active",roles:["platform_admin"]},
-      {id:"u-owner",firstName:"Demo",surname:"Owner",whatsapp:"26770000002",type:"biz_owner",status:"active",roles:["biz_owner"],businessId:"biz-restaurant"},
+      {id:"u-kudi",firstName:"Kudi",surname:"",whatsapp:"26771829765",type:"admin",status:"active",roles:["rep","admin"]},
+      {id:"u-tiro",firstName:"Tiro",surname:"",whatsapp:"26775896569",type:"rep",status:"active",roles:["rep"]},
+      {id:"u-nartey",firstName:"Nartey",surname:"",whatsapp:"26771844129",type:"rep",status:"active",roles:["rep"]},
+      {id:"u-owner",firstName:"Kagiso",surname:"Phiri",whatsapp:"26770000002",type:"biz_owner",status:"active",roles:["biz_owner"],employeeId:"TFP-OWN-01",businessId:"biz-restaurant"},
       {id:"u-customer",firstName:"Demo",surname:"Customer",whatsapp:"26770000001",type:"customer",status:"active",roles:["customer"]},
       {id:"u-bottle",firstName:"Demo",surname:"Bottle",whatsapp:"26770000003",type:"biz_owner",status:"active",roles:["biz_owner"],businessId:"biz-bottle"},
       {id:"u-caterer",firstName:"Demo",surname:"Caterer",whatsapp:"26770000004",type:"biz_owner",status:"active",roles:["biz_owner"],businessId:"biz-caterer"},
@@ -14,15 +17,13 @@
       {id:"u-supplier",firstName:"Demo",surname:"Supplier",whatsapp:"26770000006",type:"supplier",status:"active",roles:["supplier"],businessId:"biz-supplier"}
     ],
     businesses:[
-      {id:"biz-restaurant",name:"The Yellow Giraffe Coffee Club",type:"restaurant",status:"verified",town:"Gaborone",area:"CBD",ownerId:"u-owner",subscription:"Growth"},
+      {id:"biz-restaurant",name:"The Food Place",type:"restaurant",status:"verified",town:"Gaborone",area:"CBD",ownerId:"u-owner",subscription:"Growth"},
       {id:"biz-bottle",name:"Demo Bottle Store",type:"bottle_store",status:"pending",town:"Gaborone",area:"Broadhurst",ownerId:"u-bottle",subscription:"Starter"},
       {id:"biz-caterer",name:"Demo Caterers",type:"caterer",status:"verified",town:"Gaborone",area:"Block 8",ownerId:"u-caterer",subscription:"Growth"},
       {id:"biz-lodge",name:"Demo Lodge",type:"lodge",status:"verified",town:"Francistown",area:"CBD",ownerId:"u-lodge",subscription:"Growth"},
       {id:"biz-supplier",name:"Demo Event Supplies",type:"supplier",status:"verified",town:"Gaborone",area:"Tlokweng",ownerId:"u-supplier",subscription:"Starter"}
     ],
     staff:[
-      {id:"st-1",businessId:"biz-restaurant",firstName:"Amogelang",surname:"Molefe",dob:"1998-04-12",gender:"Female",roles:["cashier","server"],responsibilities:["Cash-up","Table service"],salaryAmount:850,salaryPeriod:"week",contact:"26771111222",emergencyContact:"26772222333",startDate:"2025-06-01",status:"active"},
-      {id:"st-2",businessId:"biz-restaurant",firstName:"Kabelo",surname:"Motsamai",dob:"1995-09-20",gender:"Male",roles:["manager"],responsibilities:["Opening","Staff supervision"],salaryAmount:4200,salaryPeriod:"month",contact:"26773333444",emergencyContact:"26774444555",startDate:"2024-03-01",status:"active"}
     ],
     orders:[
       {id:"EO-1001",businessId:"biz-restaurant",customer:"Thato M.",items:["Chicken platter","2x Coke"],total:180,status:"new",created:"2026-10-11 01:20",delivery:"Pickup"},

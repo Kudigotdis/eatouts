@@ -32,7 +32,10 @@
       'analytics.view',
       'settings.view', 'settings.edit',
       'verification.review', 'disputes.manage', 'notifications.send',
-      'content.moderate', 'locations.manage', 'audit.view'
+      'content.moderate', 'locations.manage', 'audit.view',
+      'businesses.claim', 'businesses.log_contact', 'businesses.upload_photo',
+      'businesses.edit_venue', 'businesses.reassign', 'businesses.fee',
+      'businesses.win_lost', 'businesses.gallery', 'field.view'
     ],
     business: [
       'orders.view', 'orders.fulfil',
@@ -62,6 +65,7 @@
     platform_author_editor: ['blog'],
     platform_analyst: ['platform_analytics'],
     biz_owner: ['business:*', 'staff', 'delivery', 'orders', 'reservations', 'rooms', 'reviews', 'billing', 'analytics', 'quotes', 'bookings'],
+    rep: ['businesses.view', 'businesses.edit', 'field'],
     biz_admin: ['business:*', 'staff', 'delivery', 'orders', 'reservations', 'rooms', 'reviews', 'analytics'],
     biz_manager: ['orders', 'staff'],
     staff: ['orders'],
@@ -80,6 +84,11 @@
       'finance.view', 'finance.edit', 'analytics.view', 'verification.review', 'invoices.manage'],
     staff_support: ['feedback.view', 'feedback.respond', 'users.view', 'orders.view', 'deliveries.view'],
     moderator: ['feedback.view', 'feedback.respond', 'blog.view', 'content.moderate', 'analytics.view'],
+    /* field sales role — onboard venues, log contacts, edit venue details */
+    rep: ['businesses.view', 'businesses.edit', 'field.view',
+      'businesses.claim', 'businesses.log_contact', 'businesses.upload_photo', 'businesses.edit_venue'],
+    /* business investor / board member — read-only financial visibility */
+    investor: ['finance.view', 'analytics.view', 'audit.view'],
     /* legacy platform aliases */
     platform_author: ['blog.view', 'blog.edit'],
     platform_author_editor: ['blog.view', 'blog.edit', 'blog.publish', 'blog.delete'],
