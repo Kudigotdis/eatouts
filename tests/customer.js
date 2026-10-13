@@ -131,8 +131,52 @@ setTimeout(() => {
       cos.errors.filter(e => e.indexOf('missing script') !== 0).length === 0,
       cos.errors.slice(0, 2).join(' | '));
 
-    console.log('\nwindow errors: ' + appErrors.length);
-    console.log(fails === 0 ? '\nCUSTOMER TEST PASSED' : '\nCUSTOMER TEST FAILED (' + fails + ' checks)');
-    process.exit(fails === 0 ? 0 : 1);
+    /* ---------- 4. a customer session owns the gate (no manager demo session) ---------- */
+    const seedInline = (file) => {
+      let h = fs.readFileSync(path.join(APP_DIR, file), 'utf8');
+      return h.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, s) => {
+        const f = path.join(APP_DIR, s.replace(/\//g, path.sep));
+        return fs.existsSync(f) ? '<script>' + fs.readFileSync(f, 'utf8') + '</script>' : '<!-- missing ' + s + ' -->';
+      });
+    };
+    const custDom = new JSDOM(seedInline('eatouts-checkout-summary.html'), {
+      url: 'http://localhost/eatouts-checkout-summary.html',
+      runScripts: 'dangerously',
+      pretendToBeVisual: true,
+      beforeParse(win) {
+        win.localStorage.setItem('eatouts_customer_v1', JSON.stringify({
+          user: { id: 'u1', username: 'tester', type: 'customer', name: 'Tester' },
+          favourites: [], summaries: [], events: []
+        }));
+      }
+    });
+    setTimeout(() => {
+      const cw = custDom.window;
+      check('customer session: page renders for a customer', !cw.document.querySelector('main.blocked') && !!cw.document.getElementById('mount'), (cw.document.querySelector('main.blocked') ? 'blocked' : 'ok'));
+      check('customer session: store sees the user', !!(cw.EatoutsCustomer && cw.EatoutsCustomer.getUser() && cw.EatoutsCustomer.getUser().id === 'u1'));
+      check('customer session: gate bridges the customer, not the demo owner', !!(cw.EatoutsAuth && cw.EatoutsAuth.getUser && cw.EatoutsAuth.getUser() && cw.EatoutsAuth.getUser().id === 'u1'), cw.EatoutsAuth && cw.EatoutsAuth.getUser && cw.EatoutsAuth.getUser() && cw.EatoutsAuth.getUser().id);
+
+      /* ---------- 5. eatouts-addresses.html boots for a customer ---------- */
+      const addrDom = new JSDOM(seedInline('eatouts-addresses.html'), {
+        url: 'http://localhost/eatouts-addresses.html',
+        runScripts: 'dangerously',
+        pretendToBeVisual: true,
+        beforeParse(win) {
+          win.localStorage.setItem('eatouts_customer_v1', JSON.stringify({
+            user: { id: 'u1', username: 'tester', type: 'customer', name: 'Tester', whatsapp: '26771844129' },
+            favourites: [], summaries: [], events: []
+          }));
+        }
+      });
+      setTimeout(() => {
+        const aw = addrDom.window;
+        check('addresses: renders for a customer', !aw.document.querySelector('main.blocked') && !!aw.document.getElementById('add'), (aw.document.querySelector('main.blocked') ? 'blocked' : 'ok'));
+        check('addresses: shows the saved-addresses card', !!aw.document.querySelector('#a'));
+
+        console.log('\nwindow errors: ' + appErrors.length);
+        console.log(fails === 0 ? '\nCUSTOMER TEST PASSED' : '\nCUSTOMER TEST FAILED (' + fails + ' checks)');
+        process.exit(fails === 0 ? 0 : 1);
+      }, 600);
+    }, 700);
   }, 700);
 }, 2000);

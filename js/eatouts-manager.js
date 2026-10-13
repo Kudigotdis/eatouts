@@ -42,6 +42,14 @@
     ]
   };
   function roleGroup(){
+    /* A regular-user (customer) session lives in its own store. Prefer the
+       customer nav for it, but never hijack a separate manager session if
+       both happen to be present in the same browser. */
+    if(window.EatoutsCustomer&&EatoutsCustomer.getUser&&EatoutsCustomer.getUser()){
+      const cu=EatoutsCustomer.getUser();
+      const mu=currentUser();
+      if(!mu||mu.id===cu.id)return "customer";
+    }
     const u=currentUser();
     if(!u)return "public";
     const r=u.roles||[];
@@ -69,6 +77,11 @@
     }
   }
   function guard(opts={}){
+    /* Regular-user session: satisfies a "customer" area gate directly, so a
+       signed-in customer is never pushed into the manager demo session. */
+    const cu=(window.EatoutsCustomer&&EatoutsCustomer.getUser)?EatoutsCustomer.getUser():null;
+    if(cu&&!opts.roles)return cu;
+    if(cu&&opts.roles&&opts.roles.length&&opts.roles.some(r=>r==="customer"||r==="customer:*"))return cu;
     const u=currentUser();
     if(!u){if(opts.demo!==false){ensureDemo();return currentUser()}location.href="eatouts-login.html";return null}
     if(opts.roles&&opts.roles.length&&!opts.roles.some(r=>EatoutsAuth.hasRole(r))){document.body.innerHTML=`<main class="blocked"><h1>Access restricted</h1><p>Your current account does not have permission for this area.</p><a class="btn primary" href="eatouts-login.html">Sign in</a></main>`;return null}
