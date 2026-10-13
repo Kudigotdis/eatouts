@@ -42,7 +42,7 @@ export async function onRequestPost(context) {
   var p = validatePassword(body.password);
   if (!p.ok) return json({ ok: false, error: p.error }, 400);
 
-  var whatsapp = normalisePhone(body.whatsapp);
+  var whatsapp = normalisePhone(body.whatsapp || body.whatsapp_number);
   if (whatsapp.length < 8) {
     return json({ ok: false, error: 'A valid WhatsApp number is required.' }, 400);
   }

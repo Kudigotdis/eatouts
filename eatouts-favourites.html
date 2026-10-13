@@ -1,29 +1,211 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Favourites · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"></head><body><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-manager.js"></script><script src="js/eatouts-customer.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{
- if(!EO.guard({"roles":["customer"]}))return;
- const user=EO.currentUser();const uid=user&&(user.userId||user.id)||"";
- const S=window.EatoutsCustomer;
- const T={"restaurant":"Restaurants","menu":"Food Menus","item":"Food Items","beverage":"Beverages","promo":"Promos","gallery":"Gallery","event":"Events","bottle_store":"Bottle Stores"};
- let tab="restaurant";
- function storeRows(t){return S?S.favourites.list(t):[];}
- function legacyRows(t){return EatoutsMgrDB.collection("favourites").filter(x=>(!uid||String(x.userId||"")===String(uid)||!x.userId)&&x.type===t);}
- function rows(t){const a=storeRows(t);return a.length?a:legacyRows(t);}
- function render(){
-  const list=rows(tab);
-  document.querySelector("#favs").innerHTML=list.length?list.map(x=>{
-   const price=(x.price!=null)?x.price:null;
-   return `<div class="listrow"><div class="listmain"><strong>${EO.esc(x.title||x.refId||"Saved")}</strong><small>${EO.esc(x.subtitle||T[tab]||x.type||"")}${price?(" · "+EO.money(price)):""}</small></div><button class="btn danger" data-del="${EO.esc(x.refId||x.id)}">Remove</button></div>`;
-  }).join(""):EO.empty("No saved "+T[tab].toLowerCase()+" yet","Favourites you save from the EatOuts pages appear here.");
- }
- document.querySelector("#mount").innerHTML=EO.shell("Favourites","Saved restaurants, menus, items, beverages, promos, events and gallery images",`<div class="tabs">${Object.keys(T).map(k=>`<button class="tab${k===tab?" on":""}" data-tab="${k}">${T[k]}</button>`).join("")}</div><div id="favs"></div>`,{section:"Customer"});
- document.querySelector(".tabs").onclick=e=>{const t=e.target.dataset.tab;if(t){tab=t;document.querySelectorAll(".tabs .tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));render();}};
- document.querySelector("#favs").onclick=e=>{
-  const del=e.target.closest("[data-del]");if(!del)return;const ref=del.dataset.del;
-  if(!EO.confirm("Remove this favourite?"))return;
-  let removed=false;
-  if(S&&S.favourites.has({type:tab,refId:ref})){S.favourites.remove({type:tab,refId:ref});removed=true;}
-  if(!removed){const m=legacyRows(tab).find(x=>String(x.refId||x.id)===String(ref));if(m)EatoutsMgrDB.remove("favourites",m.id);}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Favourites · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"><style>
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px}
+.fcell{background:#fff;border:1px solid #ece7db;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.fthumb{width:100%;aspect-ratio:1;background:#f4efe4;display:block;overflow:hidden;position:relative;padding:0;border:0}
+.fthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.fthumb .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px;color:#c9bda3}
+.fbody{padding:8px;display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.fview{text-align:left;display:flex;flex-direction:column;gap:2px;width:100%;padding:0;border:0;background:none}
+.fview strong{font-size:11.5px;font-weight:900;color:#1a1a1a;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fview small{font-size:10px;color:#a89a7e;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fview em{font-style:normal;font-size:11px;font-weight:900;color:#17834b}
+.fctl{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto}
+.fexpand,.fadd{font-size:9.5px;font-weight:800;letter-spacing:.03em;border-radius:8px;padding:6px 8px;border:1px solid #ece7db}
+.fexpand{background:#f4efe4;color:#8a8170}
+.fadd{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.flist{font-size:10.5px;color:#8a8170;line-height:1.5;border-top:1px solid #f1ece1;padding-top:6px}
+.flist ul{margin:0;padding-left:14px}
+.fempty{grid-column:1/-1;padding:28px 14px;text-align:center;color:#a89a7e;font-size:12.5px}
+#fsentinel{height:1px}
+#fdbs{display:none;position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:100;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#fdbs.on{display:flex}
+.fdbsheet{background:#fff;width:100%;max-width:460px;max-height:86vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
+.fdbimg{width:100%;aspect-ratio:16/9;background:#f4efe4;object-fit:cover;display:block}
+.fdbbody{padding:14px 18px;overflow-y:auto}
+.fdbbody h3{margin:0 0 4px;font-size:16px;font-weight:900;color:#1a1a1a}
+.fdbbody .sub{font-size:12px;color:#a89a7e;font-weight:700;margin-bottom:10px}
+.fdbbody .desc{font-size:12.5px;color:#3a3324;line-height:1.55}
+.fdbfoot{padding:12px 18px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #f1ece1;display:flex;gap:9px}
+</style></head><body><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-manager.js"></script><script src="js/eatouts-customer.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{
+  const S=window.EatoutsCustomer;
+  const user=S&&S.getUser&&S.getUser();
+  if(!user){location.href="eatouts-login.html";return;}
+  const uid=user.id||user.userId||"";
+  /* Tab order per the customer spec. "drink" folds beverage + bottle_store
+     together; "event" shows favourited events plus saved events. */
+  const TABS=[
+    {id:"promo",label:"Promos"},
+    {id:"restaurant",label:"Restaurants"},
+    {id:"menu",label:"Food Menus"},
+    {id:"item",label:"Food Items"},
+    {id:"drink",label:"Drink Items"},
+    {id:"event",label:"Events"},
+    {id:"gallery",label:"Gallery"},
+    {id:"summary",label:"Saved Summaries"}
+  ];
+  const PAGE=12;
+  const ICON={promo:"🏷",restaurant:"🍽",menu:"📋",item:"🍔",drink:"🥤",event:"📅",gallery:"🖼",summary:"🧾"};
+  const ADDABLE={promo:1,menu:1,item:1,drink:1};
+  let tab="promo", shown=PAGE, ov=null;
+  const el=()=>document.querySelector("#favs");
+
+  function storeRows(t){return S&&S.favourites?S.favourites.list(t):[];}
+  function legacyRows(t){return EatoutsMgrDB.collection("favourites").filter(x=>(!uid||String(x.userId||"")===String(uid)||!x.userId)&&x.type===t);}
+  function dedupe(a){const seen={};return a.filter(x=>{const k=String(x.type)+":"+String(x.refId||x.ref_id||x.id);if(seen[k])return false;seen[k]=1;return true;});}
+  function norm(x){
+    return {type:x.type||tab,refId:x.refId||x.ref_id||x.ref||x.id,title:x.title||x.venueName||x.refId||"Saved",
+      subtitle:x.subtitle||"",price:(x.price!=null?x.price:(x.total!=null?x.total:null)),
+      imageRef:x.imageRef||x.image_ref||x.venueLogo||null,venueId:x.venueId||x.venue_id||null,
+      payload:x.payload||null,source:x.source||null,id:x.id||null,legacy:!!x.legacy};
+  }
+  function rows(t){
+    let a=[];
+    if(t==="event") a=dedupe(storeRows("event").map(norm).concat((S.events?S.events.list():[]).map(norm)));
+    else if(t==="drink") a=dedupe(storeRows("beverage").map(norm).concat(storeRows("bottle_store").map(norm)));
+    else if(t==="summary") a=(S.summaries?S.summaries.list():[]).map(norm);
+    else a=storeRows(t).map(norm);
+    if(a.length) return a;
+    /* legacy manager-store fallback (pre-account favourites) */
+    return legacyRows(t).map(x=>{x.legacy=true;return norm(x);});
+  }
+  function itemList(row){
+    const p=row.payload||{};
+    if(Array.isArray(p.items)&&p.items.length) return p.items.map(it=>typeof it==="string"?{name:it,price:0}:{name:it.name||"",price:Number(it.price)||0});
+    return null;
+  }
+  function card(row){
+    const list=itemList(row);
+    const price=(row.price!=null&&row.price!=="")?("P"+Number(row.price).toFixed(2)):"";
+    const img=row.imageRef?('<img src="'+EO.esc(row.imageRef)+'" alt="">'):('<div class="ph">'+ICON[row.type]+'</div>');
+    const canAdd=!!ADDABLE[row.type];
+    const canItems=!!list||row.type==="menu";
+    return '<article class="fcell" data-ref="'+EO.esc(row.refId)+'" data-type="'+EO.esc(row.type)+'"'+(row.legacy?' data-legacy="1"':'')+'>'+
+      '<button class="fthumb" data-view aria-label="View">'+img+'</button>'+
+      '<div class="fbody">'+
+        '<button class="fview" data-view><strong>'+EO.esc(row.title)+'</strong>'+
+          (row.subtitle?'<small>'+EO.esc(row.subtitle)+'</small>':'')+
+          (price?'<em>'+price+'</em>':'')+'</button>'+
+        '<div class="fctl">'+
+          (canItems?'<button class="fexpand" data-items>Items ▾</button>':'<span></span>')+
+          (canAdd?'<button class="fadd" data-add>Add</button>':'<button class="fadd" data-view>View</button>')+
+        '</div>'+
+        (list?'<div class="flist" hidden><ul>'+list.slice(0,20).map(n=>'<li>'+EO.esc(n.name)+'</li>').join('')+'</ul></div>':'')+
+      '</div></article>';
+  }
+  function render(){
+    const all=rows(tab);
+    const first=all.slice(0,shown);
+    el().innerHTML=first.length?first.map(card).join(""):EO.empty("No saved "+tabLabel(tab).toLowerCase()+" yet","Items you save while browsing EatOuts appear here.");
+    const more=all.length>shown;
+    const sent=document.getElementById("fsentinel");
+    if(sent){
+      sent.innerHTML=more?'<div style="padding:14px"><button class="btn" id="fmore">Load more</button></div>':'';
+      const b=document.getElementById("fmore");
+      if(b)b.onclick=()=>{shown+=PAGE;render();};
+    }
+    renderSheet();
+  }
+  function tabLabel(id){const t=TABS.filter(x=>x.id===id)[0];return t?t.label:id;}
+  function findRow(ref,type){return rows(type).filter(x=>String(x.refId)===String(ref)&&x.type===type)[0]||null;}
+
+  /* ---- detail sheet ("Tap to View") ---- */
+  function sourceHref(row){
+    if(row.type==="event")return "eatouts-events.html";
+    if(row.type==="gallery")return "eatouts-gallery.html";
+    if(row.type==="summary")return "eatouts-checkout-summary.html";
+    if(row.type==="restaurant"||row.type==="menu"||row.type==="item")return "index.html#restaurants";
+    if(row.type==="drink")return "index.html#restaurants";
+    if(row.type==="promo")return "index.html#promos";
+    return "index.html";
+  }
+  function renderSheet(){
+    const host=document.getElementById("fdbs");
+    if(!host)return;
+    if(!ov){host.classList.remove("on");host.innerHTML="";return;}
+    const row=findRow(ov.ref,ov.type)||ov.snapshot;
+    if(!row){ov=null;host.classList.remove("on");host.innerHTML="";return;}
+    const list=itemList(row);
+    const price=(row.price!=null&&row.price!=="")?("P"+Number(row.price).toFixed(2)):"";
+    host.innerHTML='<div class="fdbsheet">'+
+      (row.imageRef?'<img class="fdbimg" src="'+EO.esc(row.imageRef)+'" alt="">':'')+
+      '<div class="fdbbody"><h3>'+EO.esc(row.title)+'</h3>'+
+        '<div class="sub">'+EO.esc(row.subtitle||"")+(price?" · "+price:"")+'</div>'+
+        (list?'<div class="desc"><strong>Items</strong><ul>'+list.map(n=>'<li>'+EO.esc(n.name)+'</li>').join('')+'</ul></div>':'')+
+      '</div>'+
+      '<div class="fdbfoot">'+
+        (ADDABLE[row.type]?'<button class="btn primary half" data-add>Add</button>':'')+
+        '<a class="btn half" href="'+sourceHref(row)+'">Open</a>'+
+        '<button class="btn danger" data-remove>Remove</button>'+
+        '<button class="btn ghost" data-close>Close</button>'+
+      '</div></div>';
+    host.classList.add("on");
+    ov=row;
+  }
+
+  /* ---- write into the shared order basket, then open delivery ---- */
+  function addToOrder(row){
+    let order=null;
+    try{const raw=localStorage.getItem("eatouts_order_v1");order=raw?JSON.parse(raw):null;}catch(e){order=null;}
+    if(!order||!order.restaurant){
+      order={v:1,source:"favourites",restaurant:{id:row.venueId||"",name:(row.subtitle||"EatOuts"),meta:"",logo:null,whatsapp:""},contact:{name:"",phone:"",notes:""},items:[],subtotal:0,split:null,delivery:null};
+    }
+    let lines;
+    const list=itemList(row);
+    if(row.type==="menu"&&list) lines=list.map(n=>({name:n.name,unit:Number(n.price)||0}));
+    else lines=[{name:row.title,size:(row.payload&&row.payload.size)||null,unit:Number(row.price)||0}];
+    lines.forEach(l=>{const u=Number(l.unit||row.price)||0;order.items.push({name:l.name,size:l.size||null,qty:1,unit:u,extras:[],lineTotal:u});});
+    order.subtotal=order.items.reduce((s,x)=>s+(Number(x.lineTotal)||0),0);
+    try{localStorage.setItem("eatouts_order_v1",JSON.stringify(order));}catch(e){}
+    location.href="customer-delivery.html";
+  }
+
+  function removeRow(row){
+    if(!EO.confirm("Remove this from your favourites?"))return;
+    if(row.legacy){const m=legacyRows(row.type).filter(x=>String(x.refId||x.id)===String(row.refId))[0];if(m)EatoutsMgrDB.remove("favourites",m.id);}
+    else if(row.type==="summary"){S.summaries.remove(row.id||row.refId);}
+    else if(row.type==="event"&&row.source){try{S.events.remove(row.refId);}catch(e){}}
+    else {S.favourites.remove({type:row.type,refId:row.refId});}
+    ov=null;render();
+  }
+
+  const mount=document.querySelector("#mount");
+  mount.innerHTML=EO.shell("Favourites","Saved restaurants, menus, items, drinks, promos, events, gallery images and summaries",
+    '<div class="tabs">'+TABS.map(t=>'<button class="tab'+(t.id===tab?" on":"")+'" data-tab="'+t.id+'">'+t.label+'</button>').join("")+'</div>'+
+    '<div class="fgrid" id="favs"></div><div id="fsentinel"></div><div id="fdbs"></div>',
+    {group:"customer",section:"Customer"});
+
+  mount.addEventListener("click",e=>{
+    const t=e.target.closest("[data-tab]");
+    if(t){tab=t.dataset.tab;shown=PAGE;ov=null;mount.querySelectorAll(".tabs .tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));render();return;}
+    const cell=e.target.closest(".fcell");
+    const sheet=e.target.closest("#fdbs");
+    if(e.target.closest("[data-close]")){ov=null;render();return;}
+    if(e.target.closest("[data-remove]")){if(ov)removeRow(ov);return;}
+    if(e.target.closest("[data-add]")){
+      const row=ov||(cell?findRow(cell.dataset.ref,cell.dataset.type):null);
+      if(row)addToOrder(row);return;
+    }
+    if(e.target.closest("[data-items]")){
+      const l=cell.querySelector(".flist");
+      if(l)l.hidden=!l.hidden;
+      return;
+    }
+    if(e.target.closest("[data-view]")){
+      const row=cell?findRow(cell.dataset.ref,cell.dataset.type):(ov||null);
+      if(row){ov=row;renderSheet();}
+      return;
+    }
+    if(sheet&&!e.target.closest(".fdbsheet")){ov=null;renderSheet();}
+  });
   render();
- };
- render();
- S&&S.onChange&&S.onChange(render);
+
+  /* real chunked infinite scroll when the browser supports it */
+  if("IntersectionObserver" in window && !window.__favIO){
+    window.__favIO=new IntersectionObserver(entries=>{
+      if(entries.some(x=>x.isIntersecting)){const all=rows(tab);if(all.length>shown){shown+=PAGE;render();}}
+    },{rootMargin:"200px"});
+  }
+  const observe=()=>{const s=document.getElementById("fsentinel");if(s&&window.__favIO)window.__favIO.observe(s);};
+  setTimeout(observe,0);
+  if(S&&S.onChange)S.onChange(()=>{shown=PAGE;render();observe();});
 });</script></body></html>

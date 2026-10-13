@@ -25,13 +25,13 @@ and `HTML_PAGES.md` the longer capability narrative.
 
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
-| Public & customer surfaces | 12 | 739 KB | 14683 |
+| Public & customer surfaces | 12 | 740 KB | 14690 |
 | Restaurant operator back-office | 6 | 172 KB | 2756 |
 | Manager / auth / platform admin (staged package) | 39 | 347 KB | 2274 |
 | Delivery flows | 3 | 128 KB | 2223 |
 | Internal ops & billing | 3 | 150 KB | 2707 |
-| Developer harness | 2 | 219 KB | 4544 |
-| **Total** | **65** | **1755 KB** | **29187** |
+| Developer harness | 2 | 221 KB | 4590 |
+| **Total** | **65** | **1758 KB** | **29240** |
 
 Status: 60 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
@@ -43,7 +43,7 @@ Status: 60 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
 | # | File | Group | Purpose | How you reach it | Auth | Store keys | Size |
 |---|------|-------|---------|------------------|------|-----------|------|
-| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 422 KB / 8645 lines |
+| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 423 KB / 8652 lines |
 | 2 | `get-started.html` | public-customer | Marketing landing that explains the operator offer and links into the intake and pricing flows. | Direct / marketing links. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 184 lines |
 | 3 | `pricing.html` | public-customer | Public pricing page; reads and can persist the shared plan prices. | Marketing links; get-started.html. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 242 lines |
 | 4 | `one-pager.html` | public-customer | Static sales one-pager for prospects. | Direct link. | - | — | 8 KB / 156 lines |
@@ -99,7 +99,7 @@ Status: 60 FULL · 1 PARTIAL · 4 STUB/DEMO.
 | 54 | `invoice.html` | internal-ops | Operator/ops invoice generation. | Ops links; auth-gated. | yes | `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 20 KB / 394 lines |
 | 55 | `ops-console.html` | internal-ops | Internal ops tracker: venues, submissions, MRR/activity. | Ops links; auth-gated. | yes | `eatouts_ops_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 61 KB / 1159 lines |
 | 56 | `seed-demo.html` | dev-harness | Developer harness that seeds the roster and runs data-layer verification assertions. | run-eatouts.bat â†’ open seed-demo.html. | - | `eatouts_db_v2` `EatoutsDB`→`eatouts_db_v2` | 22 KB / 440 lines |
-| 57 | `eatout_event_builder.html` | dev-harness | Legacy experimental event builder. | Direct link. | - | — | 197 KB / 4104 lines |
+| 57 | `eatout_event_builder.html` | dev-harness | Legacy experimental event builder. | Direct link. | - | — | 199 KB / 4150 lines |
 | 58 | `brand-kit-admin.html` | manager-admin | Admin workspace for design jobs, designers, payouts and services | From eatouts-admin-dashboard.html → Brand & Design card (or direct link) | yes | `eatouts_audit_log_v1` `eatouts_auth_session_v1` `eatouts_brand_jobs_v1` `eatouts_db_v2` `eatouts_designers_v1` `eatouts_jobs_v1` `eatouts_services_v1` `eatouts_users_v1` `EatoutsDB`→`eatouts_db_v2` | 66 KB / 723 lines |
 | 59 | `designer-dashboard.html` | manager-admin | Designer private workspace | From designer-services.html → Open your workspace (prototype designer sign-in) | yes | `eatouts_designer_session_v1` | 18 KB / 322 lines |
 | 60 | `designer-services.html` | public-customer | Public marketplace for design services | From index.html About → Settings → Need Design | - | — | 38 KB / 745 lines |
@@ -107,7 +107,7 @@ Status: 60 FULL · 1 PARTIAL · 4 STUB/DEMO.
 | 62 | `eatouts-events.html` | manager-admin | Customer saved events. | eatouts-login.html → customer shell → Events. | yes | — | 3 KB / 24 lines |
 | 63 | `eatouts-gallery.html` | manager-admin | Customer saved gallery photos. | eatouts-login.html → customer shell → Gallery. | yes | — | 2 KB / 16 lines |
 | 64 | `eatouts-checkout-summary.html` | manager-admin | Checkout summary snapshot. | Reached from checkout flows. | yes | — | 2 KB / 22 lines |
-| 65 | `eatout-about.html` | public-customer | Public About EatOuts page. | From index.html About → Settings → About EatOuts. | - | — | 5 KB / 91 lines |
+| 65 | `eatouts-about.html` | public-customer | Public About EatOuts page. | From index.html About → Settings → About EatOuts. | - | — | 5 KB / 91 lines |
 
 ## 3. Navigation map
 
@@ -148,7 +148,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 7
-- **Size:** 422 KB / 8645 lines (431982 bytes)
+- **Size:** 423 KB / 8652 lines (432711 bytes)
 - **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`
 - **Notes:** The 5 alerts are informational/validation only.
 
@@ -282,7 +282,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-services-seed.js`, `js/eatouts-designers-seed.js`, `js/eatouts-brand-kit.js`
 - **Notes:** Uses EatoutsBrandKit
 
-#### #65 `eatout-about.html`
+#### #65 `eatouts-about.html`
 
 - **Purpose:** Public About EatOuts page.
 - **Audience:** Everyone
@@ -980,8 +980,8 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** STUB/DEMO
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 197 KB / 4104 lines (201601 bytes)
-- **Loads:** `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `botswana_locations.js`, `assets/data/masterSupplierCatalogue.js`, `assets/data/event_supplier_demo_catalogue.js`
+- **Size:** 199 KB / 4150 lines (203960 bytes)
+- **Loads:** `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `botswana_locations.js`, `assets/data/masterSupplierCatalogue.js`, `assets/data/event_supplier_demo_catalogue.js`, `js/eatouts-customer.js`
 - **Notes:** Superseded by event-onboarding.html.
 
 ## 5. Change log
@@ -989,4 +989,5 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **2026-10-11** — Created HTML_CATALOG.md with a numbered master index, navigation map and per-page detail; generator (scripts/build_html_catalog.mjs) + guard test (tests/html-catalog.js) enforce that every root .html is catalogued.
 - **2026-10-12** — Added brand-kit-admin, designer-dashboard, designer-services to catalog
 - **2026-10-12** — Wired entry points: designer-dashboard reachable from designer-services.html, brand-kit-admin from eatouts-admin-dashboard.html; fixed brand-kit-admin login link; generator now prints the live catalogued-surface count.
-- **2026-10-13** — Added customer account pages (eatouts-summaries, eatouts-events, eatouts-gallery, eatouts-checkout-summary) and public eatout-about.html to catalog.
+- **2026-10-13** — Added customer account pages (eatouts-summaries, eatouts-events, eatouts-gallery, eatouts-checkout-summary) and public eatouts-about.html to catalog.
+- **2026-10-13** — Renamed eatout-about.html to eatouts-about.html to match the customer-surface naming convention.

@@ -15,6 +15,16 @@ export async function requireCustomer(context) {
 
 export { now, uid };
 
+/** Resolve the signed-in admin, or return an error Response. */
+export async function requireAdmin(context) {
+  var env = context.env;
+  if (!env || !env.DB) return { error: json({ ok: false, error: 'backend_not_configured' }, 503) };
+  var session = await getSession(env, context.request);
+  if (!session) return { error: json({ ok: false, error: 'not_authenticated' }, 401) };
+  if (!session.isAdmin) return { error: json({ ok: false, error: 'not_admin' }, 403) };
+  return { session: session, userId: session.userId, env: env, db: env.DB };
+}
+
 /* ---- row <-> client mappers ---- */
 
 export function favouriteOut(r) {
@@ -77,6 +87,29 @@ export function addressOut(r) {
     address: r.address || null,
     contact: r.contact || null,
     isDefault: !!r.is_default,
+    created_at: r.created_at,
+    updated_at: r.updated_at
+  };
+}
+
+export function promoSubmissionOut(r) {
+  var payload = null;
+  try { payload = r.payload ? JSON.parse(r.payload) : null; } catch (e) { payload = null; }
+  return {
+    id: r.id,
+    userId: r.user_id,
+    eventRef: r.event_ref || null,
+    title: r.title || null,
+    venueId: r.venue_id || null,
+    venueName: r.venue_name || null,
+    whenText: r.when_text || null,
+    summary: r.summary || null,
+    imageRef: r.image_ref || null,
+    fee: r.fee != null ? r.fee : 50,
+    currency: r.currency || 'BWP',
+    status: r.status || 'pending',
+    adminNote: r.admin_note || null,
+    payload: payload,
     created_at: r.created_at,
     updated_at: r.updated_at
   };

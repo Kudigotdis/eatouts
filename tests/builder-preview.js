@@ -119,9 +119,11 @@ function draftWith(venueId, opt) {
 
   /* ---------- Footer scrolls with the page content ---------- */
   check('share footer lives inside the scroll region', !!doc.querySelector('.preview-pg-scroll .preview-pg-foot'));
-  check('footer keeps its five buttons', doc.querySelectorAll('.preview-pg-foot .btn').length === 5);
+  check('footer keeps its three text buttons', doc.querySelectorAll('.preview-pg-foot .btn').length === 3);
   check('footer offers Save Event', !!doc.querySelector('.preview-pg-foot [data-act="saveEvent"]'));
-  check('footer offers Post on Promos', /Post on Promos/.test((doc.querySelector('.preview-pg-foot [data-act="postOnPromos"]') || {}).textContent || ''));
+  check('footer offers a bare WhatsApp icon', !!doc.querySelector('.preview-pg-foot [data-act="shareWhatsApp"] img'));
+  check('footer offers a bare Save icon', !!doc.querySelector('.preview-pg-foot [data-act="favEvent"] img'));
+  check('footer offers Promote Event', /Promote Event/.test((doc.querySelector('.preview-pg-foot [data-act="postOnPromos"]') || {}).textContent || ''));
 
   // close
   click(w, doc.querySelector('[data-act="closePreview"]'));

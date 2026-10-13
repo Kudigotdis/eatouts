@@ -828,6 +828,11 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .btn.wa-dark:active{background:#0f7164}
 .btn.preview-open{background:#fff;border-color:var(--text);color:var(--text)}
 .btn.preview-open:active{background:var(--surface)}
+/* ---------- ACTION ICONS (bare, no container/border/label) ---------- */
+.ev-foot-row{display:flex;align-items:center;gap:10px}
+.ico-btn{background:transparent;border:0;padding:0;margin:0;cursor:pointer;display:flex;align-items:center;justify-content:center;width:44px;height:44px;-webkit-tap-highlight-color:transparent}
+.ico-btn:active{opacity:.6}
+.ico-btn img{width:36px;height:36px;object-fit:contain;display:block}
 
 /* ---------- TOAST ---------- */
 #toast{position:fixed;bottom:calc(var(--calch) + var(--navh) + 20px);left:50%;
@@ -2986,11 +2991,13 @@ function renderPreviewPage(){
         buildPreviewCards()+
       '</div>'+
       '<div class="preview-pg-foot">'+
-        '<button class="btn wa-solid full" data-act="shareWhatsApp">Share via WhatsApp</button>'+
-        '<button class="btn wa-dark full" data-act="sendToVenue">Share with Venue · '+esc(v?v.name:"Venue")+'</button>'+
-        '<button class="btn ghost full" data-act="saveEvent">Save Event</button>'+
-        '<button class="btn ghost full" data-act="postOnPromos">Post on Promos · P50</button>'+
-        '<button class="btn primary full" data-act="closePreview">Back</button>'+
+        '<div class="ev-foot-row">'+
+          '<button class="ico-btn'+(eventFavHas()?' fav-on':'')+'" data-act="favEvent" aria-label="Save event" title="Save event"><img src="'+eventFavIcon()+'" alt=""></button>'+
+          '<button class="btn primary" style="flex:1" data-act="saveEvent">Save Event</button>'+
+          '<button class="ico-btn" data-act="shareWhatsApp" aria-label="Share on WhatsApp" title="Share on WhatsApp"><img src="assets/icons/whatsApp_icon_on.png" alt=""></button>'+
+        '</div>'+
+        '<button class="btn ghost full" data-act="postOnPromos">Promote Event · P50</button>'+
+        '<button class="btn full" data-act="closePreview">Back</button>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -3184,6 +3191,7 @@ function renderMainScroll(){
   h+=renderEventLinksSection();
   h+=renderPreviewSection();
   h+='<div style="height:20px"></div>';
+  h+='<button class="btn primary full" style="width:calc(100% - 28px);margin:8px 14px" data-act="saveEvent">Save Event</button>';
   h+='<button class="back-btn" data-act="backToVenueList">Back to Venues</button>';
   el.innerHTML=h;
 }
@@ -3908,6 +3916,16 @@ document.addEventListener("click",function(e){
   }
 
   // Customer account: save event / post on promos (manual P50 invoice)
+  if(act==="favEvent"){
+    const S=window.EatoutsCustomer;
+    if(!S||!S.getUser()){ if(confirm("Sign in to save this event to your account. Continue to sign in?")) location.href="eatouts-login.html"; return; }
+    const item=eventFavItem();
+    const was=S.favourites.has(item);
+    S.favourites.toggle(item);
+    toast(was?"Event removed":"Event saved to your account");
+    render();
+    return;
+  }
   if(act==="saveEvent"){
     const S=window.EatoutsCustomer;
     if(!S||!S.getUser()){ if(confirm("Sign in to save this event to your account. Continue to sign in?")) location.href="eatouts-login.html"; return; }
@@ -3926,6 +3944,24 @@ document.addEventListener("click",function(e){
       (firstWhen()?("\nWhen: "+firstWhen()):"")+
       "\nFee: P50 (promo listing)\n\nPlease send me an invoice for P50 to feature this event under Promos.";
     window.open("https://wa.me/26771844129?text="+encodeURIComponent(msg),"_blank");
+    if(S&&S.getUser()&&window.fetch){
+      const body={
+        eventRef:eventRef(),
+        title:STATE.eventTitle||"Untitled Event",
+        venueId:(STATE.venue&&STATE.venue.id)||null,
+        venueName:(STATE.venue&&STATE.venue.name)||null,
+        whenText:firstWhen(),
+        summary:STATE.eventDescription||null,
+        imageRef:(STATE.flyerImages&&STATE.flyerImages[0])||null,
+        fee:50,currency:"BWP",payload:payload
+      };
+      try{
+        fetch("/api/customer/promo-submissions",{method:"POST",headers:{"content-type":"application/json"},credentials:"include",body:JSON.stringify(body)})
+          .then(function(r){return r.json().catch(function(){return{};});})
+          .then(function(d){ if(d&&d.ok) toast("Promo post queued for admin review · P50"); })
+          .catch(function(){});
+      }catch(e){}
+    }
     toast("Promo post requested · P50 invoice");
     return;
   }
@@ -4048,6 +4084,14 @@ function eventRef(){
   const base=(STATE.eventTitle||"event")+"-"+(STATE.venue?STATE.venue.id:"draft");
   return base.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")||"event";
 }
+function eventFavItem(){
+  return {type:"event",refId:eventRef(),title:STATE.eventTitle||"Untitled Event",
+    subtitle:(STATE.venue?STATE.venue.name:"")+(firstWhen()?(" · "+firstWhen()):""),venueId:(STATE.venue&&STATE.venue.id)||null};
+}
+function eventFavHas(){
+  try{ const S=window.EatoutsCustomer; return !!(S&&S.favourites&&S.favourites.has(eventFavItem())); }catch(e){ return false; }
+}
+function eventFavIcon(){ return "assets/icons/"+(eventFavHas()?"heart_active_icon.png":"heart_inactive_icon.png"); }
 function eventSavePayload(){
   return {
     ref:eventRef(),

@@ -60,6 +60,10 @@ setTimeout(() => {
   check('favButton renders a toggleFav action', /data-act="toggleFav"/.test(favHtml), favHtml.slice(0, 80));
   check('favButton renders a heart icon', /heart_/.test(favHtml));
   check('favButton carries the type + ref', /data-ftype="promo"/.test(favHtml) && /data-fref="p-1"/.test(favHtml));
+  const favPayload = String(ev('favButton("menu","r1:cat-1",{title:"Starters",subtitle:"Venue",payload:{items:[{name:"Wings",price:45}]}})'));
+  check('favButton carries an escaped payload blob', /data-fpayload=/.test(favPayload) && /items/.test(favPayload), favPayload.slice(0, 120));
+  check('menu/item/drink heart helpers present',
+    ev('typeof renderMenuCategories') === 'function' && ev('typeof renderMenuCategory') === 'function' && ev('typeof renderBeveragesCategory') === 'function');
 
   /* ---------- C. profile card states ---------- */
   click(doc.querySelector('[data-tab="about"]'));
@@ -80,14 +84,26 @@ setTimeout(() => {
   check('toggling closes the profile card', ev('state.profileCardOpen') === false);
 
   /* About EatOuts settings link lives before the Install row */
-  const aboutLink = doc.querySelector('#viewport a.setrow[href="eatout-about.html"]');
+  const aboutLink = doc.querySelector('#viewport a.setrow[href="eatouts-about.html"]');
   check('About EatOuts settings link present', !!aboutLink, '');
   check('About EatOuts link reads correctly', !!aboutLink && aboutLink.textContent.trim() === 'About EatOuts', aboutLink && aboutLink.textContent.trim());
 
+  /* ---------- D. gallery chunked loading ---------- */
+  check('gallery infinite-scroll helpers present', ev('typeof galleryLoadMore') === 'function' && ev('typeof armGalleryScroll') === 'function');
+  ev('state.tab="gallery";state.galleryView="grid";state.galleryPhoto=null;render();');
+  check('gallery renders a load-more sentinel', !!doc.querySelector('#viewport #galsentinel'), '');
+  const galTotal = ev('filteredGallery().length');
+  ev('state.galleryShown=1;render();');
+  const before = doc.querySelectorAll('#viewport #galgrid .gal-cell').length;
+  ev('galleryLoadMore();');
+  const after = doc.querySelectorAll('#viewport #galgrid .gal-cell').length;
+  check('gallery starts chunked then loads more', galTotal > 1 && before < after && after <= galTotal,
+    galTotal + ' total, ' + before + ' -> ' + after);
+
   check('index.html no window errors', appErrors.length === 0, appErrors.slice(0, 3).join(' | '));
 
-  /* ---------- 2. eatout-about.html standalone page ---------- */
-  const about = boot('eatout-about.html');
+  /* ---------- 2. eatouts-about.html standalone page ---------- */
+  const about = boot('eatouts-about.html');
   const adoc = about.doc;
   check('about: no window errors', about.errors.length === 0, about.errors.slice(0, 3).join(' | '));
   check('about: title chip', /About EatOuts/.test((adoc.querySelector('.topbar .ttl') || {}).textContent || ''));
@@ -96,6 +112,15 @@ setTimeout(() => {
   check('about: lists the platform blocks', adoc.querySelectorAll('.ablock').length >= 4, adoc.querySelectorAll('.ablock').length);
   check('about: has the business CTA', !!adoc.querySelector('a.cta[href="eatouts-business-signup.html"]'));
   check('about: no legacy openAboutGallery hook', !adoc.querySelector('[data-act="openAboutGallery"]'));
+
+  /* ---------- 2b. addresses + admin dashboard static contracts ---------- */
+  const addrSrc = fs.readFileSync(path.join(APP_DIR, 'eatouts-addresses.html'), 'utf8');
+  check('addresses page offers an Edit action', /data-edit=/.test(addrSrc), '');
+  check('addresses form supports edit mode', /Edit address/.test(addrSrc), '');
+  check('addresses page still offers Delete', /data-del=/.test(addrSrc), '');
+  const adminSrc = fs.readFileSync(path.join(APP_DIR, 'eatouts-admin-dashboard.html'), 'utf8');
+  check('admin dashboard wires the promo queue API', /api\/admin\/promo-submissions/.test(adminSrc), '');
+  check('admin dashboard renders review actions', /data-ps-act/.test(adminSrc) && /data-ps-status/.test(adminSrc), '');
 
   /* ---------- 3. eatouts-checkout-summary.html smoke ---------- */
   const cos = boot('eatouts-checkout-summary.html');

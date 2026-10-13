@@ -137,6 +137,8 @@ export function publicUser(row) {
     type: row.type || 'customer',
     verified: !!row.verified,
     photoKey: row.photo_key || null,
+    avatar: row.photo_key || null,
+    onboardingStatus: profile.onboardingComplete ? 'complete' : 'pending',
     profile: profile
   };
 }

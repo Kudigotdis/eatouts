@@ -41,7 +41,7 @@ const FILES = [
   'eatouts-blog.html',
   'eatouts-event-planner.html',
   'eatouts-suppliers.html',
-  'eatout-about.html',
+  'eatouts-about.html',
 
   // Delivery interfaces
   'customer-delivery.html',

@@ -168,7 +168,7 @@ setTimeout(() => {
     check('detail opens for a bar promo', !!detail);
     if (detail) {
       check('detail has no zero-price reserve block', !/Estimated Total/.test(detail.textContent));
-      check('detail asks on WhatsApp', /Ask on WhatsApp/.test(detail.textContent));
+      check('detail offers a WhatsApp icon share', !!detail.querySelector('[data-act="waPromo"] img'));
       check('detail shows the drink style', /Drink style/.test(detail.textContent));
     }
   }

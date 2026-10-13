@@ -4,6 +4,24 @@
 import { json, getSession, now, readJson } from './_shared.js';
 import { publicUser } from './_auth.js';
 
+/* Onboarding = the mandatory 5 restaurants + 1 bottle store picks that the
+   client stores as favourites, so count them per type for the session payload. */
+async function onboardingState(env, userId) {
+  var restaurants = 0, bottleStore = 0;
+  try {
+    var res = await env.DB.prepare(
+      'SELECT type, COUNT(*) AS n FROM favourites WHERE user_id = ? GROUP BY type'
+    ).bind(userId).all();
+    var rows = (res && res.results) || [];
+    rows.forEach(function (x) {
+      if (x.type === 'restaurant') restaurants = x.n;
+      else if (x.type === 'bottle_store') bottleStore = x.n;
+    });
+  } catch (e) { /* missing table / no backend: treat as not started */ }
+  var complete = restaurants >= 5 && bottleStore >= 1;
+  return { complete: complete, restaurants: restaurants, bottleStore: bottleStore };
+}
+
 export async function onRequestGet(context) {
   var session = await getSession(context.env, context.request);
   if (!session) return json({ user: null });
@@ -12,7 +30,13 @@ export async function onRequestGet(context) {
   if (env && env.DB && session.type === 'customer') {
     try {
       var row = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(session.userId).first();
-      if (row) return json({ user: publicUser(row) });
+      if (row) {
+        var user = publicUser(row);
+        var onboarding = await onboardingState(env, session.userId);
+        user.onboarding = onboarding;
+        user.onboardingStatus = onboarding.complete ? 'complete' : 'pending';
+        return json({ user: user });
+      }
     } catch (e) { /* fall through to session payload */ }
   }
 

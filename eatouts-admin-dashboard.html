@@ -1,1 +1,61 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>EatOuts admin dashboard · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"></head><body><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-analytics.js"></script><script src="js/eatouts-manager.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{if(!EO.guard({"roles": ["platform_admin"]}))return;document.querySelector("#mount").innerHTML=EO.shell("EatOuts admin dashboard","Platform control centre",`<div class="grid3" id="m"></div><div class="card"><div class="card-title">Platform controls</div><div class="grid"><a class="choice" href="eatouts-users-manager.html"><strong>Users</strong><small>All accounts and roles.</small></a><a class="choice" href="feedback-manager.html"><strong>Feedback</strong><small>Support queue.</small></a><a class="choice" href="eatouts-verification-queue.html"><strong>Verification</strong><small>Business approvals.</small></a><a class="choice" href="eatouts-disputes.html"><strong>Disputes</strong><small>Refunds and escalations.</small></a><a class="choice" href="eatouts-platform-analytics.html"><strong>Analytics</strong><small>Cross-platform reporting.</small></a><a class="choice" href="eatouts-notifications.html"><strong>Notifications</strong><small>Segment messaging.</small></a><a class="choice" href="blog-creator-dashboard.html"><strong>Blog</strong><small>Write and publish.</small></a><a class="choice" href="brand-kit-admin.html"><strong>Brand &amp; Design</strong><small>Design jobs, roster, payouts.</small></a><a class="choice" href="eatouts-settings.html"><strong>Settings</strong><small>Platform configuration.</small></a></div></div>`,{section:"Platform admin"});const d=EatoutsMgrDB.get();document.querySelector("#m").innerHTML=EO.metric("Users",d.users.length,"all roles")+EO.metric("Businesses",d.businesses.length,"all statuses")+EO.metric("Orders",d.orders.length,"all businesses");});</script></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>EatOuts admin dashboard · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"><style>#ps .listrow{align-items:flex-start}.ps-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.ps-pill{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:#f1ece0;color:#6b6046}.ps-pill.pending{background:#fff2cc;color:#8a6d00}.ps-pill.approved{background:#e2f0ff;color:#1d5fa8}.ps-pill.published{background:#e3f6e8;color:#1d7a3a}.ps-pill.rejected{background:#fde7e7;color:#a32424}.ps-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}</style></head><body><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-analytics.js"></script><script src="js/eatouts-manager.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{
+  if(!EO.guard({"roles": ["platform_admin"]}))return;
+  document.querySelector("#mount").innerHTML=EO.shell("EatOuts admin dashboard","Platform control centre",`<div class="grid3" id="m"></div><div class="card"><div class="card-title">Platform controls</div><div class="grid"><a class="choice" href="eatouts-users-manager.html"><strong>Users</strong><small>All accounts and roles.</small></a><a class="choice" href="feedback-manager.html"><strong>Feedback</strong><small>Support queue.</small></a><a class="choice" href="eatouts-verification-queue.html"><strong>Verification</strong><small>Business approvals.</small></a><a class="choice" href="eatouts-disputes.html"><strong>Disputes</strong><small>Refunds and escalations.</small></a><a class="choice" href="eatouts-platform-analytics.html"><strong>Analytics</strong><small>Cross-platform reporting.</small></a><a class="choice" href="eatouts-notifications.html"><strong>Notifications</strong><small>Segment messaging.</small></a><a class="choice" href="blog-creator-dashboard.html"><strong>Blog</strong><small>Write and publish.</small></a><a class="choice" href="brand-kit-admin.html"><strong>Brand &amp; Design</strong><small>Design jobs, roster, payouts.</small></a><a class="choice" href="eatouts-settings.html"><strong>Settings</strong><small>Platform configuration.</small></a></div></div><div class="card"><div class="card-title">Promo submissions <span id="ps-count" class="ps-pill"></span></div><p class="muted" style="margin:0 0 8px">Customer events queued for the P50 promo listing. Approve, reject, or publish to Promos.</p><div class="actions" id="ps-filter" style="margin-bottom:10px"><button class="btn primary" data-ps-status="pending">Pending</button><button class="btn" data-ps-status="approved">Approved</button><button class="btn" data-ps-status="published">Published</button><button class="btn" data-ps-status="rejected">Rejected</button><button class="btn" data-ps-status="all">All</button></div><div id="ps"></div></div>`,{section:"Platform admin"});
+  const d=EatoutsMgrDB.get();
+  document.querySelector("#m").innerHTML=EO.metric("Users",d.users.length,"all roles")+EO.metric("Businesses",d.businesses.length,"all statuses")+EO.metric("Orders",d.orders.length,"all businesses");
+
+  let psStatus="pending";
+  const verdictLabel={pending:"Pending",approved:"Approved",published:"Published",rejected:"Rejected"};
+  function esc(s){return EO.esc(s==null?"":s);}
+  function render(rows,note){
+    const box=document.querySelector("#ps");
+    const count=document.querySelector("#ps-count");
+    if(count)count.textContent=(rows?rows.length:0)+" shown";
+    if(note){box.innerHTML='<div class="empty">'+esc(note)+'</div>';return;}
+    if(!rows||!rows.length){box.innerHTML='<div class="empty">No submissions.</div>';return;}
+    box.innerHTML=rows.map(function(x){
+      const st=x.status||"pending";
+      const when=x.whenText||(x.payload&&x.payload.meta&&x.payload.meta.when)||"";
+      return '<div class="listrow" data-pid="'+esc(x.id)+'"><div class="listmain"><strong>'+esc(x.title||"Untitled Event")+'</strong>'+
+        '<small>'+esc((x.venueName||"")+(when?(" · "+when):""))+'</small>'+
+        '<div class="ps-meta"><span class="ps-pill '+esc(st)+'">'+esc(verdictLabel[st]||st)+'</span>'+
+        '<span class="ps-pill">'+esc((x.currency||"BWP")+" "+(x.fee!=null?x.fee:50))+'</span>'+
+        (x.userId?('<span class="ps-pill">'+esc(x.userId)+'</span>'):'')+'</div>'+
+        (x.adminNote?('<small>Note: '+esc(x.adminNote)+'</small>'):'')+
+        '<div class="ps-actions">'+
+        (st!=="approved"&&st!=="published"?'<button class="btn" data-ps-act="approve">Approve</button>':'')+
+        (st!=="published"?'<button class="btn primary" data-ps-act="publish">Publish</button>':'')+
+        (st!=="rejected"?'<button class="btn danger" data-ps-act="reject">Reject</button>':'')+
+        '</div></div></div>';
+    }).join("");
+  }
+  function load(){
+    if(!window.fetch){render([],"Sign in as a platform admin to load the queue.");return;}
+    const url="/api/admin/promo-submissions"+(psStatus==="all"?"":("?status="+encodeURIComponent(psStatus)));
+    fetch(url,{credentials:"include"}).then(function(r){return r.json().catch(function(){return{};});}).then(function(j){
+      render(j&&j.submissions?j.submissions:[]);
+    }).catch(function(){render([],"Could not reach the server. Check your connection.");});
+  }
+  async function act(id,action,btn){
+    if(!window.fetch)return;
+    btn.disabled=true;
+    try{
+      const r=await fetch("/api/admin/promo-submissions",{method:"PATCH",headers:{"content-type":"application/json"},credentials:"include",body:JSON.stringify({id:id,action:action})});
+      const j=await r.json().catch(function(){return{};});
+      if(j&&j.ok){EO.toast("Submission "+({approve:"approved",reject:"rejected",publish:"published"}[action]||action));load();}
+      else{EO.toast((j&&j.error)||"Action failed");btn.disabled=false;}
+    }catch(e){EO.toast("Action failed");btn.disabled=false;}
+  }
+  document.querySelector("#ps-filter").addEventListener("click",function(e){
+    const b=e.target.closest("[data-ps-status]");if(!b)return;
+    psStatus=b.getAttribute("data-ps-status");
+    [].forEach.call(document.querySelectorAll("#ps-filter .btn"),function(x){x.className="btn"+(x===b?" primary":"");});
+    load();
+  });
+  document.querySelector("#ps").addEventListener("click",function(e){
+    const b=e.target.closest("[data-ps-act]");if(!b)return;
+    const row=b.closest("[data-pid]");if(!row)return;
+    act(row.getAttribute("data-pid"),b.getAttribute("data-ps-act"),b);
+  });
+  load();
+});</script></body></html>
