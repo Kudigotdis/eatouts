@@ -103,3 +103,29 @@ export function allowlist(value) {
 export function isProduction(env) {
   return String((env && env.ENV) || 'development').toLowerCase() === 'production';
 }
+
+/** Parse a JSON body without throwing. */
+export async function readJson(request) {
+  try { return await request.json(); } catch (e) { return {}; }
+}
+
+/** Best-effort client IP for rate limiting. */
+export function clientIp(request) {
+  return String(
+    (request.headers.get('CF-Connecting-IP')) ||
+    (request.headers.get('x-forwarded-for') || '').split(',')[0] ||
+    'unknown'
+  ).trim();
+}
+
+/* Simple KV fixed-window rate limiter. KV is eventually consistent, so this
+   is a throttle rather than a hard guarantee - good enough to blunt abuse. */
+export async function rateLimit(env, key, limit, windowSec) {
+  if (!env || !env.OPS_KV) return { ok: true };
+  var k = 'rl:' + key;
+  var raw = await env.OPS_KV.get(k);
+  var n = raw ? (parseInt(raw, 10) || 0) : 0;
+  if (n >= limit) return { ok: false, count: n };
+  await env.OPS_KV.put(k, String(n + 1), { expirationTtl: windowSec || 60 });
+  return { ok: true, count: n + 1 };
+}

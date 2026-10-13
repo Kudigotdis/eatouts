@@ -34,6 +34,10 @@ share, and how they line up against `MARKETING_ONBOARDING_PLAN.md`.
 | `driver-delivery.html` | Delivery rider (demo) | none (reads demo dataset) | No |
 | `restaurant-delivery.html` | Restaurant dispatch (demo) | reads `eatouts_delivery_orders_v1` | No |
 | `eatouts_feedback.html` | Customers / visitors | writes `eatouts_feedback_queue_v1` (WhatsApp to `+267 71 844 129`) | No |
+| `designer-services.html` | Businesses / customers | `eatouts_services_v1`, `eatouts_designers_v1`, `eatouts_jobs_v1` (via `EatoutsBrandKit`) | No |
+| `designer-dashboard.html` | Designers | `eatouts_designers_v1`, `eatouts_jobs_v1` (+ `eatouts_designer_session_v1` pick) | No (prototype picker, not `EatoutsAuth`) |
+| `brand-kit-admin.html` | Platform admin / ops | `eatouts_designers_v1`, `eatouts_services_v1`, `eatouts_jobs_v1`, `eatouts_audit_log_v1` | Guard only (permissive with no session) |
+| `eatout_event_builder.html` | Staff / experimental | none | No |
 
 The eight operator pages share one tab bar (Restaurant · Menu · Promos · Events · Gallery · Dashboard), so they behave as one back-office app. `seed-demo.html` is a developer page and is **not** in the tab bar.
 
@@ -50,7 +54,7 @@ These limits apply to every page above.
 7. **No owner → live publish path.** The public directory in `index.html` is built from the static file `assets/data/restaurant_listings/directory_runtime_data.json`; owner edits only ever touch `localStorage`. The two are disconnected (this is the gap called out in `MARKETING_ONBOARDING_PLAN.md`).
 8. **Demo vs real session.** A real (non-demo) session locks the operator switcher to that restaurant; Demo mode keeps a `<select>` so all venues stay reachable (`js/eatouts-owner-compat.js:155-176`).
 
-## index.html — customer app (8445 lines)
+## index.html — customer app (8450 lines)
 
 **Purpose:** the public, mobile-first customer experience and the entry point to operator sign-in.
 
@@ -212,6 +216,20 @@ The two operator boards are seeded from the **50-order scheduled-delivery snapsh
 **Can do** - multi-step accordion form (feedback-type chips → "Summary" + "Details" with tap-in suggestions per type → optional extra fields that adapt to the type → screenshot web URL → device chips → contact info), input validation, saves each submission to `eatouts_feedback_queue_v1`, then opens a `https://wa.me/26771844129` compose with the packaged message. Reached from the About tab Settings accordion (Feedback row, below Privacy Policy).
 
 **Cannot do** - No server, no attachments: the screenshot is a pasted web URL and the resulting WhatsApp compose is a manual "Send" intent, not an automatic upload.
+
+## Design marketplace — designer-services.html / designer-dashboard.html / brand-kit-admin.html
+
+Three pages share the design data layer `js/eatouts-brand-kit.js` (`EatoutsBrandKit`), which seeds and stores services, designers and jobs in `eatouts_services_v1`, `eatouts_designers_v1` and `eatouts_jobs_v1` (seeds in `js/eatouts-services-seed.js`, `js/eatouts-designers-seed.js`).
+
+- **`designer-services.html`** — the public, customer-facing marketplace. Reached from `index.html` → About → Settings → **Need Design**. A step flow (catalogue → service → designer → brief → summary → done) browses services by category, picks a designer (avatars), captures a brief (`validateBrief`) and options (rush, extra revisions, reveal opt-in, founding, terms), then submits: it writes the job to `eatouts_jobs_v1` and hands off to WhatsApp, returning to `index.html`. Its catalogue footer links designers on to `designer-dashboard.html`.
+- **`designer-dashboard.html`** — the designer's private workspace. Prototype sign-in: on first load a picker lists the designers and stores the choice in `eatouts_designer_session_v1` (it does **not** use `EatoutsAuth`). Once "signed in" it shows capacity metrics, active project/retainer job cards and a per-job detail (brief, price breakdown, payout status, progress note, deliverable URL), letting the designer submit a draft or request clarification — but not close their own job.
+- **`brand-kit-admin.html`** — the platform-admin console ("Brand & Design Services Admin"). Reached from `eatouts-admin-dashboard.html` → **Brand & Design** card. Four tabs (Jobs · Designers · Payouts · Services) run the job lifecycle (approve/reject, assign designer, mark delivered, client-approved, close job/cycle, end retainer, cancel, payout sent) and manage the designer roster and service catalogue, logging to `eatouts_audit_log_v1`. Its `currentUserDenied()` guard requires a platform-admin role (`super_admin`/`platform_admin`/`platform_admin_owner`/`admin`) when an `EatoutsAuth` session exists, but falls open in local prototype mode (no session or no auth module).
+
+**Cannot do** — No server: all three are browser-only prototypes over `localStorage`. The designer "sign-in" is a local picker and the admin guard is a convenience check, not real permissions; nothing here publishes to the live directory.
+
+## eatout_event_builder.html — legacy event builder (4104 lines)
+
+**Purpose:** a superseded experimental event builder retained for the test harness; not an end-user surface and reachable by direct link only. Covered by `tests/appshell.js` (tool mode) and the five `builder-*.js` suites. **Cannot do** — production use; it has been replaced by `event-onboarding.html`.
 
 ## Manager / auth / admin / customer accounts (staged package)
 

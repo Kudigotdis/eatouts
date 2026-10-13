@@ -885,6 +885,7 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 <script src="botswana_locations.js"></script>
 <script src="assets/data/masterSupplierCatalogue.js"></script>
 <script src="assets/data/event_supplier_demo_catalogue.js"></script>
+<script src="js/eatouts-customer.js"></script>
 
 <script>
 /* ============================================================
@@ -2987,6 +2988,8 @@ function renderPreviewPage(){
       '<div class="preview-pg-foot">'+
         '<button class="btn wa-solid full" data-act="shareWhatsApp">Share via WhatsApp</button>'+
         '<button class="btn wa-dark full" data-act="sendToVenue">Share with Venue · '+esc(v?v.name:"Venue")+'</button>'+
+        '<button class="btn ghost full" data-act="saveEvent">Save Event</button>'+
+        '<button class="btn ghost full" data-act="postOnPromos">Post on Promos · P50</button>'+
         '<button class="btn primary full" data-act="closePreview">Back</button>'+
       '</div>'+
     '</div>'+
@@ -3904,6 +3907,29 @@ document.addEventListener("click",function(e){
     return;
   }
 
+  // Customer account: save event / post on promos (manual P50 invoice)
+  if(act==="saveEvent"){
+    const S=window.EatoutsCustomer;
+    if(!S||!S.getUser()){ if(confirm("Sign in to save this event to your account. Continue to sign in?")) location.href="eatouts-login.html"; return; }
+    S.events.save(eventSavePayload())
+      .then(function(){ toast("Event saved to your account"); })
+      .catch(function(){ toast("Saved on this device"); });
+    return;
+  }
+  if(act==="postOnPromos"){
+    const S=window.EatoutsCustomer;
+    const payload=eventSavePayload();
+    payload.promoPost={fee:50,currency:"BWP",status:"invoice_requested",requestedAt:Date.now()};
+    if(S&&S.getUser()){ try{ S.events.save(payload); }catch(e){} }
+    const msg="*PROMO POST REQUEST*\nEvent: "+(STATE.eventTitle||"Untitled Event")+
+      (STATE.venue?("\nVenue: "+STATE.venue.name):"")+
+      (firstWhen()?("\nWhen: "+firstWhen()):"")+
+      "\nFee: P50 (promo listing)\n\nPlease send me an invoice for P50 to feature this event under Promos.";
+    window.open("https://wa.me/26771844129?text="+encodeURIComponent(msg),"_blank");
+    toast("Promo post requested · P50 invoice");
+    return;
+  }
+
   // Prompt
   if(act==="closePrompt"){ STATE.prompt.open=false; render(); return; }
   if(act==="savePrompt"){ savePromptFromForm(); return; }
@@ -4013,6 +4039,26 @@ document.addEventListener("input",function(e){
 /* ============================================================
    SHARE MESSAGE
    ============================================================ */
+function firstWhen(){
+  const d=STATE.schedule.days&&STATE.schedule.days[0];
+  if(!d||!d.startDate) return "";
+  return d.startDate+(d.startTime?" "+d.startTime:"")+((d.endDate||d.endTime)?" → "+(d.endDate||"")+" "+(d.endTime||""):"");
+}
+function eventRef(){
+  const base=(STATE.eventTitle||"event")+"-"+(STATE.venue?STATE.venue.id:"draft");
+  return base.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")||"event";
+}
+function eventSavePayload(){
+  return {
+    ref:eventRef(),
+    type:"event",
+    title:STATE.eventTitle||"Untitled Event",
+    subtitle:(STATE.venue?STATE.venue.name:"")+(firstWhen()?(" · "+firstWhen()):""),
+    meta:{venue:STATE.venue?STATE.venue.id:null,eventType:(STATE.eventType&&STATE.eventType.eventId)||null,
+      when:firstWhen(),guests:totalGuests(),budget:STATE.showBudget?grandTotal():null,
+      flyer:(STATE.flyerImages&&STATE.flyerImages[0])||null}
+  };
+}
 function buildShareMessage(){
   const et=findEventType(STATE.eventType.eventId);
   const v=STATE.venue;

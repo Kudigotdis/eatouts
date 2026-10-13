@@ -41,6 +41,7 @@ const FILES = [
   'eatouts-blog.html',
   'eatouts-event-planner.html',
   'eatouts-suppliers.html',
+  'eatout-about.html',
 
   // Delivery interfaces
   'customer-delivery.html',
@@ -97,6 +98,10 @@ const FILES = [
   'eatouts-orders.html',
   'eatouts-profile.html',
   'eatouts-addresses.html',
+  'eatouts-summaries.html',
+  'eatouts-events.html',
+  'eatouts-gallery.html',
+  'eatouts-checkout-summary.html',
 
   // Cloudflare Pages config
   '_headers',

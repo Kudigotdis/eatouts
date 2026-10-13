@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Checkout summary · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"></head><body><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-manager.js"></script><script src="js/eatouts-customer.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{
+ if(!EO.guard({"roles":["customer"]}))return;
+ const S=window.EatoutsCustomer;
+ const id=(new URLSearchParams(location.search)).get("id")||"";
+ const s=(S?S.summaries.list():[]).find(x=>String(x.id)===String(id))||null;
+ const payload=s&&s.payload||{};
+ const items=payload.items||[];
+ const venue=s&&s.venueName||payload.venueName||"Your order";
+ function waText(){
+  let t="*ORDER SUMMARY*\n"+venue+"\n\n";
+  items.forEach(it=>{t+="• "+(it.name||it.title||"Item")+(it.qty?(" x"+it.qty):"")+(it.price?(" — "+EO.money(it.price)):"")+"\n";});
+  t+="\nTotal: "+EO.money(s&&s.total!=null?s.total:(payload.total||0))+"\n\nSent from EatOuts";
+  return t;
+ }
+ const body=!s?EO.empty("Summary not found","Open this page from a saved summary."):
+  `<div class="card"><div class="card-title">${EO.esc(venue)}</div>
+   ${items.length?items.map(it=>`<div class="listrow"><div class="listmain"><strong>${EO.esc(it.name||it.title||"Item")}</strong><small>${it.qty?("Qty "+EO.esc(it.qty)):""}</small></div>${it.price?('<span class="pill">'+EO.money(it.price)+'</span>'):''}</div>`).join(""):'<p class="minor">No line items recorded.</p>'}
+   <div class="tbar" style="margin-top:10px"><span>Total</span><strong>${EO.money(s.total!=null?s.total:(payload.total||0))}</strong></div></div>
+   <div class="actions"><a class="btn primary" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(waText())}">Send via WhatsApp</a><a class="btn" href="eatouts-summaries.html">All summaries</a></div>`;
+ document.querySelector("#mount").innerHTML=EO.shell("Checkout Summary","A saved order or checkout summary",body,{section:"Customer"});
+});</script></body></html>

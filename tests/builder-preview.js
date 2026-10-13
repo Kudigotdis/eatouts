@@ -119,7 +119,9 @@ function draftWith(venueId, opt) {
 
   /* ---------- Footer scrolls with the page content ---------- */
   check('share footer lives inside the scroll region', !!doc.querySelector('.preview-pg-scroll .preview-pg-foot'));
-  check('footer keeps its three buttons', doc.querySelectorAll('.preview-pg-foot .btn').length === 3);
+  check('footer keeps its five buttons', doc.querySelectorAll('.preview-pg-foot .btn').length === 5);
+  check('footer offers Save Event', !!doc.querySelector('.preview-pg-foot [data-act="saveEvent"]'));
+  check('footer offers Post on Promos', /Post on Promos/.test((doc.querySelector('.preview-pg-foot [data-act="postOnPromos"]') || {}).textContent || ''));
 
   // close
   click(w, doc.querySelector('[data-act="closePreview"]'));

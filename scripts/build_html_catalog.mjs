@@ -173,7 +173,7 @@ w('Status: ' + Object.entries(byStatus).map(([k, v]) => v + ' ' + k).join(' · '
 w();
 w('> Run the app through **`run-eatouts.bat`** (serves the root over `http://127.0.0.1`).');
 w('> Opening a page via `file://` isolates `localStorage` per page and breaks');
-w('> `crypto.subtle` sign-in. Relevant to the 57 catalogued surfaces below.');
+w('> `crypto.subtle` sign-in. Relevant to the ' + filesOnDisk.length + ' catalogued surfaces below.');
 w();
 w('## 2. Master index');
 w();

@@ -1,2 +1,29 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Favourites · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"></head><body><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-manager.js"></script><script src="js/eatouts-audit.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{if(!EO.guard({"roles": ["customer"]}))return;const user=EO.currentUser();const uid=user&&(user.userId||user.id)||"";const T={"restaurant":"Restaurants","menu":"Menu items","beverage":"Beverages","promo":"Promos","gallery":"Gallery"};let tab="restaurant";document.querySelector("#mount").innerHTML=EO.shell("Favourites","Saved restaurants, menu items, beverages, promos and gallery images",`<div class="tabs">${Object.keys(T).map(k=>`<button class="tab${k===tab?" on":""}" data-tab="${k}">${T[k]}</button>`).join("")}</div><div id="favs"></div>`,{section:"Customer"});
-function mine(){return EatoutsMgrDB.collection("favourites").filter(x=>!uid||String(x.userId||"")===String(uid)||!x.userId)}function render(){const rows=EO.page(mine().filter(x=>x.type===tab),1,50).rows;document.querySelector("#favs").innerHTML=rows.length?rows.map(x=>`<div class="listrow"><div class="listmain"><strong>${EO.esc(x.title||x.refId||"Saved")}</strong><small>${EO.esc(x.subtitle||x.type||"")}${x.price?(" · "+EO.money(x.price)):""}</small></div><button class="btn danger" data-del="${EO.esc(x.id)}">Remove</button></div>`).join(""):EO.empty("No saved "+T[tab].toLowerCase()+" yet","Favourites you save from the EatOuts pages appear here.")}document.querySelector(".tabs").onclick=e=>{const t=e.target.dataset.tab;if(t){tab=t;document.querySelectorAll(".tabs .tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));render()}};document.querySelector("#favs").onclick=e=>{const del=e.target.closest("[data-del]");if(!del)return;const id=del.dataset.del;if(!EO.confirm("Remove this favourite?"))return;const before=EatoutsMgrDB.find("favourites",id);EatoutsMgrDB.remove("favourites",id);if(window.EatoutsAudit&&window.EatoutsAudit.log)EatoutsAudit.log("favourite.remove",id,before?{id:before.id,title:before.title,type:before.type}:null,null,{tab:tab});render()};render();});</script></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Favourites · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"></head><body><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-manager.js"></script><script src="js/eatouts-customer.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{
+ if(!EO.guard({"roles":["customer"]}))return;
+ const user=EO.currentUser();const uid=user&&(user.userId||user.id)||"";
+ const S=window.EatoutsCustomer;
+ const T={"restaurant":"Restaurants","menu":"Food Menus","item":"Food Items","beverage":"Beverages","promo":"Promos","gallery":"Gallery","event":"Events","bottle_store":"Bottle Stores"};
+ let tab="restaurant";
+ function storeRows(t){return S?S.favourites.list(t):[];}
+ function legacyRows(t){return EatoutsMgrDB.collection("favourites").filter(x=>(!uid||String(x.userId||"")===String(uid)||!x.userId)&&x.type===t);}
+ function rows(t){const a=storeRows(t);return a.length?a:legacyRows(t);}
+ function render(){
+  const list=rows(tab);
+  document.querySelector("#favs").innerHTML=list.length?list.map(x=>{
+   const price=(x.price!=null)?x.price:null;
+   return `<div class="listrow"><div class="listmain"><strong>${EO.esc(x.title||x.refId||"Saved")}</strong><small>${EO.esc(x.subtitle||T[tab]||x.type||"")}${price?(" · "+EO.money(price)):""}</small></div><button class="btn danger" data-del="${EO.esc(x.refId||x.id)}">Remove</button></div>`;
+  }).join(""):EO.empty("No saved "+T[tab].toLowerCase()+" yet","Favourites you save from the EatOuts pages appear here.");
+ }
+ document.querySelector("#mount").innerHTML=EO.shell("Favourites","Saved restaurants, menus, items, beverages, promos, events and gallery images",`<div class="tabs">${Object.keys(T).map(k=>`<button class="tab${k===tab?" on":""}" data-tab="${k}">${T[k]}</button>`).join("")}</div><div id="favs"></div>`,{section:"Customer"});
+ document.querySelector(".tabs").onclick=e=>{const t=e.target.dataset.tab;if(t){tab=t;document.querySelectorAll(".tabs .tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));render();}};
+ document.querySelector("#favs").onclick=e=>{
+  const del=e.target.closest("[data-del]");if(!del)return;const ref=del.dataset.del;
+  if(!EO.confirm("Remove this favourite?"))return;
+  let removed=false;
+  if(S&&S.favourites.has({type:tab,refId:ref})){S.favourites.remove({type:tab,refId:ref});removed=true;}
+  if(!removed){const m=legacyRows(tab).find(x=>String(x.refId||x.id)===String(ref));if(m)EatoutsMgrDB.remove("favourites",m.id);}
+  render();
+ };
+ render();
+ S&&S.onChange&&S.onChange(render);
+});</script></body></html>

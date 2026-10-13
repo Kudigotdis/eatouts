@@ -43,7 +43,12 @@ const SUITES = [
   'builder-audience.js',
   'appshell.js',
   'html-catalog.js',
-  'field.js'
+  'field.js',
+  'designer-services.js',
+  'designer-dashboard.js',
+  'brand-kit-admin.js',
+  'api-auth.js',
+  'customer.js'
 ];
 
 function pad(n, width) {

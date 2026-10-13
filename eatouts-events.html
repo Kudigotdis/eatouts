@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Events · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"></head><body><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-manager.js"></script><script src="js/eatouts-customer.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{
+ if(!EO.guard({"roles":["customer"]}))return;
+ const S=window.EatoutsCustomer;
+ let tab="saved";
+ function render(){
+  const rows=S?S.events.list():[];
+  const body=rows.length?rows.map(e=>{
+   const title=e.title||(e.payload&&e.payload.title)||e.eventRef||"Saved event";
+   const venue=e.venueName||(e.payload&&e.payload.venueName)||"";
+   return `<div class="listrow"><div class="listmain"><strong>${EO.esc(title)}</strong><small>${EO.esc(venue)}</small></div><button class="btn danger" data-del="${EO.esc(e.eventRef||e.id)}">Remove</button></div>`;
+  }).join(""):EO.empty("No saved events","Events you save from the event builder appear here.");
+  document.querySelector("#list").innerHTML=body;
+ }
+ document.querySelector("#mount").innerHTML=EO.shell("Events","Events on EatOuts and the ones you have saved",`<div class="tabs"><button class="tab on" data-tab="saved">Saved Events</button><button class="tab" data-tab="browse">Browse</button></div><div id="list"></div>`,{section:"Customer"});
+ const tabs=document.querySelector(".tabs");
+ tabs.addEventListener("click",e=>{const t=e.target.closest("[data-tab]");if(!t)return;tab=t.dataset.tab;tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  if(tab==="browse"){document.querySelector("#list").innerHTML='<div class="card" style="text-align:center;padding:22px"><p class="minor">Browse all local events in the main app.</p><a class="btn primary" href="index.html#promos">Open events feed</a></div>';}
+  else{render();}
+ });
+ document.querySelector("#list").addEventListener("click",e=>{const d=e.target.closest("[data-del]");if(!d)return;if(!EO.confirm("Remove this saved event?"))return;S.events.remove(d.dataset.del);render();});
+ if(tab==="saved")render();
+ S&&S.onChange&&S.onChange(()=>{if(tab==="saved")render();});
+});</script></body></html>

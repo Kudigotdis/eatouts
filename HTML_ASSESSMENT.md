@@ -1,7 +1,7 @@
 # EatOuts — Root HTML Pages Assessment
 
-Status ledger for every `.html` page in the project root (57 files), built
-2026-10-11 from a fresh source scan (JS-marker + storage-key probe of each file)
+Status ledger for every `.html` page in the project root (60 files), built
+2026-10-11 and updated 2026-10-12 from a fresh source scan (JS-marker + storage-key probe of each file)
 plus the capability audit in `HTML_PAGES.md`. This is the **per-page
 complement** to `INTEGRATION_AUDIT.md` / `INTEGRATION_DECISIONS.md`; it records
 what each page is, what it does, what is missing, and what should change. For the
@@ -17,7 +17,7 @@ Run the app with **`run-eatouts.bat`** (serves the root over `http://127.0.0.1`;
 
 | Count | Status | Meaning |
 |------|--------|---------|
-| 52 | FULL | Complete and functional for its purpose |
+| 55 | FULL | Complete and functional for its purpose |
 | 1 | PARTIAL | Works, but has a documented stub / dead control / data-source gap (`analytics-manager.html` — read-only, non-paginated by design) |
 | 4 | STUB / DEMO | Scaffold, demo, or developer harness (not production surfaces) |
 | 0 | MISSING files | All spec pages referenced at runtime exist as files |
@@ -40,16 +40,19 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | blog-creator-dashboard.html | platform author | guard | EatoutsMgrDB + blog stores | FULL | 2.2K/2 | esc ✔ / pager — / audit — | 0 |
 | booking-manager.html | supplier/lodge | guard | EatoutsMgrDB | FULL | 1.5K/2 | esc ✔ / pager — / audit — | 0 |
 | bottle-store-onboarding.html | bottlestore owner | n/a | EATOUTS adapter (redirects) | FULL (wrapper) | 0.7K/2 | — | 0 |
+| brand-kit-admin.html | platform admin/ops | guard | `eatouts_designers_v1` + `eatouts_services_v1` / `eatouts_jobs_v1` / `eatouts_audit_log_v1` | FULL | 66K/723 | — | 0 |
 | business-onboarding1.html | owner/admin | guard | EatoutsMgrDB + `eatouts_ops_v1` + root v2 | FULL | 47K/84 | esc ✔ / audit ✔ | 1 |
 | caterer-onboarding.html | caterer owner | n/a | redirect wrapper | FULL (wrapper) | 0.7K/2 | — | 0 |
 | customer-delivery.html | customers | no | `eatouts_order_v1`, read `eatouts_active_session_v2` | FULL | 53K/954 | esc ✔ / audit — | 0 |
 | delivery-manager.html | biz owner/admin | guard | EatoutsMgrDB | FULL | 2.7K/2 | esc ✔ / pager — / audit — | 0 |
+| designer-dashboard.html | designers | no (local picker) | `eatouts_designer_session_v1` + brand-kit stores | FULL | 18K/322 | — | 0 |
+| designer-services.html | customers/businesses | no | brand-kit stores (`eatouts_services_v1`, `eatouts_designers_v1`, `eatouts_jobs_v1`) | FULL | 38K/744 | — | 0 |
 | driver-delivery.html | rider (demo) | no | none | STUB/DEMO | 30K/502 | esc ✔ | 0 |
-| eatout_event_builder.html | staff/experimental | no | none (legacy builder) | STUB/DEMO | 187K/3929 | esc ✔ | 0 |
+| eatout_event_builder.html | staff/experimental | no | none (legacy builder) | STUB/DEMO | 197K/4104 | esc ✔ | 0 |
 | eatouts-addresses.html | customers | guard | EatoutsMgrDB | FULL | 4.8K/9 | esc ✔ / confirm ✔ / audit ✔ | 0 |
 | eatouts-admin-dashboard.html | platform admin | guard | EatoutsMgrDB | FULL | 2.2K/1 | — / audit — | 0 |
 | eatouts-blog.html | readers + local admin | no (on-device key) | `eatouts_blog_v1` + cache | FULL | 28K/492 | — | 0 |
-| eatouts-business-signup.html | new business | no | EatoutsMgrDB | FULL | 2.3K/12 | — | 0 |
+| eatouts-business-signup.html | new business | no | EatoutsMgrDB | FULL | 24K/502 | — | 0 |
 | eatouts-disputes.html | platform admin/ops | guard | EatoutsMgrDB | FULL | 1.7K/2 | esc ✔ / audit — | 0 |
 | eatouts-event-planner.html | event hosts | no | `eatouts_event_planner_v1` | FULL | 67K/1365 | esc ✔ | 0 |
 | eatouts-favourites.html | customers | guard | EatoutsMgrDB | FULL | 1.5K/1 | esc ✔ / confirm ✔ / audit ✔ | 0 |
@@ -70,7 +73,7 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | food-truck-schedule1.html | food truck owner | guard | adapter + EatoutsMgrDB | FULL | 19K/37 | esc ✔ / audit ✔ | 0 |
 | gallery-onboarding.html | restaurant owner | auth | root `eatouts_db_v2` | FULL | 15K/242 | esc ✔ | 0 |
 | get-started.html | prospective owners | no | reads `eatouts_db_v2` settings | FULL | 13K/184 | — | 0 |
-| index.html | customers | no | root `eatouts_db_v2` + `eatouts_order_v1` | FULL | 409K/8445 | esc ✔ | 5 (validation) |
+| index.html | customers | no | root `eatouts_db_v2` + `eatouts_order_v1` | FULL | 410K/8450 | esc ✔ | 5 (validation) |
 | intake.html | operator/concierge | auth | `eatouts_ops_v1` + `eatouts_intake_draft_v1` | FULL | 69K/1154 | esc ✔ | 0 |
 | invoice.html | operator/ops | auth | `eatouts_ops_v1` | FULL | 21K/394 | esc ✔ | 0 |
 | lodge-onboarding.html | lodge owner | n/a | redirect wrapper | FULL (wrapper) | 0.6K/2 | — | 0 |
@@ -229,6 +232,26 @@ Ordered by the four cross-cutting problems, then by page.
 
 - `index.html` (5 alerts), `eatouts-user-onboarding.html` (1) — informational
   toasts/confirm prompts; acceptable, low priority.
+
+### 3.11 Design marketplace — `designer-services.html` / `designer-dashboard.html` / `brand-kit-admin.html`
+
+- **Works:** the three pages share `js/eatouts-brand-kit.js` (`EatoutsBrandKit`)
+  over `eatouts_services_v1` / `eatouts_designers_v1` / `eatouts_jobs_v1`.
+  `designer-services.html` runs the public catalogue → service → designer →
+  brief → summary → done flow and hands off to WhatsApp; `designer-dashboard.html`
+  shows a designer's capacity and jobs behind a local picker;
+  `brand-kit-admin.html` runs the admin job lifecycle (approve/assign/close/
+  payout) across four tabs.
+- **Wired entry points (2026-10-12):** `designer-services.html` is reached from
+  `index.html` → About → Settings → **Need Design**; its catalogue footer links
+  designers on to `designer-dashboard.html`; the admin console is reached from
+  `eatouts-admin-dashboard.html` → **Brand & Design** card.
+- **Missing:** no server — the designer "sign-in" is a `localStorage` picker
+  (`eatouts_designer_session_v1`), not `EatoutsAuth`, and
+  `brand-kit-admin.html`'s `currentUserDenied()` guard falls open when there is no
+  session; neither substitutes for real permissions.
+- Covered by `tests/designer-services.js`, `tests/designer-dashboard.js`,
+  `tests/brand-kit-admin.js`.
 
 ## 4. Cross-cutting gaps
 

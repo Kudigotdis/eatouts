@@ -427,6 +427,35 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .social-ico img{width:100%;height:100%;object-fit:contain;display:block}
 .social-ico.off{pointer-events:none;cursor:default}
 
+/* ---------- ACTION ICON ROW (save / share) ---------- */
+.ico-row{display:flex;gap:10px;align-items:stretch;margin-top:12px}
+.ico-row.single .ico-btn{flex:1}
+.ico-btn{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 10px;background:#fff;border:1px solid #ece7db;border-radius:12px;cursor:pointer;font:inherit;-webkit-tap-highlight-color:transparent}
+.ico-btn:active{opacity:.7}
+.ico-btn img{width:22px;height:22px;object-fit:contain;display:block}
+.ico-btn .ico-lbl{font-size:12px;font-weight:800;color:#1a1a1a;white-space:nowrap}
+.ico-btn.fav-on{border-color:rgba(26,26,26,.28);background:rgba(26,26,26,.04)}
+
+/* ---------- CUSTOMER PROFILE CARD (About tab) ---------- */
+.pcdivider{height:1px;background:rgba(0,0,0,.10);margin:18px 0}
+.profilecard{display:flex;align-items:center;gap:12px;width:100%;height:90px;padding:0 14px;border:2px solid rgba(0,0,0,.10);border-radius:14px;background:#fff;cursor:pointer;text-align:left;font:inherit;-webkit-tap-highlight-color:transparent}
+.profilecard:active{background:#faf8f2}
+.pc-thumb{width:58px;height:58px;border-radius:12px;overflow:hidden;flex:0 0 auto;background:#f4efe4;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pc-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pc-main{flex:1 1 auto;min-width:0}
+.pc-main strong{display:block;font-size:15px;font-weight:900;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc-main small{display:block;font-size:11.5px;color:#928875;font-weight:700;margin-top:2px}
+.pc-fav{flex:0 0 auto;display:flex;align-items:center;gap:5px}
+.pc-fav img{width:20px;height:20px;display:block}
+.pc-fav span{font-size:11px;font-weight:800;color:#a89a7e}
+.pc-rows{border:2px solid rgba(0,0,0,.10);border-top:0;border-radius:0 0 14px 14px;overflow:hidden;margin-top:-2px}
+.pc-row{display:flex;width:100%;text-align:left;padding:14px 16px;background:#fff;border:0;border-bottom:1px solid #f1ece1;font-size:13.5px;font-weight:800;color:#1a1a1a;text-decoration:none;cursor:pointer;font-family:inherit}
+.pc-row:last-child{border-bottom:0}
+.pc-row:active{background:#faf8f2}
+.pc-photo{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:60;padding:24px}
+.pc-photo img{width:min(72vw,300px);height:min(72vw,300px);object-fit:cover;border-radius:18px;background:#222}
+.pc-photo .pc-actions{display:flex;gap:10px;align-items:center}
+
 /* ---------- ABOUT: SETTINGS ACCORDION ---------- */
 /* Centred text rows, no chevron. The whole list collapses behind the
    "Settings" header; "List Business" nests a second accordion whose only
@@ -664,6 +693,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 <script src="js/eatouts-bottle-stores.js"></script>
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-customer.js"></script>
 <script src="js/eatouts-seed-data.js"></script>
 <script src="js/eatouts-seed.js"></script>
 <script src="js/eatouts-bridge.js"></script>
@@ -698,6 +728,8 @@ const IMG = {
   iconWebOff:"assets/icons/Website_Off.png",
   iconCallOff:"assets/icons/Call_Off.png",
   iconGPSOff:"assets/icons/GPS - Off.png",
+  iconHeartOn:"assets/icons/heart_active_icon.png",
+  iconHeartOff:"assets/icons/heart_inactive_icon.png",
   poetry:"assets/images/events/poetry_nights.jpg",
   dirEvents:"assets/images/events/",
   dirFood:"assets/images/food/",
@@ -3362,6 +3394,9 @@ const state = {
   reserveVenueTownPicker:false,
   galleryView:"grid",
   galleryPhoto:null,
+profileCardOpen:false,
+profilePhotoOpen:false,
+profilePhoto:null,
   galleryFilter:"All",
   gallerySearch:"",
   galRest:"All",
@@ -3482,6 +3517,39 @@ function resolveVenueWhatsapp(venue){
   return fallback;
 }
 function waLink(text,venue){return "https://wa.me/"+resolveVenueWhatsapp(venue)+"?text="+encodeURIComponent(text);}
+
+/* ---------- Customer favourites + share actions (dual-mode) ----------
+   Saved through window.EatoutsCustomer (server when signed in, localStorage
+   otherwise). Rendered as a two-up icon row: heart (save) + WhatsApp (share). */
+function favStore(){return window.EatoutsCustomer||null;}
+function favHas(type,refId){var s=favStore();return !!(s&&s.favourites&&s.favourites.has({type:type,refId:refId}));}
+function favIconSrc(type,refId){return favHas(type,refId)?IMG.iconHeartOn:IMG.iconHeartOff;}
+function favMetaFrom(el){
+  return {
+    type:el.getAttribute("data-ftype")||"",refId:el.getAttribute("data-fref")||"",
+    title:el.getAttribute("data-ftitle")||"",subtitle:el.getAttribute("data-fsub")||"",
+    price:el.getAttribute("data-fprice")||null,imageRef:el.getAttribute("data-fimg")||null,
+    venueId:el.getAttribute("data-fvenue")||null
+  };
+}
+function favButton(type,refId,meta,label){
+  meta=meta||{};
+  var attrs='data-ftype="'+esc(type)+'" data-fref="'+esc(refId)+'" data-ftitle="'+esc(meta.title||"")+'" data-fsub="'+esc(meta.subtitle||"")+'"';
+  if(meta.price!=null&&meta.price!=="")attrs+=' data-fprice="'+esc(meta.price)+'"';
+  if(meta.imageRef)attrs+=' data-fimg="'+esc(meta.imageRef)+'"';
+  if(meta.venueId)attrs+=' data-fvenue="'+esc(meta.venueId)+'"';
+  var on=favHas(type,refId);
+  return '<button class="ico-btn'+(on?' fav-on':'')+'" data-act="toggleFav" '+attrs+'><img src="'+favIconSrc(type,refId)+'" alt=""><span class="ico-lbl">'+esc(label||(on?'Saved':'Save'))+'</span></button>';
+}
+function waIconButton(shareAct,refId,label){return '<button class="ico-btn" data-act="'+esc(shareAct)+'" data-id="'+esc(refId)+'"><img src="'+IMG.iconWA+'" alt=""><span class="ico-lbl">'+esc(label||'Share')+'</span></button>';}
+function toggleFav(el){
+  var s=favStore();
+  if(!s||!s.getUser()){if(confirm("Sign in to save this to your favourites. Continue to sign in?"))location.href="eatouts-login.html";return;}
+  var m=favMetaFrom(el);
+  if(!m.type||!m.refId)return;
+  s.favourites.toggle({type:m.type,refId:m.refId,title:m.title,subtitle:m.subtitle,price:(m.price?Number(m.price):null),imageRef:m.imageRef,venueId:m.venueId});
+  render();
+}
 
 /* Order activity bridge: when a customer places an order for a venue that a
    field agent tracks, stamp last_order_at in the manager store so the 20-day
@@ -5021,12 +5089,16 @@ function bottleStoreOptions(brand,active){
   const menuBtn='<button class="ropt" data-act="openBottleMenu" data-brand="'+esc(brand.slug)+'">Menu</button>';
   const promosBtn='<button class="ropt" data-act="openBottlePromos" data-brand="'+esc(brand.slug)+'">Promos</button>';
   const addr=(active&&active.address)?'<div class="baddr">'+esc(active.address)+'</div>':'';
+  const favBtn=favButton("bottle_store",brand.slug,{title:brand.name,subtitle:(active&&(active.address||active.town))||"",venueId:(active&&active.id)||null,imageRef:(active&&active.image)||null},"Save");
+  const waBtn='<button class="ico-btn" data-act="waBottle" data-brand="'+esc(brand.slug)+'"><img src="'+IMG.iconWA+'" alt=""><span class="ico-lbl">WhatsApp</span></button>';
   return '<div class="ropts">'+
     pickAxis("town",townL,"cbtn")+
     pickAxis("area",areaL,"cbtn-area")+
     menuBtn+
     promosBtn+
-    '</div>'+addr;
+    '</div>'+addr+
+    '<div class="ico-row">'+favBtn+waBtn+'</div>'+
+    '<button class="btn full" style="margin-top:8px" data-act="saveBottleSummary" data-brand="'+esc(brand.slug)+'">Save Summary</button>';
 }
 function renderBottleLocPicker(){
   const lp=state.bottleLocPicker;
@@ -6150,7 +6222,11 @@ function renderPromoDetail(){
     '<div class="subh" style="margin-top:16px">Gallery &amp; Links</div>'+
     links+
     reserve+
-    '<button class="btn wa full" data-act="waPromo" data-id="'+p.id+'">'+(hasPrice?'Send via WhatsApp':'Ask on WhatsApp')+'</button>'+
+    '<div class="ico-row">'+
+      favButton('promo',p.id,{title:p.title,subtitle:venue,price:(hasPrice?p.price:null),imageRef:promoImage(p),venueId:(found.restaurant&&found.restaurant.id)||null},'Save')+
+      waIconButton('waPromo',p.id,'Ask on WhatsApp')+
+    '</div>'+
+    '<button class="btn full" style="margin-top:10px" data-act="savePromoSummary" data-id="'+p.id+'">Save Summary</button>'+
     '</div></div>'+
     '<div style="height:24px"></div></div>';
 }
@@ -7259,12 +7335,16 @@ function renderPhoto(){
   if(!items.length) return '<div class="empty">No photos to show.</div>';
   let start=0;
   for(let i=0;i<items.length;i++){ if(items[i].id===state.galleryPhoto){ start=i; break; } }
+  const g0=items[start];
+  const gFav=favButton("gallery",g0.id,{title:g0.label,subtitle:g0.cat,imageRef:g0.src,venueId:g0.venueId||null},"Save");
+  const gWa='<button class="ico-btn" data-act="waGallery" data-id="'+esc(g0.id)+'"><img src="'+IMG.iconWA+'" alt=""><span class="ico-lbl">Share</span></button>';
   return '<div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#0a0a0a">'+
     '<div class="crumb"><button data-act="backAlbum">Gallery</button>'+
     '<span class="sep">/</span><span class="cur">'+esc(items[start].cat)+'</span></div>'+
     '<div class="swiper" id="photsw">'+items.map(function(g){
       return '<div class="slide">'+imgTag(g.src,g.label)+'</div>';
     }).join("")+'</div>'+
+    '<div style="padding:0 12px;background:#0a0a0a"><div class="ico-row">'+gFav+gWa+'</div></div>'+
     '<div class="dots">'+items.map(function(_,i){return '<i class="'+(i===start?"on":"")+'"></i>';}).join("")+'</div></div>';
 }
 
@@ -7301,6 +7381,53 @@ function signupBanner(){
     '<img src="assets/images/images/signup_banner.jpg" alt="List your business on EatOuts" loading="lazy"></a>';
 }
 
+/* Signed-in customer profile card for the About tab: 90px row, heart count
+   thumbnail (tap to enlarge / change), accordion of saved-account pages. */
+function customerFavCount(){var s=favStore();return (s&&s.state&&s.state.favourites)?s.state.favourites.length:0;}
+function customerPhoto(){var u=window.EatoutsCustomer&&EatoutsCustomer.getUser();return state.profilePhoto||(u&&u.photoKey)||null;}
+function renderProfileCard(){
+  const u=window.EatoutsCustomer?EatoutsCustomer.getUser():null;
+  const open=!!state.profileCardOpen;
+  const photo=customerPhoto();
+  let h='<div class="pcdivider"></div>';
+  h+='<button class="profilecard" data-act="profileCardToggle" aria-expanded="'+(open?"true":"false")+'">';
+  if(u){
+    h+='<span class="pc-thumb" data-act="openProfilePhoto">'+
+       (photo?'<img src="'+esc(photo)+'" alt="">':'<img src="'+IMG.iconHeartOn+'" style="opacity:.35" alt="">')+'</span>'+
+       '<span class="pc-main"><strong>'+esc(u.name||u.username||"My Profile")+'</strong>'+
+       '<small>'+esc(u.username?("@"+u.username):"Customer account")+'</small></span>'+
+       '<span class="pc-fav"><img src="'+IMG.iconHeartOn+'" alt=""><span>'+customerFavCount()+'</span></span>';
+  }else{
+    h+='<span class="pc-thumb"><img src="'+IMG.iconHeartOn+'" style="opacity:.3" alt=""></span>'+
+       '<span class="pc-main"><strong>Create Profile</strong><small>Save favourites, orders and events</small></span>';
+  }
+  h+='</button>';
+  if(open){
+    h+='<div class="pc-rows">';
+    if(u){
+      h+='<a class="pc-row" href="eatouts-profile.html">My Profile</a>'+
+         '<a class="pc-row" href="eatouts-orders.html">Order History</a>'+
+         '<a class="pc-row" href="eatouts-favourites.html">Favourites</a>'+
+         '<a class="pc-row" href="eatouts-summaries.html">Saved Summaries</a>'+
+         '<a class="pc-row" href="eatouts-events.html">Events</a>'+
+         '<a class="pc-row" href="eatouts-gallery.html">Gallery</a>'+
+         '<button class="pc-row" data-act="customerLogout">Sign out</button>';
+    }else{
+      h+='<a class="pc-row" href="eatouts-user-onboarding.html">Create an account</a>'+
+         '<a class="pc-row" href="eatouts-login.html">Sign in</a>';
+    }
+    h+='</div>';
+  }
+  if(state.profilePhotoOpen&&u){
+    h+='<div class="pc-photo" data-act="closeProfilePhoto">'+
+       '<img src="'+esc(photo||IMG.iconHeartOn)+'" alt="">'+
+       '<div class="pc-actions"><label class="btn primary" style="cursor:pointer">Change photo'+
+       '<input type="file" id="pcFile" accept="image/*" style="display:none"></label>'+
+       '<button class="btn" data-act="closeProfilePhoto">Close</button></div></div>';
+  }
+  return h;
+}
+
 function renderAbout(){
   const brandName = 'EatOuts';
   const brandBlurb = 'Discover restaurants, food, promos and events across Botswana.';
@@ -7321,13 +7448,7 @@ function renderAbout(){
      render dimmed so the full set is visible and easy to fill in later */
   h+=renderAboutSocialRow();
 
-  h+='<div class="about-sec">About EatOuts</div>';
-  h+=aboutBlock('Platform','EatOuts helps people discover great restaurants, promotions, events and venue-booking opportunities in Botswana.');
-  h+=aboutBlock('Focus','Curated food, nightlife, coffee culture, and local hospitality with easy booking and direct WhatsApp enquiries.');
-
-  h+='<div class="about-sec">Why It Works</div>';
-  h+='<div class="tagwrap center">'+["Restaurant discovery","Daily promos","Venue booking","Local events","Easy WhatsApp"]
-     .map(function(t){return '<span class="chip pill">'+esc(t)+'</span>';}).join("")+'</div>';
+  h+=renderProfileCard();
 
   /* Settings accordion: install, blog, event suppliers, legal, feedback,
      operator and a nested "List Business" accordion that holds the "List As
@@ -7338,6 +7459,7 @@ function renderAbout(){
   h+='<div class="setlist"><div class="setacc'+(sOpen?" open":"")+'" data-sacc="settings">'+
     '<button class="setrow" data-act="toggleAboutSettings" aria-expanded="'+(sOpen?"true":"false")+'">Settings</button>'+
     '<div class="acc-wrap"><div class="acc-in">'+
+      '<a class="setrow" href="eatout-about.html">About EatOuts</a>'+
       '<button class="setrow" data-act="showRestNotice" '+
         'data-notice="'+esc("EatOuts APK installer is coming soon - we will notify you here when it drops.")+'">Install EatOuts</button>'+
       '<a class="setrow" href="'+esc(EATOUTS_WHATSAPP_CHANNEL_URL)+'">WhatsApp Channel</a>'+
@@ -7601,6 +7723,38 @@ document.addEventListener("click",function(e){
   /* Close the photo preview; tapping the image itself stays inert */
   if(act==="closePreview"){if(e.target.closest(".preview-img"))return;state.preview=null;render();return;}
 
+  /* CUSTOMER FAVOURITES */
+  if(act==="toggleFav"){toggleFav(t);return;}
+
+  /* SAVE SUMMARY (black/white button on restaurant / bottle / promo views) */
+  if(act==="savePromoSummary"){
+    const f=promoById(id);const s=favStore();
+    if(!f||!s||!s.getUser()){if(confirm("Sign in to save a summary. Continue to sign in?"))location.href="eatouts-login.html";return;}
+    const p=f.promo;const venue=f.restaurant?f.restaurant.name:((p.brand)||"");
+    const seats=state.promoSeats[p.id]||1;const addons=state.promoAddons[p.id]||{};
+    let total=p.price*seats;PROMO_ADDONS.forEach((a,i)=>{total+=a.price*(addons[i]||0);});
+    const items=[{name:p.title,price:p.price,qty:seats}];
+    PROMO_ADDONS.forEach((a,i)=>{if(addons[i])items.push({name:a.name,price:a.price,qty:addons[i]});});
+    s.summaries.add({orderRef:p.id,venueName:venue,venueLogo:(f.restaurant&&f.restaurant.logo)||null,itemCount:items.length,total:total,source:"promo",payload:{items:items,total:total,venueName:venue}});
+    alert("Summary saved to your account.");
+    return;
+  }
+  if(act==="saveBottleSummary"){
+    const api=bottleAPI();const brand=api&&api.get(t.getAttribute("data-brand"));const s=favStore();
+    if(!brand||!s||!s.getUser()){if(confirm("Sign in to save a summary. Continue to sign in?"))location.href="eatouts-login.html";return;}
+    const active=bottleActiveBranch(brand);
+    const venueName=brand.name+(active&&active.town?(" · "+active.town):"");
+    s.summaries.add({orderRef:brand.slug,venueName:venueName,venueLogo:(active&&active.image)||null,itemCount:1,total:null,source:"bottle",payload:{items:[{name:brand.name}],venueName:venueName}});
+    alert("Summary saved to your account.");
+    return;
+  }
+
+  /* CUSTOMER PROFILE CARD (About tab) */
+  if(act==="profileCardToggle"){var cu=window.EatoutsCustomer&&EatoutsCustomer.getUser();if(!cu){location.href="eatouts-login.html";return;}state.profileCardOpen=!state.profileCardOpen;render();return;}
+  if(act==="openProfilePhoto"){state.profilePhotoOpen=true;render();return;}
+  if(act==="closeProfilePhoto"){if(e.target&&e.target.tagName==="IMG")return;state.profilePhotoOpen=false;render();return;}
+  if(act==="customerLogout"){if(window.EatoutsCustomer)EatoutsCustomer.logout().then(function(){state.profileCardOpen=false;render();});return;}
+
   /* PROMOS */
   if(act==="pickDay"){state.promoDay=parseInt(t.getAttribute("data-day"),10);state.promoExpanded=null;render();return;}
   if(act==="togglePromo"){state.promoExpanded=(state.promoExpanded===id)?null:id;syncAccordions();return;}
@@ -7636,6 +7790,23 @@ document.addEventListener("click",function(e){
       msg+="Estimated Total: P"+total.toFixed(2)+"\n\nPlease confirm seat availability.";
     }
     window.location.href=waLink(msg,f&&f.restaurant);
+    return;
+  }
+  if(act==="waGallery"){
+    const items=filteredGallery();
+    const g=items.find(function(x){return x.id===id;});
+    if(!g)return;
+    window.location.href=waShareLink("Check out this "+g.cat+" photo on EatOuts: "+g.label);
+    return;
+  }
+  if(act==="waBottle"){
+    const api=bottleAPI();
+    const brand=api&&api.get(t.getAttribute("data-brand"));
+    if(!brand)return;
+    const active=bottleActiveBranch(brand);
+    const r=(active&&active.phones&&active.phones[0])||null;
+    const msg="*BOTTLE STORE ENQUIRY*\n"+brand.name+(active?("\n"+(active.address||active.town||"")):"")+"\n\nHi, I'd like to ask about availability, pricing and delivery.";
+    window.location.href=waLink(msg,r);
     return;
   }
   if(act==="waPoetry"){
@@ -8402,6 +8573,24 @@ window.addEventListener("online",refreshNetChip);
 window.addEventListener("offline",refreshNetChip);
 refreshNetChip();
 
+/* Profile photo picker: preview the chosen image and remember it locally. */
+document.addEventListener("change",function(e){
+  if(!e.target||e.target.id!=="pcFile")return;
+  const file=e.target.files&&e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    state.profilePhoto=reader.result;
+    try{
+      const s=window.EatoutsCustomer;
+      if(s&&s.state&&s.state.user){s.state.user.photoKey=state.profilePhoto;}
+      s&&s.updateProfile&&s.updateProfile({photoKey:state.profilePhoto});
+    }catch(err){}
+    render();
+  };
+  reader.readAsDataURL(file);
+});
+
 /* Boot */
 bootEatoutsBridge();
 /* Deep-link a tab from the URL hash (e.g. index.html#reserve), used by the
@@ -8433,6 +8622,12 @@ try{
   const resume=(new URLSearchParams(window.location.search||"")).get("resume");
   if(resume) restoreOrder();
 }catch(e){}
+/* Customer session probe: prefers the server (cookie) session, falls back to
+   the local store. Keeps the header/profile UI in sync after sign-in. */
+if(window.EatoutsCustomer){
+  EatoutsCustomer.onChange(function(){ try{ render(); }catch(e){} });
+  EatoutsCustomer.refresh().then(function(){ try{ render(); }catch(e){} }).catch(function(){});
+}
 render();
 loadRestaurantTypeFilters();
 loadDirectoryMenus(function(){

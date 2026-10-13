@@ -127,6 +127,8 @@ img{display:block;max-width:100%}
 .toast.on{opacity:1}
 .empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
 .footnote{padding:14px 16px 22px;font-size:10.5px;color:var(--muted);line-height:1.55}
+.ds-workspace{text-align:center;padding:0 16px 26px;font-size:11.5px;color:var(--muted)}
+.ds-workspace a{color:var(--black);font-weight:800;text-decoration:underline}
 </style>
 </head>
 <body>
@@ -261,6 +263,7 @@ img{display:block;max-width:100%}
     h += '</div>';
 
     h += '<div class="footnote">Every price includes the EatOuts 15% platform fee. The designer receives 85% on completion. Prices are one-time unless marked /month.</div>';
+    h += '<div class="ds-workspace">Are you one of our designers? <a href="designer-dashboard.html">Open your workspace</a></div>';
 
     view().innerHTML = h;
     updateActionBar();
@@ -382,7 +385,8 @@ img{display:block;max-width:100%}
     }
 
     /* show busy designers below as locked */
-    var busy = all.filter(function(d){ return matching.indexOf(d) === -1; });
+    var matchIds = matching.map(function(d){ return d.id; });
+    var busy = all.filter(function(d){ return matchIds.indexOf(d.id) === -1; });
     if(busy.length){
       h += '<div class="subh" style="margin-top:18px">Currently engaged</div>';
       h += '<div class="designer-grid">';
