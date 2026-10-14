@@ -50,6 +50,7 @@ const SUITES = [
   'api-auth.js',
   'promo-submissions.js',
   'router.js',
+  'menuview.js',
   'customer.js'
 ];
 

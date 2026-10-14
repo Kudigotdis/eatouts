@@ -1,0 +1,126 @@
+#!/usr/bin/env node
+/**
+ * Menu view pages.
+ *
+ * The two Menu views (category list + item list) now lead with a
+ * Restaurant-Card instead of the breadcrumb, with enlarged thumbnails and
+ * typography, and a bottom Back button. Boots index.html in jsdom, opens a
+ * venue Menu, and asserts the structure + computed sizes; then verifies the
+ * card opens the venue info page (About).
+ *
+ * CommonJS on purpose — tests/package.json pins this folder to CommonJS.
+ */
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const { JSDOM, VirtualConsole } = require(path.join(__dirname, 'node_modules', 'jsdom'));
+
+const APP_DIR = path.resolve(__dirname, '..');
+const errors = [];
+let html = fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8');
+html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, s) => {
+  const f = path.join(APP_DIR, s.replace(/\//g, path.sep));
+  if (!fs.existsSync(f)) { errors.push('missing script: ' + s); return '<!-- missing ' + s + ' -->'; }
+  return '<script>' + fs.readFileSync(f, 'utf8') + '</script>';
+});
+
+const vc = new VirtualConsole();
+vc.on('jsdomError', e => errors.push('jsdomError: ' + (e.stack || e.message)));
+vc.on('error', (...a) => errors.push('console.error: ' + a.join(' ')));
+
+const dom = new JSDOM(html, { url: 'http://localhost/index.html', runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: vc });
+const { window: w } = dom;
+const doc = w.document;
+const ev = s => w.eval(s);
+const click = el => { if (el) el.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true })); };
+const px = el => el ? parseFloat(w.getComputedStyle(el).fontSize) : NaN;
+
+setTimeout(() => {
+  let fails = 0;
+  const check = (label, cond, extra) => {
+    if (!cond) { fails++; console.log('FAIL  ' + label + (extra !== undefined ? ' :: ' + extra : '')); }
+    else console.log('ok    ' + label);
+  };
+  const appErrors = errors.filter(e => e.indexOf('missing script') !== 0);
+
+  /* ---------- open a real venue's Menu ---------- */
+  const opened = ev(`(function(){
+    var L = EatoutsBridge.listing();
+    if(!L.length) return null;
+    var id = L[0].id;
+    state.tab='restaurants';
+    state.restaurantOpen=id;
+    state.restaurantView={id:id,brand:id,view:'menu',promoId:null};
+    state.menuCat=null; state.menuOpen=null; state.checkoutView=false; state.splitOpen=false;
+    EatoutsBridge.setActive(id);
+    render();
+    return {id:id,name:L[0].name};
+  })()`);
+  check('a venue menu opened', !!(opened && opened.id), opened && JSON.stringify(opened));
+
+  const vp = doc.getElementById('viewport');
+
+  /* ---------- category list view ---------- */
+  const card = vp.querySelector('.menu-view .restcard');
+  check('Restaurant-Card replaces the crumb in the Menu view', !!card, !!card);
+  const cname = vp.querySelector('.menu-view .restcard-name');
+  check('card renders the venue name', !!cname && cname.textContent.trim().length > 0, cname && cname.textContent);
+  check('no breadcrumb in the Menu view', !vp.querySelector('.menu-view .crumb'));
+  check('categories view keeps a slim "Menu" heading', /^Menu$/.test((vp.querySelector('.menu-view .phead h2') || {}).textContent || ''));
+  const h2 = vp.querySelector('.menu-view .phead h2');
+  check('.phead h2 is 28px', px(h2) >= 27, h2 && w.getComputedStyle(h2).fontSize);
+  const cmeta = vp.querySelector('.menu-view .cat-meta');
+  check('.cat-meta doubled to 21px', px(cmeta) >= 21, cmeta && w.getComputedStyle(cmeta).fontSize);
+  check('per-category heart removed from the categories view', !vp.querySelector('.menu-view .cat-wrap > .ico-btn'));
+  check('bottom Back button on the categories view', !!vp.querySelector('.menu-view [data-act="backFromRestView"]'));
+
+  /* ---------- item list view ---------- */
+  const cat = ev(`(function(){
+    var M = curMenu();
+    if(!M.length) return null;
+    state.menuCat = M[0].id;
+    state.menuOpen = null;
+    render();
+    return {id:M[0].id,name:M[0].name,items:M[0].items.length};
+  })()`);
+  check('a menu category opened', !!(cat && cat.id), cat && JSON.stringify(cat));
+  check('card present on the item list too', !!vp.querySelector('.menu-view .restcard'));
+  check('no breadcrumb on the item list', !vp.querySelector('.menu-view .crumb'));
+  const mthumb = vp.querySelector('.menu-view .mthumb');
+  check('.mthumb enlarged to 90px', mthumb && parseFloat(w.getComputedStyle(mthumb).width) >= 89, mthumb && w.getComputedStyle(mthumb).width);
+  const h2c = vp.querySelector('.menu-view .phead h2');
+  check('item-list .phead h2 is 28px', px(h2c) >= 27, h2c && w.getComputedStyle(h2c).fontSize);
+  const mtitle = vp.querySelector('.menu-view .mtitle');
+  check('.mtitle enlarged', px(mtitle) >= 15, mtitle && w.getComputedStyle(mtitle).fontSize);
+  const ico = vp.querySelector('.menu-view .mitem > .ico-btn');
+  check('item heart moved to right:24px', ico && Math.round(parseFloat(w.getComputedStyle(ico).right)) === 24, ico && w.getComputedStyle(ico).right);
+  check('item heart reduced below 44px', ico && parseFloat(w.getComputedStyle(ico).width) <= 36, ico && w.getComputedStyle(ico).width);
+  check('bottom Back to Menu button on the item list', !!vp.querySelector('.menu-view [data-act="backCats"]'));
+
+  /* ---------- card tap opens the venue info page ---------- */
+  click(vp.querySelector('.menu-view .restcard-main'));
+  check('card name/tagline opens the venue About page', !!vp.querySelector('.rabout-hero'));
+  check('About Back button returns to the Menu', !!vp.querySelector('[data-act="backCats"]'));
+
+  /* ---------- tagline cascade never empty ---------- */
+  const tag = ev(`(function(){
+    var L = EatoutsBridge.listing();
+    var bad = [];
+    for(var i=0;i<L.length && i<40;i++){
+      var r = EatoutsBridge.byId(L[i].id);
+      var b = EatoutsBridge.bundleOf(L[i].id);
+      var p = (b && b.profile) || {};
+      var t = p.tagline || (r && r.directory && r.directory.description) || (r && r.category) || EatoutsBridge.placeLabel(r) || '';
+      if(!String(t).trim()) bad.push(L[i].name);
+    }
+    return bad;
+  })()`);
+  check('every card has a non-empty second line', Array.isArray(tag) && tag.length === 0, tag && JSON.stringify(tag));
+
+  check('no runtime errors', appErrors.length === 0, appErrors.slice(0, 3).join(' | '));
+
+  console.log('');
+  console.log(fails === 0 ? 'MENU VIEW TEST PASSED' : 'MENU VIEW TEST FAILED (' + fails + ' checks)');
+  process.exit(fails === 0 ? 0 : 1);
+}, 1000);

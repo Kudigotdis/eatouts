@@ -239,6 +239,29 @@ img{display:block;max-width:100%}
 .mprice{font-size:12.5px;font-weight:900;color:#1a1a1a;margin-top:3px;letter-spacing:.01em}
 .mbody{padding:0 14px 15px;animation:fd .2s ease;background:#faf8f2;border-top:1px solid #f1ece1}
 .mdesc{font-size:12px;color:#5c5547;line-height:1.55;margin:12px 0 12px}
+/* Restaurant-Card: replaces the breadcrumb at the top of both Menu views.
+   White card, faint 4% black border, a 90px logo (tap for the large view)
+   and the venue name + tagline (tap for the venue info page). */
+.restcard{display:flex;align-items:center;gap:13px;padding:12px 14px;margin:12px 14px 0;background:#ffffff;border:1px solid rgba(0,0,0,.04);border-radius:14px}
+.restcard-thumb{width:90px;height:90px;flex:0 0 auto;border-radius:8px;overflow:hidden;border:1px solid #ece7db;background:#faf8f2;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.restcard-thumb:active{opacity:.85}
+.restcard-thumb img{width:100%;height:100%;object-fit:contain;display:block}
+.restcard-ph{font-size:34px;font-weight:900;color:#a89a7e}
+.restcard-main{flex:1;min-width:0;text-align:left;background:transparent;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.restcard-name{display:block;font-size:18px;font-weight:700;color:#141414;line-height:1.3;letter-spacing:0}
+.restcard-tag{display:block;font-size:14px;font-weight:500;color:#8e8e8e;margin-top:3px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Menu-view enlargements, scoped so Beverages/Events keep their own sizes. */
+.menu-view .cat-meta{font-size:21px}
+.menu-view .mthumb{width:90px;height:90px;border-radius:8px}
+.menu-view .mthumb .tile-ico{font-size:34px}
+.menu-view .mtitle{font-size:16px}
+.menu-view .mprice{font-size:14px}
+.menu-view .mbody{text-align:center}
+.menu-view .mdesc{font-size:14px;text-align:center}
+.menu-view .ctr .lbl{font-size:14px}
+.menu-view .ctr .lbl em{font-size:12px}
+.menu-view .mitem>.ico-btn{right:24px;width:34px;height:34px}
+.menu-view .mitem>.ico-btn img{width:28px;height:28px}
 /* 3-up paging: each thumb is (100% - 2 gaps)/3 so exactly three fit,
    and mandatory snapping always lands on a clean group of three. */
 .thumbs{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px;margin-bottom:13px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
@@ -509,7 +532,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .crumb .sep{color:#e2dcc9;font-size:10px}
 .crumb .cur{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#1a1a1a}
 .phead{width:100vw;box-sizing:border-box;margin-left:calc(-50vw + 50%);margin-right:calc(-50vw + 50%);padding:20px 16px 16px;text-align:center;border-radius:0;background-color:rgba(211,211,211,.2)}
-.phead h2{margin:0 0 4px;font-size:19px;font-weight:900;letter-spacing:-.01em;color:#1a1a1a}
+.phead h2{margin:0 0 4px;font-size:28px;line-height:1.2;font-weight:900;letter-spacing:-.01em;color:#1a1a1a}
 .phead p{margin:0;font-size:15px;font-weight:700;color:#a89a7e;line-height:1.5}
 .empty{padding:44px 20px;text-align:center;color:#a89a7e;font-size:12.5px;line-height:1.6}
 
@@ -5355,11 +5378,13 @@ function renderRestaurantSubView(){
 
   if(rv.view==="menu"){
     if(listingLocked(r)) return renderMenuLocked(r);
-    /* renderMenuCategory supplies its own scroll + crumb */
+    /* renderMenuCategory supplies its own scroll + restaurant card */
     if(state.splitOpen) return renderCheckoutSplit();
     if(state.checkoutView) return renderCheckout();
     if(state.menuCat) return renderMenuCategory();
-    return '<div class="scroll">'+crumb+renderMenuCategories(true)+'<div style="height:24px"></div></div>';
+    return '<div class="scroll menu-view">'+restaurantCard(r)+renderMenuCategories(true)+
+      '<div class="pad" style="padding-top:0"><button class="btn ghost full" data-act="backFromRestView">Back</button></div>'+
+      '<div style="height:24px"></div></div>';
   }
   let inner="";
   if(rv.view==="venue")  inner=renderRestaurantVenue(r);
@@ -5644,7 +5669,7 @@ function renderRestaurantAbout(r){
   h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waRestAbout" data-id="'+esc(r.id)+'">Send via WhatsApp</button></div>';
   /* Back sits under the WhatsApp button so the page can be left without
      reaching for the crumb at the top */
-  h+='<div style="margin-top:10px"><button class="btn ghost full" data-act="backFromRestView">Back</button></div>';
+  h+='<div style="margin-top:10px"><button class="btn ghost full" data-act="backCats">Back to Menu</button></div>';
   h+='</div>';
   return h;
 }
@@ -6834,11 +6859,30 @@ function renderBevSplit(){
 /* ================================================================
    TAB 2: MENU
    ================================================================ */
+/* Restaurant-Card shown at the top of both Menu views in place of the
+   old breadcrumb: logo (tap = large view) + name/tagline (tap = info page). */
+function restaurantCard(r){
+  r=r||curRestaurant();
+  if(!r) return "";
+  const b=curBundle();
+  const p=(b&&b.profile)||{};
+  const name=(b&&b.name)||r.name||"";
+  const tag=p.tagline||(r.directory&&r.directory.description)||r.category||EatoutsBridge.placeLabel(r)||"";
+  const logo=restLogo(r);
+  return '<div class="restcard">'+
+    '<button class="restcard-thumb" data-act="previewRestLogo" data-id="'+esc(r.id)+'" aria-label="View '+esc(name)+' logo">'+
+      (logo?'<img src="'+esc(logo)+'" alt="">':'<span class="restcard-ph">'+esc((name[0]||"?").toUpperCase())+'</span>')+
+    '</button>'+
+    '<button class="restcard-main" data-act="openRestAbout" data-id="'+esc(r.id)+'">'+
+      '<span class="restcard-name">'+esc(name)+'</span>'+
+      (tag?'<span class="restcard-tag">'+esc(tag)+'</span>':'')+
+    '</button>'+
+  '</div>';
+}
 function renderMenuCategories(noWrap){
   const M=curMenu();
   let h=noWrap?"":'<div class="scroll">';
-  h+='<div class="phead"><h2>Menu</h2><p>'+esc(curRestaurantName())+'</p></div>';
-  const rid=activeRestId();
+  h+='<div class="phead"><h2>Menu</h2></div>';
   M.forEach(c=>{
     const cth=menuCatThumb(c);
     h+='<div class="cat-wrap">'+
@@ -6846,7 +6890,6 @@ function renderMenuCategories(noWrap){
       '<div class="cat-ico'+(cth?" has-thumb":"")+'" style="'+artStyle(c.id)+'">'+(cth?'<img src="'+esc(cth)+'" alt="">':c.icon)+'</div>'+
       '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div>'+
       '<div class="cat-meta">'+c.items.length+' items</div></div></button>'+
-      favButton("menu",rid+":"+c.id,{title:c.name,subtitle:curRestaurantName(),venueId:rid,payload:{items:(c.items||[]).map(function(it){return {name:it[1],price:(Array.isArray(it[3])?((it[3][0]&&it[3][0][1])||0):(it[3]||0))};})}},"Save")+
       '</div>';
   });
   h+='<div class="pad" style="padding-top:0"><button class="btn primary full" data-act="saveRestSummary" data-id="'+esc(activeRestId())+'">Save Summary</button></div>';
@@ -6858,8 +6901,8 @@ function renderMenuCategories(noWrap){
 function renderMenuCategory(){
   const cat=curMenu().find(c=>c.id===state.menuCat);
   if(!cat)return '<div class="empty">Category not found.</div>';
-  let h='<div class="scroll">';
-  h+='<div class="crumb"><button data-act="backCats">'+esc(curRestaurantName())+'</button><span class="sep">/</span><span class="cur">'+esc(cat.name)+'</span></div>';
+  let h='<div class="scroll menu-view">';
+  h+=restaurantCard();
   h+='<div class="phead"><h2>'+esc(cat.name)+'</h2><p>'+cat.items.length+' items</p></div>';
   if(cat.note) h+='<div class="pad" style="padding-top:0;padding-bottom:0"><div class="ctr"><div class="lbl"><em style="margin:0">'+esc(cat.note)+'</em></div></div></div>';
   cat.items.forEach(it=>{
@@ -6906,7 +6949,9 @@ function renderMenuCategory(){
     h+='</div></div></div>';
     h+='</div>';
   });
-  h+='<div style="height:110px"></div></div>';
+  h+='<div style="height:110px"></div>';
+  h+='<div class="pad"><button class="btn ghost full" data-act="backCats">Back to Menu</button></div>';
+  h+='</div>';
 
   const total=cartTotal();
   const count=cartCount();
@@ -8024,6 +8069,18 @@ document.addEventListener("click",function(e){
       return;
     }
   }
+  /* Restaurant-Card logo preview (top of the Menu views): tap the 90px
+     logo to view it large on the blurred backdrop. */
+  const cardThumb=e.target.closest(".restcard-thumb");
+  if(cardThumb){
+    const img=cardThumb.querySelector("img");
+    if(img&&img.src){
+      const main=cardThumb.parentNode?cardThumb.parentNode.querySelector(".restcard-name"):null;
+      state.preview={src:img.src,name:main?main.textContent:""};
+      render();
+      return;
+    }
+  }
 
   const t=e.target.closest("[data-act]");
   if(!t)return;
@@ -8272,6 +8329,8 @@ document.addEventListener("click",function(e){
   }
   if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;state.restLocPicker=null;state.restNotice=null;syncRestAccordions();return;}
   if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
+  /* Restaurant-Card name/tagline tap: open the venue information page. */
+  if(act==="openRestAbout"){const rid=id||(state.restaurantView&&state.restaurantView.id);if(!rid)return;const brand=(state.restaurantView&&state.restaurantView.brand)||state.restaurantOpen||rid;state.restaurantOpen=brand;state.restaurantView={id:rid,brand:brand,view:"about",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(rid);render();return;}
   if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;render();return;}
   /* Promos on an expanded restaurant row opens the Gallery tab scoped to
