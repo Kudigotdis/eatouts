@@ -37,6 +37,23 @@ setTimeout(() => {
   click(doc.querySelector('[data-tab="restaurants"]'));
   check('restaurants tab rendered', !!doc.querySelector('#viewport .ritem'), '');
 
+  /* Both directory cards share one bottom action area: a left icon column
+     (heart on top, WhatsApp below) beside two pill rows. */
+  const rcard = doc.querySelector('#viewport .ritem[data-racc]');
+  const ropts = rcard ? rcard.querySelector('.ropts.brows') : null;
+  check('restaurant card uses the two-row brows layout',
+    !!ropts && ropts.querySelectorAll('.brow').length === 2);
+  const rrow1 = ropts ? ropts.children[ropts.children.length - 2] : null;
+  const rrow2 = ropts ? ropts.children[ropts.children.length - 1] : null;
+  check('restaurant row 1 = heart + town + area pills',
+    !!rrow1 && !!rrow1.querySelector('[data-act="toggleFav"]') &&
+    !!rrow1.querySelector('[data-act="toggleFav"] img[src*="heart_"]') &&
+    !!rrow1.querySelector('[data-act="openRestLocPicker"][data-axis="town"]') &&
+    !!rrow1.querySelector('[data-act="openRestLocPicker"][data-axis="area"]'));
+  check('restaurant row 2 = WhatsApp + Menu + Promos',
+    !!rrow2 && !!rrow2.querySelector('[data-act="waRestAbout"]') &&
+    rrow2.querySelectorAll('.ropt').length === 2);
+
   const groups = evj('EatoutsBridge.groupedListing().map(g=>({key:g.key,name:g.name,branches:g.branches.map(b=>({id:b.id,town:String((b.location||{}).town||"").trim()}))}))');
   const multi = groups.filter(g => g.branches.length > 1);
   const single = groups.filter(g => g.branches.length === 1);

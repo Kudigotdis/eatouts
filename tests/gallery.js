@@ -200,9 +200,13 @@ setTimeout(() => {
     check('back to grid', ev('state.galleryView') === 'grid' && ev('state.galleryPhoto') === null);
   } else { fails++; console.log('FAIL  no gallery cell to open'); }
 
-  /* ---------- F: rrow Promos -> Gallery ---------- */
-  check('rrow Promos markup points at the Gallery', /data-act="openRestGallery"/.test(src));
-  check('rrow Promos no longer opens the restaurant sub-view', !/data-view="promos"/.test(src));
+  /* ---------- F: rrow Promos -> restaurant promos sub-view ----------
+     The Promos row button now opens the venue's promos grid (openRestView
+     with data-view="promos"), whose only action is openRestPromo -> the
+     restaurant promo detail. The openRestGallery handler is retained for
+     other callers, so its jump behaviour is still exercised below. */
+  check('rrow Promos markup opens the promos sub-view', /data-view="promos"/.test(src));
+  check('rrow Promos no longer points at the Gallery', !/data-act="openRestGallery"/.test(src));
   const ghost = doc.createElement('button');
   ghost.setAttribute('data-act', 'openRestGallery');
   ghost.setAttribute('data-id', restA);

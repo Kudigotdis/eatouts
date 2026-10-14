@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>EatOuts — Event Planner</title>
@@ -3191,7 +3193,11 @@ function renderMainScroll(){
   h+=renderEventLinksSection();
   h+=renderPreviewSection();
   h+='<div style="height:20px"></div>';
-  h+='<button class="btn primary full" style="width:calc(100% - 28px);margin:8px 14px" data-act="saveEvent">Save Event</button>';
+  h+='<div class="ev-foot-row" style="width:calc(100% - 28px);margin:8px 14px">'+
+     '<button class="ico-btn'+(eventFavHas()?' fav-on':'')+'" data-act="favEvent" aria-label="Save event" title="Save event"><img src="'+eventFavIcon()+'" alt=""></button>'+
+     '<button class="btn primary" style="flex:1" data-act="saveEvent">Save Event</button>'+
+     '<button class="ico-btn" data-act="shareWhatsApp" aria-label="Share on WhatsApp" title="Share on WhatsApp"><img src="assets/icons/whatsApp_icon_on.png" alt=""></button>'+
+     '</div>';
   h+='<button class="back-btn" data-act="backToVenueList">Back to Venues</button>';
   el.innerHTML=h;
 }

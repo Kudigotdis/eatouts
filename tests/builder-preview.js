@@ -72,6 +72,22 @@ function draftWith(venueId, opt) {
   const w = a.w, doc = a.doc;
   check('main boot: no window errors', !a.errors.some(e => e.indexOf('missing script') !== 0 && !/console\.error/.test(e)), a.errors.join(' | '));
 
+  /* ---------- Main-scroll footer: heart · Save · WhatsApp on one row ---------- */
+  const mf = doc.querySelector('#mainScroll .ev-foot-row');
+  check('main scroll footer is the ev-foot-row', !!mf);
+  check('main scroll footer has heart + Save + WhatsApp (3 children)',
+    !!mf && mf.children.length === 3, mf ? mf.children.length : 'none');
+  check('main scroll footer heart on the left',
+    !!mf && mf.firstElementChild.getAttribute('data-act') === 'favEvent' &&
+    /heart_(active|inactive)_icon/.test(mf.firstElementChild.querySelector('img').getAttribute('src')));
+  check('main scroll footer Save Event in the middle',
+    !!mf && mf.children[1].getAttribute('data-act') === 'saveEvent' && /Save Event/.test(mf.children[1].textContent));
+  check('main scroll footer WhatsApp on the right',
+    !!mf && mf.lastElementChild.getAttribute('data-act') === 'shareWhatsApp' &&
+    /whatsApp_icon_on/.test(mf.lastElementChild.querySelector('img').getAttribute('src')));
+  check('main scroll footer has two bare icon buttons',
+    !!mf && mf.querySelectorAll('.ico-btn').length === 2);
+
   /* ---------- Preview section is header-only ---------- */
   const sec = doc.querySelector('[data-sec="preview"]');
   check('preview section exists', !!sec);

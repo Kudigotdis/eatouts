@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -167,6 +169,9 @@ img{display:block;max-width:100%}
 .pimg .tile-ico{font-size:48px;opacity:.28}
 .pimg>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .pbody{padding:14px;border-top:1px solid #f1ece1;background:#ffffff}
+.promo-venue-card{display:flex;align-items:center;gap:14px;margin:12px 14px;padding:10px;border:1px solid rgba(0,0,0,.05);border-radius:12px;background:#ffffff}
+.promo-venue-name{flex:1;min-width:0;text-align:left;font-size:15px;font-weight:800;color:#1a1a1a;background:transparent;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.promo-venue-name:active{opacity:.6}
 @keyframes fd{from{opacity:0}to{opacity:1}}
 .phead-btn{display:block;width:100%;padding:0;margin:0 0 10px}
 .phead-btn h3{margin:0 0 6px;font-size:17px;font-weight:900;color:#1a1a1a;line-height:1.2;letter-spacing:-.01em}
@@ -714,6 +719,8 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 <script src="js/eatouts-seed-data.js"></script>
 <script src="js/eatouts-seed.js"></script>
 <script src="js/eatouts-bridge.js"></script>
+<script src="js/eatouts-slug.js"></script>
+<script src="js/eatouts-router.js"></script>
 <script>
 /* ================================================================
    CONFIG & CONSTANTS
@@ -3562,7 +3569,7 @@ function favButton(type,refId,meta,label){
   var on=favHas(type,refId);
   return '<button class="ico-btn'+(on?' fav-on':'')+'" data-act="toggleFav" '+attrs+' aria-label="'+(on?'Remove from favourites':'Save to favourites')+'" title="'+esc(label||(on?'Saved':'Save'))+'"><img src="'+favIconSrc(type,refId)+'" alt=""></button>';
 }
-function waIconButton(shareAct,refId,label){return '<button class="ico-btn" data-act="'+esc(shareAct)+'" data-id="'+esc(refId)+'" aria-label="'+esc(label||'Share')+'" title="'+esc(label||'Share')+'"><img src="'+IMG.iconWA+'" alt=""></button>';}
+function waIconButton(shareAct,refId,label,extra){return '<button class="ico-btn" data-act="'+esc(shareAct)+'" data-id="'+esc(refId)+'"'+(extra||'')+' aria-label="'+esc(label||'Share')+'" title="'+esc(label||'Share')+'"><img src="'+IMG.iconWA+'" alt=""></button>';}
 function toggleFav(el){
   var s=favStore();
   if(!s||!s.getUser()){if(confirm("Sign in to save this to your favourites. Continue to sign in?"))location.href="eatouts-login.html";return;}
@@ -5042,15 +5049,18 @@ function restaurantOptions(g,active){
     :'<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("Choose a location first — each location has its own menu & specials.")+'">Menu</button>';
   let promosBtn;
   if(!locationReady)promosBtn='<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("Choose a location first — each location has its own menu & specials.")+'">Promos</button>';
-  else if(promoN>0)promosBtn='<button class="ropt" data-act="openRestGallery" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'">Promos</button>';
+  else if(promoN>0)promosBtn='<button class="ropt" data-act="openRestView" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'" data-view="promos">Promos</button>';
   else promosBtn='<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("No promos available at this location right now.")+'">Promos</button>';
 
-  return '<div class="ropts">'+
+  const heartBtn=favButton("restaurant",g.brandKey,{title:g.name,subtitle:g.category,imageRef:g.logo},"Save");
+  const waBtn=waIconButton("waRestAbout",bid,"Send via WhatsApp");
+  return '<div class="ropts brows">'+
     (nameTag?'<div class="ropts-loc-name">Also known as: '+esc(nameTag)+'</div>':'')+
-    pickAxis("town",townL,"cbtn")+
-    pickAxis("area",areaLabel,"cbtn-area")+
-    menuBtn+
-    promosBtn+
+    '<div class="brow">'+heartBtn+
+      pickAxis("town",townL,"cbtn")+
+      pickAxis("area",areaLabel,"cbtn-area")+
+    '</div>'+
+    '<div class="brow">'+waBtn+menuBtn+promosBtn+'</div>'+
     '</div>';
 }
 
@@ -5117,9 +5127,8 @@ function bottleStoreOptions(brand,active){
       pickAxis("town",townL,"cbtn")+
       pickAxis("area",areaL,"cbtn-area")+
     '</div>'+
-    '<div class="brow">'+menuBtn+promosBtn+waBtn+'</div>'+
-    '</div>'+addr+
-    '<button class="btn primary full" style="margin-top:8px" data-act="saveBottleSummary" data-brand="'+esc(brand.slug)+'">Save Summary</button>';
+    '<div class="brow">'+waBtn+menuBtn+promosBtn+'</div>'+
+    '</div>'+addr;
 }
 function renderBottleLocPicker(){
   const lp=state.bottleLocPicker;
@@ -5367,7 +5376,10 @@ function renderRestaurantPromoDetail(r,promoId){
   if(p.items&&p.items.length){
     h+='<div class="subh">Includes</div>'+p.items.map(function(it){return '<div class="ctr"><div class="lbl">'+esc(it)+'</div></div>';}).join("");
   }
-  h+='<button class="btn wa full" style="margin-top:14px" data-act="waRestPromo" data-id="'+esc(r.id)+'" data-promo="'+esc(p.id)+'">Send via WhatsApp</button>';
+  h+='<div class="ico-row split" style="margin-top:14px">'+
+     favButton("promo",p.id,{title:p.title,subtitle:r.name+" · "+found.day,price:(p.price||null),imageRef:foodImg(hash(p.id)),venueId:r.id},"Save")+
+     waIconButton("waRestPromo",r.id,"Send via WhatsApp",' data-promo="'+esc(p.id)+'"')+
+     '</div>';
   h+='</div></div>';
   return h;
 }
@@ -5964,8 +5976,14 @@ function renderFeaturedCard(ev){
   }
 
   inner+= isPoetry
-    ? '<button class="btn wa full" style="margin-top:12px" data-act="waPoetry">Send via WhatsApp</button>'
-    : '<button class="btn wa full" style="margin-top:12px" data-act="waFeatEvent" data-ev="'+esc(ev.id)+'">Send via WhatsApp</button>';
+    ? '<div class="ico-row split" style="margin-top:12px">'+
+        favButton("event",ev.id,{title:ev.title,subtitle:ev.dateLabel||"",imageRef:IMG.dirEvents+ev.flyer},"Save")+
+        waIconButton("waPoetry",ev.id,"Send via WhatsApp")+
+      '</div>'
+    : '<div class="ico-row split" style="margin-top:12px">'+
+        favButton("event",ev.id,{title:ev.title,subtitle:ev.dateLabel||"",imageRef:IMG.dirEvents+ev.flyer},"Save")+
+        waIconButton("waFeatEvent",ev.id,"Send via WhatsApp",' data-ev="'+esc(ev.id)+'"')+
+      '</div>';
   inner+='</div>';
 
   return '<div class="ecard'+(open?" open":"")+'" data-acc="'+key+'">'+
@@ -5986,7 +6004,10 @@ function renderEventCard(ev,dayIdx,r){
   inner+='<div class="subh">Event Images</div><div class="thumbs">';
   for(let i=0;i<IMG.demoImages.length;i++) inner+='<div class="th">'+imgTag(demoImg(i),ev.name)+'</div>';
   inner+='</div>';
-  inner+='<button class="btn wa full" style="margin-top:12px" data-act="waEvent" data-ev="'+esc(ev.id)+'">Send via WhatsApp</button>';
+  inner+='<div class="ico-row split" style="margin-top:12px">'+
+    favButton("event",ev.id,{title:ev.name,subtitle:venue+" · "+ev.time},"Save")+
+    waIconButton("waEvent",ev.id,"Send via WhatsApp",' data-ev="'+esc(ev.id)+'"')+
+  '</div>';
   inner+='</div>';
   return '<div class="ecard'+(open?" open":"")+'" data-acc="'+key+'">'+
     '<button class="pimg" data-act="togglePromo" data-id="'+key+'" aria-expanded="'+(open?"true":"false")+'">'+
@@ -6012,8 +6033,11 @@ function renderPromoCard(p,dayIdx,idx,r){
   inner+=hasItems
     ? '<ul class="phl">'+p.items.slice(0,5).map(function(it){return '<li>'+esc(it)+'</li>';}).join("")+'</ul>'
     : (p.desc?'<p class="mdesc" style="margin:0 0 4px">'+esc(p.desc)+'</p>':'');
-  inner+='<button class="btn full sm" style="margin-top:12px" data-act="openPromo" data-id="'+p.id+'">'+
-    (hasPrice?'View &amp; Reserve':'View Details')+'</button>';
+  inner+='<div class="ico-row" style="margin-top:12px">'+
+    favButton("promo",p.id,{title:p.title,subtitle:venue,price:(hasPrice?p.price:null),imageRef:img,venueId:(r&&r.id)||null},"Save")+
+    '<button class="ico-btn" data-act="openPromo" data-id="'+p.id+'" aria-label="Reserve" title="Reserve"><img src="assets/icons/Reserve_icon.png" alt=""></button>'+
+    waIconButton("waPromo",p.id,"Ask on WhatsApp")+
+    '</div>';
   inner+='</div>';
   return '<div class="ecard'+(open?" open":"")+'" data-acc="'+p.id+'">'+
     '<button class="pimg" data-act="togglePromo" data-id="'+p.id+'" aria-expanded="'+(open?"true":"false")+'">'+
@@ -6220,10 +6244,22 @@ function renderPromoDetail(){
     '<div class="ctr"><div class="lbl">Valid<em>'+esc(p.valid||day)+'</em></div></div>';
   }
 
+  let venueCard='';
+  if(found.restaurant){
+    const v=found.restaurant;
+    const vName=v.name||venue;
+    const vBrand=(hasBridge()&&EatoutsBridge.brandKeyOf)?EatoutsBridge.brandKeyOf(v):(v.slug||v.id);
+    venueCard='<div class="promo-venue-card">'+
+      '<button class="rthumb" aria-label="'+esc(vName)+' logo">'+(window.EatoutsBrand?EatoutsBrand.thumbHtml(v):'')+'</button>'+
+      '<button class="promo-venue-name" data-act="openPromoVenue" data-id="'+esc(v.id)+'" data-brand="'+esc(vBrand)+'">'+esc(vName)+'</button>'+
+    '</div>';
+  }
+
   return '<div class="scroll">'+
     '<div class="crumb"><button data-act="backPromo">Back</button><span class="sep">/</span><span class="cur">'+esc(p.type)+'</span></div>'+
     '<div class="pcard" style="margin-top:0">'+
     '<div class="pimg" style="aspect-ratio:16/10">'+imgTag(promoImage(p),p.title)+'</div>'+
+    venueCard+
     '<div class="pbody">'+
     '<h3 style="margin:0 0 6px;font-size:19px;font-weight:900;line-height:1.2;color:#1a1a1a">'+esc(p.title)+'</h3>'+
     '<div style="font-size:11.5px;color:#a89a7e;font-weight:700;margin-bottom:10px">'+esc(venue)+' &middot; '+esc(day)+' &middot; '+esc(p.valid||"")+'</div>'+
@@ -6245,9 +6281,9 @@ function renderPromoDetail(){
     reserve+
     '<div class="ico-row split">'+
       favButton('promo',p.id,{title:p.title,subtitle:venue,price:(hasPrice?p.price:null),imageRef:promoImage(p),venueId:(found.restaurant&&found.restaurant.id)||null},'Save')+
+      '<button class="btn primary" data-act="backPromo">Back to Promos</button>'+
       waIconButton('waPromo',p.id,'Ask on WhatsApp')+
     '</div>'+
-    '<button class="btn primary full" style="margin-top:10px" data-act="savePromoSummary" data-id="'+p.id+'">Save Summary</button>'+
     '</div></div>'+
     '<div style="height:24px"></div></div>';
 }
@@ -6296,7 +6332,10 @@ function renderPromoLink(){
     '<p class="mdesc">'+esc(ev.desc)+'</p>'+
     '<div class="subh">Highlights</div>'+
     '<ul class="phl">'+(ev.highlights||[]).map(function(h){return '<li>'+esc(h)+'</li>';}).join("")+'</ul>'+
-    '<button class="btn wa full" style="margin-top:14px" data-act="waEvent" data-ev="'+esc(ev.id)+'">Send via WhatsApp</button>'+
+    '<div class="ico-row split" style="margin-top:14px">'+
+    favButton("promo",(found.promo&&found.promo.id)||ev.id,{title:ev.name,subtitle:venue+" · "+ev.time,imageRef:eventImage(dayIdx),venueId:(found.restaurant&&found.restaurant.id)||null},"Save")+
+    waIconButton("waEvent",ev.id,"Send via WhatsApp",' data-ev="'+esc(ev.id)+'"')+
+    '</div>'+
     '</div></div><div style="height:24px"></div></div>';
 }
 
@@ -7839,6 +7878,18 @@ document.addEventListener("click",function(e){
   if(act==="backPromoGallery"){state.promoView="detail";state.promoGalleryId=null;render();return;}
   if(act==="openPromoLink"){state.promoView="link";state.promoId=id;render();return;}
   if(act==="backPromoLink"){state.promoView="detail";render();return;}
+  if(act==="openPromoVenue"){
+    const rid=id;
+    const r=hasBridge()?EatoutsBridge.byId(rid):null;
+    const brand=(hasBridge()&&EatoutsBridge.brandKeyOf)?EatoutsBridge.brandKeyOf(r):((r&&r.slug)||rid);
+    state.tab="restaurants";state.restPanel="food";
+    state.restaurantOpen=brand;
+    state.restaurantView={id:rid,brand:brand,view:"menu",promoId:null};
+    state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};
+    state.restLocPicker=null;state.restNotice=null;state.delivery=null;
+    if(hasBridge())EatoutsBridge.setActive(rid);
+    render();return;
+  }
   if(act==="seatPlus"){state.promoSeats[id]=(state.promoSeats[id]||1)+1;render();return;}
   if(act==="seatMinus"){state.promoSeats[id]=Math.max(1,(state.promoSeats[id]||1)-1);render();return;}
   if(act==="addonPlus"){const i=parseInt(t.getAttribute("data-idx"),10);if(!state.promoAddons[id])state.promoAddons[id]={};state.promoAddons[id][i]=(state.promoAddons[id][i]||0)+1;render();return;}
@@ -8703,6 +8754,49 @@ if(window.EatoutsCustomer){
   EatoutsCustomer.onChange(function(){ try{ render(); }catch(e){} });
   EatoutsCustomer.refresh().then(function(){ try{ render(); }catch(e){} }).catch(function(){});
 }
+/* Public business link: www.eatouts.online/bw/<businessname> opens that
+   business. The edge function leaves a <meta name="eatouts-vanity">
+   hint; on the mirror / shared ?link=<slug> we resolve via the API. */
+function openVanityTarget(t){
+  if(!t)return false;
+  if(t.redirect){window.location.replace("/"+(t.country||"bw")+"/"+t.slug);return true;}
+  if(t.type==="restaurant"){
+    const r=hasBridge()?EatoutsBridge.byId(t.refId):null;
+    if(!r)return false;
+    const brand=(hasBridge()&&EatoutsBridge.brandKeyOf)?EatoutsBridge.brandKeyOf(r):(r.slug||t.refId);
+    state.tab="restaurants";state.restPanel="food";
+    state.restaurantOpen=brand;
+    state.restaurantView={id:r.id,brand:brand,view:"menu",promoId:null};
+    state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};
+    if(hasBridge())EatoutsBridge.setActive(r.id);
+    return true;
+  }
+  if(t.type==="bottle_store"){
+    state.tab="restaurants";state.restPanel="beverages";
+    state.bevView=null;state.bevCheckout=false;state.bottleOpen=t.refId;
+    return true;
+  }
+  if(t.type==="supplier"){
+    window.location.replace("eatouts-suppliers.html?link="+encodeURIComponent(t.slug));
+    return true;
+  }
+  return false;
+}
+try{
+  if(window.EatoutsRouter){
+    const vt=EatoutsRouter.detect();
+    if(vt){
+      if(vt.needsResolve){
+        EatoutsRouter.resolve(vt).then(function(t){
+          if(t&&openVanityTarget(t)){try{render();}catch(e){}}
+          else if(t&&t.redirect){}
+        }).catch(function(){});
+      } else {
+        openVanityTarget(vt);
+      }
+    }
+  }
+}catch(e){}
 render();
 loadRestaurantTypeFilters();
 loadDirectoryMenus(function(){

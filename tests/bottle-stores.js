@@ -166,6 +166,15 @@ setTimeout(() => {
     !!doc.querySelector(bevSel + '[data-act="openBottleLocPicker"][data-axis="area"]') &&
     !!doc.querySelector(bevSel + '[data-act="openBottleMenu"]') &&
     !!doc.querySelector(bevSel + '[data-act="openBottlePromos"]'));
+  const openOpts = doc.querySelector(bevSel + '.ritem[data-bacc="' + firstSlug + '"] .ropts.brows');
+  check('bottle card uses the two-row brows layout',
+    !!openOpts && openOpts.querySelectorAll('.brow').length === 2);
+  const bottleRow2 = openOpts ? openOpts.querySelector('.brow:last-child') : null;
+  check('bottle row 2 leads with the WhatsApp icon',
+    !!bottleRow2 && !!bottleRow2.firstElementChild &&
+    bottleRow2.firstElementChild.getAttribute('data-act') === 'waBottle');
+  check('bottle card has no Save Summary button',
+    !doc.querySelector(bevSel + '[data-act="saveBottleSummary"]'));
   click(firstRow);
   check('tapping the open card collapses it', ev('state.bottleOpen') === null, ev('state.bottleOpen'));
 
