@@ -58,13 +58,16 @@ echo   [free] %PORT% - using it
 echo.
 
 rem ---- pick the runtime ----------------------------------------
-rem  python first (already installed), node as a fallback.
-set "SERVER="
-where python >nul 2>&1 && set "SERVER=python"
+rem  Prefer Node's serve.js for the web server itself: it sends an
+rem  explicit "no-store" cache header so a hard refresh always shows
+rem  the latest files. Python (when present) is still used to rebuild
+rem  the restaurant directory below.
+set "PYTHON="
+where python >nul 2>&1 && set "PYTHON=python"
 
-if not defined SERVER (
-    where node >nul 2>&1 && set "SERVER=node"
-)
+set "SERVER="
+where node >nul 2>&1 && set "SERVER=node"
+if not defined SERVER set "SERVER=python"
 
 if not defined SERVER (
     echo   ERROR: neither python nor node is on PATH.
@@ -78,7 +81,7 @@ rem ---- regenerate the directory before serving ------------------
 rem  Merges directory_data.db + listings_export.csv + the curated
 rem  JSON into assets\data\restaurant_listings\directory_runtime_data.json.
 rem  Idempotent: stable IDs, missing-only roster updates downstream.
-if "%SERVER%"=="python" (
+if defined PYTHON (
     echo   Building restaurant directory from SQLite, CSV, and curated data...
     python "%~dp0scripts\build_restaurant_directory.py"
     if errorlevel 1 echo   WARNING: directory generation failed; using the existing seed data.
@@ -88,15 +91,18 @@ if "%SERVER%"=="python" (
 
 rem  Bind the chosen port explicitly rather than letting the server
 rem  choose one, so the URL we print is the URL that answers.
-if "%SERVER%"=="python" (
-    start "EatOuts server" /min python -m http.server %PORT% --bind 127.0.0.1
-    echo   Serving with: python -m http.server %PORT%
-) else (
-    echo   Serving with: node (inline static server)
+if "%SERVER%"=="node" (
+    echo   Serving with: node (inline static server, no-store)
     start "EatOuts server" /min node "%~dp0serve.js" %PORT%
+) else (
+    echo   Serving with: python -m http.server %PORT%
+    start "EatOuts server" /min python -m http.server %PORT% --bind 127.0.0.1
 )
 
-set "URL=http://127.0.0.1:%PORT%/index.html"
+rem  Cache-buster: a fresh query each launch makes the browser open a
+rem  brand-new URL instead of reusing a stale tab from a previous run.
+set "CACHEBUST=%RANDOM%%RANDOM%"
+set "URL=http://127.0.0.1:%PORT%/index.html?v=%CACHEBUST%"
 
 rem ---- wait for it to actually answer ---------------------------
 rem  index.html, not a wrapper page: the app is a portrait phone UI.
@@ -126,7 +132,7 @@ echo.
 echo   Ready:  %URL%
 echo.
 echo   Opens on Promos with the 5 bottom tabs.
-echo   Operator sign-in:  About Us tab  ->  Operator  ->  0 / 0  or  Demo
+echo   Operator sign-in:  About Us tab  -^>  Operator  -^>  0 / 0  or  Demo
 echo.
 echo   Leave this window open while you work.
 echo   Close it (or press Ctrl+C) to stop the server.

@@ -1,25 +1,29 @@
 /* ============================================================
-   Minimal static file server - Node fallback for run-eatouts.bat
-   Only used when python is not on PATH.
+   Minimal static file server - preferred server for run-eatouts.bat
+   It sends an explicit no-store cache header so a reload always
+   serves the latest files. run-eatouts.bat falls back to
+   python -m http.server only when Node is unavailable.
+
+   The repository root package.json is "type":"module", so this
+   file is an ES module - use import, not require.
 
    Serves this folder on the given port and exits cleanly on
    Ctrl+C / window close so the launcher window stays truthful
    about when the server is running.
    ============================================================ */
-'use strict';
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const url = require('url');
-
-const ROOT = __dirname;
+const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.argv[2], 10) || 5173;
 const HOST = '127.0.0.1';
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
@@ -34,7 +38,7 @@ const TYPES = {
 const server = http.createServer(function (req, res) {
   let pathname;
   try {
-    pathname = decodeURIComponent(url.parse(req.url).pathname || '/');
+    pathname = decodeURIComponent(new URL(req.url, 'http://' + HOST).pathname || '/');
   } catch (e) {
     res.writeHead(400);
     return res.end('Bad request');
@@ -57,7 +61,9 @@ const server = http.createServer(function (req, res) {
     res.writeHead(200, {
       'Content-Type': TYPES[path.extname(target).toLowerCase()] || 'application/octet-stream',
       'Content-Length': stat.size,
-      'Cache-Control': 'no-cache'
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
     });
     fs.createReadStream(target).pipe(res);
   });
