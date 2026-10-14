@@ -84,7 +84,7 @@ img{display:block;max-width:100%}
    460px)/2 + 16px)) = the grey gutter + 16px on wide screens and a plain
    16px on phones — equal spacing either side, never touching an edge.
    (keep 460px in sync with #shell and with .fpop-scrim's clip-path below). */
-.fpop{position:fixed;top:66px;bottom:auto;left:max(16px,calc((100% - 460px)/2 + 16px));right:max(16px,calc((100% - 460px)/2 + 16px));background:#ffffff;border:1px solid #ece7db;border-radius:14px;box-shadow:0 -6px 26px -6px rgba(0,0,0,.2);overflow:hidden;z-index:60;animation:fpop .18s ease}
+.fpop{position:fixed;top:66px;bottom:calc(66px + var(--navh));left:max(16px,calc((100% - 460px)/2 + 16px));right:max(16px,calc((100% - 460px)/2 + 16px));background:#ffffff;border:1px solid #ece7db;border-radius:14px;box-shadow:0 -6px 26px -6px rgba(0,0,0,.2);overflow:hidden;z-index:60;animation:fpop .18s ease}
 /* Frosted backdrop for all 5 picker popups. The scrim sits above page content
    but below .fpop (60) and .pfbtn (56), so the menu and its trigger stay sharp.
    -webkit- prefix is required: Safari ignores the unprefixed form entirely.
@@ -137,8 +137,8 @@ img{display:block;max-width:100%}
 .day.td:not(.on){border-color:#1a1a1a}
 
 /* ---------- MONTH / WEEK PICKERS ---------- */
-.fpop.month-pop,.fpop.week-pop{max-height:min(70vh,600px,calc(100vh - 66px - var(--navh,68px) - 16px));overflow-y:auto;padding:6px 0}
-.month-year{font-size:22px;font-weight:900;color:#1a1a1a;text-align:center;padding:14px 12px 10px;border-bottom:1px solid #f4efe4;margin-bottom:4px;letter-spacing:-.01em}
+.fpop.month-pop,.fpop.week-pop{overflow-y:auto;padding:6px 0}
+.month-year{font-size:22px;font-weight:900;color:#1a1a1a;text-align:center;padding:14px 12px 10px;background:rgba(0,0,0,.03);border-bottom:1px solid #f4efe4;letter-spacing:-.01em}
 .fpop .month-row{display:block;width:100%;text-align:center;padding:14px 12px;font-size:20px;font-weight:700;color:#3a3324;background:#fff;border-bottom:1px solid #f4efe4;opacity:.25;transition:opacity .15s}
 .fpop .month-row:last-child{border-bottom:0}
 .fpop .month-row.on{background:#faf8f2;color:#1a1a1a;font-weight:900;opacity:1}
@@ -193,7 +193,7 @@ img{display:block;max-width:100%}
 .acc-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
 .acc-wrap>.acc-in{overflow:hidden;min-height:0}
 .ecard.open>.acc-wrap,.mitem.open>.acc-wrap,.ritem.open>.acc-wrap{grid-template-rows:1fr}
-@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}#cbar.on{animation:none}.bev-toggle-thumb{transition:none}::view-transition-old(app-vp),::view-transition-new(app-vp){animation:none}.panelfade-out{animation:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}.fpop .week-days{transition:none}}
+@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}#cbar.on{animation:none}.bev-toggle-thumb{transition:none}::view-transition-old(app-vp),::view-transition-new(app-vp){animation:none}.panelfade-out{animation:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}.fpop .week-days{transition:none}.az-bubble,.az-rail .az-letter{transition:none}}
 
 /* ---------- COUNTERS ---------- */
 .ctr{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#faf8f2;border:1px solid #f1ece1;border-radius:12px;margin-bottom:7px}
@@ -521,7 +521,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .pfbtn.pf-type{justify-content:flex-end;text-align:right}
 .pfbtn[disabled]{opacity:.45;cursor:default}
 .pfbtn[disabled]:active{background:#faf8f2}
-.fpop{max-height:min(60vh,520px,calc(100vh - 66px - var(--navh) - 16px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.fpop{max-height:none;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 /* width:auto/max-width:none keep the shared .fpop side insets in charge;
    without them a capped intrinsic width could win and shift the popup
    off-centre (it used to sit at 8px caps against #cbar's edge). */
@@ -529,7 +529,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 /* type popup: a four-segment category bar pinned above a scrolling
    checkbox list, so the popup can size itself without the segments
    scrolling away */
-.fpop.type-pop{display:flex;flex-direction:column;padding:0;overflow:hidden;max-height:min(72vh,640px,calc(100vh - 66px - var(--navh) - 16px));touch-action:pan-y}
+.fpop.type-pop{display:flex;flex-direction:column;padding:0;overflow:hidden;touch-action:pan-y}
 .segbar{flex:0 0 auto;display:flex;gap:8px;padding:12px 12px 8px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .segbtn{flex:1 1 auto;scroll-snap-align:start;min-width:74px;padding:9px 8px;border:1px solid #ece7db;border-radius:999px;background:#faf8f2;font-size:11.5px;font-weight:800;color:#3a3324;cursor:pointer;white-space:nowrap}
 .segbtn.on{background:#1a1a1a;border-color:#1a1a1a;color:#ffffff}
@@ -549,17 +549,37 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .fpop .loc-all{position:sticky;top:0;z-index:2;background:#fff;font-weight:900}
 .loc-district{padding:10px 14px 6px;background:#f7f6f3;color:#817766;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
 .fpop .loc-town-main{padding:11px 14px}
-.loc-town-main .lbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:700;color:#3a3324}
-.loc-count{flex:0 0 auto;min-width:26px;padding:3px 7px;border-radius:12px;background:#f3efe4;color:#645b48;font-size:10px;font-weight:900;text-align:center}
+.fpop .lbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:24px;font-weight:700;color:#3a3324}
+.loc-count{flex:0 0 auto;min-width:26px;padding:6px 12px;border-radius:12px;background:transparent;color:#645b48;font-size:18px;font-weight:900;text-align:center}
 /* min-width:0 lets these flex items shrink below content width; without it
    min-width:auto keeps a long area name at full width and shoves the count
    pill off the row. Matches the .lbl guards the town rows already had. */
 .fpop .loc-area-option>span:first-child,.fpop .loc-all>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fpop .loc-area-option{padding:11px 14px;border:0;background:transparent;font-size:11px}
+.fpop .loc-area-option{padding:11px 14px;border:0;background:transparent;font-size:20px}
 .fpop .loc-area-option.on{background:#fdf9ef}
 .fpop .loc-area-option .loc-sub{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:500;color:#a89a7e;margin-top:2px}
 .ropts .baddr{margin:9px 2px 2px;font-size:10.5px;font-weight:600;color:#8a8170;text-align:left;line-height:1.45}
 .fpop-note{padding:12px 14px;font-size:11px;color:#a89a7e}
+/* "All Towns" first row reads as a centred caption */
+.fpop .loc-all{justify-content:center;text-align:center}
+/* Restaurant + bottle town pickers render every row at 20px */
+.fpop.town-pop.rest-town-pop .town-scroll button,.fpop.town-pop.rest-town-pop .town-scroll .lbl{font-size:20px}
+
+/* ---------- A–Z JUMP RAIL (town pickers) ---------- */
+/* .fpop is position:fixed, so it already anchors the absolutely-positioned
+   rail + bubble; overflow:hidden clips them. The scroller moves to an inner
+   .town-scroll so the rail stays put while the list scrolls. */
+.fpop.town-pop{display:flex;flex-direction:column;overflow:hidden;padding:0}
+.town-scroll{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:8px 36px 8px 8px}
+.az-rail{position:absolute;top:8px;right:4px;bottom:8px;width:24px;display:flex;flex-direction:column;align-items:stretch;justify-content:center;padding:4px 0;border-radius:12px;background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 1px 6px rgba(15,23,42,.06);overflow:hidden;scrollbar-width:none;-ms-overflow-style:none;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;z-index:5}
+.az-rail::-webkit-scrollbar{display:none;width:0;height:0}
+.az-rail .az-letter{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;padding:0;border:0;background:transparent;font-family:inherit;font-size:10px;font-weight:700;line-height:1;color:#64748b;border-radius:999px;cursor:pointer;transition:background .12s ease,color .12s ease}
+.az-rail .az-letter:active{background:rgba(15,23,42,.08)}
+.az-rail .az-letter.active{background:#0f172a;color:#ffffff}
+.az-rail .az-letter.empty{color:#cbd5e1;pointer-events:none}
+.az-rail .az-letter:focus-visible{outline:2px solid #0f172a;outline-offset:-2px}
+.az-bubble{position:absolute;top:50%;left:50%;width:78px;height:78px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(15,23,42,.88);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#ffffff;font-size:34px;font-weight:800;line-height:1;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.82);transition:opacity .14s ease,transform .14s ease;z-index:20}
+.az-bubble.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 
 /* ---------- RESTAURANT LIST (Restaurants tab) ---------- */
 /* .ritem wraps the row + its options so the options can live OUTSIDE the
@@ -592,7 +612,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
    and replaying a fade on freshly inserted markup is what made the old
    dropdown flash open/close. */
 .ropts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;background:#efe9db;border-bottom:1px solid #e2dbc9}
-.ropts.brows{display:flex;flex-direction:column;gap:8px}
+.ropts.brows{display:flex;flex-direction:column;gap:8px;background:#f7f3e9}
 .brow{display:flex;gap:8px;align-items:center}
 .brow .cbtn,.brow .cbtn-area{flex:1 1 0;min-width:0;overflow:hidden;text-align:center;text-overflow:ellipsis;white-space:nowrap}
 .brow .ropt{flex:1 1 0;min-width:0}
@@ -3385,6 +3405,7 @@ const state = {
   tab:"promos",
   promoDay:new Date().getDay(),
   promoWeekStart:null,
+  promoMonth:null,
   promoMonthPicker:false,
   promoWeekPicker:false,
   promoWeekExpanded:null,
@@ -4103,15 +4124,32 @@ function weeksInMonth(year,monthIndex){
 function weekLabel(){
   const days=getWeekDays();
   const first=days[0];
-  const month=first.toLocaleString("en",{month:"long"});
-  const year=first.getFullYear();
-  const monthIndex=first.getMonth();
+  const anchor=state.promoMonth;
+  const year=anchor?anchor.year:first.getFullYear();
+  const monthIndex=anchor?anchor.monthIndex:first.getMonth();
+  const month=new Date(year,monthIndex,1).toLocaleString("en",{month:"long"});
   const firstOfMonth=new Date(year,monthIndex,1);
   const firstMonday=startOfWeek(firstOfMonth);
   const diffDays=Math.round((first-firstMonday)/86400000);
   const totalWeeks=weeksInMonth(year,monthIndex);
   const weekNum=Math.max(1,Math.min(totalWeeks,Math.floor(diffDays/7)+1));
   return {month:month,monthIndex:monthIndex,year:year,weekNum:weekNum,totalWeeks:totalWeeks};
+}
+/* Keeps the displayed month in step with the week after week navigation:
+   shift the anchor one month when promoWeekStart leaves its week range. */
+function syncPromoMonth(){
+  const monday=state.promoWeekStart||startOfWeek(new Date());
+  const a=state.promoMonth;
+  if(!a){state.promoMonth={year:monday.getFullYear(),monthIndex:monday.getMonth()};return;}
+  const fm=startOfWeek(new Date(a.year,a.monthIndex,1));
+  const last=addDays(fm,(weeksInMonth(a.year,a.monthIndex)-1)*7);
+  if(monday<fm){
+    const p=new Date(a.year,a.monthIndex-1,1);
+    state.promoMonth={year:p.getFullYear(),monthIndex:p.getMonth()};
+  }else if(monday>last){
+    const n=new Date(a.year,a.monthIndex+1,1);
+    state.promoMonth={year:n.getFullYear(),monthIndex:n.getMonth()};
+  }
 }
 function renderCalTitle(){
   const w=weekLabel();
@@ -4450,7 +4488,8 @@ function renderPromoFilterBar(){
   if(state.promoTownPicker){
     h+='<div class="fpop-scrim" data-act="closePickers"></div>';
     h+='<div class="fpop town-pop" role="listbox">';
-    h+='<button class="loc-all'+(state.promoTown==="All"?" on":"")+'" data-act="pickTown" data-town="All" role="option" aria-selected="'+(state.promoTown==="All")+'"><span>All Botswana</span><span class="loc-count">'+restaurants.length+'</span></button>';
+    h+='<div class="town-scroll">';
+    h+='<button class="loc-all'+(state.promoTown==="All"?" on":"")+'" data-act="pickTown" data-town="All" role="option" aria-selected="'+(state.promoTown==="All")+'"><span class="lbl">All Towns</span><span class="loc-count">'+restaurants.length+'</span></button>';
     const districts={};
     towns.forEach(function(t){(districts[t.districtName]=districts[t.districtName]||[]).push(t);});
     Object.keys(districts).sort().forEach(function(districtName){
@@ -4462,6 +4501,8 @@ function renderPromoFilterBar(){
           '<span class="lbl">'+esc(t.label)+'</span><span class="loc-count">'+count+'</span></button>';
       });
     });
+    h+='</div>';
+    h+='<nav class="az-rail" aria-label="Jump to letter"></nav><div class="az-bubble" aria-hidden="true"></div>';
     h+='</div>';
   }
 
@@ -4693,7 +4734,8 @@ function renderRestaurantTownPicker(){
   });
   let h='<div class="fpop-scrim" data-act="closeRestTownPicker"></div><div class="fpop town-pop rest-town-pop" role="listbox" aria-label="Choose town or city">';
   h+='<div class="rest-type-top" style="border-bottom: 1px solid #ece7db; padding-bottom: 10px; margin-bottom: 10px;"><div class="csearch"><input id="restTownSearch" type="search" placeholder="Search towns..." value="'+esc(state.restTownSearch)+'" aria-label="Search towns"></div></div>';
-  if(!query) h+='<button class="loc-all'+(state.restTown==="All"?" on":"")+'" data-act="pickRestTown" data-town="All" role="option" aria-selected="'+(state.restTown==="All")+'"><span>All Botswana</span><span class="loc-count">'+restaurantCountAt("All","","","All")+'</span></button>';
+  h+='<div class="town-scroll">';
+  if(!query) h+='<button class="loc-all'+(state.restTown==="All"?" on":"")+'" data-act="pickRestTown" data-town="All" role="option" aria-selected="'+(state.restTown==="All")+'"><span class="lbl">All Towns</span><span class="loc-count">'+restaurantCountAt("All","","","All")+'</span></button>';
   Object.keys(groups).sort().forEach(function(name){
     h+='<div class="loc-district">'+esc(name)+'</div>';
     groups[name].forEach(function(t){
@@ -4702,6 +4744,8 @@ function renderRestaurantTownPicker(){
       h+='<button class="loc-town-main'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickRestTown" data-town="'+esc(t.value)+'" data-district="'+esc(code)+'" data-district-name="'+esc(t.districtName||name)+'"><span class="lbl">'+esc(t.label)+'</span><span class="loc-count">'+restaurantCountAt(t.value,code,t.districtName||name,"All")+'</span></button>';
     });
   });
+  h+='</div>';
+  h+='<nav class="az-rail" aria-label="Jump to letter"></nav><div class="az-bubble" aria-hidden="true"></div>';
   return h+'</div>';
 }
 function renderRestaurantAreaPicker(){
@@ -5175,7 +5219,6 @@ function renderBottleLocPicker(){
       h+='<button class="loc-area-option'+(selected?" on":"")+'" data-act="pickBottleBranch" data-id="'+esc(o.b.id)+'" data-brand="'+esc(brand.slug)+'" role="option" aria-selected="'+selected+'"><span>'+esc(o.label)+(o.b.address?'<span class="loc-sub">'+esc(o.b.address)+'</span>':'')+'</span></button>';
     });
   }
-  if(brand.locationCount>1)h+='<div class="fpop-note">Picking one makes it active</div>';
   return h+'</div>';
 }
 function syncBottleAccordions(){
@@ -5208,13 +5251,16 @@ function bottleAreasForTown(town){
 function renderBottleTownFilter(){
   const api=bottleAPI();
   const towns=api?api.towns():[];
-  let h='<div class="fpop-scrim" data-act="closeBottleTownFilter"></div><div class="fpop town-pop" role="listbox" aria-label="Choose town">';
-  h+='<button class="loc-all'+(state.bottleTown==="All"?" on":"")+'" data-act="pickBottleTown" data-town="All" role="option" aria-selected="'+(state.bottleTown==="All")+'"><span>All Towns</span><span class="loc-count">'+(api?api.offeringStores({}).length:0)+'</span></button>';
+  let h='<div class="fpop-scrim" data-act="closeBottleTownFilter"></div><div class="fpop town-pop rest-town-pop" role="listbox" aria-label="Choose town">';
+  h+='<div class="town-scroll">';
+  h+='<button class="loc-all'+(state.bottleTown==="All"?" on":"")+'" data-act="pickBottleTown" data-town="All" role="option" aria-selected="'+(state.bottleTown==="All")+'"><span class="lbl">All Towns</span><span class="loc-count">'+(api?api.offeringStores({}).length:0)+'</span></button>';
   towns.forEach(function(t){
     const selected=state.bottleTown===t;
     h+='<button class="loc-town-main'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickBottleTown" data-town="'+esc(t)+'"><span class="lbl">'+esc(t)+'</span><span class="loc-count">'+bottleStoreCount(t,"All")+'</span></button>';
   });
   if(!towns.length)h+='<div class="fpop-note">No towns listed</div>';
+  h+='</div>';
+  h+='<nav class="az-rail" aria-label="Jump to letter"></nav><div class="az-bubble" aria-hidden="true"></div>';
   return h+'</div>';
 }
 function renderBottleAreaFilter(){
@@ -5289,7 +5335,6 @@ function renderRestLocPicker(){
       h+='<button class="loc-area-option'+(selected?" on":"")+'" data-act="pickRestBranch" data-id="'+esc(o.b.id)+'" data-brand="'+esc(g.brandKey)+'" role="option" aria-selected="'+selected+'"><span>'+esc(nameTag+o.label)+'</span></button>';
     });
   }
-  if(g.branches.length>1) h+='<div class="fpop-note">Picking one makes it active</div>';
   return h+'</div>';
 }
 
@@ -5378,6 +5423,7 @@ function renderRestaurantPromoDetail(r,promoId){
   }
   h+='<div class="ico-row split" style="margin-top:14px">'+
      favButton("promo",p.id,{title:p.title,subtitle:r.name+" · "+found.day,price:(p.price||null),imageRef:foodImg(hash(p.id)),venueId:r.id},"Save")+
+     '<button class="btn primary" data-act="gotoPromos">Back to Promos</button>'+
      waIconButton("waRestPromo",r.id,"Send via WhatsApp",' data-promo="'+esc(p.id)+'"')+
      '</div>';
   h+='</div></div>';
@@ -5681,6 +5727,10 @@ function cbarKey(){
     state.galLocMode,state.galRestSearch].join("~");
 }
 function renderControlBar(){
+  renderControlBarInner();
+  setTimeout(armTownRails,0);
+}
+function renderControlBarInner(){
   const key=cbarKey();
   if(key===lastCbarKey) return;
   lastCbarKey=key;
@@ -5850,6 +5900,18 @@ function renderViewport(){
     scrollToBeveragesPage();
   }
   if(state.galleryView==="photo") scrollPhotoTo();
+  scrollPromoPickerToActive();
+}
+/* Centres the active row of an open month/week picker so the current
+   month (or week) is visible the moment the popup opens. */
+function scrollPromoPickerToActive(){
+  const vp=document.getElementById("viewport");
+  if(!vp||(!state.promoMonthPicker&&!state.promoWeekPicker))return;
+  const pop=vp.querySelector(state.promoMonthPicker?".fpop.month-pop":".fpop.week-pop");
+  if(!pop)return;
+  const row=pop.querySelector(state.promoMonthPicker?".month-row.on":".week-row.on");
+  if(!row||!pop.clientHeight)return;
+  pop.scrollTop=Math.max(0,row.offsetTop-(pop.clientHeight-row.offsetHeight)/2);
 }
 function renderScreen(){
   if(state.tab==="promos"){
@@ -5976,11 +6038,11 @@ function renderFeaturedCard(ev){
   }
 
   inner+= isPoetry
-    ? '<div class="ico-row split" style="margin-top:12px">'+
+    ? '<div class="ico-row" style="margin-top:12px">'+
         favButton("event",ev.id,{title:ev.title,subtitle:ev.dateLabel||"",imageRef:IMG.dirEvents+ev.flyer},"Save")+
         waIconButton("waPoetry",ev.id,"Send via WhatsApp")+
       '</div>'
-    : '<div class="ico-row split" style="margin-top:12px">'+
+    : '<div class="ico-row" style="margin-top:12px">'+
         favButton("event",ev.id,{title:ev.title,subtitle:ev.dateLabel||"",imageRef:IMG.dirEvents+ev.flyer},"Save")+
         waIconButton("waFeatEvent",ev.id,"Send via WhatsApp",' data-ev="'+esc(ev.id)+'"')+
       '</div>';
@@ -6004,7 +6066,7 @@ function renderEventCard(ev,dayIdx,r){
   inner+='<div class="subh">Event Images</div><div class="thumbs">';
   for(let i=0;i<IMG.demoImages.length;i++) inner+='<div class="th">'+imgTag(demoImg(i),ev.name)+'</div>';
   inner+='</div>';
-  inner+='<div class="ico-row split" style="margin-top:12px">'+
+  inner+='<div class="ico-row" style="margin-top:12px">'+
     favButton("event",ev.id,{title:ev.name,subtitle:venue+" · "+ev.time},"Save")+
     waIconButton("waEvent",ev.id,"Send via WhatsApp",' data-ev="'+esc(ev.id)+'"')+
   '</div>';
@@ -6334,6 +6396,7 @@ function renderPromoLink(){
     '<ul class="phl">'+(ev.highlights||[]).map(function(h){return '<li>'+esc(h)+'</li>';}).join("")+'</ul>'+
     '<div class="ico-row split" style="margin-top:14px">'+
     favButton("promo",(found.promo&&found.promo.id)||ev.id,{title:ev.name,subtitle:venue+" · "+ev.time,imageRef:eventImage(dayIdx),venueId:(found.restaurant&&found.restaurant.id)||null},"Save")+
+    '<button class="btn primary" data-act="gotoPromos">Back to Promos</button>'+
     waIconButton("waEvent",ev.id,"Send via WhatsApp",' data-ev="'+esc(ev.id)+'"')+
     '</div>'+
     '</div></div><div style="height:24px"></div></div>';
@@ -7284,11 +7347,14 @@ function renderReserveProviders(){
 
     h+='<div class="fpop-scrim" data-act="closeResVenueTown"></div>';
     h+='<div class="fpop town-pop" role="listbox">';
-    h+='<button class="loc-all'+(town==="All"?" on":"")+'" data-act="pickResVenueTown" data-val="All" role="option" aria-selected="'+(town==="All")+'"><span>All towns</span></button>';
+    h+='<div class="town-scroll">';
+    h+='<button class="loc-all'+(town==="All"?" on":"")+'" data-act="pickResVenueTown" data-val="All" role="option" aria-selected="'+(town==="All")+'"><span class="lbl">All Towns</span></button>';
     townList.forEach(function(t){
       const on=(t===town);
       h+='<button class="loc-town-main'+(on?" on":"")+'" data-act="pickResVenueTown" data-val="'+esc(t)+'" role="option" aria-selected="'+on+'"><span class="lbl">'+esc(t)+'</span></button>';
     });
+    h+='</div>';
+    h+='<nav class="az-rail" aria-label="Jump to letter"></nav><div class="az-bubble" aria-hidden="true"></div>';
     h+='</div>';
   }
 
@@ -7426,6 +7492,140 @@ function armGalleryScroll(){
   }
   window.__galIO.disconnect();
   window.__galIO.observe(s);
+}
+
+/* ================================================================
+   A–Z JUMP RAIL for the town pickers
+   Each open .fpop.town-pop gets a 26-letter rail down its right edge.
+   Tapping / dragging the rail scrolls the inner .town-scroll; a scroll
+   spy keeps the active letter lit and a floating bubble shows the letter
+   under the finger. Re-armed after every render (fresh DOM each time).
+   ================================================================ */
+function armTownRails(){
+  const pops=document.querySelectorAll(".fpop.town-pop");
+  Array.prototype.forEach.call(pops,function(pop){
+    if(pop.getAttribute("data-az-armed"))return;
+    const scroll=pop.querySelector(".town-scroll");
+    const rail=pop.querySelector(".az-rail");
+    const bubble=pop.querySelector(".az-bubble");
+    if(!scroll||!rail||!bubble)return;
+    pop.setAttribute("data-az-armed","1");
+
+    const ALPHABET="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    const letters=[];
+    ALPHABET.forEach(function(L){
+      const b=document.createElement("button");
+      b.type="button";
+      b.className="az-letter";
+      b.setAttribute("data-letter",L);
+      b.setAttribute("aria-label","Jump to "+L);
+      b.textContent=L;
+      rail.appendChild(b);
+      letters.push(b);
+    });
+
+    function itemLabel(btn){
+      const l=btn.querySelector(".lbl");
+      return String((l&&l.textContent)||btn.textContent||"").trim();
+    }
+
+    const items=Array.prototype.slice.call(scroll.querySelectorAll("button")).filter(function(b){
+      return !b.classList.contains("loc-all");
+    });
+
+    const available={};
+    items.forEach(function(b){
+      const L=itemLabel(b).charAt(0).toUpperCase();
+      if(/^[A-Z]$/.test(L)){b.setAttribute("data-letter",L);available[L]=true;}
+    });
+    letters.forEach(function(b){
+      if(!available[b.getAttribute("data-letter")]){
+        b.classList.add("empty");
+        b.setAttribute("aria-disabled","true");
+      }
+    });
+
+    let offsets=[];
+    function computeOffsets(){
+      const listRect=scroll.getBoundingClientRect();
+      const seen={};
+      offsets=[];
+      items.forEach(function(t){
+        const L=t.getAttribute("data-letter");
+        if(!L||seen[L])return;
+        seen[L]=true;
+        offsets.push({letter:L,top:t.getBoundingClientRect().top-listRect.top+scroll.scrollTop});
+      });
+    }
+    function jumpTo(L,smooth){
+      for(let i=0;i<offsets.length;i++){
+        if(offsets[i].letter===L){
+          scroll.scrollTo({top:Math.max(0,offsets[i].top-4),behavior:smooth?"smooth":"auto"});
+          return;
+        }
+      }
+    }
+
+    let activeLetter=null,ticking=false;
+    function updateActive(){
+      ticking=false;
+      const y=scroll.scrollTop+6;
+      let current=null;
+      for(let i=0;i<offsets.length;i++){
+        if(offsets[i].top<=y)current=offsets[i].letter;else break;
+      }
+      if(current===activeLetter)return;
+      activeLetter=current;
+      letters.forEach(function(b){b.classList.toggle("active",b.getAttribute("data-letter")===current);});
+    }
+    scroll.addEventListener("scroll",function(){
+      if(!ticking){ticking=true;requestAnimationFrame(updateActive);}
+    },{passive:true});
+
+    let dragging=false,lastDragLetter=null;
+    function letterFromClientY(clientY){
+      const first=letters[0];
+      if(!first)return null;
+      const rect=first.getBoundingClientRect();
+      if(rect.height<=0)return null;
+      let i=Math.floor((clientY-rect.top)/rect.height);
+      i=Math.max(0,Math.min(letters.length-1,i));
+      return letters[i];
+    }
+    function showBubble(t){bubble.textContent=t;bubble.classList.add("show");}
+    function hideBubble(){bubble.classList.remove("show");}
+    function handleDrag(clientY){
+      const el=letterFromClientY(clientY);
+      if(!el||el.classList.contains("empty"))return;
+      const L=el.getAttribute("data-letter");
+      if(L===lastDragLetter)return;
+      lastDragLetter=L;showBubble(L);jumpTo(L,false);
+    }
+    rail.addEventListener("pointerdown",function(e){
+      if(e.button!==undefined&&e.button!==0)return;
+      dragging=true;lastDragLetter=null;
+      try{rail.setPointerCapture(e.pointerId);}catch(err){}
+      handleDrag(e.clientY);
+    });
+    rail.addEventListener("pointermove",function(e){
+      if(!dragging)return;e.preventDefault();handleDrag(e.clientY);
+    });
+    function endDrag(e){
+      if(!dragging)return;dragging=false;lastDragLetter=null;hideBubble();
+      try{rail.releasePointerCapture(e.pointerId);}catch(err){}
+    }
+    rail.addEventListener("pointerup",endDrag);
+    rail.addEventListener("pointercancel",endDrag);
+    rail.addEventListener("click",function(e){
+      const b=e.target.closest?e.target.closest(".az-letter"):null;
+      if(!b||b.classList.contains("empty"))return;
+      jumpTo(b.getAttribute("data-letter"),true);
+    });
+
+    computeOffsets();
+    updateActive();
+    if(window.ResizeObserver){new ResizeObserver(function(){computeOffsets();}).observe(scroll);}
+  });
 }
 
 function renderPhoto(){
@@ -7713,8 +7913,10 @@ function bootEatoutsBridge(){
 function render(){
   bootEatoutsBridge();
   if(!state.promoWeekStart) state.promoWeekStart = startOfWeek(new Date());
+  if(!state.promoMonth){const d=new Date();state.promoMonth={year:d.getFullYear(),monthIndex:d.getMonth()};}
   renderViewport();
   if(state.tab==="gallery" && state.galleryView!=="photo") setTimeout(armGalleryScroll,0);
+  setTimeout(armTownRails,0);
 }
 
 /* ================================================================
@@ -7874,6 +8076,7 @@ document.addEventListener("click",function(e){
   if(act==="togglePoetryAll"){state.poetryAll=!state.poetryAll;render();syncAccordions();return;}
   if(act==="openPromo"){state.promoView="detail";state.promoId=id;if(!state.promoSeats[id])state.promoSeats[id]=1;render();return;}
   if(act==="backPromo"){state.promoView="feed";state.promoId=null;render();return;}
+  if(act==="gotoPromos"){state.tab="promos";state.promoView="feed";state.promoId=null;state.promoGalleryId=null;state.promoExpanded=null;state.promoFilterOpen=false;state.restaurantView=null;state.restaurantOpen=null;render();return;}
   if(act==="openPromoGallery"){state.promoView="gallery";state.promoGalleryId=id;render();return;}
   if(act==="backPromoGallery"){state.promoView="detail";state.promoGalleryId=null;render();return;}
   if(act==="openPromoLink"){state.promoView="link";state.promoId=id;render();return;}
@@ -8009,9 +8212,17 @@ document.addEventListener("click",function(e){
   if(act==="pickPromoMonth"){
     const m=parseInt(t.getAttribute("data-month"),10);
     const y=2026;
-    const firstOfMonth=new Date(y,m-1,1);
-    state.promoWeekStart=startOfWeek(firstOfMonth);
-    state.promoDay=1;
+    const now=new Date();
+    const isCurrent=(y===now.getFullYear()&&(m-1)===now.getMonth());
+    state.promoMonth={year:y,monthIndex:m-1};
+    if(isCurrent){
+      state.promoWeekStart=startOfWeek(now);
+      state.promoDay=now.getDay();
+    }else{
+      const firstOfMonth=new Date(y,m-1,1);
+      state.promoWeekStart=startOfWeek(firstOfMonth);
+      state.promoDay=1;
+    }
     state.promoMonthPicker=false;
     state.promoExpanded=null;
     render(); return;
@@ -8030,8 +8241,8 @@ document.addEventListener("click",function(e){
   }
   if(act==="pickPromoWeek"){
     const n=parseInt(t.getAttribute("data-week"),10);
-    const ref=state.promoWeekStart||startOfWeek(new Date());
-    const firstOfMonth=new Date(ref.getFullYear(),ref.getMonth(),1);
+    const a=state.promoMonth||weekLabel();
+    const firstOfMonth=new Date(a.year,a.monthIndex,1);
     const firstMonday=startOfWeek(firstOfMonth);
     state.promoWeekStart=addDays(firstMonday,(n-1)*7);
     state.promoDay=1;
@@ -8042,8 +8253,8 @@ document.addEventListener("click",function(e){
   if(act==="pickDayFromWeek"){
     const n=parseInt(t.getAttribute("data-week"),10);
     const offset=parseInt(t.getAttribute("data-offset"),10);
-    const ref=state.promoWeekStart||startOfWeek(new Date());
-    const firstOfMonth=new Date(ref.getFullYear(),ref.getMonth(),1);
+    const a=state.promoMonth||weekLabel();
+    const firstOfMonth=new Date(a.year,a.monthIndex,1);
     const firstMonday=startOfWeek(firstOfMonth);
     const monday=addDays(firstMonday,(n-1)*7);
     state.promoWeekStart=monday;
@@ -8527,6 +8738,7 @@ function stepPromoDay(dir){
   }
   state.promoDay=PROMO_WEEK_ORDER[next];
   state.promoExpanded=null;
+  syncPromoMonth();
   render();
 }
 (function(){

@@ -196,8 +196,8 @@ setTimeout(() => {
 
   /* ---------- icon integration matrix ----------
      waIconButton gained an optional extra-attributes arg so promo cards can
-     carry data-promo / data-ev, and both remaining "btn wa full" cards now
-     use a .ico-row split (heart left, WhatsApp icon right). */
+     carry data-promo / data-ev. Feed promos are left-aligned heart + icons;
+     the promo detail sub-pages add a centred "Back to Promos" pill. */
   const waExtra = String(ev('waIconButton("waX","r1","Share",\' data-foo="bar"\')'));
   check('waIconButton keeps act + ref', /data-act="waX"/.test(waExtra) && /data-id="r1"/.test(waExtra));
   check('waIconButton forwards extra attrs', /data-foo="bar"/.test(waExtra));
@@ -213,6 +213,9 @@ setTimeout(() => {
   check('restaurant promo detail has a WhatsApp icon carrying data-promo',
     /data-act="waRestPromo"/.test(restDetail) && /data-promo="p-x"/.test(restDetail) && /whatsApp_icon_on/.test(restDetail));
   check('restaurant promo detail drops the full-width WA button', !/btn wa full/.test(restDetail));
+  check('restaurant promo detail row is heart · Back to Promos · WhatsApp',
+    /ico-row split/.test(restDetail) && /data-act="gotoPromos"[^>]*>Back to Promos</.test(restDetail) &&
+    /data-act="toggleFav"/.test(restDetail) && /data-act="waRestPromo"/.test(restDetail), restDetail.slice(0, 160));
   ev('if(window.__bof){EatoutsBridge.bundleOf=window.__bof;}');
 
   /* S2 reachability: the promos grid is the only path to openRestPromo. */
@@ -242,17 +245,21 @@ setTimeout(() => {
   check('event lineup has a WhatsApp icon carrying data-ev',
     /data-act="waEvent"/.test(lineup) && /data-ev="ev-x"/.test(lineup) && /whatsApp_icon_on/.test(lineup));
   check('event lineup drops the full-width WA button', !/btn wa full/.test(lineup));
+  check('event lineup row is heart · Back to Promos · WhatsApp',
+    /ico-row split/.test(lineup) && /data-act="gotoPromos"[^>]*>Back to Promos</.test(lineup) &&
+    /data-act="toggleFav"/.test(lineup) && /data-act="waEvent"/.test(lineup), lineup.slice(0, 160));
   ev('promoById=window.__pById;eventFor=window.__evFor;');
 
-  /* Promos FEED event cards (renderFeaturedCard + renderEventCard) now use the
-     shared .ico-row split: heart left, WhatsApp on-icon right. */
+  /* Promos FEED event cards (renderFeaturedCard + renderEventCard) use a
+     left-aligned .ico-row: heart then WhatsApp grouped together on the left. */
   const feat = String(ev('renderFeaturedCard(FEATURED_EVENTS[0])'));
   check('featured feed card has the favourite heart',
     /data-act="toggleFav"/.test(feat) && /heart_/.test(feat), feat.slice(0, 120));
   check('featured feed card WhatsApp carries waFeatEvent + data-ev',
     /data-act="waFeatEvent"/.test(feat) && /data-ev="amapiano-fest"/.test(feat) && /whatsApp_icon_on/.test(feat));
   check('featured feed card drops the full-width WA button', !/btn wa full/.test(feat));
-  check('featured feed card uses the ico-row split wrapper', /ico-row split/.test(feat));
+  check('featured feed card uses a left-aligned ico-row',
+    /class="ico-row"/.test(feat) && !/ico-row split/.test(feat), feat.slice(0, 120));
 
   const featPoetry = String(ev('renderFeaturedCard(FEATURED_EVENTS.filter(function(e){return e.poetry;})[0])'));
   check('poetry feed card keeps waPoetry with no data-ev',
@@ -266,6 +273,8 @@ setTimeout(() => {
   check('feed event card WhatsApp carries waEvent + data-ev',
     /data-act="waEvent"/.test(feedEv) && /data-ev="ev-y"/.test(feedEv) && /whatsApp_icon_on/.test(feedEv));
   check('feed event card drops the full-width WA button', !/btn wa full/.test(feedEv));
+  check('feed event card uses a left-aligned ico-row',
+    /class="ico-row"/.test(feedEv) && !/ico-row split/.test(feedEv), feedEv.slice(0, 120));
 
   /* Promo DETAIL page (renderPromoDetail): restaurant card + one-line
      heart · Back to Promos · WhatsApp action row. */
@@ -293,6 +302,96 @@ setTimeout(() => {
   /* legacy promos must still resolve while the bridge is live */
   check('legacy promo id resolves', !!evjSub('promoById("MON-FOOD-01")'));
   check('bar promo id resolves', !!evjSub('promoById("bevp-' + promoData.promotions[0].id + '")'));
+
+  /* ---------- month / week picker ---------- */
+  const feedReset = 'state.tab="promos";state.promoView="feed";state.promoId=null;' +
+    'state.promoGalleryId=null;state.promoExpanded=null;';
+  check('.month-year carries the 3% black background',
+    /\.month-year\{[^}]*background:rgba\(0,0,0,\.03\)/.test(html));
+
+  /* opening the picker highlights (and centres) the current month */
+  const now0 = new Date();
+  ev(feedReset + 'state.promoWeekStart=startOfWeek(new Date());' +
+     'state.promoMonth={year:new Date().getFullYear(),monthIndex:new Date().getMonth()};' +
+     'state.promoDay=new Date().getDay();state.promoMonthPicker=true;render();');
+  check('month picker opens', !!doc.querySelector('.fpop.month-pop'));
+  const myHdr = doc.querySelector('.fpop.month-pop .month-year');
+  check('month picker has a year header', !!myHdr && myHdr.textContent.trim() !== '');
+  const onMonth = doc.querySelector('.fpop.month-pop .month-row.on');
+  check('current month row is highlighted on open', !!onMonth &&
+    onMonth.textContent === now0.toLocaleString('en', { month: 'long' }),
+    onMonth && onMonth.textContent);
+  check('month picker lists 12 months',
+    doc.querySelectorAll('.fpop.month-pop .month-row').length === 12);
+
+  /* off-by-one: a non-current month loads its own label, not the previous one */
+  ev(feedReset + 'state.promoMonthPicker=true;render();');
+  const marchRow = doc.querySelector('.fpop.month-pop .month-row[data-month="3"]');
+  check('March row is rendered', !!marchRow);
+  click(marchRow);
+  check('picking March reports March', ev('weekLabel().monthIndex') === 2,
+    JSON.stringify(evjSub('weekLabel()')));
+  check('calendar title button reads March',
+    !!doc.querySelector('#viewport .cal-title .cal-title-btn') &&
+    doc.querySelector('#viewport .cal-title .cal-title-btn').textContent === 'March',
+    doc.querySelector('#viewport .cal-title .cal-title-btn') &&
+    doc.querySelector('#viewport .cal-title .cal-title-btn').textContent);
+  check('March lands on its first (straddle) week', ev('getWeekDays()[0].getMonth()') === 1,
+    ev('String(getWeekDays()[0])'));
+  check('month picker closes after picking', !doc.querySelector('.fpop.month-pop'));
+  (function () {
+    ev('state.promoMonthPicker=true;render();');
+    const r = doc.querySelector('.fpop.month-pop .month-row.on');
+    check('March row is the highlighted one after picking', !!r && r.textContent === 'March',
+      r && r.textContent);
+  })();
+  (function () {
+    ev('state.promoMonthPicker=true;render();');
+    const a = doc.querySelector('.fpop.month-pop .month-row[data-month="4"]');
+    click(a);
+    check('picking April reports April', ev('weekLabel().monthIndex') === 3,
+      JSON.stringify(evjSub('weekLabel()')));
+    check('April title button reads April',
+      !!doc.querySelector('#viewport .cal-title .cal-title-btn') &&
+      doc.querySelector('#viewport .cal-title .cal-title-btn').textContent === 'April',
+      doc.querySelector('#viewport .cal-title .cal-title-btn') &&
+      doc.querySelector('#viewport .cal-title .cal-title-btn').textContent);
+  })();
+
+  /* picking the current month returns to today instead of the first week */
+  if (now0.getFullYear() === 2026) {
+    ev('state.promoMonthPicker=true;render();');
+    const cur = doc.querySelector('.fpop.month-pop .month-row[data-month="' + (now0.getMonth() + 1) + '"]');
+    check('current month row is rendered', !!cur);
+    click(cur);
+    check('picking the current month navigates to today',
+      ev('state.promoDay') === now0.getDay() &&
+      ev('weekLabel().monthIndex') === now0.getMonth() &&
+      ev('getWeekDays()[0].getTime()') === ev('startOfWeek(new Date())').getTime(),
+      JSON.stringify(evjSub('{d:state.promoDay,w:weekLabel()}')));
+  }
+
+  /* week picker stays in the labelled month */
+  ev('state.promoMonth={year:2026,monthIndex:2};' +
+     'state.promoWeekStart=startOfWeek(new Date(2026,2,1));state.promoDay=1;' +
+     'state.promoMonthPicker=false;state.promoWeekPicker=true;render();');
+  const wyHdr = doc.querySelector('.fpop.week-pop .month-year');
+  check('week picker header reads March 2026', !!wyHdr && wyHdr.textContent.trim() === 'March 2026',
+    wyHdr && wyHdr.textContent);
+  check('week picker lists 6 weeks', doc.querySelectorAll('.fpop.week-pop .week-row').length === 6,
+    doc.querySelectorAll('.fpop.week-pop .week-row').length);
+  check('week picker highlights Week 1 for March',
+    !!doc.querySelector('.fpop.week-pop .week-row.on') &&
+    doc.querySelector('.fpop.week-pop .week-row.on').textContent.trim() === 'Week 1');
+  const wrow3 = doc.querySelector('.fpop.week-pop .week-row[data-week="3"]');
+  click(wrow3);
+  const drows = doc.querySelectorAll('.fpop.week-pop .week-days .day-row');
+  check('week 3 expands to 7 day rows', drows.length === 7, drows.length);
+  click(drows[0]);
+  check('pickDayFromWeek keeps the March label', ev('weekLabel().monthIndex') === 2,
+    JSON.stringify(evjSub('weekLabel()')));
+  check('pickDayFromWeek lands on week 3 Monday (Mar 9)',
+    ev('getWeekDays()[0].getDate()') === 9, ev('String(getWeekDays()[0])'));
 
   console.log('');
   if (errors.length) { console.log('window errors:'); errors.forEach(e => console.log('  ' + e)); fails += errors.length; }

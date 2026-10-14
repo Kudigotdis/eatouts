@@ -41,7 +41,7 @@ setTimeout(() => {
   check('base .fpop rule found', base.length > 0);
   check('.fpop is position:fixed', /(^|;|\s)position:fixed(;|$)/.test(base), base.slice(0, 120));
   check('.fpop top:66px', /(^|;|\s)top:66px(;|$)/.test(base));
-  check('.fpop bottom:auto', /(^|;|\s)bottom:auto(;|$)/.test(base));
+  check('.fpop bottom fills to the nav gap', /(^|;|\s)bottom:calc\(66px \+ var\(--navh\)\)(;|$)/.test(base), base.slice(0, 160));
   const inset = 'max(16px,calc((100% - 460px)/2 + 16px))';
   const leftM = base.match(/(^|;|\s)left:([^;]+)/);
   const rightM = base.match(/(^|;|\s)right:([^;]+)/);
@@ -64,7 +64,7 @@ setTimeout(() => {
     const cs = window.getComputedStyle(el);
     check(label + ' is position:fixed', cs.position === 'fixed', cs.position);
     check(label + ' top:66px', cs.top === '66px', cs.top);
-    check(label + ' bottom:auto (not bottom-anchored)', cs.bottom === 'auto', cs.bottom);
+    check(label + ' bottom fills to the nav gap', cs.bottom === 'calc(66px + var(--navh))', cs.bottom);
     seen.push(label);
   };
 
@@ -78,6 +78,13 @@ setTimeout(() => {
   closeAll();
   ev('state.promoFilterOpen=true;state.promoTownPicker=true;render()');
   assertPop('promo town popup', doc.querySelector('#filter-bar .fpop.town-pop'));
+  ev('armTownRails()');
+  const promoRail = doc.querySelector('#filter-bar .fpop.town-pop .az-rail');
+  check('town A–Z rail builds 26 letters', !!promoRail && promoRail.querySelectorAll('.az-letter').length === 26,
+    promoRail ? promoRail.querySelectorAll('.az-letter').length : 'no rail');
+  const promoScroll = doc.querySelector('#filter-bar .fpop.town-pop .town-scroll');
+  check('town picker wraps rows in .town-scroll', !!promoScroll && promoScroll.querySelectorAll('.loc-town-main').length > 0);
+  check('town picker All row reads "All Towns"', /All Towns/.test((doc.querySelector('#filter-bar .fpop.town-pop .loc-all') || {}).textContent || ''));
   closeAll();
   ev('state.promoFilterOpen=true;state.promoAreaPicker=true;render()');
   assertPop('promo area popup', doc.querySelector('#filter-bar .fpop.area-pop'));

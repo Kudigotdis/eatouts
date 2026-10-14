@@ -60,10 +60,10 @@
       "purpose": "Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content.",
       "audience": "Customers (+ operator sign-in entry)",
       "entry": "Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in.",
-      "interactions": "Search and filter by town/area; open a venue and switch tabs; tap WhatsApp order/reserve intents; About \u00e2\u2020\u2019 Operator Sign in / demo login.",
+      "interactions": "Search and filter by town/area; open a venue and switch tabs; favourite + WhatsApp icon rows on promo/event cards; the promo detail shows a venue card and a Back to Promos row; tap WhatsApp order/reserve intents; About \u00e2\u2020\u2019 Operator Sign in / demo login.",
       "auth": false,
       "status": "FULL",
-      "notes": "The 5 alerts are informational/validation only."
+      "notes": "Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only."
     },
     {
       "id": 2,
@@ -120,10 +120,10 @@
       "purpose": "Custom not-found page served by Cloudflare Pages from the build root.",
       "audience": "Visitors",
       "entry": "Served automatically on a missing route.",
-      "interactions": "Read; follow the home link.",
+      "interactions": "Read; tap/click (or Enter/Space) to rotate the headline; follow the home link.",
       "auth": false,
       "status": "FULL",
-      "notes": "Static."
+      "notes": "Static and dependency-free. Rotating serif headline (10 messages, 6s), brand-blue (#2C6288) 404, black-2% backdrop, branded top bar + bottom nav."
     },
     {
       "id": 7,
@@ -159,7 +159,7 @@
       "interactions": "Search suppliers; a supplier can create/sign into a local profile.",
       "auth": false,
       "status": "FULL",
-      "notes": "Supplier 'sign-in' is a local label, not EatoutsAuth."
+      "notes": "Supplier 'sign-in' is a local label, not EatoutsAuth. A public read-only supplier profile is reached via /bw/<slug> (/api/links/resolve); loads js/eatouts-slug.js."
     },
     {
       "id": 10,
@@ -279,7 +279,7 @@
       "interactions": "Pick a business type; routes into the matching onboarding.",
       "auth": false,
       "status": "FULL",
-      "notes": ""
+      "notes": "Owners can claim a custom /bw/<slug> link (/api/links/check, /api/business/link); loads js/eatouts-slug.js."
     },
     {
       "id": 20,
@@ -489,13 +489,13 @@
       "id": 37,
       "file": "eatouts-admin-dashboard.html",
       "group": "manager-admin",
-      "purpose": "Platform control centre.",
+      "purpose": "Platform control centre: admin links, the promo-submissions queue and the business-links (/bw/<slug>) admin.",
       "audience": "Platform admin",
       "entry": "eatouts-login.html (admin role).",
-      "interactions": "Navigate to platform admin surfaces.",
+      "interactions": "Navigate to platform admin surfaces; triage the P50 promo-submission queue (approve/reject/publish); search/filter and revoke/activate business links.",
       "auth": true,
       "status": "FULL",
-      "notes": ""
+      "notes": "Promo-submissions actions hit /api/admin/promo-submissions; business links hit /api/admin/links."
     },
     {
       "id": 38,
@@ -854,6 +854,18 @@
     {
       "date": "2026-10-13",
       "note": "Renamed eatout-about.html to eatouts-about.html to match the customer-surface naming convention."
+    },
+    {
+      "date": "2026-10-14",
+      "note": "Full refresh: promo/event card icon rows and the promo-detail venue card in index.html; /bw/<slug> vanity links in index.html, eatouts-suppliers.html and eatouts-business-signup.html; business-links + promo-submissions admin on eatouts-admin-dashboard.html."
+    },
+    {
+      "date": "2026-10-14",
+      "note": "Redesigned 404.html: dependency-free rotating-headline layout in brand colours (brand-blue #2C6288 accent, black-2% #00000005 background) with the branded top bar + bottom nav."
+    },
+    {
+      "date": "2026-10-14",
+      "note": "index.html location pickers: all .fpop now fill 66px top / calc(66px+navh) bottom; 24px town labels, 18px transparent count badges, 20px area options; a vertical A–Z jump rail (scroll-spy + drag + bubble) on the promo, restaurant, bottle and reserve town pickers; \"All Towns\" rows centred; removed the \"Picking one makes it active\" note."
     }
   ]
 }

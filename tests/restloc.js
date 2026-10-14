@@ -114,7 +114,7 @@ setTimeout(() => {
   const note = pop && pop.querySelector('.fpop-note');
   check('footer note has no location count', !note || (note.textContent.indexOf('locations') === -1 && !/\d/.test(note.textContent)),
     note ? note.textContent : '(none)');
-  check('footer note wording', !note || note.textContent.trim() === 'Picking one makes it active', note ? note.textContent : '(none)');
+  check('branch picker instruction note removed', !note, note ? note.textContent : '(none)');
   check('footer note text is centred', !note || window.getComputedStyle(note).textAlign === 'center',
     note ? window.getComputedStyle(note).textAlign : '(none)');
 

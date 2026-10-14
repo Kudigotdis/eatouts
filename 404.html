@@ -2,61 +2,117 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex">
-<title>Not found · EatOuts</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="robots" content="noindex, follow">
+<title>404 — Page Not Here</title>
+<meta name="description" content="The page you were looking for has moved on. Head back to EatOuts Botswana.">
 <style>
-  :root{--cream:#faf8f2;--line:#ece7db;--ink:#1a1a1a;--muted:#a89a7e}
+  :root{
+    --cream:#faf8f2;--line:#ece7db;--ink:#1a1a1a;--muted:#a89a7e;
+    --dark:#0a0a0a;--body:#645b48;--blue:#2C6288;--bg:rgba(0,0,0,.02);
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;min-height:100%}
   body{
-    background:var(--cream);color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    background:var(--bg);color:var(--ink);
+    font-family:var(--sans);
     -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    -webkit-user-select:none;user-select:none;
   }
-  #shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+  #shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg);box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
   @media(min-width:520px){#shell{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+
+  /* Top bar — branded header */
   .topbar{height:58px;padding:0 14px;padding-top:env(safe-area-inset-top);flex:0 0 auto;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
   .brand{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;text-decoration:none}
   .brand img{width:100%;height:100%;object-fit:contain;display:block}
   .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
   .hdr-chip{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:4px 9px;background:var(--cream);white-space:nowrap}
-  .view{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;align-items:center;justify-content:center;padding:24px}
-  .card{
-    width:100%;max-width:380px;text-align:center;
-    background:#ffffff;border:1px solid var(--line);border-radius:16px;
-    box-shadow:0 10px 34px -12px rgba(0,0,0,.14);padding:34px 24px 28px;
+
+  /* Scroll area — centres the not-found content */
+  .view{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;text-align:center}
+  .stage{width:100%;max-width:20rem;margin:0 auto;display:flex;flex-direction:column;align-items:center}
+  @media(min-width:640px){.stage{max-width:24rem}}
+
+  /* 404 status code — brand blue */
+  .code{font-family:var(--serif);font-size:3.75rem;font-weight:900;line-height:1;letter-spacing:-.02em;color:var(--blue);margin:0 0 6px}
+
+  /* Reserve a stable block of space for the headline so nothing below ever moves */
+  #message-container{
+    width:100%;min-height:8.5rem;padding:0 8px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;outline:none;border-radius:12px;
   }
-  .mark{font-size:13px;font-weight:900;letter-spacing:.34em;text-transform:uppercase;color:var(--muted);margin:0 0 22px}
-  .code{font-size:56px;font-weight:900;line-height:1;letter-spacing:-.02em;margin:0 0 10px}
-  h1{font-size:16px;font-weight:800;margin:0 0 8px}
-  p{font-size:13px;line-height:1.55;color:#645b48;margin:0 0 24px}
-  .btn{
-    display:inline-block;text-decoration:none;
-    background:var(--ink);color:#ffffff;font-size:13px;font-weight:800;
-    padding:13px 22px;border-radius:12px;
+  @media(min-width:640px){#message-container{min-height:11rem}}
+  #message-container:focus-visible{box-shadow:0 0 0 3px rgba(44,98,136,.25)}
+
+  /* Smooth fade/slide when the message switches */
+  #headline-text{
+    font-family:var(--serif);font-size:1.5rem;font-weight:800;line-height:1.3;
+    letter-spacing:-.01em;color:var(--ink);margin:0;
+    text-wrap:balance;
+    transition:opacity .28s ease,transform .28s ease;
   }
-  .btn:active{opacity:.85}
-  .appnav{flex:0 0 auto;display:flex;background:#0a0a0a;padding:8px 6px calc(8px + env(safe-area-inset-bottom));gap:2px}
+  @media(min-width:640px){#headline-text{font-size:1.875rem}}
+  #headline-text.is-hidden{opacity:0;transform:translateY(6px)}
+
+  /* Subtext explanation */
+  .lead{font-size:.75rem;line-height:1.625;color:var(--body);margin:0 0 22px;max-width:22rem}
+  @media(min-width:640px){.lead{font-size:.875rem}}
+  .lead a{color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:2px;transition:color .2s}
+  .lead a:hover{color:var(--blue)}
+
+  /* Return home action */
+  .btn{display:inline-block;width:100%;text-align:center;text-decoration:none;background:var(--dark);color:#fff;font-family:var(--sans);font-size:.875rem;font-weight:600;padding:14px 24px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.12);transition:background .2s,transform .1s}
+  .btn:hover{background:#1a1a1a}
+  .btn:active{transform:scale(.98)}
+
+  .foot{margin:20px 0 0;font-size:11px;color:var(--muted)}
+
+  /* Bottom nav — dark, matches the app shell */
+  .appnav{flex:0 0 auto;display:flex;background:var(--dark);padding:8px 6px calc(8px + env(safe-area-inset-bottom));gap:2px}
   .appnav a{flex:1;text-align:center;font-size:10px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.62);text-decoration:none;padding:3px 0 1px}
   .appnav a.on{color:#fff}
+
+  /* Respect users who prefer less motion */
+  @media(prefers-reduced-motion:reduce){
+    #headline-text{transition:none}
+    .btn{transition:none}
+  }
 </style>
 </head>
+
 <body>
 <div id="shell">
   <header class="topbar">
     <a class="brand" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
     <div class="hdr-right"><span class="hdr-chip">Not Found</span></div>
   </header>
+
   <main class="view">
-    <div class="card">
-      <p class="mark">EatOuts</p>
-      <p class="code">404</p>
-      <h1>Page not found</h1>
-      <p>This link may be old or mistyped. Head back to discover restaurants, promos and events near you.</p>
-      <a class="btn" href="/">Back to EatOuts</a>
+    <div class="stage">
+      <span class="code">404</span>
+
+      <!-- Rotating headline (tap / click / keyboard advances it) -->
+      <div id="message-container" role="button" tabindex="0" aria-label="Show the next message">
+        <h1 id="headline-text"><!-- Injected by JavaScript --></h1>
+      </div>
+
+      <p class="lead">
+        You have reached a broken link. Please return to the
+        <a href="/">home page</a>
+        or check your navigation.
+      </p>
+
+      <a class="btn" href="/">Return to Home</a>
+
+      <p class="foot">EatOuts Botswana &bull; Curated Local Experiences</p>
     </div>
   </main>
+
   <nav class="appnav">
     <a href="index.html#promos" class="on">Promos</a>
     <a href="index.html#restaurants">Restaurants</a>
@@ -65,5 +121,110 @@
     <a href="index.html#about">About</a>
   </nav>
 </div>
+
+<script>
+  (function () {
+    'use strict';
+
+    /* Shortened, punchy versions — philosophical context intact */
+    const messages = [
+      "This page is not here today, because it is already tomorrow.",
+      "The context is gone, leaving only the memory of what came before.",
+      "In the blink of an eye, the page you wanted became the past.",
+      "You are stuck in the overlap where neither destination exists.",
+      "We tried to turn a corner with this URL, but we just kept moving.",
+      "This URL has flowed away like a river. Let’s head back upstream.",
+      "This screen is a blank chapter waiting for our homepage.",
+      "We dropped the digital weight. You are standing in a room free from history.",
+      "The door to this page is closed, but the tabs of tomorrow are open.",
+      "You have reached a dead end that is simply free from a way forward."
+    ];
+
+    const ROTATE_MS = 6000;
+
+    const el        = document.getElementById('headline-text');
+    const container = document.getElementById('message-container');
+
+    let currentIndex = 0;
+    let timer        = null;
+    let swapping     = false;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* Random start on every load / refresh */
+    function init() {
+      currentIndex = Math.floor(Math.random() * messages.length);
+      el.textContent = messages[currentIndex];
+      startTimer();
+    }
+
+    function render(animate) {
+      if (!animate || reduceMotion) {
+        el.textContent = messages[currentIndex];
+        return;
+      }
+      if (swapping) return;      // avoid overlapping transitions
+      swapping = true;
+
+      el.classList.add('is-hidden');
+      window.setTimeout(function () {
+        el.textContent = messages[currentIndex];
+        el.classList.remove('is-hidden');
+        swapping = false;
+      }, 280);
+    }
+
+    function next() {
+      currentIndex = (currentIndex + 1) % messages.length;
+      render(true);
+      restartTimer();            // manual tap resets the auto-rotation
+    }
+
+    function startTimer() {
+      stopTimer();
+      timer = window.setInterval(function () {
+        currentIndex = (currentIndex + 1) % messages.length;
+        render(true);
+      }, ROTATE_MS);
+    }
+
+    function stopTimer() {
+      if (timer !== null) {
+        window.clearInterval(timer);
+        timer = null;
+      }
+    }
+
+    function restartTimer() {
+      startTimer();
+    }
+
+    /* --- Interaction: tap / click / keyboard --- */
+    container.addEventListener('click', next);
+    container.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        next();
+      }
+    });
+
+    /* Pause rotation when the tab is hidden (saves battery) */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        stopTimer();
+      } else {
+        startTimer();
+      }
+    });
+
+    /* Boot */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>
+
 </body>
 </html>
