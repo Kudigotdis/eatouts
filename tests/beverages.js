@@ -177,12 +177,35 @@ setTimeout(() => {
   click(doc.querySelector('[data-tab="restaurants"]'));
   check('2nd Restaurants tap opens the beverage filter bar',
     ev('state.bevFilterOpen') === true && cbarEl.classList.contains('on'), ev('state.bevFilterOpen'));
-  check('filter bar shows a Beverage Type button',
-    !!cbarEl.querySelector('[data-act="openBevaergeTypePicker"]'));
+  const controls = cbarEl.querySelector('.rest-filter-controls');
+  const townBtn = cbarEl.querySelector('[data-act="openBottleTownFilter"]');
+  const areaBtn = cbarEl.querySelector('[data-act="openBottleAreaFilter"]');
+  const typeBtn = cbarEl.querySelector('[data-act="openBevaergeTypePicker"]');
+  check('filter controls have 12px top padding',
+    !!controls && window.getComputedStyle(controls).paddingTop === '12px',
+    controls ? window.getComputedStyle(controls).paddingTop : 'none');
+  check('filter bar shows a Type button',
+    !!typeBtn && typeBtn.textContent.trim() === 'Type', typeBtn ? typeBtn.textContent.trim() : 'none');
+  check('filter button labels are 18px',
+    !!typeBtn && window.getComputedStyle(typeBtn.querySelector('span')).fontSize === '18px',
+    typeBtn ? window.getComputedStyle(typeBtn.querySelector('span')).fontSize : 'none');
+  check('All Towns stays left-aligned',
+    !!townBtn && window.getComputedStyle(townBtn).textAlign === 'left',
+    townBtn ? window.getComputedStyle(townBtn).textAlign : 'none');
+  check('All Areas is centred',
+    !!areaBtn && window.getComputedStyle(areaBtn).textAlign === 'center',
+    areaBtn ? window.getComputedStyle(areaBtn).textAlign : 'none');
+  check('Type button is right-aligned',
+    !!typeBtn && window.getComputedStyle(typeBtn).textAlign === 'right',
+    typeBtn ? window.getComputedStyle(typeBtn).textAlign : 'none');
   click(cbarEl.querySelector('[data-act="openBevaergeTypePicker"]'));
   check('type picker opens with grouped options',
     ev('state.bevTypePicker') === true && doc.querySelectorAll('[data-bev-type-option]').length > 0,
     doc.querySelectorAll('[data-bev-type-option]').length);
+  const bevCount = doc.querySelector('.bev-type-pop .loc-count');
+  check('bev-type counts are transparent (no beige badge)',
+    !!bevCount && window.getComputedStyle(bevCount).backgroundColor === 'rgba(0, 0, 0, 0)',
+    bevCount ? window.getComputedStyle(bevCount).backgroundColor : 'none');
   check('picker groups Drinks and Liquors',
     doc.body.textContent.indexOf('Drinks') > -1 && doc.body.textContent.indexOf('Liquors') > -1);
   const firstBevType = doc.querySelector('[data-bev-type-option]');

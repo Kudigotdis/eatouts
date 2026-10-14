@@ -349,6 +349,12 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .rest-filter-row{display:flex;gap:8px;padding:0 12px 8px}
 .rest-filter-row .cbtn{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap}
 .rest-filter-row .cbtn.align-right{text-align:right}
+/* Bottle + restaurant filter bars: 12px breathing room above the first row
+   (search / town) and 18px button labels. Scoped to .rest-filter-controls so
+   the reserve venue town row (a bare .rest-filter-row) is untouched. */
+.rest-filter-controls{padding-top:12px}
+.rest-filter-controls .rest-filter-row .cbtn{font-size:18px}
+.rest-filter-controls .rest-filter-row .cbtn.align-center{text-align:center}
 /* cbar slides up from the bottom when a filter bar is toggled open */
 #cbar.on{animation:cbarUp .18s ease-out}
 @keyframes cbarUp{from{transform:translateY(14px);opacity:.35}to{transform:translateY(0);opacity:1}}
@@ -5764,13 +5770,13 @@ function renderControlBarInner(){
       const bevTownLabel=state.bottleTown==="All"?"All Towns":state.bottleTown;
       const bevAreaLabel=state.bottleArea==="All"?"All Areas":state.bottleArea;
       const bevNames=bevTypeOptionNames(state.bevTypes);
-      const bevTypeLabel=!state.bevTypes.length?"Beverage Type":state.bevTypes.length===1?bevNames[0]:state.bevTypes.length+" Types";
+      const bevTypeLabel=!state.bevTypes.length?"Type":state.bevTypes.length===1?bevNames[0]:state.bevTypes.length+" Types";
       let bh='<div class="rest-filter-controls">';
       bh+='<div class="cbar2 rest-filter-row" style="justify-content: center;">'+
         '<div class="csearch" style="flex:1"><input id="bottleSearch" type="search" placeholder="Search bottle stores…" value="'+esc(state.bottleQuery)+'" aria-label="Search bottle stores"></div></div>';
       bh+='<div class="cbar2 rest-filter-row" style="justify-content: space-between;">'+
         '<button class="cbtn" data-act="openBottleTownFilter" aria-haspopup="listbox" aria-expanded="'+(state.bottleTownFilter?'true':'false')+'"><span>'+esc(bevTownLabel)+'</span></button>'+
-        '<button class="cbtn" data-act="openBottleAreaFilter" aria-haspopup="listbox" aria-expanded="'+(state.bottleAreaFilter?'true':'false')+'"><span>'+esc(bevAreaLabel)+'</span></button>'+
+        '<button class="cbtn align-center" data-act="openBottleAreaFilter" aria-haspopup="listbox" aria-expanded="'+(state.bottleAreaFilter?'true':'false')+'"><span>'+esc(bevAreaLabel)+'</span></button>'+
         '<button class="cbtn align-right" data-act="openBevaergeTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.bevTypePicker?'true':'false')+'"><span>'+esc(bevTypeLabel)+'</span></button></div>';
       bh+='</div>';
       if(state.bottleTownFilter)bh+=renderBottleTownFilter();
@@ -5790,14 +5796,14 @@ function renderControlBarInner(){
       return;
     }
     cb.classList.add("on");
-    const townLabel=state.restTown==="All"?"All Botswana":state.restTown+((state.restDistrictName&&state.restDistrictName!==state.restTown)?" · "+state.restDistrictName:"");
+    const townLabel=state.restTown==="All"?"All Towns":state.restTown+((state.restDistrictName&&state.restDistrictName!==state.restTown)?" · "+state.restDistrictName:"");
     const areaLabel=state.restArea==="All"?"All Areas":state.restArea;
     const typeLabel=!state.restTypes.length?"All Cuisines":state.restTypes.length===1?state.restTypes[0]:state.restTypes.length+" Cuisines";
     let h='<div class="rest-filter-controls">';
     h+='<div class="cbar2 rest-filter-row town-row" style="justify-content: center;">'+
       '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(townLabel)+'</span></button></div>';
     h+='<div class="cbar2 rest-filter-row" style="justify-content: space-between;">'+
-      '<button class="cbtn" data-act="openRestAreaPicker" aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(areaLabel)+'</span></button>'+
+      '<button class="cbtn align-center" data-act="openRestAreaPicker" aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(areaLabel)+'</span></button>'+
       '<button class="cbtn align-right" data-act="openRestaurantTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.restTypePicker?'true':'false')+'"><span>'+esc(typeLabel)+'</span></button></div>';
     h+='</div>';
     if(state.restTownPicker)h+=renderRestaurantTownPicker();
