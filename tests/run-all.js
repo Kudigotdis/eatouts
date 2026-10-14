@@ -49,6 +49,7 @@ const SUITES = [
   'brand-kit-admin.js',
   'api-auth.js',
   'promo-submissions.js',
+  'router.js',
   'customer.js'
 ];
 

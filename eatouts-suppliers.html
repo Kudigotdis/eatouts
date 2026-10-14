@@ -285,6 +285,9 @@ img{display:block;max-width:100%}
 <div class="toast" id="toast"></div>
 
 <script src="assets/data/supplier_catalog.js"></script>
+<script src="assets/data/event_supplier_demo_catalogue.js"></script>
+<script src="js/eatouts-slug.js"></script>
+<script src="js/eatouts-router.js"></script>
 
 <script>
 /* ============================================================
@@ -450,12 +453,13 @@ img{display:block;max-width:100%}
      STATE
      ============================================================ */
   var state = {
-    view: 'landing',        /* landing | onboarding | dashboard | preview */
+    view: 'landing',        /* landing | onboarding | dashboard | preview | public */
     openStep: 'identity',
     openCat: null,
     profile: null,          /* active working copy */
     editing: false,
-    dirty: false
+    dirty: false,
+    publicSupplier: null    /* read-only profile reached via /bw/<slug> */
   };
   var autosaveTimer = null;
   var els = {};
@@ -486,6 +490,11 @@ img{display:block;max-width:100%}
       els.scroll.innerHTML = renderPreview();
       setBar(null);
       paintHdr('Preview', state.profile);
+    }
+    else if (state.view === 'public') {
+      els.scroll.innerHTML = renderPublicSupplier();
+      setBar(null);
+      paintHdr(state.publicSupplier ? (state.publicSupplier.businessName || state.publicSupplier.name) : 'Supplier', null);
     }
 
     bindLive();
@@ -577,8 +586,110 @@ img{display:block;max-width:100%}
   }
 
   /* ============================================================
-     ONBOARDING (7 steps)
+     PUBLIC PROFILE  (read-only; reached via www.eatouts.online/bw/<slug>)
      ============================================================ */
+  function publicSlug(s){
+    var raw = s && (s.businessName || s.name) || '';
+    return window.EatoutsSlug ? EatoutsSlug.normalize(raw) : String(raw).toLowerCase().replace(/[^a-z0-9.]+/g, '');
+  }
+
+  function openPublicSupplier(sup){
+    if (!sup) { showPublicNotFound(); return; }
+    state.publicSupplier = sup;
+    state.view = 'public';
+    render();
+    if (els.scroll) els.scroll.scrollTop = 0;
+  }
+
+  function showPublicNotFound(){
+    state.publicSupplier = null;
+    state.view = 'public';
+    render();
+  }
+
+  /* ?link=<slug> (or /bw/<slug> that redirected here): find the supplier. */
+  function openSupplierLink(slug, refId){
+    var list = (window.EATOUTS_SUPPLIERS && Array.isArray(window.EATOUTS_SUPPLIERS)) ? window.EATOUTS_SUPPLIERS : [];
+
+    if (refId) {
+      var byId = list.filter(function(x){ return x.id === refId; })[0];
+      if (byId) { openPublicSupplier(byId); return; }
+    }
+    var want = window.EatoutsSlug ? EatoutsSlug.normalize(slug) : String(slug || '').toLowerCase();
+    if (want) {
+      var bySlug = list.filter(function(x){ return publicSlug(x) === want; })[0];
+      if (bySlug) { openPublicSupplier(bySlug); return; }
+    }
+    /* Resolve through the API when local matching misses (collision suffix). */
+    if (typeof fetch === 'function' && slug) {
+      fetch('/api/links/resolve?country=bw&slug=' + encodeURIComponent(slug))
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if (d && d.ok && d.found && d.link && d.link.type === 'supplier') {
+            var f = list.filter(function(x){ return x.id === d.link.refId; })[0];
+            if (f) { openPublicSupplier(f); return; }
+          }
+          showPublicNotFound();
+        })
+        .catch(function(){ showPublicNotFound(); });
+      return;
+    }
+    showPublicNotFound();
+  }
+
+  function renderPublicSupplier(){
+    var s = state.publicSupplier;
+    if (!s) {
+      return '<div class="landing"><div class="landing-hero">' +
+        '<span class="tag">Supplier</span><h1>Link not found</h1>' +
+        '<p>We could not find that supplier link. It may have moved.</p></div>' +
+        '<div class="landing-body"><div class="landing-actions" style="margin-top:16px">' +
+        '<a class="btn gold full" href="eatouts-suppliers.html">Browse suppliers</a>' +
+        '<a class="btn ghost full" href="index.html">Go to EatOuts</a></div></div></div>';
+    }
+
+    var name = s.businessName || s.name || 'Supplier';
+    var cat = s.catName || 'Event supplier';
+    var waText = 'Hi EatOuts, I would like to enquire about ' + name + ' (' + cat + ').';
+    var wa = 'https://wa.me/26771844129?text=' + encodeURIComponent(waText);
+
+    var h = '';
+    h += '<div class="landing">';
+    h += '<div class="landing-hero">';
+    h += '<span class="tag">' + esc(cat) + '</span>';
+    h += '<h1>' + esc(name) + '</h1>';
+    if (s.service || s.subcategory) h += '<p>' + esc(s.service || s.subcategory) + '</p>';
+    h += '</div>';
+    h += '<div class="landing-body">';
+
+    if (s.description) {
+      h += '<div class="landing-card"><h3>About</h3><p>' + esc(s.description) + '</p></div>';
+    }
+    if (s.displayPrice || s.price) {
+      h += '<div class="landing-card" style="margin-top:14px"><h3>From ' + esc(s.displayPrice || ('P' + s.price)) + '</h3>';
+      h += '<p>' + esc(s.unit || s.model || '') + (s.included ? ' · includes ' + esc(s.included) : '') + '</p></div>';
+    }
+    if (s.addons && s.addons.length) {
+      h += '<div class="landing-card" style="margin-top:14px"><h3>Add-ons</h3><ul>';
+      s.addons.forEach(function(a){ h += '<li>' + esc(a) + '</li>'; });
+      h += '</ul></div>';
+    }
+    if (s.serviceArea && s.serviceArea.length) {
+      h += '<div class="landing-card" style="margin-top:14px"><h3>Service area</h3><p>' + esc(s.serviceArea.join(', ')) + '</p></div>';
+    }
+    if (s.rating) {
+      h += '<div class="landing-card" style="margin-top:14px"><h3>Rating</h3><p>' + esc(String(s.rating)) + ' / 5</p></div>';
+    }
+
+    h += '<div class="landing-actions" style="margin-top:16px">';
+    h += '<a class="btn gold full" href="' + esc(wa) + '" target="_blank" rel="noopener">Enquire on WhatsApp</a>';
+    h += '<a class="btn ghost full" href="index.html#reserve">Plan an event</a>';
+    h += '</div>';
+    h += '<div class="landing-card" style="margin-top:16px"><p style="font-size:11px;color:#8a8170;line-height:1.6">Rates shown are illustrative demo figures and not a quote. EatOuts connects you directly on WhatsApp — no booking fee, no middleman.</p></div>';
+    h += '</div></div>';
+    return h;
+  }
+
   function renderOnboarding(){
     var p = state.profile;
     if (!p) return '<div class="empty">No profile loaded.</div>';
@@ -1635,6 +1746,15 @@ img{display:block;max-width:100%}
       els.scroll = document.getElementById('scroll');
       els.bar = document.getElementById('bar');
       if (!els.scroll) throw new Error('Scroll element missing');
+
+      /* Public business link: eatouts-suppliers.html?link=<slug> (arrived
+         from www.eatouts.online/bw/<slug>). Show the read-only profile. */
+      var vt = window.EatoutsRouter ? EatoutsRouter.detect() : null;
+      if (vt && (vt.type === 'supplier' || vt.slug)) {
+        if (vt.type === 'supplier' && vt.refId) openSupplierLink(vt.slug, vt.refId);
+        else openSupplierLink(vt.slug, null);
+        return;
+      }
 
       /* If there's an in-progress draft, offer to resume it */
       var draft = draftLoad();

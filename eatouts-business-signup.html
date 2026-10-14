@@ -56,6 +56,7 @@
 <script src="js/eatouts-users.js"></script>
 <script src="js/eatouts-field.js"></script>
 <script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-slug.js"></script>
 <script>
 (function () {
   var F = window.EatoutsField;
@@ -113,6 +114,33 @@
   }
   function waLink(num) {
     return 'https://wa.me/' + String(num || '').replace(/\D/g, '');
+  }
+  var SL = window.EatoutsSlug;
+  function slugOf(v) {
+    if (!SL) return '';
+    return SL.normalize((v && (v.custom_slug || v.name)) || '');
+  }
+  function linkTypeOf(t) {
+    if (t === 'liquor_store') return 'bottle_store';
+    if (t === 'event_supplier') return 'supplier';
+    return 'restaurant';
+  }
+  var checkTimer = null;
+  function checkLink(raw, refId, statusEl) {
+    if (!statusEl) return;
+    if (!SL) { statusEl.textContent = ''; return; }
+    var reason = SL.reason(raw);
+    if (reason) { statusEl.textContent = reason; return; }
+    var s = SL.normalize(raw);
+    if (typeof fetch !== 'function') { statusEl.textContent = '\u2713 ' + SL.url('bw', s); return; }
+    statusEl.textContent = 'Checking \u2026';
+    fetch('/api/links/check?country=bw&slug=' + encodeURIComponent(s) + '&refId=' + encodeURIComponent(refId || ''))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.available) statusEl.textContent = '\u2713 ' + (d.reason || 'Available') + ' \u2014 ' + SL.url('bw', s);
+        else statusEl.textContent = '\u2717 ' + ((d && d.reason) || 'That link is not available.');
+      })
+      .catch(function () { statusEl.textContent = SL.url('bw', s); });
   }
   function statusChip(v) {
     if (v.closed_outcome === 'closed_lost') return '<span class="chip closed_lost">Lost</span>';
@@ -340,6 +368,11 @@
       '</div>' +
       '<label class="field"><span>Address (optional)</span><input id="p-addr"' + n('addr', v.address) + '></label>' +
       '<label class="field"><span>Description</span><textarea id="p-desc" placeholder="What do you serve? What makes you special?">' + esc(v.description) + '</textarea></label>' +
+      '<label class="field"><span>Your EatOuts link</span>' +
+      '<span class="sg-hint" style="margin:0 0 6px">www.eatouts.online/bw/<strong id="p-link-slug">' + esc(slugOf(v)) + '</strong></span>' +
+      '<input id="p-link" value="' + esc(slugOf(v)) + '" placeholder="e.g. kgalekitchen" autocapitalize="none" autocomplete="off" spellcheck="false">' +
+      '<span class="sg-hint" id="p-link-status" style="margin:6px 0 0">Letters and numbers only \u2014 no spaces. This is the address you can share.</span>' +
+      '</label>' +
       '<div class="sg-actions">' +
       '<label class="field" style="flex:1"><span>Opening hours</span><input id="p-hours" placeholder="e.g. Mon–Sat 8:00–22:00"' + n('hours', v.working_hours) + '></label>' +
       '<label class="field" style="flex:1"><span>Years in business</span><input id="p-years" inputmode="numeric"' + n('years', v.years_in_business) + '></label>' +
@@ -436,6 +469,10 @@
           var w1 = normWa(wa2), w2 = normWa(owa);
           if (wa2.trim() && !w1) { toast('Contact WhatsApp must be a valid Botswana number.'); return; }
           if (owa.trim() && !w2) { toast('Order WhatsApp must be a valid Botswana number.'); return; }
+          var linkInput = document.getElementById('p-link');
+          var slug = SL ? SL.normalize(linkInput ? linkInput.value : '') : '';
+          if (slug && (!SL || !SL.isValid(slug))) { toast(SL ? SL.reason(linkInput.value) : 'Choose a valid link name.'); return; }
+          var vv0 = F.venueById(id);
           var r2 = doSaveProfile(id, {
             name: document.getElementById('p-name').value.trim(),
             whatsapp: w1 || document.getElementById('p-wa').value.trim(),
@@ -445,9 +482,19 @@
             address: document.getElementById('p-addr').value.trim(),
             description: document.getElementById('p-desc').value.trim(),
             working_hours: document.getElementById('p-hours').value.trim(),
-            years_in_business: document.getElementById('p-years').value.trim()
+            years_in_business: document.getElementById('p-years').value.trim(),
+            custom_slug: slug || undefined
           });
           if (!r2.ok) { toast(r2.error); return; }
+          if (slug && typeof fetch === 'function') {
+            fetch('/api/business/link', {
+              method: 'POST', credentials: 'include',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ country: 'bw', type: linkTypeOf(S.type), refId: id, slug: slug, name: (vv0 && vv0.name) || '' })
+            }).then(function (r) { return r.json(); }).then(function (d) {
+              if (d && d.ok && d.link) toast('Link saved \u2014 www.eatouts.online/bw/' + d.link.slug);
+            }).catch(function () {});
+          }
           toast('Saved');
           renderProfile();
           return;
@@ -463,6 +510,21 @@
         renderSearch();
       });
     });
+    var linkEl = document.getElementById('p-link');
+    if (linkEl) {
+      var slugDisplay = document.getElementById('p-link-slug');
+      var status = document.getElementById('p-link-status');
+      var paint = function () {
+        var s = SL ? SL.normalize(linkEl.value) : linkEl.value;
+        if (slugDisplay) slugDisplay.textContent = s;
+      };
+      linkEl.addEventListener('input', function () {
+        paint();
+        clearTimeout(checkTimer);
+        checkTimer = setTimeout(function () { checkLink(linkEl.value, S.claimedId, status); }, 450);
+      });
+      paint();
+    }
   }
 
   function proceedClaim() {

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "merge":   "python scripts/build_restaurant_directory.py",
-    "build":   "npm run merge && node copy-static.mjs",
+    "link-registry": "node scripts/build_link_registry.mjs",
+    "build":   "npm run merge && npm run link-registry && node copy-static.mjs",
     "stage":   "node copy-static.mjs",
     "deploy":  "npm run build && npx wrangler pages deploy dist",
     "preview": "npm run build && npx wrangler pages dev dist",
@@ -15,8 +16,8 @@
     "test":     "node tests/run-all.js",
     "db:migrate:local": "npx wrangler d1 migrations apply eatouts --local",
     "db:migrate":       "npx wrangler d1 migrations apply eatouts --remote",
-    "db:seed:build":    "python scripts/build_d1_seed.py",
-    "db:seed":          "python scripts/build_d1_seed.py && npx wrangler d1 execute eatouts --file scripts/seeds/restaurants.sql --remote",
+    "db:seed:build":    "python scripts/build_d1_seed.py && node scripts/build_link_registry.mjs",
+    "db:seed":          "python scripts/build_d1_seed.py && node scripts/build_link_registry.mjs && npx wrangler d1 execute eatouts --file scripts/seeds/restaurants.sql --remote && npx wrangler d1 execute eatouts --file scripts/seeds/business_links.sql --remote",
     "pages:dev":        "npm run build && npx wrangler pages dev dist"
   },
   "devDependencies": {
