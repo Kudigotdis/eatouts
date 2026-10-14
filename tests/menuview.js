@@ -73,6 +73,12 @@ setTimeout(() => {
   const cmeta = vp.querySelector('.menu-view .cat-meta');
   check('.cat-meta doubled to 21px', px(cmeta) >= 21, cmeta && w.getComputedStyle(cmeta).fontSize);
   check('per-category heart removed from the categories view', !vp.querySelector('.menu-view .cat-wrap > .ico-btn'));
+  const crow = vp.querySelector('.menu-view .cat-row');
+  check('.cat-row centres its group', !!crow && w.getComputedStyle(crow).justifyContent === 'center', crow && w.getComputedStyle(crow).justifyContent);
+  check('.cat-row padding is symmetrical', !!crow && w.getComputedStyle(crow).paddingRight === w.getComputedStyle(crow).paddingLeft, crow && w.getComputedStyle(crow).paddingRight + '/' + w.getComputedStyle(crow).paddingLeft);
+  const cminfo = vp.querySelector('.menu-view .cat-row .minfo');
+  check('.cat-row .minfo does not flex-grow', !!cminfo && w.getComputedStyle(cminfo).flexGrow === '0', cminfo && w.getComputedStyle(cminfo).flexGrow);
+  check('.cat-row .minfo text is centred', !!cminfo && w.getComputedStyle(cminfo).textAlign === 'center', cminfo && w.getComputedStyle(cminfo).textAlign);
   check('bottom Back button on the categories view', !!vp.querySelector('.menu-view [data-act="backFromRestView"]'));
 
   /* ---------- item list view ---------- */
