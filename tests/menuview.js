@@ -92,7 +92,9 @@ setTimeout(() => {
   const h2c = vp.querySelector('.menu-view .phead h2');
   check('item-list .phead h2 is 28px', px(h2c) >= 27, h2c && w.getComputedStyle(h2c).fontSize);
   const mtitle = vp.querySelector('.menu-view .mtitle');
-  check('.mtitle enlarged', px(mtitle) >= 15, mtitle && w.getComputedStyle(mtitle).fontSize);
+  check('.mtitle is 20px', px(mtitle) === 20, mtitle && w.getComputedStyle(mtitle).fontSize);
+  const mprice = vp.querySelector('.menu-view .mprice');
+  check('.mprice is 18px', px(mprice) === 18, mprice && w.getComputedStyle(mprice).fontSize);
   const ico = vp.querySelector('.menu-view .mitem > .ico-btn');
   check('item heart moved to right:24px', ico && Math.round(parseFloat(w.getComputedStyle(ico).right)) === 24, ico && w.getComputedStyle(ico).right);
   check('item heart reduced below 44px', ico && parseFloat(w.getComputedStyle(ico).width) <= 36, ico && w.getComputedStyle(ico).width);
