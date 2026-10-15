@@ -120,6 +120,8 @@ setTimeout(() => {
   check('.ctr label items start-aligned', !!clbl && w.getComputedStyle(clbl).alignItems === 'flex-start', clbl && w.getComputedStyle(clbl).alignItems);
   const cprice = vp.querySelector('.menu-view .ctr .lbl em.price');
   check('.ctr price em is 20px', !!cprice && px(cprice) === 20, cprice && w.getComputedStyle(cprice).fontSize);
+  check('.ctr price em is bold 800', !!cprice && w.getComputedStyle(cprice).fontWeight === '800', cprice && w.getComputedStyle(cprice).fontWeight);
+  check('.ctr price em is black', !!cprice && w.getComputedStyle(cprice).color === 'rgb(0, 0, 0)', cprice && w.getComputedStyle(cprice).color);
   const stpbtn = vp.querySelector('.menu-view .stp button');
   check('.stp button is 50x45 @24px', !!stpbtn && parseFloat(w.getComputedStyle(stpbtn).width) === 50 && parseFloat(w.getComputedStyle(stpbtn).height) === 45 && px(stpbtn) === 24, stpbtn && w.getComputedStyle(stpbtn).width + 'x' + w.getComputedStyle(stpbtn).height + ' ' + w.getComputedStyle(stpbtn).fontSize);
   const stpval = vp.querySelector('.menu-view .stp .val');

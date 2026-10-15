@@ -148,7 +148,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 8
-- **Size:** 446 KB / 9093 lines (456681 bytes)
+- **Size:** 446 KB / 9093 lines (456708 bytes)
 - **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`
 - **Notes:** Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only.
 
@@ -1000,3 +1000,4 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **2026-10-15** — index.html Menu views: replaced the breadcrumb with a tappable Restaurant-Card (white, 4% black border, 90px logo tap-to-preview, name + tagline tap-to-About); removed the per-category heart; .phead h2 now 28px app-wide; enlarged the item thumbnail (54→90px), item/meta text and counters, moved the item heart to right:24px; added a bottom Back button to both views (new openRestAbout act).
 - **2026-10-15** — index.html Menu categories + spacing: centred the .cat-row icon/text group (symmetrical 16px padding, .cat-row .minfo flex:none); slimmed the menu-view .phead (8px top/bottom, h2 margin-bottom 0); gave the Menu "Save Summary" pad 40px top / 4px bottom; tightened the two menu-view 24px separators to 10px.
 - **2026-10-15** — index.html item labels + steppers: menu-view .ctr labels left-aligned with the price em at 20px (em.price); dropped the redundant item-name label from single-price size rows; enlarged the shared .stp stepper worldwide (buttons 50x45 @24px, .val 20px/min-width 44px, gap 8px).
+- **2026-10-15** — index.html menu item price em: .menu-view .ctr .lbl em.price now bold black (#000, weight 800) on top of the 20px size.
