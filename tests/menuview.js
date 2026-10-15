@@ -79,6 +79,14 @@ setTimeout(() => {
   const cminfo = vp.querySelector('.menu-view .cat-row .minfo');
   check('.cat-row .minfo does not flex-grow', !!cminfo && w.getComputedStyle(cminfo).flexGrow === '0', cminfo && w.getComputedStyle(cminfo).flexGrow);
   check('.cat-row .minfo text is centred', !!cminfo && w.getComputedStyle(cminfo).textAlign === 'center', cminfo && w.getComputedStyle(cminfo).textAlign);
+  const cphead = vp.querySelector('.menu-view .phead');
+  check('.menu-view .phead slimmed to 8px', !!cphead && w.getComputedStyle(cphead).paddingTop === '8px' && w.getComputedStyle(cphead).paddingBottom === '8px', cphead && w.getComputedStyle(cphead).paddingTop + '/' + w.getComputedStyle(cphead).paddingBottom);
+  check('.menu-view .phead h2 has no bottom margin', !!h2 && w.getComputedStyle(h2).marginBottom === '0px', h2 && w.getComputedStyle(h2).marginBottom);
+  const savepad = vp.querySelector('.menu-view .pad [data-act="saveRestSummary"]');
+  const savewrap = savepad && savepad.closest('.pad');
+  check('Save Summary pad has 40px top / 4px bottom', !!savewrap && w.getComputedStyle(savewrap).paddingTop === '40px' && w.getComputedStyle(savewrap).paddingBottom === '4px', savewrap && w.getComputedStyle(savewrap).paddingTop + '/' + w.getComputedStyle(savewrap).paddingBottom);
+  const cspacer = Array.prototype.find.call(vp.querySelectorAll('.menu-view > div'), el => el.getAttribute('style') === 'height:10px');
+  check('menu-view separator tightened to 10px', !!cspacer, !!cspacer);
   check('bottom Back button on the categories view', !!vp.querySelector('.menu-view [data-act="backFromRestView"]'));
 
   /* ---------- item list view ---------- */

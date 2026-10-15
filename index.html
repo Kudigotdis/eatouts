@@ -533,6 +533,8 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .phead{width:100vw;box-sizing:border-box;margin-left:calc(-50vw + 50%);margin-right:calc(-50vw + 50%);padding:20px 16px 16px;text-align:center;border-radius:0;background-color:rgba(211,211,211,.2)}
 .phead h2{margin:0 0 4px;font-size:28px;line-height:1.2;font-weight:900;letter-spacing:-.01em;color:#1a1a1a}
 .phead p{margin:0;font-size:15px;font-weight:700;color:#a89a7e;line-height:1.5}
+.menu-view .phead{padding-top:8px;padding-bottom:8px}
+.menu-view .phead h2{margin-bottom:0}
 .empty{padding:44px 20px;text-align:center;color:#a89a7e;font-size:12.5px;line-height:1.6}
 
 /* ---------- PROMO FILTER BAR (rises above nav) ---------- */
@@ -5383,7 +5385,7 @@ function renderRestaurantSubView(){
     if(state.menuCat) return renderMenuCategory();
     return '<div class="scroll menu-view">'+restaurantCard(r)+renderMenuCategories(true)+
       '<div class="pad" style="padding-top:0"><button class="btn ghost full" data-act="backFromRestView">Back</button></div>'+
-      '<div style="height:24px"></div></div>';
+      '<div style="height:10px"></div></div>';
   }
   let inner="";
   if(rv.view==="venue")  inner=renderRestaurantVenue(r);
@@ -6891,8 +6893,8 @@ function renderMenuCategories(noWrap){
       '<div class="cat-meta">'+c.items.length+' items</div></div></button>'+
       '</div>';
   });
-  h+='<div class="pad" style="padding-top:0"><button class="btn primary full" data-act="saveRestSummary" data-id="'+esc(activeRestId())+'">Save Summary</button></div>';
-  h+='<div style="height:24px"></div>';
+  h+='<div class="pad" style="padding-top:40px;padding-bottom:4px"><button class="btn primary full" data-act="saveRestSummary" data-id="'+esc(activeRestId())+'">Save Summary</button></div>';
+  h+='<div style="height:10px"></div>';
   if(!noWrap) h+='</div>';
   return h;
 }
