@@ -9,7 +9,8 @@
  *   - index.html PAGE_TITLES and its `/* PAGE: *​/` banners disagree
  *     (missing/extra/mismatched id or title)
  *   - a page("id", …) call references an unknown id
- *   - renderViewport() no longer writes data-page onto .screen
+ *   - renderViewport() no longer writes data-page / data-page-ref onto .screen
+ *   - pageRef() or window.eoPage() is missing
  *   - PAGE_INVENTORY.md is missing or lists a marker that no longer exists
  *
  * Line numbers are intentionally NOT asserted (they drift); `npm run inventory`
@@ -96,6 +97,10 @@ const unknownPage = [...pageIds].filter((id) => !(id in titleMap));
 check('every literal page() id is in PAGE_TITLES', unknownPage.length === 0, unknownPage.join(', '));
 
 check('renderViewport() writes data-page onto .screen', /data-page="'\+esc\(pageId\)\+'"/.test(indexSrc));
+check('renderViewport() writes data-page-ref onto .screen', /data-page-ref="'\+esc\(pageIns\)\+'"/.test(indexSrc));
+check('index.html declares pageRef()', /\bfunction pageRef\s*\(/.test(indexSrc));
+check('pageRef() has a default branch', /case[\s\S]*?default:\s*return ""/.test(indexSrc));
+check('index.html declares window.eoPage()', /window\.eoPage\s*=\s*function/.test(indexSrc));
 
 check('PAGE_INVENTORY.md exists', fs.existsSync(DOC));
 if (fs.existsSync(DOC)) {

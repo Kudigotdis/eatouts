@@ -25,13 +25,13 @@ and `HTML_PAGES.md` the longer capability narrative.
 
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
-| Public & customer surfaces | 12 | 780 KB | 15509 |
+| Public & customer surfaces | 12 | 783 KB | 15555 |
 | Restaurant operator back-office | 6 | 174 KB | 2762 |
 | Manager / auth / platform admin (staged package) | 39 | 374 KB | 2721 |
 | Delivery flows | 3 | 129 KB | 2226 |
 | Internal ops & billing | 3 | 151 KB | 2710 |
 | Developer harness | 2 | 224 KB | 4643 |
-| **Total** | **65** | **1827 KB** | **30571** |
+| **Total** | **65** | **1830 KB** | **30617** |
 
 Status: 60 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
@@ -43,7 +43,7 @@ Status: 60 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
 | # | File | Group | Purpose | How you reach it | Auth | Store keys | Size |
 |---|------|-------|---------|------------------|------|-----------|------|
-| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 450 KB / 9178 lines |
+| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 453 KB / 9224 lines |
 | 2 | `get-started.html` | public-customer | Marketing landing that explains the operator offer and links into the intake and pricing flows. | Direct / marketing links. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 185 lines |
 | 3 | `pricing.html` | public-customer | Public pricing page; reads and can persist the shared plan prices. | Marketing links; get-started.html. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 243 lines |
 | 4 | `one-pager.html` | public-customer | Static sales one-pager for prospects. | Direct link. | - | — | 8 KB / 157 lines |
@@ -148,7 +148,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 8
-- **Size:** 450 KB / 9178 lines (460997 bytes)
+- **Size:** 453 KB / 9224 lines (463625 bytes)
 - **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`
 - **Notes:** Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only.
 
@@ -1003,3 +1003,4 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **2026-10-15** — index.html menu item price em: .menu-view .ctr .lbl em.price now bold black (#000, weight 800) on top of the 20px size.
 - **2026-10-15** — Inactive heart: every img showing heart_inactive_icon.png renders at 50% opacity (index.html + eatout_event_builder.html) via img[src*="heart_inactive_icon"]; active heart/WhatsApp/Reserve untouched.
 - **2026-10-15** — Page titles: every root .html now carries a <!-- PAGE: title --> banner after the doctype and <body data-page="slug">; every SPA screen carries a /* PAGE: id — title */ banner and is recorded at runtime as data-page/data-page-title on .screen (PAGE_TITLES map + page() helper). Added PAGE_INVENTORY.md and a read-only validator npm run inventory (scripts/update-inventory.mjs) plus tests/inventory.js.
+- **2026-10-15** — Exact-page identity: renderViewport() now also writes data-page-ref (the live instance: venue/category/promo/store/photo id) onto .screen and <body>, via the new pageRef() resolver; added the read-only window.eoPage() console helper that prints a paste-ready one-liner. Validator + tests/inventory.js guard the new wiring; PAGE_INVENTORY.md FAQ documents it.

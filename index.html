@@ -5946,6 +5946,51 @@ const PAGE_TITLES={
   "about-legal":"Legal",
   "about-operator-login":"Operator Sign in"
 };
+/* The live instance behind the active screen (venue/category/promo/store).
+   renderViewport() mirrors this onto .screen as data-page-ref so DevTools
+   shows exactly which venue/category you are looking at. */
+function pageRef(){
+  const p=activePage, rv=state.restaurantView;
+  const vid=(rv&&rv.id)||state.restaurantOpen||"";
+  switch(p){
+    case "restaurants-pager":        return state.restPanel||"";
+    case "beverages":                return (state.bevTypes||[]).join(",");
+    case "bev-filter":               return (state.bevTypes||[]).join(",");
+    case "bottle-menu":              return (state.bevView&&state.bevView.id)||"";
+    case "bev-category":             return state.bevView?(state.bevView.type+":"+state.bevView.id):"";
+    case "venue-locked":
+    case "venue-menu":
+    case "venue-checkout":
+    case "venue-checkout-split":
+    case "venue-book":
+    case "venue-promos":
+    case "venue-about":              return vid;
+    case "venue-menu-item":          return vid+(state.menuCat?":"+state.menuCat:"");
+    case "venue-promo-detail":       return vid+(rv&&rv.promoId?":"+rv.promoId:"");
+    case "promos-detail":
+    case "promos-link":              return state.promoId||"";
+    case "promos-gallery":           return state.promoGalleryId||"";
+    case "gallery-photo":            return state.galleryPhoto||"";
+    case "reserve-groups":           return state.reserveCat||"";
+    case "reserve-events":           return [state.reserveCat,state.reserveGroup].filter(Boolean).join("/");
+    case "reserve-providers":        return [state.reserveCat,state.reserveGroup,state.reserveSub].filter(Boolean).join("/");
+    case "about-legal":              return state.legalView||"";
+    case "about-operator-login":     return state.operatorView||"";
+    case "about-restaurant-gallery": return state.aboutView||"";
+    default:                         return "";
+  }
+}
+/* Read-only dev helper: type eoPage() in the console to print a paste-ready
+   one-liner (id + title + instance) for the screen you are viewing. */
+window.eoPage=function(){
+  var s=document.querySelector(".screen")||document.body;
+  var id=(s&&s.getAttribute&&s.getAttribute("data-page"))||activePage||"";
+  var title=PAGE_TITLES[id]||"";
+  var ref=(s&&s.getAttribute&&s.getAttribute("data-page-ref"))||"";
+  var marker="PAGE: "+id+(title?" — "+title:"")+(ref?"  ["+ref+"]":"");
+  try{console.log(marker);}catch(_){}
+  return {page:id,title:title,ref:ref,marker:marker};
+};
 
 function renderViewport(){
   const vp=document.getElementById("viewport");
@@ -5964,8 +6009,9 @@ function renderViewport(){
   const screenHtml=renderScreen();
   const pageId=activePage||"";
   const pageTitle=PAGE_TITLES[pageId]||"";
-  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'" data-page="'+esc(pageId)+'" data-page-title="'+esc(pageTitle)+'">'+screenHtml+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderRestNotice()+renderPromoMonthPicker()+renderPromoWeekPicker();
-  if(document.body) document.body.dataset.page=pageId;
+  const pageIns=pageRef();
+  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'" data-page="'+esc(pageId)+'" data-page-title="'+esc(pageTitle)+'" data-page-ref="'+esc(pageIns)+'">'+screenHtml+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderRestNotice()+renderPromoMonthPicker()+renderPromoWeekPicker();
+  if(document.body){ document.body.dataset.page=pageId; document.body.dataset.pageRef=pageIns; }
   if(doFade&&prevScreen){
     const old=prevScreen.cloneNode(true);
     old.classList.remove("anim");

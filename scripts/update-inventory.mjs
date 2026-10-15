@@ -12,7 +12,8 @@
  *   - a `/* PAGE: id — title *​/` banner in index.html is missing from
  *     PAGE_TITLES (or vice versa), has a mismatched title, or a page("id", …)
  *     call references an unknown id
- *   - index.html has no `.screen` data-page wiring
+ *   - index.html has no `.screen` data-page / data-page-ref wiring, no
+ *     pageRef(), or no window.eoPage() helper
  *
  * Warnings (do not fail):
  *   - a line number listed in PAGE_INVENTORY.md looks stale
@@ -114,6 +115,16 @@ else ok('every page() id is in PAGE_TITLES');
 const screenWired = /data-page="'\+esc\(pageId\)\+'"/.test(indexSrc);
 if (screenWired) ok('renderViewport() writes data-page onto .screen');
 else fail('renderViewport() is missing the .screen data-page wiring');
+
+const refWired = /data-page-ref="'\+esc\(pageIns\)\+'"/.test(indexSrc);
+if (refWired) ok('renderViewport() writes data-page-ref onto .screen');
+else fail('renderViewport() is missing the .screen data-page-ref wiring');
+
+if (/\bfunction pageRef\s*\(/.test(indexSrc)) ok('index.html declares pageRef()');
+else fail('index.html is missing pageRef()');
+
+if (/window\.eoPage\s*=\s*function/.test(indexSrc)) ok('index.html declares window.eoPage()');
+else fail('index.html is missing window.eoPage()');
 
 // ---------- cross-check PAGE_INVENTORY.md (warnings) ----------
 
