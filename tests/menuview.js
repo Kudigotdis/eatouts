@@ -114,6 +114,35 @@ setTimeout(() => {
   check('item heart reduced below 44px', ico && parseFloat(w.getComputedStyle(ico).width) <= 36, ico && w.getComputedStyle(ico).width);
   check('bottom Back to Menu button on the item list', !!vp.querySelector('.menu-view [data-act="backCats"]'));
 
+  /* ---------- item label row + stepper ---------- */
+  const clbl = vp.querySelector('.menu-view .ctr .lbl');
+  check('.ctr label is left-aligned', !!clbl && w.getComputedStyle(clbl).textAlign === 'left', clbl && w.getComputedStyle(clbl).textAlign);
+  check('.ctr label items start-aligned', !!clbl && w.getComputedStyle(clbl).alignItems === 'flex-start', clbl && w.getComputedStyle(clbl).alignItems);
+  const cprice = vp.querySelector('.menu-view .ctr .lbl em.price');
+  check('.ctr price em is 20px', !!cprice && px(cprice) === 20, cprice && w.getComputedStyle(cprice).fontSize);
+  const stpbtn = vp.querySelector('.menu-view .stp button');
+  check('.stp button is 50x45 @24px', !!stpbtn && parseFloat(w.getComputedStyle(stpbtn).width) === 50 && parseFloat(w.getComputedStyle(stpbtn).height) === 45 && px(stpbtn) === 24, stpbtn && w.getComputedStyle(stpbtn).width + 'x' + w.getComputedStyle(stpbtn).height + ' ' + w.getComputedStyle(stpbtn).fontSize);
+  const stpval = vp.querySelector('.menu-view .stp .val');
+  check('.stp .val is 20px', !!stpval && px(stpval) === 20, stpval && w.getComputedStyle(stpval).fontSize);
+
+  const single = ev(`(function(){
+    var M = curMenu();
+    for(var ci=0;ci<M.length;ci++){
+      var items=(M[ci].items)||[];
+      for(var ii=0;ii<items.length;ii++){
+        if(!Array.isArray(items[ii][3])){
+          state.menuCat=M[ci].id; state.menuOpen=items[ii][0]; render();
+          var mitem=document.querySelector('#viewport .mitem[data-macc="'+items[ii][0]+'"]');
+          var row=mitem&&mitem.querySelector('.ctr [data-si]');
+          var lbl=row&&row.closest('.ctr').querySelector('.lbl');
+          return { name:items[ii][1], label:lbl?lbl.textContent.trim():'', firstTag:lbl&&lbl.firstChild?lbl.firstChild.nodeName:null, hasPrice:!!(lbl&&lbl.querySelector('em.price')) };
+        }
+      }
+    }
+    return null;
+  })()`);
+  check('single-price item row shows no item-name label', !!single && single.label.indexOf(single.name) === -1 && single.firstTag === 'EM' && single.hasPrice, single && JSON.stringify(single));
+
   /* ---------- card tap opens the venue info page ---------- */
   click(vp.querySelector('.menu-view .restcard-main'));
   check('card name/tagline opens the venue About page', !!vp.querySelector('.rabout-hero'));

@@ -199,10 +199,10 @@ img{display:block;max-width:100%}
 .ctr{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#faf8f2;border:1px solid #f1ece1;border-radius:12px;margin-bottom:7px}
 .ctr .lbl{font-size:12.5px;font-weight:700;color:#3a3324;display:flex;flex-direction:column}
 .ctr .lbl em{font-style:normal;font-size:10px;color:#a89a7e;font-weight:600;letter-spacing:.03em;margin-top:2px}
-.stp{display:flex;align-items:center;border:1px solid #e2dcc9;border-radius:10px;overflow:hidden;background:#ffffff}
-.stp button{width:34px;height:32px;font-size:16px;font-weight:800;color:#1a1a1a;display:flex;align-items:center;justify-content:center}
+.stp{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #e2dcc9;border-radius:10px;overflow:hidden;background:#ffffff}
+.stp button{width:50px;height:45px;font-size:24px;font-weight:800;color:#1a1a1a;display:flex;align-items:center;justify-content:center}
 .stp button:active{background:#f4efe4}
-.stp .val{min-width:30px;text-align:center;font-size:13.5px;font-weight:900;color:#1a1a1a;padding:0 3px}
+.stp .val{min-width:44px;text-align:center;font-size:20px;font-weight:900;color:#1a1a1a;padding:0 8px}
 
 .tbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;margin:12px 0;border-radius:13px;background:#f4f4f2;border:1px solid #e4e4e0}
 .tbar .tl{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#1a1a1a;font-weight:800}
@@ -257,8 +257,9 @@ img{display:block;max-width:100%}
 .menu-view .mprice{font-size:18px}
 .menu-view .mbody{text-align:center}
 .menu-view .mdesc{font-size:14px;text-align:center}
-.menu-view .ctr .lbl{font-size:14px}
+.menu-view .ctr .lbl{font-size:14px;text-align:left;align-items:flex-start}
 .menu-view .ctr .lbl em{font-size:12px}
+.menu-view .ctr .lbl em.price{font-size:20px;text-align:left}
 .menu-view .mitem>.ico-btn{right:24px;width:34px;height:34px}
 .menu-view .mitem>.ico-btn img{width:28px;height:28px}
 /* 3-up paging: each thumb is (100% - 2 gaps)/3 so exactly three fit,
@@ -6928,7 +6929,7 @@ function renderMenuCategory(){
       it[4].forEach(function(ex,ei){
         const l=cartLine(it[0],0);
         const q=(l.extras&&l.extras[ei])||0;
-        h+='<div class="ctr"><div class="lbl">'+esc(ex[0])+'<em>'+fmt(ex[1])+'</em></div>'+
+        h+='<div class="ctr"><div class="lbl">'+esc(ex[0])+'<em class="price">'+fmt(ex[1])+'</em></div>'+
           '<div class="stp"><button data-act="exMinus" data-id="'+it[0]+'" data-ei="'+ei+'">&minus;</button>'+
           '<span class="val" data-ekey="'+it[0]+':'+ei+'">'+q+'</span>'+
           '<button data-act="exPlus" data-id="'+it[0]+'" data-ei="'+ei+'">+</button></div></div>';
@@ -6937,9 +6938,9 @@ function renderMenuCategory(){
     if(sizes.length>1)h+='<div class="subh" style="margin-top:14px">Choose Size</div>';
     sizes.forEach(function(sz,si){
       const l=cartLine(it[0],si);
-      const label=sz[0]||it[1];
+      const label=sz[0]||'';
       h+='<div class="ctr"><div class="lbl">'+esc(label)+
-        '<em>'+fmt(sz[1])+(sz[2]?' &middot; HH '+fmt(sz[2]):'')+'</em></div>'+
+        '<em class="price">'+fmt(sz[1])+(sz[2]?' &middot; HH '+fmt(sz[2]):'')+'</em></div>'+
         '<div class="stp"><button data-act="szMinus" data-id="'+it[0]+'" data-si="'+si+'">&minus;</button>'+
         '<span class="val" data-qkey="'+it[0]+':'+si+'">'+(l.qty||0)+'</span>'+
         '<button data-act="szPlus" data-id="'+it[0]+'" data-si="'+si+'">+</button></div></div>';
