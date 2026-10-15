@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PAGE: EatOuts (customer SPA) -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -741,7 +742,7 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 .lockcard .btn.full{display:block;width:100%}
 </style>
 </head>
-<body>
+<body data-page="index">
 <div id="shell">
   <header id="hdr" data-act="closePickers">
     <button class="brand-mark" type="button" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
@@ -4649,6 +4650,7 @@ function listingContactNumber(r){
   if(!n){try{n=resolveVenueWhatsapp(r);}catch(e){n="";}}
   return String(n||"").replace(/[^\d]/g,"");
 }
+/* PAGE: venue-locked — Menu (locked) */
 function renderMenuLocked(r){
   var num=listingContactNumber(r);
   var h='<div class="scroll">';
@@ -4992,6 +4994,7 @@ function buildRestaurantsHTML(){
   h+='<div style="height:24px"></div></div>';
   return h;
 }
+/* PAGE: restaurants-pager — Restaurants */
 function renderRestaurantsPager(){
   const foodOn=(state.restPanel==='food');
   const hideToggle = state.restPanel==='beverages'
@@ -5015,7 +5018,12 @@ function renderRestaurantsPager(){
         :(state.bevTypes.length?renderBeverageFilterResults():renderBottleStores());
   h+='<div class="bevpage" data-page="beverages">'+bevInner+'</div>';
   h+='</div>';
-  return h;
+  /* which screen the beverages panel is showing (see the PAGE banners below) */
+  const bevPage=state.bevCheckout?"bev-checkout"
+    :(state.bevView&&state.bevView.type==='store')?"bottle-menu"
+    :state.bevView?"bev-category"
+    :(state.bevTypes.length?"bev-filter":"beverages");
+  return page(state.restPanel==='beverages'?bevPage:"restaurants-pager",h);
 }
 function syncBeveragesPanel(){
   const pager=document.getElementById('bev-pager');
@@ -5165,6 +5173,7 @@ function bottleThumb(brand){
   if(B&&typeof B.thumbHtml==="function")return B.thumbHtml({name:brand.name,slug:brand.slug,logo:brand.logo});
   return "";
 }
+/* PAGE: beverages — Beverages */
 function renderBottleStores(){
   let h='<div class="scroll">';
   if(!bottleAPI()){h+='<div class="empty">Bottle stores are loading…</div></div>';return h;}
@@ -5373,30 +5382,33 @@ function renderRestLocPicker(){
 function renderRestaurantSubView(){
   const rv=state.restaurantView;
   const r=rv&&hasBridge()?EatoutsBridge.byId(rv.id):null;
-  if(!r){state.restaurantView=null;return renderRestaurants();}
+  if(!r){state.restaurantView=null;return page("restaurants-pager",renderRestaurants());}
   EatoutsBridge.setActive(r.id);
 
   const crumb='<div class="crumb"><button data-act="backFromRestView">Restaurants</button>'+
               '<span class="sep">/</span><span class="cur">'+esc(r.name)+'</span></div>';
 
   if(rv.view==="menu"){
-    if(listingLocked(r)) return renderMenuLocked(r);
+    if(listingLocked(r)) return page("venue-locked",renderMenuLocked(r));
     /* renderMenuCategory supplies its own scroll + restaurant card */
-    if(state.splitOpen) return renderCheckoutSplit();
-    if(state.checkoutView) return renderCheckout();
-    if(state.menuCat) return renderMenuCategory();
-    return '<div class="scroll menu-view">'+restaurantCard(r)+renderMenuCategories(true)+
+    if(state.splitOpen) return page("venue-checkout-split",renderCheckoutSplit());
+    if(state.checkoutView) return page("venue-checkout",renderCheckout());
+    if(state.menuCat) return page("venue-menu-item",renderMenuCategory());
+    /* PAGE: venue-menu — Menu */
+    return page("venue-menu",'<div class="scroll menu-view">'+restaurantCard(r)+renderMenuCategories(true)+
       '<div class="pad" style="padding-top:0"><button class="btn ghost full" data-act="backFromRestView">Back</button></div>'+
-      '<div style="height:10px"></div></div>';
+      '<div style="height:10px"></div></div>');
   }
   let inner="";
   if(rv.view==="venue")  inner=renderRestaurantVenue(r);
   if(rv.view==="promos") inner=renderRestaurantPromos(r);
   if(rv.view==="about")  inner=renderRestaurantAbout(r);
-  return '<div class="scroll">'+crumb+inner+'<div style="height:24px"></div></div>';
+  const id=rv.view==="venue"?"venue-book":rv.view==="promos"?"venue-promos":"venue-about";
+  return page(id,'<div class="scroll">'+crumb+inner+'<div style="height:24px"></div></div>');
 }
 
 /* ---------- sub-view: Book Venue ---------- */
+/* PAGE: venue-book — Book Venue */
 function renderRestaurantVenue(r){
   let h='<div class="pad" style="padding-top:0">';
   h+='<div class="fld"><label>Event Type</label><input id="venueType" type="text" placeholder="e.g. Birthday, Corporate Dinner"></div>';
@@ -5412,6 +5424,7 @@ function renderRestaurantVenue(r){
 }
 
 /* ---------- sub-view: Promos ---------- */
+/* PAGE: venue-promos — Promos */
 function renderRestaurantPromos(r){
   const bundle=EatoutsBridge.bundleOf(r.id);
   const all=[];
@@ -5434,6 +5447,7 @@ function renderRestaurantPromos(r){
   return h;
 }
 
+/* PAGE: venue-promo-detail — Promo */
 function renderRestaurantPromoDetail(r,promoId){
   const bundle=EatoutsBridge.bundleOf(r.id);
   let found=null;
@@ -5623,6 +5637,7 @@ function renderRestSocialRow(r,profile){
   row+='</div>';
   return row;
 }
+/* PAGE: venue-about — About */
 function renderRestaurantAbout(r){
   const bundle=EatoutsBridge.bundleOf(r.id);
   const p=(bundle&&bundle.profile)||{};
@@ -5889,6 +5904,49 @@ function viewKey(){
     state.operatorView,state.legalView,state.checkoutView,state.splitOpen,
     state.restPanel,state.bevCheckout,state.bevSplitOpen,(state.bevView&&state.bevView.type+":"+state.bevView.id)||""].join("|");
 }
+
+/* ================================================================
+   PAGE TITLES — one entry per screen. page() records the id of the
+   screen being rendered; renderViewport() copies it onto .screen as
+   data-page / data-page-title so you can see which page you are on.
+   Every id here must have a matching "PAGE:" banner somewhere in this
+   file (guarded by tests/inventory.js).
+   ================================================================ */
+let activePage="";
+function page(id,html){ activePage=id; return html; }
+const PAGE_TITLES={
+  "promos-feed":"Promos · Feed",
+  "promos-detail":"Promos · Detail",
+  "promos-gallery":"Promos · Gallery",
+  "promos-link":"Promos · Link",
+  "restaurants-pager":"Restaurants",
+  "venue-menu":"Menu",
+  "venue-locked":"Menu (locked)",
+  "venue-menu-item":"Menu · Item",
+  "venue-checkout":"Checkout",
+  "venue-checkout-split":"Split the Bill",
+  "venue-about":"About",
+  "venue-promos":"Promos",
+  "venue-promo-detail":"Promo",
+  "venue-book":"Book Venue",
+  "beverages":"Beverages",
+  "bev-filter":"Beverages · Filter",
+  "bottle-menu":"Bottle Menu",
+  "bev-category":"Beverages · Category",
+  "bev-checkout":"Beverages · Checkout",
+  "bev-split":"Beverages · Split the Bill",
+  "reserve-cats":"Plan Event",
+  "reserve-groups":"Plan Event · Groups",
+  "reserve-events":"Plan Event · Events",
+  "reserve-providers":"Plan Event · Choose Venue",
+  "gallery-grid":"Gallery",
+  "gallery-photo":"Gallery · Photo",
+  "about-main":"About",
+  "about-restaurant-gallery":"Gallery (restaurant)",
+  "about-legal":"Legal",
+  "about-operator-login":"Operator Sign in"
+};
+
 function renderViewport(){
   const vp=document.getElementById("viewport");
   /* remember where the user was before the DOM is replaced */
@@ -5903,7 +5961,11 @@ function renderViewport(){
   /* a panel switch crossfades: suppress the slide so the two don't fight */
   const doFade=panelFade&&!document.startViewTransition&&!reduceMotion();
 
-  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'">'+renderScreen()+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderRestNotice()+renderPromoMonthPicker()+renderPromoWeekPicker();
+  const screenHtml=renderScreen();
+  const pageId=activePage||"";
+  const pageTitle=PAGE_TITLES[pageId]||"";
+  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'" data-page="'+esc(pageId)+'" data-page-title="'+esc(pageTitle)+'">'+screenHtml+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderRestNotice()+renderPromoMonthPicker()+renderPromoWeekPicker();
+  if(document.body) document.body.dataset.page=pageId;
   if(doFade&&prevScreen){
     const old=prevScreen.cloneNode(true);
     old.classList.remove("anim");
@@ -5949,17 +6011,17 @@ function scrollPromoPickerToActive(){
 }
 function renderScreen(){
   if(state.tab==="promos"){
-    if(state.promoView==="feed")return renderPromosFeed();
-    if(state.promoView==="detail")return renderPromoDetail();
-    if(state.promoView==="gallery")return renderPromoGallery();
-    if(state.promoView==="link")return renderPromoLink();
+    if(state.promoView==="feed")return page("promos-feed",renderPromosFeed());
+    if(state.promoView==="detail")return page("promos-detail",renderPromoDetail());
+    if(state.promoView==="gallery")return page("promos-gallery",renderPromoGallery());
+    if(state.promoView==="link")return page("promos-link",renderPromoLink());
   }
   if(state.tab==="restaurants"){
     if(state.restaurantView&&state.restaurantView.view==="promo"&&state.restaurantView.promoId){
       const r=hasBridge()?EatoutsBridge.byId(state.restaurantView.id):null;
       if(r){
         EatoutsBridge.setActive(r.id);
-        return '<div class="scroll">'+renderRestaurantPromoDetail(r,state.restaurantView.promoId)+'<div style="height:24px"></div></div>';
+        return page("venue-promo-detail",'<div class="scroll">'+renderRestaurantPromoDetail(r,state.restaurantView.promoId)+'<div style="height:24px"></div></div>');
       }
     }
     if(state.restaurantView)return renderRestaurantSubView();
@@ -5967,20 +6029,20 @@ function renderScreen(){
     return renderRestaurantsPager();
   }
   if(state.tab==="reserve"){
-    if(state.reserveSub)return renderReserveProviders();
-    if(state.reserveGroup)return renderReserveEvents();
-    if(state.reserveCat)return renderReserveGroups();
-    return renderReserveCats();
+    if(state.reserveSub)return page("reserve-providers",renderReserveProviders());
+    if(state.reserveGroup)return page("reserve-events",renderReserveEvents());
+    if(state.reserveCat)return page("reserve-groups",renderReserveGroups());
+    return page("reserve-cats",renderReserveCats());
   }
   if(state.tab==="gallery"){
-    if(state.galleryView==="photo")return renderPhoto();
-    return renderGalleryGrid();
+    if(state.galleryView==="photo")return page("gallery-photo",renderPhoto());
+    return page("gallery-grid",renderGalleryGrid());
   }
   if(state.tab==="about"){
-    if(state.legalView)return renderLegalDoc(state.legalView);
-    if(state.operatorView==="login")return renderOperatorLogin();
-    if(state.aboutView==="gallery")return renderRestaurantGallery();
-    return renderAbout();
+    if(state.legalView)return page("about-legal",renderLegalDoc(state.legalView));
+    if(state.operatorView==="login")return page("about-operator-login",renderOperatorLogin());
+    if(state.aboutView==="gallery")return page("about-restaurant-gallery",renderRestaurantGallery());
+    return page("about-main",renderAbout());
   }
   return "";
 }
@@ -6141,6 +6203,7 @@ function renderPromoCard(p,dayIdx,idx,r){
     accWrap(open,inner)+'</div>';
 }
 
+/* PAGE: promos-feed — Promos · Feed */
 function renderPromosFeed(){
   /* the bar & bottle promos arrive with their own JSON, so ask for it
      before the feed is built */
@@ -6285,6 +6348,7 @@ function renderPromoWeekPicker(){
   return h;
 }
 
+/* PAGE: promos-detail — Promos · Detail */
 function renderPromoDetail(){
   const found=promoById(state.promoId);
   if(!found)return '<div class="empty">Promo not found.</div>';
@@ -6384,6 +6448,7 @@ function renderPromoDetail(){
     '<div style="height:24px"></div></div>';
 }
 
+/* PAGE: promos-gallery — Promos · Gallery */
 function renderPromoGallery(){
   const found=promoById(state.promoGalleryId);
   if(!found)return '<div class="empty">Gallery not found.</div>';
@@ -6401,6 +6466,7 @@ function renderPromoGallery(){
     '<div class="dots">'+imgs.map(function(_,i){return '<i class="'+(i===0?"on":"")+'"></i>';}).join("")+'</div></div>';
 }
 
+/* PAGE: promos-link — Promos · Link */
 function renderPromoLink(){
   const found=promoById(state.promoId);
   if(!found)return '<div class="empty">Not found.</div>';
@@ -6521,6 +6587,7 @@ const BEV_TILE_COLOURS={
   tequila:"255,127,80",vodka:"135,206,235",wines:"0,0,255"
 };
 function bevTileRgb(id){return BEV_TILE_COLOURS[id]||"214,201,182";}
+/* PAGE: bottle-menu — Bottle Menu */
 function renderBottleMenu(){
   const B=window._BEV&&window._BEV.beverages;
   const A=window._BEV&&window._BEV.alcohols;
@@ -6564,6 +6631,7 @@ function bevTypeSelectedItems(){
   (A&&A.items||[]).forEach(function(it){if(bucks[it.bucket])out.push({item:it,kind:'bucket',cat:it.bucket});});
   return out;
 }
+/* PAGE: bev-filter — Beverages · Filter */
 function renderBeverageFilterResults(){
   const rows=bevTypeSelectedItems();
   /* "Offering" is every bottle store that survives the current town/area/query
@@ -6611,6 +6679,7 @@ function liquorTile(id,name){
   const map={'beer':'🍺','ciders':'🍏','brandy':'🥃','rum':'🥃','vodka':'🥃','gin':'🍸','wines':'🍷','champagne':'🥂','spirits':'🥃','tequila':'🥃','liqueurs':'🍸'};
   return '<div class="tile-ico" style="color:#d6c9b6">'+(map[id]||'🥃')+'</div>';
 }
+/* PAGE: bev-category — Beverages · Category */
 function renderBeveragesCategory(){
   const B=window._BEV&&window._BEV.beverages;
   const A=window._BEV&&window._BEV.alcohols;
@@ -6712,6 +6781,7 @@ function bevPersonMessage(p){
 function resetBevSplit(){
   state.bevSplitOpen=false;state.bevSplitPeople=[];state.bevSplitAssign={};state.bevSplitNewName="";
 }
+/* PAGE: bev-checkout — Beverages · Checkout */
 function renderBeveragesCheckout(){
   if(state.bevSplitOpen)return renderBevSplit();
   let h='<div class="scroll">';
@@ -6770,6 +6840,7 @@ function renderBeveragesCheckout(){
   h+='</div>';
   return h;
 }
+/* PAGE: bev-split — Beverages · Split the Bill */
 function renderBevSplit(){
   bevNormalizeSplitAssign();
   const lines=bevLines();
@@ -6901,6 +6972,7 @@ function renderMenuCategories(noWrap){
   return h;
 }
 
+/* PAGE: venue-menu-item — Menu · Item */
 function renderMenuCategory(){
   const cat=curMenu().find(c=>c.id===state.menuCat);
   if(!cat)return '<div class="empty">Category not found.</div>';
@@ -6983,6 +7055,7 @@ function renderRestNotice(){
   return '<div class="rest-notice" data-act="dismissRestNotice" role="status">'+esc(state.restNotice)+'</div>';
 }
 
+/* PAGE: venue-checkout — Checkout */
 function renderCheckout(){
   clearEmptyCart();
   const lines=[];
@@ -7177,6 +7250,7 @@ function renderSplitActions(){
   return h;
 }
 
+/* PAGE: venue-checkout-split — Split the Bill */
 function renderCheckoutSplit(){
   normalizeSplitAssignments();
   const lines=checkoutLines();
@@ -7275,6 +7349,7 @@ function buildPersonMessage(p){
 /* ================================================================
    TAB 3: RESERVE
    ================================================================ */
+/* PAGE: reserve-cats — Plan Event */
 function renderReserveCats(){
   let h='<div class="scroll">';
   h+='<div class="phead" style="margin-top:12px"><h2>Plan Event</h2></div>';
@@ -7286,6 +7361,7 @@ function renderReserveCats(){
   return h;
 }
 /* Category -> its subCategory groups. */
+/* PAGE: reserve-groups — Plan Event · Groups */
 function renderReserveGroups(){
   const cat=RESERVE.find(c=>c.id===state.reserveCat);
   if(!cat)return '<div class="empty">Category not found.</div>';
@@ -7301,6 +7377,7 @@ function renderReserveGroups(){
   return h;
 }
 /* Group -> its event types, with descriptions where present. */
+/* PAGE: reserve-events — Plan Event · Events */
 function renderReserveEvents(){
   const cat=RESERVE.find(c=>c.id===state.reserveCat);
   const grp=cat&&cat.groups.find(g=>g.name===state.reserveGroup);
@@ -7336,6 +7413,7 @@ function orderVenueProviders(list){
   const withoutLogo=rest.filter(function(p){return !usesGenuineLogo(p);});
   return pinned.concat(withLogo,withoutLogo);
 }
+/* PAGE: reserve-providers — Plan Event · Choose Venue */
 function renderReserveProviders(){
   const cat=RESERVE.find(c=>c.id===state.reserveCat);
   const grp=cat&&cat.groups.find(g=>g.name===state.reserveGroup);
@@ -7503,6 +7581,7 @@ function renderGalleryRestPicker(){
     (state.galArea==="All"?"":" · "+state.galArea)+' &middot; grid follows this scope</div>';
   return h+'</div>';
 }
+/* PAGE: gallery-grid — Gallery */
 function renderGalleryGrid(){
   const items=filteredGallery();
   const sig=(state.galleryFilter||"")+"|"+state.galTown+"|"+state.galArea+"|"+state.galRest+"|"+(state.search||"");
@@ -7682,6 +7761,7 @@ function armTownRails(){
   });
 }
 
+/* PAGE: gallery-photo — Gallery · Photo */
 function renderPhoto(){
   const items=filteredGallery();
   if(!items.length) return '<div class="empty">No photos to show.</div>';
@@ -7711,6 +7791,7 @@ function scrollPhotoTo(){
 /* ================================================================
    RESTAURANT GALLERY (dedicated page from About)
    ================================================================ */
+/* PAGE: about-restaurant-gallery — Gallery (restaurant) */
 function renderRestaurantGallery(){
   const imgs=IMG.gallery.map(function(f,i){return {src:IMG.dirGallery+f,label:"Gallery "+((i+1<10?"0":"")+(i+1))};})
     .concat(IMG.events.slice(0,4).map(function(f,i){return {src:IMG.dirEvents+f,label:"Event "+((i+1<10?"0":"")+(i+1))};}));
@@ -7783,6 +7864,7 @@ function renderProfileCard(){
   return h;
 }
 
+/* PAGE: about-main — About */
 function renderAbout(){
   const brandName = 'EatOuts';
   const brandBlurb = 'Discover restaurants, food, promos and events across Botswana.';
@@ -7868,6 +7950,7 @@ function legalDoc(type){
   }
   return null;
 }
+/* PAGE: about-legal — Legal */
 function renderLegalDoc(type){
   const doc=legalDoc(type);
   let h='<div class="scroll">';
@@ -7896,6 +7979,7 @@ function renderLegalDoc(type){
    sidebar, no separate page. On success it hands off to the
    owner console, which is guarded by js/eatouts-auth.js.
    ============================================================ */
+/* PAGE: about-operator-login — Operator Sign in */
 function renderOperatorLogin(){
   const demo=window.EatoutsAuth&&EatoutsAuth.demoCredentials;
   const insecure=!(window.EatoutsAuth&&EatoutsAuth.secureContextAvailable());

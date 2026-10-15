@@ -51,7 +51,8 @@ const SUITES = [
   'promo-submissions.js',
   'router.js',
   'menuview.js',
-  'customer.js'
+  'customer.js',
+  'inventory.js'
 ];
 
 function pad(n, width) {
