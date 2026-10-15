@@ -88,6 +88,16 @@ function draftWith(venueId, opt) {
   check('main scroll footer has two bare icon buttons',
     !!mf && mf.querySelectorAll('.ico-btn').length === 2);
 
+  /* ---------- inactive heart icon renders at 50% ---------- */
+  const hOff = doc.createElement('img');
+  hOff.setAttribute('src', 'assets/icons/heart_inactive_icon.png');
+  const hOn = doc.createElement('img');
+  hOn.setAttribute('src', 'assets/icons/heart_active_icon.png');
+  doc.body.appendChild(hOff); doc.body.appendChild(hOn);
+  check('event builder inactive heart opacity is 0.5', w.getComputedStyle(hOff).opacity === '0.5', w.getComputedStyle(hOff).opacity);
+  check('event builder active heart opacity stays 1', w.getComputedStyle(hOn).opacity === '1', w.getComputedStyle(hOn).opacity);
+  hOff.remove(); hOn.remove();
+
   /* ---------- Preview section is header-only ---------- */
   const sec = doc.querySelector('[data-sec="preview"]');
   check('preview section exists', !!sec);

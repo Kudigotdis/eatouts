@@ -62,6 +62,18 @@ setTimeout(() => {
   check('favButton carries the type + ref', /data-ftype="promo"/.test(favHtml) && /data-fref="p-1"/.test(favHtml));
   const favPayload = String(ev('favButton("menu","r1:cat-1",{title:"Starters",subtitle:"Venue",payload:{items:[{name:"Wings",price:45}]}})'));
   check('favButton carries an escaped payload blob', /data-fpayload=/.test(favPayload) && /items/.test(favPayload), favPayload.slice(0, 120));
+
+  /* inactive heart renders at 50% opacity; active heart stays full */
+  const heartInactive = String(ev('favButton("promo","none-fav-unique",{title:"X"},' + JSON.stringify('Save') + ')'));
+  const heartHost = doc.createElement('div');
+  heartHost.innerHTML = heartInactive;
+  doc.body.appendChild(heartHost);
+  const offImg = heartHost.querySelector('img');
+  check('inactive heart opacity is 0.5', offImg && w.getComputedStyle(offImg).opacity === '0.5', offImg && w.getComputedStyle(offImg).opacity);
+  heartHost.innerHTML = String(ev('favButton("restaurant","test-venue",{title:"Test Venue"},' + JSON.stringify('Save') + ')'));
+  const onImg = heartHost.querySelector('img');
+  check('active heart opacity stays 1', onImg && w.getComputedStyle(onImg).opacity === '1', onImg && w.getComputedStyle(onImg).opacity);
+  heartHost.remove();
   check('menu/item/drink heart helpers present',
     ev('typeof renderMenuCategories') === 'function' && ev('typeof renderMenuCategory') === 'function' && ev('typeof renderBeveragesCategory') === 'function');
 
