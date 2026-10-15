@@ -196,8 +196,34 @@ setTimeout(() => {
     click(cell);
     check('photo view opens', ev('state.galleryView') === 'photo');
     check('photo view keeps the scoped set', evj('filteredGallery().map(g=>g.id)').length === restGrid.length);
-    click(doc.querySelector('[data-act="backAlbum"]'));
-    check('back to grid', ev('state.galleryView') === 'grid' && ev('state.galleryPhoto') === null);
+    check('photo view hides the chrome (shell.gal-photo)',
+      doc.getElementById('shell').classList.contains('gal-photo'));
+    check('photo view drops the crumb and dots',
+      !doc.querySelector('#viewport .gal-photo .crumb') && !doc.querySelector('#viewport .gal-photo .dots'));
+    check('photo view keeps favourite + WhatsApp',
+      !!doc.querySelector('#viewport .gal-photo [data-act="toggleFav"]') &&
+      !!doc.querySelector('#viewport .gal-photo [data-act="waGallery"]'));
+    check('action row sits inside the slide, under the photo',
+      !!doc.querySelector('#viewport .gal-photo .slide > img') &&
+      !!doc.querySelector('#viewport .gal-photo .slide > .ico-row') &&
+      !doc.querySelector('#viewport .gal-photo > .ico-row'));
+    const photoRow = doc.querySelector('#viewport .gal-photo .slide > .ico-row');
+    check('icon pair is centred, not split to the edges',
+      photoRow && window.getComputedStyle(photoRow).justifyContent === 'center',
+      photoRow && window.getComputedStyle(photoRow).justifyContent);
+    check('icon pair keeps a clear gap and the photo is side-inset (CSS)',
+      /\.gal-photo \.ico-row\{[^}]*gap:36px\}/.test(src) &&
+      /\.gal-photo \.swiper>\.slide\{[^}]*padding:16px 14px 0/.test(src));
+    const photoImg = doc.querySelector('#viewport .gal-photo .swiper img');
+    if (photoImg) {
+      click(photoImg);
+      check('tapping the image does not close', ev('state.galleryView') === 'photo');
+    }
+    click(doc.querySelector('#viewport .gal-photo .swiper'));
+    check('tapping the backdrop returns to the grid',
+      ev('state.galleryView') === 'grid' && ev('state.galleryPhoto') === null);
+    check('chrome restored on the grid',
+      !doc.getElementById('shell').classList.contains('gal-photo'));
   } else { fails++; console.log('FAIL  no gallery cell to open'); }
 
   /* ---------- F: rrow Promos -> restaurant promos sub-view ----------

@@ -167,12 +167,13 @@ setTimeout(() => {
     !!doc.querySelector(bevSel + '[data-act="openBottleMenu"]') &&
     !!doc.querySelector(bevSel + '[data-act="openBottlePromos"]'));
   const openOpts = doc.querySelector(bevSel + '.ritem[data-bacc="' + firstSlug + '"] .ropts.brows');
-  check('bottle card uses the two-row brows layout',
-    !!openOpts && openOpts.querySelectorAll('.brow').length === 2);
-  const bottleRow2 = openOpts ? openOpts.querySelector('.brow:last-child') : null;
-  check('bottle row 2 leads with the WhatsApp icon',
-    !!bottleRow2 && !!bottleRow2.firstElementChild &&
-    bottleRow2.firstElementChild.getAttribute('data-act') === 'waBottle');
+  check('bottle card stacks four action rows + an icon row',
+    !!openOpts && openOpts.querySelectorAll('.line').length === 4 && !openOpts.querySelector('.brow'));
+  const bottleIconRow = openOpts ? openOpts.querySelector('.card-ico-row') : null;
+  check('bottle icon row = heart + WhatsApp + info',
+    !!bottleIconRow && !!bottleIconRow.querySelector('[data-act="toggleFav"]') &&
+    !!bottleIconRow.querySelector('[data-act="waBottle"]') &&
+    !!bottleIconRow.querySelector('[data-act="bottleStoreInfo"]'));
   check('bottle card has no Save Summary button',
     !doc.querySelector(bevSel + '[data-act="saveBottleSummary"]'));
   click(firstRow);
@@ -196,6 +197,8 @@ setTimeout(() => {
   click(doc.querySelector(bevSel + '.ritem[data-bacc="liquorama"] [data-act="openBottleMenu"]'));
   check('Menu opens the store grid',
     ev('state.bevView && state.bevView.type') === 'store' && !!doc.querySelector(bevSel + '.bev-grid'));
+  check('store grid shows a bottom Back button',
+    !!doc.querySelector(bevSel + '.pad [data-act="bevBackLanding"]'));
   click(doc.querySelector(bevSel + '[data-act="bevBackLanding"]'));
   check('back from the grid returns to the directory',
     ev('state.bevView') === null && doc.querySelectorAll(bevSel + '.ritem[data-bacc]').length === 47);

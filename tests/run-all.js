@@ -51,6 +51,7 @@ const SUITES = [
   'promo-submissions.js',
   'router.js',
   'menuview.js',
+  'menu-nav-state.js',
   'customer.js',
   'inventory.js'
 ];

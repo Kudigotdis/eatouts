@@ -78,9 +78,51 @@ setTimeout(() => {
     !!bizPanel && bizLinks.length === 5 && !bizPanel.querySelector('a[href="designer-services.html"]'),
     'count=' + bizLinks.length);
 
-  const share = vp.querySelector('a.btn.share');
-  check('Share EatOuts link present', !!share, share ? 'text=' + share.textContent.trim() : 'missing');
-  check('Share EatOuts opens WhatsApp share', !!share && /wa\.me\/\?text=/.test(share.getAttribute('href') || ''));
+  const oldShare = vp.querySelector('a.btn.share');
+  check('old Share EatOuts button removed', !oldShare, oldShare ? 'text=' + oldShare.textContent.trim() : 'ok');
+  const shareIco = vp.querySelector('.social-row a[aria-label="Share EatOuts"]');
+  check('Share EatOuts icon present in the social row', !!shareIco, shareIco ? 'ok' : 'missing');
+  check('Share EatOuts icon opens the WhatsApp share sheet',
+    !!shareIco && /wa\.me\/\?text=/.test(shareIco.getAttribute('href') || ''));
+  const shareImg = shareIco && shareIco.querySelector('img');
+  check('Share EatOuts icon uses the Share_On art',
+    !!shareImg && /Share_On\.png/.test(shareImg.getAttribute('src') || ''),
+    shareImg ? shareImg.getAttribute('src') : 'missing');
+  check('website slot no longer renders as unavailable',
+    !vp.querySelector('.social-row .social-ico.off[aria-label*="Website"]'));
+
+  /* guest profile card opens a centred sign-in popup (no accordion) */
+  const guestCard = vp.querySelector('.profilecard.guest');
+  check('guest profile card present', !!guestCard);
+  check('guest card has no secondary text', !!guestCard && !guestCard.querySelector('small'));
+  check('guest card advertises a dialog', !!guestCard && guestCard.getAttribute('aria-haspopup') === 'dialog');
+  click(guestCard);
+  check('guest card does not open an accordion',
+    dom.window.eval('state.profileCardOpen') !== true && !vp.querySelector('.pc-rows'));
+  const guestAlert = vp.querySelector('.card-alert');
+  check('guest popup opens on tap', !!guestAlert);
+  check('guest popup text is centred',
+    !!guestAlert && dom.window.getComputedStyle(guestAlert).textAlign === 'center');
+  check('guest popup leads with the EatOuts logo',
+    !!guestAlert && !!guestAlert.querySelector('img.card-alert-logo[src*="EatOuts"]'));
+  const opts = guestAlert ? Array.from(guestAlert.querySelectorAll('.card-alert-options .card-opt')) : [];
+  check('guest popup lists six options', opts.length === 6, 'count=' + opts.length);
+  check('guest options are the account features in order',
+    JSON.stringify(opts.map(o => o.textContent.trim())) ===
+    JSON.stringify(['Favourites', 'Orders', 'Events', 'Saved Summaries', 'Profile', 'Gallery']),
+    opts.map(o => o.textContent.trim()).join(','));
+  check('guest options all route to the login page',
+    opts.length === 6 && opts.every(o => o.getAttribute('href') === 'eatouts-login.html'));
+  const guestCtas = guestAlert ? Array.from(guestAlert.querySelectorAll('.card-alert-actions .dlg-btn')) : [];
+  const createCta = guestCtas.filter(a => a.textContent.trim() === 'Create an account')[0];
+  const signinCta = guestCtas.filter(a => a.textContent.trim() === 'Sign in')[0];
+  check('guest popup offers Create an account (primary, onboarding)',
+    !!createCta && createCta.classList.contains('primary') &&
+    createCta.getAttribute('href') === 'eatouts-user-onboarding.html');
+  check('guest popup offers Sign in (login)',
+    !!signinCta && signinCta.getAttribute('href') === 'eatouts-login.html');
+  click(guestAlert.querySelector('.card-alert-actions [data-act="dismissCardAlert"]'));
+  check('guest popup dismisses', !vp.querySelector('.card-alert'));
 
   check('no window errors', errors.length === 0, errors.join(' | '));
 

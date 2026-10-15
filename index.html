@@ -44,6 +44,10 @@ img{display:block;max-width:100%}
 /* #hdr is gone in this mode, so a popup pinned below it would float over a
    66px dead gap — tuck it against the top edge instead. */
 #shell.promos-tab.promo-focus .fpop{top:16px}
+/* Gallery full-photo view: drop the top header, control/filter bar and bottom
+   nav so the photo fills the screen. Toggle the shell class from renderViewport(). */
+#shell.gal-photo #hdr,#shell.gal-photo #cbar,#shell.gal-photo #filter-bar,
+#shell.gal-photo #nav{display:none}
 .brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden;padding:0;margin:0}
 .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
 .hdr-right{margin-left:auto}
@@ -246,6 +250,7 @@ img{display:block;max-width:100%}
 .restcard-thumb{width:90px;height:90px;flex:0 0 auto;border-radius:8px;overflow:hidden;border:1px solid #ece7db;background:#faf8f2;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .restcard-thumb:active{opacity:.85}
 .restcard-thumb img{width:100%;height:100%;object-fit:contain;display:block}
+.restcard-thumb .eo-thumb{width:100%;height:100%}
 .restcard-ph{font-size:34px;font-weight:900;color:#a89a7e}
 .restcard-main{flex:1;min-width:0;text-align:left;background:transparent;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .restcard-name{display:block;font-size:18px;font-weight:700;color:#141414;line-height:1.3;letter-spacing:0}
@@ -291,14 +296,16 @@ img{display:block;max-width:100%}
 .bev-pager::-webkit-scrollbar{display:none}
 .bevpage{flex:0 0 100%;width:100%;height:100%;min-width:0;display:flex;flex-direction:column;scroll-snap-align:start;scroll-snap-stop:always}
 .bev-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}
-.bev-tile{position:relative;border-radius:9px;overflow:hidden;border:3px solid rgba(var(--bt-rgb,214,201,182),.3);background:transparent;display:flex;align-items:center;justify-content:center;text-align:center;height:45px;min-height:45px;padding:4px 12px;cursor:pointer;outline:none;box-sizing:border-box}
+.bev-tile{position:relative;border-radius:9px;overflow:hidden;border:3px solid rgba(138,125,99,.3);background:transparent;display:flex;align-items:center;justify-content:center;text-align:center;height:45px;min-height:45px;padding:4px 12px;cursor:pointer;outline:none;box-sizing:border-box}
 .bev-tile:active{filter:brightness(.96)}
-.bev-tile .bt-name{font-size:16px;font-weight:800;color:rgb(var(--bt-rgb,214,201,182));line-height:1.2}
+.bev-tile .bt-name{font-size:16px;font-weight:800;color:rgb(138,125,99);line-height:1.2}
 .bev-tile.off{opacity:.55}
 .bev-tile.off:active{filter:none}
 .bev-tile.off .bt-name{color:#6f6553}
-.bev-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #f1ece1;background:#fff}
-.bev-item .mthumb{width:54px;height:54px}
+.bev-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #f1ece1;background:#fff;transition:background .15s ease}
+.bev-item:active{background:#faf8f2}
+.bev-item .mthumb{width:54px;height:54px;transition:transform .15s ease}
+.bev-item .mthumb:active{transform:scale(1.06)}
 .bev-item .minfo{flex:1;min-width:0}
 .bev-item .mtitle{font-size:13px}
 .bev-item .mprice{font-size:12.5px}
@@ -427,6 +434,14 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .swiper>.slide{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;height:100%;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .swiper>.slide .tile{position:absolute;inset:0}
 .swiper>.slide>img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block}
+/* Gallery photo view: each slide is a top-aligned column of photo + action
+   row, so the icons hug the photo. The photo is inset from the side edges and
+   the icon pair is centred under it, clear of the screen edges; the dark
+   slide stays tappable around it (tap the backdrop to dismiss). */
+.gal-photo .swiper>.slide{flex-direction:column;justify-content:flex-start;padding:16px 14px 0;gap:14px}
+.gal-photo .swiper>.slide>img{width:auto;height:auto;max-width:100%;max-height:calc(100% - 78px)}
+.gal-photo .ico-row{margin:0;width:auto;justify-content:center;gap:36px}
+.gal-photo .ico-row.split{justify-content:center}
 .dots{display:flex;gap:5px;justify-content:center;padding:10px 0;flex:0 0 auto;z-index:5}
 .dots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.22);display:block}
 .dots i.on{background:#1a1a1a;width:16px;border-radius:3px}
@@ -483,10 +498,10 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 /* ---------- CUSTOMER PROFILE CARD (About tab) ---------- */
 .pcdivider{height:1px;background:rgba(0,0,0,.10);margin:18px 0}
 .profilecard{display:flex;align-items:center;gap:12px;width:100%;height:90px;padding:0 12px 0 0;border:2px solid rgba(0,0,0,.10);border-radius:14px;background:rgba(0,0,0,.10);overflow:hidden;text-align:left;font:inherit;-webkit-tap-highlight-color:transparent}
-.profilecard.guest{justify-content:center;padding:0 14px;background:#1a1a1a;border-color:#1a1a1a}
+.profilecard.guest{justify-content:center;padding:10px 20px;background:orange;border-color:orange;color:#fff;height:auto;min-height:unset}
 .profilecard.guest:active{opacity:.9}
-.profilecard.guest .pc-main strong{color:#fff}
-.profilecard.guest .pc-main small{color:rgba(255,255,255,.72)}
+.profilecard.guest .pc-main{display:flex;flex-direction:column;align-items:center;text-align:center;width:100%}
+.profilecard.guest .pc-main strong{color:#fff;font-size:30px;line-height:1.2;white-space:normal}
 .pc-thumb{width:90px;height:90px;border-radius:3px;overflow:hidden;flex:0 0 auto;background:#e9e5db;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .pc-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .pc-main{flex:1 1 auto;min-width:0;display:block;text-decoration:none;color:inherit}
@@ -510,7 +525,7 @@ img[src*="heart_inactive_icon"]{opacity:.5}
    "Settings" header; "List Business" nests a second accordion whose only
    rows are the "List As ..." signup links. */
 .setlist{margin-top:14px;border-top:1px solid #f1ece1}
-.setrow{display:block;width:100%;text-align:center;padding:16px 14px;font-size:13.5px;font-weight:800;letter-spacing:.01em;color:#1a1a1a;background:#ffffff;border-bottom:1px solid #f1ece1;text-decoration:none;cursor:pointer;min-height:auto}
+.setrow{display:block;width:100%;text-align:center;padding:16px 14px;font-size:25px;line-height:1.35;font-weight:800;letter-spacing:.01em;color:#1a1a1a;background:#ffffff;border-bottom:1px solid #f1ece1;text-decoration:none;cursor:pointer;min-height:auto}
 .setrow:active{background:#faf8f2}
 .setacc.open>.acc-wrap{grid-template-rows:1fr}
 .setacc[open]>.acc-wrap{grid-template-rows:1fr}
@@ -522,7 +537,6 @@ img[src*="heart_inactive_icon"]{opacity:.5}
    2% black tint so they read as a second level under the settings list. */
 .setacc .setacc .acc-in>.setrow{background:rgba(0,0,0,.02)}
 .setacc .setacc .acc-in>.setrow:active{background:#faf8f2}
-.btn.share{display:block;text-align:center;background:#25d366;border-color:#25d366;color:#ffffff;font-weight:800;text-decoration:none}
 .signup-banner{display:block;max-width:480px;margin:14px auto 6px;border-radius:0;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .signup-banner img{display:block;width:100%;height:auto}
 @media (prefers-reduced-motion:reduce){.signup-banner img{filter:none}}
@@ -618,19 +632,20 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 /* .ritem wraps the row + its options so the options can live OUTSIDE the
    row button (interactive content inside a <button> is invalid) and still
    animate via the shared .acc-wrap grid-rows transition. */
-.ritem{background:#ffffff}
-.ritem.open>.rrow{background:#efe9db;border-bottom-color:#e2dbc9}
-.rrow{display:flex;align-items:center;gap:13px;padding:12px 14px;background:#ffffff;border-bottom:1px solid #f1ece1;width:100%;cursor:pointer;text-align:left}
-.rrow:active{background:#faf8f2}
+.ritem{background:#ffffff;border:1px solid #ece7db;border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px rgba(16,24,40,.06);transition:box-shadow .25s ease,border-color .25s ease}
+.ritem.open{border-color:#dfe3e9;box-shadow:0 2px 4px rgba(16,24,40,.06),0 18px 40px rgba(16,24,40,.10)}
+.ritem.open>.rrow{background:#ffffff}
+.rrow{display:flex;align-items:center;gap:13px;padding:13px 14px;background:#ffffff;border-bottom:0;width:100%;cursor:pointer;text-align:left;font:inherit;color:inherit;border-top:0;border-left:0;border-right:0;-webkit-tap-highlight-color:transparent}
+.rrow:active{background:#fafbfc}
 /* Layout box only. The square itself is painted by the injected
    .eo-thumb styles (js/eatouts-brand.js) so there is a single border
    and the colour fills the whole tile instead of hugging the letter. */
-.rthumb{width:90px;height:90px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
-.rthumb .eo-thumb{width:90px;height:90px}
+.rthumb{width:54px;height:54px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:15px;overflow:hidden;background:#333;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);padding:0;border:0;cursor:pointer}
+.rthumb .eo-thumb{width:54px;height:54px}
 .rinfo{flex:1;min-width:0}
 /* Business title: bold sans, deep charcoal, matching the app's default
    system font stack for a consistent look across the whole app. */
-.rname{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:18px;font-weight:700;color:#141414;line-height:1.3;letter-spacing:0}
+.rname{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:16.5px;font-weight:700;color:#141414;line-height:1.3;letter-spacing:-.2px}
 /* Metadata: lighter, neutral sans so the title stays the focal point */
 .rmeta{font-size:14px;color:#8e8e8e;font-weight:500;margin-top:3px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Badges: bold sans inside soft neutral pills, inheriting the app font */
@@ -645,10 +660,27 @@ img[src*="heart_inactive_icon"]{opacity:.5}
    and replaying a fade on freshly inserted markup is what made the old
    dropdown flash open/close. */
 .ropts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;background:#efe9db;border-bottom:1px solid #e2dbc9}
-.ropts.brows{display:flex;flex-direction:column;gap:8px;background:#f7f3e9}
+/* 5-row card body: a vertical stack of full-width rows (Town, Area, Menu,
+   Promos) plus a centred icon row, matching the menu-selector redesign.
+   Scoped to the accordion cards so other .ropts users keep the grid. */
+.ropts.brows{display:flex;flex-direction:column;gap:9px;padding:2px 14px 16px;background:#ffffff;border-bottom:0}
 .brow{display:flex;gap:8px;align-items:center}
 .brow .cbtn,.brow .cbtn-area{flex:1 1 0;min-width:0;overflow:hidden;text-align:center;text-overflow:ellipsis;white-space:nowrap}
 .brow .ropt{flex:1 1 0;min-width:0}
+.line{appearance:none;-webkit-appearance:none;width:100%;min-height:48px;padding:0 14px;border-radius:14px;border:1px solid #ece7db;background:#fbfbfc;display:flex;align-items:center;justify-content:center;text-align:center;font:inherit;font-size:15px;font-weight:600;letter-spacing:.1px;color:#6b7280;cursor:pointer;transition:background .16s,border-color .16s,color .16s,transform .08s;-webkit-tap-highlight-color:transparent}
+.line:active{transform:scale(.985)}
+.line span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.line-select.is-set{color:#111827;background:#ffffff;border-color:#cfd6df}
+.line-select.is-disabled{color:#aab1bb;background:#f3f4f6;border-color:#ebedf1}
+.line-action{background:#ffffff;color:#111827;border-color:#dfe3e9}
+.line-action.is-disabled{color:#aab1bb;background:#f3f4f6;border-color:#ebedf1}
+.line-action.is-disabled:active{transform:none}
+/* centred icon row at the bottom of the card: heart, WhatsApp, info */
+.card-ico-row{display:flex;align-items:center;justify-content:center;gap:18px;padding-top:3px}
+.card-ico-row .ico-btn{width:54px;height:54px;border-radius:50%;border:1px solid #ece7db;background:#ffffff;display:flex;align-items:center;justify-content:center;transition:transform .1s,background .18s,border-color .18s}
+.card-ico-row .ico-btn:active{transform:scale(.93)}
+.card-ico-row .ico-btn img{width:25px;height:25px;object-fit:contain;display:block}
+.card-ico-row .ico-btn .ico-info-img{opacity:.5}
 .ropt{padding:11px 12px;background:#ffffff;border:1px solid #ece7db;border-radius:12px;font-size:12.5px;font-weight:800;color:#3a3324;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
 /* location strip inside a restaurant's options panel: the town + area filter
    buttons occupy the top line of the grid, the Menu/Promos actions the second.
@@ -669,6 +701,22 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 .ropt.off:active{background:#ffffff;border-color:#ece7db;transform:none}
 /* Floating notice for an inactive action (e.g. "select a location first"). */
 .rest-notice{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--navh) + 18px);z-index:66;max-width:min(92%,420px);background:#1a1a1a;color:#fff;font-size:12px;font-weight:700;line-height:1.4;padding:11px 15px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.32);text-align:center;animation:fpop .18s ease}
+/* Card alert: a centred floating dialog that explains a disabled action and
+   can jump straight into the location picker. */
+.card-alert-scrim{position:fixed;inset:0;z-index:78;background:rgba(9,13,20,.48);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px)}
+.card-alert{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:79;width:100%;max-width:316px;max-height:calc(100% - 40px);overflow-y:auto;background:#ffffff;border-radius:24px;padding:24px 22px 18px;text-align:center;box-shadow:0 28px 64px rgba(0,0,0,.34),0 2px 6px rgba(0,0,0,.08);animation:fpop .18s ease}
+.card-alert-icon{width:50px;height:50px;margin:0 auto 14px;border-radius:50%;background:#fdecef;display:flex;align-items:center;justify-content:center;color:#e11d2e;font-size:22px;font-weight:800}
+.card-alert-logo{width:56px;height:56px;margin:0 auto 14px;border-radius:14px;display:block;object-fit:contain}
+.card-alert h3{margin:0;font-size:17.5px;font-weight:700;letter-spacing:-.2px;color:#111827}
+.card-alert p{margin:9px 0 0;font-size:14px;line-height:1.55;color:#6b7280;white-space:pre-line}
+.card-alert-options{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.card-opt{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;border:1px solid #ece7db;border-radius:12px;background:#ffffff;font-size:14.5px;font-weight:600;color:#111827;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:background .16s}
+.card-opt:active{background:#faf8f2}
+.card-alert-actions{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.dlg-btn{width:100%;min-height:47px;border-radius:14px;border:1px solid #ece7db;background:#ffffff;font:inherit;font-size:15px;font-weight:600;color:#111827;cursor:pointer;transition:transform .08s,background .16s;-webkit-tap-highlight-color:transparent}
+a.dlg-btn{display:flex;align-items:center;justify-content:center;text-decoration:none}
+.dlg-btn:active{transform:scale(.985)}
+.dlg-btn.primary{background:#e11d2e;border-color:#e11d2e;color:#ffffff;box-shadow:0 8px 18px rgba(225,29,46,.26)}
 .ropt:active{background:#f4efe4;border-color:#1a1a1a;transform:translateY(1px)}
 .ropt em{font-style:normal;font-size:9px;color:#a89a7e;font-weight:800;letter-spacing:.08em;text-transform:uppercase;flex:0 0 auto}
 
@@ -807,6 +855,8 @@ const IMG = {
   iconGPSOff:"assets/icons/GPS - Off.png",
   iconHeartOn:"assets/icons/heart_active_icon.png",
   iconHeartOff:"assets/icons/heart_inactive_icon.png",
+  iconInfo:"assets/icons/information-icon.svg",
+  iconShareOn:"assets/icons/Share_On.png",
   poetry:"assets/images/events/poetry_nights.jpg",
   dirEvents:"assets/images/events/",
   dirFood:"assets/images/food/",
@@ -3510,6 +3560,7 @@ profilePhoto:null,
   restBranchOf:{},
   restLocPicker:null,
   restNotice:null,
+  cardAlert:null,
   restaurantView:null,
   restTown:"All",
   restDistrict:"",
@@ -5110,13 +5161,12 @@ function restaurantOptions(g,active){
   let promoN=0;
   if(bundle) for(const d in bundle.promos) promoN+=(bundle.promos[d]||[]).length;
   const activeLoc=(active&&active.location)||{};
-  const townL=String(activeLoc.town||"").trim()||"Select Town";
   const nameTag=(active&&active.name&&active.name!==g.name)?active.name:null;
   const chosen=!!(state.restBranchOf&&state.restBranchOf[brand]);
-  const locationReady=g.locationCount<=1||chosen;
-  const pickAxis=function(axis,label,cls){
-    return '<button class="'+cls+'" data-act="openRestLocPicker" data-brand="'+esc(brand)+'" data-axis="'+axis+'" aria-haspopup="listbox" aria-expanded="'+(state.restLocPicker&&state.restLocPicker.brand===brand&&state.restLocPicker.axis===axis?"true":"false")+'"><span>'+esc(label)+'</span></button>';
-  };
+  const auto=g.locationCount<=1;
+  const locationReady=auto||chosen;
+  /* placeholders until a location is on file, mirroring the menu-selector demo */
+  const townSel=locationReady?String(activeLoc.town||"").trim():"";
   /* areas in the active town: one -> show it, several -> "N locations",
      none -> the placeholder neighbourhood until listings are completed */
   const seenArea={};
@@ -5127,24 +5177,26 @@ function restaurantOptions(g,active){
     if(area)seenArea[normalizeRestType(area)]=area;
   });
   const areaKeys=Object.keys(seenArea);
-  const areaLabel=areaKeys.length>1?(areaKeys.length+" locations"):(areaKeys.length===1?seenArea[areaKeys[0]]:"Block 8");
-  const menuBtn=locationReady
-    ?'<button class="ropt" data-act="openRestView" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'" data-view="menu">Menu</button>'
-    :'<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("Choose a location first — each location has its own menu & specials.")+'">Menu</button>';
+  const areaLabel=areaKeys.length>1?(areaKeys.length+" locations"):(areaKeys.length===1?seenArea[areaKeys[0]]:"");
+  /* disabled rows stay tappable so the alert can jump straight into the picker */
+  const lockMsg="Choose a Town / City first — every location has its own menu, specials and opening hours.";
+  const lockAttrs=' data-locked="1" data-lock-title="'+esc("Select a Town / City")+'" data-lock-msg="'+esc(lockMsg)+
+    '" data-lock-act="openRestLocPicker" data-lock-label="'+esc("Select Town / City")+'" data-lock-axis="town" aria-disabled="true"';
+  const menuBtn='<button class="line line-action'+(locationReady?"":" is-disabled")+'" data-act="openRestView" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'" data-view="menu"'+(locationReady?"":lockAttrs)+'>Menu</button>';
   let promosBtn;
-  if(!locationReady)promosBtn='<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("Choose a location first — each location has its own menu & specials.")+'">Promos</button>';
-  else if(promoN>0)promosBtn='<button class="ropt" data-act="openRestView" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'" data-view="promos">Promos</button>';
-  else promosBtn='<button class="ropt off" data-act="showRestNotice" data-notice="'+esc("No promos available at this location right now.")+'">Promos</button>';
+  if(!locationReady)promosBtn='<button class="line line-action is-disabled" data-act="openRestView" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'" data-view="promos"'+lockAttrs+'>Promos</button>';
+  else if(promoN>0)promosBtn='<button class="line line-action" data-act="openRestView" data-id="'+esc(bid)+'" data-brand="'+esc(brand)+'" data-view="promos">Promos</button>';
+  else promosBtn='<button class="line line-action is-disabled" data-act="showRestNotice" data-notice="'+esc("No promos available at this location right now.")+'" aria-disabled="true">Promos</button>';
 
   const heartBtn=favButton("restaurant",g.brandKey,{title:g.name,subtitle:g.category,imageRef:g.logo},"Save");
   const waBtn=waIconButton("waRestAbout",bid,"Send via WhatsApp");
+  const infoBtn='<button class="ico-btn" data-act="openRestAbout" data-id="'+esc(bid)+'" aria-label="About '+esc(g.name)+'" title="About"><img class="ico-info-img" src="'+IMG.iconInfo+'" alt=""></button>';
   return '<div class="ropts brows">'+
     (nameTag?'<div class="ropts-loc-name">Also known as: '+esc(nameTag)+'</div>':'')+
-    '<div class="brow">'+heartBtn+
-      pickAxis("town",townL,"cbtn")+
-      pickAxis("area",areaLabel,"cbtn-area")+
-    '</div>'+
-    '<div class="brow">'+waBtn+menuBtn+promosBtn+'</div>'+
+    '<button class="line line-select'+(townSel?" is-set":"")+'" data-act="openRestLocPicker" data-brand="'+esc(brand)+'" data-axis="town" aria-haspopup="listbox"><span>'+esc(townSel||"Select Town / City")+'</span></button>'+
+    '<button class="line line-select'+((locationReady&&areaLabel)?" is-set":"")+(locationReady?"":" is-disabled")+'" data-act="openRestLocPicker" data-brand="'+esc(brand)+'" data-axis="area" aria-haspopup="listbox"'+(locationReady?"":lockAttrs)+'><span>'+esc((locationReady&&areaLabel)||"Select Neighbourhood")+'</span></button>'+
+    menuBtn+promosBtn+
+    '<div class="card-ico-row">'+heartBtn+waBtn+infoBtn+'</div>'+
     '</div>';
 }
 
@@ -5197,22 +5249,25 @@ function bottleStoreItem(brand){
   return h;
 }
 function bottleStoreOptions(brand,active){
-  const townL=(active&&active.town)||"Select Town";
-  const areaL=(active&&active.area)||"Select Area";
-  const pickAxis=function(axis,label,cls){
-    return '<button class="'+cls+'" data-act="openBottleLocPicker" data-brand="'+esc(brand.slug)+'" data-axis="'+axis+'" aria-haspopup="listbox" aria-expanded="'+(state.bottleLocPicker&&state.bottleLocPicker.brand===brand.slug&&state.bottleLocPicker.axis===axis?"true":"false")+'"><span>'+esc(label)+'</span></button>';
-  };
-  const menuBtn='<button class="ropt" data-act="openBottleMenu" data-brand="'+esc(brand.slug)+'">Menu</button>';
-  const promosBtn='<button class="ropt" data-act="openBottlePromos" data-brand="'+esc(brand.slug)+'">Promos</button>';
-  const addr=(active&&active.address)?'<div class="baddr">'+esc(active.address)+'</div>':'';
+  const chosen=!!(state.bottleBranchOf&&state.bottleBranchOf[brand.slug]);
+  const auto=(brand.branches||[]).length<=1;
+  const locationReady=auto||chosen;
+  const townSel=locationReady?String((active&&active.town)||"").trim():"";
+  const areaSel=locationReady?String((active&&active.area)||"").trim():"";
+  const lockMsg="Choose a Town / City first — every branch has its own stock, prices and offers.";
+  const lockAttrs=' data-locked="1" data-lock-title="'+esc("Select a Town / City")+'" data-lock-msg="'+esc(lockMsg)+
+    '" data-lock-act="openBottleLocPicker" data-lock-label="'+esc("Select Town")+'" data-lock-axis="town" aria-disabled="true"';
+  const menuBtn='<button class="line line-action'+(locationReady?"":" is-disabled")+'" data-act="openBottleMenu" data-brand="'+esc(brand.slug)+'"'+(locationReady?"":lockAttrs)+'>Menu</button>';
+  const promosBtn='<button class="line line-action'+(locationReady?"":" is-disabled")+'" data-act="openBottlePromos" data-brand="'+esc(brand.slug)+'"'+(locationReady?"":lockAttrs)+'>Promos</button>';
+  const addr=(locationReady&&active&&active.address)?'<div class="baddr">'+esc(active.address)+'</div>':'';
   const favBtn=favButton("bottle_store",brand.slug,{title:brand.name,subtitle:(active&&(active.address||active.town))||"",venueId:(active&&active.id)||null,imageRef:(active&&active.image)||null},"Save");
   const waBtn='<button class="ico-btn" data-act="waBottle" data-brand="'+esc(brand.slug)+'" aria-label="WhatsApp" title="WhatsApp"><img src="'+IMG.iconWA+'" alt=""></button>';
+  const infoBtn='<button class="ico-btn" data-act="bottleStoreInfo" data-brand="'+esc(brand.slug)+'" aria-label="About '+esc(brand.name)+'" title="Store details"><img class="ico-info-img" src="'+IMG.iconInfo+'" alt=""></button>';
   return '<div class="ropts brows">'+
-    '<div class="brow">'+favBtn+
-      pickAxis("town",townL,"cbtn")+
-      pickAxis("area",areaL,"cbtn-area")+
-    '</div>'+
-    '<div class="brow">'+waBtn+menuBtn+promosBtn+'</div>'+
+    '<button class="line line-select'+(townSel?" is-set":"")+'" data-act="openBottleLocPicker" data-brand="'+esc(brand.slug)+'" data-axis="town" aria-haspopup="listbox"><span>'+esc(townSel||"Select Town")+'</span></button>'+
+    '<button class="line line-select'+(areaSel?" is-set":"")+(locationReady?"":" is-disabled")+'" data-act="openBottleLocPicker" data-brand="'+esc(brand.slug)+'" data-axis="area" aria-haspopup="listbox"'+(locationReady?"":lockAttrs)+'><span>'+esc(areaSel||"Select Area")+'</span></button>'+
+    menuBtn+promosBtn+
+    '<div class="card-ico-row">'+favBtn+waBtn+infoBtn+'</div>'+
     '</div>'+addr;
 }
 function renderBottleLocPicker(){
@@ -5393,7 +5448,11 @@ function renderRestaurantSubView(){
     /* renderMenuCategory supplies its own scroll + restaurant card */
     if(state.splitOpen) return page("venue-checkout-split",renderCheckoutSplit());
     if(state.checkoutView) return page("venue-checkout",renderCheckout());
-    if(state.menuCat) return page("venue-menu-item",renderMenuCategory());
+    if(state.menuCat){
+      if(curMenu().some(function(c){return c.id===state.menuCat;}))
+        return page("venue-menu-item",renderMenuCategory());
+      state.menuCat=null;state.menuOpen=null;
+    }
     /* PAGE: venue-menu — Menu */
     return page("venue-menu",'<div class="scroll menu-view">'+restaurantCard(r)+renderMenuCategories(true)+
       '<div class="pad" style="padding-top:0"><button class="btn ghost full" data-act="backFromRestView">Back</button></div>'+
@@ -5614,7 +5673,8 @@ function renderAboutSocialRow(){
   row+=socialSlot("tiktok","");
   row+=socialSlot("twitter","");
   row+=socialSlot("youtube","");
-  row+=socialSlot("website","");
+  /* Share EatOuts — opens the WhatsApp share sheet (any contact) */
+  row+='<a class="social-ico" href="'+esc(waShareLink("Check out EatOuts - discover restaurants, food, promos & events across Botswana. "+location.origin))+'" target="_blank" rel="noopener noreferrer" aria-label="Share EatOuts"><img src="'+IMG.iconShareOn+'" alt="Share EatOuts"></a>';
   row+=socialSlot("call","tel:"+String(CONFIG.displayNumber||"").replace(/[^\d+]/g,""));
   row+=socialSlot("gps","https://maps.app.goo.gl/ftCWbv24eRgmd3uYA");
   row+='</div>';
@@ -6010,7 +6070,7 @@ function renderViewport(){
   const pageId=activePage||"";
   const pageTitle=PAGE_TITLES[pageId]||"";
   const pageIns=pageRef();
-  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'" data-page="'+esc(pageId)+'" data-page-title="'+esc(pageTitle)+'" data-page-ref="'+esc(pageIns)+'">'+screenHtml+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderRestNotice()+renderPromoMonthPicker()+renderPromoWeekPicker();
+  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'" data-page="'+esc(pageId)+'" data-page-title="'+esc(pageTitle)+'" data-page-ref="'+esc(pageIns)+'">'+screenHtml+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderRestNotice()+renderCardAlert()+renderPromoMonthPicker()+renderPromoWeekPicker();
   if(document.body){ document.body.dataset.page=pageId; document.body.dataset.pageRef=pageIns; }
   if(doFade&&prevScreen){
     const old=prevScreen.cloneNode(true);
@@ -6036,6 +6096,7 @@ function renderViewport(){
   applyPromoFocus();
   const shellEl=document.getElementById("shell");
   if(shellEl) shellEl.classList.toggle("bev-panel", state.tab==="restaurants" && state.restPanel==="beverages" && !state.restaurantView && !state.bevView && !state.bevCheckout);
+  if(shellEl) shellEl.classList.toggle("gal-photo", state.tab==="gallery" && state.galleryView==="photo");
   const pagerEl=document.getElementById("bev-pager");
   if(pagerEl){
     pagerEl.addEventListener("scroll",syncBeveragesPanel,{passive:true});
@@ -6659,7 +6720,7 @@ function renderBottleMenu(){
     h+='</button>';
   });
   h+='</div>';
-  h+='<div style="height:24px"></div>';
+  h+='<div style="height:24px"></div><div class="pad" style="padding-top:0"><button class="btn ghost full" data-act="bevBackLanding">Back</button></div>';
   h+='</div></div>';
   return h;
 }
@@ -6739,7 +6800,18 @@ function renderBeveragesCategory(){
     const bk=(A&&A.buckets||[]).find(function(x){return x.id===state.bevView.id;}); title=bk?bk.name:'Liquors';
   }
   let h='<div class="scroll">';
-  h+='<div class="crumb"><button data-act="bevBackLanding">Beverages</button><span class="sep">/</span><span class="cur">'+esc(title)+'</span></div>';
+  const storeBrand=(state.bevView&&state.bevView.store&&bottleAPI())?bottleAPI().get(state.bevView.store):null;
+  if(storeBrand){
+    const town=(storeBrand.branches&&storeBrand.branches[0]&&storeBrand.branches[0].town)||'';
+    const storeMeta=(storeBrand.isChain?'Liquor chain':'Bottle & liquor store')+(town?' · '+town:'');
+    h+='<div class="restcard">'+
+      '<div class="restcard-thumb">'+bottleThumb(storeBrand)+'</div>'+
+      '<button class="restcard-main" data-act="bevBack"><span class="restcard-name">'+esc(storeBrand.name)+'</span>'+
+      '<span class="restcard-tag">'+esc(storeMeta)+'</span></button>'+
+    '</div>';
+  }else{
+    h+='<div class="crumb"><button data-act="bevBackLanding">Beverages</button><span class="sep">/</span><span class="cur">'+esc(title)+'</span></div>';
+  }
   h+='<div class="phead"><h2>'+esc(title)+'</h2><p>'+items.length+' items</p></div>';
   items.forEach(function(it){
     const key='bev:'+it.id;
@@ -6754,7 +6826,7 @@ function renderBeveragesCategory(){
   });
   const c=bevCartCount();
   h+='<div style="height:16px"></div>';
-  h+='<div style="height:24px"></div>';
+  h+='<div style="height:24px"></div><div class="pad"><button class="btn ghost full" data-act="bevBack">Back to Menu</button></div>';
   h+='</div>';
   if(c>0){
     h+='<div class="cbwrap"><div class="cbar">'+
@@ -7099,6 +7171,43 @@ function renderPreview(){
 function renderRestNotice(){
   if(!state.restNotice)return "";
   return '<div class="rest-notice" data-act="dismissRestNotice" role="status">'+esc(state.restNotice)+'</div>';
+}
+
+/* Card alert: explains a disabled card action and offers a primary button that
+   jumps straight into the location picker. Mirrors the menu-selector demo. */
+function renderCardAlert(){
+  const a=state.cardAlert;
+  if(!a)return "";
+  let h='<div class="card-alert-scrim" data-act="dismissCardAlert"></div>';
+  h+='<div class="card-alert" role="alertdialog" aria-modal="true">';
+  if(a.logo)h+='<img class="card-alert-logo" src="'+esc(a.logo)+'" alt="">';
+  else h+='<div class="card-alert-icon">'+esc(a.icon||"!")+'</div>';
+  if(a.title)h+='<h3>'+esc(a.title)+'</h3>';
+  if(a.message)h+='<p>'+esc(a.message)+'</p>';
+  if(a.options&&a.options.length){
+    h+='<div class="card-alert-options">';
+    a.options.forEach(function(o){
+      h+='<a class="card-opt" href="'+esc(o.href||"#")+'">'+esc(o.label||"")+'</a>';
+    });
+    h+='</div>';
+  }
+  h+='<div class="card-alert-actions">';
+  if(a.actions&&a.actions.length){
+    a.actions.forEach(function(x){
+      const cls="dlg-btn"+(x.primary?" primary":"");
+      if(x.href)h+='<a class="'+cls+'" href="'+esc(x.href)+'">'+esc(x.label||"Continue")+'</a>';
+      else h+='<button class="'+cls+'" data-act="'+esc(x.act||"")+'"'+
+        (x.brand?' data-brand="'+esc(x.brand)+'"':'')+
+        (x.axis?' data-axis="'+esc(x.axis)+'"':'')+'>'+esc(x.label||"Continue")+'</button>';
+    });
+  }else if(a.act){
+    h+='<button class="dlg-btn primary" data-act="'+esc(a.act)+'"'+
+      (a.brand?' data-brand="'+esc(a.brand)+'"':'')+
+      (a.axis?' data-axis="'+esc(a.axis)+'"':'')+'>'+esc(a.label||"Continue")+'</button>';
+  }
+  h+='<button class="dlg-btn" data-act="dismissCardAlert">Not now</button>';
+  h+='</div></div>';
+  return h;
 }
 
 /* PAGE: venue-checkout — Checkout */
@@ -7811,19 +7920,14 @@ function armTownRails(){
 function renderPhoto(){
   const items=filteredGallery();
   if(!items.length) return '<div class="empty">No photos to show.</div>';
-  let start=0;
-  for(let i=0;i<items.length;i++){ if(items[i].id===state.galleryPhoto){ start=i; break; } }
-  const g0=items[start];
-  const gFav=favButton("gallery",g0.id,{title:g0.label,subtitle:g0.cat,imageRef:g0.src,venueId:g0.venueId||null},"Save");
-  const gWa='<button class="ico-btn" data-act="waGallery" data-id="'+esc(g0.id)+'" aria-label="Share" title="Share"><img src="'+IMG.iconWA+'" alt=""></button>';
-  return '<div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#0a0a0a">'+
-    '<div class="crumb"><button data-act="backAlbum">Gallery</button>'+
-    '<span class="sep">/</span><span class="cur">'+esc(items[start].cat)+'</span></div>'+
-    '<div class="swiper" id="photsw">'+items.map(function(g){
-      return '<div class="slide">'+imgTag(g.src,g.label)+'</div>';
+  return '<div class="gal-photo" style="flex:1;min-height:0;display:flex;flex-direction:column;background:#0a0a0a">'+
+    '<div class="swiper" id="photsw" data-act="closePhoto">'+items.map(function(g){
+      const gFav=favButton("gallery",g.id,{title:g.label,subtitle:g.cat,imageRef:g.src,venueId:g.venueId||null},"Save");
+      const gWa='<button class="ico-btn" data-act="waGallery" data-id="'+esc(g.id)+'" aria-label="Share" title="Share"><img src="'+IMG.iconWA+'" alt=""></button>';
+      return '<div class="slide">'+imgTag(g.src,g.label)+
+        '<div class="ico-row split">'+gFav+gWa+'</div></div>';
     }).join("")+'</div>'+
-    '<div style="padding:0 12px;background:#0a0a0a"><div class="ico-row split">'+gFav+gWa+'</div></div>'+
-    '<div class="dots">'+items.map(function(_,i){return '<i class="'+(i===start?"on":"")+'"></i>';}).join("")+'</div></div>';
+    '</div>';
 }
 
 function scrollPhotoTo(){
@@ -7880,11 +7984,11 @@ function renderProfileCard(){
        '<button class="pc-toggle" data-act="profileCardToggle" aria-expanded="'+(open?"true":"false")+'" aria-label="Account options">'+(open?"\u25b4":"\u25be")+'</button>'+
        '</div>';
   }else{
-    h+='<button class="profilecard guest" data-act="profileCardToggle" aria-expanded="'+(open?"true":"false")+'">'+
-       '<span class="pc-main"><strong>Create Profile</strong><small>Save favourites, orders and events</small></span>'+
+    h+='<button class="profilecard guest" data-act="profileCardToggle" aria-haspopup="dialog">'+
+       '<span class="pc-main"><strong>Create Profile</strong></span>'+
        '</button>';
   }
-  if(open){
+  if(open&&u){
     h+='<div class="pc-rows">';
     if(u){
       h+='<a class="pc-row" href="eatouts-profile.html">My Profile</a>'+
@@ -7965,10 +8069,6 @@ function renderAbout(){
       '<a class="setrow" href="designer-services.html">Need Design</a>'+
     '</div></div>'+
   '</div></div>';
-  /* Share EatOuts — opens the WhatsApp share sheet (any contact) */
-  h+='<div style="margin-top:18px"><a class="btn share" href="'+
-    esc(waShareLink("Check out EatOuts - discover restaurants, food, promos & events across Botswana. "+location.origin))+
-    '" target="_blank" rel="noopener noreferrer">Share EatOuts</a></div>';
   h+='</div><div style="height:34px"></div></div>';
   return h;
 }
@@ -8164,6 +8264,7 @@ document.addEventListener("click",function(e){
       /* always land back on the list, and hide the filter bar again.
          The cuisine choice and search text are kept deliberately. */
       state.restaurantView=null;state.restaurantOpen=null;state.restFilterOpen=false;state.restLocPicker=null;state.restNotice=null;
+      state.menuCat=null;state.menuOpen=null;
       state.splitOpen=false;state.splitPeople=[];state.splitAssign={};
     }
     if(state.tab==="reserve"){
@@ -8220,6 +8321,22 @@ document.addEventListener("click",function(e){
   const act=t.getAttribute("data-act");
   const id=t.getAttribute("data-id");
 
+  /* A card row that is disabled until a location is chosen: open the alert,
+     which offers a primary button that jumps straight into the picker. */
+  if(t.getAttribute("data-locked")==="1"){
+    state.cardAlert={
+      icon:"!",
+      title:t.getAttribute("data-lock-title")||"",
+      message:t.getAttribute("data-lock-msg")||"",
+      act:t.getAttribute("data-lock-act")||"",
+      label:t.getAttribute("data-lock-label")||"Continue",
+      brand:t.getAttribute("data-brand")||"",
+      axis:t.getAttribute("data-lock-axis")||"town"
+    };
+    render();return;
+  }
+  if(act==="dismissCardAlert"){state.cardAlert=null;render();return;}
+
   /* Close the photo preview; tapping the image itself stays inert */
   if(act==="closePreview"){if(e.target.closest(".preview-img"))return;state.preview=null;render();return;}
 
@@ -8261,7 +8378,29 @@ document.addEventListener("click",function(e){
   }
 
   /* CUSTOMER PROFILE CARD (About tab) */
-  if(act==="profileCardToggle"){var cu=window.EatoutsCustomer&&EatoutsCustomer.getUser();if(!cu){location.href="eatouts-login.html";return;}state.profileCardOpen=!state.profileCardOpen;render();return;}
+  if(act==="profileCardToggle"){
+    var cu=window.EatoutsCustomer&&EatoutsCustomer.getUser();
+    if(cu){state.profileCardOpen=!state.profileCardOpen;state.cardAlert=null;render();return;}
+    state.profileCardOpen=false;
+    state.cardAlert={
+      logo:IMG.eatoutsLogo,
+      title:"Create your profile",
+      message:"Sign in or create an account to save and revisit these:",
+      options:[
+        {label:"Favourites",href:"eatouts-login.html"},
+        {label:"Orders",href:"eatouts-login.html"},
+        {label:"Events",href:"eatouts-login.html"},
+        {label:"Saved Summaries",href:"eatouts-login.html"},
+        {label:"Profile",href:"eatouts-login.html"},
+        {label:"Gallery",href:"eatouts-login.html"}
+      ],
+      actions:[
+        {label:"Create an account",href:"eatouts-user-onboarding.html",primary:true},
+        {label:"Sign in",href:"eatouts-login.html"}
+      ]
+    };
+    render();return;
+  }
   if(act==="openProfilePhoto"){state.profilePhotoOpen=true;render();return;}
   if(act==="closeProfilePhoto"){if(e.target&&e.target.tagName==="IMG")return;state.profilePhotoOpen=false;render();return;}
   if(act==="customerLogout"){if(window.EatoutsCustomer)EatoutsCustomer.logout().then(function(){state.profileCardOpen=false;render();});return;}
@@ -8284,6 +8423,7 @@ document.addEventListener("click",function(e){
     state.tab="restaurants";state.restPanel="food";
     state.restaurantOpen=brand;
     state.restaurantView={id:rid,brand:brand,view:"menu",promoId:null};
+    state.menuCat=null;state.menuOpen=null;
     state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};
     state.restLocPicker=null;state.restNotice=null;state.delivery=null;
     if(hasBridge())EatoutsBridge.setActive(rid);
@@ -8332,6 +8472,25 @@ document.addEventListener("click",function(e){
     const msg="*BOTTLE STORE ENQUIRY*\n"+brand.name+(active?("\n"+(active.address||active.town||"")):"")+"\n\nHi, I'd like to ask about availability, pricing and delivery.";
     window.location.href=waLink(msg,r);
     return;
+  }
+  /* Information icon on a bottle-store card: the store's location details,
+     with a primary button that opens the WhatsApp enquiry. */
+  if(act==="bottleStoreInfo"){
+    const api=bottleAPI();
+    const brand=api&&api.get(t.getAttribute("data-brand"));
+    if(!brand)return;
+    const active=bottleActiveBranch(brand);
+    const where=[(active&&active.area),(active&&active.town)].filter(Boolean).join(", ");
+    const lines=[brand.isChain?"Liquor chain":"Bottle & liquor store",where,active&&active.address].filter(Boolean);
+    state.cardAlert={
+      icon:"i",
+      title:brand.name,
+      message:lines.join("\n"),
+      act:"waBottle",
+      label:"Message on WhatsApp",
+      brand:brand.slug
+    };
+    render();return;
   }
   if(act==="waPoetry"){
     const seats=state.poetrySeats||2;
@@ -8460,12 +8619,12 @@ document.addEventListener("click",function(e){
     state.promoExpanded=null;
     render(); return;
   }
-  if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.filterOpen=false;state.restLocPicker=null;state.restNotice=null;syncRestAccordions();return;}
-  if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
+  if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.menuCat=null;state.menuOpen=null;state.filterOpen=false;state.restLocPicker=null;state.restNotice=null;syncRestAccordions();return;}
+  if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   /* Restaurant-Card name/tagline tap: open the venue information page. */
   if(act==="openRestAbout"){const rid=id||(state.restaurantView&&state.restaurantView.id);if(!rid)return;const brand=(state.restaurantView&&state.restaurantView.brand)||state.restaurantOpen||rid;state.restaurantOpen=brand;state.restaurantView={id:rid,brand:brand,view:"about",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(rid);render();return;}
-  if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
-  if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;render();return;}
+  if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
+  if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;render();return;}
   /* Promos on an expanded restaurant row opens the Gallery tab scoped to
      that venue and its promos. */
   if(act==="openRestGallery"){
@@ -8497,6 +8656,7 @@ document.addEventListener("click",function(e){
   if(act==="openRestLocPicker"){
     const brand=t.getAttribute("data-brand")||"";
     const axis=t.getAttribute("data-axis")||"town";
+    state.cardAlert=null;
     if(state.restLocPicker&&state.restLocPicker.brand===brand&&state.restLocPicker.axis===axis)state.restLocPicker=null;
     else state.restLocPicker={brand:brand,axis:axis};
     render();return;
@@ -8564,10 +8724,10 @@ document.addEventListener("click",function(e){
   /* BEVERAGES PANEL */
   if(act==="panelFood"){switchRestPanel('food');return;}
   if(act==="panelBev"){switchRestPanel('beverages');return;}
-  if(act==="bevOpenSub"){state.bevView={type:'subcat',id:id};state.bevCheckout=false;render();return;}
-  if(act==="bevOpenBucket"){state.bevView={type:'bucket',id:id};state.bevCheckout=false;render();return;}
+  if(act==="bevOpenSub"){state.bevView={type:'subcat',id:id,store:(state.bevView&&state.bevView.type==='store')?state.bevView.id:null};state.bevCheckout=false;render();return;}
+  if(act==="bevOpenBucket"){state.bevView={type:'bucket',id:id,store:(state.bevView&&state.bevView.type==='store')?state.bevView.id:null};state.bevCheckout=false;render();return;}
   if(act==="bevBackLanding"){state.bevView=null;state.bevCheckout=false;state.delivery=null;render();return;}
-
+  if(act==="bevBack"){const s=state.bevView&&state.bevView.store;state.bevView=s?{type:'store',id:s}:null;state.bevCheckout=false;render();return;}
   /* BOTTLE STORE DIRECTORY (Beverages landing) */
   if(act==="toggleBottleStore"){state.bottleOpen=(state.bottleOpen===id)?null:id;state.bottleLocPicker=null;state.restNotice=null;syncBottleAccordions();return;}
   if(act==="openBottleMenu"){state.bevView={type:'store',id:t.getAttribute("data-brand")||""};state.bevCheckout=false;state.bottleLocPicker=null;render();return;}
@@ -8586,6 +8746,7 @@ document.addEventListener("click",function(e){
   if(act==="openBottleLocPicker"){
     const brand=t.getAttribute("data-brand")||"";
     const axis=t.getAttribute("data-axis")||"town";
+    state.cardAlert=null;
     if(state.bottleLocPicker&&state.bottleLocPicker.brand===brand&&state.bottleLocPicker.axis===axis)state.bottleLocPicker=null;
     else state.bottleLocPicker={brand:brand,axis:axis};
     render();return;
@@ -8797,7 +8958,7 @@ document.addEventListener("click",function(e){
   }
   if(act==="openPhoto"){state.galleryPhoto=id;state.galleryView="photo";render();return;}
   if(act==="galMore"){galleryLoadMore();return;}
-  if(act==="backAlbum"){state.galleryView="grid";state.galleryPhoto=null;render();return;}
+  if(act==="closePhoto"){if(e.target.closest("img"))return;state.galleryView="grid";state.galleryPhoto=null;render();return;}
   if(act==="openSearch"){state.searchOpen=true;render();setTimeout(function(){const i=document.getElementById("gsearch");if(i)i.focus();},60);return;}
   if(act==="closeSearch"){state.searchOpen=false;state.gallerySearch="";render();return;}
 

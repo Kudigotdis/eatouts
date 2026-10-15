@@ -47,6 +47,14 @@ Serve the root over `http://127.0.0.1` with `run-eatouts.bat`. Opening a page vi
 
 First visit: open `seed-demo.html`, seed demo data, then run verification (all assertions should read PASS). Then operator pages are reachable from `index.html` → About Us → Operator Sign in (or Demo login).
 
+## Hosting & DNS
+
+**Live site:** https://eatouts.site — served by **GitHub Pages**, built by `.github/workflows/pages.yml` from `dist/` on every push to `main`. A root `CNAME` file pins the custom domain; `www.eatouts.site` and `kudigotdis.github.io/eatouts` 301-redirect to the apex.
+
+**DNS:** the apex (`@`) is pointed at GitHub Pages' A/AAAA records and `www` at a CNAME to `kudigotdis.github.io`.
+
+> **GitHub Pages is a static mirror.** It serves files only, so `functions/api/**` (`/api/*`), `_redirects` and `_headers` do not run here — the client falls back to its localStorage/demo mode. The full backend (Cloudflare Pages + Functions + D1 + KV + Supabase) runs separately; see **Cloudflare backend (M0)**.
+
 ## Client-side upload helpers
 
 - `eatouts-image-compressor.js` — client-side image compression via Canvas (WebP with JPEG fallback). Wired into `intake.html` for logo / cover / menu / gallery images: the chosen file is compressed to an embedded `data:` URL, with plain URL entry kept as the fallback.

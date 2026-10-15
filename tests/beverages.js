@@ -87,6 +87,17 @@ setTimeout(() => {
   check('no accordion rows or chevrons left',
     !doc.querySelector('.bev-acc-row') && !doc.querySelector('.bev-acc-go'));
 
+  const allTiles = doc.querySelectorAll('.bevpage[data-page="beverages"] .bev-tile');
+  const tileNames = doc.querySelectorAll('.bevpage[data-page="beverages"] .bev-tile .bt-name');
+  check('every bev-tile label is #8A7D63',
+    tileNames.length === 17 &&
+    Array.prototype.every.call(tileNames, n => window.getComputedStyle(n).color === 'rgb(138, 125, 99)'),
+    tileNames.length ? window.getComputedStyle(tileNames[0]).color : 'none');
+  check('every bev-tile border is #8A7D63',
+    allTiles.length === 17 &&
+    Array.prototype.every.call(allTiles, t => window.getComputedStyle(t).borderTopColor === 'rgba(138, 125, 99, 0.3)'),
+    allTiles.length ? window.getComputedStyle(allTiles[0]).borderTopColor : 'none');
+
   const subIds = evj('window._BEV.beverages.subcats.map(s=>s.id)');
   check('subcategories match the catalogue', JSON.stringify(subIds) === JSON.stringify(bevData.subcats.map(s => s.id)), JSON.stringify(subIds));
   const bucketIds = evj('window._BEV.alcohols.buckets.map(b=>b.id)');
@@ -101,11 +112,36 @@ setTimeout(() => {
   check('subcategory lists its items', rows.length === fizzyCount, rows.length + ' of ' + fizzyCount);
   check('item rows show a price', /P\d/.test((rows[0] || {}).textContent || ''), (rows[0] || {}).textContent);
   const bevSel = '.bevpage[data-page="beverages"] ';
+
+  /* ---------- category page leads with the origin store card ---------- */
+  const storeName = ev('window.EatoutsBottleStores.all()[0].name');
+  const storeCard = doc.querySelector(bevSel + '.restcard');
+  check('category page leads with the origin store card', !!storeCard, storeCard ? storeCard.textContent : 'none');
+  check('store card names the origin store',
+    !!storeCard && storeCard.querySelector('.restcard-name').textContent === storeName,
+    storeCard && storeCard.querySelector('.restcard-name') ? storeCard.querySelector('.restcard-name').textContent : 'none');
+  check('store card renders the store logo tile',
+    !!storeCard && !!storeCard.querySelector('.restcard-thumb .eo-thumb'));
+  check('store card is tappable back to the grid',
+    !!storeCard && !!storeCard.querySelector('.restcard-main[data-act="bevBack"]'));
+  check('store card replaces the crumb', !doc.querySelector(bevSel + '.crumb'));
+
   check('cart starts empty', ev('bevCartCount()') === 0);
   check('no Add button on beverage rows', !doc.querySelector(bevSel + '[data-act="bevAdd"]'));
   check('stepper always present on beverage rows',
     !!doc.querySelector(bevSel + '[data-act="bevInc"]') && !!doc.querySelector(bevSel + '[data-act="bevDec"]'));
   check('cart summary hidden while empty', !doc.querySelector('.bevpage[data-page="beverages"] .cbwrap'));
+
+  /* ---------- bottom Back on the category page (hierarchical) ---------- */
+  check('category page shows a bottom Back to Menu button',
+    !!doc.querySelector(bevSel + '.pad [data-act="bevBack"]'));
+  click(doc.querySelector(bevSel + '.pad [data-act="bevBack"]'));
+  check('Back to Menu returns to the store grid',
+    ev('state.bevView && state.bevView.type') === 'store' &&
+    !!doc.querySelector('.bevpage[data-page="beverages"] .bev-grid'));
+  click(Array.from(doc.querySelectorAll(bevSel + '.bev-tile[data-act="bevOpenSub"]'))
+    .find(t => t.getAttribute('data-id') === 'fizzy'));
+  check('subcategory reopens from the grid', ev('state.bevView && state.bevView.type') === 'subcat');
 
   /* ---------- cart ---------- */
   click(doc.querySelector(bevSel + '[data-act="bevInc"]'));
@@ -158,7 +194,9 @@ setTimeout(() => {
 
   click(doc.querySelector('[data-act="bevBackFromCheckout"]'));
   check('back returns to the list', ev('state.bevCheckout') === false);
-  click(doc.querySelector('.bevpage[data-page="beverages"] [data-act="bevBackLanding"]'));
+  click(doc.querySelector(bevSel + '.restcard-main[data-act="bevBack"]'));
+  check('store card returns to the store grid', ev('state.bevView && state.bevView.type') === 'store');
+  click(doc.querySelector(bevSel + '[data-act="bevBackLanding"]'));
   check('back returns to the landing', ev('state.bevView') === null);
 
   /* ---------- data integrity ---------- */
@@ -227,6 +265,9 @@ setTimeout(() => {
     ['subcat', 'bucket'].indexOf(firstResult.getAttribute('data-type')) > -1);
   click(firstResult);
   check('tapping a result opens the category page', !!ev('state.bevView && state.bevView.id'), JSON.stringify(ev('state.bevView')));
+  check('category from search keeps the crumb (no origin store)',
+    !!doc.querySelector('.bevpage[data-page="beverages"] .crumb') &&
+    !doc.querySelector('.bevpage[data-page="beverages"] .restcard'));
   click(doc.querySelector('.bevpage[data-page="beverages"] [data-act="bevBackLanding"]'));
   check('back from a result keeps the filter', ev('state.bevView') === null && ev('state.bevTypes.length') === 1);
   click(doc.querySelector('[data-act="bevClearTypes"]'));

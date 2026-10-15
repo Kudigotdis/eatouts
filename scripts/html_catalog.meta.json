@@ -898,6 +898,46 @@
     {
       "date": "2026-10-15",
       "note": "Exact-page identity: renderViewport() now also writes data-page-ref (the live instance: venue/category/promo/store/photo id) onto .screen and <body>, via the new pageRef() resolver; added the read-only window.eoPage() console helper that prints a paste-ready one-liner. Validator + tests/inventory.js guard the new wiring; PAGE_INVENTORY.md FAQ documents it."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "index.html Menu navigation: fixed stale state.menuCat leaking across venues (switching venue/tab could show a previous venue's category id, so venue-menu-item rendered \"Category not found.\"). renderRestaurantSubView() now only opens the item page when the category exists in the active venue's menu (else falls back to the category list), and menuCat/menuOpen reset on nav Restaurants, toggleRestaurant, openRestView, openRestFromSearch, backFromRestView and openPromoVenue. Added tests/menu-nav-state.js."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "Bottle menu (.screen[data-page=\"bottle-menu\"]): all .bev-tile labels now use #8A7D63 (rgb(138,125,99)) to match the Drinks/Liquors headings, and tile borders use the same hue at 30% opacity instead of the per-category colour. Disabled (.off) tiles keep the dimmer #6f6553 label. tests/beverages.js asserts both computed colours."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "Beverages navigation: added a bottom Back button to the store grid (data-page=\"bottle-menu\") and a bottom \"Back to Menu\" button to the category page (data-page=\"bev-category\"). The category back is hierarchical: bevOpenSub/bevOpenBucket now record the origin store on the view, and a new bevBack action returns to that store's Drinks/Liquors grid (or the filter results when the category was opened from search). tests/bottle-stores.js and tests/beverages.js cover both buttons."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "Beverages category (data-page=\"bev-category\"): when a category is opened from a store grid, the breadcrumb is replaced by that store's card (.restcard: logo tile + name + Liquor chain/store meta, tap = bevBack to the store grid); when opened from filter results (no origin store) the crumb is kept. Added press feedback to .bev-item rows and thumbnails (.bev-item:active / .bev-item .mthumb:active scale). tests/beverages.js asserts the store card replaces the crumb and the crumb fallback for search-opened categories."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "Gallery full-photo view (data-page=\"gallery-photo\"): dropped the breadcrumb (backAlbum) and the dots, and moved to an immersive full-screen photo — renderViewport() toggles #shell.gal-photo so the top header, control/filter bar and bottom nav hide while viewing; the image is sized to its content so the dark slide stays tappable around it, and tapping the backdrop (data-act=\"closePhoto\") returns to the grid while tapping the image stays inert; the favourite + WhatsApp buttons are kept. tests/gallery.js updated."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "Gallery full-photo view action row: the favourite + WhatsApp .ico-row split moved out of the bottom of the page and into every slide, directly under that photo (slide becomes a top-aligned column: 16px top offset, 14px gap, image capped at calc(100% - 78px)); the row now hugs the photo at any aspect ratio and travels with it while swiping. Vertical swipe, scroll-snap, backdrop dismiss and image-tap inertia are unchanged. tests/gallery.js asserts the row lives inside the slide."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "Gallery full-photo view polish: the photo is inset 14px from both side edges (slide padding) so it is no longer edge-to-edge, and the favourite + WhatsApp pair is centred under it with a 36px gap (was split space-between across the full width, buttons near the screen edges). Photo height unchanged (~77% of the viewport). tests/gallery.js asserts the pair is centred and the CSS carries the gap + side padding."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "Restaurant + bottle-store directory cards (data-page=\"restaurants-pager\" and data-page=\"beverages\") rebuilt to the menu-selector layout: each card now stacks four full-width rows (Town/City, Neighbourhood, Menu, Promos) above a centred icon row (favourite, WhatsApp, information). Rows are locked until a branch is chosen — single-branch brands auto-count as ready — and tapping a locked row opens a .card-alert explaining that every location has its own menu, with a primary button that jumps straight into the location picker (state.cardAlert, renderCardAlert(), data-locked/data-lock-* attributes + a dispatcher branch). The information icon (assets/icons/information-icon.svg, 50% opacity) leads to the venue-about page for restaurants and a store-details alert for bottle stores. The restaurant logo thumb is now a 54px rounded tile (tap still enlarges it via the existing preview). tests/restloc.js and tests/bottle-stores.js assert the five-row body, lock state and icon row."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "About page (data-page=\"about-main\") polish: the guest profile card is now an orange accent accordion — the secondary line is gone, the whole card is a centred 30px call-to-action that drops the stacked \"Create an account\"/\"Sign in\" rows, and opening it (as a signed-out browser) raises a .card-alert popup offering to navigate to the login page via openUniversalLogin (previously a guest tap hard-redirected). Settings rows (.setrow) bumped to 25px/1.35 for readability. The standalone \"Share EatOuts\" button was removed and the About social row's dead \"Website — contact unavailable\" slot replaced with a live Share_On icon that opens the WhatsApp share sheet; the unused .btn.share rule was dropped. tests/about.js covers the share icon and the guest accordion/popup."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "About page guest profile card reworked from accordion to a focused sign-in popup: tapping \"Create Profile\" no longer drops the .pc-rows accordion (that block is now guarded to signed-in users only) and instead opens a centred .card-alert headed by the EatOuts logo, with a six-option vertical list (Favourites, Orders, Events, Saved Summaries, Profile, Gallery — each routing to eatouts-login.html) and Create an account (eatouts-user-onboarding.html) / Sign in / Not now actions. renderCardAlert gained optional a.logo, a.options[] and a.actions[] (href or data-act) while keeping the single-act locked-row alert path; .card-alert now scrolls if tall. tests/about.js asserts the popup content and that no accordion opens."
     }
   ]
 }

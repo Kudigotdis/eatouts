@@ -32,7 +32,7 @@ only reads; it never rewrites this file. It warns on line drift.
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 1 | `index.html` | **Main SPA** — mobile-first customer app with 5 tabs. Contains ~30 sub-screens (see Part 2). | Site root via `run-eatouts.bat` | `PAGE: EatOuts (customer SPA)` | 9224 |
+| 1 | `index.html` | **Main SPA** — mobile-first customer app with 5 tabs. Contains ~30 sub-screens (see Part 2). | Site root via `run-eatouts.bat` | `PAGE: EatOuts (customer SPA)` | 9250 |
 | 2 | `get-started.html` | Marketing landing for operators explaining the offer and linking into intake/pricing. | Direct / marketing links | `PAGE: Get Started — EatOuts for Restaurants` | 185 |
 | 3 | `pricing.html` | Public pricing page with plan tiers. | Marketing links; get-started.html | `PAGE: Partner Pricing` | 243 |
 | 4 | `one-pager.html` | Static sales one-pager for prospects. | Direct link | `PAGE: EatOuts — Pitch One-Pager` | 157 |
@@ -156,10 +156,10 @@ one-liner, e.g. `PAGE: venue-menu-item — Menu · Item  [rest_pizza-perfect:bur
 
 | Screen | Description | Trigger | Render function | Page marker | Line |
 |--------|------------|---------|-----------------|-------------|------|
-| Promos Feed | Weekly calendar + accordion promo cards | `state.promoView === "feed"` | `renderPromosFeed()` | `PAGE: promos-feed — Promos · Feed` | 6252 |
-| Promo Detail | Expanded single promo with full info | `"detail"` | `renderPromoDetail()` | `PAGE: promos-detail — Promos · Detail` | 6397 |
-| Promo Gallery | Image gallery for a specific promo | `"gallery"` | `renderPromoGallery()` | `PAGE: promos-gallery — Promos · Gallery` | 6497 |
-| Promo Link | External-link promo view | `"link"` | `renderPromoLink()` | `PAGE: promos-link — Promos · Link` | 6515 |
+| Promos Feed | Weekly calendar + accordion promo cards | `state.promoView === "feed"` | `renderPromosFeed()` | `PAGE: promos-feed — Promos · Feed` | 6267 |
+| Promo Detail | Expanded single promo with full info | `"detail"` | `renderPromoDetail()` | `PAGE: promos-detail — Promos · Detail` | 6412 |
+| Promo Gallery | Image gallery for a specific promo | `"gallery"` | `renderPromoGallery()` | `PAGE: promos-gallery — Promos · Gallery` | 6512 |
+| Promo Link | External-link promo view | `"link"` | `renderPromoLink()` | `PAGE: promos-link — Promos · Link` | 6530 |
 
 ## Tab 2: Restaurants (`state.tab === "restaurants"`)
 
@@ -167,57 +167,57 @@ one-liner, e.g. `PAGE: venue-menu-item — Menu · Item  [rest_pizza-perfect:bur
 
 | Screen | Description | Trigger | Render function | Page marker | Line |
 |--------|------------|---------|-----------------|-------------|------|
-| Restaurants Pager | Two-panel view: Food + Beverages (swipe) | No sub-view active | `renderRestaurantsPager()` | `PAGE: restaurants-pager — Restaurants` | 4997 |
-| Bottle Store Directory | Beverages landing with store list | `state.restPanel === "beverages"` | `renderBottleStores()` | `PAGE: beverages — Beverages` | 5176 |
+| Restaurants Pager | Two-panel view: Food + Beverages (swipe) | No sub-view active | `renderRestaurantsPager()` | `PAGE: restaurants-pager — Restaurants` | 5007 |
+| Bottle Store Directory | Beverages landing with store list | `state.restPanel === "beverages"` | `renderBottleStores()` | `PAGE: beverages — Beverages` | 5186 |
 
 ### Within a restaurant (`state.restaurantView` set — routed by `renderRestaurantSubView()`)
 
 | Screen | Description | State condition | Render function | Page marker | Line |
 |--------|------------|-----------------|-----------------|-------------|------|
-| Menu (Categories) | Restaurant card + list of categories | `rv.view === "menu"` | Inline | `PAGE: venue-menu — Menu` | 5397 |
-| Menu (Locked) | Locked listing placeholder | `listingLocked(r)` | `renderMenuLocked(r)` | `PAGE: venue-locked — Menu (locked)` | 4653 |
-| Menu Item | Items in a category with steppers + cart | `state.menuCat` set | `renderMenuCategory()` | `PAGE: venue-menu-item — Menu · Item` | 7021 |
-| Checkout / Order Summary | Review cart + delivery + send | `state.checkoutView` truthy | `renderCheckout()` | `PAGE: venue-checkout — Checkout` | 7104 |
-| Split the Bill | People + item assignment | `state.splitOpen` truthy | `renderCheckoutSplit()` | `PAGE: venue-checkout-split — Split the Bill` | 7299 |
-| Book Venue | Enquiry form → WhatsApp | `rv.view === "venue"` | `renderRestaurantVenue(r)` | `PAGE: venue-book — Book Venue` | 5411 |
-| Venue Promos | That venue's own promotions | `rv.view === "promos"` | `renderRestaurantPromos(r)` | `PAGE: venue-promos — Promos` | 5427 |
-| Venue Promo Detail | Deep-link to a specific promo | `rv.view === "promo"` | `renderRestaurantPromoDetail(r, promoId)` | `PAGE: venue-promo-detail — Promo` | 5450 |
-| Venue About | That venue's info / contact page | `rv.view === "about"` | `renderRestaurantAbout(r)` | `PAGE: venue-about — About` | 5640 |
+| Menu (Categories) | Restaurant card + list of categories | `rv.view === "menu"` | Inline | `PAGE: venue-menu — Menu` | 5411 |
+| Menu (Locked) | Locked listing placeholder | `listingLocked(r)` | `renderMenuLocked(r)` | `PAGE: venue-locked — Menu (locked)` | 4663 |
+| Menu Item | Items in a category with steppers + cart | `state.menuCat` set | `renderMenuCategory()` | `PAGE: venue-menu-item — Menu · Item` | 7047 |
+| Checkout / Order Summary | Review cart + delivery + send | `state.checkoutView` truthy | `renderCheckout()` | `PAGE: venue-checkout — Checkout` | 7130 |
+| Split the Bill | People + item assignment | `state.splitOpen` truthy | `renderCheckoutSplit()` | `PAGE: venue-checkout-split — Split the Bill` | 7325 |
+| Book Venue | Enquiry form → WhatsApp | `rv.view === "venue"` | `renderRestaurantVenue(r)` | `PAGE: venue-book — Book Venue` | 5425 |
+| Venue Promos | That venue's own promotions | `rv.view === "promos"` | `renderRestaurantPromos(r)` | `PAGE: venue-promos — Promos` | 5441 |
+| Venue Promo Detail | Deep-link to a specific promo | `rv.view === "promo"` | `renderRestaurantPromoDetail(r, promoId)` | `PAGE: venue-promo-detail — Promo` | 5464 |
+| Venue About | That venue's info / contact page | `rv.view === "about"` | `renderRestaurantAbout(r)` | `PAGE: venue-about — About` | 5654 |
 
 ### Beverages panel sub-screens
 
 | Screen | Description | State condition | Render function | Page marker | Line |
 |--------|------------|-----------------|-----------------|-------------|------|
-| Bottle Menu | Expanded bottle-store menu | `state.bevView.type === "store"` | `renderBottleMenu()` | `PAGE: bottle-menu — Bottle Menu` | 6636 |
-| Beverage Filter Results | Search results for types | `state.bevTypes.length` | `renderBeverageFilterResults()` | `PAGE: bev-filter — Beverages · Filter` | 6680 |
-| Beverages Category | Items list for a subcategory | `state.bevView` set | `renderBeveragesCategory()` | `PAGE: bev-category — Beverages · Category` | 6728 |
-| Beverages Checkout | Cart review + send/share | `state.bevCheckout` truthy | `renderBeveragesCheckout()` | `PAGE: bev-checkout — Beverages · Checkout` | 6830 |
-| Beverages Split the Bill | Split items per person | `state.bevSplitOpen` truthy | `renderBevSplit()` | `PAGE: bev-split — Beverages · Split the Bill` | 6889 |
+| Bottle Menu | Expanded bottle-store menu | `state.bevView.type === "store"` | `renderBottleMenu()` | `PAGE: bottle-menu — Bottle Menu` | 6651 |
+| Beverage Filter Results | Search results for types | `state.bevTypes.length` | `renderBeverageFilterResults()` | `PAGE: bev-filter — Beverages · Filter` | 6695 |
+| Beverages Category | Items list for a subcategory | `state.bevView` set | `renderBeveragesCategory()` | `PAGE: bev-category — Beverages · Category` | 6743 |
+| Beverages Checkout | Cart review + send/share | `state.bevCheckout` truthy | `renderBeveragesCheckout()` | `PAGE: bev-checkout — Beverages · Checkout` | 6856 |
+| Beverages Split the Bill | Split items per person | `state.bevSplitOpen` truthy | `renderBevSplit()` | `PAGE: bev-split — Beverages · Split the Bill` | 6915 |
 
 ## Tab 3: Reserve / Plan Event (`state.tab === "reserve"`)
 
 | Screen | Description | Trigger | Render function | Page marker | Line |
 |--------|------------|---------|-----------------|-------------|------|
-| Plan Event (Categories) | Event category grid (Wedding, Birthday, etc.) | Default | `renderReserveCats()` | `PAGE: reserve-cats — Plan Event` | 7398 |
-| Reserve Groups | Sub-category groups within a category | `state.reserveCat` set | `renderReserveGroups()` | `PAGE: reserve-groups — Plan Event · Groups` | 7410 |
-| Reserve Events / Types | Specific event types with descriptions | `state.reserveGroup` set | `renderReserveEvents()` | `PAGE: reserve-events — Plan Event · Events` | 7426 |
-| Choose Venue | Search / select venue or provider | `state.reserveSub` set | `renderReserveProviders()` | `PAGE: reserve-providers — Plan Event · Choose Venue` | 7462 |
+| Plan Event (Categories) | Event category grid (Wedding, Birthday, etc.) | Default | `renderReserveCats()` | `PAGE: reserve-cats — Plan Event` | 7424 |
+| Reserve Groups | Sub-category groups within a category | `state.reserveCat` set | `renderReserveGroups()` | `PAGE: reserve-groups — Plan Event · Groups` | 7436 |
+| Reserve Events / Types | Specific event types with descriptions | `state.reserveGroup` set | `renderReserveEvents()` | `PAGE: reserve-events — Plan Event · Events` | 7452 |
+| Choose Venue | Search / select venue or provider | `state.reserveSub` set | `renderReserveProviders()` | `PAGE: reserve-providers — Plan Event · Choose Venue` | 7488 |
 
 ## Tab 4: Gallery (`state.tab === "gallery"`)
 
 | Screen | Description | Trigger | Render function | Page marker | Line |
 |--------|------------|---------|-----------------|-------------|------|
-| Gallery Grid | Photo grid with filters + search | Default | `renderGalleryGrid()` | `PAGE: gallery-grid — Gallery` | 7630 |
-| Fullscreen Photo | Full-screen viewer with swipe | `state.galleryView === "photo"` | `renderPhoto()` | `PAGE: gallery-photo — Gallery · Photo` | 7810 |
+| Gallery Grid | Photo grid with filters + search | Default | `renderGalleryGrid()` | `PAGE: gallery-grid — Gallery` | 7656 |
+| Fullscreen Photo | Full-screen viewer with swipe | `state.galleryView === "photo"` | `renderPhoto()` | `PAGE: gallery-photo — Gallery · Photo` | 7836 |
 
 ## Tab 5: About (`state.tab === "about"`)
 
 | Screen | Description | Trigger | Render function | Page marker | Line |
 |--------|------------|---------|-----------------|-------------|------|
-| About Main | Brand info + social links + settings | Default | `renderAbout()` | `PAGE: about-main — About` | 7913 |
-| Restaurant Gallery | Dedicated gallery view | `state.aboutView === "gallery"` | `renderRestaurantGallery()` | `PAGE: about-restaurant-gallery — Gallery (restaurant)` | 7840 |
-| Legal Document | Terms / Privacy / Cookies | `state.legalView` set | `renderLegalDoc(type)` | `PAGE: about-legal — Legal` | 7999 |
-| Operator Login | Sign-in for business operators | `state.operatorView === "login"` | `renderOperatorLogin()` | `PAGE: about-operator-login — Operator Sign in` | 8028 |
+| About Main | Brand info + social links + settings | Default | `renderAbout()` | `PAGE: about-main — About` | 7937 |
+| Restaurant Gallery | Dedicated gallery view | `state.aboutView === "gallery"` | `renderRestaurantGallery()` | `PAGE: about-restaurant-gallery — Gallery (restaurant)` | 7864 |
+| Legal Document | Terms / Privacy / Cookies | `state.legalView` set | `renderLegalDoc(type)` | `PAGE: about-legal — Legal` | 8023 |
+| Operator Login | Sign-in for business operators | `state.operatorView === "login"` | `renderOperatorLogin()` | `PAGE: about-operator-login — Operator Sign in` | 8052 |
 
 ## Shell & shared elements
 

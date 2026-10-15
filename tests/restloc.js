@@ -37,22 +37,32 @@ setTimeout(() => {
   click(doc.querySelector('[data-tab="restaurants"]'));
   check('restaurants tab rendered', !!doc.querySelector('#viewport .ritem'), '');
 
-  /* Both directory cards share one bottom action area: a left icon column
-     (heart on top, WhatsApp below) beside two pill rows. */
+  /* Both directory cards share the five-row body from the menu-selector
+     redesign: Town, Neighbourhood, Menu, Promos, then a centred icon row. */
   const rcard = doc.querySelector('#viewport .ritem[data-racc]');
   const ropts = rcard ? rcard.querySelector('.ropts.brows') : null;
-  check('restaurant card uses the two-row brows layout',
-    !!ropts && ropts.querySelectorAll('.brow').length === 2);
-  const rrow1 = ropts ? ropts.children[ropts.children.length - 2] : null;
-  const rrow2 = ropts ? ropts.children[ropts.children.length - 1] : null;
-  check('restaurant row 1 = heart + town + area pills',
-    !!rrow1 && !!rrow1.querySelector('[data-act="toggleFav"]') &&
-    !!rrow1.querySelector('[data-act="toggleFav"] img[src*="heart_"]') &&
-    !!rrow1.querySelector('[data-act="openRestLocPicker"][data-axis="town"]') &&
-    !!rrow1.querySelector('[data-act="openRestLocPicker"][data-axis="area"]'));
-  check('restaurant row 2 = WhatsApp + Menu + Promos',
-    !!rrow2 && !!rrow2.querySelector('[data-act="waRestAbout"]') &&
-    rrow2.querySelectorAll('.ropt').length === 2);
+  check('restaurant card stacks four action rows + an icon row',
+    !!ropts && ropts.querySelectorAll('.line').length === 4 && !ropts.querySelector('.brow'));
+  const lines = ropts ? Array.from(ropts.querySelectorAll('.line')) : [];
+  check('restaurant row 1 = Town / City selector',
+    !!lines[0] && lines[0].classList.contains('line-select') &&
+    lines[0].getAttribute('data-act') === 'openRestLocPicker' &&
+    lines[0].getAttribute('data-axis') === 'town');
+  check('restaurant row 2 = Neighbourhood selector',
+    !!lines[1] && lines[1].classList.contains('line-select') &&
+    lines[1].getAttribute('data-act') === 'openRestLocPicker' &&
+    lines[1].getAttribute('data-axis') === 'area');
+  check('restaurant rows 3 + 4 = Menu + Promos',
+    !!lines[2] && lines[2].getAttribute('data-act') === 'openRestView' && lines[2].getAttribute('data-view') === 'menu' &&
+    !!lines[3] && lines[3].getAttribute('data-act') === 'openRestView' && lines[3].getAttribute('data-view') === 'promos');
+  const iconRow = ropts ? ropts.querySelector('.card-ico-row') : null;
+  check('restaurant row 5 = heart + WhatsApp + info icons',
+    !!iconRow && !!iconRow.querySelector('[data-act="toggleFav"] img[src*="heart_"]') &&
+    !!iconRow.querySelector('[data-act="waRestAbout"]') &&
+    !!iconRow.querySelector('[data-act="openRestAbout"] img[src*="information-icon"]'));
+  check('info icon is half opacity',
+    !!iconRow && window.getComputedStyle(iconRow.querySelector('.ico-info-img')).opacity === '0.5',
+    iconRow ? window.getComputedStyle(iconRow.querySelector('.ico-info-img')).opacity : 'none');
 
   const groups = evj('EatoutsBridge.groupedListing().map(g=>({key:g.key,name:g.name,branches:g.branches.map(b=>({id:b.id,town:String((b.location||{}).town||"").trim()}))}))');
   const multi = groups.filter(g => g.branches.length > 1);
