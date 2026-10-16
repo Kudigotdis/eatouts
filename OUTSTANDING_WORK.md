@@ -2,10 +2,11 @@
 
 **Date:** 2026-10-16
 **Live site:** https://www.eatouts.site (Cloudflare Pages; apex `eatouts.site` 301→ www)
-**Progress:** Phase 1 code edits landed (B4, B7, E2 partial) — `npm test` 36/36 green. Supabase
-project + public `eatouts-media` bucket exist (E1). Backend **deployed and live** on Cloudflare
-Pages (Phase 0 complete — A1–A5 resolved). **Phase 0.5 done** (domain/email cleanup). Remaining
-Phase 1+ work is tracked below.
+**Progress:** Phase 1 customer-account fixes landed (B1–B4, B7, B8) — `npm test` **38/38 green**.
+**Phase 2 server foundation landed** (C0 `requireBusiness` guard, C1–C3 endpoints, `0005_business`
+migration). Supabase project + public `eatouts-media` bucket exist (E1). Backend **deployed and
+live** on Cloudflare Pages (Phase 0 complete — A1–A5 resolved). **Phase 0.5 done** (domain/email
+cleanup). Remaining Phase 2+ work (client wiring, C4–C10, E4–E6) is tracked below.
 **Repo:** `Kudigotdis/eatouts`
 **Method:** full read of `functions/api/**`, `migrations/**`, `js/**`, onboarding + admin pages,
 deploy config, and the repo's own `HTML_ASSESSMENT.md` / `INTEGRATION_AUDIT.md`.
@@ -152,16 +153,22 @@ business, its staff, or any of its content.** Those flows write to two localStor
 `memberships`) — the existing `_customer.js` only knows `requireCustomer`/`requireAdmin`.
 Roles to honour: `owner`, `manager`, `menu_manager`, `marketing_manager`.
 
-- [ ] **C1. Build business endpoints:** create/read/update business profile (name, address,
-  contact, hours) + status/approval. D1 schema already supports it (`restaurants`,
-  `restaurant_branches`, `claims` in `migrations/0001_init.sql:23-45,76-87`) but **no function
-  exposes it**.
-- [ ] **C2. Build staff endpoints + UI wiring.** `staff-manager.html:6,20,39` and
-  `eatouts-staff-admin1.html:47` are localStorage-only. D1 `memberships` exists but isn't written.
-- [ ] **C3. Build menu endpoints + wiring.** `menu-onboarding.html` writes `EatoutsDB.menuItems`
-  (`:261`); `business-onboarding1.html` writes `businesses.modules.menu.items`. **Menu data is
-  split across two incompatible stores** — unify and persist to D1 (`menu_categories`,
-  `menu_items` exist in `0001_init.sql`).
+**Phase 2 server foundation landed (this change):** `functions/api/_business.js` (guard + row
+mappers), `migrations/0005_business.sql` (profile columns + `media`), and the endpoints
+`/api/business/mine` (list/create), `/api/business/profile` (read/update),
+`/api/business/staff` (+`/:id`), `/api/business/menu` + `/menu/categories` + `/menu/items`
+(+`/:id`). Covered by `tests/api-business.js`. **Client wiring of these endpoints + C4–C10 remain.**
+
+- [x] **C1 (server). Build business endpoints:** create/read/update business profile (name,
+  address, contact, hours). D1 `restaurants` extended in `0005_business.sql`; exposed via
+  `/api/business/mine` (create/list) + `/api/business/profile` (read `menu_manager+`, patch
+  `manager+`; admins bypass).
+- [~] **C2. Build staff endpoints + UI wiring.** Server done: `/api/business/staff` (list
+  `manager+`, add/invite `owner`) + `/api/business/staff/:id` (role/status/delete, last-owner
+  guarded). **UI wiring of `staff-manager.html` / `eatouts-staff-admin1.html` still pending.**
+- [~] **C3. Build menu endpoints + wiring.** Server done: `/api/business/menu` (read
+  `menu_manager+`), category + item CRUD. Persists to D1 (`menu_categories`, `menu_items`).
+  **Unifying the client stores (`menu-onboarding.html`, `business-onboarding1.html`) still pending.**
 - [ ] **C4. Wire real image upload.** Onboarding pages embed **base64 data URLs** into localStorage
   via `EatoutsUpload.decorate` (`js/eatouts-upload.js:96-155`) — never calling the real
   `POST /api/upload`. See Part E.
