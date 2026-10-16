@@ -80,10 +80,42 @@ const ASSETS = fakeAssets({
   '/404.html': '<!doctype html><title>Not found</title>'
 });
 
-function fakeDB(seed) {
+function fakeDB(seed, restSeed) {
   const store = (seed || []).map((r) => Object.assign({}, r));
+  const rests = (restSeed || []).map((r) => Object.assign({}, r));
+  const memberships = [];
+  const claims = [];
   function exec(sql, args, mode) {
     const s = norm(sql);
+    if (s.startsWith('SELECT id, status, claimed FROM restaurants WHERE id = ?')) {
+      const r = rests.find((x) => x.id === args[0]);
+      const out = r ? { id: r.id, status: r.status, claimed: r.claimed } : null;
+      return mode === 'first' ? out : (out ? [out] : []);
+    }
+    if (s.startsWith('SELECT * FROM memberships WHERE user_id = ? AND restaurant_id = ?')) {
+      const r = memberships.find((x) => x.user_id === args[0] && x.restaurant_id === args[1]) || null;
+      return mode === 'first' ? r : (r ? [r] : []);
+    }
+    if (s.startsWith('SELECT COUNT(*) AS n FROM memberships')) {
+      const n = memberships.filter((x) => x.restaurant_id === args[0] && x.role === 'owner' && x.status === 'active').length;
+      const out = { n: n };
+      return mode === 'first' ? out : [out];
+    }
+    if (s.startsWith('INSERT INTO memberships')) {
+      const [id, user_id, restaurant_id, role, status, created_at] = args;
+      memberships.push({ id, user_id, restaurant_id, role, status, created_at });
+      return null;
+    }
+    if (s.startsWith('UPDATE restaurants SET claimed = 1')) {
+      const r = rests.find((x) => x.id === args[1]);
+      if (r) { r.claimed = 1; r.status = 'claimed'; }
+      return null;
+    }
+    if (s.startsWith('INSERT INTO claims')) {
+      const status = /'approved'/.test(s) ? 'approved' : 'pending';
+      claims.push({ id: args[0], restaurant_id: args[1], user_id: args[2], status: status, evidence: args[3] });
+      return null;
+    }
     if (s.startsWith('SELECT type, ref_id, status FROM business_links WHERE country_code = ? AND slug = ?')) {
       const r = store.find((x) => x.country_code === args[0] && x.slug === args[1]);
       const out = r ? { type: r.type, ref_id: r.ref_id, status: r.status } : null;
@@ -144,6 +176,9 @@ function fakeDB(seed) {
   }
   return {
     _store: store,
+    _rests: rests,
+    _memberships: memberships,
+    _claims: claims,
     prepare(sql) {
       let bound = [];
       const stmt = {
@@ -273,7 +308,7 @@ const ADMIN = { userId: 'usr_admin', type: 'customer', isAdmin: true };
 
   /* ===================== G. /api/business/link ===================== */
   const bizMod = await import(pathToFileURL(path.resolve(__dirname, '..', 'functions', 'api', 'business', 'link.js')).href);
-  const envG = { DB: fakeDB(), OPS_KV: env.OPS_KV, ASSETS };
+  const envG = { DB: fakeDB([], [{ id: 'rest_x', slug: 'x', name: 'Bakery X', status: 'unclaimed', claimed: 0 }]), OPS_KV: fakeKV({ ctok: CUST, atok: ADMIN, btok: { userId: 'usr_other', type: 'customer', isAdmin: false } }), ASSETS };
 
   let res = await bizMod.onRequestGet({ request: req('https://eatouts.test/api/business/link?country=bw&refId=rest_kfc'), env: envG });
   let j = await res.json();
@@ -294,10 +329,28 @@ const ADMIN = { userId: 'usr_admin', type: 'customer', isAdmin: true };
   res = await bizMod.onRequestPost({ request: req('https://eatouts.test/api/business/link', 'ctok', 'POST', { type: 'restaurant', refId: 'rest_x', slug: 'mybakery' }), env: envG });
   j = await res.json();
   check('business POST claims slug', res.status === 200 && j.ok && j.link.slug === 'mybakery' && j.link.claimedBy === 'usr_cust', JSON.stringify(j));
+  check('link POST bridges claim -> owner membership', j.claim === 'granted' && j.restaurantId === 'rest_x' && j.membership === 'owner', JSON.stringify(j));
+  check('claim flips the restaurant to claimed', envG.DB._rests[0].claimed === 1 && envG.DB._rests[0].status === 'claimed', JSON.stringify(envG.DB._rests[0]));
+  check('claim writes an approved claims row', envG.DB._claims.length === 1 && envG.DB._claims[0].status === 'approved', JSON.stringify(envG.DB._claims));
+
+  /* second-claimer and re-claim bridge paths run in an isolated env so the
+     downstream link-count assertions for envG stay unchanged */
+  const envClaim = { DB: fakeDB([], [{ id: 'rest_y', slug: 'y', name: 'Cafe Y', status: 'unclaimed', claimed: 0 }]), OPS_KV: fakeKV({ ctok: CUST, btok: { userId: 'usr_other', type: 'customer', isAdmin: false } }), ASSETS };
+  res = await bizMod.onRequestPost({ request: req('https://eatouts.test/api/business/link', 'ctok', 'POST', { type: 'restaurant', refId: 'rest_y', slug: 'y-one' }), env: envClaim });
+  j = await res.json();
+  check('isolated first claim -> granted owner', j.claim === 'granted' && j.membership === 'owner', JSON.stringify(j));
+  res = await bizMod.onRequestPost({ request: req('https://eatouts.test/api/business/link', 'ctok', 'POST', { type: 'restaurant', refId: 'rest_y', slug: 'y-one' }), env: envClaim });
+  j = await res.json();
+  check('same active slug again -> already:true + already_member', j.ok && j.already === true && j.claim === 'already_member', JSON.stringify(j));
+  res = await bizMod.onRequestPost({ request: req('https://eatouts.test/api/business/link', 'btok', 'POST', { type: 'restaurant', refId: 'rest_y', slug: 'y-two' }), env: envClaim });
+  j = await res.json();
+  check('second claimer -> pending_review, no membership', j.claim === 'pending_review' && j.membership === null, JSON.stringify(j));
+  check('second claim wrote a pending row', envClaim.DB._claims.some((x) => x.status === 'pending' && x.user_id === 'usr_other'), JSON.stringify(envClaim.DB._claims));
 
   /* change slug -> previous becomes redirect */
   res = await bizMod.onRequestPost({ request: req('https://eatouts.test/api/business/link', 'ctok', 'POST', { type: 'restaurant', refId: 'rest_x', slug: 'mybakery2' }), env: envG });
   j = await res.json();
+  check('owner re-claim via slug change -> already_member', j.claim === 'already_member' && j.membership === 'owner', JSON.stringify(j));
   check('business POST change slug -> new active', j.link.slug === 'mybakery2' && j.link.status === 'active', JSON.stringify(j));
   const oldRow = envG.DB._store.find((x) => x.slug === 'mybakery');
   check('old slug retired to redirect', oldRow && oldRow.status === 'redirect' && oldRow.redirect_to === 'mybakery2', JSON.stringify(oldRow));

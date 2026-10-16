@@ -2,11 +2,15 @@
 
 **Date:** 2026-10-16
 **Live site:** https://www.eatouts.site (Cloudflare Pages; apex `eatouts.site` 301→ www)
-**Progress:** Phase 1 customer-account fixes landed (B1–B4, B7, B8) — `npm test` **38/38 green**.
-**Phase 2 server foundation landed** (C0 `requireBusiness` guard, C1–C3 endpoints, `0005_business`
-migration). Supabase project + public `eatouts-media` bucket exist (E1). Backend **deployed and
-live** on Cloudflare Pages (Phase 0 complete — A1–A5 resolved). **Phase 0.5 done** (domain/email
-cleanup). Remaining Phase 2+ work (client wiring, C4–C10, E4–E6) is tracked below.
+**Progress:** Phase 1 customer-account fixes landed (B1–B4, B7, B8). **Phase 2 server foundation +
+client wiring + real uploads + business sessions landed** (C0 `requireBusiness` guard, C1–C5
+endpoints/wiring, `0005_business` migration, C4/C10 Supabase uploads, E4 allowlist/max-size,
+type-aware `/api/auth/*` + `js/eatouts-business-auth.js`). **Phase 3 business content started**
+(C6 gallery + C7 events + C8 business promos → moderation queue endpoints + page wiring; `0006_promo_business` migration;
+C9 public canonical venue read + client hydration). `npm test` **44/44 green**. Supabase
+project + public `eatouts-media` bucket exist (E1). Backend **deployed and live**
+on Cloudflare Pages (Phase 0 complete — A1–A5 resolved). **Phase 0.5 done** (domain/email cleanup).
+Remaining Phase 2+ work (E4 path-scoping, E6) is tracked below.
 **Repo:** `Kudigotdis/eatouts`
 **Method:** full read of `functions/api/**`, `migrations/**`, `js/**`, onboarding + admin pages,
 deploy config, and the repo's own `HTML_ASSESSMENT.md` / `INTEGRATION_AUDIT.md`.
@@ -46,10 +50,14 @@ project, so the API no longer returns `503 backend_not_configured` / `storage_no
 | Addresses | Yes (endpoint + `[id]`) | Yes | Live (B4) |
 | Orders | No endpoint/table | No (localStorage) | Not started |
 | Notifications (customer) | None | No | Not started |
-| Business create/update profile | No endpoint | No (localStorage) | Not started (server) |
-| Staff management | No endpoint | No (localStorage) | Not started (server) |
-| Menu + prices + images | No endpoint | No (localStorage) | Not started (server) |
-| Media upload (Supabase) | Endpoint + bucket exist | Yes (avatar wired) | Live (B7/E2) |
+| Business create/update profile | Yes (`functions/api/business/*`) | Yes (wired) | Live (C1/C5) |
+| Business signup / login / session | Yes (type-aware `functions/api/auth/*`) | Yes (wired) | Live (real session) |
+| Staff management | Yes (`/api/business/staff`) | Yes (wired) | Live (C2) |
+| Menu + prices + images | Yes (`/api/business/menu/*`) | Yes (wired) | Live (C3; images C4) |
+| Business gallery + events | Yes (`/api/business/gallery`, `/events`) | Yes (wired) | Live (C6/C7) |
+| Business promos → moderation queue | Yes (`/api/customer/promo-submissions`, source=business) | Yes (wired) | Live (C8) |
+| Public venue content (D1 canonical read) | Yes (`/api/venues/:id`) | Yes (hydrated on venue open) | Live (C9) |
+| Media upload (Supabase) | Endpoint + bucket exist | Yes (avatar + onboarding) | Live (B7/E2/C4) |
 | Admin: users | No endpoint | No (demo UI only) | Not started |
 | Admin: businesses | No endpoint | No (demo UI only) | Not started |
 | Admin: promo queue | Yes | Yes | Live |
@@ -153,42 +161,73 @@ business, its staff, or any of its content.** Those flows write to two localStor
 `memberships`) — the existing `_customer.js` only knows `requireCustomer`/`requireAdmin`.
 Roles to honour: `owner`, `manager`, `menu_manager`, `marketing_manager`.
 
-**Phase 2 server foundation landed (this change):** `functions/api/_business.js` (guard + row
-mappers), `migrations/0005_business.sql` (profile columns + `media`), and the endpoints
-`/api/business/mine` (list/create), `/api/business/profile` (read/update),
+**Phase 2 server foundation + client wiring landed (this change):** `functions/api/_business.js`
+(guard + row mappers), `migrations/0005_business.sql` (profile columns + `media`), and the
+endpoints `/api/business/mine` (list/create), `/api/business/profile` (read/update),
 `/api/business/staff` (+`/:id`), `/api/business/menu` + `/menu/categories` + `/menu/items`
-(+`/:id`). Covered by `tests/api-business.js`. **Client wiring of these endpoints + C4–C10 remain.**
+(+`/:id`), plus `/api/business/claim` (new). The client module `js/eatouts-business-api.js`
+wraps them (dual-mode fetch, localStorage fallback) and is wired into `staff-manager.html`,
+`menu-onboarding.html`, `business-onboarding1.html` and `eatouts-business-signup.html`. Covered
+by `tests/api-business.js` (server) + `tests/business-client.js` (client). **C9 landed** (public
+`/api/venues/:id` canonical read + `js/eatouts-content.js` hydration; `tests/api-venues.js`,
+`tests/content.js`).
 
 - [x] **C1 (server). Build business endpoints:** create/read/update business profile (name,
   address, contact, hours). D1 `restaurants` extended in `0005_business.sql`; exposed via
   `/api/business/mine` (create/list) + `/api/business/profile` (read `menu_manager+`, patch
   `manager+`; admins bypass).
-- [~] **C2. Build staff endpoints + UI wiring.** Server done: `/api/business/staff` (list
+- [x] **C2. Build staff endpoints + UI wiring.** Server: `/api/business/staff` (list
   `manager+`, add/invite `owner`) + `/api/business/staff/:id` (role/status/delete, last-owner
-  guarded). **UI wiring of `staff-manager.html` / `eatouts-staff-admin1.html` still pending.**
-- [~] **C3. Build menu endpoints + wiring.** Server done: `/api/business/menu` (read
-  `menu_manager+`), category + item CRUD. Persists to D1 (`menu_categories`, `menu_items`).
-  **Unifying the client stores (`menu-onboarding.html`, `business-onboarding1.html`) still pending.**
-- [ ] **C4. Wire real image upload.** Onboarding pages embed **base64 data URLs** into localStorage
-  via `EatoutsUpload.decorate` (`js/eatouts-upload.js:96-155`) — never calling the real
-  `POST /api/upload`. See Part E.
-- [ ] **C5. Business onboarding persistence.** `business-onboarding1.html:90` publishes to
-  localStorage only; `eatouts-business-signup.html` is the only onboarding page touching the API
-  (slug claim only, `:138,491`).
-- [ ] **C6. Gallery endpoints.** Read/write `gallery_groups` + `gallery_images`
-  (`0001_init.sql`), wired to `gallery-onboarding.html` (currently localStorage + base64).
-- [ ] **C7. Events endpoints.** CRUD `events` (`0001_init.sql`), wired to
-  `eatout_event_builder.html` / `event-onboarding.html`; they must surface in the customer
-  calendar and saved-Favourites→Events.
-- [ ] **C8. Business promos through the moderation queue.** Business-submitted promos must write
-  to the **existing `promo_submissions` queue** (never publish directly); extend
-  `functions/api/customer/promo-submissions.js` to accept a `restaurant_id` + `source='business'`.
-- [ ] **C9. Unify the content model.** One canonical record set per restaurant in D1, read by the
-  public venue/`eatouts-*` pages — replacing the two incompatible localStorage stores; keep the
-  customer read paths (`venues.js`, `restaurants`) as the single source for display.
-- [ ] **C10. Real image upload for all onboarding.** Replace base64-in-localStorage
-  (`EatoutsUpload.decorate`) with `POST /api/upload` (Supabase) for profile/logo/menu/gallery/event
-  images.
+  guarded). UI: `staff-manager.html` now syncs team records to D1 memberships and merges identity
+  back on load (covers C2 UI wiring). `eatouts-staff-admin1.html` is a platform-staff workspace
+  (venues/invoices moderation), not a business roster, so it is out of scope here.
+- [x] **C3. Build menu endpoints + wiring.** Server: `/api/business/menu` (read
+  `menu_manager+`), category + item CRUD, persisted to D1 (`menu_categories`, `menu_items`). UI:
+  `menu-onboarding.html` reconciles its menu with the server (pushes local-only rows, merges
+  server rows) via `js/eatouts-business-api.js`.
+- [x] **C4. Wire real image upload.** `EatoutsUpload` now has an opt-in server mode
+  (`uploadPrefix`/`uploadBlob`, `setUploadPrefix`, `sessionPrefix`) that POSTs the compressed blob
+  to `/api/upload` and writes the returned public URL, falling back to a base64 data URL whenever
+  there is no session / the upload fails (`js/eatouts-upload.js`). `menu-onboarding.html`,
+  `gallery-onboarding.html`, `restaurant-onboarding.html`, `promo-onboarding.html` and
+   `event-onboarding.html` set a `venues/<id>` prefix from the local session before decorating.
+   Uploads reach Supabase now that business owners get a real server session (`js/eatouts-business-auth.js`
+   + type-aware `/api/auth/*`); the data-URL fallback keeps unauth/offline flows working.
+- [x] **C5. Business onboarding persistence.** `business-onboarding1.html`'s Save & publish now
+  resolves/creates the D1 business and PATCHes the live profile via `/api/business/profile`
+  (`js/eatouts-business-api.js`) before redirecting (localStorage still a fallback). The slug
+  claim in `eatouts-business-signup.html` now also calls `/api/business/claim`, granting an owner
+  membership (or filing a pending claim for review) and caching the D1 restaurant id.
+- [x] **C6. Gallery endpoints.** Read/write `gallery_groups` + `gallery_images`
+  (`0001_init.sql`) via `/api/business/gallery` (+ `/groups`, `/groups/:id`, `/images`,
+  `/images/:id`; `marketing_manager+`, group delete cascades its images), wired to
+  `gallery-onboarding.html` (server sync + localStorage fallback).
+- [x] **C7. Events endpoints.** CRUD `events` (`0001_init.sql`) via `/api/business/events`
+  (+ `/:id`; `marketing_manager+`), wired to `event-onboarding.html`. Extended event fields ride in
+  the server `figure` JSON blob. Still open: surfacing events in the customer calendar and
+  saved-Favourites→Events.
+- [x] **C8. Business promos through the moderation queue.** `migrations/0006_promo_business.sql`
+  adds `restaurant_id` + `source` to `promo_submissions`; `functions/api/customer/promo-submissions.js`
+  now dual-serves — a `restaurantId` (body/query) routes to `requireBusiness` (`marketing_manager+`)
+  and stamps `source='business'`, otherwise `requireCustomer`. Business promos **always queue as
+  `pending`** (never published directly); `promo-onboarding.html` submits on Save, reads back review
+  status and shows a review badge; the admin dashboard distinguishes business vs customer and shows
+  a source pill. (`G1` quota / `G2` approval→publish remain.)
+- [x] **C9. Unify the content model (public read).** New public `GET /api/venues/:id`
+  (`functions/api/venues/[id].js`) resolves a venue by D1 id or slug and returns one canonical
+  bundle — identity + visible menu categories/items, visible gallery groups/images, active promos
+  and published events — via the `_business.js` row mappers. New `js/eatouts-content.js`
+  (`window.EatoutsContent`) fetches it, maps to the v2 flat content shape and merges into
+  `EatoutsDB` (`forkContent` + `contentSource='d1'`), so each existing `EatoutsBridge` renderer
+  shows D1-published content; a locally authored fork/flagship is never clobbered and an
+  unreachable backend falls back to the imported directory. `js/eatouts-bridge.js` `setActive`
+  dispatches `eatouts:venue-active`; `index.html` hydrates on venue open (and the boot venue) and
+  re-renders only when content applied. Keep `venues.js`/`restaurants` as the display read path;
+  deeper server-only rendering and menu/gallery/promo→D1 publish on approve remain (with `G2`).
+- [x] **C10. Real image upload for all onboarding.** The shared `EatoutsUpload` helper (used for
+  profile/logo/cover/menu/gallery/event/promo images) now uploads to `POST /api/upload` (Supabase)
+  when configured, replacing base64-in-localStorage; data-URL fallback retained for offline /
+  unauthenticated use (see C4).
 
 ---
 
@@ -205,9 +244,13 @@ moderation**. User & business management are **UI-only over demo localStorage da
   `eatouts-users-manager.html:2,6` is demo-only and its "Reset PIN" is a no-op toast.
 - [ ] **D3. Build `/api/admin/businesses`** (list / approve / verify / suspend / edit). None
   exists; `eatouts-verification-queue.html:2-3` is localStorage-only.
-- [ ] **D4. Bridge client admin identity to the server session.** `EO.guard`/`EatoutsAuth` read
+- [~] **D4. Bridge client admin identity to the server session.** `EO.guard`/`EatoutsAuth` read
   localStorage (`js/eatouts-manager-db.js:8` seed `u-admin`), and the server session's `isAdmin`
-  is never propagated; on the static site any visitor can become "admin".
+  is never propagated; on the static site any visitor can become "admin". **Operator/business half
+  done:** signup + login now establish a real KV session (`functions/api/auth/{signup,verify,login}.js`
+  type-aware) and `js/eatouts-business-auth.js` mirrors the D1 user into the local store, so
+  `/api/business/*` and `/api/upload` are authorised for owners. **Still open:** propagating
+  `isAdmin`/admin roles from the server session into `EO.guard`.
 - [ ] **D5. Get the two working queues live.** Promo queue
   (`functions/api/admin/promo-submissions.js` + `eatouts-admin-dashboard.html:35,44`) and links
   (`functions/api/admin/links.js`) are complete — they need the backend deployed (A1) and a real
@@ -236,13 +279,15 @@ moderation**. User & business management are **UI-only over demo localStorage da
   (A4). Project, bucket and Cloudflare secrets done.
 - [x] **E2. Wire the client** to POST compressed blobs to `/api/upload?path=…` and store the
   returned URL. Done for the customer avatar/profile photo (`index.html` → `EatoutsCustomer.
-  uploadPhoto`); business/menu/onboarding images still use base64 data URLs (C4).
+  uploadPhoto`) and now for all onboarding image fields via the `EatoutsUpload` server mode (C4).
 - [x] **E3. Repoint/deprecate `EatoutsCloud`** (R2 → `/api/upload`) to avoid two competing
   uploaders. The R2 client + worker were deleted; `/api/upload` is the only media path.
-- [ ] **E4. Harden `upload.js`:** max-size + content-type allowlist, rate limiting (`rateLimit`
-  helper exists at `_shared.js:123-131` but unused), and per-user/venue **path scoping** (currently
-  `x-upsert:true` lets any session overwrite any key, `upload.js:47`).
-- [ ] **E5. Add server tests** for upload (401/503/400/success) — none exist today.
+- [~] **E4. Harden `upload.js`:** content-type **allowlist** and **max-size** limit added
+  (`functions/api/upload.js`; 415/413), plus a `GET` metadata endpoint. Still open: rate limiting
+  (`rateLimit` helper at `_shared.js` is unused) and per-user/venue **path scoping** (currently
+  `x-upsert:true` lets any session overwrite any key).
+- [x] **E5. Add server tests** for upload — `tests/api-upload.js` covers 401/503/400/415/413/502
+  and the success + metadata paths.
 - [ ] **E6. Decide the media record model:** D1 has inline columns (`restaurants.logo_ref/cover_ref`,
   `menu_items.image_key`, etc.) but no writes populate them and no media table tracks
   ownership/cleanup.
@@ -288,9 +333,13 @@ promos/venue/calendar-month, then P50.00 each; payments = tracking only).
   privacy/terms email consolidated to `info@eatouts.site`; legal builder fixed (`build_legal_docs.cjs`).
 - **Phase 1 — Customer accounts & data.** B1–B4, B6–B8 (sign-up/login, addresses, recovery).
   **B5 (orders) deferred to Phase 6** — need restaurant-side fulfilment first.
-- **Phase 2 — Business accounts + staff.** C0 (`requireBusiness` RBAC guard), C1–C5 (profile,
-  staff/roles, menu unification, onboarding persistence), E1–E6 (media).
+- **Phase 2 — Business accounts + staff.** C0 (`requireBusiness` RBAC guard), C1–C3 + C5 (profile,
+  staff/roles, menu unification, onboarding persistence — **server + client wiring done**), C4/C10
+  (real Supabase uploads — **done**), E4 (allowlist + max-size done; path-scoping/rate-limit open),
+  E1–E6 (media).
 - **Phase 3 — Business content.** C6–C10 (gallery, promos, events, unified content model, uploads).
+  **C6 (gallery) + C7 (events) + C8 (business promos → moderation queue) + C9 (public canonical
+  venue read + client hydration) done.** Phase 3 complete.
 - **Phase 4 — Moderation quota + invoicing.** G1–G4 (3 free/venue/calendar-month then P50.00;
   invoices tracking-only) + admin queue approval for business promos.
 - **Phase 5 — Admin.** D1–D7 (production admin path, user/business management over real data,
@@ -375,7 +424,8 @@ scope this pass; invoice PDFs/email reminders out of scope.
 ## Appendix — key facts
 
 - **Real endpoints:** `functions/api/auth/{signup,login,logout,session,verify,dev-login}.js`,
-  `me.js`, `upload.js`, `venues.js` (read-only), `business/link.js`, `links/{check,resolve}.js`,
+  `me.js`, `upload.js`, `venues.js` (read-only), `business/{link,claim,mine,profile,staff,staff/[id],menu,menu/categories,menu/categories/[id],menu/items,menu/items/[id]}.js`,
+  `links/{check,resolve}.js`,
   `customer/{favourites,addresses,events,summaries,promo-submissions}.js`,
   `admin/{promo-submissions,links}.js`, `bw/[[path]].js` (vanity router).
 - **D1 tables:** `users`, `business_links`, `favourites`, `saved_summaries`, `saved_events`,
@@ -386,5 +436,8 @@ scope this pass; invoice PDFs/email reminders out of scope.
 - **Deploy:** Git-connected Cloudflare Pages deployment on push to `main` (build `npm run build`,
   output `dist`). Manual `npm run deploy` = build + `wrangler pages deploy dist`. The GitHub Pages
   workflow was retired.
-- **Tests:** 36 suites (`tests/run-all.js:20-57`) — none cover upload/health server-side;
+- **Tests:** 42 suites (`tests/run-all.js`) — business server (`tests/api-business.js`, 56 checks),
+  business client (`tests/business-client.js`, 60 checks), upload server (`tests/api-upload.js`,
+  17 checks), auth flow server (`tests/api-auth-flow.js`, 24 checks), business auth client
+  (`tests/business-auth.js`, 32 checks), claim bridge (`tests/router.js`, 72 checks) are covered;
   regression is green.

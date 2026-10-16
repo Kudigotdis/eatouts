@@ -1,5 +1,5 @@
 /* Shared helpers for the /api/business/* endpoints. Import-only. */
-import { json, getSession } from './_shared.js';
+import { json, getSession, now, uid } from './_shared.js';
 
 export var ROLES = ['owner', 'manager', 'menu_manager', 'marketing_manager'];
 
@@ -65,12 +65,71 @@ export function asArray(v) {
   return Array.isArray(v) ? v : [];
 }
 
+/** JSON-encode a value for a TEXT column; pass through existing strings. */
+export function jsonString(v) {
+  if (v == null) return null;
+  if (typeof v === 'string') return v;
+  try { return JSON.stringify(v); } catch (e) { return null; }
+}
+
+/** Finite number, or null for empty/NaN input. */
+export function numOrNull(v) {
+  if (v == null || v === '') return null;
+  var n = Number(v);
+  return isNaN(n) ? null : n;
+}
+
 function jsonOrNull(v) {
   try { return v ? JSON.parse(v) : null; } catch (e) { return null; }
 }
 
 function jsonOrEmptyArray(v) {
   return asArray(jsonOrNull(v));
+}
+
+/* ---- claim -> membership bridge ---- */
+
+/* When refId resolves to a D1 restaurant, record the claim and hand the
+   caller an 'owner' membership if the venue has no active owner yet.
+   First claimer wins; later claimers are recorded as pending claims for
+   admin review. No-op for refIds that are not restaurants (local-only
+   demo venues). `via` is stamped into the claims evidence for auditing. */
+export async function grantClaimMembership(c, refId, via) {
+  var rest = await c.db.prepare('SELECT id, status, claimed FROM restaurants WHERE id = ?').bind(refId).first();
+  if (!rest) return { status: 'no_restaurant' };
+
+  var ts = now();
+  var mine = await c.db.prepare(
+    'SELECT * FROM memberships WHERE user_id = ? AND restaurant_id = ?'
+  ).bind(c.userId, refId).first();
+  if (mine && mine.status === 'active') {
+    return { status: 'already_member', restaurantId: refId, membership: mine.role };
+  }
+
+  var owners = await c.db.prepare(
+    "SELECT COUNT(*) AS n FROM memberships WHERE restaurant_id = ? AND role = 'owner' AND status = 'active'"
+  ).bind(refId).first();
+  var hasOwner = !!(owners && owners.n);
+
+  if (!hasOwner) {
+    await c.db.prepare(
+      'INSERT INTO memberships (id, user_id, restaurant_id, role, status, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+    ).bind(uid('mem'), c.userId, refId, 'owner', 'active', ts).run();
+    if (!rest.claimed || rest.status === 'unclaimed') {
+      await c.db.prepare(
+        "UPDATE restaurants SET claimed = 1, status = 'claimed', updated_at = ? WHERE id = ?"
+      ).bind(ts, refId).run();
+    }
+    await c.db.prepare(
+      "INSERT INTO claims (id, restaurant_id, user_id, status, evidence, created_at) VALUES (?, ?, ?, 'approved', ?, ?)"
+    ).bind(uid('clm'), refId, c.userId, JSON.stringify({ via: via || 'business_link' }), ts).run();
+    return { status: 'granted', restaurantId: refId, membership: 'owner' };
+  }
+
+  await c.db.prepare(
+    "INSERT INTO claims (id, restaurant_id, user_id, status, evidence, created_at) VALUES (?, ?, ?, 'pending', ?, ?)"
+  ).bind(uid('clm'), refId, c.userId, JSON.stringify({ via: via || 'business_link' }), ts).run();
+  return { status: 'pending_review', restaurantId: refId, membership: null };
 }
 
 /* ---- row <-> client mappers ---- */
@@ -151,6 +210,50 @@ export function itemOut(r) {
     imageKey: r.image_key || null,
     visible: !!r.visible,
     position: r.position != null ? r.position : 0,
+    created_at: r.created_at,
+    updated_at: r.updated_at
+  };
+}
+
+export function galleryGroupOut(r) {
+  if (!r) return null;
+  return {
+    id: r.id,
+    restaurantId: r.restaurant_id,
+    title: r.title,
+    visible: !!r.visible,
+    position: r.position != null ? r.position : 0,
+    created_at: r.created_at
+  };
+}
+
+export function galleryImageOut(r) {
+  if (!r) return null;
+  return {
+    id: r.id,
+    restaurantId: r.restaurant_id,
+    groupId: r.group_id || null,
+    imageKey: r.image_key,
+    label: r.label || null,
+    visible: !!r.visible,
+    position: r.position != null ? r.position : 0,
+    created_at: r.created_at
+  };
+}
+
+export function eventOut(r) {
+  if (!r) return null;
+  return {
+    id: r.id,
+    restaurantId: r.restaurant_id,
+    title: r.title,
+    description: r.description || null,
+    figure: jsonOrNull(r.figure),
+    imageKey: r.image_key || null,
+    admission: r.admission || null,
+    startsAt: r.starts_at != null ? r.starts_at : null,
+    endsAt: r.ends_at != null ? r.ends_at : null,
+    published: !!r.published,
     created_at: r.created_at,
     updated_at: r.updated_at
   };

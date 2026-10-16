@@ -820,6 +820,7 @@ a.dlg-btn{display:flex;align-items:center;justify-content:center;text-decoration
 <script src="js/eatouts-seed-data.js"></script>
 <script src="js/eatouts-seed.js"></script>
 <script src="js/eatouts-bridge.js"></script>
+<script src="js/eatouts-content.js"></script>
 <script src="js/eatouts-slug.js"></script>
 <script src="js/eatouts-router.js"></script>
 <script>
@@ -8194,6 +8195,15 @@ function bootEatoutsBridge(){
   cbarDataRev++;
 }
 
+/* Pull a venue's canonical D1 content into the local store, then re-render
+   once it lands. No-op when the backend is unreachable or has nothing. */
+function hydrateVenueContent(id){
+  if(!id||!window.EatoutsContent||typeof window.EatoutsContent.hydrate!=="function")return;
+  window.EatoutsContent.hydrate(id).then(function(applied){
+    if(applied){try{render();}catch(e){}}
+  }).catch(function(){});
+}
+
 function render(){
   bootEatoutsBridge();
   if(!state.promoWeekStart) state.promoWeekStart = startOfWeek(new Date());
@@ -9380,12 +9390,22 @@ loadRestaurantTypeFilters();
 loadDirectoryMenus(function(){
   if((new URLSearchParams(window.location.search||"")).get("resume")) restoreOrder();
   render();
+  /* Canonical public content: hydrate the venue that booted open (if any)
+     from D1, then re-render once server content lands. Best-effort — an
+     unreachable backend leaves the local/imported path untouched. */
+  if(state.restaurantView&&state.restaurantView.id) hydrateVenueContent(state.restaurantView.id);
 });
 window.addEventListener("storage",function(e){
   if(e.key===EatoutsDB.KEY||e.key===null){
     bootEatoutsBridge();
     render();
   }
+});
+/* Hydrate-on-open: whenever the active venue changes, pull its published
+   content from D1 and re-render if it applied. */
+window.addEventListener("eatouts:venue-active",function(e){
+  const id=e&&e.detail&&e.detail.id;
+  if(id) hydrateVenueContent(id);
 });
 </script>
 </body>

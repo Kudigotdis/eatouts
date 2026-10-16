@@ -102,6 +102,7 @@ input:focus,textarea:focus{border-color:#1a1a1a;box-shadow:0 0 0 3px rgba(26,26,
 <script src="js/eatouts-image-compressor.js"></script>
 <script src="js/eatouts-video-validator.js"></script>
 <script src="js/eatouts-upload.js"></script>
+<script src="js/eatouts-business-api.js"></script>
 <script>
 /* Operator pages are only reachable through the About Us sign-in.
    This runs before any page content paints. */
@@ -118,6 +119,23 @@ function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
 let DB=dbLoad();function save(){dbSave(DB);render();}
 
+/* ========== SERVER SYNC (D1) ========== */
+const API=window.EatoutsBusinessApi;let SRID=(DB.settings||{}).serverRestaurantId||null,GAL_SERVER=false;
+function currentRestaurant(){try{const d=EatoutsDB.load();const list=d.restaurants||[];return list.find(r=>r.id===DB.restaurant.id)||list[0]||{};}catch(e){return {};}}
+function resolveInput(){const cur=currentRestaurant();return {serverRestaurantId:SRID,id:DB.restaurant.id,slug:cur.slug,name:(DB.restaurant.identity||{}).name||cur.name};}
+function push(fn){if(!GAL_SERVER||!SRID||!API)return;try{Promise.resolve(fn(API,SRID)).then(r=>{if(r&&r.data&&r.data.error)toast('Server: '+r.data.error);}).catch(()=>{});}catch(e){}}
+function galleryServerSync(){if(!API)return;API.resolve(resolveInput(),{create:false}).then(r=>{if(!r||!r.rid)return;SRID=r.rid;GAL_SERVER=true;if(!(DB.settings||{}).serverRestaurantId){DB.settings=DB.settings||{};DB.settings.serverRestaurantId=r.rid;dbSave(DB);}return API.galleryRead(SRID).then(res=>{if(!res.ok||!res.data)return;pushMissingLocal(res.data);mergeGallery(res.data);});}).catch(()=>{});}
+function pushMissingLocal(server){if(!GAL_SERVER||!SRID||!API)return;
+  const sgroups=server.groups||[],simages=server.images||[];
+  DB.galleryGroups.filter(g=>!g.seed&&!sgroups.some(x=>x.id===g.id)).forEach(g=>push((A,rid)=>A.galleryAddGroup(rid,Object.assign({id:g.id},A.groupToServer(g)))));
+  const locals=[];DB.galleryGroups.filter(g=>!g.seed).forEach(g=>(g.images||[]).forEach(im=>locals.push({im,gid:g.id})));
+  locals.filter(x=>!simages.some(s=>s.id===x.im.id)).forEach(x=>push((A,rid)=>A.galleryAddImage(rid,Object.assign({id:x.im.id},A.imageToServer(x.im,x.gid)))));}
+function ensureGroup(g){if(!g||!g.seed)return;delete g.seed;dbSave(DB);push((A,rid)=>A.galleryAddGroup(rid,Object.assign({id:g.id},A.groupToServer(g))));}
+function mergeGallery(data){const sgroups=data.groups||[],simages=data.images||[];let changed=false;
+  sgroups.forEach(s=>{let g=DB.galleryGroups.find(x=>x.id===s.id);if(!g){g=API.groupFromServer(s);DB.galleryGroups.push(g);changed=true;}else if(g.title!==s.title||(g.visible!==false)!==s.visible){g.title=s.title;g.visible=s.visible!==false;changed=true;}});
+  simages.forEach(s=>{const m=API.imageFromServer(s);const g=DB.galleryGroups.find(x=>x.id===s.groupId)||DB.galleryGroups.find(x=>(x.images||[]).some(im=>im.id===s.id));if(!g)return;g.images=g.images||[];let im=g.images.find(x=>x.id===s.id);if(!im){g.images.push(m);changed=true;}else{Object.assign(im,{src:m.src||im.src,label:m.label||im.label,visible:m.visible,order:m.order});changed=true;}});
+  if(changed){dbSave(DB);render();}}
+
 function openForm({title,fields,values,onSave,saveLabel}){
   values=values||{};
   const scrim=document.createElement('div');scrim.className='modal-scrim';
@@ -126,7 +144,7 @@ function openForm({title,fields,values,onSave,saveLabel}){
     <div class="modal-body">${fields.map(f=>field(f,values[f.key])).join('')}</div>
     <div class="modal-foot"><button class="btn btn-ghost" data-close>Cancel</button><button class="btn btn-gold" data-save>${esc(saveLabel||'Save')}</button></div></div>`;
   document.body.appendChild(scrim);
-  if(window.EatoutsUpload)EatoutsUpload.decorate(scrim);
+  if(window.EatoutsUpload){try{EatoutsUpload.setUploadPrefix(EatoutsUpload.sessionPrefix('venues'));}catch(e){}EatoutsUpload.decorate(scrim);}
   scrim.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>scrim.remove());
   scrim.querySelector('[data-save]').onclick=()=>{
     const out={};
@@ -150,7 +168,7 @@ function field(f,v){
 function seedIfEmpty(){
   if(!DB.galleryGroups.length){
     ['Food','Interior','Exterior','Events','Drinks','Atmosphere'].forEach((name,i)=>{
-      DB.galleryGroups.push({id:uid('gg'),title:name,coverImageId:null,images:[],visible:true,order:i+1});
+      DB.galleryGroups.push({id:uid('gg'),title:name,coverImageId:null,images:[],visible:true,order:i+1,seed:true});
     });
     dbSave(DB);
   }
@@ -200,26 +218,29 @@ function moveGrp(id,dir){
   const j=i+dir;if(j<0||j>=DB.galleryGroups.length)return;
   const tmp=DB.galleryGroups[i];DB.galleryGroups[i]=DB.galleryGroups[j];DB.galleryGroups[j]=tmp;
   DB.galleryGroups.forEach((x,k)=>x.order=k+1);save();
+  DB.galleryGroups.filter(g=>!g.seed).forEach((g,k)=>push((A,rid)=>A.galleryUpdateGroup(rid,g.id,{position:k+1})));
 }
 
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-act]');if(!t)return;
   const act=t.getAttribute('data-act');const id=t.getAttribute('data-id');
   if(act==='toggleGrp'){OPEN[id]=OPEN[id]===false?true:false;render();return;}
-  if(act==='editGrp'){const g=DB.galleryGroups.find(x=>x.id===id);openForm({title:'Rename Group',values:g,fields:[{key:'title',label:'Group title'}],onSave:v=>{g.title=v.title;save();}});return;}
-  if(act==='toggleVis'){const g=DB.galleryGroups.find(x=>x.id===id);g.visible=g.visible===false?true:false;save();return;}
+  if(act==='editGrp'){const g=DB.galleryGroups.find(x=>x.id===id);openForm({title:'Rename Group',values:g,fields:[{key:'title',label:'Group title'}],onSave:v=>{const wasSeed=!!g.seed;g.title=v.title;save();if(wasSeed)ensureGroup(g);else push((A,rid)=>A.galleryUpdateGroup(rid,g.id,{title:g.title}));}});return;}
+  if(act==='toggleVis'){const g=DB.galleryGroups.find(x=>x.id===id);const wasSeed=!!g.seed;g.visible=g.visible===false?true:false;save();if(wasSeed)ensureGroup(g);else push((A,rid)=>A.galleryUpdateGroup(rid,g.id,{visible:g.visible!==false}));return;}
   if(act==='moveGrp'){moveGrp(id,Number(t.getAttribute('data-dir')));return;}
-  if(act==='delGrp'){if(confirm('Remove this group and all its images?')){DB.galleryGroups=DB.galleryGroups.filter(x=>x.id!==id);save();}return;}
+  if(act==='delGrp'){if(confirm('Remove this group and all its images?')){const g=DB.galleryGroups.find(x=>x.id===id);DB.galleryGroups=DB.galleryGroups.filter(x=>x.id!==id);save();if(g&&!g.seed)push((A,rid)=>A.galleryDeleteGroup(rid,id));}return;}
   if(act==='addImg'){
     const g=DB.galleryGroups.find(x=>x.id===id);
     openForm({title:'Add Image',fields:[{key:'src',label:'Image URL',placeholder:'assets/images/gallery/…'}],onSave:v=>{
-      if(!v.src)return;g.images.push({id:uid('img'),src:v.src,visible:true,order:g.images.length+1});save();
+      if(!v.src)return;ensureGroup(g);const im={id:uid('img'),src:v.src,visible:true,order:g.images.length+1};g.images.push(im);save();
+      push((A,rid)=>A.galleryAddImage(rid,Object.assign({id:im.id},A.imageToServer(im,g.id))));
     }});
     return;
   }
   if(act==='delImg'){
     const g=DB.galleryGroups.find(x=>x.id===t.getAttribute('data-g'));
-    if(!g)return;g.images.splice(Number(t.getAttribute('data-i')),1);save();return;
+    if(!g)return;const im=g.images[Number(t.getAttribute('data-i'))];if(!im)return;g.images.splice(Number(t.getAttribute('data-i')),1);save();
+    push((A,rid)=>A.galleryDeleteImage(rid,im.id));return;
   }
 });
 
@@ -229,8 +250,10 @@ function newGroup(){
     {key:'visible',label:'Visible',type:'checkbox'}
   ],values:{visible:true},onSave:v=>{
     if(!v.title)return;
-    DB.galleryGroups.push({id:uid('gg'),title:v.title,coverImageId:null,images:[],visible:v.visible,order:DB.galleryGroups.length+1});
+    const g={id:uid('gg'),title:v.title,coverImageId:null,images:[],visible:v.visible,order:DB.galleryGroups.length+1};
+    DB.galleryGroups.push(g);
     save();
+    push((A,rid)=>A.galleryAddGroup(rid,Object.assign({id:g.id},A.groupToServer(g))));
   }});
 }
 
@@ -238,6 +261,7 @@ document.getElementById('btnNewGroup').onclick=newGroup;
 document.getElementById('btnBack').onclick=()=>history.back();
 
 render();
+galleryServerSync();
 </script>
 </body>
 </html>

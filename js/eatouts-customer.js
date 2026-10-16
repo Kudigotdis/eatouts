@@ -162,6 +162,7 @@
     try {
       if (typeof window !== 'undefined' && window.EatoutsUsers && !window.EatoutsUsers.find(u.id)) {
         var p = u.profile || {};
+        var biz = u.type === 'business';
         window.EatoutsUsers.create({
           id: u.id,
           firstName: p.firstName || u.name || '',
@@ -173,8 +174,8 @@
           whatsapp: u.whatsapp || '',
           contacts: p.contacts || [],
           email: u.email || '',
-          type: 'customer',
-          roles: ['customer'],
+          type: u.type || 'customer',
+          roles: biz ? ['biz_owner'] : ['customer'],
           username: u.username || ''
         });
       }

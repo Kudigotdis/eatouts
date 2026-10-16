@@ -58,6 +58,8 @@
 <script src="js/eatouts-field.js"></script>
 <script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-slug.js"></script>
+<script src="js/eatouts-business-api.js"></script>
+<script src="js/eatouts-business-auth.js"></script>
 <script>
 (function () {
   var F = window.EatoutsField;
@@ -188,24 +190,54 @@
   }
 
   /* ---- account creation ---- */
-  function createAccount(name, whatsapp, pin) {
-    if (String(pin || '') !== '1234') return { ok: false, error: 'Incorrect PIN. Your PIN is 1234.' };
+  function createLocalAccount(name, whatsapp, username, password) {
     var norm = normWa(whatsapp);
-    if (!norm) return { ok: false, error: 'Enter a valid Botswana phone like 71 234 567.' };
+    if (!norm) return Promise.resolve({ ok: false, error: 'Enter a valid Botswana phone like 71 234 567.' });
+    if (String(password || '').length < 8) {
+      return Promise.resolve({ ok: false, error: 'Password must be at least 8 characters.' });
+    }
+    var uname = String(username || '').trim().toLowerCase();
+    if (!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(uname)) {
+      return Promise.resolve({ ok: false, error: 'Username must be 3-30 characters (letters, numbers, . _ -).' });
+    }
+    if (window.EatoutsUsers.byWhatsapp(norm)) {
+      return Promise.resolve({ ok: false, error: 'That WhatsApp number already has an account.' });
+    }
     var parts = String(name || '').trim().split(/\s+/);
-    var u = window.EatoutsUsers.create({
-      firstName: parts.shift() || 'New',
-      surname: parts.join(' ') || '',
-      name: String(name || '').trim(),
-      whatsapp: norm,
-      type: 'business_owner',
-      status: 'active',
-      roles: []
+    var salt = A.randomSalt ? A.randomSalt() : String(Date.now());
+    return A.hashPassword(password, salt).then(function (hash) {
+      var u = window.EatoutsUsers.create({
+        firstName: parts.shift() || 'New',
+        surname: parts.join(' ') || '',
+        name: String(name || '').trim(),
+        username: uname,
+        whatsapp: norm,
+        salt: salt,
+        passwordHash: hash,
+        type: 'business_owner',
+        status: 'active',
+        roles: []
+      });
+      if (!u) return { ok: false, error: 'Could not create the account.' };
+      window.EatoutsMgrDB.upsert('users', Object.assign({}, u, { last_login_at: Date.now() }));
+      A.startSession(u);
+      return { ok: true, user: u };
     });
-    if (!u) return { ok: false, error: 'Could not create the account.' };
-    window.EatoutsMgrDB.upsert('users', Object.assign({}, u, { last_login_at: Date.now() }));
-    A.startSession(u);
-    return { ok: true, user: u };
+  }
+
+  /* Prefer a real server account (D1 user + KV session) so the server-gated
+     business endpoints work; fall back to a local account when the backend
+     is unavailable. Returns a promise. */
+  function createAccount(name, whatsapp, username, password) {
+    var BA = window.EatoutsBusinessAuth;
+    if (!BA || !BA.available()) return createLocalAccount(name, whatsapp, username, password);
+    return BA.signup({ name: name, whatsapp: whatsapp, username: username, password: password })
+      .then(function (r) {
+        if (r.ok) return r;
+        if (r.backend) return r;
+        return createLocalAccount(name, whatsapp, username, password);
+      })
+      .catch(function () { return createLocalAccount(name, whatsapp, username, password); });
   }
 
   /* ---- venue actions ---- */
@@ -219,6 +251,18 @@
     var b = F.bindOwner(r.venue, u.id, u.id);
     if (!b.ok) return b;
     S.claimedId = r.venue.id;
+    if (window.EatoutsBusinessApi && /^rest_/.test(String(v.id))) {
+      window.EatoutsBusinessApi.claim(v.id).then(function (cr) {
+        if (!cr.ok || !cr.data) return;
+        var venue = F.venueById(b.venue.id);
+        if (!venue) return;
+        if (cr.data.restaurantId) venue.serverRestaurantId = cr.data.restaurantId;
+        if (cr.data.membership) venue.serverMembershipId = cr.data.membership.id;
+        venue.serverClaimStatus = (cr.data.claim && cr.data.claim.status) || 'approved';
+        window.EatoutsMgrDB.upsert('businesses', venue);
+        if (cr.data.claim && cr.data.claim.status === 'pending') toast('Claim submitted for admin review.');
+      }).catch(function () {});
+    }
     return { ok: true, venue: b.venue };
   }
   function doRegister(cat, name) {
@@ -332,10 +376,10 @@
       '<a class="btn btn-sm" data-a="back">&lsaquo; Back</a>' +
       '<div class="sg-type">' + (S.mode === 'register' ? 'Register your ' + TYPES[S.newCat].label : 'Claim your business') + '</div>' +
       '<p class="sg-hint">Create your free EatOuts business account to continue.</p>' +
-      '<div class="fixed">During setup, the demo PIN is <strong>1234</strong> on WhatsApp.</div>' +
       '<label class="field"><span>Your name</span><input id="acc-name" autocomplete="name" placeholder="e.g. Boitumelo Phiri"></label>' +
       '<label class="field"><span>WhatsApp number</span><input id="acc-wa" inputmode="tel" autocomplete="tel" placeholder="e.g. 71 829 765"></label>' +
-      '<label class="field"><span>PIN</span><input id="acc-pin" inputmode="numeric" autocomplete="current-password" maxlength="4" value="1234" placeholder="1234"></label>' +
+      '<label class="field"><span>Username</span><input id="acc-username" autocapitalize="none" autocomplete="username" placeholder="e.g. kgalekitchen"></label>' +
+      '<label class="field"><span>Password</span><input id="acc-pass" type="password" autocomplete="new-password" placeholder="At least 8 characters"></label>' +
       '<div class="sg-actions"><a class="btn" data-a="back">Back</a><a class="btn primary" data-a="acc-ok">Create account &amp; continue</a></div>' +
       '<div class="sg-note">Signing in as an existing EatOuts member? <a href="eatouts-login.html">Sign in instead</a>.</div>';
     bind();
@@ -448,11 +492,21 @@
         if (a === 'acc-ok') {
           var name = document.getElementById('acc-name').value;
           var wa = document.getElementById('acc-wa').value;
-          var pin = document.getElementById('acc-pin').value;
-          var r = createAccount(name, wa, pin);
-          if (!r.ok) { toast(r.error); return; }
-          if (S.mode === 'register') { S.stage = 'register'; renderRegister(); }
-          else proceedClaim();
+          var username = document.getElementById('acc-username').value;
+          var pass = document.getElementById('acc-pass').value;
+          el.textContent = 'Creating\u2026';
+          createAccount(name, wa, username, pass).then(function (r) {
+            if (!r || !r.ok) {
+              el.textContent = 'Create account & continue';
+              toast((r && r.error) || 'Could not create the account.');
+              return;
+            }
+            if (S.mode === 'register') { S.stage = 'register'; renderRegister(); }
+            else proceedClaim();
+          }).catch(function () {
+            el.textContent = 'Create account & continue';
+            toast('Network error. Try again.');
+          });
           return;
         }
         if (a === 'reg-ok') {
@@ -493,7 +547,16 @@
               headers: { 'content-type': 'application/json' },
               body: JSON.stringify({ country: 'bw', type: linkTypeOf(S.type), refId: id, slug: slug, name: (vv0 && vv0.name) || '' })
             }).then(function (r) { return r.json(); }).then(function (d) {
-              if (d && d.ok && d.link) toast('Link saved \u2014 www.eatouts.online/bw/' + d.link.slug);
+              if (d && d.ok && d.link) toast('Link saved — www.eatouts.online/bw/' + d.link.slug);
+              if (d && d.ok) {
+                var venue = F.venueById(id);
+                if (venue) {
+                  if (d.restaurantId) venue.serverRestaurantId = d.restaurantId;
+                  if (d.membership) venue.serverMembershipId = d.membership.id;
+                  if (d.claim) venue.serverClaimStatus = d.claim.status;
+                  window.EatoutsMgrDB.upsert('businesses', venue);
+                }
+              }
             }).catch(function () {});
           }
           toast('Saved');
@@ -511,6 +574,15 @@
         renderSearch();
       });
     });
+    var accName = document.getElementById('acc-name');
+    var accUser = document.getElementById('acc-username');
+    if (accName && accUser && window.EatoutsBusinessAuth) {
+      var userTouched = false;
+      accUser.addEventListener('input', function () { userTouched = true; });
+      accName.addEventListener('input', function () {
+        if (!userTouched) accUser.value = window.EatoutsBusinessAuth.usernameFor(accName.value);
+      });
+    }
     var linkEl = document.getElementById('p-link');
     if (linkEl) {
       var slugDisplay = document.getElementById('p-link-slug');

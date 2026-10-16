@@ -18,6 +18,8 @@ function check(label, cond, extra) {
 
 const CUST = { userId: 'usr_cust', type: 'customer', isAdmin: false };
 const ADMIN = { userId: 'usr_admin', type: 'customer', isAdmin: true };
+const BIZ = { userId: 'usr_biz', type: 'business', isAdmin: false };
+const STRANGER = { userId: 'usr_str', type: 'business', isAdmin: false };
 
 function fakeKV(sessions) {
   const m = new Map();
@@ -34,19 +36,31 @@ function norm(sql) { return String(sql).replace(/\s+/g, ' ').trim(); }
 
 function fakeDB() {
   const store = [];
+  const memberships = [{ id: 'mem_1', user_id: 'usr_biz', restaurant_id: 'rest_1', role: 'owner', status: 'active' }];
   function exec(sql, args, mode) {
     const s = norm(sql);
     if (s.indexOf('INSERT INTO promo_submissions') === 0) {
       const [id, user_id, event_ref, title, venue_id, venue_name, when_text, summary,
-        image_ref, fee, currency, status, payload, created_at, updated_at] = args;
+        image_ref, fee, currency, status, payload, created_at, updated_at,
+        restaurant_id, source] = args;
       store.push({ id, user_id, event_ref, title, venue_id, venue_name, when_text, summary,
-        image_ref, fee, currency, status, admin_note: null, payload, created_at, updated_at });
+        image_ref, fee, currency, status, admin_note: null, payload, created_at, updated_at,
+        restaurant_id: restaurant_id || null, source: source || 'customer' });
       return null;
     }
     if (s.indexOf('SELECT id FROM promo_submissions WHERE user_id = ?') === 0) {
       const r = store.find((x) => x.user_id === args[0] && x.event_ref === args[1] &&
         (x.status === 'pending' || x.status === 'approved'));
       return mode === 'first' ? (r ? { id: r.id } : null) : (r ? [{ id: r.id }] : []);
+    }
+    if (s.indexOf('SELECT id FROM promo_submissions WHERE restaurant_id = ?') === 0) {
+      const r = store.find((x) => x.restaurant_id === args[0] && x.event_ref === args[1] &&
+        (x.status === 'pending' || x.status === 'approved' || x.status === 'published'));
+      return mode === 'first' ? (r ? { id: r.id } : null) : (r ? [{ id: r.id }] : []);
+    }
+    if (s.indexOf('SELECT * FROM promo_submissions WHERE restaurant_id = ?') === 0) {
+      const rows = store.filter((x) => x.restaurant_id === args[0]).sort((a, b) => b.created_at - a.created_at);
+      return mode === 'all' ? rows : (rows[0] || null);
     }
     if (s.indexOf('SELECT * FROM promo_submissions WHERE user_id = ?') === 0) {
       const rows = store.filter((x) => x.user_id === args[0]).sort((a, b) => b.created_at - a.created_at);
@@ -67,6 +81,10 @@ function fakeDB() {
       if (r) { r.status = args[0]; r.admin_note = args[1]; r.updated_at = args[2]; }
       return null;
     }
+    if (s.indexOf('SELECT * FROM memberships WHERE user_id = ?') === 0) {
+      const r = memberships.find((x) => x.user_id === args[0] && x.restaurant_id === args[1] && x.status === 'active') || null;
+      return mode === 'first' ? r : (r ? [r] : []);
+    }
     throw new Error('Unhandled SQL: ' + s);
   }
   return {
@@ -84,12 +102,12 @@ function fakeDB() {
   };
 }
 
-function req(token, method, body) {
+function req(token, method, body, qs) {
   const headers = {};
   if (token) headers.cookie = 'eatouts_session=' + token;
   const init = { method: method || 'GET', headers };
   if (body) { headers['content-type'] = 'application/json'; init.body = JSON.stringify(body); }
-  return new Request('https://eatouts.test/api/x', init);
+  return new Request('https://eatouts.test/api/x' + (qs || ''), init);
 }
 
 (async () => {
@@ -109,9 +127,11 @@ function req(token, method, body) {
   check('mapper parses payload JSON', out.payload && out.payload.a === 1);
   check('mapper defaults fee/currency', custMod.promoSubmissionOut({ id: 'x' }).fee === 50);
   check('mapper tolerates bad payload', custMod.promoSubmissionOut({ id: 'x', payload: 'nope' }).payload === null);
+  check('mapper defaults source to customer', custMod.promoSubmissionOut({ id: 'x' }).source === 'customer');
+  check('mapper maps business source', custMod.promoSubmissionOut({ id: 'x', source: 'business', restaurant_id: 'rest_1' }).restaurantId === 'rest_1');
 
   /* ---- guard: no session ---- */
-  const env = { DB: fakeDB(), OPS_KV: fakeKV({ ctok: CUST, atok: ADMIN }) };
+  const env = { DB: fakeDB(), OPS_KV: fakeKV({ ctok: CUST, atok: ADMIN, btok: BIZ, stok: STRANGER }) };
 
   let res = await cust.onRequestPost({ request: req(null, 'POST', { title: 'X' }), env });
   check('create without session -> 401', res.status === 401, res.status);
@@ -178,6 +198,40 @@ function req(token, method, body) {
   check('bad action -> 400', res.status === 400, res.status);
   res = await admin.onRequestPatch({ request: req('atok', 'PATCH', { id: 'nope', action: 'approve' }), env });
   check('missing row -> 404', res.status === 404, res.status);
+
+  /* ---- business promos use the same queue (C8) ---- */
+  res = await cust.onRequestPost({
+    request: req('btok', 'POST', { title: 'Weekend Special', restaurantId: 'rest_1', eventRef: 'promo_biz_1', venueName: 'The Yard' }),
+    env
+  });
+  j = await res.json();
+  check('business create -> 201', res.status === 201, res.status);
+  check('business create marks source', j.source === 'business', JSON.stringify(j));
+
+  res = await cust.onRequestPost({
+    request: req('btok', 'POST', { title: 'Weekend Special', restaurantId: 'rest_1', eventRef: 'promo_biz_1' }),
+    env
+  });
+  j = await res.json();
+  check('business duplicate is idempotent', res.status === 200 && j.already === true, JSON.stringify(j));
+
+  res = await cust.onRequestGet({ request: req('btok', 'GET', null, '?restaurantId=rest_1'), env });
+  j = await res.json();
+  check('business lists own restaurant submissions',
+    j.submissions && j.submissions.length === 1 && j.submissions[0].source === 'business' && j.submissions[0].restaurantId === 'rest_1',
+    JSON.stringify(j));
+
+  res = await cust.onRequestGet({ request: req('stok', 'GET', null, '?restaurantId=rest_1'), env });
+  check('non-member business GET -> 403', res.status === 403, res.status);
+
+  res = await cust.onRequestPost({ request: req('stok', 'POST', { title: 'X', restaurantId: 'rest_1' }), env });
+  check('non-member business POST -> 403', res.status === 403, res.status);
+
+  res = await cust.onRequestPost({ request: req('btok', 'POST', { title: 'No venue' }), env });
+  check('business session without restaurantId -> 403 not_a_customer', res.status === 403, res.status);
+
+  res = await cust.onRequestGet({ request: req('atok', 'GET', null, '?restaurantId=rest_1'), env });
+  check('admin can read a business queue', res.status === 200, res.status);
 
   /* ---- no backend ---- */
   res = await cust.onRequestGet({ request: req('ctok'), env: {} });

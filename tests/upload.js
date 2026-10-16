@@ -270,6 +270,74 @@ function makeHarness() {
   check('pickInto dispatches an input event',
     target.getAttribute('data-upload-wired') !== '1'); /* sanity: untouched by decorate */
 
+  /* --- opt-in server upload writes the returned URL --- */
+  function pickIntoWithStub(stub, opts) {
+    const inp = w.document.createElement('input');
+    inp.value = '';
+    w.document.body.appendChild(inp);
+
+    let capturedFile = null;
+    const prevClick = w.HTMLInputElement.prototype.click;
+    w.HTMLInputElement.prototype.click = function () {
+      if (this.type === 'file') { capturedFile = this; return; }
+      return prevClick.call(this);
+    };
+
+    const prevFetch = w.fetch;
+    w.fetch = stub;
+
+    let got = null;
+    w.EatoutsUpload.pickInto(inp, null, Object.assign({ onPick: function (u) { got = u; } }, opts || {}));
+
+    if (capturedFile) {
+      const f = new w.File(['x'], 'a.png', { type: 'image/png' });
+      try { Object.defineProperty(capturedFile, 'files', { value: [f], configurable: true }); }
+      catch (e) { capturedFile.files = [f]; }
+      if (typeof capturedFile.onchange === 'function') capturedFile.onchange();
+    }
+
+    return new Promise(function (r) {
+      setTimeout(function () {
+        w.HTMLInputElement.prototype.click = prevClick;
+        w.fetch = prevFetch;
+        r({ input: inp, value: got });
+      }, 40);
+    });
+  }
+
+  let calledUrl = null;
+  const okStub = function (url) {
+    calledUrl = String(url);
+    return Promise.resolve({
+      ok: true,
+      json: function () { return Promise.resolve({ ok: true, url: 'https://cdn.test/venues/x/f.png' }); }
+    });
+  };
+
+  const okRes = await pickIntoWithStub(okStub, { uploadPrefix: 'venues/x' });
+  check('server upload posts to /api/upload',
+    /^\/api\/upload\?path=venues%2Fx%2F/.test(calledUrl || ''), String(calledUrl));
+  check('server upload writes the returned URL into the field',
+    okRes.input.value === 'https://cdn.test/venues/x/f.png', okRes.input.value);
+  check('server upload fires onPick with the URL',
+    okRes.value === 'https://cdn.test/venues/x/f.png', String(okRes.value));
+
+  const failStub = function () {
+    return Promise.resolve({ ok: false, json: function () { return Promise.resolve({ error: 'unauthorized' }); } });
+  };
+  const failRes = await pickIntoWithStub(failStub, { uploadPrefix: 'venues/x' });
+  check('server upload falls back to the data URL on failure',
+    failRes.input.value === 'data:image/webp;base64,AAAA', failRes.input.value);
+
+  /* --- setUploadPrefix / sessionPrefix helpers --- */
+  check('setUploadPrefix/getUploadPrefix round-trips',
+    typeof w.EatoutsUpload.setUploadPrefix === 'function' &&
+    (w.EatoutsUpload.setUploadPrefix('venues/abc'), w.EatoutsUpload.getUploadPrefix() === 'venues/abc'),
+    String(w.EatoutsUpload.getUploadPrefix && w.EatoutsUpload.getUploadPrefix()));
+  w.EatoutsUpload.setUploadPrefix(null);
+  check('sessionPrefix returns null without a session',
+    w.EatoutsUpload.sessionPrefix('venues') === null);
+
   /* --- missing dependency surfaces a clear error --- */
   const bare = new JSDOM('<!DOCTYPE html><body></body>', {
     url: 'http://127.0.0.1/bare.html', runScripts: 'outside-only'

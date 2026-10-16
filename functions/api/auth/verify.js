@@ -4,7 +4,7 @@
    tapped the WhatsApp click-to-chat confirmation, then start a
    session so onboarding can continue.
 
-   Body: { whatsapp }
+   Body: { whatsapp, type? }
    ============================================================ */
 import { json, now, readJson, createSession, jsonWithCookie, rateLimit, clientIp } from './../_shared.js';
 import { normalisePhone, publicUser } from './../_auth.js';
@@ -29,7 +29,7 @@ export async function onRequestPost(context) {
 
   var row = await env.DB.prepare(
     'SELECT * FROM users WHERE whatsapp = ? AND type = ?'
-  ).bind(whatsapp, 'customer').first();
+  ).bind(whatsapp, String(body.type || '').toLowerCase() === 'business' ? 'business' : 'customer').first();
 
   if (!row) return json({ ok: false, error: 'Account not found.' }, 404);
 
@@ -56,7 +56,7 @@ export async function onRequestPost(context) {
     email: row.email,
     name: row.name,
     isAdmin: !!row.is_admin,
-    type: 'customer',
+    type: row.type || 'customer',
     username: row.username,
     whatsapp: row.whatsapp
   });
@@ -64,6 +64,6 @@ export async function onRequestPost(context) {
   return jsonWithCookie({
     ok: true,
     user: publicUser(row),
-    route: 'eatouts-profile.html'
+    route: (row.type === 'business') ? 'eatouts-business-signup.html' : 'eatouts-profile.html'
   }, session.cookie);
 }

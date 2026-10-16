@@ -109,8 +109,30 @@ export function promoSubmissionOut(r) {
     currency: r.currency || 'BWP',
     status: r.status || 'pending',
     adminNote: r.admin_note || null,
+    restaurantId: r.restaurant_id || null,
+    source: r.source || 'customer',
     payload: payload,
     created_at: r.created_at,
-    updated_at: r.updated_at
+    updated_at: r.updated_at,
+    monthKey: r.month_key || null,
+    promoId: r.promo_id || null,
+    feeCharged: r.fee_charged != null ? r.fee_charged : null,
+    billed: !!r.billed
+  };
+}
+
+export function invoiceOut(r) {
+  if (!r) return null;
+  return {
+    id: r.id,
+    restaurantId: r.restaurant_id,
+    type: r.type || 'promo',
+    amount: r.amount != null ? r.amount : 0,
+    currency: r.currency || 'BWP',
+    status: r.status || 'draft',
+    reference: r.reference || null,
+    note: r.note || null,
+    created_at: r.created_at,
+    paid_at: r.paid_at != null ? r.paid_at : null
   };
 }

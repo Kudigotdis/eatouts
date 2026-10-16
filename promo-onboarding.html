@@ -41,6 +41,10 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui
 .badge.active{background:#e3f5e9;color:#17834b}
 .badge.paused{background:#fdf3dc;color:#9a6a0a}
 .badge.expired{background:#eee;color:#999}
+.badge.pending{background:#fff4dc;color:#9a6a0a}
+.badge.approved{background:#e3f0fb;color:#1565a0}
+.badge.published{background:#e3f5e9;color:#17834b}
+.badge.rejected{background:#fbeaea;color:var(--danger)}
 .section{background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:12px}
 .section-hdr{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13.5px}
 .section-body{padding:0 14px 14px;display:none}
@@ -112,6 +116,7 @@ input:focus,textarea:focus,select:focus{border-color:#1a1a1a;box-shadow:0 0 0 3p
 <script src="js/eatouts-image-compressor.js"></script>
 <script src="js/eatouts-video-validator.js"></script>
 <script src="js/eatouts-upload.js"></script>
+<script src="js/eatouts-business-api.js"></script>
 <script>
 /* Operator pages are only reachable through the About Us sign-in.
    This runs before any page content paints. */
@@ -128,6 +133,21 @@ function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
 let DB=dbLoad();function save(){dbSave(DB);render();}
 const money=v=>DB.settings.currencySymbol+(Number(v)||0).toFixed(2);
+
+/* ========== SERVER SYNC (D1 moderation queue) ==========
+   Business promos are never published directly. Saving a promo submits it to
+   the shared promo_submissions queue as status='pending'; an admin approves and
+   publishes it in the dashboard. Existing submission statuses are read back and
+   shown on each promo. */
+const API=window.EatoutsBusinessApi;let SRID=(DB.settings||{}).serverRestaurantId||null,PROMO_SERVER=false;
+function currentRestaurant(){try{const d=EatoutsDB.load();const list=d.restaurants||[];return list.find(r=>r.id===DB.restaurant.id)||list[0]||{};}catch(e){return {};}}
+function resolveInput(){const cur=currentRestaurant();return {serverRestaurantId:SRID,id:DB.restaurant.id,slug:cur.slug,name:(DB.restaurant.identity||{}).name||cur.name};}
+function promoServerSync(){if(!API)return;API.resolve(resolveInput(),{create:false}).then(r=>{if(!r||!r.rid)return;SRID=r.rid;PROMO_SERVER=true;if(!(DB.settings||{}).serverRestaurantId){DB.settings=DB.settings||{};DB.settings.serverRestaurantId=r.rid;dbSave(DB);}return API.promosRead(SRID).then(res=>{if(!res.ok||!res.data)return;mergeReview(res.data);});}).catch(()=>{});}
+function mergeReview(data){const list=data.submissions||[];let changed=false;
+  list.forEach(s=>{const p=DB.promos.find(x=>x.id===s.eventRef||x.id===s.id);if(p&&p.reviewStatus!==s.status){p.reviewStatus=s.status;changed=true;}});
+  if(changed){dbSave(DB);render();}}
+function submitPromo(p){if(!PROMO_SERVER||!SRID||!API)return;try{Promise.resolve(API.promoSubmit(SRID,API.promoToSubmission(p,DB.restaurant))).then(r=>{if(r.ok){p.reviewStatus='pending';dbSave(DB);toast(r.data&&r.data.already?'Already submitted for review':'Submitted for review');render();}else if(r.data&&r.data.error){toast('Server: '+r.data.error);}}).catch(()=>{});}catch(e){}}
+function promoStatus(p){if(p.reviewStatus)return p.reviewStatus;return statusOf(p);}
 
 let VIEW={mode:'list',id:null};
 const OPEN={};
@@ -179,11 +199,11 @@ function render(){
   const list=DB.promos.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
   let h=`<div class="card" style="display:flex;justify-content:space-between;align-items:center">
     <div><div style="font-weight:800;font-size:15px">Promotions</div>
-    <div style="font-size:11.5px;color:var(--muted);margin-top:2px">${list.length} promo${list.length===1?'':'s'}</div></div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:2px">${list.length} promo${list.length===1?'':'s'} · submitted promos are reviewed before going live</div></div>
   </div>`;
   if(!list.length)h+=`<div class="empty">No promos yet. Tap <b>+ Create Promo</b> to launch your first one.</div>`;
   list.forEach(p=>{
-    const s=statusOf(p);
+    const s=promoStatus(p);
     h+=`<div class="promo-card">
       <div class="promo-img" ${p.image?`style="background-image:url('${esc(p.image)}')"`:''}>
         <span class="badge ${s} st">${s}</span>
@@ -213,7 +233,7 @@ function renderEditor(){
   document.getElementById('app').innerHTML=`
     <div class="card" style="display:flex;justify-content:space-between;align-items:center">
       <div style="font-weight:800;font-size:15px">${esc(p.title||'Edit Promo')}</div>
-      <span class="badge ${statusOf(p)}">${statusOf(p)}</span>
+      <span class="badge ${promoStatus(p)}">${promoStatus(p)}</span>
     </div>
     ${sec('idn','01 · Promo Identity',`
       ${fld('Title *','title',p.title)}
@@ -278,7 +298,7 @@ function renderEditor(){
       <button class="btn btn-gold" style="flex:1" id="btnSavePromo">Save Promo</button>
     </div>
   `;
-  if(window.EatoutsUpload)EatoutsUpload.decorate(document.getElementById('app'));
+  if(window.EatoutsUpload){try{EatoutsUpload.setUploadPrefix(EatoutsUpload.sessionPrefix('venues'));}catch(e){}EatoutsUpload.decorate(document.getElementById('app'));}
   wireEditor(p);
 }
 
@@ -328,7 +348,8 @@ function wireEditor(p){
   document.getElementById('btnCancel').onclick=()=>{VIEW={mode:'list',id:null};render();};
   document.getElementById('btnSavePromo').onclick=()=>{
     if(!p.title){toast('Title is required');return;}
-    VIEW={mode:'list',id:null};save();toast('Promo saved');
+    VIEW={mode:'list',id:null};save();
+    if(PROMO_SERVER&&SRID&&API)submitPromo(p);else toast('Promo saved');
   };
 }
 
@@ -354,6 +375,7 @@ document.getElementById('btnNew').onclick=newPromo;
 document.getElementById('btnBack').onclick=()=>{if(VIEW.mode==='edit'){VIEW={mode:'list',id:null};render();}else history.back();};
 
 render();
+promoServerSync();
 </script>
 </body>
 </html>

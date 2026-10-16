@@ -1,9 +1,10 @@
 /* ============================================================
    POST /api/auth/signup
-   Create a regular ("customer") account.
+   Create an account. `type` may be "customer" (default) or
+   "business"; the 18+ gate applies to customers only.
 
    Body: { username, whatsapp, password, firstName, surname,
-           dob, gender, town, area, email? }
+           dob, gender, town, area, email?, type? }
 
    No external OTP channel: the account is created unverified and
    the response returns a WhatsApp click-to-chat link the user taps
@@ -36,6 +37,8 @@ export async function onRequestPost(context) {
 
   var body = await readJson(request);
 
+  var type = String(body.type || '').toLowerCase() === 'business' ? 'business' : 'customer';
+
   var u = validateUsername(body.username);
   if (!u.ok) return json({ ok: false, error: u.error }, 400);
 
@@ -47,7 +50,9 @@ export async function onRequestPost(context) {
     return json({ ok: false, error: 'A valid WhatsApp number is required.' }, 400);
   }
 
-  if (!isAdult(body.dob, 18)) {
+  /* The 18+ gate applies to customer accounts only; business owners are
+     businesses rather than consumers of age-restricted content. */
+  if (type === 'customer' && !isAdult(body.dob, 18)) {
     return json({ ok: false, error: 'You must be 18 or older to create an account.' }, 400);
   }
 
@@ -96,7 +101,7 @@ export async function onRequestPost(context) {
     ).bind(
       id, email, firstName + ' ' + surname, 'active', ts,
       u.username, whatsapp, hash, salt, PBKDF2_ITER,
-      'customer', JSON.stringify(profile), ts
+      type, JSON.stringify(profile), ts
     ).run();
   } catch (e) {
     return json({ ok: false, error: 'Could not create account. Try again.' }, 500);
@@ -111,7 +116,7 @@ export async function onRequestPost(context) {
 
   var row = {
     id: id, username: u.username, whatsapp: whatsapp, email: email,
-    name: firstName + ' ' + surname, type: 'customer', verified: 0,
+    name: firstName + ' ' + surname, type: type, verified: 0,
     photo_key: null, profile: JSON.stringify(profile)
   };
 

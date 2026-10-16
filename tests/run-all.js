@@ -48,13 +48,19 @@ const SUITES = [
   'designer-dashboard.js',
   'brand-kit-admin.js',
   'api-auth.js',
+  'api-auth-flow.js',
   'api-business.js',
+  'api-venues.js',
+  'api-upload.js',
   'promo-submissions.js',
   'router.js',
   'menuview.js',
   'menu-nav-state.js',
   'customer.js',
   'customer-local-login.js',
+  'business-client.js',
+  'business-auth.js',
+  'content.js',
   'inventory.js'
 ];
 

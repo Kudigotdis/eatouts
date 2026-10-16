@@ -770,7 +770,7 @@ function promptUrl(title,cb){
     btn.textContent='Upload';
     if(input.parentNode)input.parentNode.appendChild(btn);
   }
-  if(window.EatoutsUpload)EatoutsUpload.decorate(scrim);
+  if(window.EatoutsUpload){try{EatoutsUpload.setUploadPrefix(EatoutsUpload.sessionPrefix('venues'));}catch(e){}EatoutsUpload.decorate(scrim);}
   return scrim;
 }
 

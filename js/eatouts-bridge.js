@@ -435,10 +435,18 @@
   }
 
   function setActive(id) {
+    var prev = activeId;
     activeId = id || null;
     if (id) {
       var d = DB.load();
       if (DB.setActive(id, d)) DB.save(d);
+    }
+    /* Let the app hydrate the newly opened venue's canonical D1 content
+       (plus re-render) without the bridge depending on that module. */
+    if (activeId && activeId !== prev && typeof window !== 'undefined' && window.dispatchEvent) {
+      try {
+        window.dispatchEvent(new CustomEvent('eatouts:venue-active', { detail: { id: activeId } }));
+      } catch (e) { /* CustomEvent unavailable */ }
     }
   }
 

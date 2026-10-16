@@ -1,10 +1,15 @@
 /* /api/business/link
    GET  ?country=bw&refId=rest_x            -> { link, history }   (public read)
-   POST { country, type, refId, slug, name } -> { ok, link }       (signed in)
+   POST { country, type, refId, slug, name } -> { ok, link, claim, restaurantId, membership }
         Claim or change a business's custom link. Changing a slug keeps
-        the previous one as a 'redirect' row so old shared links 301 on. */
+        the previous one as a 'redirect' row so old shared links 301 on.
+        When refId is a real D1 restaurant, claiming also grants the caller
+        an 'owner' membership (first claimer wins) and records a claims row;
+        a later claimer on an already-owned venue gets a pending claim for
+        admin review instead. */
 import { json, readJson, now } from './../_shared.js';
 import { requireSession, normalizeSlug, slugReason, countryOf, getRegistry, linkOut } from './../_links.js';
+import { grantClaimMembership } from './../_business.js';
 
 var TYPES = { restaurant: 1, bottle_store: 1, supplier: 1 };
 
@@ -50,7 +55,13 @@ export async function onRequestPost(context) {
       return json({ ok: false, error: 'That link is already taken.' }, 409);
     }
     if (existing.status === 'active') {
-      return json({ ok: true, link: linkOut(existing), already: true });
+      var alreadyClaim = await grantClaimMembership(c, refId, 'business_link');
+      return json({
+        ok: true, link: linkOut(existing), already: true,
+        claim: alreadyClaim.status,
+        restaurantId: alreadyClaim.restaurantId || null,
+        membership: alreadyClaim.membership || null
+      });
     }
   } else {
     var reg = await getRegistry(c.env, c.request);
@@ -88,5 +99,13 @@ export async function onRequestPost(context) {
   var row = await c.db.prepare(
     'SELECT * FROM business_links WHERE country_code = ? AND slug = ?'
   ).bind(cc, s).first();
-  return json({ ok: true, link: linkOut(row) });
+
+  var claim = await grantClaimMembership(c, refId, 'business_link');
+  return json({
+    ok: true,
+    link: linkOut(row),
+    claim: claim.status,
+    restaurantId: claim.restaurantId || null,
+    membership: claim.membership || null
+  });
 }

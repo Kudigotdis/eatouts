@@ -106,6 +106,7 @@ input:focus,textarea:focus,select:focus{border-color:#1a1a1a;box-shadow:0 0 0 3p
 <script src="js/eatouts-image-compressor.js"></script>
 <script src="js/eatouts-video-validator.js"></script>
 <script src="js/eatouts-upload.js"></script>
+<script src="js/eatouts-business-api.js"></script>
 <script>
 /* Operator pages are only reachable through the About Us sign-in.
    This runs before any page content paints. */
@@ -121,6 +122,19 @@ function uid(p){return p+'_'+Date.now().toString(36)+'_'+Math.random().toString(
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
 let DB=dbLoad();function save(){dbSave(DB);render();}
+
+/* ========== SERVER SYNC (D1) ========== */
+const API=window.EatoutsBusinessApi;let SRID=(DB.settings||{}).serverRestaurantId||null,EV_SERVER=false;
+function currentRestaurant(){try{const d=EatoutsDB.load();const list=d.restaurants||[];return list.find(r=>r.id===DB.restaurant.id)||list[0]||{};}catch(e){return {};}}
+function resolveInput(){const cur=currentRestaurant();return {serverRestaurantId:SRID,id:DB.restaurant.id,slug:cur.slug,name:(DB.restaurant.identity||{}).name||cur.name};}
+function push(fn){if(!EV_SERVER||!SRID||!API)return;try{Promise.resolve(fn(API,SRID)).then(r=>{if(r&&r.data&&r.data.error)toast('Server: '+r.data.error);}).catch(()=>{});}catch(e){}}
+function eventServerSync(){if(!API)return;API.resolve(resolveInput(),{create:false}).then(r=>{if(!r||!r.rid)return;SRID=r.rid;EV_SERVER=true;if(!(DB.settings||{}).serverRestaurantId){DB.settings=DB.settings||{};DB.settings.serverRestaurantId=r.rid;dbSave(DB);}return API.eventsRead(SRID).then(res=>{if(!res.ok||!res.data)return;pushMissingLocal(res.data);mergeEvents(res.data);});}).catch(()=>{});}
+function pushMissingLocal(server){if(!EV_SERVER||!SRID||!API)return;
+  const sevents=server.events||[];
+  DB.events.filter(e=>!sevents.some(s=>s.id===e.id)).forEach(e=>push((A,rid)=>A.eventAdd(rid,Object.assign({id:e.id},A.eventToServer(e)))));}
+function mergeEvents(data){const list=data.events||[];let changed=false;
+  list.forEach(s=>{const m=API.eventFromServer(s);let ev=DB.events.find(x=>x.id===s.id);if(!ev){DB.events.push(m);changed=true;}else{Object.assign(ev,{name:m.name,type:m.type,coverImage:m.coverImage||ev.coverImage,description:m.description,organizer:ev.organizer||m.organizer,sponsor:ev.sponsor||m.sponsor,location:m.location||ev.location,startDate:m.startDate,startTime:m.startTime,endDate:m.endDate,endTime:m.endTime,admission:m.admission,status:m.status});changed=true;}});
+  if(changed){dbSave(DB);render();}}
 
 let VIEW={mode:'list',id:null};
 const OPEN={};
@@ -262,7 +276,7 @@ function renderEditor(){
       <button class="btn btn-gold" style="flex:1" id="btnSaveEv">Save Event</button>
     </div>
   `;
-  if(window.EatoutsUpload)EatoutsUpload.decorate(document.getElementById('app'));
+  if(window.EatoutsUpload){try{EatoutsUpload.setUploadPrefix(EatoutsUpload.sessionPrefix('venues'));}catch(e){}EatoutsUpload.decorate(document.getElementById('app'));}
   wireEditor(ev);
 }
 
@@ -306,6 +320,7 @@ function wireEditor(ev){
   document.getElementById('btnSaveEv').onclick=()=>{
     if(!ev.name){toast('Event name is required');return;}
     VIEW={mode:'list',id:null};save();toast('Event saved');
+    push((A,rid)=>A.eventUpdate(rid,ev.id,A.eventToServer(ev)));
   };
 }
 
@@ -452,19 +467,21 @@ function newEvent(){
     performances:[],serviceIds:[],rsvpEnabled:true,rsvpContactId:null,rsvpMax:null,
     status:'draft',createdAt:Date.now()};
   DB.events.push(ev);dbSave(DB);VIEW={mode:'edit',id:ev.id};render();
+  push((A,rid)=>A.eventAdd(rid,Object.assign({id:ev.id},A.eventToServer(ev))));
 }
 
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-act]');if(!t)return;
   const act=t.getAttribute('data-act');const id=t.getAttribute('data-id');
   if(act==='edit'){VIEW={mode:'edit',id};render();return;}
-  if(act==='dup'){const ev=DB.events.find(x=>x.id===id);if(!ev)return;const c=JSON.parse(JSON.stringify(ev));c.id=uid('event');c.name+=' (copy)';c.createdAt=Date.now();DB.events.push(c);save();return;}
-  if(act==='del'){if(confirm('Remove this event?')){DB.events=DB.events.filter(x=>x.id!==id);save();}return;}
+  if(act==='dup'){const ev=DB.events.find(x=>x.id===id);if(!ev)return;const c=JSON.parse(JSON.stringify(ev));c.id=uid('event');c.name+=' (copy)';c.createdAt=Date.now();DB.events.push(c);save();push((A,rid)=>A.eventAdd(rid,Object.assign({id:c.id},A.eventToServer(c))));return;}
+  if(act==='del'){if(confirm('Remove this event?')){DB.events=DB.events.filter(x=>x.id!==id);save();push((A,rid)=>A.eventDelete(rid,id));}return;}
 });
 document.getElementById('btnNewEvent').onclick=newEvent;
 document.getElementById('btnPerformers').onclick=()=>{VIEW={mode:'performers'};render();};
 
 render();
+eventServerSync();
 </script>
 </body>
 </html>

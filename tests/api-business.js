@@ -30,7 +30,9 @@ function norm(sql) { return String(sql).replace(/\s+/g, ' ').trim(); }
 function fakeDB(seed) {
   const db = {
     restaurants: [], memberships: [], users: [],
-    invites: [], menu_categories: [], menu_items: []
+    invites: [], menu_categories: [], menu_items: [],
+    gallery_groups: [], gallery_images: [], events: [],
+    business_links: [], claims: []
   };
   Object.keys(seed || {}).forEach((t) => { db[t] = seed[t].slice(); });
 
@@ -57,6 +59,15 @@ function fakeDB(seed) {
     }
     if (s.startsWith('SELECT id FROM restaurants WHERE slug = ?')) {
       return first(db.restaurants.find((r) => r.slug === args[0]));
+    }
+    if (s.startsWith('SELECT id, status, claimed FROM restaurants WHERE id = ?')) {
+      const r = db.restaurants.find((x) => x.id === args[0]);
+      return first(r ? { id: r.id, status: r.status, claimed: r.claimed } : null);
+    }
+    if (s.startsWith('UPDATE restaurants SET claimed = 1')) {
+      const r = db.restaurants.find((x) => x.id === args[1]);
+      if (r) { r.claimed = 1; r.status = 'claimed'; r.updated_at = args[0]; }
+      return null;
     }
     if (s.startsWith('SELECT * FROM restaurants WHERE id = ?')) {
       return first(db.restaurants.find((r) => r.id === args[0]));
@@ -197,6 +208,120 @@ function fakeDB(seed) {
       return null;
     }
 
+    /* gallery groups */
+    if (s.startsWith('INSERT INTO gallery_groups')) {
+      const [id, restaurant_id, title, visible, position, created_at] = args;
+      db.gallery_groups.push({ id, restaurant_id, title, visible, position, created_at });
+      return null;
+    }
+    if (s.startsWith('SELECT * FROM gallery_groups WHERE id = ?')) {
+      return first(db.gallery_groups.find((x) => x.id === args[0]));
+    }
+    if (s.startsWith('SELECT * FROM gallery_groups WHERE restaurant_id = ?')) {
+      const rows = db.gallery_groups.filter((x) => x.restaurant_id === args[0]);
+      return mode === 'all' ? rows : (rows[0] || null);
+    }
+    if (s.startsWith('UPDATE gallery_groups SET title = ?, visible = ?, position = ? WHERE id = ?')) {
+      const g = db.gallery_groups.find((x) => x.id === args[3]);
+      if (g) { g.title = args[0]; g.visible = args[1]; g.position = args[2]; }
+      return null;
+    }
+    if (s.startsWith('DELETE FROM gallery_groups WHERE id = ?')) {
+      const i = db.gallery_groups.findIndex((x) => x.id === args[0]);
+      if (i >= 0) db.gallery_groups.splice(i, 1);
+      return null;
+    }
+
+    /* gallery images */
+    if (s.startsWith('INSERT INTO gallery_images')) {
+      const [id, restaurant_id, group_id, image_key, label, visible, position, created_at] = args;
+      db.gallery_images.push({ id, restaurant_id, group_id, image_key, label, visible, position, created_at });
+      return null;
+    }
+    if (s.startsWith('SELECT * FROM gallery_images WHERE id = ?')) {
+      return first(db.gallery_images.find((x) => x.id === args[0]));
+    }
+    if (s.startsWith('SELECT * FROM gallery_images WHERE restaurant_id = ?')) {
+      const rows = db.gallery_images.filter((x) => x.restaurant_id === args[0]);
+      return mode === 'all' ? rows : (rows[0] || null);
+    }
+    if (s.startsWith('UPDATE gallery_images SET group_id = ?')) {
+      const im = db.gallery_images.find((x) => x.id === args[args.length - 1]);
+      if (im) {
+        const cols = ['group_id', 'image_key', 'label', 'visible', 'position'];
+        cols.forEach((c, i) => { im[c] = args[i]; });
+      }
+      return null;
+    }
+    if (s.startsWith('DELETE FROM gallery_images WHERE group_id = ?')) {
+      db.gallery_images = db.gallery_images.filter((x) => x.group_id !== args[0]);
+      return null;
+    }
+    if (s.startsWith('DELETE FROM gallery_images WHERE id = ?')) {
+      const i = db.gallery_images.findIndex((x) => x.id === args[0]);
+      if (i >= 0) db.gallery_images.splice(i, 1);
+      return null;
+    }
+
+    /* events */
+    if (s.startsWith('INSERT INTO events')) {
+      const [id, restaurant_id, title, description, figure, image_key, admission, starts_at, ends_at, published, created_at, updated_at] = args;
+      db.events.push({ id, restaurant_id, title, description, figure, image_key, admission, starts_at, ends_at, published, created_at, updated_at });
+      return null;
+    }
+    if (s.startsWith('SELECT * FROM events WHERE id = ?')) {
+      return first(db.events.find((x) => x.id === args[0]));
+    }
+    if (s.startsWith('SELECT * FROM events WHERE restaurant_id = ?')) {
+      const rows = db.events.filter((x) => x.restaurant_id === args[0]);
+      return mode === 'all' ? rows : (rows[0] || null);
+    }
+    if (s.startsWith('UPDATE events SET title = ?')) {
+      const ev = db.events.find((x) => x.id === args[args.length - 1]);
+      if (ev) {
+        const cols = ['title', 'description', 'figure', 'image_key', 'admission', 'starts_at', 'ends_at', 'published', 'updated_at'];
+        cols.forEach((c, i) => { ev[c] = args[i]; });
+      }
+      return null;
+    }
+    if (s.startsWith('DELETE FROM events WHERE id = ?')) {
+      const i = db.events.findIndex((x) => x.id === args[0]);
+      if (i >= 0) db.events.splice(i, 1);
+      return null;
+    }
+
+    /* business links (claim bridge) */
+    if (s.startsWith('SELECT * FROM business_links WHERE country_code = ? AND slug = ?')) {
+      return first(db.business_links.find((l) => l.country_code === args[0] && l.slug === args[1]));
+    }
+    if (s.startsWith('SELECT * FROM business_links WHERE country_code = ? AND type = ? AND ref_id = ?')) {
+      const rows = db.business_links.filter((l) =>
+        l.country_code === args[0] && l.type === args[1] && l.ref_id === args[2] &&
+        l.status === 'active' && l.claimed_by != null);
+      return first(rows[0] || null);
+    }
+    if (s.startsWith('INSERT INTO business_links')) {
+      const [id, country_code, slug, type, ref_id, display_slug, name, status, redirect_to, claimed_by, created_at, updated_at] = args;
+      const existing = db.business_links.find((l) => l.country_code === country_code && l.slug === slug);
+      const row = { id, country_code, slug, type, ref_id, display_slug, name, status, redirect_to, claimed_by, created_at, updated_at };
+      if (existing) Object.assign(existing, row);
+      else db.business_links.push(row);
+      return null;
+    }
+    if (s.startsWith('UPDATE business_links SET status =')) {
+      const l = db.business_links.find((x) => x.id === args[2]);
+      if (l) { l.status = 'redirect'; l.redirect_to = args[0]; l.updated_at = args[1]; }
+      return null;
+    }
+
+    /* claims */
+    if (s.startsWith('INSERT INTO claims')) {
+      const status = (s.match(/'(approved|pending)'/) || [])[1] || 'pending';
+      const [id, restaurant_id, user_id, evidence, created_at] = args;
+      db.claims.push({ id, restaurant_id, user_id, status, evidence, created_at });
+      return null;
+    }
+
     throw new Error('fakeDB: unhandled SQL -> ' + s);
   }
 
@@ -240,6 +365,15 @@ function ctx(env, opts) {
   const catId = await import(pathToFileURL(path.join(base, 'business', 'menu', 'categories', '[id].js')).href);
   const items = await import(pathToFileURL(path.join(base, 'business', 'menu', 'items.js')).href);
   const itemId = await import(pathToFileURL(path.join(base, 'business', 'menu', 'items', '[id].js')).href);
+  const link = await import(pathToFileURL(path.join(base, 'business', 'link.js')).href);
+  const claim = await import(pathToFileURL(path.join(base, 'business', 'claim.js')).href);
+  const gallery = await import(pathToFileURL(path.join(base, 'business', 'gallery.js')).href);
+  const gg = await import(pathToFileURL(path.join(base, 'business', 'gallery', 'groups.js')).href);
+  const ggId = await import(pathToFileURL(path.join(base, 'business', 'gallery', 'groups', '[id].js')).href);
+  const gi = await import(pathToFileURL(path.join(base, 'business', 'gallery', 'images.js')).href);
+  const giId = await import(pathToFileURL(path.join(base, 'business', 'gallery', 'images', '[id].js')).href);
+  const events = await import(pathToFileURL(path.join(base, 'business', 'events.js')).href);
+  const eventId = await import(pathToFileURL(path.join(base, 'business', 'events', '[id].js')).href);
 
   /* ---- pure helpers ---- */
   check('roleRank orders roles', biz.roleRank('owner') > biz.roleRank('manager') &&
@@ -252,17 +386,31 @@ function ctx(env, opts) {
   check('restaurantOut null-safe', biz.restaurantOut(null) === null);
   check('categoryOut maps', biz.categoryOut({ id: 'c', restaurant_id: 'r', name: 'Mains' }).name === 'Mains');
   check('itemOut maps', biz.itemOut({ id: 'i', name: 'Stew', price: 50, currency: 'BWP' }).price === 50);
+  const go = biz.galleryGroupOut({ id: 'g', restaurant_id: 'r', title: 'Food', visible: 1, position: 2 });
+  check('galleryGroupOut maps', go.title === 'Food' && go.visible === true && go.position === 2);
+  const imo = biz.galleryImageOut({ id: 'i', image_key: 'k.jpg', group_id: null, visible: 0 });
+  check('galleryImageOut maps', imo.imageKey === 'k.jpg' && imo.visible === false && imo.groupId === null);
+  const eo = biz.eventOut({ id: 'e', title: 'Gig', figure: '{"type":"DJ"}', starts_at: 123, published: 1 });
+  check('eventOut parses figure + flags', eo.figure.type === 'DJ' && eo.startsAt === 123 && eo.published === true);
+  check('eventOut null-safe', biz.eventOut(null) === null && biz.galleryGroupOut(null) === null);
+  check('jsonString passes strings through', biz.jsonString('{"a":1}') === '{"a":1}');
+  check('jsonString encodes objects', biz.jsonString({ a: 1 }) === '{"a":1}');
+  check('jsonString null stays null', biz.jsonString(null) === null);
+  check('numOrNull coerces + blanks', biz.numOrNull('5') === 5 && biz.numOrNull('') === null && biz.numOrNull('x') === null);
 
   /* ---- seed store ---- */
   const seed = {
     users: [
       { id: 'usr_owner', username: 'owner', name: 'Owner', email: 'owner@x.co', whatsapp: '26770000001' },
       { id: 'usr_mark', username: 'mark', name: 'Marketer', email: 'mark@x.co', whatsapp: '26770000002' },
-      { id: 'usr_other', username: 'other', name: 'Other', email: 'other@x.co', whatsapp: '26770000003' }
+      { id: 'usr_other', username: 'other', name: 'Other', email: 'other@x.co', whatsapp: '26770000003' },
+      { id: 'usr_menu', username: 'menu', name: 'Menu Manager', email: 'menu@x.co', whatsapp: '26770000004' },
+      { id: 'usr_mkt', username: 'mkt', name: 'Marketer 2', email: 'mkt@x.co', whatsapp: '26770000005' },
+      { id: 'usr_stranger', username: 'stranger', name: 'No Member', email: 'nobody@x.co', whatsapp: '26770000006' }
     ],
     restaurants: [
       { id: 'rest_1', slug: 'the-yard', name: 'The Yard', status: 'published', plan: 'pro', claimed: 1, types: '[]', contacts: '[]', socials: '[]', features: '[]', created_at: 1, updated_at: 1 },
-      { id: 'rest_2', slug: 'bar-one', name: 'Bar One', status: 'draft', plan: 'starter', claimed: 1, types: '[]', contacts: '[]', socials: '[]', features: '[]', created_at: 1, updated_at: 1 }
+      { id: 'rest_2', slug: 'bar-one', name: 'Bar One', status: 'unclaimed', plan: 'starter', claimed: 0, types: '[]', contacts: '[]', socials: '[]', features: '[]', created_at: 1, updated_at: 1 }
     ],
     memberships: [
       { id: 'mem_owner1', user_id: 'usr_owner', restaurant_id: 'rest_1', role: 'owner', status: 'active', created_at: 1 },
@@ -273,6 +421,9 @@ function ctx(env, opts) {
     owner: { userId: 'usr_owner', type: 'customer', isAdmin: false },
     mark: { userId: 'usr_mark', type: 'customer', isAdmin: false },
     other: { userId: 'usr_other', type: 'customer', isAdmin: false },
+    menu: { userId: 'usr_menu', type: 'customer', isAdmin: false },
+    marketing: { userId: 'usr_mkt', type: 'customer', isAdmin: false },
+    stranger: { userId: 'usr_stranger', type: 'customer', isAdmin: false },
     admin: { userId: 'usr_admin', type: 'customer', isAdmin: true }
   };
   const env = { DB: fakeDB(seed), OPS_KV: fakeKV(sessions) };
@@ -382,6 +533,149 @@ function ctx(env, opts) {
 
   r = await catId.onRequestPatch(ctx(env, { token: 'owner', method: 'PATCH', params: { id: 'nope' }, url: 'https://eatouts.test/api/business/menu/categories/nope', body: { name: 'x' } }));
   check('missing category -> 404', r.status === 404, r.status);
+
+  /* ---- claim bridge (link POST grants membership) ---- */
+  r = await link.onRequestPost(ctx(env, { token: 'other', method: 'POST', url: 'https://eatouts.test/api/business/link', body: { country: 'bw', type: 'restaurant', refId: 'rest_2', slug: 'baronebw', name: 'Bar One' } }));
+  j = await r.json();
+  check('claim grants owner membership', r.status === 200 && j.ok && j.claim === 'granted' && j.membership === 'owner' && j.restaurantId === 'rest_2', JSON.stringify(j));
+  const claimed = env.DB._db.restaurants.find((x) => x.id === 'rest_2');
+  check('claim marks restaurant claimed', claimed.claimed === 1 && claimed.status === 'claimed', JSON.stringify(claimed));
+  check('claim writes a claims row', env.DB._db.claims.some((c) => c.restaurant_id === 'rest_2' && c.user_id === 'usr_other' && c.status === 'approved'));
+
+  r = await mine.onRequestGet(ctx(env, { token: 'other' }));
+  j = await r.json();
+  check('mine lists the claimed venue', j.businesses.some((b) => b.id === 'rest_2' && b.role === 'owner'), JSON.stringify(j.businesses));
+
+  r = await profile.onRequestGet(ctx(env, { token: 'other', url: 'https://eatouts.test/api/business/profile?restaurant=rest_2' }));
+  check('claimer can read profile after claim', r.status === 200, r.status);
+
+  r = await link.onRequestPost(ctx(env, { token: 'mark', method: 'POST', url: 'https://eatouts.test/api/business/link', body: { country: 'bw', type: 'restaurant', refId: 'rest_2', slug: 'baronebw2', name: 'Bar One' } }));
+  j = await r.json();
+  check('second claimer gets pending_review', j.ok && j.claim === 'pending_review' && j.membership === null, JSON.stringify(j));
+  check('second claimer gets no membership', !env.DB._db.memberships.some((m) => m.user_id === 'usr_mark' && m.restaurant_id === 'rest_2'));
+  check('pending claim recorded', env.DB._db.claims.some((c) => c.restaurant_id === 'rest_2' && c.user_id === 'usr_mark' && c.status === 'pending'));
+
+  r = await link.onRequestPost(ctx(env, { token: 'owner', method: 'POST', url: 'https://eatouts.test/api/business/link', body: { country: 'bw', type: 'restaurant', refId: 'rest_1', slug: 'theyardbw', name: 'The Yard 2' } }));
+  j = await r.json();
+  check('existing member re-claim is already_member', j.ok && j.claim === 'already_member' && j.membership === 'owner', JSON.stringify(j));
+
+  r = await link.onRequestPost(ctx(env, { token: 'other', method: 'POST', url: 'https://eatouts.test/api/business/link', body: { country: 'bw', type: 'restaurant', refId: 'rest_nope', slug: 'notavenue', name: 'Ghost' } }));
+  j = await r.json();
+  check('unknown refId -> claim no_restaurant', r.status === 200 && j.claim === 'no_restaurant', JSON.stringify(j));
+
+  /* ---- dedicated claim endpoint ---- */
+  r = await claim.onRequestPost(ctx(env, { token: 'mark', method: 'POST', url: 'https://eatouts.test/api/business/claim', body: { refId: 'rest_1' } }));
+  j = await r.json();
+  check('claim endpoint: non-owner on owned venue -> pending_review', r.status === 200 && j.claim === 'pending_review' && j.membership === null, JSON.stringify(j));
+
+  r = await claim.onRequestPost(ctx(env, { token: 'owner', method: 'POST', url: 'https://eatouts.test/api/business/claim', body: { refId: 'rest_1' } }));
+  j = await r.json();
+  check('claim endpoint: existing owner -> already_member', j.ok && j.claim === 'already_member' && j.membership === 'owner', JSON.stringify(j));
+
+  r = await claim.onRequestPost(ctx(env, { token: 'mark', method: 'POST', url: 'https://eatouts.test/api/business/claim', body: {} }));
+  check('claim endpoint: missing refId -> 400', r.status === 400, r.status);
+
+  r = await claim.onRequestPost(ctx(env, { token: 'mark', method: 'POST', url: 'https://eatouts.test/api/business/claim', body: { refId: 'rest_missing' } }));
+  check('claim endpoint: unknown restaurant -> 404', r.status === 404, r.status);
+
+  r = await claim.onRequestPost(ctx(env, { method: 'POST', url: 'https://eatouts.test/api/business/claim', body: { refId: 'rest_1' } }));
+  check('claim endpoint: no session -> 401', r.status === 401, r.status);
+
+  /* ---- gallery (marketing_manager+) ---- */
+  env.DB._db.memberships.push(
+    { id: 'mem_menu1', user_id: 'usr_menu', restaurant_id: 'rest_1', role: 'menu_manager', status: 'active', created_at: 3 },
+    { id: 'mem_mkt1', user_id: 'usr_mkt', restaurant_id: 'rest_1', role: 'marketing_manager', status: 'active', created_at: 3 }
+  );
+
+  r = await gallery.onRequestGet(ctx(env, { token: 'owner', url: 'https://x/api/business/gallery?restaurant=rest_1' }));
+  j = await r.json();
+  check('gallery read empty for owner', r.status === 200 && j.groups.length === 0 && j.images.length === 0, JSON.stringify(j));
+
+  r = await gallery.onRequestGet(ctx(env, { token: 'menu', url: 'https://x/api/business/gallery?restaurant=rest_1' }));
+  check('menu_manager cannot read gallery -> 403', r.status === 403, r.status);
+  r = await gallery.onRequestGet(ctx(env, { token: 'stranger', url: 'https://x/api/business/gallery?restaurant=rest_1' }));
+  check('non-member cannot read gallery -> 403', r.status === 403, r.status);
+
+  r = await gg.onRequestPost(ctx(env, { token: 'marketing', method: 'POST', url: 'https://x/api/business/gallery/groups?restaurant=rest_1', body: { title: 'Food' } }));
+  j = await r.json();
+  check('marketing_manager creates group', r.status === 201 && j.group.title === 'Food' && j.group.visible === true, JSON.stringify(j));
+  const groupIdVal = j.group.id;
+
+  r = await gg.onRequestPost(ctx(env, { token: 'marketing', method: 'POST', url: 'https://x/api/business/gallery/groups?restaurant=rest_1', body: {} }));
+  check('group without title -> 400', r.status === 400, r.status);
+
+  r = await gi.onRequestPost(ctx(env, { token: 'marketing', method: 'POST', url: 'https://x/api/business/gallery/images?restaurant=rest_1', body: { groupId: groupIdVal, imageKey: 'gallery/a.jpg', label: 'Plate', position: 1 } }));
+  j = await r.json();
+  check('creates image', r.status === 201 && j.image.imageKey === 'gallery/a.jpg' && j.image.groupId === groupIdVal, JSON.stringify(j));
+  const imageIdVal = j.image.id;
+
+  r = await gi.onRequestPost(ctx(env, { token: 'marketing', method: 'POST', url: 'https://x/api/business/gallery/images?restaurant=rest_1', body: { groupId: groupIdVal } }));
+  check('image without key -> 400', r.status === 400, r.status);
+
+  r = await gallery.onRequestGet(ctx(env, { token: 'marketing', url: 'https://x/api/business/gallery?restaurant=rest_1' }));
+  j = await r.json();
+  check('gallery lists group + image', j.groups.length === 1 && j.images.length === 1, JSON.stringify(j));
+
+  r = await ggId.onRequestPatch(ctx(env, { token: 'marketing', method: 'PATCH', params: { id: groupIdVal }, url: 'https://x/api/business/gallery/groups/' + groupIdVal, body: { title: 'Feasts', visible: false } }));
+  j = await r.json();
+  check('patch group', r.status === 200 && j.group.title === 'Feasts' && j.group.visible === false, JSON.stringify(j));
+
+  r = await giId.onRequestPatch(ctx(env, { token: 'marketing', method: 'PATCH', params: { id: imageIdVal }, url: 'https://x/api/business/gallery/images/' + imageIdVal, body: { label: 'Big plate', position: 5 } }));
+  j = await r.json();
+  check('patch image', r.status === 200 && j.image.label === 'Big plate' && j.image.position === 5, JSON.stringify(j));
+
+  r = await ggId.onRequestPatch(ctx(env, { token: 'menu', method: 'PATCH', params: { id: groupIdVal }, url: 'https://x/api/business/gallery/groups/' + groupIdVal, body: { title: 'x' } }));
+  check('menu_manager cannot patch group -> 403', r.status === 403, r.status);
+
+  r = await giId.onRequestDelete(ctx(env, { token: 'marketing', method: 'DELETE', params: { id: imageIdVal }, url: 'https://x/api/business/gallery/images/' + imageIdVal }));
+  check('delete image', r.status === 200, r.status);
+  check('image row removed', !env.DB._db.gallery_images.some((x) => x.id === imageIdVal));
+
+  r = await gi.onRequestPost(ctx(env, { token: 'owner', method: 'POST', url: 'https://x/api/business/gallery/images?restaurant=rest_1', body: { groupId: groupIdVal, imageKey: 'gallery/b.jpg' } }));
+  check('owner can add image too', r.status === 201, r.status);
+  r = await ggId.onRequestDelete(ctx(env, { token: 'owner', method: 'DELETE', params: { id: groupIdVal }, url: 'https://x/api/business/gallery/groups/' + groupIdVal }));
+  check('delete group', r.status === 200, r.status);
+  check('group delete cascades its images', env.DB._db.gallery_groups.length === 0 && env.DB._db.gallery_images.length === 0,
+    JSON.stringify(env.DB._db.gallery_images));
+
+  r = await ggId.onRequestPatch(ctx(env, { token: 'owner', method: 'PATCH', params: { id: 'nope' }, url: 'https://x/api/business/gallery/groups/nope', body: { title: 'x' } }));
+  check('missing group -> 404', r.status === 404, r.status);
+
+  /* ---- events (marketing_manager+) ---- */
+  r = await events.onRequestGet(ctx(env, { token: 'owner', url: 'https://x/api/business/events?restaurant=rest_1' }));
+  j = await r.json();
+  check('events read empty', r.status === 200 && j.events.length === 0, JSON.stringify(j));
+
+  r = await events.onRequestGet(ctx(env, { token: 'menu', url: 'https://x/api/business/events?restaurant=rest_1' }));
+  check('menu_manager cannot read events -> 403', r.status === 403, r.status);
+
+  r = await events.onRequestPost(ctx(env, { token: 'marketing', method: 'POST', url: 'https://x/api/business/events?restaurant=rest_1', body: { title: 'Afro Night', description: 'All night', admission: 'Paid', startsAt: 1000, endsAt: 2000, published: true, figure: { type: 'DJ Night', performer: 'X' } } }));
+  j = await r.json();
+  check('marketing_manager creates event', r.status === 201 && j.event.title === 'Afro Night' && j.event.published === true, JSON.stringify(j));
+  check('event figure round-trips as object', j.event.figure && j.event.figure.type === 'DJ Night', JSON.stringify(j.event.figure));
+  const eventIdVal = j.event.id;
+
+  r = await events.onRequestPost(ctx(env, { token: 'marketing', method: 'POST', url: 'https://x/api/business/events?restaurant=rest_1', body: { description: 'no title' } }));
+  check('event without title -> 400', r.status === 400, r.status);
+
+  r = await events.onRequestGet(ctx(env, { token: 'marketing', url: 'https://x/api/business/events?restaurant=rest_1' }));
+  j = await r.json();
+  check('events lists the created one', j.events.length === 1 && j.events[0].id === eventIdVal, JSON.stringify(j));
+
+  r = await eventId.onRequestPatch(ctx(env, { token: 'marketing', method: 'PATCH', params: { id: eventIdVal }, url: 'https://x/api/business/events/' + eventIdVal, body: { title: 'Afro Night 2', published: false, endsAt: null } }));
+  j = await r.json();
+  check('patch event', r.status === 200 && j.event.title === 'Afro Night 2' && j.event.published === false && j.event.endsAt === null, JSON.stringify(j));
+  check('patch event keeps untouched figure', j.event.figure && j.event.figure.type === 'DJ Night');
+
+  r = await eventId.onRequestPatch(ctx(env, { token: 'menu', method: 'PATCH', params: { id: eventIdVal }, url: 'https://x/api/business/events/' + eventIdVal, body: { title: 'x' } }));
+  check('menu_manager cannot patch event -> 403', r.status === 403, r.status);
+
+  r = await eventId.onRequestDelete(ctx(env, { token: 'owner', method: 'DELETE', params: { id: eventIdVal }, url: 'https://x/api/business/events/' + eventIdVal }));
+  check('delete event', r.status === 200, r.status);
+  check('event row removed', !env.DB._db.events.some((x) => x.id === eventIdVal));
+
+  r = await events.onRequestGet(ctx(env, { token: 'other', url: 'https://x/api/business/events?restaurant=rest_2' }));
+  check('events scope to the venue (empty for other)', r.status === 200 && (await r.json()).events.length === 0, 'rest_2');
 
   /* ---- admin bypass ---- */
   r = await profile.onRequestGet(ctx(env, { token: 'admin', url: 'https://eatouts.test/api/business/profile?restaurant=rest_2' }));

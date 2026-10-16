@@ -1,9 +1,11 @@
 /* ============================================================
    POST /api/auth/login
-   Regular-user sign in. All three credentials must match:
-   username + WhatsApp number + password.
+   Sign in a customer or business account. Customers sign in with
+   username + WhatsApp + password; business owners may sign in with
+   WhatsApp + password. Lookup is by username when supplied, else by
+   WhatsApp number.
 
-   Body: { username, whatsapp, password }
+   Body: { username?, whatsapp?, password }
    ============================================================ */
 import { json, now, readJson, createSession, jsonWithCookie, rateLimit, clientIp } from './../_shared.js';
 import { normalisePhone, verifyPassword, publicUser } from './../_auth.js';
@@ -25,22 +27,27 @@ export async function onRequestPost(context) {
   var whatsapp = normalisePhone(body.whatsapp);
   var password = String(body.password || '');
 
-  if (!username || !whatsapp || !password) {
-    return json({ ok: false, error: 'Username, WhatsApp number and password are all required.' }, 400);
+  if (!password || (!username && !whatsapp)) {
+    return json({ ok: false, error: 'Provide your WhatsApp number (or username) and password.' }, 400);
   }
 
-  var row = await env.DB.prepare(
-    'SELECT * FROM users WHERE username = ? AND type = ?'
-  ).bind(username, 'customer').first();
+  /* Look up by username when given, otherwise by WhatsApp number, so the same
+     endpoint serves customers (username + WhatsApp + password) and business
+     owners (WhatsApp + password). */
+  var row = username
+    ? await env.DB.prepare('SELECT * FROM users WHERE username = ?').bind(username).first()
+    : await env.DB.prepare('SELECT * FROM users WHERE whatsapp = ?').bind(whatsapp).first();
+
+  var kind = row ? String(row.type || 'customer').toLowerCase() : '';
 
   /* Always run the hash to keep timing similar whether or not the user exists. */
-  if (!row) {
+  if (!row || (kind !== 'customer' && kind !== 'business')) {
     await verifyPassword(password, 'x'.repeat(32), 100000, 'y'.repeat(64));
     return json({ ok: false, error: 'Invalid username, WhatsApp number or password.' }, 401);
   }
 
   var ok = await verifyPassword(password, row.password_salt, row.password_iter, row.password_hash);
-  if (!ok || normalisePhone(row.whatsapp) !== whatsapp) {
+  if (!ok || (whatsapp && normalisePhone(row.whatsapp) !== whatsapp)) {
     return json({ ok: false, error: 'Invalid username, WhatsApp number or password.' }, 401);
   }
 
@@ -59,14 +66,21 @@ export async function onRequestPost(context) {
     email: row.email,
     name: row.name,
     isAdmin: !!row.is_admin,
-    type: 'customer',
+    type: kind,
     username: row.username,
     whatsapp: row.whatsapp
   });
 
+  var route;
+  if (kind === 'business') {
+    route = 'eatouts-business-signup.html';
+  } else {
+    route = row.verified ? 'eatouts-profile.html' : 'eatouts-user-onboarding.html';
+  }
+
   return jsonWithCookie({
     ok: true,
     user: publicUser(row),
-    route: row.verified ? 'eatouts-profile.html' : 'eatouts-user-onboarding.html'
+    route: route
   }, session.cookie);
 }

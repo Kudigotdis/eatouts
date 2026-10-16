@@ -113,6 +113,7 @@ input:focus,textarea:focus,select:focus{border-color:#1a1a1a;box-shadow:0 0 0 3p
 <script src="js/eatouts-image-compressor.js"></script>
 <script src="js/eatouts-video-validator.js"></script>
 <script src="js/eatouts-upload.js"></script>
+<script src="js/eatouts-business-api.js"></script>
 <script>
 /* Operator pages are only reachable through the About Us sign-in.
    This runs before any page content paints. */
@@ -130,6 +131,22 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 let DB=dbLoad();
 function save(){dbSave(DB);render();}
 
+/* ========== SERVER SYNC (D1) ========== */
+const API=window.EatoutsBusinessApi;let SRID=(DB.settings||{}).serverRestaurantId||null,MENU_SERVER=false;
+function currentRestaurant(){try{const d=EatoutsDB.load();const list=d.restaurants||[];return list.find(r=>r.id===DB.restaurant.id)||list[0]||{};}catch(e){return {};}}
+function resolveInput(){const cur=currentRestaurant();return {serverRestaurantId:SRID,id:DB.restaurant.id,slug:cur.slug,name:(DB.restaurant.identity||{}).name||cur.name};}
+function push(fn){if(!MENU_SERVER||!SRID||!API)return;try{fn(API,SRID).then(r=>{if(r&&r.data&&r.data.error)toast('Server: '+r.data.error);}).catch(()=>{});}catch(e){}}
+function menuServerSync(){if(!API)return;API.resolve(resolveInput(),{create:false}).then(r=>{if(!r||!r.rid)return;SRID=r.rid;MENU_SERVER=true;if(!(DB.settings||{}).serverRestaurantId){DB.settings=DB.settings||{};DB.settings.serverRestaurantId=r.rid;dbSave(DB);}return API.menuRead(SRID).then(res=>{if(!res.ok||!res.data)return;pushMissingLocal(res.data);mergeMenu(res.data);});}).catch(()=>{});}
+function pushMissingLocal(server){if(!MENU_SERVER||!SRID||!API)return;
+  const scats=server.categories||[],sitems=server.items||[];
+  DB.menuCategories.filter(c=>!scats.some(x=>x.id===c.id)).forEach(c=>{push((A,rid)=>A.menuAddCategory(rid,{id:c.id,name:c.name,position:c.order}));});
+  DB.menuItems.filter(it=>!sitems.some(x=>x.id===it.id)).forEach(it=>{push((A,rid)=>A.menuAddItem(rid,Object.assign({id:it.id},A.itemToServer(it,it.categoryId))));});}
+function mergeMenu(data){const cats=data.categories||[],items=data.items||[];let changed=false;
+  cats.forEach(s=>{let c=DB.menuCategories.find(x=>x.id===s.id);if(!c){DB.menuCategories.push({id:s.id,order:s.position||DB.menuCategories.length+1,visible:true,name:s.name,icon:'📂'});changed=true;}else if(c.name!==s.name){c.name=s.name;changed=true;}});
+  items.forEach(s=>{const m=API.itemFromServer(s);let it=DB.menuItems.find(x=>x.id===s.id);if(!it){DB.menuItems.push(Object.assign({variants:[],modifierGroups:[],tags:[]},m));changed=true;}else{Object.assign(it,{name:m.name,description:m.description,basePrice:m.basePrice,status:m.status,order:m.order,categoryId:m.categoryId||it.categoryId,image:m.image||it.image});changed=true;}});
+  if(changed){dbSave(DB);render();}}
+
+
 /* ========== MODAL ========== */
 function openForm({title,fields,values,onSave,saveLabel,size}){
   values=values||{};
@@ -143,7 +160,7 @@ function openForm({title,fields,values,onSave,saveLabel,size}){
       <button class="btn btn-gold" data-save>${esc(saveLabel||'Save')}</button>
     </div></div>`;
   document.body.appendChild(scrim);
-  if(window.EatoutsUpload)EatoutsUpload.decorate(scrim);
+  if(window.EatoutsUpload){try{EatoutsUpload.setUploadPrefix(EatoutsUpload.sessionPrefix('venues'));}catch(e){}EatoutsUpload.decorate(scrim);}
   scrim.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>scrim.remove());
   scrim.querySelector('[data-save]').onclick=()=>{
     const out={};
@@ -223,8 +240,9 @@ function addCategory(){
     {key:'description',label:'Description',type:'textarea'},
     {key:'visible',label:'Visible to customers',type:'checkbox'}
   ],values:{visible:true},onSave:v=>{
-    DB.menuCategories.push({id:uid('cat'),order:DB.menuCategories.length+1,visible:true,...v});
-    save();
+    const cat={id:uid('cat'),order:DB.menuCategories.length+1,visible:true,...v};
+    DB.menuCategories.push(cat);save();
+    push((A,rid)=>A.menuAddCategory(rid,{id:cat.id,name:cat.name,position:cat.order}));
   }});
 }
 function editCategory(c){
@@ -233,7 +251,7 @@ function editCategory(c){
     {key:'icon',label:'Icon (emoji)'},
     {key:'description',label:'Description',type:'textarea'},
     {key:'visible',label:'Visible to customers',type:'checkbox'}
-  ],onSave:v=>{Object.assign(c,v);save();}});
+  ],onSave:v=>{Object.assign(c,v);save();push((A,rid)=>A.menuUpdateCategory(rid,c.id,{name:c.name,position:c.order}));}});
 }
 
 function addItem(catId){
@@ -259,6 +277,7 @@ function addItem(catId){
       status:v.status,tags:(v.tags||'').split(',').map(s=>s.trim()).filter(Boolean),
       variants:[],modifierGroups:[]};
     DB.menuItems.push(item);save();
+    push((A,rid)=>A.menuAddItem(rid,Object.assign({id:item.id},A.itemToServer(item,item.categoryId))));
     setTimeout(()=>editItem(item),10);
   }});
 }
@@ -296,6 +315,7 @@ function editItem(it){
       basePrice:v.basePrice||0,status:v.status,
       variants:collectVariants(scrim),modifierGroups:collectMods(scrim)});
     save();
+    push((A,rid)=>A.menuUpdateItem(rid,it.id,A.itemToServer(it,it.categoryId)));
   }});
   setTimeout(()=>{
     scrim.querySelector('#addVar').onclick=()=>addVarRow(scrim,{name:'',price:0});
@@ -400,13 +420,14 @@ document.addEventListener('click',e=>{
   if(act==='editCat'){const c=DB.menuCategories.find(x=>x.id===id);if(c)editCategory(c);return;}
   if(act==='addItem'){addItem(t.getAttribute('data-cat'));return;}
   if(act==='editItem'){const it=DB.menuItems.find(x=>x.id===id);if(it)editItem(it);return;}
-  if(act==='delItem'){if(confirm('Remove this item?')){DB.menuItems=DB.menuItems.filter(x=>x.id!==id);save();}return;}
+  if(act==='delItem'){if(confirm('Remove this item?')){DB.menuItems=DB.menuItems.filter(x=>x.id!==id);save();push((A,rid)=>A.menuDeleteItem(rid,id));}return;}
 });
 
 document.getElementById('btnAddCat').onclick=addCategory;
 document.getElementById('btnPreviewMenu').onclick=()=>window.open('index.html','_blank');
 
 render();
+menuServerSync();
 </script>
 </body>
 </html>

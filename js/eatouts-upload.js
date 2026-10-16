@@ -18,6 +18,77 @@
     videoAccept: 'video/*'
   };
 
+  /* Opt-in server upload. When a prefix is configured (per-call or via
+     setUploadPrefix), compressed images are POSTed to /api/upload and the
+     returned public URL is used instead of a base64 data URL. With no prefix
+     — or if the upload fails/401s — we fall back to the data URL, so offline
+     and unauthenticated flows keep working exactly as before. */
+  var uploadPrefix = null;
+
+  var EXT_BY_TYPE = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp',
+    'image/gif': '.gif',
+    'image/avif': '.avif',
+    'video/mp4': '.mp4',
+    'video/webm': '.webm',
+    'video/quicktime': '.mov'
+  };
+
+  function hasFetch() {
+    return typeof window !== 'undefined' && typeof window.fetch === 'function';
+  }
+
+  function extFor(file, blob) {
+    var name = (file && file.name) || '';
+    var dot = name.lastIndexOf('.');
+    if (dot >= 0) {
+      var ext = name.slice(dot).toLowerCase();
+      if (/^\.[a-z0-9]{1,5}$/.test(ext)) return ext;
+    }
+    var type = (blob && blob.type) || (file && file.type) || '';
+    return EXT_BY_TYPE[type] || '';
+  }
+
+  function randName() {
+    return 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function resolvePrefix(override) {
+    var p = override !== undefined ? override : uploadPrefix;
+    if (isFn(p)) p = p();
+    if (p == null) return null;
+    p = String(p).trim();
+    return p ? p.replace(/\/+$/, '') : null;
+  }
+
+  /* Upload a blob to Supabase Storage through the same-origin endpoint.
+     Resolves to the public URL, or null on any failure (caller falls back). */
+  function uploadBlob(blob, prefix, file) {
+    if (!blob || !hasFetch()) return Promise.resolve(null);
+    var base = prefix == null ? uploadPrefix : prefix;
+    if (isFn(base)) base = base();
+    base = base ? String(base).replace(/\/+$/, '') : 'uploads';
+    var path = base + '/' + randName() + extFor(file, blob);
+    var request;
+    try {
+      request = window.fetch('/api/upload?path=' + encodeURIComponent(path), {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': (blob.type || 'application/octet-stream') },
+        body: blob
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+    return Promise.resolve(request).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        return (r.ok && d && d.ok && d.url) ? d.url : null;
+      });
+    }).catch(function () { return null; });
+  }
+
   var FIELD_SELECTOR =
     'input[type="url"], input[data-upload], input[name="image"], ' +
     'input[name="src"], input[name="coverImage"], input[name="logo"], input[name="url"]';
@@ -46,6 +117,7 @@
     out.onPick = src.onPick;
     out.onError = src.onError;
     out.onVideo = src.onVideo;
+    out.uploadPrefix = src.uploadPrefix;
     return out;
   }
 
@@ -84,6 +156,13 @@
     return { isImage: isImage, isVideo: isVideo, ic: ic, vv: vv };
   }
 
+  function emitDataUrl(ic, blob, meta, onPick) {
+    if (!ic || !isFn(ic.blobToDataURL)) return Promise.resolve();
+    return ic.blobToDataURL(blob).then(function (dataUrl) {
+      if (isFn(onPick)) onPick(dataUrl, meta);
+    });
+  }
+
   function handleFile(file, onPick, onError, onVideo, o) {
     if (!file) return;
     var kind = classify(file);
@@ -94,16 +173,18 @@
         return;
       }
       kind.ic.compress(file, o.maxWidth, o.maxHeight, o.quality).then(function (blob) {
-        return kind.ic.blobToDataURL(blob).then(function (dataUrl) {
-          if (isFn(onPick)) {
-            onPick(dataUrl, {
-              name: file.name || '',
-              originalSize: file.size || 0,
-              compressedSize: blob.size || 0,
-              type: blob.type || '',
-              blob: blob
-            });
-          }
+        var meta = {
+          name: file.name || '',
+          originalSize: file.size || 0,
+          compressedSize: blob.size || 0,
+          type: blob.type || '',
+          blob: blob
+        };
+        var prefix = resolvePrefix(o.uploadPrefix);
+        if (!prefix) return emitDataUrl(kind.ic, blob, meta, onPick);
+        return uploadBlob(blob, prefix, file).then(function (url) {
+          if (url) { if (isFn(onPick)) onPick(url, meta); return; }
+          return emitDataUrl(kind.ic, blob, meta, onPick);
         });
       }).catch(function (e) {
         fail(onError, (e && e.message) || 'Image compression failed.');
@@ -248,12 +329,35 @@
     }
   }
 
+  /* Derive a venue/user-scoped upload prefix from the local EatoutsAuth
+     session, e.g. sessionPrefix('venues') -> 'venues/<id>'. Returns null
+     when there is no session, which disables server upload (data-URL
+     fallback stays in effect). */
+  function sessionPrefix(folder) {
+    var f = folder ? String(folder).replace(/\/+$/, '') : 'uploads';
+    try {
+      var auth = window.EatoutsAuth;
+      var s = auth && isFn(auth.currentSession) ? auth.currentSession() : null;
+      var id = s && (s.restaurantId || s.userId);
+      return id ? (f + '/' + id) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setUploadPrefix(prefix) { uploadPrefix = prefix; }
+  function getUploadPrefix() { return resolvePrefix(); }
+
   window.EatoutsUpload = {
     DEFAULTS: DEFAULTS,
     pickImage: pickImage,
     pickInto: pickInto,
     checkVideo: checkVideo,
     makeButton: makeButton,
-    decorate: decorate
+    decorate: decorate,
+    uploadBlob: uploadBlob,
+    sessionPrefix: sessionPrefix,
+    setUploadPrefix: setUploadPrefix,
+    getUploadPrefix: getUploadPrefix
   };
 })();

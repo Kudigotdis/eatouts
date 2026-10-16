@@ -63,7 +63,7 @@
       "interactions": "Search and filter by town/area; open a venue and switch tabs; favourite + WhatsApp icon rows on promo/event cards; the promo detail shows a venue card and a Back to Promos row; tap WhatsApp order/reserve intents; About \u00e2\u2020\u2019 Operator Sign in / demo login.",
       "auth": false,
       "status": "FULL",
-      "notes": "Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only."
+      "notes": "Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only. On venue open the app hydrates that venue's canonical D1 content via window.EatoutsContent (js/eatouts-content.js), merging profile/menu/gallery/promos/events into the local store before re-rendering; an unreachable backend leaves the imported-directory path untouched."
     },
     {
       "id": 2,
@@ -183,7 +183,7 @@
       "interactions": "Edit identity/location/contacts/socials/hours/amenities/capacity/payments/reservations/staff/users/delivery; save draft, publish, preview; completeness meter.",
       "auth": true,
       "status": "FULL",
-      "notes": "Publish only flags status; no live publish path."
+      "notes": "Publish only flags status; no live publish path. Logo/cover uploads now POST to /api/upload (Supabase) with a data-URL fallback."
     },
     {
       "id": 12,
@@ -195,7 +195,7 @@
       "interactions": "Add categories and items (type, price, status, tags); edit variants; open the modifiers editor per item.",
       "auth": true,
       "status": "FULL",
-      "notes": "Modifier editor wired in D21."
+      "notes": "Modifier editor wired in D21. Reconciles the menu with /api/business/menu (js/eatouts-business-api.js), pushing local-only categories/items and merging server rows; local storage remains the offline fallback. Item images upload to /api/upload (Supabase) with a data-URL fallback."
     },
     {
       "id": 13,
@@ -207,7 +207,7 @@
       "interactions": "Create/edit/duplicate/pause/delete promos; set pricing, schedule, linked menu items and action.",
       "auth": true,
       "status": "FULL",
-      "notes": "Recurring is a stored day list, not a scheduler."
+      "notes": "Recurring is a stored day list, not a scheduler. Promo images upload to /api/upload (Supabase) with a data-URL fallback. Saving a promo queues it for admin review via POST /api/customer/promo-submissions (source=business, marketing_manager+) and reads back review status; promos are never published directly."
     },
     {
       "id": 14,
@@ -219,7 +219,7 @@
       "interactions": "Create/edit/duplicate/delete events across 8 sections; link services and performers.",
       "auth": true,
       "status": "FULL",
-      "notes": "Service linker wired in D21; attendee/RSVP submit flow still deferred."
+      "notes": "Syncs to /api/business/events (marketing_manager+) in server mode, mirroring rows into the local store via EatoutsBusinessApi.eventToServer/eventFromServer; extended fields ride in the server `figure` JSON blob. Service linker wired in D21; attendee/RSVP submit flow still deferred. Event images upload to /api/upload (Supabase) with a data-URL fallback."
     },
     {
       "id": 15,
@@ -231,7 +231,7 @@
       "interactions": "Rename/show-hide/reorder/delete groups; add and delete images by URL; thumbnail preview.",
       "auth": true,
       "status": "FULL",
-      "notes": "URL-only images; no upload."
+      "notes": "Syncs to /api/business/gallery (groups + images, marketing_manager+) in server mode, mirroring rows into the local store via EatoutsBusinessApi.groupToServer/imageToServer; images upload to /api/upload (Supabase) with a data-URL fallback; a pasted URL still works."
     },
     {
       "id": 16,
@@ -252,10 +252,10 @@
       "purpose": "Universal WhatsApp + PIN sign-in; routes the user by role.",
       "audience": "All",
       "entry": "Direct link; also index.html \u00e2\u2020\u2019 About \u00e2\u2020\u2019 Operator Sign in \u00e2\u2020\u2019 Universal sign-in.",
-      "interactions": "Enter WhatsApp number + PIN; on success redirect by role.",
+      "interactions": "Enter WhatsApp number + password (username optional) for the customer/business form, or WhatsApp + PIN under Business sign-in; on success redirect by role.",
       "auth": false,
       "status": "FULL",
-      "notes": "Demo PIN 1234; the gate for every role shell."
+      "notes": "The customer form posts to /api/auth/login (type-aware; business owners sign in here with WhatsApp + password and route to eatouts-business-signup.html) and falls back to a local password check offline. The Business sign-in details block still uses the demo PIN 1234."
     },
     {
       "id": 18,
@@ -279,7 +279,7 @@
       "interactions": "Pick a business type; routes into the matching onboarding.",
       "auth": false,
       "status": "FULL",
-      "notes": "Owners can claim a custom /bw/<slug> link (/api/links/check, /api/business/link); loads js/eatouts-slug.js."
+      "notes": "Owners can claim a custom /bw/<slug> link (/api/links/check, /api/business/link); loads js/eatouts-slug.js. Claiming a real listing now also calls /api/business/claim (owner membership, or a pending claim for review) and caches the D1 restaurant id on the venue record. Account creation now establishes a real server session via js/eatouts-business-auth.js (/api/auth/signup type=business + /api/auth/verify), collecting a username + password (min 8) and mirroring the D1 user locally, with a local-account fallback offline."
     },
     {
       "id": 20,
@@ -339,7 +339,7 @@
       "interactions": "Step through modules, autosave a draft, open the rendered preview, then Save & publish \u00e2\u2020\u2019 operator-dashboard1.html.",
       "auth": true,
       "status": "FULL",
-      "notes": "Preview overlay wired in D21; 1 remaining alert."
+      "notes": "Preview overlay wired in D21; 1 remaining alert. Save & publish now resolves/creates the D1 business and PATCHes the live profile via /api/business/profile (js/eatouts-business-api.js) before redirecting."
     },
     {
       "id": 25,
@@ -387,7 +387,7 @@
       "interactions": "Add/edit/delete staff; assign roles; delete uses a confirm dialog with audit.",
       "auth": true,
       "status": "FULL",
-      "notes": "Hardened D20."
+      "notes": "Hardened D20. Team records now sync to D1 memberships (/api/business/staff) with an EatOuts sign-in role selector; identity fields are pulled back and merged on load."
     },
     {
       "id": 29,
@@ -495,7 +495,7 @@
       "interactions": "Navigate to platform admin surfaces; triage the P50 promo-submission queue (approve/reject/publish); search/filter and revoke/activate business links.",
       "auth": true,
       "status": "FULL",
-      "notes": "Promo-submissions actions hit /api/admin/promo-submissions; business links hit /api/admin/links."
+      "notes": "Promo-submissions actions hit /api/admin/promo-submissions; business links hit /api/admin/links. The queue now mixes customer event promos and business promos (source=business, restaurantId shown as a pill)."
     },
     {
       "id": 38,
@@ -946,6 +946,30 @@
     {
       "date": "2026-10-16",
       "note": "Customer-account fixes: EO.guard now requires a real session for role-gated areas, so a guest hitting a customer/manager page is redirected to login instead of being seated as the demo owner (js/eatouts-manager.js); eatouts-user-onboarding.html's offline fallback now stores a local password hash and EatoutsCustomer.login verifies locally-created accounts when the backend is unavailable (js/eatouts-customer.js). Legal privacy/terms data consolidated onto info@eatouts.site and eatouts.co.bw purged."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Business client wiring (Phase 2): new js/eatouts-business-api.js wraps /api/business/* (mine/claim/profile/staff/menu) with a dual-mode fetch client. staff-manager.html syncs memberships to D1, eatouts-business-signup.html claims via /api/business/claim and caches the D1 restaurant id, business-onboarding1.html's Save & publish PATCHes the live profile, and menu-onboarding.html reconciles its menu with the server. Tests: added tests/business-client.js, extended tests/router.js claim-bridge coverage."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Real media uploads (C4/C10 + E4/E5): js/eatouts-upload.js gained an opt-in server mode (uploadPrefix/uploadBlob/setUploadPrefix/sessionPrefix) that POSTs compressed images to /api/upload and stores the returned public URL, with a base64 data-URL fallback for offline/unauthenticated use. menu-onboarding, gallery-onboarding, restaurant-onboarding, promo-onboarding and event-onboarding now set a venues/<id> prefix before decorating. functions/api/upload.js hardened with a content-type allowlist (415) and 10 MB max size (413) plus a GET metadata endpoint. Tests: added tests/api-upload.js, extended tests/upload.js."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Real business sessions (D4): /api/auth/signup, verify and login are type-aware (customer|business); signup skips the 18+ gate for businesses, verify starts a session for the row's own type, and login accepts username-or-WhatsApp + password and routes business owners to eatouts-business-signup.html. New js/eatouts-business-auth.js calls signup+verify (or login), mirrors the D1 user into EatoutsMgrDB and starts the local session, with a local-account fallback when the backend is down. eatouts-business-signup.html's account step now collects a username + password (was demo PIN 1234) and creates a server account; eatouts-login.html's customer form makes the username optional so owners can sign in with WhatsApp + password. js/eatouts-customer.js bridgeLocal now mirrors the server user type/roles. Tests: added tests/api-auth-flow.js and tests/business-auth.js."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Business content endpoints (C6/C7): new /api/business/gallery (GET groups+images, POST groups, PATCH/DELETE groups/:id with image cascade, POST images, PATCH/DELETE images/:id) and /api/business/events (GET, POST, PATCH/DELETE events/:id) behind requireBusiness at marketing_manager+, with galleryGroupOut/galleryImageOut/eventOut mappers + jsonString/numOrNull helpers in functions/api/_business.js. js/eatouts-business-api.js gained gallery*/event* calls plus groupToServer/groupFromServer/imageToServer/imageFromServer and eventToServer/eventFromServer (extended event fields ride in the server `figure` JSON blob). gallery-onboarding.html and event-onboarding.html now reconcile their local stores with the server (push-on-change + push-missing-local + merge). Tests: extended tests/api-business.js and tests/business-client.js."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Business promos through the moderation queue (C8): migration 0006_promo_business.sql adds restaurant_id + source ('business'|'customer') to promo_submissions; promoSubmissionOut exposes both. functions/api/customer/promo-submissions.js now dual-serves: a body/query restaurantId routes to requireBusiness (marketing_manager+) and stamps source='business', otherwise requireCustomer as before; business promos always queue as status='pending' (never published directly). js/eatouts-business-api.js gained promosRead/promoSubmit/promoToSubmission. promo-onboarding.html submits on Save, reads back review status, and shows a review badge; the admin dashboard shows a Business/source pill and now labels the queue for events + business promos. Tests: extended tests/promo-submissions.js and tests/business-client.js."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Unified content model, public read (C9): new public GET /api/venues/:id (functions/api/venues/[id].js) resolves a venue by D1 id or slug and returns one canonical bundle — identity + visible menu categories/items, visible gallery groups/images, active promos and published events — reusing the _business.js row mappers. New js/eatouts-content.js (window.EatoutsContent) fetches that bundle, maps it to the v2 flat content shape and merges it into EatoutsDB (forkContent + contentSource='d1'), so every existing EatoutsBridge renderer shows D1-published content; it is conservative — a locally authored fork/flagship is never clobbered and an unreachable backend falls back to the imported directory. js/eatouts-bridge.js setActive now dispatches an 'eatouts:venue-active' event and index.html hydrates on venue open (plus the boot venue) and re-renders only when content applied. Tests: added tests/api-venues.js and tests/content.js."
     }
   ]
 }
