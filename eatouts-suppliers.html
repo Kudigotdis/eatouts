@@ -293,7 +293,7 @@ img{display:block;max-width:100%}
 <script>
 /* ============================================================
    EATOUTS SUPPLIERS — engine
-   Self-contained. Works with or without EatoutsCloud.
+   Self-contained. Profiles export as JSON for the directory.
    Storage keys:
      eatouts_suppliers_v1          — all supplier profiles on device
      eatouts_supplier_session_v1   — signed-in supplier id
@@ -996,9 +996,6 @@ img{display:block;max-width:100%}
     h += '<div class="section-title">Export</div>';
     h += '<div class="hint" style="margin-bottom:12px">Export your profile JSON. Send it to us on WhatsApp and we\'ll add you to the directory that venues read from.</div>';
     h += '<button class="btn ghost full" data-act="exportProfile">Export profile JSON</button>';
-    if (window.EatoutsCloud && EatoutsCloud.isConfigured && EatoutsCloud.isConfigured()) {
-      h += '<button class="btn gold full" style="margin-top:8px" data-act="publishCloud">Publish to cloud</button>';
-    }
     return h;
   }
 
@@ -1558,9 +1555,7 @@ img{display:block;max-width:100%}
     openSheet(i >= 0 ? 'Edit image' : 'Add image',
       '<div class="field"><label>Image URL</label><input id="__imUrl" value="' + esc(im.url) + '" placeholder="https://… or assets/…"></div>' +
       '<div class="field"><label>Caption</label><input id="__imCap" value="' + esc(im.caption || '') + '" placeholder="Optional"></div>' +
-      (window.EatoutsCloud && EatoutsCloud.isConfigured && EatoutsCloud.isConfigured()
-        ? '<div class="hint">Cloud is configured — file upload coming in a later version. For now paste the URL of an image you\'ve hosted.</div>'
-        : '<div class="hint">Paste the URL of an image you\'ve hosted somewhere. Direct file uploads come when Cloudflare is set up.</div>'),
+      '<div class="hint">Paste the URL of an image you\'ve hosted somewhere. Direct file uploads come in a later version.</div>',
       function(scrim){
         var url = scrim.querySelector('#__imUrl').value.trim();
         if (!url) { toast('Add an image URL'); return; }
@@ -1717,16 +1712,6 @@ img{display:block;max-width:100%}
       supplier: p
     };
 
-    /* Cloud path (if configured) */
-    if (window.EatoutsCloud && EatoutsCloud.isConfigured && EatoutsCloud.isConfigured() && EatoutsCloud.publishSupplier) {
-      toast('Publishing to cloud…');
-      EatoutsCloud.publishSupplier(Object.assign({ slug: slug }, p))
-        .then(function(res){
-          if (res && res.ok) toast('Published to cloud · ' + (res.url || slug));
-          else { toast('Cloud failed — downloading'); downloadPayload(payload, filename); }
-        });
-      return;
-    }
     downloadPayload(payload, filename);
   }
   function downloadPayload(payload, filename){

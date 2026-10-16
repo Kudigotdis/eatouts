@@ -135,7 +135,7 @@
       "interactions": "Read posts, filter by tag/search, share ?post= deep links; admin create/edit/delete with snapshot/restore history.",
       "auth": false,
       "status": "FULL",
-      "notes": "Local admin is an on-device key, not EatoutsAuth. Optional cloud sync needs the Worker deployed."
+      "notes": "Local admin is an on-device key, not EatoutsAuth. Posts export as JSON to publish; no cloud sync."
     },
     {
       "id": 8,
@@ -938,6 +938,10 @@
     {
       "date": "2026-10-15",
       "note": "About page guest profile card reworked from accordion to a focused sign-in popup: tapping \"Create Profile\" no longer drops the .pc-rows accordion (that block is now guarded to signed-in users only) and instead opens a centred .card-alert headed by the EatOuts logo, with a six-option vertical list (Favourites, Orders, Events, Saved Summaries, Profile, Gallery — each routing to eatouts-login.html) and Create an account (eatouts-user-onboarding.html) / Sign in / Not now actions. renderCardAlert gained optional a.logo, a.options[] and a.actions[] (href or data-act) while keeping the single-act locked-row alert path; .card-alert now scrolls if tall. tests/about.js asserts the popup content and that no accordion opens."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Removed the legacy Cloudflare R2 media path: deleted cloudflare-worker.js and js/eatouts-cloud.js and stripped the EatoutsCloud client from eatouts-blog.html (script tag + optional probe), js/eatouts-blog.js (feed fetch / cloud publish branches) and eatouts-suppliers.html (cloud hints, publish button, publishSupplier export path). Media now uses Supabase via /api/upload exclusively."
     }
   ]
 }

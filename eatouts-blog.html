@@ -335,13 +335,11 @@ meta[name=title],.meta-desc,.meta-og{display:none}
      Load order (all files must live in js/):
        1. Auth + DB (session check)
        2. Brand (esc, slugify)
-       3. Cloud client (optional — stub is fine if not configured)
-       4. Blog engine (reads assets/data/blog_posts.json)
+       3. Blog engine (reads assets/data/blog_posts.json)
      ============================================================ -->
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-brand.js"></script>
-<script src="js/eatouts-cloud.js"></script>
 <script src="js/eatouts-blog.js"></script>
 <script>
 (function(){
@@ -352,7 +350,7 @@ meta[name=title],.meta-desc,.meta-og{display:none}
      don't hard-fail if the optional ones are missing.
      ============================================================ */
   var required = ['EatoutsDB','EatoutsAuth','EatoutsBlog'];
-  var optional = ['EatoutsBrand','EatoutsCloud'];
+  var optional = ['EatoutsBrand'];
   required.forEach(function(name){
     if (typeof window[name] === 'undefined') {
       console.error('[blog] MISSING required dependency: ' + name);

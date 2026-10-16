@@ -8,7 +8,6 @@
    Optional deps (auto-detected, all graceful if missing):
      EatoutsAuth   — to gate admin mode
      EatoutsBrand  — for slugify
-     EatoutsCloud  — to publish the feed to Cloudflare
    ============================================================ */
 (function(){
   'use strict';
@@ -290,14 +289,6 @@
     catch(e){ console.warn('[blog] cache too big', e); }
   }
   function fetchFeed(){
-    if (window.EatoutsCloud && EatoutsCloud.isConfigured && EatoutsCloud.isConfigured()) {
-      return EatoutsCloud.fetchBlogFeed()
-        .then(function(feed){
-          if (feed && Array.isArray(feed.posts)) { saveCachedFeed(feed); return feed; }
-          return loadCachedFeed() || localFeedOrNull();
-        })
-        .catch(function(){ return loadCachedFeed() || localFeedOrNull(); });
-    }
     if (!window.fetch) return Promise.resolve(localFeedOrNull());
     return fetch(FEED_PATH, { cache:'no-store' })
       .then(function(r){ if (!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
@@ -953,14 +944,6 @@
       posts: posts
     };
 
-    if (window.EatoutsCloud && EatoutsCloud.isConfigured && EatoutsCloud.isConfigured()) {
-      toast('Publishing to cloud…');
-      EatoutsCloud.publishBlogFeed(feed).then(function(res){
-        if (res && res.ok) toast('Published ' + posts.length + ' post' + (posts.length===1?'':'s') + ' to the cloud');
-        else { toast('Cloud publish failed — downloading instead'); downloadFeed(feed); }
-      });
-      return;
-    }
     downloadFeed(feed);
   }
   function downloadFeed(feed){

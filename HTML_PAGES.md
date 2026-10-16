@@ -151,7 +151,7 @@ These limits apply to every page above.
 
 **Can do** - feed + tag/search filtering (shareable `#tag-` hash and `?post=` deep links with OG tags), post view, admin create/edit/delete, **version history** (snapshot / restore), image upload via the shared compressor. Stores to `eatouts_blog_v1` (with a `history{}` map; history is shed before a save can exceed the 4 MB browser budget).
 
-**Cannot do** - No server/CMS; posts live in this browser only. Optional cloud sync via `js/eatouts-cloud.js` needs the Worker deployed and configured.
+**Cannot do** - No server/CMS; posts live in this browser only (export the feed JSON to publish).
 
 ## eatouts-event-planner.html - event planner (1430 lines)
 
