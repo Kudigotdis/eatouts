@@ -70,12 +70,22 @@
   }).catch(function(){b.disabled=false;showErr("Network error. Try again.");});
  });
  function localFallback(p){
-  var u=EatoutsUsers.create({firstName:p.firstName,surname:p.surname,dob:p.dob,gender:p.gender,town:p.town,area:p.area,whatsapp:p.whatsapp,contacts:p.contacts||[],email:p.email,type:"customer",roles:["customer"],username:p.username});
-  try{if(u&&EatoutsAuth.startSession)EatoutsAuth.startSession(u);}catch(err){}
-  if(window.EatoutsCustomer){
-   window.EatoutsCustomer.state.user={id:u&&u.id,username:p.username,name:p.firstName+" "+p.surname,whatsapp:p.whatsapp,type:"customer",local:true};
+  function finish(u){
+   try{if(u&&EatoutsAuth.startSession)EatoutsAuth.startSession(u);}catch(err){}
+   if(window.EatoutsCustomer){
+    window.EatoutsCustomer.state.user={id:u&&u.id,username:p.username,name:p.firstName+" "+p.surname,whatsapp:p.whatsapp,type:"customer",local:true};
+   }
+   showPicks();
   }
-  showPicks();
+  function make(extra){
+   return EatoutsUsers.create(Object.assign({firstName:p.firstName,surname:p.surname,dob:p.dob,gender:p.gender,town:p.town,area:p.area,whatsapp:p.whatsapp,contacts:p.contacts||[],email:p.email,type:"customer",roles:["customer"],username:p.username},extra||{}));
+  }
+  if(window.EatoutsAuth&&EatoutsAuth.hashPassword&&EatoutsAuth.randomSalt){
+   var salt=EatoutsAuth.randomSalt();
+   EatoutsAuth.hashPassword(p.password,salt).then(function(hash){finish(make({passwordHash:hash,salt:salt}))}).catch(function(){finish(make({}))});
+   return;
+  }
+  finish(make({}));
  }
  function escHtml(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
  function escAttr(s){return escHtml(s).replace(/"/g,"&quot;");}

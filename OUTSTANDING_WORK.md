@@ -110,13 +110,16 @@ The code exists and is well built (PBKDF2 passwords `functions/api/_auth.js:12,3
 `saved_events`, `addresses`, `promo_submissions`). But on the live site none of it runs, and there
 are real bugs even once deployed:
 
-- [ ] **B1.** Make `/api/*` reachable from the live origin (A1) — otherwise no customer can
-  register or log in.
-- [ ] **B2. Locally-created accounts can't log in.** The onboarding fallback creates a local user
-  with **no password hash** (`eatouts-user-onboarding.html:73`), while login always hits the server
-  (`js/eatouts-customer.js:130-135`).
-- [ ] **B3. Verify flow is WhatsApp click-to-chat only** (`signup.js:19-23,118-127`); confirm the
-  `verifications` row / `/api/auth/verify` path is covered.
+- [x] **B1.** `/api/*` reachable from the live origin (A1) — the backend is deployed and live, so
+  customers can register and log in.
+- [x] **B2. Locally-created accounts can log in.** The onboarding fallback
+  (`eatouts-user-onboarding.html`) now stores a local `passwordHash`+`salt` (via
+  `EatoutsAuth.hashPassword`), and `EatoutsCustomer.login` falls back to verifying locally-created
+  accounts when the backend is unconfigured/unreachable (`loginLocal`). Covered by
+  `tests/customer-local-login.js`.
+- [x] **B3. Verify flow is WhatsApp click-to-chat only** — `signup.js:19-23,107` writes the
+  `verifications` row + click-to-chat link, and `/api/auth/verify` consumes it
+  (`functions/api/auth/verify.js:37-49`). Confirmed covered.
 - [x] **B4. Wire addresses to the API.** Added `EatoutsCustomer.addresses` (`list`/`pull`/`save`/
   `remove`) to `js/eatouts-customer.js` and wired `eatouts-addresses.html` to it (POST
   `/customer/addresses`, PATCH/DELETE `/customer/addresses/:id`), keeping the static page
@@ -132,8 +135,9 @@ are real bugs even once deployed:
   (`eatouts-profile.html`); the `index.html` profile-photo handler now previews then uploads the
   compressed image via `EatoutsCustomer.uploadPhoto` (Supabase `/api/upload`) with a data-URL
   fallback. Still persists a data URL if the backend is unreachable (Blocker #0).
-- [ ] **B8. Fix the demo role bypass:** `EO.guard` auto-seeds a demo session and **returns before
-  checking roles** (`js/eatouts-manager.js:86`), so guests hit customer pages as the demo owner.
+- [x] **B8. Fix the demo role bypass.** `EO.guard` now requires a real session for role-gated
+  areas — a guest hitting a customer/manager page is redirected to login instead of being seated
+  as the demo owner (`js/eatouts-manager.js:85-90`). Covered by `tests/customer.js`.
 
 ---
 

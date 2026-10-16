@@ -83,6 +83,9 @@
     if(cu&&!opts.roles)return cu;
     if(cu&&opts.roles&&opts.roles.length&&opts.roles.some(r=>r==="customer"||r==="customer:*"))return cu;
     const u=currentUser();
+    /* A role-gated area needs a real session: never auto-seed the demo owner
+       into it, or guests land inside customer/manager pages as the demo owner. */
+    if(!u&&opts.roles&&opts.roles.length){location.href="eatouts-login.html";return null}
     if(!u){if(opts.demo!==false){ensureDemo();return currentUser()}location.href="eatouts-login.html";return null}
     if(opts.roles&&opts.roles.length&&!opts.roles.some(r=>EatoutsAuth.hasRole(r))){document.body.innerHTML=`<main class="blocked"><h1>Access restricted</h1><p>Your current account does not have permission for this area.</p><a class="btn primary" href="eatouts-login.html">Sign in</a></main>`;return null}
     return u

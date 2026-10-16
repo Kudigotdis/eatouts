@@ -27,11 +27,11 @@ and `HTML_PAGES.md` the longer capability narrative.
 |-------|-------|------|-------|
 | Public & customer surfaces | 12 | 793 KB | 15706 |
 | Restaurant operator back-office | 6 | 174 KB | 2762 |
-| Manager / auth / platform admin (staged package) | 39 | 374 KB | 2724 |
+| Manager / auth / platform admin (staged package) | 39 | 374 KB | 2734 |
 | Delivery flows | 3 | 129 KB | 2226 |
 | Internal ops & billing | 3 | 151 KB | 2710 |
 | Developer harness | 2 | 224 KB | 4643 |
-| **Total** | **65** | **1841 KB** | **30771** |
+| **Total** | **65** | **1842 KB** | **30781** |
 
 Status: 60 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
@@ -60,7 +60,7 @@ Status: 60 FULL · 1 PARTIAL · 4 STUB/DEMO.
 | 15 | `gallery-onboarding.html` | operator-onboarding | Manage gallery groups and images. | Operator back-office â†’ Gallery tab. | yes | `EatoutsDB`→`eatouts_db_v2` | 15 KB / 243 lines |
 | 16 | `restaurant-dashboard.html` | operator-onboarding | Owner dashboard: status, completeness, simulated analytics, billing and downloadable/printable reports. | Operator back-office â†’ Dashboard tab. | yes | `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 30 KB / 485 lines |
 | 17 | `eatouts-login.html` | manager-admin | Universal WhatsApp + PIN sign-in; routes the user by role. | Direct link; also index.html â†’ About â†’ Operator Sign in â†’ Universal sign-in. | - | — | 5 KB / 44 lines |
-| 18 | `eatouts-user-onboarding.html` | manager-admin | Customer account creation with an 18+ gate. | eatouts-login.html â†’ create account. | - | — | 12 KB / 130 lines |
+| 18 | `eatouts-user-onboarding.html` | manager-admin | Customer account creation with an 18+ gate. | eatouts-login.html â†’ create account. | - | — | 12 KB / 140 lines |
 | 19 | `eatouts-business-signup.html` | manager-admin | Business-type chooser for new businesses. | eatouts-login.html / marketing links. | - | `EatoutsMgrDB`→`eatouts_manager_v1` | 28 KB / 565 lines |
 | 20 | `bottle-store-onboarding.html` | manager-admin | Redirect wrapper into the unified business onboarding (bottle store). | eatouts-business-signup.html. | - | — | 1 KB / 3 lines |
 | 21 | `caterer-onboarding.html` | manager-admin | Redirect wrapper into the unified business onboarding (caterer). | eatouts-business-signup.html. | - | — | 1 KB / 3 lines |
@@ -399,7 +399,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 2
-- **Size:** 12 KB / 130 lines (12185 bytes)
+- **Size:** 12 KB / 140 lines (12568 bytes)
 - **Loads:** `js/eatouts-manager-db.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`, `assets/data/restaurant_listings/eatouts_restaurant_picks.js`, `assets/data/BottleLliquorStoresDatabase.js`, `js/eatouts-bottle-stores.js`, `assets/eatouts-manager.css`
 - **Notes:** 1 informational alert.
 
@@ -1015,3 +1015,4 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **2026-10-15** — About page (data-page="about-main") polish: the guest profile card is now an orange accent accordion — the secondary line is gone, the whole card is a centred 30px call-to-action that drops the stacked "Create an account"/"Sign in" rows, and opening it (as a signed-out browser) raises a .card-alert popup offering to navigate to the login page via openUniversalLogin (previously a guest tap hard-redirected). Settings rows (.setrow) bumped to 25px/1.35 for readability. The standalone "Share EatOuts" button was removed and the About social row's dead "Website — contact unavailable" slot replaced with a live Share_On icon that opens the WhatsApp share sheet; the unused .btn.share rule was dropped. tests/about.js covers the share icon and the guest accordion/popup.
 - **2026-10-15** — About page guest profile card reworked from accordion to a focused sign-in popup: tapping "Create Profile" no longer drops the .pc-rows accordion (that block is now guarded to signed-in users only) and instead opens a centred .card-alert headed by the EatOuts logo, with a six-option vertical list (Favourites, Orders, Events, Saved Summaries, Profile, Gallery — each routing to eatouts-login.html) and Create an account (eatouts-user-onboarding.html) / Sign in / Not now actions. renderCardAlert gained optional a.logo, a.options[] and a.actions[] (href or data-act) while keeping the single-act locked-row alert path; .card-alert now scrolls if tall. tests/about.js asserts the popup content and that no accordion opens.
 - **2026-10-16** — Removed the legacy Cloudflare R2 media path: deleted cloudflare-worker.js and js/eatouts-cloud.js and stripped the EatoutsCloud client from eatouts-blog.html (script tag + optional probe), js/eatouts-blog.js (feed fetch / cloud publish branches) and eatouts-suppliers.html (cloud hints, publish button, publishSupplier export path). Media now uses Supabase via /api/upload exclusively.
+- **2026-10-16** — Customer-account fixes: EO.guard now requires a real session for role-gated areas, so a guest hitting a customer/manager page is redirected to login instead of being seated as the demo owner (js/eatouts-manager.js); eatouts-user-onboarding.html's offline fallback now stores a local password hash and EatoutsCustomer.login verifies locally-created accounts when the backend is unavailable (js/eatouts-customer.js). Legal privacy/terms data consolidated onto info@eatouts.site and eatouts.co.bw purged.

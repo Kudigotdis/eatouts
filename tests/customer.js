@@ -4,7 +4,7 @@ const { JSDOM, VirtualConsole } = require(path.join(__dirname, 'node_modules', '
 
 const APP_DIR = path.resolve(__dirname, '..');
 
-function boot(file, url) {
+function boot(file, url, session) {
   const errors = [];
   let html = fs.readFileSync(path.join(APP_DIR, file), 'utf8');
   html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, s) => {
@@ -15,7 +15,15 @@ function boot(file, url) {
   const vc = new VirtualConsole();
   vc.on('jsdomError', e => errors.push('jsdomError: ' + (e.stack || e.message)));
   vc.on('error', (...a) => errors.push('console.error: ' + a.join(' ')));
-  const dom = new JSDOM(html, { url: url || 'http://localhost/' + file, runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: vc });
+  const dom = new JSDOM(html, {
+    url: url || 'http://localhost/' + file,
+    runScripts: 'dangerously',
+    pretendToBeVisual: true,
+    virtualConsole: vc,
+    beforeParse(win) {
+      if (session) win.localStorage.setItem('eatouts_customer_v1', JSON.stringify(Object.assign({ favourites: [], summaries: [], events: [] }, session)));
+    }
+  });
   return { window: dom.window, doc: dom.window.document, errors };
 }
 
@@ -134,14 +142,22 @@ setTimeout(() => {
   check('admin dashboard wires the promo queue API', /api\/admin\/promo-submissions/.test(adminSrc), '');
   check('admin dashboard renders review actions', /data-ps-act/.test(adminSrc) && /data-ps-status/.test(adminSrc), '');
 
-  /* ---------- 3. eatouts-checkout-summary.html smoke ---------- */
-  const cos = boot('eatouts-checkout-summary.html');
+  /* ---------- 3. eatouts-checkout-summary.html smoke (signed-in customer) ---------- */
+  const cos = boot('eatouts-checkout-summary.html', null, { user: { id: 'u1', username: 'tester', type: 'customer', name: 'Tester' } });
   setTimeout(() => {
     check('checkout-summary: mounts a shell', !!cos.doc.getElementById('mount') && cos.doc.getElementById('mount').innerHTML.length > 0);
     check('checkout-summary: reads the customer store shell', /Checkout Summary/.test(cos.doc.body.textContent));
     check('checkout-summary: no hard errors',
       cos.errors.filter(e => e.indexOf('missing script') !== 0).length === 0,
       cos.errors.slice(0, 2).join(' | '));
+
+    /* 3b. a guest must NOT be seated as the demo owner (B8) */
+    const guestCos = boot('eatouts-checkout-summary.html');
+    setTimeout(() => {
+      check('checkout-summary: a guest is not seated as the demo owner',
+        !guestCos.doc.getElementById('mount') || guestCos.doc.getElementById('mount').innerHTML.length === 0);
+    }, 300);
+
 
     /* ---------- 4. a customer session owns the gate (no manager demo session) ---------- */
     const seedInline = (file) => {

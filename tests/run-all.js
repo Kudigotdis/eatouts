@@ -53,6 +53,7 @@ const SUITES = [
   'menuview.js',
   'menu-nav-state.js',
   'customer.js',
+  'customer-local-login.js',
   'inventory.js'
 ];
 

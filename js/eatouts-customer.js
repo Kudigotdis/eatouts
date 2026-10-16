@@ -132,8 +132,13 @@
 
   function login(data) {
     return api('/auth/login', { method: 'POST', body: data }).then(function (r) {
-      if (r.ok && r.data && r.data.user) onAuthed(r.data.user);
+      if (r.ok && r.data && r.data.user) { onAuthed(r.data.user); return r.data; }
+      /* Backend reachable but unconfigured, or no fetch at all: use a local account. */
+      if ((r.data && r.data.error === 'backend_not_configured') || r.status === 0) return loginLocal(data);
       return r.data;
+    }).catch(function () {
+      /* Offline / network failure: fall back to a locally-created account. */
+      return loginLocal(data);
     });
   }
 
@@ -185,6 +190,54 @@
     bridgeLocal();
     emit();
     pull();
+  }
+
+  /* Local-only sign-in against a locally-created account (B2). Mirrors the
+     server result shape so the login page can treat it identically. */
+  function setLocalUser(user) {
+    state.user = user;
+    state.backend = false;
+    state.loaded = true;
+    writeLocal();
+    bridgeLocal();
+    emit();
+    return user;
+  }
+
+  function loginLocal(data) {
+    if (typeof window === 'undefined' || !window.EatoutsUsers || !window.EatoutsAuth || !EatoutsAuth.hashPassword) {
+      return Promise.resolve({ ok: false, error: 'backend_not_configured' });
+    }
+    var username = String((data && data.username) || '').trim().toLowerCase();
+    var wa = String((data && (data.whatsapp || data.phone)) || '').replace(/\D/g, '');
+    var candidates = (EatoutsUsers.all() || []).filter(function (u) {
+      if (!u || !u.passwordHash || !u.salt) return false;
+      var nameMatch = !!username && String(u.username || '').toLowerCase() === username;
+      var waMatch = !!wa && String(u.whatsapp || '').replace(/\D/g, '') === wa;
+      return nameMatch || waMatch;
+    });
+    if (!candidates.length) return Promise.resolve({ ok: false, error: 'notfound' });
+    var password = String((data && data.password) || '');
+    return candidates.reduce(function (chain, u) {
+      return chain.then(function (found) {
+        if (found) return found;
+        return EatoutsAuth.hashPassword(password, u.salt).then(function (h) {
+          return h === u.passwordHash ? u : null;
+        });
+      });
+    }, Promise.resolve(null)).then(function (u) {
+      if (!u) return { ok: false, error: 'badpassword' };
+      var user = {
+        id: u.id,
+        username: u.username || '',
+        name: String((u.firstName || '') + ' ' + (u.surname || '')).trim(),
+        whatsapp: u.whatsapp || '',
+        type: 'customer',
+        local: true
+      };
+      setLocalUser(user);
+      return { ok: true, user: user, route: 'index.html#promos' };
+    });
   }
 
   function updateProfile(patch) {
