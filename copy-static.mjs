@@ -107,9 +107,6 @@ const FILES = [
   '_headers',
   '_redirects',
 
-  // GitHub Pages custom domain
-  'CNAME',
-
   // Demo data used by the app
   'demo_info_menu-items-food-beverages.json',
   'demo_restaurant_list.json',

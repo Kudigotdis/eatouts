@@ -49,11 +49,13 @@ First visit: open `seed-demo.html`, seed demo data, then run verification (all a
 
 ## Hosting & DNS
 
-**Live site:** https://eatouts.site — served by **GitHub Pages**, built by `.github/workflows/pages.yml` from `dist/` on every push to `main`. A root `CNAME` file pins the custom domain; `www.eatouts.site` and `kudigotdis.github.io/eatouts` 301-redirect to the apex.
+**Live site:** https://eatouts.site — served by **Cloudflare Pages** (project `eatouts`), connected to the `Kudigotdis/eatouts` GitHub repo. Every push to `main` triggers a cloud build (build command `npm run build`, output dir `dist`) and deploys automatically. The Pages Functions in `functions/api/**` (`/api/*`), the D1 database, KV sessions and Supabase media all run on the **same origin**.
 
-**DNS:** the apex (`@`) is pointed at GitHub Pages' A/AAAA records and `www` at a CNAME to `kudigotdis.github.io`.
+**Local checks before pushing:** `npm test` (must pass) then `npm run build` (verifies the restaurant-directory merge + static copy into `dist/`). Manual `wrangler pages deploy dist` is only a fallback for direct uploads.
 
-> **GitHub Pages is a static mirror.** It serves files only, so `functions/api/**` (`/api/*`), `_redirects` and `_headers` do not run here — the client falls back to its localStorage/demo mode. The full backend (Cloudflare Pages + Functions + D1 + KV + Supabase) runs separately; see **Cloudflare backend (M0)**.
+**DNS:** `eatouts.site` is managed by Cloudflare (nameservers delegated from Namecheap). Email (`info@eatouts.site`) runs on Namecheap Private Email — keep the `MX`, the `SPF` TXT and the `mail`/`autodiscover`/`autoconfig` records **DNS-only** (grey cloud) and never enable Cloudflare Email Routing.
+
+**Backend config:** the D1 database id and KV namespace id live in `wrangler.toml`; secrets (`SESSION_SECRET`, `ADMIN_EMAILS`, `DEV_LOGIN_EMAILS`, `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_BUCKET`) are set on the Pages project. Health probe: `GET /api/health`.
 
 ## Client-side upload helpers
 

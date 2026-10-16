@@ -4,25 +4,26 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "merge":   "python scripts/build_restaurant_directory.py",
+    "merge": "python scripts/build_restaurant_directory.py",
     "link-registry": "node scripts/build_link_registry.mjs",
-    "build":   "npm run merge && npm run link-registry && node copy-static.mjs",
-    "stage":   "node copy-static.mjs",
-    "deploy":  "npm run build && npx wrangler pages deploy dist",
+    "build": "npm run merge && npm run link-registry && node copy-static.mjs",
+    "stage": "node copy-static.mjs",
+    "deploy": "npm run build && npx wrangler pages deploy dist",
     "preview": "npm run build && npx wrangler pages dev dist",
     "validate": "python scripts/validate_submission.py",
-    "catalog":  "node scripts/build_html_catalog.mjs",
-    "inventory":"node scripts/update-inventory.mjs",
+    "catalog": "node scripts/build_html_catalog.mjs",
+    "inventory": "node scripts/update-inventory.mjs",
     "missing-logos": "node scripts/missing-logos.mjs",
     "demo-data": "node scripts/build-demo-data.mjs",
-    "test":     "node tests/run-all.js",
+    "test": "node tests/run-all.js",
     "db:migrate:local": "npx wrangler d1 migrations apply eatouts --local",
-    "db:migrate":       "npx wrangler d1 migrations apply eatouts --remote",
-    "db:seed:build":    "python scripts/build_d1_seed.py && node scripts/build_link_registry.mjs",
-    "db:seed":          "python scripts/build_d1_seed.py && node scripts/build_link_registry.mjs && npx wrangler d1 execute eatouts --file scripts/seeds/restaurants.sql --remote && npx wrangler d1 execute eatouts --file scripts/seeds/business_links.sql --remote",
-    "pages:dev":        "npm run build && npx wrangler pages dev dist"
+    "db:migrate": "npx wrangler d1 migrations apply eatouts --remote",
+    "db:seed:build": "python scripts/build_d1_seed.py && node scripts/build_link_registry.mjs",
+    "db:seed": "python scripts/build_d1_seed.py && node scripts/build_link_registry.mjs && npx wrangler d1 execute eatouts --file scripts/seeds/restaurants.sql --remote && npx wrangler d1 execute eatouts --file scripts/seeds/business_links.sql --remote",
+    "pages:dev": "npm run build && npx wrangler pages dev dist"
   },
   "devDependencies": {
-    "jsdom": "^29.1.1"
+    "jsdom": "^29.1.1",
+    "wrangler": "^4.151.0"
   }
 }

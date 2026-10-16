@@ -17,13 +17,13 @@ PUBLIC_BASE = ""
 [[d1_databases]]
 binding = "DB"
 database_name = "eatouts"
-database_id = "<D1_DATABASE_ID>"
+database_id = "138c97dd-95f1-4a99-9aa4-778f71090126"
 
 # KV namespace ->  npx wrangler kv namespace create OPS_KV
 # Replace <KV_NAMESPACE_ID> with the id it prints.
 [[kv_namespaces]]
 binding = "OPS_KV"
-id = "<KV_NAMESPACE_ID>"
+id = "315b0ddf742046eaab81843535adaf65"
 
 # ------------------------------------------------------------------
 # Media storage is Supabase Storage (not Cloudflare R2, which needs a
@@ -45,3 +45,15 @@ id = "<KV_NAMESPACE_ID>"
 # ------------------------------------------------------------------
 [env.production.vars]
 ENV = "production"
+PUBLIC_BASE = ""
+
+# Bindings are NOT inherited by environments, so the D1 database and
+# KV namespace are repeated for the production environment.
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "eatouts"
+database_id = "138c97dd-95f1-4a99-9aa4-778f71090126"
+
+[[env.production.kv_namespaces]]
+binding = "OPS_KV"
+id = "315b0ddf742046eaab81843535adaf65"
