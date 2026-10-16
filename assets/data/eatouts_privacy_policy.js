@@ -11,8 +11,8 @@ window.EATOUTS_PRIVACY_POLICY = {
         "name": "[Registered Company Name]",
         "tradingAs": "Eatouts",
         "address": "[Plot/Address], Gaborone, Botswana",
-        "contactEmail": "privacy@eatouts.co.bw",
-        "legalEmail": "legal@eatouts.co.bw"
+        "contactEmail": "info@eatouts.site",
+        "legalEmail": "info@eatouts.site"
       },
       "sections": [
         {
@@ -20,7 +20,7 @@ window.EATOUTS_PRIVACY_POLICY = {
           "heading": "Who we are",
           "paragraphs": [
             "Eatouts (\"we\", \"us\", \"our\") is a restaurant discovery application operated by [Registered Company Name], [Plot/Address], Gaborone, Botswana.",
-            "For privacy enquiries contact privacy@eatouts.co.bw."
+            "For privacy enquiries contact info@eatouts.site."
           ]
         },
         {
@@ -108,7 +108,7 @@ window.EATOUTS_PRIVACY_POLICY = {
           "number": 12,
           "heading": "Your rights",
           "paragraphs": [
-            "You may request access to, correction of, or deletion of personal data we hold about you, and you may object to processing. Email privacy@eatouts.co.bw.",
+            "You may request access to, correction of, or deletion of personal data we hold about you, and you may object to processing. Email info@eatouts.site.",
             "You also have the right to lodge a complaint with the Botswana Data Protection Commissioner."
           ]
         },
@@ -139,8 +139,8 @@ window.EATOUTS_PRIVACY_POLICY = {
         "name": "[Registered Company Name]",
         "tradingAs": "Eatouts",
         "address": "[Plot/Address], Gaborone, Botswana",
-        "legalEmail": "legal@eatouts.co.bw",
-        "supportEmail": "hello@eatouts.co.bw"
+        "legalEmail": "info@eatouts.site",
+        "supportEmail": "info@eatouts.site"
       },
       "sections": [
         {
@@ -230,7 +230,7 @@ window.EATOUTS_PRIVACY_POLICY = {
           "number": 10,
           "heading": "Takedown and correction requests",
           "paragraphs": [
-            "If you own a restaurant and want a listing, logo, menu, or image removed or corrected, email legal@eatouts.co.bw with the business name and the specific content.",
+            "If you own a restaurant and want a listing, logo, menu, or image removed or corrected, email info@eatouts.site with the business name and the specific content.",
             "We aim to action verified requests within 5 business days and will confirm once done."
           ]
         },
@@ -296,7 +296,7 @@ window.EATOUTS_PRIVACY_POLICY = {
           "number": 19,
           "heading": "Contact",
           "paragraphs": [
-            "legal@eatouts.co.bw · [Registered Address]"
+            "info@eatouts.site · [Registered Address]"
           ]
         }
       ]

@@ -4,7 +4,8 @@
 **Live site:** https://www.eatouts.site (Cloudflare Pages; apex `eatouts.site` 301→ www)
 **Progress:** Phase 1 code edits landed (B4, B7, E2 partial) — `npm test` 36/36 green. Supabase
 project + public `eatouts-media` bucket exist (E1). Backend **deployed and live** on Cloudflare
-Pages (Phase 0 complete — A1–A5 resolved); remaining Phase 1+ work is tracked below.
+Pages (Phase 0 complete — A1–A5 resolved). **Phase 0.5 done** (domain/email cleanup). Remaining
+Phase 1+ work is tracked below.
 **Repo:** `Kudigotdis/eatouts`
 **Method:** full read of `functions/api/**`, `migrations/**`, `js/**`, onboarding + admin pages,
 deploy config, and the repo's own `HTML_ASSESSMENT.md` / `INTEGRATION_AUDIT.md`.
@@ -53,6 +54,37 @@ project, so the API no longer returns `503 backend_not_configured` / `storage_no
 | Admin: promo queue | Yes | Yes | Live |
 | Admin: slug/link moderation | Yes | Yes | Live |
 | Admin: analytics / verification / brand / blog | None | No (local) | Mock |
+
+---
+
+## Product decisions (locked 2026-10-16)
+
+The user confirmed the following; work must follow them:
+
+1. **Domain / emails:** the only domain is `eatouts.site` (`www.eatouts.site` canonical; apex
+   301→ www). **`eatouts.co.bw` does not exist** and must never appear. The only mailbox is
+   **`info@eatouts.site`** — all `privacy@` / `legal@` / `hello@` references consolidate onto it.
+   *(Done — Phase 0.5.)* Legal `[Registered Address]` / `[Registered Company Name]` / `[Plot/Address]`
+   **stay as placeholders** until real entity details exist.
+2. **Business promos are moderated:** every business promo goes through the **existing admin
+   promo-submission queue** (`/api/admin/promo-submissions`) and only goes live on admin approval.
+3. **Promo quota / fee:** each business gets **3 free promos per calendar month**, then
+   **P50.00 each**.
+4. **Payments:** **no gateway yet** — tracking only, via **invoices** that an admin marks paid
+   (onboarding fee, monthly plan, promo overage).
+5. **Verification:** still WhatsApp click-to-chat (no OTP); storage stays local (no Dexie); auth
+   stays PBKDF2.
+
+---
+
+## Phase 0.5 — Domain & email cleanup (DONE)
+
+- `assets/data/eatouts_privacy_policy.{json,js}` and `assets/data/eatouts_terms_of_service.{json,js}`
+  rewritten: every `eatouts.co.bw` address → `info@eatouts.site`; legal placeholders untouched.
+- Fixed `scripts/build_legal_docs.js` → **`scripts/build_legal_docs.cjs`** (the generator was
+  unrunnable under `"type": "module"`); re-ran it to regenerate both `.js` files from the `.json`
+  sources (self-check passed).
+- Verified: zero `eatouts.co.bw` matches remain anywhere in the repo.
 
 ---
 
@@ -105,11 +137,16 @@ are real bugs even once deployed:
 
 ---
 
-## Part C — Businesses (profiles, staff, menus, images)
+## Part C — Businesses, staff & content (profile, menu, gallery, promos, events)
 
 Front-end: yes, richly. Server: essentially no. There is **no `/api` endpoint that persists a
-business, its staff, or its menu.** Those flows write to two localStorage stores (`eatouts_db_v2`
-and `eatouts_manager_v1`) — device-local, non-durable, invisible to customers.
+business, its staff, or any of its content.** Those flows write to two localStorage stores
+(`eatouts_db_v2` and `eatouts_manager_v1`) — device-local, non-durable, invisible to customers.
+
+**Foundation for every C-item:** a `requireBusiness(context, restaurantId, minRole)` guard in
+`functions/api/_business.js` (session via `_shared.js:getSession` + membership row lookup in
+`memberships`) — the existing `_customer.js` only knows `requireCustomer`/`requireAdmin`.
+Roles to honour: `owner`, `manager`, `menu_manager`, `marketing_manager`.
 
 - [ ] **C1. Build business endpoints:** create/read/update business profile (name, address,
   contact, hours) + status/approval. D1 schema already supports it (`restaurants`,
@@ -127,6 +164,20 @@ and `eatouts_manager_v1`) — device-local, non-durable, invisible to customers.
 - [ ] **C5. Business onboarding persistence.** `business-onboarding1.html:90` publishes to
   localStorage only; `eatouts-business-signup.html` is the only onboarding page touching the API
   (slug claim only, `:138,491`).
+- [ ] **C6. Gallery endpoints.** Read/write `gallery_groups` + `gallery_images`
+  (`0001_init.sql`), wired to `gallery-onboarding.html` (currently localStorage + base64).
+- [ ] **C7. Events endpoints.** CRUD `events` (`0001_init.sql`), wired to
+  `eatout_event_builder.html` / `event-onboarding.html`; they must surface in the customer
+  calendar and saved-Favourites→Events.
+- [ ] **C8. Business promos through the moderation queue.** Business-submitted promos must write
+  to the **existing `promo_submissions` queue** (never publish directly); extend
+  `functions/api/customer/promo-submissions.js` to accept a `restaurant_id` + `source='business'`.
+- [ ] **C9. Unify the content model.** One canonical record set per restaurant in D1, read by the
+  public venue/`eatouts-*` pages — replacing the two incompatible localStorage stores; keep the
+  customer read paths (`venues.js`, `restaurants`) as the single source for display.
+- [ ] **C10. Real image upload for all onboarding.** Replace base64-in-localStorage
+  (`EatoutsUpload.decorate`) with `POST /api/upload` (Supabase) for profile/logo/menu/gallery/event
+  images.
 
 ---
 
@@ -194,19 +245,51 @@ From `HTML_ASSESSMENT.md` / `INTEGRATION_AUDIT.md` (still open):
 - [ ] **F1.** Order bridge (the top gap).
 - [ ] **F2.** Menu modifier-group editor stub (`HTML_ASSESSMENT.md:135-138`).
 - [ ] **F3.** Event "Add Service" linker stub (`:148-151`).
-- [ ] **F4.** Payment: no real gateway — bookings/invoices are simulated.
+- [ ] **F4.** Payment: no real gateway — **accepted for now (locked decision: tracking only via
+  Part G invoices)**; bookings stay simulated. Revisit a real gateway post-launch.
 - [ ] **F5.** Manual placeholders needing your data: bank/MoMo in `invoice.html`, live URL/QR in
   `one-pager.html`, partner-terms legal review, get-started testimonial (`SESSION_NOTES.md:43`).
+
+---
+
+## Part G — Promotions, moderation quota & invoicing
+
+Business-submitted content must be moderated and billed per the locked decisions (3 free
+promos/venue/calendar-month, then P50.00 each; payments = tracking only).
+
+- [ ] **G1. Promo quota.** Add `source`, `month_key`, `restaurant_id` to `promo_submissions`
+  (new migration) and count a business's promos per calendar month, enforcing **3 free on
+  admin approval** (the 4th+ approvals as **P50.00 + an invoice line**).
+- [ ] **G2. Approval → publish.** Approved business promos publish to the customer-facing
+  promos/offers surface (only admin-managed promos do today).
+- [ ] **G3. Invoices (tracking only).** New D1 `invoices` table (restaurant_id, type:
+  `onboarding|plan|promo`, amount, status `draft|due|paid`, reference, created_at/paid_at).
+  Admin list endpoint + "mark paid" action; **no gateway, no PDF, no email.**
+- [ ] **G4. Fee disclosure.** Onboarding + `promo-onboarding.html` show the 3-free/P50 rule as a
+  quote before the business submits.
 
 ---
 
 ## Phased plan
 
 - **Phase 0 — Go live with a real backend (unblocks everything).** A1–A5 — **DONE (live on Cloudflare Pages).**
-- **Phase 1 — Customer persistence in production.** B1–B8 (esp. B2, B4, B5).
-- **Phase 2 — Business + media.** C1–C5, E1–E6.
-- **Phase 3 — Admin.** D1–D7.
-- **Phase 4 — Product polish.** F1–F5.
+- **Phase 0.5 — Domain & email cleanup.** **DONE (this change).** `eatouts.co.bw` purged; legal
+  privacy/terms email consolidated to `info@eatouts.site`; legal builder fixed (`build_legal_docs.cjs`).
+- **Phase 1 — Customer accounts & data.** B1–B4, B6–B8 (sign-up/login, addresses, recovery).
+  **B5 (orders) deferred to Phase 6** — need restaurant-side fulfilment first.
+- **Phase 2 — Business accounts + staff.** C0 (`requireBusiness` RBAC guard), C1–C5 (profile,
+  staff/roles, menu unification, onboarding persistence), E1–E6 (media).
+- **Phase 3 — Business content.** C6–C10 (gallery, promos, events, unified content model, uploads).
+- **Phase 4 — Moderation quota + invoicing.** G1–G4 (3 free/venue/calendar-month then P50.00;
+  invoices tracking-only) + admin queue approval for business promos.
+- **Phase 5 — Admin.** D1–D7 (production admin path, user/business management over real data,
+  invoice "mark paid").
+- **Phase 6 — Product polish.** F1, F2, F3, F5 + **B5 (orders)**; F4 (real payment gateway)
+  intentionally out of scope until after launch.
+
+**Assumptions (state here; change if wrong):** business auth reuses the existing `users`
+login + `memberships` roles (no separate business login); admin notifications/in-app messaging
+(B6) stay as-is this pass; invoices are a server list + admin "mark paid" only (no PDF/email).
 
 ---
 
@@ -264,9 +347,17 @@ was retired.
 ## Decisions (resolved)
 
 1. **Hosting:** Cloudflare Pages is the live origin for `www.eatouts.site` (same-origin API). ✅
-2. **Priority:** Phase 0–1 (real accounts) first, then the full stack. (open)
-3. **Payments:** in scope now (F4), or deferred? (open)
-4. **Supabase:** existing project used — no new project needed. ✅
+2. **Supabase:** existing project used — no new project needed. ✅
+3. **Domain + official email:** `www.eatouts.site` canonical; only `info@eatouts.site`; `eatouts.co.bw`
+   purged. ✅ (Phase 0.5)
+4. **Business promos:** moderated through the existing admin queue; 3 free per venue per calendar
+   month, then P50.00 each. ✅ (locked 2026-10-16)
+5. **Payments:** no gateway — invoices are tracking-only, admin marks paid. ✅ (locked 2026-10-16)
+6. **Priority:** phased plan above (Phase 1 → 2 → 3 → 4 → 5 → 6). ✅
+
+**Still open (non-blocking):** business auth = existing `users` login + `memberships` roles
+(no separate business login) assumed; admin notifications / in-app messaging (B6) assumed out of
+scope this pass; invoice PDFs/email reminders out of scope.
 
 ---
 

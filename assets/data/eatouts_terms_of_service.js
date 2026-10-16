@@ -10,8 +10,8 @@ window.EATOUTS_TERMS_OF_SERVICE = {
       "name": "[Registered Company Name]",
       "tradingAs": "Eatouts",
       "address": "[Plot/Address], Gaborone, Botswana",
-      "legalEmail": "legal@eatouts.co.bw",
-      "supportEmail": "hello@eatouts.co.bw"
+      "legalEmail": "info@eatouts.site",
+      "supportEmail": "info@eatouts.site"
     },
     "sections": [
       {
@@ -101,7 +101,7 @@ window.EATOUTS_TERMS_OF_SERVICE = {
         "number": 10,
         "heading": "Takedown and correction requests",
         "paragraphs": [
-          "If you own a restaurant and want a listing, logo, menu, or image removed or corrected, email legal@eatouts.co.bw with the business name and the specific content.",
+          "If you own a restaurant and want a listing, logo, menu, or image removed or corrected, email info@eatouts.site with the business name and the specific content.",
           "We aim to action verified requests within 5 business days and will confirm once done."
         ]
       },
@@ -167,7 +167,7 @@ window.EATOUTS_TERMS_OF_SERVICE = {
         "number": 19,
         "heading": "Contact",
         "paragraphs": [
-          "legal@eatouts.co.bw · [Registered Address]"
+          "info@eatouts.site · [Registered Address]"
         ]
       }
     ]
