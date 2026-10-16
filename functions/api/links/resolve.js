@@ -1,6 +1,6 @@
 /* GET /api/links/resolve?country=bw&slug=name
    Public resolver used by the client router when the edge function's
-   <meta> hint is unavailable (e.g. the GitHub Pages mirror, or ?link=).
+   <meta> hint is unavailable (e.g. the Cloudflare Pages static fallback, or ?link=).
    -> { ok, found, link:{ type, refId, name } } | { ok, found, redirect, to } */
 import { json } from './../_shared.js';
 import { countryOf, resolveLink } from './../_links.js';

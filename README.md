@@ -49,12 +49,11 @@ First visit: open `seed-demo.html`, seed demo data, then run verification (all a
 
 ## Hosting & DNS
 
-**Live site:** https://eatouts.site — served by **Cloudflare Pages** (project `eatouts`), connected to the `Kudigotdis/eatouts` GitHub repo. Every push to `main` triggers a cloud build (build command `npm run build`, output dir `dist`) and deploys automatically. The Pages Functions in `functions/api/**` (`/api/*`), the D1 database, KV sessions and Supabase media all run on the **same origin**.
+**Live site:** https://www.eatouts.site — served by **Cloudflare Pages** (project `eatouts`), connected to the `Kudigotdis/eatouts` GitHub repo. Every push to `main` triggers a cloud build (build command `npm run build`, output dir `dist`) and deploys automatically. The apex `eatouts.site` 301-redirects to `www.eatouts.site`. The Pages Functions in `functions/api/**` (`/api/*`), the D1 database, KV sessions and Supabase media all run on the **same origin**.
 
 **Local checks before pushing:** `npm test` (must pass) then `npm run build` (verifies the restaurant-directory merge + static copy into `dist/`). Manual `wrangler pages deploy dist` is only a fallback for direct uploads.
 
 **DNS:** `eatouts.site` is managed by Cloudflare (nameservers delegated from Namecheap). Email (`info@eatouts.site`) runs on Namecheap Private Email — keep the `MX`, the `SPF` TXT and the `mail`/`autodiscover`/`autoconfig` records **DNS-only** (grey cloud) and never enable Cloudflare Email Routing.
-
 **Backend config:** the D1 database id and KV namespace id live in `wrangler.toml`; secrets (`SESSION_SECRET`, `ADMIN_EMAILS`, `DEV_LOGIN_EMAILS`, `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_BUCKET`) are set on the Pages project. Health probe: `GET /api/health`.
 
 ## Client-side upload helpers
@@ -86,7 +85,7 @@ CI (`.github/workflows/test.yml`) runs the same suites plus the build-time merge
 
 ## Cloudflare backend (M0)
 
-The self-serve platform runs on **Cloudflare Pages Functions + D1 + KV + R2**. Functions live in `functions/api/` and deploy automatically with the Git-connected Pages project.
+The self-serve platform runs on **Cloudflare Pages Functions + D1 + KV + Supabase Storage**. Functions live in `functions/api/` and deploy automatically with the Git-connected Pages project.
 
 Bindings (`wrangler.toml`):
 
@@ -121,21 +120,6 @@ npm run pages:dev                  # builds dist/ and serves with bindings
 ```
 
 Production secrets (`SESSION_SECRET`, `DEV_LOGIN_EMAILS`, `ADMIN_EMAILS`, `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_BUCKET`, `PUBLIC_BASE`) are set in the Cloudflare dashboard under Workers & Pages → eatouts → Settings → Variables and Secrets. `ENV=production` disables the dev-login shortcut.
-
-## Cloud media — legacy R2 worker (superseded by Supabase Storage)
-
-> **Legacy / optional, kept for reference.** This R2-based path is superseded by the Supabase Storage upload endpoint (`POST /api/upload`), because Cloudflare R2 requires a card on file. The supplier/blog/event pages will move onto the Supabase path.
-
-The supplier, blog and event pages can store media in a Cloudflare R2 bucket through a small Worker. The client (`js/eatouts-cloud.js`) degrades gracefully until it is configured, so this is optional for launch.
-
-1. Deploy the Worker: paste `cloudflare-worker.js` into the Cloudflare Workers editor.
-2. In the Worker settings, set the environment variables:
-   - `BUCKET` — your R2 bucket binding (name it `eatouts-media`).
-   - `SECRET` — a long random string.
-   - `PUBLIC_BASE` — the public URL prefix of your R2 bucket (e.g. `https://pub-xxxxx.r2.dev`).
-3. In `js/eatouts-cloud.js`, set `window.EATOUTS_CLOUD.workerUrl` to the deployed Worker URL (e.g. `https://eatouts-media.YOUR-NAME.workers.dev`) and `secret` to the same value as the Worker's `SECRET`.
-
-Until step 3 is done, `EatoutsCloud` reports "not configured" and callers fall back to local behaviour. The `workerUrl` and `secret` values are intentionally left blank in the repo; fill them in per environment.
 
 ## Documentation
 

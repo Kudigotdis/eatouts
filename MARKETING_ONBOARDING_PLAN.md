@@ -5,7 +5,7 @@
 **Launch decisions (locked in):**
 - **Onboarding model:** concierge — the EatOuts team sets each restaurant up (no self-serve sign-up UI needed at launch).
 - **Pricing — paid from day one:** one-time **P300 onboarding/setup fee**, then monthly **Starter P100 · Growth P300 · Pro P500** (reduced from the old P300 / P500 / P800 tiers).
-- **Launch link:** the current live site (GitHub Pages) — branded domain is a post-launch follow-up.
+- **Launch link:** the live site — **https://www.eatouts.site** (Cloudflare Pages, apex `eatouts.site` 301→ www).
 
 **Current blockers a restaurant can't yet do this today:**
 1. An owner's dashboard edits live only in their browser's localStorage — there is **no export/publish path** to the live site.
@@ -18,7 +18,7 @@
 
 1. **Build an "Export this restaurant" action in the owner dashboard.** Add a button that downloads the signed-in restaurant's full record as a single JSON file (profile, menu categories/items, promos, events, performers, gallery groups, reservation settings, users).
 2. **Make the directory generator ingest exported records.** Update `scripts/build_restaurant_directory.py` so it also merges exported owner JSON from an `owner_submissions/` folder (idempotent, stable IDs — matching the existing "missing-only roster updates" design) alongside the SQLite, CSV and curated inputs it already reads.
-3. **Add one-command live deploy.** Wrap rebuild + `git add`/`commit`/`push` into a single batch script (or GitHub Action), so the team can publish a venue to GitHub Pages without manual steps.
+3. **Add one-command live deploy.** Publishing is now automatic: pushing to `main` triggers the Git-connected Cloudflare Pages build (`npm run build` → `dist/`) and deploys. Optionally wrap rebuild + `git add`/`commit`/`push` for the non-technical team so a venue goes live without manual steps.
 4. **Test the full publish flow with a sample venue.** Onboard a test restaurant in the dashboard → export → merge → deploy → confirm on the live site that: it appears in the directory (563 → 564), its Menu/Promos work, checkout works, and the WhatsApp messages target the restaurant's own number.
 5. **Build a concierge intake form/template.** A structured questionnaire (Google Form or WhatsApp script) that captures for each restaurant: exact name, description, category/type, town/area, operating hours, logo + cover photo, menu items with photos and prices, promos, events, socials (IG/FB/WA/TikTok/X/YouTube/Website/Call/GPS), contacts, and reservation settings.
 6. **Create a new-venue starter template + one-session concierge checklist.** Make it possible for the team to set a restaurant up in a single sitting (Profile → Menu → Photos → Promos → Reserve → Go live) with placeholders that are easy to fill.
@@ -30,13 +30,13 @@
 
 10. **Set launch pricing in writing:** non-refundable **P300 onboarding/setup fee (one-time)**; monthly **Starter P100 · Growth P300 · Pro P500**. Document exactly what each tier includes (listing, menu, promos, events, gallery, reservation settings, support level) so sales has one answer to "what do I get?".
 11. **Create the invoicing & payment process.** A WhatsApp invoice template + bank/MoMo transfer instructions; a simple tracker (spreadsheet) of restaurant → tier → onboarding fee paid → monthly due date. **Rule: listing is published only after the P300 onboarding fee is confirmed.**
-12. **Fix `README.md.md` → `README.md`** and update it with the new tier pricing; remove the unbuilt "interaction analytics dashboard" claim (or clearly mark it as roadmap) so marketing never over-promises.
+12. **Update `README.md`** with the new tier pricing; remove the unbuilt "interaction analytics dashboard" claim (or clearly mark it as roadmap) so marketing never over-promises.
 13. **Draft merchant/partner Terms of Service + a short subscription agreement** covering the P300 onboarding fee, recurring P100–P500 monthly fees, cancellation/downgrade policy, payment terms, and the restaurant's responsibility for its own content.
 14. **Add a merchant-data addendum to the Privacy Policy** describing what EatOuts stores about a restaurant (name, contacts, owner details) — consistent with the existing 14-section Privacy Policy.
 
 ## C. Marketing & brand build
 
-15. **Log a non-blocking follow-up: branded domain.** Launch on the current GitHub Pages link; add a task to buy a `.bw`/`.co.bw` domain and move the live app later for credibility.
+15. **Branded domain — done.** The app is live on **https://www.eatouts.site** (Cloudflare Pages). Remaining follow-up: confirm the public contact details (e.g. `info@eatouts.site`) and any `.bw`/`.co.bw` alias for local credibility.
 16. **Add a "List your restaurant / Get started" lead-capture CTA** on the live site (reuse the existing About → WhatsApp inquiry path) so restaurant owners can reach the team in one tap.
 17. **Write the pitch one-pager.** What EatOuts does (restaurant discovery + WhatsApp ordering for Botswana), the customer win (offline browsing, no account, order in WhatsApp), the restaurant win (no commission, the venue's own number receives the orders, page updated by concierge), the P300 onboarding + tier pricing, and the live link + QR code.
 18. **Film a 60–90 second demo video:** Promos feed → search + filters → restaurant Menu → add to cart → checkout → Split the Bill → Operator demo (existing demo login `0 / 0`).
@@ -56,4 +56,4 @@
 
 27. **Define and track success metrics weekly:** venues live, paid subscribers, monthly recurring revenue, WhatsApp order/booking clicks per venue.
 28. **Send a monthly restaurant round-up** (WhatsApp/newsletter) — what's new in the app + which venue performed best that month.
-29. **Run an 8–12 week review:** renew pricing if needed, maintain a feature-request list from restaurant feedback, and revisit the branded-domain follow-up.
+29. **Run an 8–12 week review:** renew pricing if needed, maintain a feature-request list from restaurant feedback, and revisit the branded-domain/alias follow-up.

@@ -4,8 +4,8 @@
    The edge function (functions/bw/[[path]].js) already resolved the slug
    and left a hint in the served HTML:
        <meta name="eatouts-vanity" content="type|refId|slug">
-   This module reads that hint (or, as a fallback for the GitHub Pages
-   mirror / shared links, ?link=<slug> and the /bw/<slug> path) and hands
+   This module reads that hint (or, as a fallback for the Cloudflare Pages
+   static path / shared links, ?link=<slug> and the /bw/<slug> path) and hands
    the calling page a plain target to open:
 
        { type, refId, slug, country }     - ready to open

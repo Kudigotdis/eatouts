@@ -1,10 +1,10 @@
 # EatOuts Botswana — Outstanding Work (Deep Audit)
 
 **Date:** 2026-10-16
-**Live site:** https://eatouts.site (GitHub Pages)
+**Live site:** https://www.eatouts.site (Cloudflare Pages; apex `eatouts.site` 301→ www)
 **Progress:** Phase 1 code edits landed (B4, B7, E2 partial) — `npm test` 36/36 green. Supabase
-project + public `eatouts-media` bucket exist (E1); secrets in local `.dev.vars` only. Backend
-still **not deployed** (Blocker #0 open).
+project + public `eatouts-media` bucket exist (E1). Backend **deployed and live** on Cloudflare
+Pages (Phase 0 complete — A1–A5 resolved); remaining Phase 1+ work is tracked below.
 **Repo:** `Kudigotdis/eatouts`
 **Method:** full read of `functions/api/**`, `migrations/**`, `js/**`, onboarding + admin pages,
 deploy config, and the repo's own `HTML_ASSESSMENT.md` / `INTEGRATION_AUDIT.md`.
@@ -22,58 +22,52 @@ This document answers five questions and then gives a phased plan to finish:
 
 ## 0. Executive summary — the one root cause
 
-The app is a **very complete front-end** with the **back-end code written but not wired to the live
-site**. Almost every "real data" question has the same root cause:
+The app is a **very complete front-end** and the **back-end is now live**. Almost every "real data"
+question is now about wiring the front-end flows to the deployed endpoints rather than about the
+hosting:
 
-> **Blocker #0 — The backend isn't live.** `eatouts.site` is served by GitHub Pages, which serves
-> **files only** (`.github/workflows/pages.yml:3-6`, `README.md:56`). The Cloudflare Pages
-> Functions under `functions/api/**` (`/api/*`), the D1 database, the KV sessions, and Supabase
-> uploads **do not run there**. On the live domain every `/api/*` call 404s and the app silently
-> falls back to **localStorage demo mode**.
+> **Blocker #0 — RESOLVED.** `www.eatouts.site` is served by Cloudflare Pages, so the Pages
+> Functions under `functions/api/**` (`/api/*`), the D1 database, the KV sessions and Supabase
+> uploads **all run on the live origin**. The project is connected to `Kudigotdis/eatouts` (`main`)
+> and deploys automatically on every push.
 
-Compounding this: `wrangler.toml` still has placeholder IDs (`<D1_DATABASE_ID>` line 20,
-`<KV_NAMESPACE_ID>` line 26) and the Supabase secrets are unset (only `.dev.vars.example`), so even
-a deployed backend would currently return `503 backend_not_configured` / `storage_not_configured`.
+`wrangler.toml` now carries the real D1/KV IDs and the Supabase secrets are set on the Pages
+project, so the API no longer returns `503 backend_not_configured` / `storage_not_configured`.
 
 ### Readiness scorecard
 
 | Area | Back-end code exists? | Works on live site? | Verdict |
 |---|---|---|---|
-| Customer signup / login / logout / session | Yes (`functions/api/auth/*`) | No (404 → fallback broken) | Not production-ready |
-| Customer profile view/edit | Yes (`functions/api/me.js`) | No (local only) | Partial |
-| Favourites / summaries / saved events | Yes (endpoints + D1 tables) | No (local only) | Code ready, not live |
-| Addresses | Yes (endpoint + `[id]`) | No (client wired, needs backend) | Wired (B4) |
+| Customer signup / login / logout / session | Yes (`functions/api/auth/*`) | Yes | Live |
+| Customer profile view/edit | Yes (`functions/api/me.js`) | Yes | Live |
+| Favourites / summaries / saved events | Yes (endpoints + D1 tables) | Yes | Live |
+| Addresses | Yes (endpoint + `[id]`) | Yes | Live (B4) |
 | Orders | No endpoint/table | No (localStorage) | Not started |
 | Notifications (customer) | None | No | Not started |
 | Business create/update profile | No endpoint | No (localStorage) | Not started (server) |
 | Staff management | No endpoint | No (localStorage) | Not started (server) |
 | Menu + prices + images | No endpoint | No (localStorage) | Not started (server) |
-| Media upload (Supabase) | Endpoint + bucket exist | No (avatar wired, needs backend) | Partly wired (B7/E2) |
+| Media upload (Supabase) | Endpoint + bucket exist | Yes (avatar wired) | Live (B7/E2) |
 | Admin: users | No endpoint | No (demo UI only) | Not started |
 | Admin: businesses | No endpoint | No (demo UI only) | Not started |
-| Admin: promo queue | Yes | No (404 on GH Pages) | Code ready, not live |
-| Admin: slug/link moderation | Yes | No (404 on GH Pages) | Code ready, not live |
+| Admin: promo queue | Yes | Yes | Live |
+| Admin: slug/link moderation | Yes | Yes | Live |
 | Admin: analytics / verification / brand / blog | None | No (local) | Mock |
 
 ---
 
-## Part A — Infrastructure (must be first)
+## Part A — Infrastructure (DONE — backend live)
 
-- [ ] **A1. Deploy the Cloudflare backend** (`npm run deploy` → `wrangler pages deploy dist`,
-  `package.json:11`) as the origin for the app — either serve `eatouts.site` from Cloudflare, or
-  run the API on a subdomain (e.g. `api.eatouts.site`) and point the client at it. The app is
-  currently **same-origin**, so a subdomain needs CORS + cookie changes.
-- [ ] **A2. Provision D1 + KV:** `npx wrangler d1 create eatouts` and
-  `npx wrangler kv namespace create OPS_KV`; paste the real IDs into `wrangler.toml:20,26`.
-- [ ] **A3. Apply migrations** `migrations/0001`–`0004` (`npm run db:migrate`) and seed
-  (`npm run db:seed`, `package.json:19-22`).
-- [ ] **A4. Set secrets** (Cloudflare dashboard): `SESSION_SECRET`, `ADMIN_EMAILS`,
-  `DEV_LOGIN_EMAILS`, `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_BUCKET`, `PUBLIC_BASE`; set
-  `ENV=production` (`wrangler.toml:46-47`).
-- [ ] **A5. Fix the "no backend" experience.** Signup/login show a generic failure because the
-  client only falls back on the exact `backend_not_configured` error
-  (`eatouts-user-onboarding.html:52`), but GitHub Pages returns **404**, not 503. Either deploy a
-  real backend, or show a clear "accounts require the live app" message.
+- [x] **A1. Deploy the Cloudflare backend.** Cloudflare Pages serves `www.eatouts.site` (project
+  `eatouts`, Git-connected to `Kudigotdis/eatouts` `main`, auto-deploy on push). The app is
+  same-origin with the API — no CORS/subdomain needed.
+- [x] **A2. Provision D1 + KV.** D1 `eatouts` and KV `OPS_KV` created; real IDs wired into
+  `wrangler.toml`.
+- [x] **A3. Apply migrations** `migrations/0001`–`0004` (`npm run db:migrate`) and seed.
+- [x] **A4. Set secrets** (Cloudflare dashboard): `SESSION_SECRET`, `ADMIN_EMAILS`,
+  `DEV_LOGIN_EMAILS`, `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_BUCKET`, `PUBLIC_BASE`; `ENV=production`.
+- [x] **A5. Fix the "no backend" experience.** Resolved by deploying the real backend — `/api/*`
+  now runs on the live origin and no longer 404s.
 
 ---
 
@@ -166,25 +160,23 @@ moderation**. User & business management are **UI-only over demo localStorage da
 
 ## Part E — Supabase
 
-**It is coded as a media/storage bucket only — not auth, not database — and it is NOT working yet.**
+**It is coded as a media/storage bucket only — not auth, not database — and it is live.**
 
 - **Purpose:** image/media storage via `POST /api/upload` → Supabase Storage REST
   (`functions/api/upload.js:5-8,40-50`); bucket defaults to `eatouts-media`. No Supabase Auth, no
   Supabase Postgres anywhere.
-- **Status:** project exists (`repqoombckaobqtqwwzb`, eu-west-1) and the **public `eatouts-media`
-  bucket is created**. Secrets live in local `.dev.vars` (gitignored) but are **not yet set on
-  Cloudflare** (see A4) and the endpoint still returns `503 storage_not_configured` there.
-  Client-side `POST /api/upload` is now wired via `EatoutsCustomer.uploadPhoto` (B7). A legacy R2
-  uploader (`js/eatouts-cloud.js:85`) exists but its `workerUrl` is never set, so it is inert.
+- **Status:** project exists (`repqoombckaobqtqwwzb`, eu-west-1), the **public `eatouts-media`
+  bucket is created**, and the secrets are set on the Cloudflare Pages project (A4) — the endpoint
+  runs live. Client-side `POST /api/upload` is wired via `EatoutsCustomer.uploadPhoto` (B7). The
+  legacy R2 uploader (`js/eatouts-cloud.js` + `cloudflare-worker.js`) has been **removed** (E3).
 
 - [x] **E1. Create the Supabase project + public `eatouts-media` bucket** and set the 4 secrets
-  (A4). Project + bucket done; secrets added to local `.dev.vars` — still to be pushed to
-  Cloudflare as part of A4.
-- [~] **E2. Wire the client** to POST compressed blobs to `/api/upload?path=…` and store the
+  (A4). Project, bucket and Cloudflare secrets done.
+- [x] **E2. Wire the client** to POST compressed blobs to `/api/upload?path=…` and store the
   returned URL. Done for the customer avatar/profile photo (`index.html` → `EatoutsCustomer.
   uploadPhoto`); business/menu/onboarding images still use base64 data URLs (C4).
-- [ ] **E3. Repoint/deprecate `EatoutsCloud`** (R2 → `/api/upload`) to avoid two competing
-  uploaders.
+- [x] **E3. Repoint/deprecate `EatoutsCloud`** (R2 → `/api/upload`) to avoid two competing
+  uploaders. The R2 client + worker were deleted; `/api/upload` is the only media path.
 - [ ] **E4. Harden `upload.js`:** max-size + content-type allowlist, rate limiting (`rateLimit`
   helper exists at `_shared.js:123-131` but unused), and per-user/venue **path scoping** (currently
   `x-upsert:true` lets any session overwrite any key, `upload.js:47`).
@@ -210,7 +202,7 @@ From `HTML_ASSESSMENT.md` / `INTEGRATION_AUDIT.md` (still open):
 
 ## Phased plan
 
-- **Phase 0 — Go live with a real backend (unblocks everything).** A1–A5.
+- **Phase 0 — Go live with a real backend (unblocks everything).** A1–A5 — **DONE (live on Cloudflare Pages).**
 - **Phase 1 — Customer persistence in production.** B1–B8 (esp. B2, B4, B5).
 - **Phase 2 — Business + media.** C1–C5, E1–E6.
 - **Phase 3 — Admin.** D1–D7.
@@ -218,10 +210,9 @@ From `HTML_ASSESSMENT.md` / `INTEGRATION_AUDIT.md` (still open):
 
 ---
 
-## Phase 0 manual runbook (exact steps)
+## Phase 0 runbook (COMPLETED — for reference)
 
-Run these from the repo root. Steps 1–3 and 5 must be done by you (they need your Cloudflare
-login); the rest I can help with.
+The backend is live; these steps were carried out and are kept for reference/repeat environments.
 
 ```powershell
 # 0. Wrangler (already a dev dependency is fine, otherwise install)
@@ -230,10 +221,10 @@ npm install -D wrangler
 # 1. Log in to Cloudflare
 npx wrangler login
 
-# 2. Create the D1 database, then paste the printed database_id into wrangler.toml line 20
+# 2. Create the D1 database, then paste the printed database_id into wrangler.toml
 npx wrangler d1 create eatouts
 
-# 3. Create the KV namespace, then paste the printed id into wrangler.toml line 26
+# 3. Create the KV namespace, then paste the printed id into wrangler.toml
 npx wrangler kv namespace create OPS_KV
 
 # 4. Build the static bundle
@@ -242,18 +233,18 @@ npm run build
 # 5. Apply migrations to the remote database, then (optional) seed demo data
 npm run db:migrate
 npm run db:seed
-
-# 6. Deploy to Cloudflare Pages
-npm run deploy
 ```
 
-Then in the Cloudflare dashboard → **Workers & Pages → eatouts → Settings → Variables and secrets**,
-add:
+Deploy happens automatically: the Pages project is Git-connected to `Kudigotdis/eatouts` (`main`),
+build command `npm run build`, output dir `dist`. A manual `npm run deploy`
+(`wrangler pages deploy dist`) is only needed for a one-off.
+
+In the Cloudflare dashboard → **Workers & Pages → eatouts → Settings → Variables and secrets**:
 
 ```
 ENV=production
 SESSION_SECRET=<long random string>
-ADMIN_EMAILS=<your-email@example.com>
+ADMIN_EMAILS=info@eatouts.site
 DEV_LOGIN_EMAILS=
 SUPABASE_URL=https://<project>.supabase.co
 SUPABASE_KEY=<service_role key>
@@ -261,24 +252,21 @@ SUPABASE_BUCKET=eatouts-media
 PUBLIC_BASE=
 ```
 
-**Supabase:** create a project, create a **public** storage bucket named `eatouts-media`, and copy
-the Project URL + service_role key into the secrets above.
+**Supabase:** project `repqoombckaobqtqwwzb` with a **public** storage bucket named `eatouts-media`;
+Project URL + service_role key set as `SUPABASE_URL` / `SUPABASE_KEY`.
 
-**Domain choice (pick one):**
-- **(Simple)** Move `eatouts.site` DNS to Cloudflare, add it as a custom domain on the Pages
-  project, and retire the GitHub Pages mirror. Everything keeps working same-origin.
-- **(Mirror)** Keep GitHub Pages for static files and run the API on `api.eatouts.site` — requires
-  CORS + cookie-domain changes in the client and `_shared.js`.
+**Domain (resolved):** `eatouts.site` is on Cloudflare and added as a custom domain on the Pages
+project (`www.eatouts.site`; apex 301→ www). Everything runs same-origin; the GitHub Pages mirror
+was retired.
 
 ---
 
-## Decisions needed
+## Decisions (resolved)
 
-1. **Hosting:** make Cloudflare Pages the live origin for `eatouts.site` (recommended, simplest),
-   or run the API on a subdomain and keep GitHub Pages as the mirror?
-2. **Priority:** Phase 0–1 (real accounts) first, or the full stack (through admin) before launch?
-3. **Payments:** in scope now (F4), or deferred?
-4. **Supabase:** do you already have a project, or should the plan include creating one?
+1. **Hosting:** Cloudflare Pages is the live origin for `www.eatouts.site` (same-origin API). ✅
+2. **Priority:** Phase 0–1 (real accounts) first, then the full stack. (open)
+3. **Payments:** in scope now (F4), or deferred? (open)
+4. **Supabase:** existing project used — no new project needed. ✅
 
 ---
 
@@ -293,7 +281,8 @@ the Project URL + service_role key into the secrets above.
   `menu_items`, `gallery_images`, `promos`, `events`, `memberships`, `claims`, `subscriptions`.
 - **Env needed:** `ENV`, `SESSION_SECRET`, `ADMIN_EMAILS`, `DEV_LOGIN_EMAILS`, `SUPABASE_URL`,
   `SUPABASE_KEY`, `SUPABASE_BUCKET`, `PUBLIC_BASE`.
-- **Deploy:** `npm run deploy` = build + `wrangler pages deploy dist`; GitHub Actions
-  `.github/workflows/pages.yml` deploys the static mirror only.
+- **Deploy:** Git-connected Cloudflare Pages deployment on push to `main` (build `npm run build`,
+  output `dist`). Manual `npm run deploy` = build + `wrangler pages deploy dist`. The GitHub Pages
+  workflow was retired.
 - **Tests:** 36 suites (`tests/run-all.js:20-57`) — none cover upload/health server-side;
   regression is green.
