@@ -14,5 +14,5 @@
  d.innerHTML=optHtml(locOpts(L.districtOptions(),dCode,'— Select district —'));t.innerHTML=optHtml(locOpts(L.townOptions(dCode),town,'— Select town —'));a.innerHTML=optHtml(locOpts(L.areaOptions(dCode,town),cur.area||'','— Select area —'));if(plot)plot.value=cur.plot||'';
  d.onchange=()=>{t.innerHTML=optHtml(locOpts(L.townOptions(d.value),'','— Select town —'));a.innerHTML=optHtml(locOpts(L.areaOptions(d.value,''),'','— Select area —'))};
  t.onchange=()=>{a.innerHTML=optHtml(locOpts(L.areaOptions(d.value,t.value),'','— Select area —'))};
- lf.onsubmit=e=>{e.preventDefault();const dd=L.allDistricts().find(x=>String(x.code)===String(d.value))||{};EatoutsUsers.update(u.id,{deliveryLocation:{district:d.value,districtName:dd.name||'',town:t.value,area:a.value==='Other / not listed'?'':a.value,plot:plot?plot.value.trim():''}});EO.toast("Delivery location saved")};
+  lf.onsubmit=e=>{e.preventDefault();const dd=L.allDistricts().find(x=>String(x.code)===String(d.value))||{};const loc={district:d.value,districtName:dd.name||'',town:t.value,area:a.value==='Other / not listed'?'':a.value,plot:plot?plot.value.trim():''};EatoutsUsers.update(u.id,{deliveryLocation:loc});if(window.EatoutsCustomer&&EatoutsCustomer.updateProfile)EatoutsCustomer.updateProfile({deliveryLocation:loc});EO.toast("Delivery location saved")};
 });</script></body></html>

@@ -9270,20 +9270,27 @@ window.addEventListener("online",refreshNetChip);
 window.addEventListener("offline",refreshNetChip);
 refreshNetChip();
 
-/* Profile photo picker: preview the chosen image and remember it locally. */
+/* Profile photo picker: preview locally, then upload to media storage. */
 document.addEventListener("change",function(e){
   if(!e.target||e.target.id!=="pcFile")return;
   const file=e.target.files&&e.target.files[0];
   if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(){
-    state.profilePhoto=reader.result;
+  const s=window.EatoutsCustomer;
+  const done=function(val){
+    state.profilePhoto=val;
     try{
-      const s=window.EatoutsCustomer;
-      if(s&&s.state&&s.state.user){s.state.user.photoKey=state.profilePhoto;}
-      s&&s.updateProfile&&s.updateProfile({photoKey:state.profilePhoto});
+      if(s&&s.state&&s.state.user){s.state.user.photoKey=val;}
+      if(s&&s.updateProfile){s.updateProfile({photoKey:val});}
     }catch(err){}
     render();
+  };
+  const reader=new FileReader();
+  reader.onload=function(){
+    done(reader.result);
+    /* Upgrade the local preview to a hosted URL when the backend is reachable. */
+    if(s&&s.uploadPhoto){
+      s.uploadPhoto(file).then(function(url){if(url)done(url);}).catch(function(){});
+    }
   };
   reader.readAsDataURL(file);
 });

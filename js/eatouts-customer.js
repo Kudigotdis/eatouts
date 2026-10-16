@@ -26,6 +26,7 @@
     favourites: [],
     summaries: [],
     events: [],
+    addresses: [],
     loaded: false
   };
 
@@ -54,7 +55,8 @@
         user: state.user,
         favourites: state.favourites,
         summaries: state.summaries,
-        events: state.events
+        events: state.events,
+        addresses: state.addresses
       }));
     } catch (e) { /* quota / disabled storage: ignore */ }
   }
@@ -65,6 +67,7 @@
     state.favourites = Array.isArray(d.favourites) ? d.favourites : [];
     state.summaries = Array.isArray(d.summaries) ? d.summaries : [];
     state.events = Array.isArray(d.events) ? d.events : [];
+    state.addresses = Array.isArray(d.addresses) ? d.addresses : [];
   }
 
   function uid(prefix) {
@@ -217,12 +220,14 @@
     return Promise.all([
       api('/customer/favourites').catch(function () { return {}; }),
       api('/customer/summaries').catch(function () { return {}; }),
-      api('/customer/events').catch(function () { return {}; })
+      api('/customer/events').catch(function () { return {}; }),
+      api('/customer/addresses').catch(function () { return {}; })
     ]).then(function (res) {
-      var f = res[0].data, s = res[1].data, e = res[2].data;
+      var f = res[0].data, s = res[1].data, e = res[2].data, a = res[3].data;
       if (f && Array.isArray(f.favourites)) state.favourites = f.favourites;
       if (s && Array.isArray(s.summaries)) state.summaries = s.summaries;
       if (e && Array.isArray(e.events)) state.events = e.events;
+      if (a && Array.isArray(a.addresses)) state.addresses = a.addresses;
       writeLocal();
       emit();
       return state;
@@ -315,6 +320,76 @@
     return Promise.resolve({ ok: true });
   }
 
+  /* ---------- store: addresses ---------- */
+
+  function addrList() { return state.addresses.slice(); }
+
+  function addrSave(payload) {
+    var entry = shallowCopy(payload);
+    entry.id = entry.id || ('AD-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+    var ts = Date.now();
+    if (entry.created_at == null) entry.created_at = ts;
+    entry.updated_at = ts;
+    var i = state.addresses.findIndex(function (x) { return x.id === entry.id; });
+    var isNew = i < 0;
+    if (isNew) state.addresses.unshift(entry); else state.addresses[i] = entry;
+    writeLocal(); emit();
+    if (!state.backend) return Promise.resolve({ ok: true, item: entry, local: true });
+    var call = isNew
+      ? api('/customer/addresses', { method: 'POST', body: entry })
+      : api('/customer/addresses/' + encodeURIComponent(entry.id), { method: 'PATCH', body: entry });
+    return call.then(function (r) {
+      if (isNew && r.ok && r.data && r.data.id) {
+        entry.id = r.data.id;
+        writeLocal(); emit();
+      }
+      return { ok: r.ok, item: entry };
+    }).catch(function () { return { ok: true, item: entry, local: true }; });
+  }
+
+  function addrRemove(id) {
+    state.addresses = state.addresses.filter(function (x) { return x.id !== id; });
+    writeLocal(); emit();
+    if (state.backend) api('/customer/addresses/' + encodeURIComponent(id), { method: 'DELETE' }).catch(function () { });
+    return Promise.resolve({ ok: true });
+  }
+
+  function addrPull() {
+    if (!state.backend) return Promise.resolve(addrList());
+    return api('/customer/addresses').then(function (r) {
+      if (r.ok && r.data && Array.isArray(r.data.addresses)) {
+        state.addresses = r.data.addresses;
+        writeLocal(); emit();
+      }
+      return addrList();
+    }).catch(function () { return addrList(); });
+  }
+
+  /* ---------- media upload (Supabase Storage via /api/upload) ---------- */
+
+  function uploadFile(file, pathPrefix) {
+    if (!hasFetch() || !file) return Promise.resolve(null);
+    var name = String(file.name || '');
+    var dot = name.lastIndexOf('.');
+    var ext = dot >= 0 ? name.slice(dot).toLowerCase() : '';
+    var path = String(pathPrefix || 'uploads') + '/' + uid('f') + ext;
+    return fetch(API_BASE + '/upload?path=' + encodeURIComponent(path), {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': file.type || 'application/octet-stream' },
+      body: file
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        return (r.ok && d && d.ok && d.url) ? d.url : null;
+      });
+    }).catch(function () { return null; });
+  }
+
+  function uploadPhoto(file) {
+    var id = (state.user && state.user.id) || 'anon';
+    return uploadFile(file, 'customers/' + id);
+  }
+
   /* ---------- init ---------- */
 
   function init() {
@@ -353,6 +428,9 @@
     },
     summaries: { list: function () { return state.summaries.slice(); }, add: addSummary, remove: removeSummary },
     events: { list: function () { return state.events.slice(); }, save: saveEvent, remove: removeEvent },
+    addresses: { list: addrList, pull: addrPull, save: addrSave, remove: addrRemove },
+    upload: uploadFile,
+    uploadPhoto: uploadPhoto,
     onChange: function (fn) {
       if (typeof window === 'undefined' || !window.addEventListener) return;
       window.addEventListener(EVENT, function (e) { fn(e.detail); });

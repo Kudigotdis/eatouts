@@ -1,12 +1,14 @@
 <!doctype html>
 <!-- PAGE: Addresses --><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Addresses · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"><style>.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(max-width:520px){.two{grid-template-columns:1fr}}</style></head><body data-page="eatouts-addresses"><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="botswana_locations.js"></script><script src="js/eatouts-locations.js"></script><script src="js/eatouts-audit.js"></script><script src="js/eatouts-customer.js"></script><script src="js/eatouts-manager.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{
   if(!EO.guard({"roles":["customer"]}))return;
-  const L=window.EatoutsLocations;const u=EO.currentUser();
+  const L=window.EatoutsLocations;const C=window.EatoutsCustomer;
+  const u=(C&&C.getUser&&C.getUser())||EO.currentUser();
   let editing=null;
   function opts(list,cur,ph){const o=[{value:'',label:ph}].concat(list||[]);if(cur&&!o.some(x=>String(x.value)===String(cur)))o.splice(1,0,{value:cur,label:cur});return o;}
+  function list(){return (C&&C.addresses)?C.addresses.list():[];}
   document.querySelector("#mount").innerHTML=EO.shell("Addresses","Address book for delivery auto-fill",`<div class="actions" style="margin-bottom:10px"><button class="btn primary" id="add">Add address</button></div><div id="form" class="card" hidden></div><div id="a" class="card"></div>`,{section:"Customer"});
   function render(){
-    const a=EatoutsMgrDB.collection("addresses").filter(x=>x.userId===u.id);
+    const a=list();
     document.querySelector("#a").innerHTML='<div class="card-title">Saved addresses</div>'+(a.length?a.map(x=>`<div class="listrow"><div class="listmain"><strong>${EO.esc(x.label)}</strong><small>${EO.esc(x.address)} · ${EO.esc(x.contact||'')}</small></div><div class="actions" style="gap:8px"><button class="btn" data-edit="${x.id}">Edit</button><button class="btn danger" data-del="${x.id}">Delete</button></div></div>`).join(""):"<div class='empty'>No saved addresses.</div>");
   }
   function renderForm(addr){
@@ -30,10 +32,10 @@
       const area=a.value==='Other / not listed'?'':a.value;
       const addr=[street,area,t.value,dd.name].filter(Boolean).join(', ');
       const isEdit=!!editing;
-      const id=isEdit?editing.id:"AD-"+Date.now();
-      const before=isEdit?EatoutsMgrDB.find("addresses",id):null;
-      EatoutsMgrDB.upsert("addresses",{id:id,userId:u.id,label:f.querySelector('#ad-label').value.trim()||"Address",district:d.value,districtName:dd.name||'',town:t.value,area,street,address:addr,contact:f.querySelector('#ad-contact').value.trim()});
-      if(window.EatoutsAudit)try{EatoutsAudit.log(isEdit?"address.edit":"address.create",id,{label:f.querySelector('#ad-label').value.trim(),address:addr},before?{label:before.label,address:before.address}:null)}catch(_){}
+      const before=isEdit?editing:null;
+      const entry={id:isEdit?editing.id:undefined,label:f.querySelector('#ad-label').value.trim()||"Address",district:d.value,districtName:dd.name||'',town:t.value,area,street,address:addr,contact:f.querySelector('#ad-contact').value.trim()};
+      if(C&&C.addresses)C.addresses.save(entry);
+      if(window.EatoutsAudit)try{EatoutsAudit.log(isEdit?"address.edit":"address.create",entry.id||addr,{label:entry.label,address:addr},before?{label:before.label,address:before.address}:null)}catch(_){}
       f.hidden=true;editing=null;render();
       EO.toast(isEdit?'Address updated':'Address saved');
     }
@@ -41,13 +43,14 @@
   document.querySelector("#add").onclick=()=>{renderForm(null)};
   document.querySelector("#a").onclick=e=>{
     const ed=e.target.dataset.edit;
-    if(ed){const a=EatoutsMgrDB.find("addresses",ed);if(a)renderForm(a);return}
+    if(ed){const a=list().find(x=>String(x.id)===String(ed));if(a)renderForm(a);return}
     const id=e.target.dataset.del;if(!id)return;
     if(!EO.confirm("Delete this saved address?"))return;
-    const before=EatoutsMgrDB.find("addresses",id);
-    EatoutsMgrDB.remove("addresses",id);
+    const before=list().find(x=>String(x.id)===String(id));
+    if(C&&C.addresses)C.addresses.remove(id);
     if(window.EatoutsAudit)try{EatoutsAudit.log("address.delete",id,before?{label:before.label,address:before.address}:null,null)}catch(_){}
     render();
   };
+  if(C&&C.addresses)try{C.addresses.pull().then(render).catch(()=>{})}catch(_){}
   render();
 });</script></body></html>

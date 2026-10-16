@@ -55,7 +55,7 @@ export async function onRequestGet(context) {
 }
 
 var PROFILE_FIELDS = ['firstName', 'surname', 'dob', 'gender', 'town', 'area',
-  'contacts', 'favRestaurants', 'favBottleStore', 'notify', 'bio'];
+  'contacts', 'favRestaurants', 'favBottleStore', 'notify', 'bio', 'deliveryLocation'];
 
 async function updateProfile(context) {
   var session = await getSession(context.env, context.request);
