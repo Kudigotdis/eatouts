@@ -810,11 +810,12 @@ document.addEventListener("DOMContentLoaded", function () {
       var idLabel = String(x.id || "—");
       var initial = idLabel.replace(/[^0-9A-Z]/gi,'').slice(-2).toUpperCase() || "IN";
 
-      var created = x.createdAt ? (function(){
+      var createdAt = x.created_at != null ? x.created_at : x.createdAt;
+      var created = createdAt ? (function(){
         try {
-          var d = new Date(x.createdAt);
+          var d = new Date(createdAt);
           return d.toLocaleString();
-        } catch (e) { return x.createdAt; }
+        } catch (e) { return createdAt; }
       })() : "";
 
       var amount = (x.currency || "BWP") + " " + (x.amount != null ? x.amount : 0);
