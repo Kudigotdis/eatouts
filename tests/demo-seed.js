@@ -206,7 +206,7 @@ check('auth routes investors to analytics', /type\s*===\s*['"]investor['"][^\n]*
 const loginSrc = fs.readFileSync(path.join(APP_DIR, 'eatouts-login.html'), 'utf8');
 check('login page has an investor demo button', /data-demo=["']investor["']/.test(loginSrc));
 const usersMgr = fs.readFileSync(path.join(APP_DIR, 'eatouts-users-manager.html'), 'utf8');
-check('users manager filter offers investor', /<option>investor<\/option>/.test(usersMgr));
+check('users manager filter offers investor', /<option[^>]*>investor<\/option>/i.test(usersMgr));
 const staffMgr = fs.readFileSync(path.join(APP_DIR, 'staff-manager.html'), 'utf8');
 check('staff manager exposes the five tabs',
   /\["roster","attendance","tips","performance","payroll"\]/.test(staffMgr) &&

@@ -1,24 +1,402 @@
 <!doctype html>
-<!-- PAGE: Events --><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Events · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"></head><body data-page="eatouts-events"><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-manager.js"></script><script src="js/eatouts-customer.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{
- if(!EO.guard({"roles":["customer"]}))return;
- const S=window.EatoutsCustomer;
- let tab="saved";
- function render(){
-  const rows=S?S.events.list():[];
-  const body=rows.length?rows.map(e=>{
-   const title=e.title||(e.payload&&e.payload.title)||e.eventRef||"Saved event";
-   const venue=e.venueName||(e.payload&&e.payload.venueName)||"";
-   return `<div class="listrow"><div class="listmain"><strong>${EO.esc(title)}</strong><small>${EO.esc(venue)}</small></div><button class="btn danger" data-del="${EO.esc(e.eventRef||e.id)}">Remove</button></div>`;
-  }).join(""):EO.empty("No saved events","Events you save from the event builder appear here.");
-  document.querySelector("#list").innerHTML=body;
- }
- document.querySelector("#mount").innerHTML=EO.shell("Events","Events on EatOuts and the ones you have saved",`<div class="tabs"><button class="tab on" data-tab="saved">Saved Events</button><button class="tab" data-tab="browse">Browse</button></div><div id="list"></div>`,{section:"Customer"});
- const tabs=document.querySelector(".tabs");
- tabs.addEventListener("click",e=>{const t=e.target.closest("[data-tab]");if(!t)return;tab=t.dataset.tab;tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
-  if(tab==="browse"){document.querySelector("#list").innerHTML='<div class="card" style="text-align:center;padding:22px"><p class="minor">Browse all local events in the main app.</p><a class="btn primary" href="index.html#promos">Open events feed</a></div>';}
-  else{render();}
- });
- document.querySelector("#list").addEventListener("click",e=>{const d=e.target.closest("[data-del]");if(!d)return;if(!EO.confirm("Remove this saved event?"))return;S.events.remove(d.dataset.del);render();});
- if(tab==="saved")render();
- S&&S.onChange&&S.onChange(()=>{if(tab==="saved")render();});
-});</script></body></html>
+<!-- PAGE: Events -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Events · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;--ink-2:#2A2A30;--paper:#F4F5F7;--card:#FFF;
+    --line:#E6E8EC;--line-2:#F0F1F4;
+    --orange:#FF5A1F;--orange-2:#FF7A42;--orange-soft:#FFEDE4;--orange-line:#FFD5C2;
+    --green:#16A34A;--green-soft:#E7F7EE;
+    --red:#DC2626;--red-soft:#FEE2E2;
+    --amber:#B45309;--amber-soft:#FEF3C7;
+    --muted:#6B7280;--faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{margin:0;background:#E9EBEF;color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;overscroll-behavior:none;
+    display:flex;justify-content:center;}
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+  #shell{width:100%;max-width:460px;height:100vh;height:100dvh;
+    background:var(--paper);display:flex;flex-direction:column;
+    overflow:hidden;position:relative;box-shadow:0 0 70px rgba(20,20,25,.16);}
+  .topbar{flex:0 0 auto;background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 14px;
+    position:relative;z-index:10;}
+  .topbar-row{display:flex;align-items:center;gap:10px;padding-bottom:13px;}
+  .brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none;}
+  .brand .mark{width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);}
+  .brand .word{color:#fff;font-size:15px;font-weight:800;letter-spacing:-.02em;}
+  .hdr-chip{margin-left:auto;font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);background:rgba(255,90,31,.1);
+    border-radius:999px;padding:5px 11px;white-space:nowrap;}
+  .progress{padding-bottom:2px}
+  .progress-top{display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;}
+  .progress-label{font-size:11px;font-weight:800;letter-spacing:.14em;
+    text-transform:uppercase;color:rgba(255,255,255,.5);}
+  .progress-count{font-size:11.5px;font-weight:800;color:var(--orange-2);}
+  .progress-track{height:5px;border-radius:99px;background:rgba(255,255,255,.13);
+    overflow:hidden;}
+  .progress-fill{height:100%;width:0%;border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);}
+  .scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+    scrollbar-width:none;}
+  .scroll::-webkit-scrollbar{display:none}
+  .intro{background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;position:relative;overflow:hidden;text-align:center;}
+  .intro::after{content:"";position:absolute;top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;}
+  .intro h1{position:relative;margin:0 auto 12px;font-size:26px;
+    line-height:1.15;font-weight:800;letter-spacing:-.03em;color:#fff;
+    max-width:15ch;}
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{position:relative;margin:0 auto;font-size:14px;line-height:1.6;
+    color:rgba(255,255,255,.6);max-width:32ch;}
+  .sheet{position:relative;z-index:1;margin-top:-26px;background:var(--paper);
+    border-radius:26px 26px 0 0;padding:20px 14px 30px;min-height:60vh;}
+  .meta-card{background:var(--card);border:1px solid var(--line);
+    border-radius:16px;padding:15px 16px;margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);}
+  .meta-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+  .meta-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft);}
+  .meta-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .meta-dot.warn{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+  .meta-text{font-size:13.5px;color:var(--ink-2);line-height:1.4;
+    min-width:0;flex:1 1 auto;}
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+    padding-top:11px;border-top:1px solid var(--line-2);}
+  .stat{text-align:center}
+  .stat b{display:block;font-size:19px;font-weight:850;
+    letter-spacing:-.03em;color:var(--ink);line-height:1.1;
+    font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;}
+  .stat span{display:block;margin-top:3px;font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    overflow:hidden;transition:border-color .2s ease,box-shadow .2s ease;}
+  .acc.open{border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);}
+  .acc.has-items .acc-sub{color:var(--green);font-weight:650}
+  .acc-head{width:100%;display:flex;align-items:center;gap:12px;
+    padding:13px 15px;background:transparent;border:0;text-align:left;
+    -webkit-tap-highlight-color:transparent;transition:background .15s;}
+  .acc-head:active{background:#FAFBFC}
+  .sec-thumb{width:48px;height:48px;flex:0 0 auto;border-radius:11px;
+    background:var(--orange-soft);color:var(--orange);
+    display:grid;place-items:center;font-size:17px;font-weight:850;
+    letter-spacing:-.02em;position:relative;}
+  .sec-thumb.plain{background:#F0F1F4;color:var(--faint);}
+  .sec-thumb .count{position:absolute;bottom:3px;right:3px;
+    background:rgba(15,15,18,.72);color:#fff;font-size:9px;font-weight:800;
+    padding:1.5px 5px;border-radius:4px;line-height:1;}
+  .acc-title{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .acc-title b{font-size:15px;font-weight:750;letter-spacing:-.015em;
+    color:var(--ink);line-height:1.25;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;}
+  .acc-sub{font-size:11.5px;color:var(--faint);line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:550;}
+  .vis-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft);}
+  .vis-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .vis-dot.off{background:#D3D7DE;box-shadow:none}
+  .acc-body{display:grid;grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);}
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+  .module{padding:2px 15px 18px}
+  .ev-row{display:flex;gap:12px;padding:12px;background:#FAFBFC;
+    border:1px solid var(--line-2);border-radius:12px;margin-bottom:8px;
+    align-items:flex-start;}
+  .ev-row:last-child{margin-bottom:0}
+  .ev-thumb{width:90px;height:90px;flex:0 0 auto;border-radius:12px;
+    background:linear-gradient(145deg,#FFF3EC,#FFE2D2);color:var(--orange);
+    display:grid;place-items:center;font-size:32px;font-weight:850;
+    overflow:hidden;position:relative;border:0;padding:0;
+    -webkit-tap-highlight-color:transparent;}
+  .ev-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .ev-body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:4px;}
+  .ev-title{font-size:14px;font-weight:750;letter-spacing:-.01em;
+    color:var(--ink);line-height:1.3;word-break:break-word;}
+  .ev-sub{font-size:11.5px;color:var(--faint);font-weight:550;line-height:1.35;}
+  .ev-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .mini-btn{height:32px;padding:0 12px;border-radius:9px;
+    border:1px solid var(--line);background:#fff;color:var(--ink-2);
+    font-size:11.5px;font-weight:750;display:inline-flex;
+    align-items:center;justify-content:center;text-decoration:none;
+    -webkit-tap-highlight-color:transparent;transition:background .15s;}
+  .mini-btn:active{background:#F4F5F7}
+  .mini-btn.orange{border-color:transparent;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;box-shadow:0 4px 12px -6px rgba(255,90,31,.55);}
+  .mini-btn.orange:active{background:var(--orange)}
+  .mini-btn.danger{color:var(--red);border-color:#FECACA;background:#FEF2F2;}
+  .mini-btn.danger:active{background:var(--red-soft)}
+  .info-block{background:#FAFBFC;border:1px solid var(--line-2);
+    border-radius:12px;padding:13px 14px;margin-bottom:10px;}
+  .info-block:last-of-type{margin-bottom:0}
+  .info-block h4{margin:0 0 6px;font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--muted);}
+  .info-block p{margin:0;font-size:12.5px;line-height:1.55;
+    color:var(--muted);font-weight:550;}
+  .info-block p + p{margin-top:6px}
+  .info-block b{color:var(--ink);font-weight:750}
+  .cta-btn{display:flex;align-items:center;justify-content:center;
+    width:100%;height:48px;border-radius:12px;border:0;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;font-size:14.5px;font-weight:750;text-decoration:none;
+    letter-spacing:-.01em;box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+    -webkit-tap-highlight-color:transparent;margin-top:8px;}
+  .cta-btn:active{background:var(--orange)}
+  .empty-note{font-size:12.5px;color:var(--faint);text-align:center;
+    padding:22px 16px;border:1.5px dashed #DCE0E6;border-radius:11px;
+    background:#FAFBFC;line-height:1.55;}
+  .empty-note b{color:var(--ink-2);font-weight:750}
+  .toast{position:fixed;left:50%;z-index:200;
+    bottom:calc(28px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;padding:12px 18px;border-radius:999px;
+    max-width:88vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body data-page="eatouts-events">
+<div id="shell">
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span><span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip">Events</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Saved events</span>
+        <span class="progress-count" id="progressCount">—</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </header>
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <h1>Your <em>events</em>.</h1>
+      <p>Events on EatOuts and the ones you have saved for later.</p>
+    </section>
+    <main class="sheet" id="app"></main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="js/eatouts-manager-db.js"></script>
+<script src="assets/data/demo/the-food-place/demo-data.js"></script>
+<script src="js/eatouts-manager-seed.js"></script>
+<script src="js/eatouts-roles.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-feedback.js"></script>
+<script src="js/eatouts-blog-admin.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-manager.js"></script>
+<script src="js/eatouts-customer.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  if (!EO.guard({"roles":["customer"]})) return;
+  var S = window.EatoutsCustomer;
+
+  function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");}
+  function escapeAttr(v){return esc(v).replace(/`/g,"&#96;");}
+  function cssEscape(s){return String(s).replace(/["\\]/g,'\\$&');}
+
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2000);
+  }
+
+  var OPEN = null;
+
+  function savedEvents(){
+    if (!S || !S.events || !S.events.list) return [];
+    return S.events.list() || [];
+  }
+
+  function eventThumb(e){
+    var img = e.image || e.cover || (e.payload && e.payload.image) || "";
+    if (img) {
+      return '<button class="ev-thumb" type="button" data-view="' + escapeAttr(e.eventRef||e.id) + '">' +
+        '<img src="' + escapeAttr(img) + '" alt="">' +
+      '</button>';
+    }
+    return '<div class="ev-thumb">🎟</div>';
+  }
+
+  function eventRow(e){
+    var title = e.title || (e.payload && e.payload.title) || e.eventRef || "Saved event";
+    var venue = e.venueName || (e.payload && e.payload.venueName) || "";
+    var when  = e.date || (e.payload && e.payload.date) || "";
+    var ref   = e.eventRef || e.id;
+
+    return '<div class="ev-row">' +
+      eventThumb(e) +
+      '<div class="ev-body">' +
+        '<div class="ev-title">' + esc(title) + '</div>' +
+        (venue ? '<div class="ev-sub">' + esc(venue) + '</div>' : '') +
+        (when  ? '<div class="ev-sub">' + esc(when) + '</div>'  : '') +
+        '<div class="ev-actions">' +
+          '<button class="mini-btn danger" type="button" data-del="' + escapeAttr(ref) + '">Remove</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function savedBody(){
+    var rows = savedEvents();
+    if (!rows.length){
+      return '<div class="module"><div class="empty-note">No saved events yet.<br>' +
+             '<b>Events you save</b> from the event builder appear here.</div></div>';
+    }
+    return '<div class="module">' + rows.map(eventRow).join('') + '</div>';
+  }
+
+  function browseBody(){
+    return '<div class="module">' +
+      '<div class="info-block">' +
+        '<h4>Open the events feed</h4>' +
+        '<p>Browse all live events, promos and performances happening near you.</p>' +
+      '</div>' +
+      '<a class="cta-btn" href="index.html#promos">Open events feed</a>' +
+    '</div>';
+  }
+
+  function savedSub(){
+    var n = savedEvents().length;
+    return n ? n + " saved event" + (n === 1 ? "" : "s") : "Nothing saved yet";
+  }
+  function browseSub(){ return "Live events across EatOuts"; }
+
+  function section(key, letter, title, sub, body, hasItems){
+    var isOpen = OPEN === key;
+    var cls = 'acc' + (isOpen ? ' open' : '') + (hasItems ? ' has-items' : '');
+    return '<section class="' + cls + '" data-key="' + escapeAttr(key) + '">' +
+      '<button class="acc-head" type="button" aria-expanded="' + (isOpen ? 'true' : 'false') + '">' +
+        '<span class="sec-thumb' + (hasItems ? '' : ' plain') + '">' + esc(letter) +
+          (hasItems ? '<span class="count">' + savedEvents().length + '</span>' : '') +
+        '</span>' +
+        '<span class="acc-title">' +
+          '<b>' + esc(title) + '</b>' +
+          '<span class="acc-sub">' + esc(sub) + '</span>' +
+        '</span>' +
+        '<span class="vis-dot ' + (hasItems ? 'green' : 'off') + '"></span>' +
+      '</button>' +
+      '<div class="acc-body"><div class="acc-inner">' + body + '</div></div>' +
+    '</section>';
+  }
+
+  function renderMeta(){
+    var n = savedEvents().length;
+    var dotClass = n ? 'green' : 'warn';
+    var msg = n ? "<b>" + n + "</b> saved event" + (n === 1 ? "" : "s") : "No saved events yet";
+    return '<div class="meta-card">' +
+      '<div class="meta-row">' +
+        '<span class="meta-dot ' + dotClass + '"></span>' +
+        '<span class="meta-text">' + msg + '</span>' +
+      '</div>' +
+      '<div class="meta-stats">' +
+        '<div class="stat"><b>' + n + '</b><span>Saved</span></div>' +
+        '<div class="stat"><b>2</b><span>Sections</span></div>' +
+        '<div class="stat"><b>Live</b><span>Feed</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function updateProgress(){
+    var n = savedEvents().length;
+    var pct = n ? Math.min(100, Math.round((n / 5) * 100)) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressCount').textContent =
+      n + ' saved event' + (n === 1 ? '' : 's');
+  }
+
+  var mount = document.getElementById('app');
+
+  function render(){
+    mount.innerHTML =
+      renderMeta() +
+      '<div class="stack">' +
+        section('saved',  'S', 'Saved Events', savedSub(),  savedBody(),  savedEvents().length > 0) +
+        section('browse', 'B', 'Browse',       browseSub(), browseBody(), false) +
+      '</div>';
+    updateProgress();
+  }
+
+  function toggleAccordion(key){
+    OPEN = (OPEN === key) ? null : key;
+    var accs = mount.querySelectorAll('.acc');
+    for (var i = 0; i < accs.length; i++){
+      var acc = accs[i];
+      var isOpen = acc.getAttribute('data-key') === OPEN;
+      acc.classList.toggle('open', isOpen);
+      var head = acc.querySelector('.acc-head');
+      if (head) head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    if (OPEN){
+      var opened = mount.querySelector('.acc[data-key="' + cssEscape(OPEN) + '"]');
+      if (opened){
+        setTimeout(function(){
+          try { opened.scrollIntoView({ behavior:'smooth', block:'start' }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+
+  mount.addEventListener('click', function(e){
+    var del = e.target.closest('[data-del]');
+    if (del){
+      e.stopPropagation();
+      if (!EO.confirm("Remove this saved event?")) return;
+      try { S.events.remove(del.getAttribute('data-del')); } catch (err) {}
+      toast("Event removed");
+      render();
+      return;
+    }
+    var head = e.target.closest('.acc-head');
+    if (head){
+      var acc = head.closest('.acc');
+      if (acc) toggleAccordion(acc.getAttribute('data-key'));
+    }
+  });
+
+  render();
+
+  if (S && typeof S.onChange === "function"){
+    try { S.onChange(render); } catch (e) {}
+  }
+});
+</script>
+</body>
+</html>

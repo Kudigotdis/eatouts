@@ -1,2 +1,1382 @@
 <!doctype html>
-<!-- PAGE: Bottle store onboarding --><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><title>Bottle store onboarding · EatOuts</title><link rel="canonical" href="business-onboarding1.html?type=bottlestore"><script>(function(){try{var q=new URLSearchParams(location.search);q.set('type','bottlestore');location.replace('business-onboarding1.html?'+q.toString());}catch(e){location.replace('business-onboarding1.html?type=bottlestore');}})();</script></head><body data-page="bottle-store-onboarding"><noscript><p>Redirecting to business onboarding… <a href="business-onboarding1.html?type=bottlestore">Continue</a></p></noscript></body></html>
+<!-- PAGE: Bottle store onboarding -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Bottle store onboarding · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;--ink-2:#2A2A30;--paper:#F4F5F7;--card:#FFF;
+    --line:#E6E8EC;--line-2:#F0F1F4;
+    --orange:#FF5A1F;--orange-2:#FF7A42;--orange-soft:#FFEDE4;--orange-line:#FFD5C2;
+    --green:#16A34A;--green-soft:#E7F7EE;
+    --red:#DC2626;--red-soft:#FEE2E2;
+    --amber:#B45309;--amber-soft:#FEF3C7;
+    --blue:#0284C7;--blue-soft:#E0F2FE;
+    --muted:#6B7280;--faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{margin:0;background:#E9EBEF;color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;overscroll-behavior:none;
+    display:flex;justify-content:center;}
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+  #shell{width:100%;max-width:460px;height:100vh;height:100dvh;
+    background:var(--paper);display:flex;flex-direction:column;
+    overflow:hidden;position:relative;box-shadow:0 0 70px rgba(20,20,25,.16);}
+
+  /* ============ TOPBAR ============ */
+  .topbar{flex:0 0 auto;background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 14px;
+    position:relative;z-index:10;}
+  .topbar-row{display:flex;align-items:center;gap:10px;padding-bottom:13px;}
+  .brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none;}
+  .brand .mark{width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);}
+  .brand .word{color:#fff;font-size:15px;font-weight:800;letter-spacing:-.02em;}
+  .hdr-chip{margin-left:auto;font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);background:rgba(255,90,31,.1);
+    border-radius:999px;padding:5px 11px;white-space:nowrap;}
+  .hdr-chip.age{color:#FCA5A5;border-color:rgba(252,165,165,.32);
+    background:rgba(220,38,38,.1);}
+  .progress{padding-bottom:2px}
+  .progress-top{display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;}
+  .progress-label{font-size:11px;font-weight:800;letter-spacing:.14em;
+    text-transform:uppercase;color:rgba(255,255,255,.5);}
+  .progress-count{font-size:11.5px;font-weight:800;color:var(--orange-2);}
+  .progress-track{height:5px;border-radius:99px;background:rgba(255,255,255,.13);
+    overflow:hidden;}
+  .progress-fill{height:100%;width:0%;border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);}
+
+  /* ============ SCROLL ============ */
+  .scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+    scrollbar-width:none;}
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ============ INTRO ============ */
+  .intro{background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;position:relative;overflow:hidden;text-align:center;}
+  .intro::after{content:"";position:absolute;top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;}
+  .intro h1{position:relative;margin:0 auto 12px;font-size:26px;
+    line-height:1.15;font-weight:800;letter-spacing:-.03em;color:#fff;
+    max-width:15ch;}
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{position:relative;margin:0 auto;font-size:14px;line-height:1.6;
+    color:rgba(255,255,255,.6);max-width:34ch;}
+
+  /* ============ SHEET ============ */
+  .sheet{position:relative;z-index:1;margin-top:-26px;background:var(--paper);
+    border-radius:26px 26px 0 0;padding:20px 14px 30px;min-height:60vh;}
+
+  /* ============ META CARD ============ */
+  .meta-card{background:var(--card);border:1px solid var(--line);
+    border-radius:16px;padding:15px 16px;margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);}
+  .meta-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+  .meta-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft);}
+  .meta-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .meta-dot.warn{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+  .meta-dot.red{background:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+  .meta-text{font-size:13.5px;color:var(--ink-2);line-height:1.4;
+    min-width:0;flex:1 1 auto;}
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+    padding-top:11px;border-top:1px solid var(--line-2);}
+  .stat{text-align:center}
+  .stat b{display:block;font-size:19px;font-weight:850;
+    letter-spacing:-.03em;color:var(--ink);line-height:1.1;
+    font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;}
+  .stat span{display:block;margin-top:3px;font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+
+  /* ============ ACCORDION STACK ============ */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    overflow:hidden;transition:border-color .2s ease,box-shadow .2s ease;}
+  .acc.open{border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);}
+  .acc.has-items .acc-sub{color:var(--green);font-weight:650}
+  .acc-head{width:100%;display:flex;align-items:center;gap:12px;
+    padding:13px 15px;background:transparent;border:0;text-align:left;
+    -webkit-tap-highlight-color:transparent;transition:background .15s;}
+  .acc-head:active{background:#FAFBFC}
+  .sec-thumb{width:48px;height:48px;flex:0 0 auto;border-radius:11px;
+    background:var(--orange-soft);color:var(--orange);
+    display:grid;place-items:center;font-size:17px;font-weight:850;
+    letter-spacing:-.02em;position:relative;}
+  .sec-thumb.plain{background:#F0F1F4;color:var(--faint);}
+  .sec-thumb .count{position:absolute;bottom:3px;right:3px;
+    background:rgba(15,15,18,.72);color:#fff;font-size:9px;font-weight:800;
+    padding:1.5px 5px;border-radius:4px;line-height:1;}
+  .acc-title{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .acc-title b{font-size:15px;font-weight:750;letter-spacing:-.015em;
+    color:var(--ink);line-height:1.25;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;}
+  .acc-sub{font-size:11.5px;color:var(--faint);line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:550;}
+  .vis-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft);}
+  .vis-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .vis-dot.off{background:#D3D7DE;box-shadow:none}
+  .acc-body{display:grid;grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);}
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+  .module{padding:2px 15px 18px}
+
+  /* ============ 90px THUMBNAILS ============ */
+  .thumb-90{width:90px;height:90px;flex:0 0 auto;border-radius:14px;
+    background:linear-gradient(145deg,#FFF3EC,#FFE2D2);color:var(--orange);
+    display:grid;place-items:center;font-size:34px;font-weight:850;
+    letter-spacing:-.03em;overflow:hidden;position:relative;}
+  .thumb-90.empty{background:#FAFBFC;border:1.5px dashed #D3D7DE;color:var(--faint);
+    font-size:26px;}
+  .thumb-90 img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb-90 .badge{position:absolute;bottom:5px;right:5px;
+    background:rgba(15,15,18,.72);color:#fff;font-size:9px;font-weight:800;
+    padding:2px 6px;border-radius:5px;line-height:1;letter-spacing:.06em;}
+  .thumb-90 .age-badge{position:absolute;top:5px;left:5px;
+    background:var(--red);color:#fff;font-size:9px;font-weight:900;
+    padding:2px 6px;border-radius:5px;line-height:1;letter-spacing:.06em;}
+
+  .thumb-row{display:flex;gap:12px;padding:12px;background:#FAFBFC;
+    border:1px solid var(--line-2);border-radius:12px;margin-bottom:8px;
+    align-items:flex-start;}
+  .thumb-row:last-child{margin-bottom:0}
+  .thumb-body{flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:4px;}
+  .thumb-title{font-size:14px;font-weight:750;letter-spacing:-.01em;
+    color:var(--ink);line-height:1.3;word-break:break-word;}
+  .thumb-sub{font-size:11.5px;color:var(--faint);font-weight:550;
+    line-height:1.4;word-break:break-word;}
+  .thumb-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;
+    align-items:center;}
+
+  /* ============ CHIPS ============ */
+  .chip-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
+  .chip{height:34px;padding:0 13px;border-radius:999px;
+    border:1px solid var(--line);background:#fff;color:var(--ink-2);
+    font-size:12px;font-weight:700;display:inline-flex;align-items:center;
+    -webkit-tap-highlight-color:transparent;cursor:pointer;
+    transition:background .15s,border-color .15s,color .15s;}
+  .chip:active{background:#F4F5F7}
+  .chip.on{background:var(--orange-soft);border-color:var(--orange-line);
+    color:var(--orange);font-weight:800;}
+
+  /* ============ MINI BUTTONS ============ */
+  .mini-btn{height:32px;padding:0 12px;border-radius:9px;
+    border:1px solid var(--line);background:#fff;color:var(--ink-2);
+    font-size:11.5px;font-weight:750;display:inline-flex;
+    align-items:center;justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s;
+    text-decoration:none;}
+  .mini-btn:active{background:#F4F5F7}
+  .mini-btn.danger{color:var(--red);border-color:#FECACA;background:#FEF2F2;}
+  .mini-btn.danger:active{background:var(--red-soft)}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;height:32px;
+    padding:0 12px;border-radius:999px;font-size:10px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;white-space:nowrap;
+    background:#F0F1F4;color:var(--faint);}
+  .pill.on{background:var(--green-soft);color:var(--green)}
+  .pill.off{background:#F0F1F4;color:var(--faint)}
+  .pill.brand{background:var(--orange-soft);color:var(--orange)}
+  .pill.age{background:var(--red-soft);color:var(--red)}
+
+  .add-addr-btn{display:flex;align-items:center;justify-content:center;
+    width:100%;height:44px;border-radius:11px;
+    border:1.5px dashed #D3D7DE;background:#fff;color:var(--orange);
+    font-size:13.5px;font-weight:750;margin-top:10px;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;}
+  .add-addr-btn:active{background:var(--orange-soft);border-color:var(--orange-line)}
+
+  /* ============ FORM FIELDS ============ */
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field > label{display:block;font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+    margin-bottom:7px;}
+  .field input,
+  .field select,
+  .field textarea{
+    width:100%;border:1px solid var(--line);border-radius:11px;
+    background:#fff;color:var(--ink);font-size:15px;line-height:1.4;
+    padding:13px;outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;appearance:none;font-family:inherit;}
+  .field textarea{min-height:96px;resize:vertical}
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.13);}
+  .field input::placeholder,
+  .field textarea::placeholder{color:#B7BDC6}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:400px){.grid2{grid-template-columns:1fr}}
+
+  .form-actions{display:flex;gap:9px;margin-top:16px;}
+  .form-actions .btn{flex:1;height:52px;border-radius:13px;
+    font-size:15px;font-weight:750;letter-spacing:-.01em;border:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .1s ease,background .15s;}
+  .form-actions .btn:active{transform:scale(.98)}
+  .btn-save{background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;box-shadow:0 6px 18px -6px rgba(255,90,31,.5);}
+  .btn-save:active{background:var(--orange)}
+  .btn-cancel{background:#F4F5F7;border:1px solid var(--line)!important;
+    color:var(--ink-2);}
+  .btn-cancel:active{background:#EBEDF0}
+
+  /* ============ REVIEW ============ */
+  .review-row{display:flex;align-items:flex-start;gap:10px;
+    padding:11px 0;border-bottom:1px solid var(--line-2);}
+  .review-row:last-child{border-bottom:0}
+  .review-key{font-size:11.5px;font-weight:800;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--faint);min-width:96px;
+    flex:0 0 auto;padding-top:2px;}
+  .review-val{font-size:13.5px;color:var(--ink-2);line-height:1.45;
+    min-width:0;flex:1 1 auto;word-break:break-word;}
+  .review-val b{color:var(--ink);font-weight:750}
+
+  /* ============ AGE NOTICE ============ */
+  .age-notice{background:var(--red-soft);border:1px solid #FECACA;
+    border-radius:11px;padding:12px 14px;margin-bottom:12px;
+    display:flex;gap:10px;align-items:flex-start;}
+  .age-notice .ic{width:32px;height:32px;flex:0 0 auto;border-radius:9px;
+    background:var(--red);color:#fff;display:grid;place-items:center;
+    font-size:13px;font-weight:900;letter-spacing:-.03em;}
+  .age-notice .txt{font-size:12px;color:var(--red);font-weight:650;
+    line-height:1.45;}
+  .age-notice .txt b{font-weight:850;display:block;margin-bottom:2px;}
+
+  /* ============ EMPTY ============ */
+  .empty-note{font-size:12.5px;color:var(--faint);text-align:center;
+    padding:22px 16px;border:1.5px dashed #DCE0E6;border-radius:11px;
+    background:#FAFBFC;line-height:1.55;}
+  .empty-note b{color:var(--ink-2);font-weight:750}
+
+  /* ============ TOAST ============ */
+  .toast{position:fixed;left:50%;z-index:200;
+    bottom:calc(28px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;padding:12px 18px;border-radius:999px;
+    max-width:88vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  .hidden-file{position:absolute;width:1px;height:1px;opacity:0;
+    pointer-events:none;overflow:hidden;}
+
+  /* ============ INLINE SUB-FORM ============ */
+  .inline-form{margin-top:12px;padding-top:16px;border-top:1px solid var(--line-2);}
+</style>
+</head>
+<body data-page="bottle-store-onboarding">
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span><span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip age">18+</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Bottle store onboarding</span>
+        <span class="progress-count" id="progressCount">—</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <h1>Join as a <em>bottle store</em>.</h1>
+      <p>Set up your shop, catalog, liquor licence and delivery rules — seven short steps to get listed on EatOuts.</p>
+    </section>
+    <main class="sheet" id="app"></main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="js/eatouts-manager-db.js"></script>
+<script src="assets/data/demo/the-food-place/demo-data.js"></script>
+<script src="js/eatouts-manager-seed.js"></script>
+<script src="js/eatouts-roles.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-feedback.js"></script>
+<script src="js/eatouts-blog-admin.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="botswana_locations.js"></script>
+<script src="js/eatouts-locations.js"></script>
+<script src="js/eatouts-audit.js"></script>
+<script src="js/eatouts-customer.js"></script>
+<script src="js/eatouts-manager.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  /* ============================================================
+     AUTH GUARD
+     ============================================================ */
+  if (!window.EO || !EO.guard({})) return;
+  var L = window.EatoutsLocations || null;
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function esc(v){
+    return String(v == null ? "" : v)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function attr(v){ return esc(v).replace(/`/g,"&#96;"); }
+  function cssEscape(s){ return String(s).replace(/["\\]/g, "\\$&"); }
+  function confirmDialog(msg){
+    if (window.EO && typeof EO.confirm === "function") return EO.confirm(msg);
+    return window.confirm(msg);
+  }
+
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2200);
+  }
+
+  function opts(list, cur, ph){
+    var o = [{ value:"", label: ph }].concat(list || []);
+    if (cur && !o.some(function(x){ return String(x.value) === String(cur); })){
+      o.splice(1, 0, { value: cur, label: cur });
+    }
+    return o;
+  }
+  function renderOpts(arr, cur){
+    return arr.map(function(o){
+      return '<option value="' + attr(o.value) + '"' +
+        (String(o.value) === String(cur) ? ' selected' : '') + '>' +
+        esc(o.label) + '</option>';
+    }).join('');
+  }
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  var state = {
+    business: { name:"", tagline:"", description:"", logo:null, years:"" },
+    contact:  { district:"", districtName:"", town:"", area:"", street:"",
+                phone:"", whatsapp:"", email:"" },
+    licence:  { number:"", holder:"", issued:"", expires:"", upload:null,
+                agePolicy:false, noMinors:false },
+    catalog:  { categories:[], items:[], brands:[] },
+    delivery: { radius:"", fee:"", minOrder:"", sameDay:true, hours:"",
+                areaNotes:"" },
+    docs:     { licence:false, id:false, permit:false, tax:false },
+    payout:   { method:"", bank:"", accountName:"", accountNumber:"",
+                branch:"", mobileMoney:"" }
+  };
+
+  var OPEN = null;   /* accordion key — closed by default */
+  var catalogEdit = null;
+
+  var BEVERAGE_CATEGORIES = ["Beer","Cider","Wine","Spirits","Whisky","Vodka",
+    "Gin","Rum","Tequila","Brandy","Liqueur","Ready-to-drink","Non-alcoholic"];
+  var BRANDS = ["Castle","Castle Lite","Heineken","Windhoek","St Louis",
+    "Carling Black Label","Hansa","Savanna","Hunters","Smirnoff","Johnnie Walker",
+    "Jameson","Jack Daniel's","Gordons","Bacardi","Local craft"];
+  var DELIVERY_AREAS = ["Gaborone CBD","Broadhurst","Extension 12","Tlokweng",
+    "Mogoditshane","Phakalane","Gaborone West","Kgale","Village","Airport Junction"];
+  var DOCS = [
+    { key:"licence", name:"Liquor licence",        hint:"Valid Botswana liquor licence" },
+    { key:"id",      name:"Owner national ID",     hint:"Omang / passport copy" },
+    { key:"permit",  name:"Business permit",       hint:"CIPA registration" },
+    { key:"tax",     name:"Tax clearance",         hint:"BURS tax certificate" }
+  ];
+
+  /* ============================================================
+     COMPLETION
+     ============================================================ */
+  function sectionDone(key){
+    if (key === "business") return !!(state.business.name && state.business.description);
+    if (key === "contact")  return !!(state.contact.district && state.contact.town && state.contact.phone);
+    if (key === "licence")  return !!(state.licence.number && state.licence.holder && state.licence.agePolicy);
+    if (key === "catalog")  return state.catalog.items.length > 0;
+    if (key === "delivery") return !!(state.delivery.radius && state.delivery.fee);
+    if (key === "docs")     return Object.keys(state.docs).filter(function(k){ return state.docs[k]; }).length >= 2;
+    if (key === "payout")   return !!(state.payout.method && (state.payout.accountName || state.payout.mobileMoney));
+    return false;
+  }
+  var KEYS = ["business","contact","licence","catalog","delivery","docs","payout"];
+
+  function completion(){
+    var done = KEYS.filter(sectionDone).length;
+    return { done: done, total: KEYS.length, pct: Math.round((done / KEYS.length) * 100) };
+  }
+
+  /* ============================================================
+     SUBTITLES
+     ============================================================ */
+  function subBusiness(){
+    if (!state.business.name) return "Name, tagline and logo";
+    return state.business.name + (state.business.tagline ? " · " + state.business.tagline : "");
+  }
+  function subContact(){
+    var bits = [state.contact.town, state.contact.districtName].filter(Boolean);
+    if (!bits.length) return "District, town and phone";
+    return bits.join(", ") + (state.contact.phone ? " · " + state.contact.phone : "");
+  }
+  function subLicence(){
+    if (!state.licence.number) return "Liquor licence and age policy";
+    return "Licence " + state.licence.number + (state.licence.expires ? " · expires " + state.licence.expires : "");
+  }
+  function subCatalog(){
+    var c = state.catalog;
+    if (!c.items.length) return "No products added yet";
+    var cats = {};
+    c.items.forEach(function(i){ if (i.category) cats[i.category] = true; });
+    var catCount = Object.keys(cats).length;
+    return c.items.length + " product" + (c.items.length === 1 ? "" : "s") + " · " + catCount + " categor" + (catCount === 1 ? "y" : "ies");
+  }
+  function subDelivery(){
+    if (!state.delivery.radius) return "Radius, fee and minimum order";
+    return state.delivery.radius + " km · P" + (state.delivery.fee || "0") + " fee" +
+      (state.delivery.minOrder ? " · min P" + state.delivery.minOrder : "");
+  }
+  function subDocs(){
+    var n = Object.keys(state.docs).filter(function(k){ return state.docs[k]; }).length;
+    if (!n) return "Upload 4 compliance documents";
+    return n + " of " + DOCS.length + " uploaded";
+  }
+  function subPayout(){
+    if (!state.payout.method) return "How you'd like to get paid";
+    var label = state.payout.method === "mobile" ? "Mobile money" : "Bank transfer";
+    return label + (state.payout.accountName ? " · " + state.payout.accountName : "");
+  }
+
+  /* ============================================================
+     MODULE — BUSINESS (90px logo)
+     ============================================================ */
+  function moduleBusiness(){
+    var b = state.business;
+    var initial = b.name ? String(b.name).charAt(0).toUpperCase() : "";
+    var thumb = b.logo
+      ? '<div class="thumb-90"><img src="' + attr(b.logo) + '" alt=""><span class="badge">LOGO</span></div>'
+      : '<div class="thumb-90 empty">' + (initial ? esc(initial) : "＋") + '</div>';
+
+    return '<div class="module">' +
+      '<div class="thumb-row">' +
+        thumb +
+        '<div class="thumb-body">' +
+          '<div class="thumb-title">Store logo</div>' +
+          '<div class="thumb-sub">Square image, at least 400×400px. Shown on your listing.</div>' +
+          '<div class="thumb-actions">' +
+            '<button class="mini-btn" type="button" data-logo-pick>' +
+              (b.logo ? "Replace" : "Upload logo") +
+            '</button>' +
+            (b.logo ? '<button class="mini-btn danger" type="button" data-logo-clear>Remove</button>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<input class="hidden-file" id="logo-file" type="file" accept="image/*">' +
+
+      '<div class="field" style="margin-top:14px">' +
+        '<label>Store name</label>' +
+        '<input data-bind="business.name" type="text" value="' + attr(b.name) + '" placeholder="e.g. Kgale Bottle Store">' +
+      '</div>' +
+      '<div class="field">' +
+        '<label>Tagline</label>' +
+        '<input data-bind="business.tagline" type="text" value="' + attr(b.tagline) + '" placeholder="e.g. Cold beers, fast delivery">' +
+      '</div>' +
+      '<div class="grid2">' +
+        '<div class="field">' +
+          '<label>Years running</label>' +
+          '<input data-bind="business.years" type="number" min="0" step="1" value="' + attr(b.years) + '" placeholder="5">' +
+        '</div>' +
+      '</div>' +
+      '<div class="field">' +
+        '<label>About your store</label>' +
+        '<textarea data-bind="business.description" placeholder="Tell customers what you stock and how you deliver…">' + esc(b.description) + '</textarea>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ============================================================
+     MODULE — CONTACT & LOCATION
+     ============================================================ */
+  function moduleContact(){
+    var c = state.contact;
+    var districtOpts, townOpts, areaOpts;
+
+    if (L){
+      districtOpts = opts(L.districtOptions(), c.district, '— Select district —');
+      townOpts     = opts(L.townOptions(c.district), c.town, '— Select town —');
+      areaOpts     = opts(L.areaOptions(c.district, c.town), c.area, '— Select area —');
+    } else {
+      districtOpts = [{ value:"", label:"— Location data unavailable —" }];
+      townOpts     = [{ value:"", label:"— Select town —" }];
+      areaOpts     = [{ value:"", label:"— Select area —" }];
+    }
+
+    return '<div class="module">' +
+      '<div class="grid2">' +
+        '<div class="field">' +
+          '<label>District</label>' +
+          '<select id="on-district">' + renderOpts(districtOpts, c.district) + '</select>' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Town / city</label>' +
+          '<select id="on-town">' + renderOpts(townOpts, c.town) + '</select>' +
+        '</div>' +
+      '</div>' +
+      '<div class="grid2">' +
+        '<div class="field">' +
+          '<label>Area</label>' +
+          '<select id="on-area">' + renderOpts(areaOpts, c.area) + '</select>' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Street / plot</label>' +
+          '<input data-bind="contact.street" type="text" value="' + attr(c.street) + '" placeholder="e.g. Plot 1234">' +
+        '</div>' +
+      '</div>' +
+      '<div class="grid2">' +
+        '<div class="field">' +
+          '<label>Phone</label>' +
+          '<input data-bind="contact.phone" type="tel" value="' + attr(c.phone) + '" placeholder="+267 71 234 567">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>WhatsApp</label>' +
+          '<input data-bind="contact.whatsapp" type="tel" value="' + attr(c.whatsapp) + '" placeholder="+267 71 234 567">' +
+        '</div>' +
+      '</div>' +
+      '<div class="field">' +
+        '<label>Email</label>' +
+        '<input data-bind="contact.email" type="email" value="' + attr(c.email) + '" placeholder="store@example.com">' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ============================================================
+     MODULE — LIQUOR LICENCE & AGE POLICY
+     ============================================================ */
+  function moduleLicence(){
+    var lc = state.licence;
+    var thumb = lc.upload
+      ? '<div class="thumb-90"><img src="' + attr(lc.upload) + '" alt=""><span class="badge">LICENCE</span></div>'
+      : '<div class="thumb-90 empty">＋</div>';
+
+    return '<div class="module">' +
+
+      '<div class="age-notice">' +
+        '<span class="ic">18+</span>' +
+        '<span class="txt"><b>Alcohol sales are regulated in Botswana.</b>' +
+        'You must hold a valid liquor licence and refuse sale or delivery to anyone under 18.</span>' +
+      '</div>' +
+
+      '<div class="thumb-row">' +
+        thumb +
+        '<div class="thumb-body">' +
+          '<div class="thumb-title">Liquor licence image</div>' +
+          '<div class="thumb-sub">Photo or scan of your current licence. Reviewed by EatOuts operations.</div>' +
+          '<div class="thumb-actions">' +
+            '<button class="mini-btn" type="button" data-licence-pick>' +
+              (lc.upload ? "Replace" : "Upload licence") +
+            '</button>' +
+            (lc.upload ? '<button class="mini-btn danger" type="button" data-licence-clear>Remove</button>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<input class="hidden-file" id="licence-file" type="file" accept="image/*">' +
+
+      '<div class="field" style="margin-top:14px">' +
+        '<label>Licence number</label>' +
+        '<input data-bind="licence.number" type="text" value="' + attr(lc.number) + '" placeholder="e.g. LQ/2024/01234">' +
+      '</div>' +
+      '<div class="field">' +
+        '<label>Licence holder</label>' +
+        '<input data-bind="licence.holder" type="text" value="' + attr(lc.holder) + '" placeholder="Registered owner or company">' +
+      '</div>' +
+      '<div class="grid2">' +
+        '<div class="field">' +
+          '<label>Issued</label>' +
+          '<input data-bind="licence.issued" type="date" value="' + attr(lc.issued) + '">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Expires</label>' +
+          '<input data-bind="licence.expires" type="date" value="' + attr(lc.expires) + '">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Age policy</label>' +
+        '<div class="chip-wrap">' +
+          '<button class="chip' + (lc.agePolicy ? ' on' : '') + '" type="button" data-licence-flag="agePolicy">I will check ID on delivery</button>' +
+          '<button class="chip' + (lc.noMinors ? ' on' : '') + '" type="button" data-licence-flag="noMinors">No sales to under-18s</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ============================================================
+     MODULE — CATALOG (90px thumbnails)
+     ============================================================ */
+  function moduleCatalog(){
+    var items = state.catalog.items;
+    var h = '<div class="module">';
+
+    if (!items.length){
+      h += '<div class="empty-note">No products added yet.<br><b>Add your first product</b> below to start building the catalog.</div>';
+    } else {
+      items.forEach(function(it, i){
+        var initial = String(it.name || "?").charAt(0).toUpperCase();
+        h += '<div class="thumb-row">' +
+          '<div class="thumb-90">' + esc(initial) +
+            (it.isAlcohol === false ? '' : '<span class="age-badge">18+</span>') +
+          '</div>' +
+          '<div class="thumb-body">' +
+            '<div class="thumb-title">' + esc(it.name || "Product") + '</div>' +
+            '<div class="thumb-sub">' + esc(it.category || "Uncategorised") +
+              (it.brand ? " · " + esc(it.brand) : "") + '</div>' +
+            '<div class="thumb-sub">' + (it.price != null ? "P " + Number(it.price).toFixed(2) : "No price") +
+              (it.stock != null ? " · stock " + it.stock : "") + '</div>' +
+            '<div class="thumb-actions">' +
+              (it.isAlcohol === false
+                ? '<span class="pill off">Non-alcoholic</span>'
+                : '<span class="pill age">18+</span>') +
+              '<button class="mini-btn" type="button" data-cat-edit="' + i + '">Edit</button>' +
+              '<button class="mini-btn danger" type="button" data-cat-del="' + i + '">Remove</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      });
+    }
+
+    if (catalogEdit){
+      var e = catalogEdit;
+      h += '<div class="inline-form">' +
+        '<div class="grid2">' +
+          '<div class="field">' +
+            '<label>Product name</label>' +
+            '<input id="ct-name" type="text" value="' + attr(e.name) + '" placeholder="e.g. Castle Lager 330ml">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Category</label>' +
+            '<select id="ct-category">' +
+              renderOpts(opts(BEVERAGE_CATEGORIES, e.category, '— Select —'), e.category) +
+            '</select>' +
+          '</div>' +
+        '</div>' +
+        '<div class="grid2">' +
+          '<div class="field">' +
+            '<label>Brand</label>' +
+            '<select id="ct-brand">' +
+              renderOpts(opts(BRANDS, e.brand, '— Select —'), e.brand) +
+            '</select>' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Price (BWP)</label>' +
+            '<input id="ct-price" type="number" min="0" step="0.01" value="' + attr(e.price) + '" placeholder="12.50">' +
+          '</div>' +
+        '</div>' +
+        '<div class="grid2">' +
+          '<div class="field">' +
+            '<label>Stock quantity</label>' +
+            '<input id="ct-stock" type="number" min="0" step="1" value="' + attr(e.stock) + '" placeholder="24">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Contains alcohol?</label>' +
+            '<select id="ct-alcohol">' +
+              '<option value="true"' + (e.isAlcohol !== false ? ' selected' : '') + '>Yes — 18+</option>' +
+              '<option value="false"' + (e.isAlcohol === false ? ' selected' : '') + '>No</option>' +
+            '</select>' +
+          '</div>' +
+        '</div>' +
+        '<div class="form-actions">' +
+          '<button class="btn btn-save" type="button" id="ct-save">' +
+            (e.index == null ? "Add product" : "Save product") +
+          '</button>' +
+          '<button class="btn btn-cancel" type="button" id="ct-cancel">Cancel</button>' +
+        '</div>' +
+      '</div>';
+    } else {
+      h += '<button class="add-addr-btn" type="button" data-cat-add>+ Add product</button>';
+    }
+
+    h += '</div>';
+    return h;
+  }
+
+  /* ============================================================
+     MODULE — DELIVERY
+     ============================================================ */
+  function moduleDelivery(){
+    var d = state.delivery;
+    return '<div class="module">' +
+      '<div class="grid2">' +
+        '<div class="field">' +
+          '<label>Radius (km)</label>' +
+          '<input data-bind="delivery.radius" type="number" min="0" step="1" value="' + attr(d.radius) + '" placeholder="e.g. 15">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Delivery fee (BWP)</label>' +
+          '<input data-bind="delivery.fee" type="number" min="0" step="0.01" value="' + attr(d.fee) + '" placeholder="20">' +
+        '</div>' +
+      '</div>' +
+      '<div class="grid2">' +
+        '<div class="field">' +
+          '<label>Minimum order (BWP)</label>' +
+          '<input data-bind="delivery.minOrder" type="number" min="0" step="0.01" value="' + attr(d.minOrder) + '" placeholder="50">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Delivery hours</label>' +
+          '<input data-bind="delivery.hours" type="text" value="' + attr(d.hours) + '" placeholder="e.g. 10:00 – 22:00">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Same-day delivery</label>' +
+        '<select data-bind="delivery.sameDay" id="dv-sameday">' +
+          '<option value="true"' + (d.sameDay !== false ? ' selected' : '') + '>Yes</option>' +
+          '<option value="false"' + (d.sameDay === false ? ' selected' : '') + '>No</option>' +
+        '</select>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Areas you deliver to</label>' +
+        '<div class="chip-wrap">' +
+          DELIVERY_AREAS.map(function(a){
+            var on = Array.isArray(d.areaNotes) && d.areaNotes.indexOf(a) !== -1;
+            return '<button class="chip' + (on ? ' on' : '') + '" type="button" data-delivery-area="' + attr(a) + '">' + esc(a) + '</button>';
+          }).join('') +
+        '</div>' +
+      '</div>' +
+
+      '<div class="age-notice" style="margin-top:12px">' +
+        '<span class="ic">!</span>' +
+        '<span class="txt"><b>Age checks apply on delivery.</b>' +
+        'Drivers must verify ID before handing over any alcoholic item.</span>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ============================================================
+     MODULE — DOCUMENTS (90px thumbnails)
+     ============================================================ */
+  function moduleDocs(){
+    var out = DOCS.map(function(d){
+      var done = !!state.docs[d.key];
+      var thumb = done
+        ? '<div class="thumb-90">' + esc(d.name.charAt(0)) + '<span class="badge">OK</span></div>'
+        : '<div class="thumb-90 empty">＋</div>';
+
+      return '<div class="thumb-row">' +
+          thumb +
+          '<div class="thumb-body">' +
+            '<div class="thumb-title">' + esc(d.name) + '</div>' +
+            '<div class="thumb-sub">' + esc(d.hint) + '</div>' +
+            '<div class="thumb-actions">' +
+              '<span class="pill ' + (done ? 'on' : 'off') + '">' + (done ? 'Uploaded' : 'Missing') + '</span>' +
+              '<button class="mini-btn" type="button" data-doc-toggle="' + attr(d.key) + '">' +
+                (done ? 'Remove' : 'Mark uploaded') +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+
+    return '<div class="module">' +
+      out +
+      '<div class="empty-note" style="margin-top:10px">' +
+        'You can submit with <b>at least two</b> documents. The rest can follow during review.' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ============================================================
+     MODULE — PAYOUT
+     ============================================================ */
+  function modulePayout(){
+    var p = state.payout;
+    var isMobile = p.method === "mobile";
+    var isBank   = p.method === "bank";
+
+    return '<div class="module">' +
+      '<div class="field">' +
+        '<label>Payout method</label>' +
+        '<select data-bind="payout.method" id="po-method">' +
+          renderOpts([
+            { value:"",       label:"— Select method —" },
+            { value:"bank",   label:"Bank transfer" },
+            { value:"mobile", label:"Mobile money" }
+          ], p.method) +
+        '</select>' +
+      '</div>' +
+
+      (isBank ? (
+        '<div class="field">' +
+          '<label>Bank name</label>' +
+          '<input data-bind="payout.bank" type="text" value="' + attr(p.bank) + '" placeholder="e.g. FNB Botswana">' +
+        '</div>' +
+        '<div class="grid2">' +
+          '<div class="field">' +
+            '<label>Account name</label>' +
+            '<input data-bind="payout.accountName" type="text" value="' + attr(p.accountName) + '" placeholder="Business name">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Branch</label>' +
+            '<input data-bind="payout.branch" type="text" value="' + attr(p.branch) + '" placeholder="e.g. Main Mall">' +
+          '</div>' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Account number</label>' +
+          '<input data-bind="payout.accountNumber" type="text" value="' + attr(p.accountNumber) + '" placeholder="0123456789">' +
+        '</div>'
+      ) : '') +
+
+      (isMobile ? (
+        '<div class="grid2">' +
+          '<div class="field">' +
+            '<label>Account name</label>' +
+            '<input data-bind="payout.accountName" type="text" value="' + attr(p.accountName) + '" placeholder="Registered name">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Mobile number</label>' +
+            '<input data-bind="payout.mobileMoney" type="tel" value="' + attr(p.mobileMoney) + '" placeholder="+267 71 234 567">' +
+          '</div>' +
+        '</div>'
+      ) : '') +
+
+      (!isBank && !isMobile ? (
+        '<div class="empty-note">Choose a payout method above to reveal the required details.</div>'
+      ) : '') +
+    '</div>';
+  }
+
+  /* ============================================================
+     MODULE — REVIEW
+     ============================================================ */
+  function moduleReview(){
+    var b = state.business, c = state.contact, lc = state.licence,
+        cat = state.catalog, d = state.delivery, p = state.payout;
+
+    var docsDone = Object.keys(state.docs).filter(function(x){ return state.docs[x]; });
+    var docsLabel = docsDone.length
+      ? DOCS.filter(function(x){ return state.docs[x.key]; }).map(function(x){ return x.name; }).join(", ")
+      : "None uploaded yet";
+
+    function row(key, val){
+      return '<div class="review-row">' +
+        '<div class="review-key">' + esc(key) + '</div>' +
+        '<div class="review-val">' + (val || '<span style="color:var(--faint)">—</span>') + '</div>' +
+      '</div>';
+    }
+
+    var missing = KEYS.filter(function(k){ return !sectionDone(k); });
+
+    return '<div class="module">' +
+      row("Store", b.name ? '<b>' + esc(b.name) + '</b>' + (b.tagline ? ' · ' + esc(b.tagline) : '') : '') +
+      row("Location", [c.street, c.area, c.town, c.districtName].filter(Boolean).map(esc).join(", ")) +
+      row("Phone", esc(c.phone) + (c.whatsapp ? ' · WA ' + esc(c.whatsapp) : '')) +
+      row("Licence", lc.number ? esc(lc.number) + (lc.expires ? ' · expires ' + esc(lc.expires) : '') : '') +
+      row("Age policy", (lc.agePolicy ? 'ID checked on delivery · ' : '') + (lc.noMinors ? 'No under-18 sales' : '')) +
+      row("Products", cat.items.length ? cat.items.length + ' item' + (cat.items.length === 1 ? '' : 's') : '') +
+      row("Delivery", d.radius ? esc(d.radius) + ' km · P' + esc(d.fee || 0) + ' fee' : '') +
+      row("Documents", esc(docsLabel)) +
+      row("Payout", p.method
+        ? (p.method === "mobile" ? "Mobile money" : "Bank transfer") +
+          (p.accountName ? " · " + esc(p.accountName) : "")
+        : "") +
+
+      (missing.length
+        ? '<div class="empty-note" style="margin-top:12px">' +
+            '<b>' + missing.length + ' section' + (missing.length === 1 ? '' : 's') + ' incomplete.</b><br>' +
+            'Finish them before submitting your application.' +
+          '</div>'
+        : '<div class="empty-note" style="margin-top:12px;border-color:var(--orange-line);background:var(--orange-soft);color:var(--orange)">' +
+            '<b>Everything looks good.</b><br>Submit your application to start the review.' +
+          '</div>') +
+
+      '<div class="form-actions">' +
+        '<button class="btn btn-save" type="button" id="on-submit">Submit application</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ============================================================
+     SECTION BUILDER — no chevrons / arrows / +– indicators
+     ============================================================ */
+  function section(key, letter, title, sub, body, badge, active){
+    var isOpen = OPEN === key;
+    var cls = 'acc' + (isOpen ? ' open' : '') + (active ? ' has-items' : '');
+    var badgeHtml = (badge != null && badge !== "")
+      ? '<span class="count">' + esc(badge) + '</span>' : '';
+
+    return '<section class="' + cls + '" data-key="' + attr(key) + '">' +
+      '<button class="acc-head" type="button" aria-expanded="' + (isOpen ? 'true' : 'false') + '">' +
+        '<span class="sec-thumb' + (active ? '' : ' plain') + '">' + esc(letter) + badgeHtml + '</span>' +
+        '<span class="acc-title">' +
+          '<b>' + esc(title) + '</b>' +
+          '<span class="acc-sub">' + esc(sub) + '</span>' +
+        '</span>' +
+        '<span class="vis-dot ' + (active ? 'green' : 'off') + '"></span>' +
+      '</button>' +
+      '<div class="acc-body"><div class="acc-inner">' + body + '</div></div>' +
+    '</section>';
+  }
+
+  /* ============================================================
+     META CARD + PROGRESS
+     ============================================================ */
+  function renderMeta(){
+    var c = completion();
+    var dot = c.done === c.total ? "green" : (c.done === 0 ? "warn" : "warn");
+    var msg;
+    if (c.done === 0){
+      msg = "Your application is empty — open a section below to get started";
+    } else if (c.done === c.total){
+      msg = "<b>All sections complete.</b> Review and submit your application";
+    } else {
+      msg = "<b>" + c.done + " of " + c.total + "</b> sections complete — keep going";
+    }
+
+    return '<div class="meta-card">' +
+      '<div class="meta-row">' +
+        '<span class="meta-dot ' + dot + '"></span>' +
+        '<span class="meta-text">' + msg + '</span>' +
+      '</div>' +
+      '<div class="meta-stats">' +
+        '<div class="stat"><b>' + c.done + '/' + c.total + '</b><span>Sections</span></div>' +
+        '<div class="stat"><b>' + state.catalog.items.length + '</b><span>Products</span></div>' +
+        '<div class="stat"><b>' + Object.keys(state.docs).filter(function(k){ return state.docs[k]; }).length + '</b><span>Docs</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function updateProgress(){
+    var c = completion();
+    document.getElementById('progressFill').style.width = c.pct + '%';
+    document.getElementById('progressCount').textContent = c.done + ' of ' + c.total + ' sections';
+  }
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
+  var mount = document.getElementById('app');
+
+  function render(){
+    mount.innerHTML =
+      renderMeta() +
+      '<div class="stack">' +
+        section('business','B','Business profile',    subBusiness(), moduleBusiness(), null, sectionDone('business')) +
+        section('contact', 'C','Contact & location',  subContact(),  moduleContact(),  null, sectionDone('contact'))  +
+        section('licence', 'L','Liquor licence',      subLicence(),  moduleLicence(),  null, sectionDone('licence'))  +
+        section('catalog', 'P','Product catalog',     subCatalog(),  moduleCatalog(),  state.catalog.items.length || null, sectionDone('catalog')) +
+        section('delivery','D','Delivery rules',      subDelivery(), moduleDelivery(), null, sectionDone('delivery')) +
+        section('docs',    'F','Documents',           subDocs(),     moduleDocs(),     Object.keys(state.docs).filter(function(k){return state.docs[k];}).length || null, sectionDone('docs')) +
+        section('payout',  'Y','Payout details',      subPayout(),   modulePayout(),   null, sectionDone('payout'))   +
+        section('review',  'R','Review & submit',     'Check everything before sending', moduleReview(), null, completion().done === completion().total) +
+      '</div>';
+
+    updateProgress();
+    wire();
+  }
+
+  /* ============================================================
+     CAPTURE — read inputs into state before any re-render
+     ============================================================ */
+  function capture(){
+    var nodes = mount.querySelectorAll('[data-bind]');
+    for (var i = 0; i < nodes.length; i++){
+      var el = nodes[i];
+      var path = el.getAttribute('data-bind').split('.');
+      var sec = path[0], key = path[1];
+      if (!state[sec]) continue;
+      var v = el.value;
+      if (el.tagName === 'SELECT' && (v === 'true' || v === 'false')) v = (v === 'true');
+      state[sec][key] = v;
+    }
+  }
+
+  /* ============================================================
+     ACCORDION — one open at a time, closed by default
+     ============================================================ */
+  function toggleAccordion(key){
+    capture();
+    OPEN = (OPEN === key) ? null : key;
+    render();
+    if (OPEN){
+      var opened = mount.querySelector('.acc[data-key="' + cssEscape(OPEN) + '"]');
+      if (opened){
+        setTimeout(function(){
+          try { opened.scrollIntoView({ behavior:'smooth', block:'start' }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+
+  /* ============================================================
+     LOCATION CASCADE
+     ============================================================ */
+  function wireLocations(){
+    if (!L) return;
+    var d = document.getElementById('on-district');
+    var t = document.getElementById('on-town');
+    var a = document.getElementById('on-area');
+    if (!d || !t || !a) return;
+
+    function fillTowns(){
+      t.innerHTML = opts(L.townOptions(d.value), '', '— Select town —').map(function(o){
+        return '<option value="' + attr(o.value) + '">' + esc(o.label) + '</option>';
+      }).join('');
+      fillAreas();
+      state.contact.district = d.value;
+      state.contact.town = '';
+      state.contact.area = '';
+    }
+    function fillAreas(){
+      a.innerHTML = opts(L.areaOptions(d.value, t.value), '', '— Select area —').map(function(o){
+        return '<option value="' + attr(o.value) + '">' + esc(o.label) + '</option>';
+      }).join('');
+    }
+
+    d.onchange = function(){
+      var dd = (L.allDistricts() || []).find(function(x){
+        return String(x.code) === String(d.value);
+      }) || {};
+      state.contact.districtName = dd.name || '';
+      fillTowns();
+    };
+    t.onchange = function(){
+      state.contact.town = t.value;
+      fillAreas();
+    };
+    a.onchange = function(){ state.contact.area = a.value; };
+  }
+
+  /* ============================================================
+     FORM WIRING
+     ============================================================ */
+  function wire(){
+
+    wireLocations();
+
+    /* ---- business logo picker ---- */
+    var pick = document.querySelector('[data-logo-pick]');
+    var file = document.getElementById('logo-file');
+    if (pick && file){
+      pick.onclick = function(e){
+        e.stopPropagation();
+        file.click();
+      };
+      file.onchange = function(){
+        var f = file.files && file.files[0];
+        if (!f) return;
+        if (f.size > 2.5 * 1024 * 1024){ toast('Image is too large (max 2.5MB)'); return; }
+        var reader = new FileReader();
+        reader.onload = function(ev){
+          state.business.logo = ev.target.result;
+          OPEN = 'business';
+          render();
+          toast('Logo added');
+        };
+        reader.readAsDataURL(f);
+      };
+    }
+
+    /* ---- licence image picker ---- */
+    var lPick = document.querySelector('[data-licence-pick]');
+    var lFile = document.getElementById('licence-file');
+    if (lPick && lFile){
+      lPick.onclick = function(e){
+        e.stopPropagation();
+        lFile.click();
+      };
+      lFile.onchange = function(){
+        var f = lFile.files && lFile.files[0];
+        if (!f) return;
+        if (f.size > 3 * 1024 * 1024){ toast('Image is too large (max 3MB)'); return; }
+        var reader = new FileReader();
+        reader.onload = function(ev){
+          state.licence.upload = ev.target.result;
+          OPEN = 'licence';
+          render();
+          toast('Licence image added');
+        };
+        reader.readAsDataURL(f);
+      };
+    }
+
+    /* ---- catalog editor ---- */
+    var ctSave = document.getElementById('ct-save');
+    var ctCancel = document.getElementById('ct-cancel');
+    if (ctSave && catalogEdit){
+      ctSave.onclick = function(){
+        var name = document.getElementById('ct-name').value.trim();
+        var category = document.getElementById('ct-category').value;
+        var brand = document.getElementById('ct-brand').value;
+        var price = Number(document.getElementById('ct-price').value);
+        var stock = Number(document.getElementById('ct-stock').value);
+        var isAlcohol = document.getElementById('ct-alcohol').value === 'true';
+
+        if (!name){ toast('Enter a product name'); return; }
+        if (!category){ toast('Choose a category'); return; }
+        if (!isFinite(price) || price < 0){ toast('Enter a valid price'); return; }
+
+        var entry = {
+          name: name,
+          category: category,
+          brand: brand,
+          price: price,
+          stock: isFinite(stock) && stock >= 0 ? stock : 0,
+          isAlcohol: isAlcohol
+        };
+
+        if (catalogEdit.index == null) state.catalog.items.push(entry);
+        else state.catalog.items[catalogEdit.index] = entry;
+
+        catalogEdit = null;
+        OPEN = 'catalog';
+        render();
+        toast('Product saved');
+      };
+      ctCancel.onclick = function(){
+        catalogEdit = null;
+        OPEN = 'catalog';
+        render();
+      };
+    }
+
+    /* ---- submit ---- */
+    var submit = document.getElementById('on-submit');
+    if (submit){
+      submit.onclick = function(){
+        capture();
+        var missing = KEYS.filter(function(k){ return !sectionDone(k); });
+        if (missing.length){
+          toast('Complete all sections first');
+          OPEN = missing[0];
+          render();
+          return;
+        }
+        if (!state.licence.agePolicy){
+          toast('Confirm the age check policy');
+          OPEN = 'licence';
+          render();
+          return;
+        }
+        if (!confirmDialog("Submit your bottle store application for review?")) return;
+
+        try {
+          var DB = window.EatoutsMgrDB;
+          if (DB && DB.get && DB.save){
+            var d = DB.get();
+            if (!d.settings) d.settings = {};
+            d.settings.bottleStoreOnboarding = JSON.parse(JSON.stringify(state));
+            d.settings.bottleStoreOnboardingSubmittedAt = new Date().toISOString();
+            DB.save();
+          }
+        } catch (_) {}
+
+        if (window.EatoutsAudit){
+          try {
+            EatoutsAudit.log("bottlestore.onboarding.submit", state.business.name || "bottlestore", {
+              name: state.business.name,
+              town: state.contact.town,
+              licence: state.licence.number,
+              products: state.catalog.items.length
+            }, null);
+          } catch (_) {}
+        }
+
+        toast('Application submitted');
+      };
+    }
+  }
+
+  /* ============================================================
+     CLICK DELEGATION
+     ============================================================ */
+  mount.addEventListener('click', function(e){
+    var t = e.target;
+    if (!t || !t.closest) return;
+
+    /* --- logo clear --- */
+    if (t.closest('[data-logo-clear]')){
+      e.stopPropagation();
+      capture();
+      state.business.logo = null;
+      OPEN = 'business';
+      render();
+      toast('Logo removed');
+      return;
+    }
+
+    /* --- licence clear --- */
+    if (t.closest('[data-licence-clear]')){
+      e.stopPropagation();
+      capture();
+      state.licence.upload = null;
+      OPEN = 'licence';
+      render();
+      toast('Licence image removed');
+      return;
+    }
+
+    /* --- licence policy chips --- */
+    var lFlag = t.closest('[data-licence-flag]');
+    if (lFlag){
+      e.stopPropagation();
+      capture();
+      var fk = lFlag.getAttribute('data-licence-flag');
+      state.licence[fk] = !state.licence[fk];
+      OPEN = 'licence';
+      render();
+      return;
+    }
+
+    /* --- product add --- */
+    if (t.closest('[data-cat-add]')){
+      e.stopPropagation();
+      capture();
+      catalogEdit = { index: null, name:"", category:"", brand:"", price:"", stock:"", isAlcohol:true };
+      OPEN = 'catalog';
+      render();
+      return;
+    }
+
+    /* --- product edit --- */
+    var cEdit = t.closest('[data-cat-edit]');
+    if (cEdit){
+      e.stopPropagation();
+      capture();
+      var ci = Number(cEdit.getAttribute('data-cat-edit'));
+      var item = state.catalog.items[ci];
+      if (item){
+        catalogEdit = {
+          index: ci,
+          name: item.name || "",
+          category: item.category || "",
+          brand: item.brand || "",
+          price: item.price != null ? item.price : "",
+          stock: item.stock != null ? item.stock : "",
+          isAlcohol: item.isAlcohol !== false
+        };
+        OPEN = 'catalog';
+        render();
+      }
+      return;
+    }
+
+    /* --- product delete --- */
+    var cDel = t.closest('[data-cat-del]');
+    if (cDel){
+      e.stopPropagation();
+      capture();
+      var di = Number(cDel.getAttribute('data-cat-del'));
+      if (!confirmDialog('Remove this product from the catalog?')) return;
+      state.catalog.items.splice(di, 1);
+      if (catalogEdit && catalogEdit.index === di) catalogEdit = null;
+      OPEN = 'catalog';
+      render();
+      toast('Product removed');
+      return;
+    }
+
+    /* --- delivery area chips --- */
+    var dArea = t.closest('[data-delivery-area]');
+    if (dArea){
+      e.stopPropagation();
+      capture();
+      if (!Array.isArray(state.delivery.areaNotes)) state.delivery.areaNotes = [];
+      var av = dArea.getAttribute('data-delivery-area');
+      var ai = state.delivery.areaNotes.indexOf(av);
+      if (ai === -1) state.delivery.areaNotes.push(av);
+      else state.delivery.areaNotes.splice(ai, 1);
+      OPEN = 'delivery';
+      render();
+      return;
+    }
+
+    /* --- document toggle --- */
+    var doc = t.closest('[data-doc-toggle]');
+    if (doc){
+      e.stopPropagation();
+      capture();
+      var dk = doc.getAttribute('data-doc-toggle');
+      state.docs[dk] = !state.docs[dk];
+      OPEN = 'docs';
+      render();
+      toast(state.docs[dk] ? 'Document marked uploaded' : 'Document removed');
+      return;
+    }
+
+    /* --- accordion header (last, so inner buttons win) --- */
+    var head = t.closest('.acc-head');
+    if (head){
+      var acc = head.closest('.acc');
+      if (acc) toggleAccordion(acc.getAttribute('data-key'));
+      return;
+    }
+  });
+
+  /* ============================================================
+     LIVE INPUT LISTENER — keep state in sync without re-render
+     ============================================================ */
+  mount.addEventListener('change', function(e){
+    var el = e.target;
+    if (!el || !el.getAttribute) return;
+    var path = el.getAttribute('data-bind');
+    if (!path) return;
+    var parts = path.split('.');
+    var sec = parts[0], key = parts[1];
+    if (!state[sec]) return;
+    var v = el.value;
+    if (el.tagName === 'SELECT' && (v === 'true' || v === 'false')) v = (v === 'true');
+    state[sec][key] = v;
+  });
+
+  /* ============================================================
+     BOOT — all accordions closed
+     ============================================================ */
+  render();
+
+  /* Attempt to restore a previous draft */
+  try {
+    var DB = window.EatoutsMgrDB;
+    if (DB && DB.get){
+      var saved = (DB.get().settings || {}).bottleStoreOnboarding;
+      if (saved && saved.business){
+        state = saved;
+        render();
+      }
+    }
+  } catch (_) {}
+});
+</script>
+</body>
+</html>

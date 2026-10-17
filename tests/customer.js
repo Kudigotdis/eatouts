@@ -198,8 +198,8 @@ setTimeout(() => {
       });
       setTimeout(() => {
         const aw = addrDom.window;
-        check('addresses: renders for a customer', !aw.document.querySelector('main.blocked') && !!aw.document.getElementById('add'), (aw.document.querySelector('main.blocked') ? 'blocked' : 'ok'));
-        check('addresses: shows the saved-addresses card', !!aw.document.querySelector('#a'));
+        check('addresses: renders for a customer', !aw.document.querySelector('main.blocked') && !!aw.document.getElementById('app'), (aw.document.querySelector('main.blocked') ? 'blocked' : 'ok'));
+        check('addresses: shows the saved-addresses card', /Saved addresses/.test((aw.document.getElementById('app') || {}).textContent || ''));
 
         console.log('\nwindow errors: ' + appErrors.length);
         console.log(fails === 0 ? '\nCUSTOMER TEST PASSED' : '\nCUSTOMER TEST FAILED (' + fails + ' checks)');

@@ -1,3 +1,941 @@
 <!doctype html>
-<!-- PAGE: Notifications --><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Notifications · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"></head><body data-page="eatouts-notifications"><div id="mount"></div><script src="js/eatouts-manager-db.js"></script><script src="assets/data/demo/the-food-place/demo-data.js"></script><script src="js/eatouts-manager-seed.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog-admin.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-manager.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{if(!EO.guard({"roles": ["platform_admin"]}))return;document.querySelector("#mount").innerHTML=EO.shell("Notifications","Push system messages to user segments",`<div class="card"><form id="n"><label class="field"><span>Segment</span><select name="segment"><option>All customers</option><option>Business owners</option><option>Suppliers</option><option>All users</option></select></label><label class="field"><span>Title</span><input name="title" required></label><label class="field"><span>Message</span><textarea name="message" required></textarea></label><button class="btn primary">Send notification</button></form></div><div class="card"><div class="card-title">Recent sends</div><div id="nlist"></div></div>`,{section:"Platform admin"});
-function render(){document.querySelector("#nlist").innerHTML=EatoutsMgrDB.collection("notifications").slice().reverse().map(x=>`<div class="listrow"><div class="listmain"><strong>${EO.esc(x.title)}</strong><small>${x.segment} · ${x.created}</small></div>${EO.status("sent")}</div>`).join("")||"<div class='empty'>No notifications sent.</div>"}document.querySelector("#n").onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);EatoutsMgrDB.upsert("notifications",{id:"NT-"+Date.now(),segment:f.get("segment"),title:f.get("title"),message:f.get("message"),created:new Date().toISOString()});e.target.reset();render();EO.toast("Notification queued")};render();});</script></body></html>
+<!-- PAGE: Notifications -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Notifications · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --blue:#0284C7;
+    --blue-soft:#E0F2FE;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* ============ TOPBAR ============ */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 14px;
+    position:relative;
+    z-index:10;
+  }
+  .topbar-row{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:13px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+
+  .progress{padding-bottom:2px}
+  .progress-top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:11px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .progress-count{
+    font-size:11.5px;font-weight:800;
+    color:var(--orange-2);
+    letter-spacing:.02em;
+  }
+  .progress-track{
+    height:5px;border-radius:99px;
+    background:rgba(255,255,255,.13);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ============ SCROLL ============ */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ============ INTRO ============ */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* ============ SHEET ============ */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+    min-height:60vh;
+  }
+
+  /* ============ META CARD ============ */
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .meta-row{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:11px;
+  }
+  .meta-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .meta-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .meta-dot.warn{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+  .meta-text{
+    font-size:13.5px;
+    color:var(--ink-2);
+    line-height:1.4;
+    min-width:0;
+    flex:1 1 auto;
+  }
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding-top:11px;
+    border-top:1px solid var(--line-2);
+  }
+  .stat{text-align:center}
+  .stat b{
+    display:block;
+    font-size:19px;font-weight:850;
+    letter-spacing:-.03em;
+    color:var(--ink);
+    line-height:1.1;
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .stat span{
+    display:block;
+    margin-top:3px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* ============ ACCORDION STACK ============ */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:13px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+
+  .sec-thumb{
+    width:48px;height:48px;flex:0 0 auto;
+    border-radius:11px;
+    background:var(--orange-soft);
+    color:var(--orange);
+    display:grid;place-items:center;
+    font-size:17px;font-weight:850;
+    letter-spacing:-.02em;
+    position:relative;
+  }
+  .sec-thumb.plain{
+    background:#F0F1F4;color:var(--faint);
+  }
+  .sec-thumb .count{
+    position:absolute;
+    bottom:3px;right:3px;
+    background:rgba(15,15,18,.72);
+    color:#fff;
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:.02em;
+    padding:1.5px 5px;
+    border-radius:4px;
+    line-height:1;
+  }
+
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .acc-title b{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font-weight:550;
+  }
+
+  .vis-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .vis-dot.off{background:#D3D7DE;box-shadow:none}
+  .vis-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+
+  .module{padding:2px 15px 18px}
+
+  .module-note{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+    margin:0 0 14px;
+    padding:11px 12px;
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+  }
+  .module-note b{color:var(--ink);font-weight:750}
+
+  /* ============ FORM FIELDS ============ */
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field > label{
+    display:block;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:7px;
+  }
+  .field input,
+  .field select,
+  .field textarea{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.4;
+    padding:13px;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;
+    appearance:none;
+    font-family:inherit;
+  }
+  .field textarea{min-height:110px;resize:vertical;line-height:1.55}
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.13);
+  }
+  .field input::placeholder,
+  .field textarea::placeholder{color:#B7BDC6}
+  .field .hint{
+    display:block;
+    margin-top:6px;
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.45;
+    font-weight:550;
+  }
+  .field .counter{
+    display:block;
+    margin-top:6px;
+    font-size:11px;
+    color:var(--faint);
+    font-weight:650;
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* ============ SEND BUTTON ============ */
+  .send-row{
+    margin-top:16px;
+    display:flex;
+    gap:9px;
+  }
+  .send-row .btn{
+    flex:1;
+    height:52px;
+    border-radius:13px;
+    font-size:15px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    border:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .1s ease,background .15s;
+  }
+  .send-row .btn:active{transform:scale(.98)}
+  .btn-send{
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+  }
+  .btn-send:active{background:var(--orange)}
+  .btn-send[disabled]{
+    background:#E6E8EC;
+    color:var(--faint);
+    box-shadow:none;
+    pointer-events:none;
+  }
+
+  /* ============ SENT LIST ============ */
+  .sent-row{
+    display:flex;align-items:flex-start;gap:12px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line-2);
+  }
+  .sent-row:last-child{border-bottom:0;padding-bottom:0}
+  .sent-row:first-child{padding-top:0}
+
+  .sent-badge{
+    width:44px;height:44px;flex:0 0 auto;
+    border-radius:11px;
+    background:var(--orange-soft);
+    color:var(--orange);
+    display:grid;place-items:center;
+    font-size:16px;font-weight:850;
+    letter-spacing:-.02em;
+  }
+  .sent-badge.green{
+    background:var(--green-soft);color:var(--green);
+  }
+  .sent-badge.blue{
+    background:var(--blue-soft);color:var(--blue);
+  }
+  .sent-badge.amber{
+    background:var(--amber-soft);color:var(--amber);
+  }
+
+  .sent-info{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:3px;
+  }
+  .sent-info b{
+    font-size:13.5px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    line-height:1.3;
+    word-break:break-word;
+  }
+  .sent-info .smsg{
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.45;
+    font-weight:550;
+    overflow:hidden;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    word-break:break-word;
+  }
+  .sent-info .smeta{
+    font-size:11px;
+    color:var(--faint);
+    font-weight:650;
+    margin-top:2px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 6px;
+  }
+  .sent-info .smeta .dotsep{color:#D3D7DE}
+
+  /* Segment pill */
+  .seg-pill{
+    display:inline-flex;align-items:center;
+    padding:2px 8px;border-radius:999px;
+    font-size:10px;font-weight:800;
+    letter-spacing:.05em;text-transform:uppercase;
+    background:var(--orange-soft);color:var(--orange);
+    line-height:1.4;
+  }
+  .seg-pill.biz{
+    background:var(--green-soft);color:var(--green);
+  }
+  .seg-pill.sup{
+    background:var(--amber-soft);color:var(--amber);
+  }
+  .seg-pill.all{
+    background:var(--blue-soft);color:var(--blue);
+  }
+
+  /* ============ EMPTY ============ */
+  .empty-note{
+    font-size:12.5px;
+    color:var(--faint);
+    text-align:center;
+    padding:22px 16px;
+    border:1.5px dashed #DCE0E6;
+    border-radius:11px;
+    background:#FAFBFC;
+    line-height:1.55;
+  }
+  .empty-note b{color:var(--ink-2);font-weight:750}
+
+  /* ============ BLOCKED ============ */
+  .blocked-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:22px 18px;
+    text-align:center;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .blocked-card h2{
+    margin:0 0 8px;
+    font-size:18px;font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .blocked-card p{
+    margin:0 0 16px;
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--muted);
+  }
+  .blocked-card a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    height:48px;
+    border-radius:12px;
+    font-size:14.5px;
+    font-weight:750;
+    text-decoration:none;
+    margin-top:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+  }
+
+  /* ============ TOAST ============ */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(28px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body data-page="eatouts-notifications">
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip">Notifications</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Push activity</span>
+        <span class="progress-count" id="progressCount">—</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro" id="intro">
+      <h1>Push <em>messages</em>.</h1>
+      <p>Send system notifications to user segments across the platform.</p>
+    </section>
+    <main class="sheet" id="app"></main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="js/eatouts-manager-db.js"></script>
+<script src="assets/data/demo/the-food-place/demo-data.js"></script>
+<script src="js/eatouts-manager-seed.js"></script>
+<script src="js/eatouts-roles.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-feedback.js"></script>
+<script src="js/eatouts-blog-admin.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-manager.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  /* ---- Auth guard (unchanged) ---- */
+  if (!EO.guard({"roles": ["platform_admin"]})) return;
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function esc(v){
+    return String(v == null ? "" : v)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function escapeAttr(v){ return esc(v).replace(/`/g,"&#96;"); }
+  function cssEscape(s){ return String(s).replace(/["\\]/g, '\\$&'); }
+
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2000);
+  }
+
+  /* Only one accordion open at a time; null = all closed */
+  var OPEN = null;
+
+  /* Segment metadata for badge colours */
+  function segMeta(segment){
+    var s = String(segment || "").toLowerCase();
+    if (s.indexOf("business") === 0) return { cls:"biz",   letter:"B" };
+    if (s.indexOf("supplier") === 0) return { cls:"sup",   letter:"S" };
+    if (s.indexOf("all users") === 0) return { cls:"all",  letter:"U" };
+    return { cls:"", letter:"C" };  /* customers default */
+  }
+
+  /* ============================================================
+     DRAFT STATE
+     ============================================================ */
+  var draft = {
+    segment: "All customers",
+    title: "",
+    message: ""
+  };
+
+  function draftValid(){
+    return draft.title.trim().length > 0 && draft.message.trim().length > 0;
+  }
+
+  /* ============================================================
+     SECTION SUBTITLES
+     ============================================================ */
+  function composerSub(){
+    if (!draft.title.trim() && !draft.message.trim()) return "Compose a new push";
+    var t = draft.title.trim() || "(no title)";
+    return draft.segment + " · " + t;
+  }
+  function sentSub(){
+    var n = (EatoutsMgrDB.collection("notifications") || []).length;
+    return n ? n + " notification" + (n === 1 ? "" : "s") + " sent" : "No notifications yet";
+  }
+
+  /* ============================================================
+     MODULE HTML
+     ============================================================ */
+  function composerModule(){
+    return '<div class="module">' +
+      '<p class="module-note">Pick a segment, write your title and message, then send. Delivered instantly to the local store.</p>' +
+      '<div class="field">' +
+        '<label>Segment</label>' +
+        '<select data-k="segment">' +
+          ['All customers','Business owners','Suppliers','All users'].map(function(s){
+            return '<option value="' + escapeAttr(s) + '"' + (draft.segment === s ? ' selected' : '') + '>' + esc(s) + '</option>';
+          }).join('') +
+        '</select>' +
+      '</div>' +
+      '<div class="field">' +
+        '<label>Title</label>' +
+        '<input type="text" data-k="title" value="' + escapeAttr(draft.title) + '" placeholder="e.g. New feature launch" maxlength="80">' +
+        '<span class="counter" id="titleCount">' + draft.title.length + '/80</span>' +
+      '</div>' +
+      '<div class="field">' +
+        '<label>Message</label>' +
+        '<textarea data-k="message" placeholder="Write the notification body…" maxlength="280">' + esc(draft.message) + '</textarea>' +
+        '<span class="counter" id="msgCount">' + draft.message.length + '/280</span>' +
+      '</div>' +
+      '<div class="send-row">' +
+        '<button type="button" class="btn btn-send" id="btnSend"' + (draftValid() ? '' : ' disabled') + '>' +
+          (draftValid() ? 'Send notification' : 'Fill title & message') +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function sentModule(){
+    var list = (EatoutsMgrDB.collection("notifications") || []).slice().reverse();
+    if (!list.length){
+      return '<div class="module"><div class="empty-note">No notifications sent yet.<br><b>Your first send</b> will appear here.</div></div>';
+    }
+    return '<div class="module">' +
+      list.map(function(x){
+        var seg  = segMeta(x.segment);
+        var segCls = 'seg-pill' + (seg.cls ? ' ' + seg.cls : '');
+        var created = x.created || "";
+        var title = x.title || "(no title)";
+        var msg = x.message || "";
+        return '<div class="sent-row">' +
+          '<span class="sent-badge ' + seg.cls + '">' + esc(seg.letter) + '</span>' +
+          '<div class="sent-info">' +
+            '<b>' + esc(title) + '</b>' +
+            '<div class="smsg">' + esc(msg) + '</div>' +
+            '<div class="smeta">' +
+              '<span class="' + segCls + '">' + esc(x.segment || "—") + '</span>' +
+              (created ? '<span class="dotsep">·</span><span>' + esc(created) + '</span>' : '') +
+              (x.id ? '<span class="dotsep">·</span><span>' + esc(x.id) + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  /* ============================================================
+     ACCORDION BUILDER
+     ============================================================ */
+  function section(key, letter, title, sub, body){
+    var isOpen = OPEN === key;
+    var cls = 'acc' + (isOpen ? ' open' : '');
+    return '<section class="' + cls + '" data-key="' + escapeAttr(key) + '">' +
+      '<button class="acc-head" type="button" aria-expanded="' + (isOpen ? 'true' : 'false') + '">' +
+        '<span class="sec-thumb">' + esc(letter) + '</span>' +
+        '<span class="acc-title">' +
+          '<b>' + esc(title) + '</b>' +
+          '<span class="acc-sub">' + esc(sub) + '</span>' +
+        '</span>' +
+        '<span class="vis-dot off"></span>' +
+      '</button>' +
+      '<div class="acc-body">' +
+        '<div class="acc-inner">' + body + '</div>' +
+      '</div>' +
+    '</section>';
+  }
+
+  /* ============================================================
+     META CARD + PROGRESS
+     ============================================================ */
+  function renderMeta(){
+    var all = EatoutsMgrDB.collection("notifications") || [];
+    var total = all.length;
+
+    var bySeg = { customers:0, biz:0, suppliers:0, all:0 };
+    all.forEach(function(x){
+      var m = segMeta(x.segment);
+      if (m.cls === "biz") bySeg.biz++;
+      else if (m.cls === "sup") bySeg.suppliers++;
+      else if (m.cls === "all") bySeg.all++;
+      else bySeg.customers++;
+    });
+
+    var dotClass = total ? "green" : "warn";
+    var msg = total
+      ? "<b>" + total + "</b> notification" + (total === 1 ? "" : "s") + " sent"
+      : "No notifications sent yet";
+
+    return '<div class="meta-card">' +
+      '<div class="meta-row">' +
+        '<span class="meta-dot ' + dotClass + '"></span>' +
+        '<span class="meta-text">' + msg + '</span>' +
+      '</div>' +
+      '<div class="meta-stats">' +
+        '<div class="stat"><b>' + total + '</b><span>Total</span></div>' +
+        '<div class="stat"><b>' + bySeg.customers + '</b><span>Customers</span></div>' +
+        '<div class="stat"><b>' + (bySeg.biz + bySeg.suppliers + bySeg.all) + '</b><span>Other</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function updateProgress(){
+    var total = (EatoutsMgrDB.collection("notifications") || []).length;
+    var pct = total ? Math.min(100, Math.round((total / 10) * 100)) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressCount').textContent =
+      total + ' notification' + (total === 1 ? '' : 's') + ' sent';
+  }
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
+  var mount = document.getElementById('app');
+
+  function render(){
+    mount.innerHTML =
+      renderMeta() +
+      '<div class="stack">' +
+        section('composer', 'N', 'Compose notification', composerSub(), composerModule()) +
+        section('sent',     'H', 'Recent sends',         sentSub(),     sentModule()) +
+      '</div>';
+
+    updateProgress();
+    wireInputs();
+    wireSend();
+  }
+
+  /* ============================================================
+     ACCORDION BEHAVIOUR — only one open at a time
+     ============================================================ */
+  function toggleAccordion(key){
+    OPEN = (OPEN === key) ? null : key;
+    var accs = mount.querySelectorAll('.acc');
+    for (var i = 0; i < accs.length; i++){
+      var acc = accs[i];
+      var isOpen = acc.getAttribute('data-key') === OPEN;
+      acc.classList.toggle('open', isOpen);
+      var head = acc.querySelector('.acc-head');
+      if (head) head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    if (OPEN){
+      var opened = mount.querySelector('.acc[data-key="' + cssEscape(OPEN) + '"]');
+      if (opened){
+        setTimeout(function(){
+          try { opened.scrollIntoView({ behavior:'smooth', block:'start' }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+
+  /* ============================================================
+     INPUT WIRING
+     ============================================================ */
+  function wireInputs(){
+    var segEl = mount.querySelector('[data-k="segment"]');
+    var titleEl = mount.querySelector('[data-k="title"]');
+    var msgEl   = mount.querySelector('[data-k="message"]');
+    var titleC  = document.getElementById('titleCount');
+    var msgC    = document.getElementById('msgCount');
+    var sendBtn = document.getElementById('btnSend');
+
+    if (segEl){
+      segEl.onchange = function(){
+        draft.segment = segEl.value;
+        refreshComposerHeader();
+      };
+    }
+    if (titleEl){
+      titleEl.oninput = function(){
+        draft.title = titleEl.value;
+        if (titleC) titleC.textContent = draft.title.length + '/80';
+        refreshComposerHeader();
+        updateSendBtn();
+      };
+    }
+    if (msgEl){
+      msgEl.oninput = function(){
+        draft.message = msgEl.value;
+        if (msgC) msgC.textContent = draft.message.length + '/280';
+        refreshComposerHeader();
+        updateSendBtn();
+      };
+    }
+    function updateSendBtn(){
+      if (!sendBtn) return;
+      var ok = draftValid();
+      sendBtn.disabled = !ok;
+      sendBtn.textContent = ok ? 'Send notification' : 'Fill title & message';
+    }
+  }
+
+  /* Live refresh of composer subtitle without re-rendering the body */
+  function refreshComposerHeader(){
+    var acc = mount.querySelector('.acc[data-key="composer"]');
+    if (!acc) return;
+    var sub = acc.querySelector('.acc-sub');
+    if (sub) sub.textContent = composerSub();
+  }
+
+  /* ============================================================
+     SEND HANDLER
+     ============================================================ */
+  function wireSend(){
+    var btn = document.getElementById('btnSend');
+    if (!btn) return;
+    btn.onclick = function(){
+      if (!draftValid()){ toast('Add a title and message first'); return; }
+      try {
+        EatoutsMgrDB.upsert("notifications", {
+          id:      "NT-" + Date.now(),
+          segment: draft.segment,
+          title:   draft.title.trim(),
+          message: draft.message.trim(),
+          created: new Date().toISOString()
+        });
+        /* reset draft */
+        draft.title = "";
+        draft.message = "";
+        toast("Notification queued");
+        /* keep the composer open so the admin can send another */
+        OPEN = 'composer';
+        render();
+      } catch (err) {
+        toast("Could not queue notification");
+      }
+    };
+  }
+
+  /* ============================================================
+     DELEGATED CLICKS — accordion headers
+     ============================================================ */
+  mount.addEventListener('click', function(e){
+    var head = e.target.closest('.acc-head');
+    if (head){
+      var acc = head.closest('.acc');
+      if (acc) toggleAccordion(acc.getAttribute('data-key'));
+    }
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  render();
+});
+</script>
+</body>
+</html>

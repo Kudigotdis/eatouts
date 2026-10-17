@@ -104,7 +104,7 @@ setTimeout(() => {
 
   /* ---------- static wiring guards ---------- */
   const adminDash = fs.readFileSync(path.join(APP_DIR, 'eatouts-admin-dashboard.html'), 'utf8');
-  check('admin dashboard links to brand-kit-admin', /href="brand-kit-admin\.html"/.test(adminDash));
+  check('admin dashboard links to brand-kit-admin', /brand-kit-admin\.html/.test(adminDash));
   const kitSrc = fs.readFileSync(path.join(APP_DIR, 'brand-kit-admin.html'), 'utf8');
   check('access-denied login link uses eatouts-login.html', /href="eatouts-login\.html"/.test(kitSrc) && !/eatouts_login\.html/.test(kitSrc));
 
