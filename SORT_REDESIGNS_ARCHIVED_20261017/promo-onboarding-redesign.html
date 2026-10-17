@@ -1,0 +1,1650 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Promotions · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --blue:#0284C7;
+    --blue-soft:#E0F2FE;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* ============ topbar ============ */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 0;
+  }
+  .topbar-row{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:13px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+
+  .progress{padding-bottom:14px}
+  .progress-top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:11px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .progress-count{
+    font-size:11.5px;font-weight:800;
+    color:var(--orange-2);
+    letter-spacing:.02em;
+  }
+  .progress-track{
+    height:5px;border-radius:99px;
+    background:rgba(255,255,255,.13);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ============ scroll ============ */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ============ intro ============ */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* ============ sheet ============ */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+  }
+
+  /* ============ meta card ============ */
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .meta-row{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:11px;
+  }
+  .meta-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .meta-text{
+    font-size:13.5px;
+    color:var(--ink-2);
+    line-height:1.4;
+    min-width:0;
+  }
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding-top:11px;
+    border-top:1px solid var(--line-2);
+  }
+  .stat{text-align:center}
+  .stat b{
+    display:block;
+    font-size:19px;font-weight:850;
+    letter-spacing:-.03em;
+    color:var(--ink);
+    line-height:1.1;
+  }
+  .stat span{
+    display:block;
+    margin-top:3px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* ============ accordion ============ */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:16px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+  .acc-head .dot{
+    width:10px;height:10px;border-radius:50%;flex:0 0 auto;
+    background:#D3D7DE;
+    transition:background .25s ease,box-shadow .25s ease;
+  }
+  .acc.touched .acc-head .dot{
+    background:var(--green);
+    box-shadow:0 0 0 3px var(--green-soft);
+  }
+  .acc.warn .acc-head .dot{
+    background:var(--amber);
+    box-shadow:0 0 0 3px var(--amber-soft);
+  }
+  .acc.dim .acc-head .dot{
+    background:var(--faint);
+    box-shadow:none;
+  }
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:1px;
+  }
+  .acc-title b{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc.touched .acc-sub{color:var(--green);font-weight:650}
+  .acc.warn .acc-sub{color:var(--amber);font-weight:650}
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+  .module{padding:2px 15px 18px}
+  .module-note{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+    margin:0 0 14px;
+    padding:11px 12px;
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+  }
+
+  /* ============ promo card ============ */
+  .promo{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    margin-bottom:10px;
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s;
+    cursor:pointer;
+  }
+  .promo:last-child{margin-bottom:0}
+  .promo:active{border-color:var(--orange-line)}
+
+  .promo-hero{
+    height:120px;
+    background:#F0F1F4;
+    position:relative;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    color:#B7BDC6;
+    font-size:32px;
+  }
+  .promo-hero img{
+    width:100%;height:100%;
+    object-fit:cover;display:block;
+  }
+  .promo-hero .badge{
+    position:absolute;
+    top:9px;left:9px;
+  }
+  .promo-hero .type-tag{
+    position:absolute;
+    bottom:9px;left:9px;
+    background:rgba(15,15,18,.72);
+    color:#fff;
+    font-size:9.5px;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:6px;
+    line-height:1;
+  }
+
+  .promo-body{
+    padding:12px 13px 13px;
+  }
+  .promo-title{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    line-height:1.3;
+    margin-bottom:4px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .promo-meta{
+    font-size:11.5px;
+    color:var(--faint);
+    font-weight:550;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    margin-bottom:8px;
+  }
+  .promo-prices{
+    display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+    margin-bottom:11px;
+  }
+  .promo-price{
+    font-size:16px;font-weight:850;
+    letter-spacing:-.02em;
+    color:var(--orange);
+  }
+  .promo-price-was{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--faint);
+    text-decoration:line-through;
+  }
+  .promo-save{
+    font-size:10.5px;
+    font-weight:800;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    background:var(--green-soft);
+    color:var(--green);
+    border-radius:999px;
+  }
+
+  .promo-actions{
+    display:flex;gap:6px;flex-wrap:wrap;
+    padding-top:11px;
+    border-top:1px solid var(--line-2);
+  }
+  .promo-btn{
+    flex:1 1 auto;
+    min-width:0;
+    height:34px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    font-size:11.5px;
+    font-weight:750;
+    color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s;
+    padding:0 10px;
+  }
+  .promo-btn:active{background:#F4F5F7}
+  .promo-btn.primary{
+    background:var(--orange);
+    border-color:var(--orange);
+    color:#fff;
+  }
+  .promo-btn.primary:active{background:#E64A12}
+  .promo-btn.danger{
+    flex:0 0 auto;
+    color:var(--red);
+    border-color:#FECACA;
+    background:#FEF2F2;
+    padding:0 12px;
+  }
+  .promo-btn.danger:active{background:var(--red-soft)}
+  .promo-btn.armed{
+    background:var(--red-soft);
+    color:var(--red);
+    border-color:#FECACA;
+  }
+
+  /* ============ badges ============ */
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:3px 9px;border-radius:999px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;
+  }
+  .badge::before{
+    content:"";
+    width:5px;height:5px;border-radius:50%;
+    background:currentColor;
+    flex:0 0 auto;
+  }
+  .badge.active{background:var(--green-soft);color:var(--green)}
+  .badge.pending{background:var(--amber-soft);color:var(--amber)}
+  .badge.paused{background:#F0F1F4;color:var(--faint)}
+  .badge.expired{background:#EEE;color:#8A9099}
+  .badge.draft{background:#F0F1F4;color:var(--faint)}
+
+  /* ============ empty state ============ */
+  .empty-note{
+    font-size:12.5px;
+    color:var(--faint);
+    text-align:center;
+    padding:18px 12px;
+    border:1.5px dashed #DCE0E6;
+    border-radius:11px;
+    background:#FAFBFC;
+    line-height:1.5;
+  }
+
+  /* ============ how promos work ============ */
+  .info-block{
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:12px;
+    padding:13px 14px;
+    margin-bottom:10px;
+  }
+  .info-block:last-child{margin-bottom:0}
+  .info-block h4{
+    margin:0 0 6px;
+    font-size:13.5px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .info-block p{
+    margin:0;
+    font-size:12.5px;
+    line-height:1.55;
+    color:var(--muted);
+  }
+  .info-block p + p{margin-top:6px}
+  .info-block b{color:var(--ink);font-weight:750}
+
+  /* ============ bottom actions ============ */
+  .actions{
+    flex:0 0 auto;
+    padding:11px 14px calc(11px + env(safe-area-inset-bottom));
+    background:#fff;
+    border-top:1px solid var(--line);
+  }
+  .btn{
+    width:100%;
+    height:52px;
+    border:0;
+    border-radius:13px;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    transition:transform .1s ease,background .15s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-primary{
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+  }
+  .btn-primary:active{background:var(--orange)}
+
+  /* ============ modal ============ */
+  .modal-scrim{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(15,15,18,.55);
+    display:flex;align-items:flex-end;justify-content:center;
+    animation:fade .18s ease;
+  }
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @media(min-width:520px){.modal-scrim{align-items:center;padding:20px}}
+  .modal{
+    background:#fff;
+    width:100%;max-width:460px;
+    height:94vh;max-height:94vh;
+    border-radius:20px 20px 0 0;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    animation:slideup .25s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  @media(min-width:520px){
+    .modal{border-radius:18px;height:auto;max-height:92vh}
+    @keyframes slideup{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+  }
+  .modal-hdr{
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:12px;
+    background:#fff;
+    flex:0 0 auto;
+  }
+  .modal-hdr h3{
+    margin:0;flex:1;
+    font-size:16px;font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .modal-close{
+    width:32px;height:32px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    color:var(--muted);
+    font-size:14px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .modal-close:active{background:#F4F5F7}
+  .modal-body{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:16px 18px 20px;
+    scrollbar-width:none;
+  }
+  .modal-body::-webkit-scrollbar{display:none}
+  .modal-foot{
+    flex:0 0 auto;
+    padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);
+    background:#FAFBFC;
+    display:flex;gap:9px;
+  }
+  .modal-foot .btn{flex:1;height:48px;font-size:14.5px}
+
+  /* ============ form ============ */
+  .form-section{margin-bottom:16px}
+  .form-section:last-child{margin-bottom:0}
+  .form-label{
+    display:block;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .form-label .opt{
+    text-transform:none;letter-spacing:0;
+    font-weight:650;color:var(--faint);
+    font-size:11px;
+  }
+  .input,.textarea,.select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.4;
+    padding:13px;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  .textarea{min-height:80px;resize:vertical;line-height:1.55}
+  .select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 13px center;
+    background-size:14px;
+    padding-right:38px;
+  }
+  .input:focus,.textarea:focus,.select:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.13);
+  }
+  .input::placeholder,.textarea::placeholder{color:#B7BDC6}
+
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .price-wrap{position:relative}
+  .price-wrap::before{
+    content:"P";
+    position:absolute;left:14px;top:50%;
+    transform:translateY(-50%);
+    font-size:13px;font-weight:800;
+    color:var(--muted);
+    pointer-events:none;
+  }
+  .price-wrap .input{padding-left:30px}
+
+  /* ============ image picker ============ */
+  .picker-row{
+    display:flex;justify-content:center;
+    margin-bottom:16px;
+  }
+  .picker-box{
+    width:140px;height:110px;
+    border-radius:14px;
+    background:#F0F1F4;
+    border:1.5px dashed #C8CDD4;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    cursor:pointer;
+    position:relative;
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s,background .15s;
+  }
+  .picker-box:active{border-color:var(--orange);background:var(--orange-soft)}
+  .picker-box.has-img{border-style:solid;border-color:var(--line)}
+  .picker-box img{width:100%;height:100%;object-fit:cover;display:block}
+  .picker-box .glyph{
+    font-size:28px;color:var(--orange);line-height:1;font-weight:300;
+  }
+  .picker-box .lbl{
+    position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;
+    color:#8A9099;
+    background:rgba(255,255,255,.9);
+    padding:2px 8px;border-radius:99px;
+  }
+  .picker-box.has-img .lbl{
+    background:rgba(15,15,18,.72);
+    color:#fff;
+  }
+  .picker-box input{display:none}
+
+  /* ============ checkbox row ============ */
+  .check-row{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 13px;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    font-size:14px;font-weight:650;
+    color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;
+    margin-bottom:10px;
+  }
+  .check-row:last-child{margin-bottom:0}
+  .check-row:active{background:#FAFBFC}
+  .check-row input{
+    width:20px;height:20px;
+    accent-color:var(--orange);
+    margin:0;flex:0 0 auto;
+  }
+
+  /* ============ toast ============ */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(88px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media print{
+    body{background:#fff;display:block}
+    #shell{max-width:none;height:auto;box-shadow:none;display:block;overflow:visible}
+    .topbar,.actions{display:none!important}
+    .scroll{overflow:visible;height:auto}
+    .acc-body{grid-template-rows:1fr!important}
+    .intro{border-radius:0}
+    .sheet{margin-top:0;border-radius:0}
+  }
+</style>
+</head>
+<body>
+
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip">Promotions</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Promo activity</span>
+        <span class="progress-count" id="progressCount">No promos yet</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <h1>Promos that <em>sell</em> today.</h1>
+      <p>Create food specials, happy hours, combo deals and seasonal offers. Submitted promos are reviewed before going live.</p>
+    </section>
+    <main class="sheet">
+      <div class="meta-card" id="metaCard"></div>
+      <div class="stack" id="stack"></div>
+    </main>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="btnNew" type="button">+ Create promo</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     CONFIG
+     ============================================================ */
+  var STORE_KEY = "eatouts.promo-onboarding.v1";
+  var FREE_LIMIT = 3;
+
+  var PROMO_TYPES = [
+    "Food Special","Beverage","Combo","Platter",
+    "Happy Hour","Seasonal","Lunch Deal","Weekend Deal"
+  ];
+
+  var ACTION_TYPES = [
+    { value:"order",   label:"Order on WhatsApp" },
+    { value:"reserve", label:"Reserve a table" },
+    { value:"call",    label:"Call the venue" },
+    { value:"enquire", label:"Send an enquiry" }
+  ];
+
+  var DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+  /* ============================================================
+     SEED
+     ============================================================ */
+  function seed() {
+    var now = Date.now();
+    return [
+      {
+        id:"promo_001",
+        title:"Friday Wings Special",
+        image:"",
+        type:"Food Special",
+        description:"Twelve grilled wings, peri-peri dip and fries.",
+        originalPrice:180,
+        promoPrice:120,
+        location:{ useVenueLocation:true, city:"Gaborone", area:"CBD" },
+        startDate:"", startTime:"18:00",
+        endDate:"", endTime:"22:00",
+        recurring:true, days:["Fri"],
+        linkedMenu:"Grilled Wings, Fries",
+        action:{ type:"order", contact:"" },
+        sponsor:"",
+        terms:"Dine-in only. While stocks last.",
+        status:"active",
+        createdAt: now - 1000 * 60 * 60 * 20
+      },
+      {
+        id:"promo_002",
+        title:"Weekend Brunch Platter",
+        image:"",
+        type:"Platter",
+        description:"Sharing platter for two: pastries, fruit, eggs and coffee.",
+        originalPrice:320,
+        promoPrice:240,
+        location:{ useVenueLocation:true, city:"Gaborone", area:"CBD" },
+        startDate:"", startTime:"10:00",
+        endDate:"", endTime:"13:00",
+        recurring:true, days:["Sat","Sun"],
+        linkedMenu:"Brunch Platter, Cappuccino",
+        action:{ type:"reserve", contact:"" },
+        sponsor:"",
+        terms:"Reservations recommended. Subject to availability.",
+        status:"pending",
+        createdAt: now - 1000 * 60 * 60 * 5
+      },
+      {
+        id:"promo_003",
+        title:"Happy Hour Beer",
+        image:"",
+        type:"Happy Hour",
+        description:"Half-price draught beer every weekday afternoon.",
+        originalPrice:40,
+        promoPrice:20,
+        location:{ useVenueLocation:true, city:"Gaborone", area:"CBD" },
+        startDate:"", startTime:"16:00",
+        endDate:"", endTime:"18:00",
+        recurring:true, days:["Mon","Tue","Wed","Thu","Fri"],
+        linkedMenu:"Draught Beer",
+        action:{ type:"order", contact:"" },
+        sponsor:"",
+        terms:"18+ only. Not valid with other offers.",
+        status:"paused",
+        createdAt: now - 1000 * 60 * 60 * 48
+      }
+    ];
+  }
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  var state = { promos: seed() };
+
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && Array.isArray(p.promos) && p.promos.length) {
+        state.promos = p.promos;
+      }
+    }
+  } catch (e) {}
+
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function uid(p) {
+    return p + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7);
+  }
+  function money(v) { return "P" + (Number(v) || 0).toFixed(0); }
+  function savings(o, p) {
+    var s = (Number(o) || 0) - (Number(p) || 0);
+    return s > 0 ? s : 0;
+  }
+
+  var stack = $("#stack");
+  var metaCard = $("#metaCard");
+  var toastEl = $("#toast");
+  var progressFill = $("#progressFill");
+  var progressCount = $("#progressCount");
+  var toastTimer = null;
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2000);
+  }
+
+  /* ============================================================
+     FILTERS
+     ============================================================ */
+  function activePromos() {
+    return state.promos
+      .filter(function (p) { return (p.status || "active") === "active"; })
+      .sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+  }
+  function pendingPromos() {
+    return state.promos
+      .filter(function (p) { return (p.status || "") === "pending"; })
+      .sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+  }
+  function pausedPromos() {
+    return state.promos
+      .filter(function (p) { return (p.status || "") === "paused"; })
+      .sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+  }
+  function totalSavings() {
+    return state.promos
+      .filter(function (p) { return (p.status || "active") === "active"; })
+      .reduce(function (s, p) { return s + savings(p.originalPrice, p.promoPrice); }, 0);
+  }
+
+  /* ============================================================
+     RENDER — meta card
+     ============================================================ */
+  function renderMeta() {
+    var total = state.promos.length;
+    var active = activePromos().length;
+    var pending = pendingPromos().length;
+
+    metaCard.innerHTML =
+      '<div class="meta-row">' +
+        '<span class="meta-dot"></span>' +
+        '<span class="meta-text">' +
+          (total === 0
+            ? "No promos yet · tap <b>+ Create promo</b> to launch your first one"
+            : '<b>' + active + '</b> live promo' + (active === 1 ? "" : "s") +
+              (pending > 0 ? ' · <b>' + pending + '</b> in review' : "")) +
+        '</span>' +
+      '</div>' +
+      '<div class="meta-stats">' +
+        '<div class="stat"><b>' + total + '</b><span>Total</span></div>' +
+        '<div class="stat"><b>' + active + '</b><span>Active</span></div>' +
+        '<div class="stat"><b>' + money(totalSavings()) + '</b><span>Savings</span></div>' +
+      '</div>';
+
+    // Progress bar: free slots used this month (cap 3)
+    var used = Math.min(total, FREE_LIMIT);
+    var pct = Math.round((used / FREE_LIMIT) * 100);
+    progressFill.style.width = pct + "%";
+    progressCount.textContent = used + " of " + FREE_LIMIT + " free slot" + (FREE_LIMIT === 1 ? "" : "s") + " used";
+  }
+
+  /* ============================================================
+     RENDER — promo card
+     ============================================================ */
+  function promoCardHTML(p) {
+    var status = p.status || "active";
+    var img = p.image || "";
+    var heroInner = img
+      ? '<img src="' + esc(img) + '" alt="">'
+      : '<span>🏷</span>';
+
+    var sv = savings(p.originalPrice, p.promoPrice);
+
+    var prices = "";
+    if (Number(p.promoPrice) > 0) {
+      prices = '<div class="promo-prices">' +
+        '<span class="promo-price">' + money(p.promoPrice) + '</span>' +
+        (Number(p.originalPrice) > 0
+          ? '<span class="promo-price-was">' + money(p.originalPrice) + '</span>'
+          : '') +
+        (sv > 0 ? '<span class="promo-save">Save ' + money(sv) + '</span>' : '') +
+      '</div>';
+    }
+
+    var schedule = "";
+    if (p.recurring && p.days && p.days.length) {
+      schedule = p.days.join(" · ");
+      if (p.startTime && p.endTime) schedule += " · " + p.startTime + " – " + p.endTime;
+    } else if (p.startDate) {
+      schedule = p.startDate;
+      if (p.endDate && p.endDate !== p.startDate) schedule += " → " + p.endDate;
+      if (p.startTime) schedule += " · " + p.startTime;
+    } else if (p.startTime && p.endTime) {
+      schedule = p.startTime + " – " + p.endTime;
+    }
+
+    var actionBar = "";
+    if (status === "active") {
+      actionBar =
+        '<div class="promo-actions">' +
+          '<button type="button" class="promo-btn primary" data-edit="' + esc(p.id) + '">Edit</button>' +
+          '<button type="button" class="promo-btn" data-pause="' + esc(p.id) + '">Pause</button>' +
+          '<button type="button" class="promo-btn" data-dup="' + esc(p.id) + '">Duplicate</button>' +
+          '<button type="button" class="promo-btn danger" data-del="' + esc(p.id) + '" aria-label="Remove">✕</button>' +
+        '</div>';
+    } else if (status === "pending") {
+      actionBar =
+        '<div class="promo-actions">' +
+          '<button type="button" class="promo-btn primary" data-edit="' + esc(p.id) + '">Edit</button>' +
+          '<button type="button" class="promo-btn" data-cancel-review="' + esc(p.id) + '">Cancel review</button>' +
+          '<button type="button" class="promo-btn danger" data-del="' + esc(p.id) + '" aria-label="Remove">✕</button>' +
+        '</div>';
+    } else if (status === "paused") {
+      actionBar =
+        '<div class="promo-actions">' +
+          '<button type="button" class="promo-btn primary" data-resume="' + esc(p.id) + '">Resume</button>' +
+          '<button type="button" class="promo-btn" data-edit="' + esc(p.id) + '">Edit</button>' +
+          '<button type="button" class="promo-btn danger" data-del="' + esc(p.id) + '" aria-label="Remove">✕</button>' +
+        '</div>';
+    } else {
+      actionBar =
+        '<div class="promo-actions">' +
+          '<button type="button" class="promo-btn" data-edit="' + esc(p.id) + '">Edit</button>' +
+          '<button type="button" class="promo-btn danger" data-del="' + esc(p.id) + '" aria-label="Remove">✕</button>' +
+        '</div>';
+    }
+
+    return '' +
+      '<article class="promo" data-promo="' + esc(p.id) + '">' +
+        '<div class="promo-hero">' +
+          heroInner +
+          '<span class="badge ' + esc(status) + '">' + esc(status === "pending" ? "In review" : status) + '</span>' +
+          (p.type ? '<span class="type-tag">' + esc(p.type) + '</span>' : '') +
+        '</div>' +
+        '<div class="promo-body">' +
+          '<div class="promo-title">' + esc(p.title || "Untitled promo") + '</div>' +
+          (schedule ? '<div class="promo-meta">' + esc(schedule) + '</div>' : '') +
+          prices +
+          actionBar +
+        '</div>' +
+      '</article>';
+  }
+
+  /* ============================================================
+     MODULE BODIES
+     ============================================================ */
+  function bodyActive() {
+    var list = activePromos();
+    if (!list.length) {
+      return '<div class="module"><div class="empty-note">No active promos. Create one and it will appear here once approved.</div></div>';
+    }
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">' + list.length + ' live promo' + (list.length === 1 ? "" : "s") + ' visible to customers. Tap any card to edit it.</p>' +
+        list.map(promoCardHTML).join("") +
+      '</div>';
+  }
+
+  function bodyPending() {
+    var list = pendingPromos();
+    if (!list.length) {
+      return '<div class="module"><div class="empty-note">Nothing waiting for review.</div></div>';
+    }
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">' + list.length + ' promo' + (list.length === 1 ? "" : "s") + ' submitted and waiting to be reviewed. You can still edit them before they go live.</p>' +
+        list.map(promoCardHTML).join("") +
+      '</div>';
+  }
+
+  function bodyPaused() {
+    var list = pausedPromos();
+    if (!list.length) {
+      return '<div class="module"><div class="empty-note">No paused or expired promos.</div></div>';
+    }
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Paused promos are hidden from customers but stay saved so you can resume them anytime.</p>' +
+        list.map(promoCardHTML).join("") +
+      '</div>';
+  }
+
+  function bodyHow() {
+    return '' +
+      '<div class="module">' +
+        '<div class="info-block">' +
+          '<h4>Free monthly slots</h4>' +
+          '<p>Every venue gets <b>3 free promos per calendar month</b>. The 4th and any beyond that cost <b>P50.00 each</b> (tracking only, no charge for now while we launch).</p>' +
+        '</div>' +
+
+        '<div class="info-block">' +
+          '<h4>Review before publishing</h4>' +
+          '<p>Submitted promos go into a review queue. Our team checks that pricing, images and terms are clear, then publishes them. You can keep editing a promo while it is in review.</p>' +
+        '</div>' +
+
+        '<div class="info-block">' +
+          '<h4>What makes a good promo</h4>' +
+          '<p><b>Clear title</b> · <b>sharp image</b> · <b>honest original price</b> · <b>specific dates or days</b> · <b>simple terms</b>.</p>' +
+          '<p>Avoid vague wording like "huge discount". Show the exact saving.</p>' +
+        '</div>' +
+
+        '<div class="info-block">' +
+          '<h4>WhatsApp orders</h4>' +
+          '<p>Every promo links to your own WhatsApp so customers message you directly. Add a contact number in your restaurant profile before publishing a promo that accepts orders.</p>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyFor(key) {
+    if (key === "active")  return bodyActive();
+    if (key === "pending") return bodyPending();
+    if (key === "paused")  return bodyPaused();
+    if (key === "how")     return bodyHow();
+    return "";
+  }
+
+  /* ============================================================
+     BUILD STACK
+     ============================================================ */
+  var openKey = null;
+
+  function getModules() {
+    var active = activePromos();
+    var pending = pendingPromos();
+    var paused = pausedPromos();
+
+    return [
+      {
+        key: "active",
+        title: "Active promos",
+        sub: active.length
+          ? active.length + " live · " + money(totalSavings()) + " total savings"
+          : "No active promos",
+        touched: active.length > 0
+      },
+      {
+        key: "pending",
+        title: "Pending review",
+        sub: pending.length
+          ? pending.length + " awaiting approval"
+          : "Nothing waiting",
+        touched: pending.length > 0,
+        warn: pending.length > 0
+      },
+      {
+        key: "paused",
+        title: "Paused & expired",
+        sub: paused.length
+          ? paused.length + " saved"
+          : "Nothing paused",
+        touched: paused.length > 0,
+        dim: paused.length === 0
+      },
+      {
+        key: "how",
+        title: "How promos work",
+        sub: "Free slots, review, best practices",
+        touched: false
+      }
+    ];
+  }
+
+  function buildStack() {
+    var modules = getModules();
+    stack.innerHTML = modules.map(function (m) {
+      var isOpen = openKey === m.key;
+      var cls = "acc";
+      if (isOpen) cls += " open";
+      if (m.touched) cls += " touched";
+      if (m.warn) cls += " warn";
+      if (m.dim) cls += " dim";
+      return '' +
+        '<section class="' + cls + '" data-key="' + esc(m.key) + '">' +
+          '<button class="acc-head" type="button" aria-expanded="' + isOpen + '">' +
+            '<span class="dot"></span>' +
+            '<span class="acc-title">' +
+              '<b>' + esc(m.title) + '</b>' +
+              '<span class="acc-sub">' + esc(m.sub) + '</span>' +
+            '</span>' +
+          '</button>' +
+          '<div class="acc-body">' +
+            '<div class="acc-inner" data-body="' + esc(m.key) + '">' +
+              bodyFor(m.key) +
+            '</div>' +
+          '</div>' +
+        '</section>';
+    }).join("");
+  }
+
+  function render() {
+    renderMeta();
+    buildStack();
+  }
+
+  function refreshBodies() {
+    ["active","pending","paused"].forEach(function (k) {
+      var body = stack.querySelector('[data-body="' + k + '"]');
+      if (body) body.innerHTML = bodyFor(k);
+    });
+  }
+
+  /* ============================================================
+     ACCORDION
+     ============================================================ */
+  function openAccordion(key, scrollTo) {
+    openKey = key;
+    $$(".acc", stack).forEach(function (acc) {
+      var isOpen = acc.dataset.key === key;
+      acc.classList.toggle("open", isOpen);
+      var head = acc.querySelector(".acc-head");
+      if (head) head.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+    if (key && scrollTo) {
+      var acc = stack.querySelector('.acc[data-key="' + key + '"]');
+      if (acc) {
+        setTimeout(function () {
+          try { acc.scrollIntoView({ behavior:"smooth", block:"start" }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+  function toggleAccordion(key) {
+    if (openKey === key) openAccordion(null);
+    else openAccordion(key, true);
+  }
+
+  /* ============================================================
+     MODAL SYSTEM
+     ============================================================ */
+  function openModal(opts) {
+    var scrim = document.createElement("div");
+    scrim.className = "modal-scrim";
+    scrim.innerHTML =
+      '<div class="modal" role="dialog" aria-modal="true">' +
+        '<div class="modal-hdr">' +
+          '<h3>' + esc(opts.title) + '</h3>' +
+          '<button class="modal-close" type="button" data-close aria-label="Close">✕</button>' +
+        '</div>' +
+        '<div class="modal-body">' + opts.body + '</div>' +
+        '<div class="modal-foot">' + opts.footer + '</div>' +
+      '</div>';
+    document.body.appendChild(scrim);
+    scrim.querySelectorAll("[data-close]").forEach(function (b) {
+      b.onclick = function () { scrim.remove(); };
+    });
+    scrim.addEventListener("click", function (e) {
+      if (e.target === scrim) scrim.remove();
+    });
+    return scrim;
+  }
+
+  /* ============================================================
+     PROMO EDITOR MODAL
+     ============================================================ */
+  function promoModal(existing) {
+    var isNew = !existing;
+    var p = existing ? JSON.parse(JSON.stringify(existing)) : {
+      id: uid("promo"),
+      title: "",
+      image: "",
+      type: "Food Special",
+      description: "",
+      originalPrice: 0,
+      promoPrice: 0,
+      location: { useVenueLocation: true, city: "", area: "" },
+      startDate: "", startTime: "",
+      endDate: "", endTime: "",
+      recurring: false,
+      days: [],
+      linkedMenu: "",
+      action: { type: "order", contact: "" },
+      sponsor: "",
+      terms: "",
+      status: "pending",
+      createdAt: Date.now()
+    };
+    if (!p.location) p.location = { useVenueLocation: true, city: "", area: "" };
+    if (!p.action) p.action = { type: "order", contact: "" };
+    if (!Array.isArray(p.days)) p.days = [];
+
+    var typeOpts = PROMO_TYPES.map(function (t) {
+      return '<option value="' + esc(t) + '"' + (p.type === t ? " selected" : "") + '>' + esc(t) + '</option>';
+    }).join("");
+
+    var actionOpts = ACTION_TYPES.map(function (a) {
+      return '<option value="' + esc(a.value) + '"' + (p.action.type === a.value ? " selected" : "") + '>' + esc(a.label) + '</option>';
+    }).join("");
+
+    var dayChips = DAYS.map(function (d) {
+      var on = p.days.indexOf(d) > -1;
+      return '<button type="button" class="day-chip' + (on ? " on" : "") + '" data-day="' + d + '">' + d + '</button>';
+    }).join("");
+
+    var body =
+      /* Image picker */
+      '<div class="picker-row">' +
+        '<label class="picker-box' + (p.image ? " has-img" : "") + '" id="pr-picker">' +
+          (p.image
+            ? '<img src="' + esc(p.image) + '" alt="">'
+            : '<span class="glyph">+</span>') +
+          '<span class="lbl">' + (p.image ? "Replace" : "Add image") + '</span>' +
+          '<input type="file" accept="image/*" id="pr-img">' +
+        '</label>' +
+      '</div>' +
+
+      /* Title */
+      '<div class="form-section">' +
+        '<label class="form-label">Promo title</label>' +
+        '<input class="input" type="text" id="pr-title" placeholder="e.g. Friday Wings Special" value="' + esc(p.title) + '">' +
+      '</div>' +
+
+      /* Type */
+      '<div class="form-section">' +
+        '<label class="form-label">Promo type</label>' +
+        '<select class="select" id="pr-type">' + typeOpts + '</select>' +
+      '</div>' +
+
+      /* Description */
+      '<div class="form-section">' +
+        '<label class="form-label">Description</label>' +
+        '<textarea class="textarea" id="pr-desc" placeholder="Short customer-facing description.">' + esc(p.description) + '</textarea>' +
+      '</div>' +
+
+      /* Pricing */
+      '<div class="form-section">' +
+        '<label class="form-label">Pricing</label>' +
+        '<div class="row-2">' +
+          '<div class="price-wrap">' +
+            '<input class="input" type="number" min="0" step="1" id="pr-was" placeholder="Original" value="' + (p.originalPrice == null ? "" : p.originalPrice) + '">' +
+          '</div>' +
+          '<div class="price-wrap">' +
+            '<input class="input" type="number" min="0" step="1" id="pr-now" placeholder="Promo price" value="' + (p.promoPrice == null ? "" : p.promoPrice) + '">' +
+          '</div>' +
+        '</div>' +
+        '<p style="margin:8px 0 0;font-size:11.5px;color:var(--faint)">First field is the original price, second is the promo price.</p>' +
+      '</div>' +
+
+      /* Schedule */
+      '<div class="form-section">' +
+        '<label class="form-label">Schedule</label>' +
+        '<label class="check-row">' +
+          '<input type="checkbox" id="pr-recur" ' + (p.recurring ? "checked" : "") + '>' +
+          '<span>Repeats on selected days</span>' +
+        '</label>' +
+        '<div id="dayChipsWrap" style="' + (p.recurring ? "" : "display:none;") + 'margin-bottom:10px">' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px">' + dayChips + '</div>' +
+        '</div>' +
+        '<div class="row-2" style="' + (p.recurring ? "display:none;" : "") + '" id="dateRow">' +
+          '<div>' +
+            '<label class="form-label" style="margin-bottom:5px;font-size:10.5px">Start date</label>' +
+            '<input class="input" type="date" id="pr-start-date" value="' + esc(p.startDate) + '">' +
+          '</div>' +
+          '<div>' +
+            '<label class="form-label" style="margin-bottom:5px;font-size:10.5px">End date</label>' +
+            '<input class="input" type="date" id="pr-end-date" value="' + esc(p.endDate) + '">' +
+          '</div>' +
+        '</div>' +
+        '<div class="row-2">' +
+          '<div>' +
+            '<label class="form-label" style="margin-bottom:5px;font-size:10.5px">Start time</label>' +
+            '<input class="input" type="time" id="pr-start-time" value="' + esc(p.startTime) + '">' +
+          '</div>' +
+          '<div>' +
+            '<label class="form-label" style="margin-bottom:5px;font-size:10.5px">End time</label>' +
+            '<input class="input" type="time" id="pr-end-time" value="' + esc(p.endTime) + '">' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      /* Linked menu items */
+      '<div class="form-section">' +
+        '<label class="form-label">Linked menu items <span class="opt">— optional</span></label>' +
+        '<input class="input" type="text" id="pr-menu" placeholder="e.g. Grilled Wings, Fries" value="' + esc(p.linkedMenu || "") + '">' +
+        '<p style="margin:8px 0 0;font-size:11.5px;color:var(--faint)">Comma-separated. Helps customers see what the promo applies to.</p>' +
+      '</div>' +
+
+      /* Action */
+      '<div class="form-section">' +
+        '<label class="form-label">Customer action</label>' +
+        '<select class="select" id="pr-action">' + actionOpts + '</select>' +
+      '</div>' +
+
+      /* Sponsor */
+      '<div class="form-section">' +
+        '<label class="form-label">Sponsor <span class="opt">— optional</span></label>' +
+        '<input class="input" type="text" id="pr-sponsor" placeholder="e.g. Local brand partnership" value="' + esc(p.sponsor || "") + '">' +
+      '</div>' +
+
+      /* Terms */
+      '<div class="form-section">' +
+        '<label class="form-label">Terms & conditions <span class="opt">— optional</span></label>' +
+        '<textarea class="textarea" id="pr-terms" placeholder="e.g. Dine-in only. While stocks last.">' + esc(p.terms || "") + '</textarea>' +
+      '</div>';
+
+    var footer =
+      (isNew
+        ? '<button class="btn btn-ghost" type="button" data-close>Cancel</button>'
+        : '<button class="btn btn-ghost" type="button" id="pr-remove" style="color:var(--red);border-color:#FECACA;background:#FEE2E2">Remove</button>') +
+      '<button class="btn btn-primary" type="button" data-save>' + (isNew ? "Submit promo" : "Save changes") + '</button>';
+
+    var scrim = openModal({
+      title: isNew ? "Create promo" : "Edit promo",
+      body: body,
+      footer: footer
+    });
+
+    /* ---- image picker ---- */
+    var picker = scrim.querySelector("#pr-picker");
+    var fileInput = scrim.querySelector("#pr-img");
+
+    fileInput.addEventListener("change", function () {
+      var f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      var r = new FileReader();
+      r.onload = function (ev) {
+        p.image = ev.target.result;
+        var img = picker.querySelector("img");
+        var glyph = picker.querySelector(".glyph");
+        var lbl = picker.querySelector(".lbl");
+        if (!img) {
+          img = document.createElement("img");
+          picker.insertBefore(img, fileInput);
+        }
+        img.src = p.image;
+        if (glyph) glyph.style.display = "none";
+        if (lbl) lbl.textContent = "Replace";
+        picker.classList.add("has-img");
+      };
+      r.readAsDataURL(f);
+      fileInput.value = "";
+    });
+
+    /* ---- recurring toggle ---- */
+    var recurChk = scrim.querySelector("#pr-recur");
+    var dayWrap = scrim.querySelector("#dayChipsWrap");
+    var dateRow = scrim.querySelector("#dateRow");
+    recurChk.addEventListener("change", function () {
+      p.recurring = recurChk.checked;
+      dayWrap.style.display = p.recurring ? "" : "none";
+      dateRow.style.display = p.recurring ? "none" : "";
+    });
+
+    /* ---- day chips ---- */
+    dayWrap.addEventListener("click", function (e) {
+      var chip = e.target.closest("[data-day]");
+      if (!chip) return;
+      var d = chip.dataset.day;
+      var i = p.days.indexOf(d);
+      if (i > -1) p.days.splice(i, 1);
+      else p.days.push(d);
+      chip.classList.toggle("on", i === -1);
+    });
+
+    /* ---- remove ---- */
+    if (!isNew) {
+      var rmBtn = scrim.querySelector("#pr-remove");
+      if (rmBtn) {
+        rmBtn.onclick = function () {
+          if (!confirm("Remove \"" + (p.title || "this promo") + "\"? This cannot be undone.")) return;
+          state.promos = state.promos.filter(function (x) { return x.id !== p.id; });
+          save();
+          render();
+          scrim.remove();
+          toast("Promo removed");
+        };
+      }
+    }
+
+    /* ---- save ---- */
+    scrim.querySelector("[data-save]").onclick = function () {
+      var title = scrim.querySelector("#pr-title").value.trim();
+      if (!title) { toast("Give the promo a title"); scrim.querySelector("#pr-title").focus(); return; }
+
+      var data = {
+        id: p.id,
+        title: title,
+        image: p.image || "",
+        type: scrim.querySelector("#pr-type").value,
+        description: scrim.querySelector("#pr-desc").value.trim(),
+        originalPrice: Number(scrim.querySelector("#pr-was").value) || 0,
+        promoPrice: Number(scrim.querySelector("#pr-now").value) || 0,
+        location: p.location,
+        startDate: recurChk.checked ? "" : scrim.querySelector("#pr-start-date").value,
+        startTime: scrim.querySelector("#pr-start-time").value,
+        endDate: recurChk.checked ? "" : scrim.querySelector("#pr-end-date").value,
+        endTime: scrim.querySelector("#pr-end-time").value,
+        recurring: recurChk.checked,
+        days: recurChk.checked ? p.days.slice() : [],
+        linkedMenu: scrim.querySelector("#pr-menu").value.trim(),
+        action: { type: scrim.querySelector("#pr-action").value, contact: p.action.contact || "" },
+        sponsor: scrim.querySelector("#pr-sponsor").value.trim(),
+        terms: scrim.querySelector("#pr-terms").value.trim(),
+        status: isNew ? "pending" : p.status,
+        createdAt: p.createdAt || Date.now()
+      };
+
+      if (isNew) {
+        state.promos.push(data);
+        save();
+        render();
+        scrim.remove();
+        openAccordion("pending", true);
+        toast("Promo submitted for review");
+      } else {
+        var idx = state.promos.findIndex(function (x) { return x.id === p.id; });
+        if (idx > -1) state.promos[idx] = data;
+        save();
+        render();
+        scrim.remove();
+        toast("Promo saved");
+      }
+    };
+
+    setTimeout(function () {
+      try { scrim.querySelector("#pr-title").focus(); } catch (e) {}
+    }, 80);
+  }
+
+  /* ============================================================
+     EVENT DELEGATION
+     ============================================================ */
+  stack.addEventListener("click", function (e) {
+
+    /* accordion header */
+    var head = e.target.closest(".acc-head");
+    if (head) {
+      var acc = head.closest(".acc");
+      if (acc) toggleAccordion(acc.dataset.key);
+      return;
+    }
+
+    /* edit */
+    var edit = e.target.closest("[data-edit]");
+    if (edit) {
+      e.stopPropagation();
+      var id = edit.dataset.edit;
+      var p = state.promos.filter(function (x) { return x.id === id; })[0];
+      if (p) promoModal(p);
+      return;
+    }
+
+    /* pause / resume */
+    var pause = e.target.closest("[data-pause]");
+    if (pause) {
+      e.stopPropagation();
+      var pid = pause.dataset.pause;
+      var pp = state.promos.filter(function (x) { return x.id === pid; })[0];
+      if (!pp) return;
+      pp.status = "paused";
+      save();
+      render();
+      toast("Promo paused");
+      return;
+    }
+    var resume = e.target.closest("[data-resume]");
+    if (resume) {
+      e.stopPropagation();
+      var rid = resume.dataset.resume;
+      var rp = state.promos.filter(function (x) { return x.id === rid; })[0];
+      if (!rp) return;
+      rp.status = "active";
+      save();
+      render();
+      toast("Promo resumed");
+      return;
+    }
+
+    /* cancel review */
+    var cancelR = e.target.closest("[data-cancel-review]");
+    if (cancelR) {
+      e.stopPropagation();
+      var cid = cancelR.dataset.cancelReview;
+      var cp = state.promos.filter(function (x) { return x.id === cid; })[0];
+      if (!cp) return;
+      cp.status = "paused";
+      save();
+      render();
+      toast("Review cancelled · promo saved as paused");
+      return;
+    }
+
+    /* duplicate */
+    var dup = e.target.closest("[data-dup]");
+    if (dup) {
+      e.stopPropagation();
+      var did = dup.dataset.dup;
+      var dp = state.promos.filter(function (x) { return x.id === did; })[0];
+      if (!dp) return;
+      var copy = JSON.parse(JSON.stringify(dp));
+      copy.id = uid("promo");
+      copy.title = dp.title + " (copy)";
+      copy.status = "pending";
+      copy.createdAt = Date.now();
+      state.promos.push(copy);
+      save();
+      render();
+      toast("Promo duplicated · in review");
+      return;
+    }
+
+    /* delete (2-tap) */
+    var del = e.target.closest("[data-del]");
+    if (del) {
+      e.stopPropagation();
+      if (del.dataset.armed === "1") {
+        var delId = del.dataset.del;
+        state.promos = state.promos.filter(function (x) { return x.id !== delId; });
+        save();
+        render();
+        toast("Promo removed");
+        return;
+      }
+      del.dataset.armed = "1";
+      del.textContent = "Sure?";
+      del.classList.add("armed");
+      setTimeout(function () {
+        if (!del.isConnected) return;
+        delete del.dataset.armed;
+        del.textContent = "✕";
+        del.classList.remove("armed");
+      }, 2600);
+      return;
+    }
+  });
+
+  /* ============================================================
+     BOTTOM ACTION
+     ============================================================ */
+  $("#btnNew").addEventListener("click", function () {
+    promoModal(null);
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  render();
+  openAccordion(null);
+
+})();
+</script>
+</body>
+</html>

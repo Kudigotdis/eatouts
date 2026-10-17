@@ -1,0 +1,2556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Concierge intake · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --blue:#0284C7;
+    --blue-soft:#E0F2FE;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+  a{color:inherit;text-decoration:none}
+
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* top bar */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 0;
+  }
+  .topbar-row{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:13px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+
+  .progress{padding-bottom:14px}
+  .progress-top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:11px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .progress-count{
+    font-size:11.5px;font-weight:800;
+    color:var(--orange-2);
+    letter-spacing:.02em;
+  }
+  .progress-track{
+    height:5px;border-radius:99px;
+    background:rgba(255,255,255,.13);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* scroll */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* intro */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* sheet */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+  }
+
+  /* meta card */
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .meta-row{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:11px;
+  }
+  .meta-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .meta-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .meta-text{
+    font-size:13.5px;
+    color:var(--ink-2);
+    line-height:1.4;
+    min-width:0;
+    flex:1 1 auto;
+  }
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-bar{
+    height:6px;border-radius:99px;
+    background:#EEF0F3;overflow:hidden;
+    margin-bottom:10px;
+  }
+  .meta-bar i{
+    display:block;height:100%;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    border-radius:99px;
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+  .meta-foot{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:11px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;
+    color:var(--faint);
+  }
+  .meta-foot .val{color:var(--orange);font-size:12px}
+
+  /* accordion */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:16px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+  .acc-head .dot{
+    width:10px;height:10px;border-radius:50%;flex:0 0 auto;
+    background:#D3D7DE;
+    transition:background .25s ease,box-shadow .25s ease;
+  }
+  .acc.touched .acc-head .dot{
+    background:var(--green);
+    box-shadow:0 0 0 3px var(--green-soft);
+  }
+  .acc.warn .acc-head .dot{
+    background:var(--amber);
+    box-shadow:0 0 0 3px var(--amber-soft);
+  }
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:1px;
+  }
+  .acc-title b{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc.touched .acc-sub{color:var(--green);font-weight:650}
+  .acc.warn .acc-sub{color:var(--amber);font-weight:650}
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+  .module{padding:2px 15px 18px}
+  .module-note{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+    margin:0 0 14px;
+    padding:11px 12px;
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+  }
+  .module-note b{color:var(--ink);font-weight:750}
+
+  /* fields */
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field label{
+    display:block;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:7px;
+  }
+  .field label .opt{
+    text-transform:none;letter-spacing:0;
+    font-weight:650;color:var(--faint);
+    font-size:11px;
+  }
+  .input,.textarea,.select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.4;
+    padding:13px;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  .textarea{min-height:80px;resize:vertical;line-height:1.55}
+  .select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 13px center;
+    background-size:14px;
+    padding-right:38px;
+  }
+  .input:focus,.textarea:focus,.select:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.13);
+  }
+  .input::placeholder,.textarea::placeholder{color:#B7BDC6}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 14px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:13px;font-weight:650;
+    color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s,transform .08s;
+  }
+  .chip:active{transform:scale(.97)}
+  .chip.on{
+    background:var(--orange-soft);
+    border-color:var(--orange-line);
+    color:var(--orange);
+    font-weight:750;
+  }
+  .chip.add{
+    border-style:dashed;
+    color:var(--orange);
+    background:#fff;
+  }
+
+  /* record / list row */
+  .record{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:13px;
+    padding:12px;
+    margin-bottom:9px;
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s,transform .08s;
+    cursor:pointer;
+  }
+  .record:last-child{margin-bottom:0}
+  .record:active{transform:scale(.99);border-color:var(--orange-line)}
+  .record-badge{
+    width:44px;height:44px;flex:0 0 auto;
+    border-radius:11px;
+    background:#F0F1F4;
+    display:grid;place-items:center;
+    font-size:16px;font-weight:850;
+    color:var(--ink-2);
+    overflow:hidden;
+  }
+  .record-badge img{width:100%;height:100%;object-fit:cover;display:block}
+  .record-info{flex:1 1 auto;min-width:0}
+  .record-title{
+    font-size:14px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    line-height:1.3;
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  }
+  .record-meta{
+    font-size:11.5px;
+    color:var(--faint);
+    margin-top:3px;
+    font-weight:550;
+    line-height:1.45;
+  }
+  .record-actions{
+    display:flex;gap:5px;flex:0 0 auto;
+  }
+  .mini-btn{
+    width:32px;height:32px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    color:var(--faint);
+    font-size:12px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .mini-btn:active{background:#F4F5F7}
+  .mini-btn.danger:active{background:var(--red-soft);color:var(--red);border-color:#FECACA}
+
+  .badge{
+    display:inline-flex;align-items:center;
+    padding:2px 8px;border-radius:999px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.05em;text-transform:uppercase;
+  }
+  .badge.primary{background:var(--orange-soft);color:var(--orange)}
+  .badge.published{background:var(--green-soft);color:var(--green)}
+  .badge.draft{background:#F0F1F4;color:var(--faint)}
+
+  /* add button */
+  .add-btn{
+    width:100%;
+    border:1.5px dashed #D3D7DE;
+    background:#fff;
+    border-radius:12px;
+    padding:14px;
+    font-size:14px;font-weight:750;
+    color:var(--orange);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;
+    margin-top:10px;
+  }
+  .add-btn:active{background:var(--orange-soft);border-color:var(--orange-line)}
+
+  .empty-note{
+    font-size:12.5px;
+    color:var(--faint);
+    text-align:center;
+    padding:18px 12px;
+    border:1.5px dashed #DCE0E6;
+    border-radius:11px;
+    background:#FAFBFC;
+    line-height:1.5;
+  }
+
+  /* subsection */
+  .sub-head{
+    font-size:10.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);
+    margin:16px 0 8px;
+  }
+  .sub-head:first-child{margin-top:0}
+
+  /* hours rows */
+  .hours-row{
+    display:grid;
+    grid-template-columns:54px 1fr 1fr;
+    gap:8px;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .hours-row .dow{
+    font-size:11px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);
+    text-align:center;
+  }
+  .hours-row input{
+    min-height:42px;
+    padding:10px 12px;
+    font-size:14px;
+  }
+
+  /* switch row */
+  .switch-row{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 13px;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    margin-bottom:10px;
+    font-size:14px;font-weight:650;
+    color:var(--ink-2);
+  }
+  .switch-row:last-child{margin-bottom:0}
+  .switch-row input{
+    width:20px;height:20px;
+    accent-color:var(--orange);
+    margin:0;flex:0 0 auto;
+  }
+
+  /* export boxes */
+  .export-box{
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+    padding:12px 13px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11.5px;
+    color:var(--ink-2);
+    white-space:pre-wrap;
+    word-break:break-all;
+    max-height:220px;
+    overflow:auto;
+    line-height:1.55;
+  }
+
+  /* checklist */
+  .checklist{
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .check-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    font-size:13px;
+  }
+  .check-item .n{
+    width:22px;height:22px;flex:0 0 auto;
+    border-radius:50%;
+    background:#F0F1F4;
+    color:var(--faint);
+    font-weight:800;
+    font-size:11px;
+    display:grid;place-items:center;
+  }
+  .check-item .lbl{
+    flex:1 1 auto;
+    font-weight:650;
+    color:var(--ink-2);
+    min-width:0;
+  }
+  .check-item .st{
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 8px;border-radius:999px;
+    background:#F0F1F4;
+    color:var(--faint);
+  }
+  .check-item.done .n{background:var(--green-soft);color:var(--green)}
+  .check-item.done .st{background:var(--green-soft);color:var(--green)}
+
+  /* action bar */
+  .actions{
+    flex:0 0 auto;
+    display:flex;
+    gap:9px;
+    padding:11px 14px calc(11px + env(safe-area-inset-bottom));
+    background:#fff;
+    border-top:1px solid var(--line);
+  }
+  .btn{
+    height:50px;
+    border:0;
+    border-radius:13px;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .1s ease,background .15s;
+    padding:0 12px;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-ghost{
+    flex:1 1 auto;
+    background:#F4F5F7;
+    border:1px solid var(--line);
+    color:var(--ink-2);
+    font-size:13px;
+  }
+  .btn-ghost:active{background:#EDE9DF}
+  .btn-primary{
+    flex:1 1 auto;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+    font-size:13px;
+  }
+  .btn-primary:active{background:var(--orange)}
+  .btn-wa{
+    flex:1 1 auto;
+    background:var(--green-soft);
+    color:var(--green);
+    border:1px solid #C7ECD0;
+    font-size:13px;
+  }
+  .btn-wa:active{background:#D5F1DE}
+
+  /* modal */
+  .modal-scrim{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(15,15,18,.55);
+    display:flex;align-items:flex-end;justify-content:center;
+    animation:fade .18s ease;
+  }
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @media(min-width:520px){.modal-scrim{align-items:center;padding:20px}}
+  .modal{
+    background:#fff;
+    width:100%;max-width:460px;
+    max-height:92vh;height:94vh;
+    border-radius:20px 20px 0 0;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    animation:slideup .25s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  @media(min-width:520px){
+    .modal{border-radius:18px;height:auto;max-height:92vh}
+    @keyframes slideup{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+  }
+  .modal-hdr{
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:12px;
+    background:#fff;
+    flex:0 0 auto;
+  }
+  .modal-hdr h3{
+    margin:0;flex:1;
+    font-size:16px;font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .modal-close{
+    width:32px;height:32px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    color:var(--muted);
+    font-size:14px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .modal-close:active{background:#F4F5F7}
+  .modal-body{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:16px 18px 20px;
+    scrollbar-width:none;
+  }
+  .modal-body::-webkit-scrollbar{display:none}
+  .modal-foot{
+    flex:0 0 auto;
+    padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);
+    background:#FAFBFC;
+    display:flex;gap:9px;
+  }
+  .modal-foot .btn{flex:1;height:48px;font-size:14px}
+
+  /* toast */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(88px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media print{
+    body{background:#fff;display:block}
+    #shell{max-width:none;height:auto;box-shadow:none;display:block;overflow:visible}
+    .topbar,.actions{display:none!important}
+    .scroll{overflow:visible;height:auto}
+    .acc-body{grid-template-rows:1fr!important}
+    .intro{border-radius:0}
+    .sheet{margin-top:0;border-radius:0}
+  }
+</style>
+</head>
+<body>
+
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip" id="hdrChip">Intake · Draft</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Intake completeness</span>
+        <span class="progress-count" id="progressCount">0% complete</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <h1>Concierge <em>intake</em>.</h1>
+      <p>Build a complete venue profile that round-trips straight into the EatOuts directory. Save your progress anytime.</p>
+    </section>
+    <main class="sheet">
+      <div class="meta-card" id="metaCard"></div>
+      <div class="stack" id="stack"></div>
+    </main>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-ghost" id="btnSave" type="button">Save</button>
+    <button class="btn btn-wa" id="btnSummary" type="button">WhatsApp</button>
+    <button class="btn btn-primary" id="btnExport" type="button">Export JSON</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     CONFIG
+     ============================================================ */
+  var DRAFT_KEY = "eatouts.intake.draft.v1";
+
+  var TYPES = ["Restaurant","Café","Fast Food","Takeaway","Bakery","Bar & Grill","Pub","Lounge","Bistro","Food Court","Coffee Shop","Steakhouse","Pizzeria","Family Restaurant","Fine Dining","Food Truck","Other"];
+
+  var CHAR_DEFAULTS = ["Cozy","Trendy","Romantic","Family-friendly","Traditional","Modern","Rustic","Lively","Quiet"];
+
+  var AMEN_DEFAULTS = ["Free Wi-Fi","Table service","Dedicated parking","Kids area","Outdoor seating","Indoor seating","Air conditioning","Charging points","Wheelchair accessible","Restrooms","Baby changing","Power backup","Smoking area","Non-smoking area","Pet friendly","Takeaway","Delivery","Catering","Private dining","Event space"];
+
+  var TAG_GROUPS = {
+    "Cuisine": ["Setswana","Zimbabwean","African","South African","Indian","Chinese","Italian","American","Mexican","Mediterranean","Portuguese","Fusion"],
+    "Meal": ["Breakfast","Brunch","Lunch","Dinner","Late Night","Dessert"],
+    "Dietary": ["Vegetarian options","Vegan options","Halal","Gluten-free options","Dairy-free options"]
+  };
+
+  var PAY_METHODS = ["Cash","Visa","Mastercard","Orange Money","MyZaka","Bank Transfer","MoMo"];
+
+  var DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+  var PURPOSES = ["General enquiries","Orders","Reservations","Delivery","Catering","Events","Functions","Manager","Customer support","Other"];
+  var STAFF_ROLES = ["Waiter","Waitress","Host","Bartender","Chef","Private chef","Sommelier","Event staff","Security","Photographer","Decorator","MC","Other"];
+  var SERVICE_PRICING = ["Per person","Per table","Per hour","Per booking","Per item","Fixed price","Custom quote"];
+  var STAFF_PRICING = ["No additional charge","Per booking","Per hour","Per person","Per item"];
+  var ITEM_TYPES = ["Main","Starter","Side","Dessert","Drink","Coffee","Beer","Wine","Cocktail","Other"];
+  var EVENT_ADMISSION = ["Free","RSVP","Reservation","Paid","Invite"];
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function uid(p) {
+    return p + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7);
+  }
+  function slugify(s) {
+    return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "";
+  }
+
+  var toastEl = $("#toast");
+  var toastTimer = null;
+  function toast(m) {
+    toastEl.textContent = m;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 1900);
+  }
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  function emptyDraft() {
+    return {
+      id: uid("intake"),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      identity: { name:"", slug:"", description:"", logo:"", coverImage:"", types:[] },
+      location: { district:"", town:"", area:"", plotNumber:"", street:"", building:"", landmark:"", lat:null, lng:null },
+      contacts: [],
+      socials: { instagram:"", facebook:"", whatsapp:"", tiktok:"", twitter:"", youtube:"", website:"", call:"" },
+      hours: { weekly: {}, custom: [] },
+      character: [],
+      amenities: [],
+      menuTags: [],
+      capacity: [],
+      payments: [],
+      reservations: { enabled:true, whatsappContactId:null, callContactId:null, minGuests:2, maxGuests:12, sameDay:true, advanceBooking:true, notes:"" },
+      reservationServices: [],
+      serviceStaff: [],
+      menu: { categories: [] },
+      promos: [],
+      events: [],
+      gallery: { groups: [] }
+    };
+  }
+
+  var draft = emptyDraft();
+  try {
+    var raw = localStorage.getItem(DRAFT_KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && typeof p === "object") {
+        draft = Object.assign(draft, p);
+        // ensure nested structures exist
+        draft.identity = Object.assign(emptyDraft().identity, p.identity || {});
+        draft.location = Object.assign(emptyDraft().location, p.location || {});
+        draft.socials = Object.assign(emptyDraft().socials, p.socials || {});
+        draft.hours = Object.assign(emptyDraft().hours, p.hours || {});
+        draft.reservations = Object.assign(emptyDraft().reservations, p.reservations || {});
+        draft.menu = Object.assign(emptyDraft().menu, p.menu || {});
+        draft.gallery = Object.assign(emptyDraft().gallery, p.gallery || {});
+      }
+    }
+  } catch (e) {}
+
+  function save() {
+    draft.updatedAt = Date.now();
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (e) {}
+  }
+
+  /* ============================================================
+     MODULES
+     ============================================================ */
+  var MODULES = [
+    { key:"identity",    title:"Identity",              sub:"Name, logo, description, type" },
+    { key:"location",    title:"Location",              sub:"Where the venue is" },
+    { key:"contacts",    title:"Contacts",              sub:"Phone, WhatsApp and purpose" },
+    { key:"socials",     title:"Socials",               sub:"Instagram, Facebook, TikTok" },
+    { key:"hours",       title:"Operating hours",       sub:"Weekly schedule plus custom" },
+    { key:"character",   title:"Character",             sub:"The vibe and personality" },
+    { key:"amenities",   title:"Amenities",             sub:"What guests can expect" },
+    { key:"menuTags",    title:"Menu tags",             sub:"Cuisine, meal and dietary" },
+    { key:"capacity",    title:"Capacity",              sub:"Seating, private rooms" },
+    { key:"payments",    title:"Payments",              sub:"Accepted payment methods" },
+    { key:"reservations",title:"Reservations",          sub:"Guest limits, WhatsApp routing" },
+    { key:"services",    title:"Reservation services",  sub:"Birthday setup, VIP booth" },
+    { key:"staff",       title:"Service staff",         sub:"Waiters, hosts, chefs, MCs" },
+    { key:"menu",        title:"Menu",                  sub:"Categories and items" },
+    { key:"promos",      title:"Promotions",            sub:"Special offers and deals" },
+    { key:"events",      title:"Events",                sub:"Upcoming programmes" },
+    { key:"gallery",     title:"Gallery",               sub:"Photos by group" },
+    { key:"review",      title:"Review & export",       sub:"Preview the JSON payload" },
+    { key:"checklist",   title:"Go-live checklist",     sub:"What still needs to be done" }
+  ];
+
+  function moduleTouched(key) {
+    var d = draft;
+    if (key === "identity")     return !!(d.identity.name || d.identity.description || d.identity.logo);
+    if (key === "location")     return !!(d.location.town || d.location.area || d.location.district);
+    if (key === "contacts")     return d.contacts.length > 0;
+    if (key === "socials")      return Object.keys(d.socials).some(function (k) { return d.socials[k]; });
+    if (key === "hours")        return Object.keys(d.hours.weekly || {}).length > 0 || d.hours.custom.length > 0;
+    if (key === "character")    return d.character.length > 0;
+    if (key === "amenities")    return d.amenities.length > 0;
+    if (key === "menuTags")     return d.menuTags.length > 0;
+    if (key === "capacity")     return d.capacity.length > 0;
+    if (key === "payments")     return d.payments.length > 0;
+    if (key === "reservations") return !!(d.reservations && (d.reservations.whatsappContactId || d.reservations.notes));
+    if (key === "services")     return d.reservationServices.length > 0;
+    if (key === "staff")        return d.serviceStaff.length > 0;
+    if (key === "menu")         return d.menu.categories.length > 0;
+    if (key === "promos")       return d.promos.length > 0;
+    if (key === "events")       return d.events.length > 0;
+    if (key === "gallery")      return d.gallery.groups.length > 0;
+    if (key === "review")       return false;
+    if (key === "checklist")    return false;
+    return false;
+  }
+
+  function moduleComplete(key) {
+    var d = draft;
+    if (key === "identity")     return !!d.identity.name;
+    if (key === "location")     return !!d.location.town;
+    if (key === "contacts")     return d.contacts.length > 0;
+    return moduleTouched(key);
+  }
+
+  function completeness() {
+    var checks = ["identity","location","contacts","menu","gallery","promos","reservations"];
+    var done = checks.filter(moduleComplete).length;
+    return { done: done, total: checks.length, pct: Math.round(done / checks.length * 100) };
+  }
+
+  /* ============================================================
+     RENDER — meta
+     ============================================================ */
+  function renderMeta() {
+    var c = completeness();
+    var name = draft.identity.name || "Untitled venue";
+    var city = draft.location.town || "—";
+
+    $("#metaCard").innerHTML =
+      '<div class="meta-row">' +
+        '<span class="meta-dot"></span>' +
+        '<span class="meta-text">' +
+          '<b>' + esc(name) + '</b> · ' + esc(city) +
+        '</span>' +
+      '</div>' +
+      '<div class="meta-bar"><i style="width:' + c.pct + '%"></i></div>' +
+      '<div class="meta-foot">' +
+        '<span>Intake completeness</span>' +
+        '<span class="val">' + c.pct + '%</span>' +
+      '</div>';
+
+    $("#progressFill").style.width = c.pct + "%";
+    $("#progressCount").textContent = c.pct + "% complete";
+    $("#hdrChip").textContent = draft.identity.name
+      ? (c.pct === 100 ? "Intake · Ready" : "Intake · In progress")
+      : "Intake · Draft";
+  }
+
+  /* ============================================================
+     RENDER — module bodies
+     ============================================================ */
+  function bodyIdentity() {
+    var id = draft.identity;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">These details define the venue profile. The slug feeds into the image folder and listing URL.</p>' +
+
+        '<div class="field">' +
+          '<label>Restaurant name</label>' +
+          '<input class="input" type="text" data-id="name" placeholder="e.g. The Yellow Giraffe Coffee Club" value="' + esc(id.name) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Slug <span class="opt">— auto-generated</span></label>' +
+          '<input class="input" type="text" data-id="slug" placeholder="the-yellow-giraffe" value="' + esc(id.slug) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Description</label>' +
+          '<textarea class="textarea" data-id="description" placeholder="A short description diners will read first.">' + esc(id.description) + '</textarea>' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Restaurant type</label>' +
+          '<div class="chips">' +
+            TYPES.map(function (t) {
+              var on = id.types.indexOf(t) > -1;
+              return '<button type="button" class="chip' + (on ? " on" : "") + '" data-type="' + esc(t) + '">' + esc(t) + '</button>';
+            }).join("") +
+            '<button type="button" class="chip add" data-add-type="1">+ Custom</button>' +
+          '</div>' +
+          (id.types.filter(function (t) { return TYPES.indexOf(t) === -1; }).length
+            ? '<div style="margin-top:10px" class="chips">' +
+                id.types.filter(function (t) { return TYPES.indexOf(t) === -1; }).map(function (t) {
+                  return '<button type="button" class="chip on" data-type="' + esc(t) + '">' + esc(t) + ' ✕</button>';
+                }).join("") +
+              '</div>'
+            : '') +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Logo URL <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" data-id="logo" placeholder="assets/logo/…" value="' + esc(id.logo) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Cover image URL <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" data-id="coverImage" placeholder="assets/images/…" value="' + esc(id.coverImage) + '">' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyLocation() {
+    var l = draft.location;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Location drives the directory filter. Enter town and area at minimum.</p>' +
+
+        '<div class="field">' +
+          '<label>District <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" data-loc="district" placeholder="e.g. South-East" value="' + esc(l.district) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Village / Town / City</label>' +
+          '<input class="input" type="text" data-loc="town" placeholder="Gaborone" value="' + esc(l.town) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Area / Neighbourhood</label>' +
+          '<input class="input" type="text" data-loc="area" placeholder="CBD" value="' + esc(l.area) + '">' +
+        '</div>' +
+
+        '<div class="row-2">' +
+          '<div class="field">' +
+            '<label>Plot number</label>' +
+            '<input class="input" type="text" data-loc="plotNumber" value="' + esc(l.plotNumber) + '">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Street name</label>' +
+            '<input class="input" type="text" data-loc="street" value="' + esc(l.street) + '">' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Building / complex <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" data-loc="building" value="' + esc(l.building) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Landmark <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" data-loc="landmark" placeholder="e.g. Opposite Airport Junction" value="' + esc(l.landmark) + '">' +
+        '</div>' +
+
+        '<button type="button" class="add-btn" data-loc-geo="1">Use my current location</button>' +
+      '</div>';
+  }
+
+  function bodyContacts() {
+    var cs = draft.contacts;
+    if (!cs.length) {
+      return '<div class="module"><div class="empty-note">No contacts yet. Add at least one WhatsApp-enabled number.</div>' +
+        '<button type="button" class="add-btn" data-add-contact="1">+ Add contact</button></div>';
+    }
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Numbers here are reused for reservations, promos and events.</p>' +
+        cs.map(function (c) {
+          return '<article class="record" data-contact="' + esc(c.id) + '">' +
+            '<div class="record-badge">' + esc((c.title || c.number || "?").charAt(0).toUpperCase()) + '</div>' +
+            '<div class="record-info">' +
+              '<div class="record-title">' + esc(c.title || "Number") +
+                (c.primary ? ' <span class="badge primary">Primary</span>' : '') +
+                (c.whatsapp ? ' <span class="badge published">WhatsApp</span>' : '') +
+              '</div>' +
+              '<div class="record-meta">' + esc(c.countryCode || "+267") + ' ' + esc(c.number || "") + ' · ' + esc(c.purpose || "—") + '</div>' +
+            '</div>' +
+            '<div class="record-actions">' +
+              '<button type="button" class="mini-btn danger" data-del-contact="' + esc(c.id) + '" aria-label="Remove">✕</button>' +
+            '</div>' +
+          '</article>';
+        }).join("") +
+        '<button type="button" class="add-btn" data-add-contact="1">+ Add contact</button>' +
+      '</div>';
+  }
+
+  function bodySocials() {
+    var s = draft.socials;
+    var order = [
+      ["instagram","Instagram"],["facebook","Facebook"],["whatsapp","WhatsApp"],
+      ["tiktok","TikTok"],["twitter","X (Twitter)"],["youtube","YouTube"],
+      ["website","Website"],["call","Call"]
+    ];
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Add the profiles you actually use. Leave the others empty.</p>' +
+        order.map(function (p) {
+          return '<div class="field">' +
+            '<label>' + p[1] + '</label>' +
+            '<input class="input" type="text" data-social="' + p[0] + '" placeholder="Handle or URL" value="' + esc(s[p[0]] || "") + '">' +
+          '</div>';
+        }).join("") +
+      '</div>';
+  }
+
+  function bodyHours() {
+    var w = draft.hours.weekly || {};
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Set your weekly hours. Leave both times blank to mark a day as closed.</p>' +
+        DAYS.map(function (d) {
+          var row = w[d] || { open:"", close:"" };
+          return '<div class="hours-row">' +
+            '<span class="dow">' + esc(d.slice(0,3)) + '</span>' +
+            '<input class="input" type="time" data-hour="' + esc(d) + '" data-hk="open" value="' + esc(row.open || "") + '">' +
+            '<input class="input" type="time" data-hour="' + esc(d) + '" data-hk="close" value="' + esc(row.close || "") + '">' +
+          '</div>';
+        }).join("") +
+
+        '<div class="sub-head">Custom schedules</div>' +
+        (draft.hours.custom.length
+          ? draft.hours.custom.map(function (s) {
+              return '<article class="record" data-schedule="' + esc(s.id) + '">' +
+                '<div class="record-badge">⏱</div>' +
+                '<div class="record-info">' +
+                  '<div class="record-title">' + esc(s.title || "Schedule") + '</div>' +
+                  '<div class="record-meta">' + esc(s.days || "—") + ' · ' + esc(s.start || "") + "–" + esc(s.end || "") + '</div>' +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-schedule="' + esc(s.id) + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No custom schedules yet. Add a happy hour or brunch block.</div>') +
+        '<button type="button" class="add-btn" data-add-schedule="1">+ Add custom schedule</button>' +
+      '</div>';
+  }
+
+  function bodyCharacter() {
+    var list = draft.character;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Pick the words that best describe the venue. Guests use these to filter.</p>' +
+        '<div class="chips">' +
+          CHAR_DEFAULTS.concat(list.filter(function (n) { return CHAR_DEFAULTS.indexOf(n) === -1; })).map(function (n) {
+            var on = list.indexOf(n) > -1;
+            return '<button type="button" class="chip' + (on ? " on" : "") + '" data-char="' + esc(n) + '">' + esc(n) + (on ? ' ✕' : '') + '</button>';
+          }).join("") +
+          '<button type="button" class="chip add" data-add-char="1">+ Custom</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyAmenities() {
+    var list = draft.amenities;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">What can guests expect? These become filter tags in the directory.</p>' +
+        '<div class="chips">' +
+          AMEN_DEFAULTS.concat(list.filter(function (n) { return AMEN_DEFAULTS.indexOf(n) === -1; })).map(function (n) {
+            var on = list.indexOf(n) > -1;
+            return '<button type="button" class="chip' + (on ? " on" : "") + '" data-amen="' + esc(n) + '">' + esc(n) + (on ? ' ✕' : '') + '</button>';
+          }).join("") +
+          '<button type="button" class="chip add" data-add-amen="1">+ Custom</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyMenuTags() {
+    var list = draft.menuTags;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Cuisine, meal type and dietary tags. These are used to filter menus.</p>' +
+        Object.keys(TAG_GROUPS).map(function (g) {
+          return '<div class="sub-head">' + esc(g) + '</div>' +
+            '<div class="chips">' +
+              TAG_GROUPS[g].map(function (n) {
+                var on = list.indexOf(n) > -1;
+                return '<button type="button" class="chip' + (on ? " on" : "") + '" data-mt="' + esc(n) + '">' + esc(n) + '</button>';
+              }).join("") +
+            '</div>';
+        }).join("") +
+        '<div style="margin-top:14px">' +
+          '<button type="button" class="chip add" data-add-mt="1">+ Custom tag</button>' +
+        '</div>' +
+        (list.filter(function (n) {
+          var found = false;
+          Object.keys(TAG_GROUPS).forEach(function (g) {
+            if (TAG_GROUPS[g].indexOf(n) > -1) found = true;
+          });
+          return !found;
+        }).length
+          ? '<div style="margin-top:10px" class="chips">' +
+              list.filter(function (n) {
+                var found = false;
+                Object.keys(TAG_GROUPS).forEach(function (g) {
+                  if (TAG_GROUPS[g].indexOf(n) > -1) found = true;
+                });
+                return !found;
+              }).map(function (n) {
+                return '<button type="button" class="chip on" data-mt="' + esc(n) + '">' + esc(n) + ' ✕</button>';
+              }).join("") +
+            '</div>'
+          : '') +
+      '</div>';
+  }
+
+  function bodyCapacity() {
+    var list = draft.capacity;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Indoor seats, outdoor seats, private rooms — anything that helps guests plan.</p>' +
+        (list.length
+          ? list.map(function (c) {
+              return '<article class="record" data-capacity="' + esc(c.id) + '">' +
+                '<div class="record-badge">' + esc(c.value || "—") + '</div>' +
+                '<div class="record-info">' +
+                  '<div class="record-title">' + esc(c.title || "Capacity") + '</div>' +
+                  (c.description ? '<div class="record-meta">' + esc(c.description) + '</div>' : '') +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-capacity="' + esc(c.id) + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No capacity entries yet.</div>') +
+        '<button type="button" class="add-btn" data-add-capacity="1">+ Add capacity</button>' +
+      '</div>';
+  }
+
+  function bodyPayments() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Tap every payment method you accept. These appear on your listing card.</p>' +
+        '<div class="chips">' +
+          PAY_METHODS.map(function (p) {
+            var on = draft.payments.indexOf(p) > -1;
+            return '<button type="button" class="chip' + (on ? " on" : "") + '" data-pay="' + esc(p) + '">' + esc(p) + '</button>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyReservations() {
+    var r = draft.reservations;
+    var cs = draft.contacts;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Reservations are handled on your own WhatsApp. Guests message you directly.</p>' +
+
+        '<label class="switch-row">' +
+          '<input type="checkbox" data-res="enabled"' + (r.enabled ? " checked" : "") + '>' +
+          '<span>Reservations available</span>' +
+        '</label>' +
+
+        '<div class="field">' +
+          '<label>WhatsApp contact</label>' +
+          '<select class="select" data-res="whatsappContactId">' +
+            '<option value="">— choose contact —</option>' +
+            cs.map(function (c) {
+              return '<option value="' + esc(c.id) + '"' + (r.whatsappContactId === c.id ? " selected" : "") + '>' + esc(c.title || c.number) + '</option>';
+            }).join("") +
+          '</select>' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Call contact</label>' +
+          '<select class="select" data-res="callContactId">' +
+            '<option value="">— choose contact —</option>' +
+            cs.map(function (c) {
+              return '<option value="' + esc(c.id) + '"' + (r.callContactId === c.id ? " selected" : "") + '>' + esc(c.title || c.number) + '</option>';
+            }).join("") +
+          '</select>' +
+        '</div>' +
+
+        '<div class="row-2">' +
+          '<div class="field">' +
+            '<label>Minimum guests</label>' +
+            '<input class="input" type="number" min="1" data-res="minGuests" value="' + esc(r.minGuests) + '">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Maximum guests</label>' +
+            '<input class="input" type="number" min="1" data-res="maxGuests" value="' + esc(r.maxGuests) + '">' +
+          '</div>' +
+        '</div>' +
+
+        '<label class="switch-row">' +
+          '<input type="checkbox" data-res="sameDay"' + (r.sameDay ? " checked" : "") + '>' +
+          '<span>Accept same-day reservations</span>' +
+        '</label>' +
+
+        '<label class="switch-row">' +
+          '<input type="checkbox" data-res="advanceBooking"' + (r.advanceBooking ? " checked" : "") + '>' +
+          '<span>Advance booking required</span>' +
+        '</label>' +
+
+        '<div class="field" style="margin-top:14px">' +
+          '<label>Cancellation / notes</label>' +
+          '<textarea class="textarea" data-res="notes" placeholder="Any rules guests should know about cancelling.">' + esc(r.notes) + '</textarea>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyServices() {
+    var list = draft.reservationServices;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Any add-ons guests can book alongside a table — birthday setup, VIP booth, cake, and more.</p>' +
+        (list.length
+          ? list.map(function (s) {
+              return '<article class="record" data-service="' + esc(s.id) + '">' +
+                '<div class="record-badge">＋</div>' +
+                '<div class="record-info">' +
+                  '<div class="record-title">' + esc(s.name) + '</div>' +
+                  '<div class="record-meta">' +
+                    (s.price ? "P" + Number(s.price).toFixed(2) + " · " + esc(s.pricingType || "") : "Custom quote") +
+                  '</div>' +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-service="' + esc(s.id) + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No reservation services yet.</div>') +
+        '<button type="button" class="add-btn" data-add-service="1">+ Add service</button>' +
+      '</div>';
+  }
+
+  function bodyStaff() {
+    var list = draft.serviceStaff;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Optional. Add named staff members, their roles, and any charges.</p>' +
+        (list.length
+          ? list.map(function (s) {
+              return '<article class="record" data-staff="' + esc(s.id) + '">' +
+                '<div class="record-badge">' + esc(((s.firstName || "?")[0] || "?").toUpperCase()) + '</div>' +
+                '<div class="record-info">' +
+                  '<div class="record-title">' + esc((s.firstName || "") + " " + (s.surname || "")) + '</div>' +
+                  '<div class="record-meta">' + esc(s.role || "") + (s.price ? ' · P' + Number(s.price).toFixed(2) : '') + '</div>' +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-staff="' + esc(s.id) + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No staff yet. This is optional.</div>') +
+        '<button type="button" class="add-btn" data-add-staff="1">+ Add staff member</button>' +
+      '</div>';
+  }
+
+  function bodyMenu() {
+    var cats = draft.menu.categories;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Menu categories and items. Each item has its own name, description and price.</p>' +
+        (cats.length
+          ? cats.map(function (c, ci) {
+              return '<article class="record" data-menu-cat="' + ci + '">' +
+                '<div class="record-badge">' + esc(c.icon || "📂") + '</div>' +
+                '<div class="record-info">' +
+                  '<div class="record-title">' + esc(c.name) + ' <span class="badge draft">' + c.items.length + ' items</span></div>' +
+                  (c.items.length
+                    ? '<div style="margin-top:8px">' + c.items.map(function (it, ii) {
+                        return '<div style="padding:7px 9px;background:#FAFBFC;border:1px solid var(--line-2);border-radius:9px;margin-bottom:5px;font-size:12.5px">' +
+                          '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">' +
+                            '<b style="color:var(--ink);font-weight:750">' + esc(it.name) + '</b>' +
+                            '<span style="color:var(--orange);font-weight:800;font-variant-numeric:tabular-nums">' +
+                              (it.price ? "P" + Number(it.price).toFixed(2) : "—") + '</span>' +
+                          '</div>' +
+                          (it.description ? '<div style="color:var(--faint);font-size:11px;margin-top:2px">' + esc(it.description.slice(0, 80)) + '</div>' : '') +
+                          '<div style="margin-top:5px;display:flex;gap:4px">' +
+                            '<button type="button" class="mini-btn" data-edit-item="' + ci + '|' + ii + '">✎</button>' +
+                            '<button type="button" class="mini-btn danger" data-del-item="' + ci + '|' + ii + '">✕</button>' +
+                          '</div>' +
+                        '</div>';
+                      }).join("") + '</div>'
+                    : '') +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn" data-add-item="' + ci + '" aria-label="Add item">+</button>' +
+                  '<button type="button" class="mini-btn danger" data-del-cat="' + ci + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No menu categories yet. Add your first category to begin.</div>') +
+        '<button type="button" class="add-btn" data-add-cat="1">+ Add menu category</button>' +
+      '</div>';
+  }
+
+  function bodyPromos() {
+    var list = draft.promos;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Special offers, happy hours and combo deals. Each promo is a separate listing.</p>' +
+        (list.length
+          ? list.map(function (p, i) {
+              return '<article class="record" data-promo="' + i + '">' +
+                '<div class="record-badge">★</div>' +
+                '<div class="record-info">' +
+                  '<div class="record-title">' + esc(p.title || "Untitled") + '</div>' +
+                  '<div class="record-meta">' +
+                    (p.promoPrice ? "P" + Number(p.promoPrice).toFixed(2) : "") +
+                    (p.originalPrice ? " · was P" + Number(p.originalPrice).toFixed(2) : "") +
+                    (p.startDate ? " · " + esc(p.startDate) : "") +
+                  '</div>' +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-promo="' + i + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No promos yet.</div>') +
+        '<button type="button" class="add-btn" data-add-promo="1">+ Add promo</button>' +
+      '</div>';
+  }
+
+  function bodyEvents() {
+    var list = draft.events;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Upcoming events. Each has its own date, time, admission and price.</p>' +
+        (list.length
+          ? list.map(function (e, i) {
+              return '<article class="record" data-event="' + i + '">' +
+                '<div class="record-badge">◷</div>' +
+                '<div class="record-info">' +
+                  '<div class="record-title">' + esc(e.name || "Untitled") + '</div>' +
+                  '<div class="record-meta">' + esc(e.startDate || "") + (e.startTime ? " · " + esc(e.startTime) : "") + (e.admission ? " · " + esc(e.admission) : "") + '</div>' +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-event="' + i + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No events yet.</div>') +
+        '<button type="button" class="add-btn" data-add-event="1">+ Add event</button>' +
+      '</div>';
+  }
+
+  function bodyGallery() {
+    var groups = draft.gallery.groups;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Group photos by area — Food, Interior, Events, and more. Each group is independent.</p>' +
+        (groups.length
+          ? groups.map(function (g, gi) {
+              return '<article class="record" data-gal="' + gi + '">' +
+                '<div class="record-badge">▣</div>' +
+                '<div class="record-info">' +
+                  '<div class="record-title">' + esc(g.title || "Group") + ' <span class="badge draft">' + (g.images || []).length + ' images</span></div>' +
+                  ((g.images || []).length
+                    ? '<div style="margin-top:8px">' + g.images.map(function (im, ii) {
+                        return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 9px;background:#FAFBFC;border:1px solid var(--line-2);border-radius:9px;margin-bottom:5px;font-size:11.5px">' +
+                          '<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 auto;color:var(--muted)">' + esc(im.src.slice(0, 60)) + '…</span>' +
+                          '<button type="button" class="mini-btn danger" style="width:26px;height:26px;font-size:10px" data-del-gal-img="' + gi + '|' + ii + '">✕</button>' +
+                        '</div>';
+                      }).join("") + '</div>'
+                    : '') +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn" data-add-gal-img="' + gi + '" aria-label="Add image">+</button>' +
+                  '<button type="button" class="mini-btn danger" data-del-gal="' + gi + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No gallery groups yet.</div>') +
+        '<button type="button" class="add-btn" data-add-gal="1">+ Add gallery group</button>' +
+      '</div>';
+  }
+
+  function bodyReview() {
+    var filename = "venue_" + (slugify(draft.identity.name) || "untitled") + "_" + new Date().toISOString().slice(0,10).replace(/-/g, "") + ".json";
+    var json = JSON.stringify(buildExport(), null, 2);
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">This is the payload that will be exported. Copy, download, or send it in.</p>' +
+
+        '<div class="sub-head">Totals</div>' +
+        '<div style="background:#FAFBFC;border:1px solid var(--line-2);border-radius:11px;padding:13px;font-size:13px;line-height:1.7;color:var(--ink-2)">' +
+          'Contacts: <b>' + draft.contacts.length + '</b><br>' +
+          'Menu categories: <b>' + draft.menu.categories.length + '</b><br>' +
+          'Promos: <b>' + draft.promos.length + '</b><br>' +
+          'Events: <b>' + draft.events.length + '</b><br>' +
+          'Gallery groups: <b>' + draft.gallery.groups.length + '</b>' +
+        '</div>' +
+
+        '<div class="sub-head">Export filename</div>' +
+        '<div class="export-box">' + esc(filename) + '</div>' +
+
+        '<div class="sub-head">JSON preview</div>' +
+        '<div class="export-box">' + esc(json) + '</div>' +
+      '</div>';
+  }
+
+  function bodyChecklist() {
+    var order = ["identity","location","contacts","menu","gallery","promos","reservations"];
+    var labels = {
+      identity:"Profile identity set",
+      location:"Location set",
+      contacts:"Contact numbers added",
+      menu:"Menu built",
+      gallery:"Gallery photos added",
+      promos:"At least one promo",
+      reservations:"Reservation settings"
+    };
+    var html = '<div class="module"><p class="module-note">Nothing here blocks saving. This is only a readiness guide before going live.</p><div class="checklist">';
+    order.forEach(function (k, i) {
+      var ok = moduleComplete(k);
+      html += '<div class="check-item' + (ok ? " done" : "") + '">' +
+        '<div class="n">' + (ok ? "✓" : (i + 1)) + '</div>' +
+        '<div class="lbl">' + esc(labels[k]) + '</div>' +
+        '<div class="st">' + (ok ? "Done" : "Pending") + '</div>' +
+      '</div>';
+    });
+    html += '</div></div>';
+    return html;
+  }
+
+  function bodyFor(key) {
+    if (key === "identity")     return bodyIdentity();
+    if (key === "location")     return bodyLocation();
+    if (key === "contacts")     return bodyContacts();
+    if (key === "socials")      return bodySocials();
+    if (key === "hours")        return bodyHours();
+    if (key === "character")    return bodyCharacter();
+    if (key === "amenities")    return bodyAmenities();
+    if (key === "menuTags")     return bodyMenuTags();
+    if (key === "capacity")     return bodyCapacity();
+    if (key === "payments")     return bodyPayments();
+    if (key === "reservations") return bodyReservations();
+    if (key === "services")     return bodyServices();
+    if (key === "staff")        return bodyStaff();
+    if (key === "menu")         return bodyMenu();
+    if (key === "promos")       return bodyPromos();
+    if (key === "events")       return bodyEvents();
+    if (key === "gallery")      return bodyGallery();
+    if (key === "review")       return bodyReview();
+    if (key === "checklist")    return bodyChecklist();
+    return "";
+  }
+
+  /* ============================================================
+     BUILD STACK
+     ============================================================ */
+  var openKey = null;
+
+  function buildStack() {
+    var stack = $("#stack");
+    stack.innerHTML = MODULES.map(function (m) {
+      var isOpen = openKey === m.key;
+      var touched = moduleTouched(m.key);
+      var complete = moduleComplete(m.key);
+      var cls = "acc";
+      if (isOpen) cls += " open";
+      if (touched) cls += " touched";
+      if (m.key === "review" || m.key === "checklist") cls = cls.replace(" touched", "");
+      return '' +
+        '<section class="' + cls + '" data-key="' + esc(m.key) + '">' +
+          '<button class="acc-head" type="button" aria-expanded="' + isOpen + '">' +
+            '<span class="dot"></span>' +
+            '<span class="acc-title">' +
+              '<b>' + esc(m.title) + '</b>' +
+              '<span class="acc-sub">' + esc(m.sub) + '</span>' +
+            '</span>' +
+          '</button>' +
+          '<div class="acc-body">' +
+            '<div class="acc-inner" data-body="' + esc(m.key) + '">' +
+              bodyFor(m.key) +
+            '</div>' +
+          '</div>' +
+        '</section>';
+    }).join("");
+  }
+
+  function render() {
+    renderMeta();
+    buildStack();
+  }
+
+  function refreshSubs() {
+    MODULES.forEach(function (m) {
+      var acc = $("#stack").querySelector('.acc[data-key="' + m.key + '"]');
+      if (!acc) return;
+      var touched = moduleTouched(m.key);
+      if (m.key !== "review" && m.key !== "checklist") {
+        acc.classList.toggle("touched", touched);
+      }
+    });
+  }
+
+  /* ============================================================
+     ACCORDION
+     ============================================================ */
+  function openAccordion(key, scrollTo) {
+    openKey = key;
+    $$(".acc", $("#stack")).forEach(function (acc) {
+      var isOpen = acc.dataset.key === key;
+      acc.classList.toggle("open", isOpen);
+      var head = acc.querySelector(".acc-head");
+      if (head) head.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+    if (key && scrollTo) {
+      var acc = $("#stack").querySelector('.acc[data-key="' + key + '"]');
+      if (acc) {
+        setTimeout(function () {
+          try { acc.scrollIntoView({ behavior:"smooth", block:"start" }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+  function toggleAccordion(key) {
+    if (openKey === key) openAccordion(null);
+    else openAccordion(key, true);
+  }
+
+  /* ============================================================
+     MODAL SYSTEM
+     ============================================================ */
+  function openModal(opts) {
+    var scrim = document.createElement("div");
+    scrim.className = "modal-scrim";
+    scrim.innerHTML =
+      '<div class="modal" role="dialog" aria-modal="true">' +
+        '<div class="modal-hdr">' +
+          '<h3>' + esc(opts.title) + '</h3>' +
+          '<button class="modal-close" type="button" data-close aria-label="Close">✕</button>' +
+        '</div>' +
+        '<div class="modal-body">' + opts.body + '</div>' +
+        '<div class="modal-foot">' + opts.footer + '</div>' +
+      '</div>';
+    document.body.appendChild(scrim);
+    scrim.querySelectorAll("[data-close]").forEach(function (b) {
+      b.onclick = function () { scrim.remove(); };
+    });
+    scrim.addEventListener("click", function (e) {
+      if (e.target === scrim) scrim.remove();
+    });
+    if (opts.onMount) opts.onMount(scrim);
+    return scrim;
+  }
+
+  function promptText(title, label, placeholder, cb) {
+    var scrim = openModal({
+      title: title,
+      body: '<div class="field"><label>' + esc(label) + '</label>' +
+        '<input class="input" type="text" id="pt-input" placeholder="' + esc(placeholder || "") + '"></div>',
+      footer: '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-ok>Add</button>'
+    });
+    var input = scrim.querySelector("#pt-input");
+    setTimeout(function () { try { input.focus(); } catch (e) {} }, 60);
+    scrim.querySelector("[data-ok]").onclick = function () {
+      var v = input.value.trim();
+      if (!v) { toast("Enter a value"); return; }
+      cb(v);
+      scrim.remove();
+    };
+  }
+
+  function contactModal(existing) {
+    var isNew = !existing;
+    var c = existing || { title:"", countryCode:"+267", number:"", purpose:"Orders", primary:false, whatsapp:true, active:true };
+    var scrim = openModal({
+      title: isNew ? "Add contact" : "Edit contact",
+      body:
+        '<div class="field"><label>Title</label>' +
+          '<input class="input" type="text" id="cm-title" placeholder="Reservations / Orders / Manager" value="' + esc(c.title || "") + '"></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Country code</label>' +
+            '<input class="input" type="tel" id="cm-cc" value="' + esc(c.countryCode || "+267") + '"></div>' +
+          '<div class="field"><label>Number</label>' +
+            '<input class="input" type="tel" id="cm-num" placeholder="71 234 567" value="' + esc(c.number || "") + '"></div>' +
+        '</div>' +
+        '<div class="field"><label>Purpose</label>' +
+          '<select class="select" id="cm-purpose">' +
+            PURPOSES.map(function (p) { return '<option value="' + esc(p) + '"' + (c.purpose === p ? " selected" : "") + '>' + esc(p) + '</option>'; }).join("") +
+          '</select></div>' +
+        '<label class="switch-row"><input type="checkbox" id="cm-primary"' + (c.primary ? " checked" : "") + '><span>Primary number</span></label>' +
+        '<label class="switch-row"><input type="checkbox" id="cm-wa"' + (c.whatsapp ? " checked" : "") + '><span>WhatsApp enabled</span></label>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Save</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var num = scrim.querySelector("#cm-num").value.trim();
+      if (!num) { toast("Add a number"); return; }
+      var isPrimary = scrim.querySelector("#cm-primary").checked;
+      if (isPrimary) { draft.contacts.forEach(function (x) { x.primary = false; }); }
+      var data = {
+        title: scrim.querySelector("#cm-title").value.trim(),
+        countryCode: scrim.querySelector("#cm-cc").value.trim(),
+        number: num,
+        purpose: scrim.querySelector("#cm-purpose").value,
+        primary: isPrimary,
+        whatsapp: scrim.querySelector("#cm-wa").checked,
+        active: true
+      };
+      if (isNew) {
+        draft.contacts.push(Object.assign({ id: uid("contact") }, data));
+      } else {
+        Object.assign(existing, data);
+      }
+      save();
+      refreshBody("contacts");
+      refreshSubs();
+      renderMeta();
+      scrim.remove();
+      toast(isNew ? "Contact added" : "Contact saved");
+    };
+  }
+
+  function scheduleModal() {
+    var scrim = openModal({
+      title: "Add custom schedule",
+      body:
+        '<div class="field"><label>Title</label>' +
+          '<input class="input" type="text" id="sm-title" placeholder="Happy Hour Thursdays"></div>' +
+        '<div class="field"><label>Days</label>' +
+          '<input class="input" type="text" id="sm-days" placeholder="Thursday, Friday"></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Start time</label><input class="input" type="time" id="sm-start"></div>' +
+          '<div class="field"><label>End time</label><input class="input" type="time" id="sm-end"></div>' +
+        '</div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add schedule</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var title = scrim.querySelector("#sm-title").value.trim();
+      if (!title) { toast("Give the schedule a title"); return; }
+      draft.hours.custom.push({
+        id: uid("sched"),
+        title: title,
+        days: scrim.querySelector("#sm-days").value.trim(),
+        start: scrim.querySelector("#sm-start").value,
+        end: scrim.querySelector("#sm-end").value
+      });
+      save();
+      refreshBody("hours");
+      refreshSubs();
+      scrim.remove();
+      toast("Schedule added");
+    };
+  }
+
+  function capacityModal() {
+    var scrim = openModal({
+      title: "Add capacity",
+      body:
+        '<div class="field"><label>Title</label>' +
+          '<input class="input" type="text" id="cap-title" placeholder="Indoor seating"></div>' +
+        '<div class="field"><label>Seats</label>' +
+          '<input class="input" type="number" min="0" id="cap-val" placeholder="e.g. 60"></div>' +
+        '<div class="field"><label>Description <span class="opt">— optional</span></label>' +
+          '<textarea class="textarea" id="cap-desc"></textarea></div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add capacity</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var title = scrim.querySelector("#cap-title").value.trim();
+      if (!title) { toast("Give the capacity a title"); return; }
+      draft.capacity.push({
+        id: uid("cap"),
+        title: title,
+        value: scrim.querySelector("#cap-val").value,
+        description: scrim.querySelector("#cap-desc").value.trim()
+      });
+      save();
+      refreshBody("capacity");
+      refreshSubs();
+      scrim.remove();
+      toast("Capacity added");
+    };
+  }
+
+  function serviceModal() {
+    var scrim = openModal({
+      title: "Add reservation service",
+      body:
+        '<div class="field"><label>Service name</label>' +
+          '<input class="input" type="text" id="sv-name" placeholder="Birthday setup"></div>' +
+        '<div class="field"><label>Description <span class="opt">— optional</span></label>' +
+          '<textarea class="textarea" id="sv-desc"></textarea></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Price</label>' +
+            '<input class="input" type="number" min="0" step="0.01" id="sv-price"></div>' +
+          '<div class="field"><label>Pricing type</label>' +
+            '<select class="select" id="sv-type">' +
+              SERVICE_PRICING.map(function (p) { return '<option value="' + esc(p) + '">' + esc(p) + '</option>'; }).join("") +
+            '</select></div>' +
+        '</div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add service</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var name = scrim.querySelector("#sv-name").value.trim();
+      if (!name) { toast("Give the service a name"); return; }
+      draft.reservationServices.push({
+        id: uid("svc"),
+        name: name,
+        description: scrim.querySelector("#sv-desc").value.trim(),
+        price: Number(scrim.querySelector("#sv-price").value) || 0,
+        pricingType: scrim.querySelector("#sv-type").value
+      });
+      save();
+      refreshBody("services");
+      refreshSubs();
+      scrim.remove();
+      toast("Service added");
+    };
+  }
+
+  function staffModal() {
+    var scrim = openModal({
+      title: "Add staff",
+      body:
+        '<div class="row-2">' +
+          '<div class="field"><label>First name</label><input class="input" type="text" id="st-first"></div>' +
+          '<div class="field"><label>Surname</label><input class="input" type="text" id="st-surname"></div>' +
+        '</div>' +
+        '<div class="field"><label>Role</label>' +
+          '<select class="select" id="st-role">' +
+            STAFF_ROLES.map(function (r) { return '<option value="' + esc(r) + '">' + esc(r) + '</option>'; }).join("") +
+          '</select></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Price <span class="opt">— optional</span></label>' +
+            '<input class="input" type="number" min="0" step="0.01" id="st-price"></div>' +
+          '<div class="field"><label>Pricing type</label>' +
+            '<select class="select" id="st-type">' +
+              STAFF_PRICING.map(function (p) { return '<option value="' + esc(p) + '">' + esc(p) + '</option>'; }).join("") +
+            '</select></div>' +
+        '</div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add staff</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var first = scrim.querySelector("#st-first").value.trim();
+      var surname = scrim.querySelector("#st-surname").value.trim();
+      if (!first && !surname) { toast("Add a name"); return; }
+      draft.serviceStaff.push({
+        id: uid("staff"),
+        firstName: first,
+        surname: surname,
+        role: scrim.querySelector("#st-role").value,
+        price: Number(scrim.querySelector("#st-price").value) || 0,
+        pricingType: scrim.querySelector("#st-type").value
+      });
+      save();
+      refreshBody("staff");
+      refreshSubs();
+      scrim.remove();
+      toast("Staff added");
+    };
+  }
+
+  function menuCategoryModal() {
+    var scrim = openModal({
+      title: "Add menu category",
+      body:
+        '<div class="field"><label>Category name</label>' +
+          '<input class="input" type="text" id="mc-name" placeholder="e.g. Burgers"></div>' +
+        '<div class="field"><label>Emoji icon <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" id="mc-icon" maxlength="4" placeholder="🍔"></div>' +
+        '<div class="field"><label>Description <span class="opt">— optional</span></label>' +
+          '<textarea class="textarea" id="mc-desc"></textarea></div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add category</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var name = scrim.querySelector("#mc-name").value.trim();
+      if (!name) { toast("Give the category a name"); return; }
+      draft.menu.categories.push({
+        id: uid("cat"),
+        name: name,
+        icon: scrim.querySelector("#mc-icon").value.trim(),
+        description: scrim.querySelector("#mc-desc").value.trim(),
+        items: []
+      });
+      save();
+      refreshBody("menu");
+      refreshSubs();
+      scrim.remove();
+      toast("Category added");
+    };
+  }
+
+  function menuItemModal(ci, ii) {
+    var isNew = ii == null;
+    var it = isNew ? {} : draft.menu.categories[ci].items[ii];
+    var scrim = openModal({
+      title: isNew ? "Add item" : "Edit item",
+      body:
+        '<div class="field"><label>Item name</label>' +
+          '<input class="input" type="text" id="mi-name" value="' + esc(it.name || "") + '" placeholder="e.g. Classic Beef Burger"></div>' +
+        '<div class="field"><label>Description</label>' +
+          '<textarea class="textarea" id="mi-desc">' + esc(it.description || "") + '</textarea></div>' +
+        '<div class="field"><label>Type</label>' +
+          '<select class="select" id="mi-type">' +
+            ITEM_TYPES.map(function (t) { return '<option value="' + esc(t) + '"' + (it.type === t ? " selected" : "") + '>' + esc(t) + '</option>'; }).join("") +
+          '</select></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Price</label>' +
+            '<input class="input" type="number" min="0" step="0.01" id="mi-price" value="' + esc(it.price || "") + '"></div>' +
+          '<div class="field"><label>Prep time (min)</label>' +
+            '<input class="input" type="number" min="0" id="mi-prep" value="' + esc(it.prepTime || "") + '"></div>' +
+        '</div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>' + (isNew ? "Add item" : "Save") + '</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var name = scrim.querySelector("#mi-name").value.trim();
+      if (!name) { toast("Give the item a name"); return; }
+      var data = {
+        name: name,
+        description: scrim.querySelector("#mi-desc").value.trim(),
+        type: scrim.querySelector("#mi-type").value,
+        price: Number(scrim.querySelector("#mi-price").value) || 0,
+        prepTime: Number(scrim.querySelector("#mi-prep").value) || null
+      };
+      if (isNew) {
+        draft.menu.categories[ci].items.push(Object.assign({ id: uid("item") }, data));
+      } else {
+        Object.assign(draft.menu.categories[ci].items[ii], data);
+      }
+      save();
+      refreshBody("menu");
+      refreshSubs();
+      scrim.remove();
+      toast(isNew ? "Item added" : "Item saved");
+    };
+  }
+
+  function promoModal() {
+    var scrim = openModal({
+      title: "Add promo",
+      body:
+        '<div class="field"><label>Title</label>' +
+          '<input class="input" type="text" id="pm-title" placeholder="e.g. Friday Wings Special"></div>' +
+        '<div class="field"><label>Description <span class="opt">— optional</span></label>' +
+          '<textarea class="textarea" id="pm-desc"></textarea></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Promo price</label>' +
+            '<input class="input" type="number" min="0" step="0.01" id="pm-now"></div>' +
+          '<div class="field"><label>Original price</label>' +
+            '<input class="input" type="number" min="0" step="0.01" id="pm-was"></div>' +
+        '</div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Start date</label>' +
+            '<input class="input" type="date" id="pm-start"></div>' +
+          '<div class="field"><label>End date</label>' +
+            '<input class="input" type="date" id="pm-end"></div>' +
+        '</div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add promo</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var title = scrim.querySelector("#pm-title").value.trim();
+      if (!title) { toast("Give the promo a title"); return; }
+      draft.promos.push({
+        id: uid("promo"),
+        title: title,
+        description: scrim.querySelector("#pm-desc").value.trim(),
+        promoPrice: Number(scrim.querySelector("#pm-now").value) || 0,
+        originalPrice: Number(scrim.querySelector("#pm-was").value) || 0,
+        startDate: scrim.querySelector("#pm-start").value,
+        endDate: scrim.querySelector("#pm-end").value
+      });
+      save();
+      refreshBody("promos");
+      refreshSubs();
+      scrim.remove();
+      toast("Promo added");
+    };
+  }
+
+  function eventModal() {
+    var scrim = openModal({
+      title: "Add event",
+      body:
+        '<div class="field"><label>Event name</label>' +
+          '<input class="input" type="text" id="ev-name"></div>' +
+        '<div class="field"><label>Description <span class="opt">— optional</span></label>' +
+          '<textarea class="textarea" id="ev-desc"></textarea></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Start date</label>' +
+            '<input class="input" type="date" id="ev-date"></div>' +
+          '<div class="field"><label>Start time</label>' +
+            '<input class="input" type="time" id="ev-time"></div>' +
+        '</div>' +
+        '<div class="field"><label>Admission</label>' +
+          '<select class="select" id="ev-adm">' +
+            EVENT_ADMISSION.map(function (a) { return '<option value="' + esc(a) + '">' + esc(a) + '</option>'; }).join("") +
+          '</select></div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add event</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var name = scrim.querySelector("#ev-name").value.trim();
+      if (!name) { toast("Give the event a name"); return; }
+      draft.events.push({
+        id: uid("event"),
+        name: name,
+        description: scrim.querySelector("#ev-desc").value.trim(),
+        startDate: scrim.querySelector("#ev-date").value,
+        startTime: scrim.querySelector("#ev-time").value,
+        admission: scrim.querySelector("#ev-adm").value
+      });
+      save();
+      refreshBody("events");
+      refreshSubs();
+      scrim.remove();
+      toast("Event added");
+    };
+  }
+
+  function galleryGroupModal() {
+    var scrim = openModal({
+      title: "Add gallery group",
+      body: '<div class="field"><label>Group title</label>' +
+        '<input class="input" type="text" id="gg-title" placeholder="Food / Interior / Events"></div>',
+      footer: '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add group</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var title = scrim.querySelector("#gg-title").value.trim();
+      if (!title) { toast("Give the group a title"); return; }
+      draft.gallery.groups.push({ id: uid("gal"), title: title, images: [] });
+      save();
+      refreshBody("gallery");
+      refreshSubs();
+      scrim.remove();
+      toast("Group added");
+    };
+  }
+
+  function galleryImageModal(gi) {
+    var scrim = openModal({
+      title: "Add image",
+      body:
+        '<div class="field"><label>Image URL</label>' +
+          '<input class="input" type="url" id="gi-src" placeholder="https://…"></div>' +
+        '<div class="field"><label>Label <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" id="gi-label"></div>',
+      footer: '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add image</button>'
+    });
+    scrim.querySelector("[data-save]").onclick = function () {
+      var src = scrim.querySelector("#gi-src").value.trim();
+      if (!src) { toast("Add an image URL"); return; }
+      draft.gallery.groups[gi].images.push({ id: uid("img"), src: src, label: scrim.querySelector("#gi-label").value.trim() });
+      save();
+      refreshBody("gallery");
+      refreshSubs();
+      scrim.remove();
+      toast("Image added");
+    };
+  }
+
+  /* ============================================================
+     REFRESH SINGLE BODY
+     ============================================================ */
+  function refreshBody(key) {
+    var body = $("#stack").querySelector('[data-body="' + key + '"]');
+    if (!body) return;
+    body.innerHTML = bodyFor(key);
+    wireBody(key);
+  }
+
+  /* ============================================================
+     INPUT BINDING
+     ============================================================ */
+  function wireBody(key) {
+    if (key === "identity") {
+      $$('[data-id]', $("#stack")).forEach(function (el) {
+        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+          el.oninput = function () {
+            draft.identity[el.dataset.id] = el.value;
+            if (el.dataset.id === "name") {
+              var slugEl = $("#stack").querySelector('[data-id="slug"]');
+              if (slugEl && !slugEl.dataset.touched) slugEl.value = slugify(el.value);
+            }
+            if (el.dataset.id === "slug") el.dataset.touched = "1";
+            save();
+            refreshSubs();
+            renderMeta();
+          };
+        }
+      });
+    }
+    if (key === "location") {
+      $$('[data-loc]', $("#stack")).forEach(function (el) {
+        el.oninput = function () {
+          draft.location[el.dataset.loc] = el.value;
+          save();
+          refreshSubs();
+          renderMeta();
+        };
+      });
+    }
+    if (key === "socials") {
+      $$('[data-social]', $("#stack")).forEach(function (el) {
+        el.oninput = function () {
+          draft.socials[el.dataset.social] = el.value;
+          save();
+          refreshSubs();
+        };
+      });
+    }
+    if (key === "hours") {
+      $$('[data-hour]', $("#stack")).forEach(function (el) {
+        el.onchange = function () {
+          var day = el.dataset.hour;
+          var k = el.dataset.hk;
+          draft.hours.weekly[day] = draft.hours.weekly[day] || { open:"", close:"" };
+          draft.hours.weekly[day][k] = el.value;
+          save();
+          refreshSubs();
+        };
+      });
+    }
+    if (key === "reservations") {
+      $$('[data-res]', $("#stack")).forEach(function (el) {
+        var k = el.dataset.res;
+        var handler = function () {
+          if (el.type === "checkbox") draft.reservations[k] = el.checked;
+          else if (el.type === "number") draft.reservations[k] = Number(el.value) || 0;
+          else draft.reservations[k] = el.value || null;
+          save();
+          refreshSubs();
+          renderMeta();
+        };
+        if (el.type === "checkbox") el.onchange = handler;
+        else el.oninput = el.onchange = handler;
+      });
+    }
+  }
+
+  /* ============================================================
+     EVENT DELEGATION
+     ============================================================ */
+  var stack = $("#stack");
+  stack.addEventListener("click", function (e) {
+
+    /* accordion header */
+    var head = e.target.closest(".acc-head");
+    if (head) {
+      var acc = head.closest(".acc");
+      if (acc) toggleAccordion(acc.dataset.key);
+      return;
+    }
+
+    /* identity: types */
+    var typeBtn = e.target.closest("[data-type]");
+    if (typeBtn) {
+      var t = typeBtn.dataset.type;
+      var idx = draft.identity.types.indexOf(t);
+      if (idx > -1) draft.identity.types.splice(idx, 1);
+      else draft.identity.types.push(t);
+      save();
+      refreshBody("identity");
+      refreshSubs();
+      return;
+    }
+    if (e.target.closest("[data-add-type]")) {
+      promptText("Custom restaurant type", "Type", "e.g. Vegan kitchen", function (v) {
+        if (draft.identity.types.indexOf(v) === -1) draft.identity.types.push(v);
+        save();
+        refreshBody("identity");
+      });
+      return;
+    }
+
+    /* location: use geolocation */
+    if (e.target.closest("[data-loc-geo]")) {
+      if (!navigator.geolocation) { toast("Geolocation unavailable"); return; }
+      navigator.geolocation.getCurrentPosition(function (p) {
+        draft.location.lat = +p.coords.latitude.toFixed(6);
+        draft.location.lng = +p.coords.longitude.toFixed(6);
+        save();
+        refreshBody("location");
+        toast("Location set");
+      }, function () { toast("Permission denied"); });
+      return;
+    }
+
+    /* contacts */
+    if (e.target.closest("[data-add-contact]")) { contactModal(); return; }
+    var editContact = e.target.closest("[data-contact]");
+    if (editContact && !e.target.closest("[data-del-contact]")) {
+      var c = draft.contacts.filter(function (x) { return x.id === editContact.dataset.contact; })[0];
+      if (c) contactModal(c);
+      return;
+    }
+    var delContact = e.target.closest("[data-del-contact]");
+    if (delContact) {
+      e.stopPropagation();
+      if (!confirm("Remove this contact?")) return;
+      draft.contacts = draft.contacts.filter(function (c) { return c.id !== delContact.dataset.delContact; });
+      save();
+      refreshBody("contacts");
+      refreshSubs();
+      renderMeta();
+      return;
+    }
+
+    /* schedules */
+    if (e.target.closest("[data-add-schedule]")) { scheduleModal(); return; }
+    var delSched = e.target.closest("[data-del-schedule]");
+    if (delSched) {
+      e.stopPropagation();
+      if (!confirm("Remove this schedule?")) return;
+      draft.hours.custom = draft.hours.custom.filter(function (s) { return s.id !== delSched.dataset.delSchedule; });
+      save();
+      refreshBody("hours");
+      refreshSubs();
+      return;
+    }
+
+    /* character / amenities / tags */
+    var charBtn = e.target.closest("[data-char]");
+    if (charBtn) {
+      var cn = charBtn.dataset.char;
+      var ci = draft.character.indexOf(cn);
+      if (ci > -1) draft.character.splice(ci, 1);
+      else draft.character.push(cn);
+      save();
+      refreshBody("character");
+      refreshSubs();
+      return;
+    }
+    if (e.target.closest("[data-add-char]")) {
+      promptText("Custom character", "Value", "e.g. Afrocentric", function (v) {
+        if (draft.character.indexOf(v) === -1) draft.character.push(v);
+        save(); refreshBody("character"); refreshSubs();
+      });
+      return;
+    }
+
+    var amenBtn = e.target.closest("[data-amen]");
+    if (amenBtn) {
+      var an = amenBtn.dataset.amen;
+      var ai = draft.amenities.indexOf(an);
+      if (ai > -1) draft.amenities.splice(ai, 1);
+      else draft.amenities.push(an);
+      save(); refreshBody("amenities"); refreshSubs();
+      return;
+    }
+    if (e.target.closest("[data-add-amen]")) {
+      promptText("Custom amenity", "Value", "e.g. Rooftop terrace", function (v) {
+        if (draft.amenities.indexOf(v) === -1) draft.amenities.push(v);
+        save(); refreshBody("amenities"); refreshSubs();
+      });
+      return;
+    }
+
+    var mtBtn = e.target.closest("[data-mt]");
+    if (mtBtn) {
+      var mn = mtBtn.dataset.mt;
+      var mi = draft.menuTags.indexOf(mn);
+      if (mi > -1) draft.menuTags.splice(mi, 1);
+      else draft.menuTags.push(mn);
+      save(); refreshBody("menuTags"); refreshSubs();
+      return;
+    }
+    if (e.target.closest("[data-add-mt]")) {
+      promptText("Custom menu tag", "Value", "e.g. Farm-to-table", function (v) {
+        if (draft.menuTags.indexOf(v) === -1) draft.menuTags.push(v);
+        save(); refreshBody("menuTags"); refreshSubs();
+      });
+      return;
+    }
+
+    /* capacity */
+    if (e.target.closest("[data-add-capacity]")) { capacityModal(); return; }
+    var delCap = e.target.closest("[data-del-capacity]");
+    if (delCap) {
+      e.stopPropagation();
+      if (!confirm("Remove this capacity entry?")) return;
+      draft.capacity = draft.capacity.filter(function (c) { return c.id !== delCap.dataset.delCapacity; });
+      save(); refreshBody("capacity"); refreshSubs();
+      return;
+    }
+
+    /* payments */
+    var payBtn = e.target.closest("[data-pay]");
+    if (payBtn) {
+      var pn = payBtn.dataset.pay;
+      var pi = draft.payments.indexOf(pn);
+      if (pi > -1) draft.payments.splice(pi, 1);
+      else draft.payments.push(pn);
+      save(); refreshBody("payments"); refreshSubs();
+      return;
+    }
+
+    /* services */
+    if (e.target.closest("[data-add-service]")) { serviceModal(); return; }
+    var delSvc = e.target.closest("[data-del-service]");
+    if (delSvc) {
+      e.stopPropagation();
+      if (!confirm("Remove this service?")) return;
+      draft.reservationServices = draft.reservationServices.filter(function (s) { return s.id !== delSvc.dataset.delService; });
+      save(); refreshBody("services"); refreshSubs();
+      return;
+    }
+
+    /* staff */
+    if (e.target.closest("[data-add-staff]")) { staffModal(); return; }
+    var delStaff = e.target.closest("[data-del-staff]");
+    if (delStaff) {
+      e.stopPropagation();
+      if (!confirm("Remove this staff member?")) return;
+      draft.serviceStaff = draft.serviceStaff.filter(function (s) { return s.id !== delStaff.dataset.delStaff; });
+      save(); refreshBody("staff"); refreshSubs();
+      return;
+    }
+
+    /* menu */
+    if (e.target.closest("[data-add-cat]")) { menuCategoryModal(); return; }
+    var addItem = e.target.closest("[data-add-item]");
+    if (addItem) {
+      e.stopPropagation();
+      menuItemModal(parseInt(addItem.dataset.addItem, 10));
+      return;
+    }
+    var editItemBtn = e.target.closest("[data-edit-item]");
+    if (editItemBtn) {
+      e.stopPropagation();
+      var parts = editItemBtn.dataset.editItem.split("|");
+      menuItemModal(parseInt(parts[0], 10), parseInt(parts[1], 10));
+      return;
+    }
+    var delItemBtn = e.target.closest("[data-del-item]");
+    if (delItemBtn) {
+      e.stopPropagation();
+      if (!confirm("Remove this item?")) return;
+      var ip = delItemBtn.dataset.delItem.split("|");
+      draft.menu.categories[parseInt(ip[0], 10)].items.splice(parseInt(ip[1], 10), 1);
+      save(); refreshBody("menu"); refreshSubs();
+      return;
+    }
+    var delCat = e.target.closest("[data-del-cat]");
+    if (delCat) {
+      e.stopPropagation();
+      if (!confirm("Remove this category and all its items?")) return;
+      draft.menu.categories.splice(parseInt(delCat.dataset.delCat, 10), 1);
+      save(); refreshBody("menu"); refreshSubs();
+      return;
+    }
+
+    /* promos */
+    if (e.target.closest("[data-add-promo]")) { promoModal(); return; }
+    var delPromo = e.target.closest("[data-del-promo]");
+    if (delPromo) {
+      e.stopPropagation();
+      if (!confirm("Remove this promo?")) return;
+      draft.promos.splice(parseInt(delPromo.dataset.delPromo, 10), 1);
+      save(); refreshBody("promos"); refreshSubs();
+      return;
+    }
+
+    /* events */
+    if (e.target.closest("[data-add-event]")) { eventModal(); return; }
+    var delEvent = e.target.closest("[data-del-event]");
+    if (delEvent) {
+      e.stopPropagation();
+      if (!confirm("Remove this event?")) return;
+      draft.events.splice(parseInt(delEvent.dataset.delEvent, 10), 1);
+      save(); refreshBody("events"); refreshSubs();
+      return;
+    }
+
+    /* gallery */
+    if (e.target.closest("[data-add-gal]")) { galleryGroupModal(); return; }
+    var addImg = e.target.closest("[data-add-gal-img]");
+    if (addImg) {
+      e.stopPropagation();
+      galleryImageModal(parseInt(addImg.dataset.addGalImg, 10));
+      return;
+    }
+    var delImg = e.target.closest("[data-del-gal-img]");
+    if (delImg) {
+      e.stopPropagation();
+      var gp = delImg.dataset.delGalImg.split("|");
+      draft.gallery.groups[parseInt(gp[0], 10)].images.splice(parseInt(gp[1], 10), 1);
+      save(); refreshBody("gallery"); refreshSubs();
+      return;
+    }
+    var delGal = e.target.closest("[data-del-gal]");
+    if (delGal) {
+      e.stopPropagation();
+      if (!confirm("Remove this gallery group?")) return;
+      draft.gallery.groups.splice(parseInt(delGal.dataset.delGal, 10), 1);
+      save(); refreshBody("gallery"); refreshSubs();
+      return;
+    }
+  });
+
+  /* ============================================================
+     EXPORT
+     ============================================================ */
+  function buildExport() {
+    var d = draft;
+    var slug = slugify(d.identity.name) || "untitled";
+
+    return {
+      $schema: "eatouts.venue.v1",
+      generatedAt: new Date().toISOString(),
+      slug: slug,
+      name: d.identity.name,
+      description: d.identity.description,
+      logo: d.identity.logo || null,
+      coverImage: d.identity.coverImage || null,
+      types: d.identity.types,
+      category: d.identity.types[0] || "",
+      location: {
+        district: d.location.district,
+        town: d.location.town,
+        area: d.location.area,
+        plotNumber: d.location.plotNumber,
+        street: d.location.street,
+        building: d.location.building,
+        landmark: d.location.landmark,
+        lat: d.location.lat,
+        lng: d.location.lng
+      },
+      contacts: d.contacts.map(function (c) {
+        return { id:c.id, title:c.title, countryCode:c.countryCode, number:c.number,
+          purpose:c.purpose, primary:!!c.primary, whatsapp:!!c.whatsapp, active:c.active !== false };
+      }),
+      socials: [d.socials],
+      profile: {
+        name: d.identity.name,
+        identity: { name:d.identity.name, description:d.identity.description, logo:d.identity.logo,
+          coverImage:d.identity.coverImage, types:d.identity.types, status:"draft" },
+        location: { city:d.location.town, area:d.location.area, plotNumber:d.location.plotNumber,
+          streetName:d.location.street, building:d.location.building, landmark:d.location.landmark,
+          latitude:d.location.lat, longitude:d.location.lng },
+        contacts: d.contacts,
+        operatingHours: {
+          title:"Operating Hours",
+          weekly: Object.keys(d.hours.weekly || {}).map(function (day) {
+            return { day:day, open:(d.hours.weekly[day] || {}).open || "", close:(d.hours.weekly[day] || {}).close || "" };
+          }),
+          customSchedules: d.hours.custom
+        },
+        character: { title:"Restaurant Character", options: d.character.map(function (n, i) { return { id:uid("char"), name:n, order:i+1 }; }) },
+        amenities: { title:"Amenities", options: d.amenities.map(function (n, i) { return { id:uid("amen"), name:n, order:i+1 }; }) },
+        menuTags: { title:"Menu Tags", options: d.menuTags.map(function (n, i) { return { id:uid("tag"), name:n, order:i+1 }; }) },
+        capacity: d.capacity,
+        payments: d.payments,
+        reservations: d.reservations,
+        reservationServices: d.reservationServices,
+        serviceStaff: d.serviceStaff,
+        users: []
+      },
+      content: {
+        menuCategories: d.menu.categories.map(function (c, i) {
+          return { id:c.id, name:c.name, icon:c.icon || "", description:c.description || "", visible:true, order:i+1 };
+        }),
+        menuItems: d.menu.categories.reduce(function (acc, c) {
+          c.items.forEach(function (it, ii) {
+            acc.push({
+              id:it.id, categoryId:c.id, name:it.name, type:it.type || "", description:it.description || "",
+              image_url:it.image || "", basePrice:it.price, prepTime:it.prepTime || null,
+              status:"available", tags:it.tags || [], variants:it.variants || [], order:ii+1
+            });
+          });
+          return acc;
+        }, []),
+        promos: d.promos,
+        events: d.events,
+        performers: [],
+        performances: [],
+        galleryGroups: d.gallery.groups,
+        galleryImages: d.gallery.groups.reduce(function (acc, g) {
+          (g.images || []).forEach(function (im, i) {
+            acc.push({ id:im.id, cat:g.title, src:im.src, label:im.label || "", visible:true, order:i+1,
+              groupId:g.id, groupTitle:g.title, groupVisible:true, groupOrder:1, coverImageId:null });
+          });
+          return acc;
+        }, [])
+      }
+    };
+  }
+
+  /* ============================================================
+     BOTTOM ACTIONS
+     ============================================================ */
+  $("#btnSave").addEventListener("click", function () {
+    save();
+    toast("Draft saved");
+  });
+
+  $("#btnExport").addEventListener("click", function () {
+    var slug = slugify(draft.identity.name) || "untitled";
+    var filename = "venue_" + slug + "_" + new Date().toISOString().slice(0,10).replace(/-/g, "") + ".json";
+    var obj = buildExport();
+    try {
+      var blob = new Blob([JSON.stringify(obj, null, 2)], { type:"application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      toast("Exported " + filename);
+    } catch (e) {
+      toast("Export unavailable on this device");
+    }
+  });
+
+  $("#btnSummary").addEventListener("click", function () {
+    var d = draft;
+    var lines = [];
+    lines.push("*EatOuts concierge intake summary*");
+    lines.push("Venue: " + (d.identity.name || "—"));
+    lines.push("Town: " + (d.location.town || "—") + (d.location.area ? " · " + d.location.area : ""));
+    if (d.identity.types.length) lines.push("Type: " + d.identity.types.join(", "));
+    if (d.contacts.length) {
+      lines.push("Contacts: " + d.contacts.map(function (c) {
+        return (c.title || "") + " " + (c.countryCode || "+267") + " " + (c.number || "");
+      }).join(" | "));
+    }
+    lines.push("Menu: " + d.menu.categories.length + " categories · " + d.menu.categories.reduce(function (s, c) { return s + c.items.length; }, 0) + " items");
+    lines.push("Promos: " + d.promos.length + " · Events: " + d.events.length + " · Gallery: " + d.gallery.groups.length + " groups");
+    var number = "26771844129";
+    try {
+      var s = EatoutsDB.load().settings || {};
+      if (s.whatsapp) number = String(s.whatsapp).replace(/[^\d]/g, "");
+    } catch (e) {}
+    window.open("https://wa.me/" + number + "?text=" + encodeURIComponent(lines.join("\n")), "_blank");
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  render();
+  // wire identity inputs on first open state (identity is closed by default)
+  // but we need body content in the DOM for later opens
+  wireBody("identity");
+  wireBody("location");
+  wireBody("socials");
+  wireBody("hours");
+  wireBody("reservations");
+  openAccordion(null);
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>EatOuts staff workspace</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --blue:#0284C7;
+    --blue-soft:#E0F2FE;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* ============ TOPBAR ============ */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 14px;
+    position:relative;
+    z-index:10;
+  }
+  .topbar-row{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:13px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+  .exit-btn{
+    flex:0 0 auto;
+    height:30px;
+    padding:0 12px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.06);
+    color:rgba(255,255,255,.75);
+    font-size:11.5px;
+    font-weight:800;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,color .15s;
+  }
+  .exit-btn:active{background:rgba(255,255,255,.12);color:#fff}
+
+  .progress{padding-bottom:2px}
+  .progress-top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:11px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .progress-count{
+    font-size:11.5px;font-weight:800;
+    color:var(--orange-2);
+    letter-spacing:.02em;
+  }
+  .progress-track{
+    height:5px;border-radius:99px;
+    background:rgba(255,255,255,.13);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ============ SCROLL ============ */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ============ INTRO ============ */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:34ch;
+  }
+
+  /* ============ SHEET ============ */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+    min-height:60vh;
+  }
+
+  /* ============ ROLE NOTICE ============ */
+  .role-notice{
+    display:flex;align-items:center;gap:9px;
+    background:var(--orange-soft);
+    border:1px solid var(--orange-line);
+    border-radius:12px;
+    padding:11px 13px;
+    margin-bottom:12px;
+    font-size:12.5px;
+    color:#8A3A12;
+    font-weight:650;
+    line-height:1.45;
+  }
+  .role-notice .rn-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--orange);
+    flex:0 0 auto;
+  }
+
+  /* ============ META CARD ============ */
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .meta-row{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:11px;
+  }
+  .meta-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .meta-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .meta-dot.warn{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+  .meta-dot.red{background:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+  .meta-text{
+    font-size:13.5px;
+    color:var(--ink-2);
+    line-height:1.4;
+    min-width:0;
+    flex:1 1 auto;
+  }
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding-top:11px;
+    border-top:1px solid var(--line-2);
+  }
+  .stat{text-align:center}
+  .stat b{
+    display:block;
+    font-size:19px;font-weight:850;
+    letter-spacing:-.03em;
+    color:var(--ink);
+    line-height:1.1;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat span{
+    display:block;
+    margin-top:3px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* ============ ACCORDION STACK ============ */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:13px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+
+  .tab-thumb{
+    width:48px;height:48px;flex:0 0 auto;
+    border-radius:11px;
+    background:var(--orange-soft);
+    color:var(--orange);
+    display:grid;place-items:center;
+    font-size:17px;font-weight:850;
+    letter-spacing:-.02em;
+    position:relative;
+  }
+  .tab-thumb.plain{
+    background:#F0F1F4;color:var(--faint);
+  }
+  .tab-thumb .count{
+    position:absolute;
+    bottom:3px;right:3px;
+    background:rgba(15,15,18,.72);
+    color:#fff;
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:.02em;
+    padding:1.5px 5px;
+    border-radius:4px;
+    line-height:1;
+  }
+
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .acc-title b{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font-weight:550;
+  }
+
+  .vis-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .vis-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .vis-dot.red{background:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+  .vis-dot.off{background:#D3D7DE;box-shadow:none}
+
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+
+  .module{padding:2px 15px 18px}
+
+  /* ============ INFO BLOCK ============ */
+  .info-block{
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:12px;
+    padding:13px 14px;
+    margin-bottom:10px;
+  }
+  .info-block:last-of-type{margin-bottom:0}
+  .info-block h4{
+    margin:0 0 8px;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  .info-block p{
+    margin:0;
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+    font-weight:550;
+  }
+
+  /* ============ RECORD CARDS ============ */
+  .record{
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:12px;
+    padding:11px 12px;
+    margin-bottom:8px;
+  }
+  .record:last-child{margin-bottom:0}
+  .record-head{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    gap:10px;margin-bottom:7px;
+  }
+  .record-title{
+    font-size:13.5px;font-weight:800;
+    color:var(--ink);
+    letter-spacing:-.01em;
+    line-height:1.3;
+    min-width:0;
+    word-break:break-word;
+  }
+  .record-lines{
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .record-line{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    gap:10px;
+    font-size:11.5px;
+    line-height:1.4;
+  }
+  .record-line .rk{color:var(--faint);font-weight:650;flex:0 0 auto}
+  .record-line .rv{color:var(--ink-2);font-weight:700;text-align:right;word-break:break-word;min-width:0}
+  .record-line .rv.total{color:var(--ink);font-weight:850;font-variant-numeric:tabular-nums}
+
+  .record-actions{
+    display:flex;flex-wrap:wrap;gap:6px;
+    margin-top:9px;
+  }
+  .rec-btn{
+    height:34px;
+    padding:0 12px;
+    border-radius:9px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink-2);
+    font-size:11.5px;
+    font-weight:750;
+    letter-spacing:-.005em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s;
+  }
+  .rec-btn:active{background:#F4F5F7}
+  .rec-btn.orange{
+    border-color:transparent;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 4px 12px -6px rgba(255,90,31,.55);
+  }
+  .rec-btn.orange:active{background:var(--orange)}
+  .rec-btn.danger{
+    color:var(--red);
+    border-color:#FECACA;
+    background:#FEF2F2;
+  }
+  .rec-btn.danger:active{background:var(--red-soft)}
+  .rec-btn.readonly{
+    color:var(--faint);
+    background:#F4F5F7;
+    border-color:var(--line);
+    font-weight:650;
+    pointer-events:none;
+  }
+
+  /* ============ STATUS PILLS ============ */
+  .pill{
+    display:inline-flex;align-items:center;
+    padding:3px 8px;border-radius:999px;
+    font-size:10px;font-weight:800;
+    letter-spacing:.05em;text-transform:uppercase;
+    background:var(--green-soft);color:var(--green);
+    white-space:nowrap;
+    line-height:1.3;
+  }
+  .pill.pending,.pill.new,.pill.open,.pill.draft,.pill.assigned{background:var(--amber-soft);color:var(--amber)}
+  .pill.rejected,.pill.suspended,.pill.flagged,.pill.hidden,.pill.cancelled{background:var(--red-soft);color:var(--red)}
+  .pill.paid,.pill.delivered,.pill.verified,.pill.published,.pill.approved,.pill.closed{background:var(--green-soft);color:var(--green)}
+  .pill.unknown,.pill.deliveries{background:#F0F1F4;color:var(--muted)}
+
+  /* ============ ANALYTICS METRICS ============ */
+  .metric-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .metric{
+    background:#fff;
+    border:1px solid var(--line-2);
+    border-radius:12px;
+    padding:11px 12px;
+    text-align:center;
+  }
+  .metric b{
+    display:block;
+    font-size:17px;font-weight:850;
+    letter-spacing:-.03em;
+    color:var(--ink);
+    line-height:1.1;
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .metric span{
+    display:block;
+    margin-top:3px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* ============ TELEMETRY ROWS ============ */
+  .ev-row{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    gap:10px;
+    padding:8px 0;
+    border-bottom:1px solid var(--line-2);
+    font-size:11.5px;
+  }
+  .ev-row:last-child{border-bottom:0;padding-bottom:0}
+  .ev-row .en{color:var(--ink-2);font-weight:750;word-break:break-word;min-width:0}
+  .ev-row .et{color:var(--faint);font-weight:650;white-space:nowrap;font-size:10.5px}
+
+  /* ============ EMPTY STATE ============ */
+  .empty-note{
+    font-size:12.5px;
+    color:var(--faint);
+    text-align:center;
+    padding:18px 14px;
+    border:1.5px dashed #DCE0E6;
+    border-radius:11px;
+    background:#FAFBFC;
+    line-height:1.5;
+  }
+  .empty-note b{color:var(--ink-2);font-weight:750}
+
+  /* ============ BLOCKED / FULL ADMIN ============ */
+  .blocked-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:22px 18px;
+    text-align:center;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .blocked-card h2{
+    margin:0 0 8px;
+    font-size:18px;font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .blocked-card p{
+    margin:0 0 16px;
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--muted);
+  }
+  .blocked-card a,
+  .blocked-card button{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    height:48px;
+    border-radius:12px;
+    font-size:14.5px;
+    font-weight:750;
+    text-decoration:none;
+    margin-top:8px;
+    border:0;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .blocked-card .primary{
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+  }
+  .blocked-card .ghost{
+    background:#F4F5F7;
+    border:1px solid var(--line)!important;
+    color:var(--ink-2);
+  }
+
+  /* ============ TOAST ============ */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(28px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body data-page="eatouts-staff-admin1">
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <button class="exit-btn" id="logout" type="button">Exit</button>
+      <span class="hdr-chip" id="hdrChip">Staff</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Workspace</span>
+        <span class="progress-count" id="progressCount">—</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro" id="intro">
+      <h1>Staff <em>workspace</em>.</h1>
+      <p>Your sections are limited to the responsibilities assigned to your platform role.</p>
+    </section>
+    <main class="sheet" id="app"></main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-manager-db.js"></script>
+<script src="assets/data/demo/the-food-place/demo-data.js"></script>
+<script src="js/eatouts-manager-seed.js"></script>
+<script src="js/eatouts-roles.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-feedback.js"></script>
+<script src="js/eatouts-blog.js"></script>
+<script src="js/eatouts-data.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-manager.js"></script>
+<script src="js/eatouts-audit.js"></script>
+<script src="js/eatouts-analytics.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ============================================================
+     AUTH + ROLE RESOLUTION (preserved from original)
+     ============================================================ */
+  var user = EO.guard({ demo: false });
+  if (!user) return;
+
+  var roles = [...(user.roles || []), user.platformRole, user.type]
+    .filter(Boolean).map(String);
+
+  var platformRole = user.platformRole || roles.find(function (r) {
+    return ['staff_content','staff_ops','staff_support','moderator',
+            'super_admin','platform_admin','platform_ops','platform_support',
+            'platform_author','platform_author_editor','platform_analyst'].includes(r);
+  }) || '';
+
+  var fullAdmin = ['super_admin','platform_admin'].includes(platformRole)
+                  || user.type === 'platform_admin';
+
+  var roleSet     = new Set(roles);
+  var roleAliases = new Set([platformRole, ...roles]);
+
+  var specs = {
+    staff_content: [['blog','Blog'],['feedback','Feedback'],['analytics','Analytics']],
+    staff_ops:     [['venues','Venues'],['invoices','Invoices'],['deliveries','Deliveries'],['feedback','Feedback'],['analytics','Analytics']],
+    staff_support: [['feedback','Feedback'],['orders','Orders'],['deliveries','Deliveries']],
+    moderator:     [['flags','Content flags'],['blog','Blog'],['feedback','Feedback']]
+  };
+
+  var tabSpecs = [];
+  Object.entries(specs).forEach(function ([role, tabs]) {
+    if (roleAliases.has(role) || roleSet.has(role)) {
+      tabs.forEach(function (t) {
+        if (!tabSpecs.some(function (x) { return x[0] === t[0]; })) tabSpecs.push(t);
+      });
+    }
+  });
+  if (platformRole === 'platform_ops' && !tabSpecs.length)     tabSpecs = specs.staff_ops.slice();
+  if (platformRole === 'platform_support' && !tabSpecs.length) tabSpecs = specs.staff_support.slice();
+  if (roleAliases.has('platform_analyst') && !tabSpecs.some(function (x) { return x[0] === 'analytics'; })) {
+    tabSpecs.push(['analytics','Analytics']);
+  }
+  if (roleAliases.has('platform_author') || roleAliases.has('platform_author_editor')) {
+    if (!tabSpecs.some(function (x) { return x[0] === 'blog'; })) tabSpecs.push(['blog','Blog']);
+  }
+
+  var canOps      = roleAliases.has('staff_ops') || roleAliases.has('platform_ops');
+  var canContent  = roleAliases.has('staff_content') || roleAliases.has('platform_author') || roleAliases.has('platform_author_editor');
+  var canSupport  = roleAliases.has('staff_support') || roleAliases.has('platform_support');
+  var canModerate = roleAliases.has('moderator');
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function esc(v){
+    return String(v == null ? "" : v)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function escapeAttr(v){ return esc(v).replace(/`/g,"&#96;"); }
+  function arr(v){ return Array.isArray(v) ? v : []; }
+  function readKey(k){
+    try {
+      var x = JSON.parse(localStorage.getItem(k) || '[]');
+      return Array.isArray(x) ? x : (x.items || x.feedback || []);
+    } catch (e) { return []; }
+  }
+  function audit(action, target, before, after){
+    if (window.EatoutsAudit) EatoutsAudit.log(action, target, before, after, { staffRole: platformRole });
+  }
+
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2000);
+  }
+
+  /* ============================================================
+     DATA ACCESSORS (preserved from original)
+     ============================================================ */
+  function getVenues(){
+    return EatoutsDB.collection('businesses').slice()
+      .sort(function(a,b){ return String(a.name||'').localeCompare(String(b.name||'')); });
+  }
+  function getOrders(){
+    var m = new Map();
+    EatoutsDB.collection('orders').forEach(function(x){ m.set(String(x.id), x); });
+    readKey('eatouts_order_v1_history').forEach(function(x){ m.set(String(x.id || x.orderId), x); });
+    return [...m.values()];
+  }
+  function getDeliveries(){
+    var m = new Map();
+    EatoutsDB.collection('deliveries').forEach(function(x){ m.set(String(x.id), x); });
+    readKey('eatouts_delivery_orders_v1').forEach(function(x){ m.set(String(x.id || x.orderId), x); });
+    return [...m.values()];
+  }
+  function getInvoices(){
+    var a = EatoutsDB.collection('invoices').slice();
+    var ops = [];
+    try {
+      var x = JSON.parse(localStorage.getItem('eatouts_ops_v1') || '{}');
+      ops = Array.isArray(x) ? x : (x.invoices || []);
+    } catch (e) {}
+    return [...a, ...ops.filter(function(x){
+      return String(x.id || x.number || '').startsWith('INV');
+    })].filter(function(x,i,z){
+      return z.findIndex(function(y){
+        return String(y.id || y.number) === String(x.id || x.number);
+      }) === i;
+    });
+  }
+  function getFeedback(){
+    var m = new Map();
+    EatoutsFeedback.all().forEach(function(x){ m.set(String(x.id || x.ref), x); });
+    readKey('eatouts_feedback_v2').forEach(function(x){ m.set(String(x.id || x.ref), x); });
+    readKey('eatouts_feedback_queue_v1').forEach(function(x){ m.set(String(x.id || x.ref), x); });
+    return [...m.values()].sort(function(a,b){
+      return String(b.created || b.submittedAt || '').localeCompare(String(a.created || a.submittedAt || ''));
+    });
+  }
+  function getPosts(){
+    var m = new Map();
+    EatoutsBlog.all().forEach(function(x){ m.set(String(x.id), x); });
+    readKey('eatouts_blog_posts_v1').forEach(function(x){ m.set(String(x.id), x); });
+    return [...m.values()];
+  }
+
+  function statusPill(s){
+    var v = String(s || 'unknown').toLowerCase().replace(/\s+/g,'-');
+    return '<span class="pill ' + v + '">' + esc(s || '—') + '</span>';
+  }
+
+  /* ============================================================
+     ACCORDION STATE
+     ============================================================ */
+  var OPEN = null;   /* only one open at a time; null = all closed */
+
+  /* ============================================================
+     SHELL — Full admin / no-role blocked screens
+     ============================================================ */
+  function renderBlockedAdmin(){
+    document.getElementById('app').innerHTML =
+      '<div class="blocked-card">' +
+        '<h2>Full admin access</h2>' +
+        '<p>Your account can use the full EatOuts platform dashboard instead of the restricted staff workspace.</p>' +
+        '<a class="primary" href="eatouts-admin-dashboard.html">Open full admin dashboard</a>' +
+        '<a class="ghost" href="eatouts-login.html">Sign out</a>' +
+      '</div>';
+    document.getElementById('intro').innerHTML =
+      '<h1>Full <em>admin</em>.</h1><p>Redirect to the full platform dashboard.</p>';
+    document.getElementById('progressCount').textContent = '—';
+    document.getElementById('hdrChip').textContent = 'Staff';
+  }
+
+  function renderBlockedNoRole(){
+    document.getElementById('app').innerHTML =
+      '<div class="blocked-card">' +
+        '<h2>Contact your admin</h2>' +
+        '<p>Your account does not currently have a staff workspace role.</p>' +
+        '<a class="primary" href="eatouts-login.html">Return to sign in</a>' +
+      '</div>';
+    document.getElementById('intro').innerHTML =
+      '<h1>No <em>workspace</em>.</h1><p>Ask your platform admin to assign a staff role.</p>';
+    document.getElementById('progressCount').textContent = '—';
+    document.getElementById('hdrChip').textContent = 'Staff';
+  }
+
+  /* ============================================================
+     RENDERERS PER TAB — all return HTML for inside the accordion body
+     ============================================================ */
+
+  function renderBlogBody(){
+    var posts = getPosts();
+    if (!posts.length) return '<div class="module"><div class="empty-note">No blog posts yet.</div></div>';
+    return '<div class="module">' +
+      posts.map(function(p){
+        var title = p.title || 'Untitled';
+        var author = p.authorName || p.author || '—';
+        var updated = p.updatedAt || p.updated || '';
+        var status = p.status || 'draft';
+        var actions = canContent
+          ? '<a class="rec-btn orange" href="blog-creator-dashboard.html?id=' + encodeURIComponent(p.id) + '">Edit</a>'
+          : '<a class="rec-btn" href="blog-creator-dashboard.html?id=' + encodeURIComponent(p.id) + '">View</a>';
+        return '<div class="record">' +
+          '<div class="record-head">' +
+            '<div class="record-title">' + esc(title) + '</div>' +
+            statusPill(status) +
+          '</div>' +
+          '<div class="record-lines">' +
+            '<div class="record-line"><span class="rk">Author</span><span class="rv">' + esc(author) + '</span></div>' +
+            (updated ? '<div class="record-line"><span class="rk">Updated</span><span class="rv">' + esc(updated) + '</span></div>' : '') +
+          '</div>' +
+          '<div class="record-actions">' + actions + '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function renderFeedbackBody(){
+    var data = getFeedback();
+    var readOnly = !canOps;
+    if (!data.length) return '<div class="module"><div class="empty-note">No feedback submitted yet.</div></div>';
+    return '<div class="module">' +
+      (readOnly
+        ? '<div class="info-block"><p>Read-only view. Reply, assign and status-changing actions are hidden for this role.</p></div>'
+        : '') +
+      data.map(function(f){
+        var id = f.id || f.ref || '';
+        var summary = f.summary || f.message || f.title || 'No summary';
+        var biz = f.businessName || f.businessId || '—';
+        var submitted = f.created || f.submittedAt || '';
+        var type = f.type || 'other';
+        var actions = canOps
+          ? '<a class="rec-btn orange" href="feedback-manager.html?id=' + encodeURIComponent(id) + '">Open</a>'
+          : '<span class="rec-btn readonly">View only</span>';
+        return '<div class="record">' +
+          '<div class="record-head">' +
+            '<div class="record-title">' + esc(summary) + '</div>' +
+            statusPill(f.status) +
+          '</div>' +
+          '<div class="record-lines">' +
+            '<div class="record-line"><span class="rk">Reference</span><span class="rv">' + esc(id || '—') + '</span></div>' +
+            '<div class="record-line"><span class="rk">Type</span><span class="rv">' + esc(type) + '</span></div>' +
+            '<div class="record-line"><span class="rk">Business</span><span class="rv">' + esc(biz) + '</span></div>' +
+            (submitted ? '<div class="record-line"><span class="rk">Submitted</span><span class="rv">' + esc(submitted) + '</span></div>' : '') +
+          '</div>' +
+          '<div class="record-actions">' + actions + '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function renderAnalyticsBody(){
+    var orders     = getOrders();
+    var deliveries = getDeliveries();
+    var feedback   = getFeedback();
+    var events     = readKey('eatouts_analytics_events_v1');
+    var businesses = getVenues();
+    var totalValue = orders.reduce(function(n,o){ return n + Number(o.total || o.grandTotal || 0); }, 0);
+
+    var metrics =
+      '<div class="metric-grid">' +
+        '<div class="metric"><b>' + EatoutsDB.collection('users').length + '</b><span>Users</span></div>' +
+        '<div class="metric"><b>' + businesses.length + '</b><span>Businesses</span></div>' +
+        '<div class="metric"><b>' + orders.length + '</b><span>Orders</span></div>' +
+        '<div class="metric"><b>' + esc(EO.money(totalValue)) + '</b><span>Value logged</span></div>' +
+        '<div class="metric"><b>' + deliveries.length + '</b><span>Deliveries</span></div>' +
+        '<div class="metric"><b>' + feedback.length + '</b><span>Feedback</span></div>' +
+      '</div>';
+
+    var eventsHTML = events.length
+      ? '<div class="info-block"><h4>Event telemetry</h4><p style="margin-bottom:8px">' +
+          events.length + ' analytics events exist in the local event store. Cohort analysis and cross-device totals are not available offline.</p>' +
+          events.slice(-15).reverse().map(function(e){
+            var name = e.eventName || e.event || e.name || 'event';
+            var at   = e.at || e.timestamp || e.createdAt || '';
+            return '<div class="ev-row"><span class="en">' + esc(name) + '</span><span class="et">' + esc(at) + '</span></div>';
+          }).join('') +
+        '</div>'
+      : '<div class="info-block"><h4>Event telemetry</h4><p>No analytics events stored locally.</p></div>';
+
+    return '<div class="module">' + metrics + eventsHTML + '</div>';
+  }
+
+  function renderVenuesBody(){
+    var data = getVenues();
+    if (!data.length) return '<div class="module"><div class="empty-note">No businesses in the local store.</div></div>';
+    return '<div class="module">' +
+      '<div class="info-block"><p>Approve the business record for operational review. This does not bypass the setup-fee or profile-completeness publish gates.</p></div>' +
+      data.map(function(b){
+        var id   = b.id;
+        var name = (b.identity && b.identity.name) || b.name || 'Untitled';
+        var type = b.type || 'restaurant';
+        var town = (b.location && b.location.town) || b.town || '—';
+        var actions = canOps
+          ? '<button class="rec-btn orange" type="button" data-venue-approve="' + escapeAttr(id) + '">Mark verified</button>'
+          : '<span class="rec-btn readonly">Read only</span>';
+        return '<div class="record">' +
+          '<div class="record-head">' +
+            '<div class="record-title">' + esc(name) + '</div>' +
+            statusPill(b.status) +
+          '</div>' +
+          '<div class="record-lines">' +
+            '<div class="record-line"><span class="rk">Type</span><span class="rv">' + esc(type) + '</span></div>' +
+            '<div class="record-line"><span class="rk">Town</span><span class="rv">' + esc(town) + '</span></div>' +
+          '</div>' +
+          '<div class="record-actions">' + actions + '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function renderInvoicesBody(){
+    var list = getInvoices();
+    if (!list.length) return '<div class="module"><div class="empty-note">No invoices recorded yet.</div></div>';
+    return '<div class="module">' +
+      '<div class="info-block"><p>This view records invoice statuses. Actual payment verification remains a manual platform operation.</p></div>' +
+      list.map(function(i){
+        var id = i.id || i.number || '';
+        var biz = EatoutsDB.find('businesses', i.businessId);
+        var bizName = (biz && ((biz.identity && biz.identity.name) || biz.name)) || i.businessId || '—';
+        var amount = EO.money(i.amount || i.total || 0);
+        var issued = i.issued || i.issuedAt || i.date || '—';
+        var actions;
+        if (canOps && i.status !== 'paid') {
+          actions = '<button class="rec-btn orange" type="button" data-invoice-paid="' + escapeAttr(id) + '">Mark paid</button>';
+        } else {
+          actions = '<span class="rec-btn readonly">Logged</span>';
+        }
+        return '<div class="record">' +
+          '<div class="record-head">' +
+            '<div class="record-title">' + esc(id || '—') + '</div>' +
+            statusPill(i.status) +
+          '</div>' +
+          '<div class="record-lines">' +
+            '<div class="record-line"><span class="rk">Business</span><span class="rv">' + esc(bizName) + '</span></div>' +
+            '<div class="record-line"><span class="rk">Amount</span><span class="rv total">' + esc(amount) + '</span></div>' +
+            '<div class="record-line"><span class="rk">Issued</span><span class="rv">' + esc(issued) + '</span></div>' +
+          '</div>' +
+          '<div class="record-actions">' + actions + '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function renderDeliveriesBody(){
+    var list = getDeliveries();
+    if (!list.length) return '<div class="module"><div class="empty-note">No deliveries recorded yet.</div></div>';
+    return '<div class="module">' +
+      list.map(function(d){
+        var id = d.id || d.orderId || '';
+        var biz = EatoutsDB.find('businesses', d.businessId || d.bizId);
+        var bizName = (biz && ((biz.identity && biz.identity.name) || biz.name)) || d.businessId || '—';
+        var recipient = d.recipient || d.customer || '—';
+        var town = d.town || '—';
+        var driver = d.driver || 'Unassigned';
+        var actions;
+        if (canOps) {
+          actions =
+            '<button class="rec-btn" type="button" data-driver="' + escapeAttr(id) + '">Assign driver</button>' +
+            '<button class="rec-btn orange" type="button" data-deliver="' + escapeAttr(id) + '">Delivered</button>';
+        } else {
+          actions = '<span class="rec-btn readonly">Read only</span>';
+        }
+        return '<div class="record">' +
+          '<div class="record-head">' +
+            '<div class="record-title">' + esc(id || '—') + '</div>' +
+            statusPill(d.status) +
+          '</div>' +
+          '<div class="record-lines">' +
+            '<div class="record-line"><span class="rk">Business</span><span class="rv">' + esc(bizName) + '</span></div>' +
+            '<div class="record-line"><span class="rk">Recipient</span><span class="rv">' + esc(recipient) + '</span></div>' +
+            '<div class="record-line"><span class="rk">Town</span><span class="rv">' + esc(town) + '</span></div>' +
+            '<div class="record-line"><span class="rk">Driver</span><span class="rv">' + esc(driver) + '</span></div>' +
+          '</div>' +
+          '<div class="record-actions">' + actions + '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function renderOrdersBody(){
+    var list = getOrders();
+    if (!list.length) return '<div class="module"><div class="empty-note">No orders recorded yet.</div></div>';
+    return '<div class="module">' +
+      '<div class="info-block"><p>This tab is read-only in the staff console. Open the business workspace to fulfil orders if your role grants access.</p></div>' +
+      list.map(function(o){
+        var id = o.id || '';
+        var biz = EatoutsDB.find('businesses', o.businessId || o.bizId);
+        var bizName = (biz && ((biz.identity && biz.identity.name) || biz.name)) || o.businessId || '—';
+        var customer = o.customer || o.customerName || 'Guest';
+        var total = EO.money(o.total || 0);
+        var placed = o.created || o.placedAt || '—';
+        return '<div class="record">' +
+          '<div class="record-head">' +
+            '<div class="record-title">' + esc(id || '—') + '</div>' +
+            statusPill(o.status) +
+          '</div>' +
+          '<div class="record-lines">' +
+            '<div class="record-line"><span class="rk">Business</span><span class="rv">' + esc(bizName) + '</span></div>' +
+            '<div class="record-line"><span class="rk">Customer</span><span class="rv">' + esc(customer) + '</span></div>' +
+            '<div class="record-line"><span class="rk">Total</span><span class="rv total">' + esc(total) + '</span></div>' +
+            '<div class="record-line"><span class="rk">Placed</span><span class="rv">' + esc(placed) + '</span></div>' +
+          '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function renderFlagsBody(){
+    var reviews = EatoutsDB.collection('reviews').filter(function(r){
+      return r.flagged || r.hidden || r.status === 'flagged' || r.status === 'hidden';
+    });
+    var feedback = getFeedback().filter(function(f){
+      return f.type === 'content' && ['flagged','open','new'].includes(f.status);
+    });
+    var flags = [
+      ...reviews.map(function(r){
+        return { id:r.id, kind:'Review', summary:r.text || r.comment || 'Review flag', status:r.status || 'flagged', record:r };
+      }),
+      ...feedback.map(function(f){
+        return { id:f.id, kind:'Feedback', summary:f.summary || f.message || 'Content flag', status:f.status, record:f };
+      })
+    ];
+
+    if (!flags.length) return '<div class="module"><div class="empty-note">No flagged or hidden content records are currently stored.</div></div>';
+
+    return '<div class="module">' +
+      flags.map(function(f){
+        var actions = '';
+        if (canModerate) {
+          var hide = f.record.hidden;
+          actions = '<button class="rec-btn ' + (hide ? 'orange' : 'danger') + '" type="button" ' +
+                    'data-moderate="' + escapeAttr(f.id) + '" data-kind="' + escapeAttr(f.kind) + '">' +
+                    (hide ? 'Restore' : 'Hide') + '</button>';
+        }
+        return '<div class="record">' +
+          '<div class="record-head">' +
+            '<div class="record-title">' + esc(f.kind) + ' · ' + esc(f.id) + '</div>' +
+            statusPill(f.status) +
+          '</div>' +
+          '<div class="record-lines">' +
+            '<div class="record-line"><span class="rk">Summary</span><span class="rv">' + esc(f.summary) + '</span></div>' +
+          '</div>' +
+          (actions ? '<div class="record-actions">' + actions + '</div>' : '') +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  /* ============================================================
+     SECTION META — subtitle + thumb letter per tab
+     ============================================================ */
+  function sectionMeta(key){
+    switch (key) {
+      case 'blog': {
+        var n = getPosts().length;
+        return { letter:'B', sub: n + ' post' + (n===1?'':'s') };
+      }
+      case 'feedback': {
+        var n = getFeedback().length;
+        return { letter:'F', sub: n + ' item' + (n===1?'':'s') + (canOps ? '' : ' · read-only') };
+      }
+      case 'analytics': {
+        var o = getOrders().length;
+        var b = getVenues().length;
+        return { letter:'A', sub: o + ' order' + (o===1?'':'s') + ' · ' + b + ' business' + (b===1?'':'es') };
+      }
+      case 'venues': {
+        var n = getVenues().length;
+        return { letter:'V', sub: n + ' business' + (n===1?'':'es') };
+      }
+      case 'invoices': {
+        var n = getInvoices().length;
+        return { letter:'I', sub: n + ' invoice' + (n===1?'':'s') };
+      }
+      case 'deliveries': {
+        var n = getDeliveries().length;
+        return { letter:'D', sub: n + ' deliver' + (n===1?'y':'ies') };
+      }
+      case 'orders': {
+        var n = getOrders().length;
+        return { letter:'O', sub: n + ' order' + (n===1?'':'s') };
+      }
+      case 'flags': {
+        var reviews = EatoutsDB.collection('reviews').filter(function(r){
+          return r.flagged || r.hidden || r.status === 'flagged' || r.status === 'hidden';
+        }).length;
+        var fb = getFeedback().filter(function(f){
+          return f.type === 'content' && ['flagged','open','new'].includes(f.status);
+        }).length;
+        var n = reviews + fb;
+        return { letter:'!', sub: n ? n + ' flagged' : 'Clear' };
+      }
+      default: return { letter:'?', sub:'' };
+    }
+  }
+
+  function sectionBody(key){
+    switch (key) {
+      case 'blog':       return renderBlogBody();
+      case 'feedback':   return renderFeedbackBody();
+      case 'analytics':  return renderAnalyticsBody();
+      case 'venues':     return renderVenuesBody();
+      case 'invoices':   return renderInvoicesBody();
+      case 'deliveries': return renderDeliveriesBody();
+      case 'orders':     return renderOrdersBody();
+      case 'flags':      return renderFlagsBody();
+      default:           return '<div class="module"><div class="empty-note">Not available.</div></div>';
+    }
+  }
+
+  /* ============================================================
+     META CARD + PROGRESS
+     ============================================================ */
+  function computeTotals(){
+    var total = 0;
+    tabSpecs.forEach(function(t){
+      switch (t[0]) {
+        case 'blog':       total += getPosts().length; break;
+        case 'feedback':   total += getFeedback().length; break;
+        case 'analytics':  total += getOrders().length + getVenues().length; break;
+        case 'venues':     total += getVenues().length; break;
+        case 'invoices':   total += getInvoices().length; break;
+        case 'deliveries': total += getDeliveries().length; break;
+        case 'orders':     total += getOrders().length; break;
+        case 'flags': {
+          var reviews = EatoutsDB.collection('reviews').filter(function(r){
+            return r.flagged || r.hidden || r.status === 'flagged' || r.status === 'hidden';
+          }).length;
+          var fb = getFeedback().filter(function(f){
+            return f.type === 'content' && ['flagged','open','new'].includes(f.status);
+          }).length;
+          total += reviews + fb;
+          break;
+        }
+      }
+    });
+    return total;
+  }
+
+  function flagCount(){
+    var reviews = EatoutsDB.collection('reviews').filter(function(r){
+      return r.flagged || r.hidden || r.status === 'flagged' || r.status === 'hidden';
+    }).length;
+    var fb = getFeedback().filter(function(f){
+      return f.type === 'content' && ['flagged','open','new'].includes(f.status);
+    }).length;
+    return reviews + fb;
+  }
+
+  function renderMetaCard(){
+    var sections = tabSpecs.length;
+    var records  = computeTotals();
+    var flags    = flagCount();
+
+    var dotClass, msg;
+    if (!sections){
+      dotClass = 'warn';
+      msg = 'No staff sections available';
+    } else if (records === 0){
+      dotClass = '';
+      msg = '<b>' + sections + '</b> section' + (sections===1?'':'s') + ' ready · no records yet';
+    } else {
+      dotClass = 'green';
+      msg = '<b>' + records + '</b> record' + (records===1?'':'s') + ' across ' + sections + ' section' + (sections===1?'':'s');
+    }
+
+    return '<div class="meta-card">' +
+      '<div class="meta-row">' +
+        '<span class="meta-dot ' + dotClass + '"></span>' +
+        '<span class="meta-text">' + msg + '</span>' +
+      '</div>' +
+      '<div class="meta-stats">' +
+        '<div class="stat"><b>' + sections + '</b><span>Sections</span></div>' +
+        '<div class="stat"><b>' + records + '</b><span>Records</span></div>' +
+        '<div class="stat"><b>' + flags + '</b><span>Flags</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function updateProgress(){
+    var records = computeTotals();
+    var pct = records ? Math.min(100, Math.round((records / 50) * 100)) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressCount').textContent =
+      tabSpecs.length + ' section' + (tabSpecs.length===1?'':'s') +
+      ' · ' + records + ' record' + (records===1?'':'s');
+  }
+
+  /* ============================================================
+     MAIN RENDER
+     ============================================================ */
+  function render(){
+    var app = document.getElementById('app');
+    var chip = document.getElementById('hdrChip');
+    if (chip) chip.textContent = platformRole ? platformRole.replace(/_/g,' ') : 'Staff';
+
+    /* Role notice */
+    var hasMultiple = roleSet.has('staff_content') && roleSet.has('staff_ops');
+    var notice = hasMultiple
+      ? '<div class="role-notice"><span class="rn-dot"></span><span>You hold multiple staff roles. Tabs shown are the union of those permissions.</span></div>'
+      : '';
+
+    var meta = renderMetaCard();
+
+    var sections = tabSpecs.map(function(t){
+      var key  = t[0];
+      var label = t[1];
+      var meta = sectionMeta(key);
+      var isOpen = OPEN === key;
+
+      var cls = 'acc';
+      if (isOpen) cls += ' open';
+
+      var thumbCls = 'tab-thumb' + (meta.letter === '?' ? ' plain' : '');
+
+      var countBadge = (function(){
+        var c = 0;
+        switch (key) {
+          case 'blog':       c = getPosts().length; break;
+          case 'feedback':   c = getFeedback().length; break;
+          case 'analytics':  c = getOrders().length; break;
+          case 'venues':     c = getVenues().length; break;
+          case 'invoices':   c = getInvoices().length; break;
+          case 'deliveries': c = getDeliveries().length; break;
+          case 'orders':     c = getOrders().length; break;
+          case 'flags':      c = flagCount(); break;
+        }
+        return c > 0 ? '<span class="count">' + c + '</span>' : '';
+      })();
+
+      var dotCls = '';
+      if (key === 'flags' && flagCount() > 0) dotCls = 'red';
+      else if (countBadge) dotCls = '';
+
+      return '<section class="' + cls + '" data-key="' + escapeAttr(key) + '">' +
+        '<button class="acc-head" type="button" aria-expanded="' + (isOpen ? 'true' : 'false') + '">' +
+          '<span class="' + thumbCls + '">' + esc(meta.letter) + countBadge + '</span>' +
+          '<span class="acc-title">' +
+            '<b>' + esc(label) + '</b>' +
+            '<span class="acc-sub">' + esc(meta.sub) + '</span>' +
+          '</span>' +
+          (dotCls ? '<span class="vis-dot ' + dotCls + '"></span>' : '<span class="vis-dot off"></span>') +
+        '</button>' +
+        '<div class="acc-body">' +
+          '<div class="acc-inner">' + sectionBody(key) + '</div>' +
+        '</div>' +
+      '</section>';
+    }).join('');
+
+    app.innerHTML = notice + meta + (sections ? '<div class="stack">' + sections + '</div>' : '<div class="empty-note">No sections available.</div>');
+    updateProgress();
+  }
+
+  /* ============================================================
+     ACCORDION BEHAVIOUR — only one open at a time
+     ============================================================ */
+  function toggleAccordion(key){
+    OPEN = (OPEN === key) ? null : key;
+
+    /* update URL for shareability (preserved from original) */
+    try {
+      var u = new URL(location.href);
+      if (OPEN) u.searchParams.set('tab', OPEN);
+      else u.searchParams.delete('tab');
+      history.replaceState({}, '', u);
+    } catch (e) {}
+
+    var app = document.getElementById('app');
+    var accs = app.querySelectorAll('.acc');
+    for (var i = 0; i < accs.length; i++){
+      var acc = accs[i];
+      var isOpen = acc.getAttribute('data-key') === OPEN;
+      acc.classList.toggle('open', isOpen);
+      var head = acc.querySelector('.acc-head');
+      if (head) head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+
+    if (OPEN){
+      var opened = app.querySelector('.acc[data-key="' + cssEscape(OPEN) + '"]');
+      if (opened){
+        setTimeout(function(){
+          try { opened.scrollIntoView({ behavior:'smooth', block:'start' }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+
+  function cssEscape(s){
+    return String(s).replace(/["\\]/g, '\\$&');
+  }
+
+  /* ============================================================
+     EVENT DELEGATION — accordion + inline actions
+     ============================================================ */
+  var app = document.getElementById('app');
+
+  app.addEventListener('click', function(e){
+
+    /* ---- inline actions first (they sit inside the accordion body) ---- */
+
+    var venue = e.target.closest('[data-venue-approve]');
+    if (venue && canOps){
+      e.stopPropagation();
+      var b = EatoutsDB.find('businesses', venue.getAttribute('data-venue-approve'));
+      if (!b) return;
+      var before = JSON.parse(JSON.stringify(b));
+      b.verificationStatus = 'approved';
+      if (['pending','draft'].includes(b.status)) b.status = 'verified';
+      b.updatedAt = Date.now();
+      EatoutsDB.upsert('businesses', b);
+      audit('business.verification.marked', b.id, before, b);
+      toast('Business marked verified');
+      render();
+      return;
+    }
+
+    var invoice = e.target.closest('[data-invoice-paid]');
+    if (invoice && canOps){
+      e.stopPropagation();
+      var id = invoice.getAttribute('data-invoice-paid');
+      var item = EatoutsDB.collection('invoices').find(function(x){
+        return String(x.id || x.number) === String(id);
+      });
+      if (item){
+        var before = JSON.parse(JSON.stringify(item));
+        item.status = 'paid';
+        item.paidAt = new Date().toISOString();
+        item.paidMarkedBy = user.id;
+        EatoutsDB.upsert('invoices', item);
+        audit('invoice.marked_paid', id, before, item);
+      }
+      /* also update ops store if present */
+      try {
+        var ops = JSON.parse(localStorage.getItem('eatouts_ops_v1') || '{}');
+        if (Array.isArray(ops)){
+          var i = ops.findIndex(function(x){ return String(x.id || x.number) === String(id); });
+          if (i >= 0){
+            var b2 = JSON.parse(JSON.stringify(ops[i]));
+            ops[i].status = 'paid';
+            ops[i].paidAt = new Date().toISOString();
+            localStorage.setItem('eatouts_ops_v1', JSON.stringify(ops));
+            audit('invoice.marked_paid', id, b2, ops[i]);
+          }
+        }
+      } catch (err) {}
+      toast('Invoice payment status recorded');
+      render();
+      return;
+    }
+
+    var driver = e.target.closest('[data-driver]');
+    if (driver && canOps){
+      e.stopPropagation();
+      var did = driver.getAttribute('data-driver');
+      var name = prompt('Driver name or contact:');
+      if (!name) return;
+      var list = readKey('eatouts_delivery_orders_v1');
+      var idx = list.findIndex(function(x){ return String(x.id || x.orderId) === String(did); });
+      if (idx >= 0){
+        var before = JSON.parse(JSON.stringify(list[idx]));
+        list[idx].driver = name;
+        list[idx].status = list[idx].status || 'assigned';
+        localStorage.setItem('eatouts_delivery_orders_v1', JSON.stringify(list));
+        audit('delivery.driver.assigned', did, before, list[idx]);
+      } else {
+        var x = EatoutsDB.find('deliveries', did);
+        if (x){
+          var b3 = JSON.parse(JSON.stringify(x));
+          x.driver = name;
+          x.status = x.status || 'assigned';
+          EatoutsDB.upsert('deliveries', x);
+          audit('delivery.driver.assigned', did, b3, x);
+        }
+      }
+      toast('Driver assignment saved');
+      render();
+      return;
+    }
+
+    var delivered = e.target.closest('[data-deliver]');
+    if (delivered && canOps){
+      e.stopPropagation();
+      var did2 = delivered.getAttribute('data-deliver');
+      var list2 = readKey('eatouts_delivery_orders_v1');
+      var idx2 = list2.findIndex(function(x){ return String(x.id || x.orderId) === String(did2); });
+      if (idx2 >= 0){
+        var before2 = JSON.parse(JSON.stringify(list2[idx2]));
+        list2[idx2].status = 'delivered';
+        list2[idx2].deliveredAt = new Date().toISOString();
+        localStorage.setItem('eatouts_delivery_orders_v1', JSON.stringify(list2));
+        audit('delivery.status.changed', did2, before2, list2[idx2]);
+      } else {
+        var x2 = EatoutsDB.find('deliveries', did2);
+        if (x2){
+          var b4 = JSON.parse(JSON.stringify(x2));
+          x2.status = 'delivered';
+          x2.deliveredAt = new Date().toISOString();
+          EatoutsDB.upsert('deliveries', x2);
+          audit('delivery.status.changed', did2, b4, x2);
+        }
+      }
+      toast('Delivery marked delivered');
+      render();
+      return;
+    }
+
+    var mod = e.target.closest('[data-moderate]');
+    if (mod && canModerate){
+      e.stopPropagation();
+      var mid = mod.getAttribute('data-moderate');
+      var kind = mod.getAttribute('data-kind');
+      if (kind === 'Review'){
+        var r = EatoutsDB.find('reviews', mid);
+        if (r){
+          var b5 = JSON.parse(JSON.stringify(r));
+          r.hidden = !r.hidden;
+          r.status = r.hidden ? 'hidden' : 'published';
+          EatoutsDB.upsert('reviews', r);
+          audit('content.moderation.changed', mid, b5, r);
+        }
+      } else {
+        var fb = EatoutsFeedback.all().find(function(x){ return String(x.id) === String(mid); });
+        if (fb){
+          var b6 = JSON.parse(JSON.stringify(fb));
+          EatoutsFeedback.update(mid, { hidden: true, status: 'closed' });
+          audit('content.moderation.changed', mid, b6, EatoutsFeedback.all().find(function(x){ return String(x.id) === String(mid); }));
+        }
+      }
+      toast('Moderation updated');
+      render();
+      return;
+    }
+
+    /* ---- accordion header (last, so inner buttons still work) ---- */
+    var head = e.target.closest('.acc-head');
+    if (head){
+      var acc = head.closest('.acc');
+      if (acc) toggleAccordion(acc.getAttribute('data-key'));
+      return;
+    }
+  });
+
+  /* ============================================================
+     LOGOUT
+     ============================================================ */
+  document.getElementById('logout').onclick = function(){
+    EatoutsAuth.logout();
+    location.href = 'eatouts-login.html';
+  };
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  if (fullAdmin){
+    renderBlockedAdmin();
+    return;
+  }
+  if (!tabSpecs.length){
+    renderBlockedNoRole();
+    return;
+  }
+
+  /* Pre-open accordion from ?tab= param, otherwise all closed */
+  try {
+    var params = new URLSearchParams(location.search);
+    var wantTab = params.get('tab');
+    if (wantTab && tabSpecs.some(function(t){ return t[0] === wantTab; })) OPEN = wantTab;
+  } catch (e) {}
+
+  render();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,2472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Supplier onboarding · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  /* ============ shell ============ */
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* ============ top bar ============ */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 0;
+  }
+  .topbar-row{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:13px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+
+  .progress{padding-bottom:14px}
+  .progress-top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:11px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .progress-count{
+    font-size:11.5px;font-weight:800;
+    color:var(--orange-2);
+    letter-spacing:.02em;
+  }
+  .progress-track{
+    height:5px;border-radius:99px;
+    background:rgba(255,255,255,.13);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ============ scroll ============ */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ============ intro ============ */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* ============ sheet ============ */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+  }
+
+  /* ============ accordion stack ============ */
+  .stack{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+  .acc.locked{opacity:.5}
+
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:16px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+  .acc.locked .acc-head{pointer-events:none}
+
+  .acc-head .step-num{
+    width:26px;height:26px;flex:0 0 auto;
+    border-radius:8px;
+    background:#F0F1F4;
+    color:var(--faint);
+    font-size:12px;font-weight:800;
+    display:grid;place-items:center;
+    transition:background .2s,color .2s;
+  }
+  .acc.open .acc-head .step-num{background:var(--orange);color:#fff}
+  .acc.touched .acc-head .step-num{background:var(--green-soft);color:var(--green)}
+  .acc.touched.open .acc-head .step-num{background:var(--orange);color:#fff}
+
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:1px;
+  }
+  .acc-title b{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc.touched .acc-sub{color:var(--green);font-weight:650}
+
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+
+  .module{padding:2px 15px 18px}
+
+  .module-note{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+    margin:0 0 14px;
+    padding:11px 12px;
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+  }
+
+  /* ============ fields ============ */
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field label{
+    display:block;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:7px;
+  }
+  .field label .opt{
+    text-transform:none;letter-spacing:0;
+    font-weight:650;color:var(--faint);
+    font-size:11px;
+  }
+
+  .input,.textarea,.select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.4;
+    padding:13px;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  .textarea{min-height:88px;resize:vertical;line-height:1.55}
+  .select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 13px center;
+    background-size:14px;
+    padding-right:38px;
+  }
+  .input:focus,.textarea:focus,.select:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.13);
+  }
+  .input::placeholder,.textarea::placeholder{color:#B7BDC6}
+
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .check-row{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 13px;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    font-size:14px;font-weight:650;
+    color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;
+    margin-bottom:10px;
+  }
+  .check-row:last-child{margin-bottom:0}
+  .check-row:active{background:#FAFBFC}
+  .check-row input{
+    width:20px;height:20px;
+    accent-color:var(--orange);
+    margin:0;
+    flex:0 0 auto;
+  }
+
+  /* ============ chips ============ */
+  .chip-grid{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    display:inline-flex;align-items:center;
+    padding:9px 14px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:13px;font-weight:650;
+    color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s,transform .08s;
+  }
+  .chip:active{transform:scale(.97)}
+  .chip.on{
+    background:var(--orange-soft);
+    border-color:var(--orange-line);
+    color:var(--orange);
+    font-weight:750;
+  }
+
+  /* ============ category / type cards ============ */
+  .pick-list{
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .pick{
+    display:flex;align-items:center;gap:12px;
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s,background .15s,transform .08s;
+    cursor:pointer;
+    width:100%;
+  }
+  .pick:active{transform:scale(.99)}
+  .pick.on{
+    border-color:var(--orange);
+    background:var(--orange-soft);
+  }
+  .pick-ico{
+    width:40px;height:40px;flex:0 0 auto;
+    border-radius:11px;
+    background:#F0F1F4;
+    display:grid;place-items:center;
+    font-size:20px;line-height:1;
+  }
+  .pick.on .pick-ico{background:#fff}
+  .pick-txt{flex:1 1 auto;min-width:0}
+  .pick-txt b{
+    display:block;
+    font-size:14.5px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    margin-bottom:2px;
+  }
+  .pick-txt span{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.4;
+  }
+
+  /* ============ offering card ============ */
+  .offering{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:12px;
+    display:flex;
+    align-items:center;
+    gap:11px;
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s,transform .08s;
+    cursor:pointer;
+    margin-bottom:9px;
+  }
+  .offering:last-child{margin-bottom:0}
+  .offering:active{transform:scale(.99);border-color:var(--orange-line)}
+  .offering-thumb{
+    width:64px;height:64px;flex:0 0 auto;
+    border-radius:12px;
+    background:#F0F1F4;
+    display:grid;place-items:center;
+    font-size:24px;
+    color:#B7BDC6;
+    overflow:hidden;
+  }
+  .offering-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .offering-info{flex:1 1 auto;min-width:0}
+  .offering-info b{
+    display:block;
+    font-size:14.5px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    line-height:1.25;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    margin-bottom:3px;
+  }
+  .offering-info .price{
+    font-size:13px;font-weight:750;
+    color:var(--orange);
+    letter-spacing:-.01em;
+  }
+  .offering-info .desc{
+    font-size:11.5px;
+    color:var(--faint);
+    margin-top:3px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .offering-actions{
+    display:flex;flex-direction:column;gap:5px;flex:0 0 auto;
+  }
+  .mini-btn{
+    width:32px;height:32px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    color:var(--faint);
+    font-size:12px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .mini-btn:active{background:#F4F5F7}
+  .mini-btn.danger:active{background:var(--red-soft);color:var(--red);border-color:#FECACA}
+
+  /* ============ add button ============ */
+  .add-btn{
+    width:100%;
+    border:1.5px dashed #D3D7DE;
+    background:#fff;
+    border-radius:12px;
+    padding:15px;
+    font-size:14px;font-weight:750;
+    color:var(--orange);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;
+    margin-top:10px;
+  }
+  .add-btn:active{background:var(--orange-soft);border-color:var(--orange-line)}
+
+  .empty-note{
+    font-size:12.5px;
+    color:var(--faint);
+    text-align:center;
+    padding:18px 12px;
+    border:1.5px dashed #DCE0E6;
+    border-radius:11px;
+    background:#FAFBFC;
+    line-height:1.5;
+  }
+
+  /* ============ summary rows (review) ============ */
+  .summary{display:flex;flex-direction:column;gap:8px}
+  .sum-row{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 12px;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+    background:#FAFBFC;
+  }
+  .sum-row .dot{
+    width:8px;height:8px;border-radius:50%;flex:0 0 auto;
+    background:#D3D7DE;
+  }
+  .sum-row.ok .dot{background:var(--green)}
+  .sum-row span{
+    flex:1 1 auto;min-width:0;
+    font-size:13.5px;font-weight:650;color:var(--ink-2);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .sum-row em{
+    font-style:normal;
+    font-size:10.5px;font-weight:800;
+    letter-spacing:.07em;text-transform:uppercase;
+    color:var(--faint);
+  }
+  .sum-row.ok em{color:var(--green)}
+
+  /* ============ actions ============ */
+  .actions{
+    flex:0 0 auto;
+    padding:11px 14px calc(11px + env(safe-area-inset-bottom));
+    background:#fff;
+    border-top:1px solid var(--line);
+  }
+  .btn{
+    width:100%;
+    height:52px;
+    border:0;
+    border-radius:13px;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    transition:transform .1s ease,background .15s;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-primary{
+    background:#141418;
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(20,20,25,.45);
+  }
+  .btn-primary:active{background:#000}
+  .btn-primary.ready{
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    box-shadow:0 6px 20px -6px rgba(255,90,31,.55);
+  }
+  .btn-primary.ready:active{background:var(--orange)}
+  .btn[disabled]{
+    opacity:.45;
+    pointer-events:none;
+  }
+
+  /* ============ modal ============ */
+  .modal-scrim{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(15,15,18,.55);
+    display:flex;align-items:flex-end;justify-content:center;
+    animation:fade .18s ease;
+  }
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @media(min-width:520px){.modal-scrim{align-items:center;padding:20px}}
+  .modal{
+    background:#fff;
+    width:100%;max-width:460px;
+    height:94vh;max-height:94vh;
+    border-radius:20px 20px 0 0;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    animation:slideup .25s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  @media(min-width:520px){
+    .modal{border-radius:18px;height:auto;max-height:92vh}
+    @keyframes slideup{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+  }
+
+  .modal-hdr{
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:12px;
+    background:#fff;
+    flex:0 0 auto;
+  }
+  .modal-hdr h3{
+    margin:0;flex:1;
+    font-size:16px;font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .modal-close{
+    width:32px;height:32px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    color:var(--muted);
+    font-size:14px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .modal-close:active{background:#F4F5F7}
+
+  .modal-body{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:16px 18px;
+    scrollbar-width:none;
+  }
+  .modal-body::-webkit-scrollbar{display:none}
+
+  .modal-foot{
+    flex:0 0 auto;
+    padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);
+    background:#FAFBFC;
+    display:flex;gap:9px;
+  }
+  .modal-foot .btn{flex:1;height:48px}
+
+  /* ============ form labels in modal ============ */
+  .form-section{margin-bottom:16px}
+  .form-section:last-child{margin-bottom:0}
+  .form-label{
+    display:block;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .form-label-row{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .form-label-row .form-label{margin-bottom:0}
+  .link-btn{
+    border:0;background:transparent;
+    font-size:12.5px;font-weight:750;
+    color:var(--orange);
+    padding:3px 6px;border-radius:7px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .link-btn:active{background:var(--orange-soft)}
+  .form-hint{
+    margin:8px 0 0;
+    font-size:11.5px;line-height:1.5;
+    color:var(--faint);
+  }
+
+  /* ============ image gallery ============ */
+  .gallery-section{margin-bottom:20px}
+  .gallery-rail{
+    display:flex;gap:10px;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding:6px 2px;margin:0 -2px;
+  }
+  .gallery-rail::-webkit-scrollbar{display:none}
+  .gallery-tile{
+    flex:0 0 calc((100% - 20px) / 3);
+    max-width:120px;
+    aspect-ratio:1/1;
+    border-radius:14px;
+    background:#F0F1F4;
+    border:1px solid var(--line);
+    overflow:hidden;
+    position:relative;
+    scroll-snap-align:start;
+  }
+  .gallery-tile img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+  .gallery-tile.main{
+    outline:3px solid rgba(255,90,31,.08);
+    outline-offset:2px;
+    border-color:var(--orange-line);
+  }
+  .gallery-tile .tile-x{
+    position:absolute;top:6px;right:6px;
+    width:26px;height:26px;
+    border:0;border-radius:50%;
+    background:rgba(15,15,18,.68);
+    color:#fff;font-size:11px;font-weight:800;line-height:1;
+    display:grid;place-items:center;padding:0;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .gallery-tile .tile-x:active{background:var(--red)}
+  .gallery-tile.add-tile{
+    border:1.5px dashed #C8CDD4;
+    background:#FAFBFC;
+    display:grid;place-items:center;
+    color:var(--orange);font-size:38px;font-weight:300;line-height:1;
+    cursor:pointer;
+  }
+  .gallery-tile.add-tile:active{background:var(--orange-soft);border-color:var(--orange)}
+  .gallery-tile.add-tile input{display:none}
+  .gallery-dots{
+    display:flex;gap:6px;justify-content:center;align-items:center;
+    margin-top:12px;min-height:6px;
+  }
+  .gallery-dots .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:#D3D7DE;transition:background .2s;
+  }
+  .gallery-dots .dot.first{background:var(--orange)}
+
+  /* ============ pricing preview ============ */
+  .price-preview{
+    background:var(--ink);
+    color:#fff;
+    border-radius:12px;
+    padding:14px 16px;
+    margin-top:12px;
+  }
+  .price-preview .lbl{
+    font-size:10px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+    margin-bottom:4px;
+  }
+  .price-preview .val{
+    font-size:22px;font-weight:850;
+    letter-spacing:-.03em;
+    color:#fff;
+    line-height:1.1;
+  }
+  .price-preview .val .unit{
+    font-size:13px;
+    font-weight:650;
+    color:var(--orange-2);
+    margin-left:5px;
+    letter-spacing:-.01em;
+  }
+
+  /* ============ nested accordion ============ */
+  .nested-acc{
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    margin-bottom:12px;
+    background:#FAFBFC;
+  }
+  .nested-acc-hdr{
+    width:100%;
+    display:flex;align-items:center;gap:11px;
+    padding:14px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .nested-acc-hdr:active{background:#F4F5F7}
+  .nested-acc-hdr .t{
+    flex:1 1 auto;
+    font-size:14.5px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .nested-acc-hdr .n{
+    font-size:11px;font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;
+    color:var(--faint);
+    padding:3px 9px;border-radius:99px;
+    background:#F0F1F4;
+    transition:background .2s,color .2s;
+  }
+  .nested-acc.open .nested-acc-hdr .n{background:var(--orange-soft);color:var(--orange)}
+  .nested-acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .3s cubic-bezier(.4,0,.2,1);
+  }
+  .nested-acc.open .nested-acc-body{grid-template-rows:1fr}
+  .nested-acc-inner{overflow:hidden;min-height:0}
+  .nested-acc-content{
+    padding:14px 15px;
+    border-top:1px solid var(--line);
+    margin-top:-1px;
+  }
+
+  /* ============ repeatable rows ============ */
+  .row-input{
+    display:grid;
+    grid-template-columns:1fr 90px 34px;
+    gap:7px;align-items:center;margin-bottom:7px;
+  }
+  .row-input .input{padding:10px 11px;font-size:14px}
+  .row-input .row-del{
+    width:34px;height:34px;
+    border:1px solid var(--line);
+    background:#fff;border-radius:9px;
+    color:var(--faint);font-size:13px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .row-input .row-del:active{background:var(--red-soft);color:var(--red)}
+
+  .point-row{
+    display:grid;
+    grid-template-columns:26px 1fr 34px;
+    gap:8px;align-items:center;margin-bottom:8px;
+  }
+  .point-row .bullet{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--orange-soft);color:var(--orange);
+    font-size:11px;font-weight:800;
+    display:grid;place-items:center;
+  }
+  .point-row .input{padding:11px 12px;font-size:14.5px}
+  .point-row .row-del{
+    width:34px;height:34px;
+    border:1px solid var(--line);
+    background:#fff;border-radius:10px;
+    color:var(--faint);font-size:13px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .point-row .row-del:active{background:var(--red-soft);color:var(--red)}
+
+  /* ============ toast ============ */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(88px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media print{
+    body{background:#fff;display:block}
+    #shell{max-width:none;height:auto;box-shadow:none;display:block;overflow:visible}
+    .topbar,.actions{display:none!important}
+    .scroll{overflow:visible;height:auto}
+    .acc-body{grid-template-rows:1fr!important}
+    .intro{border-radius:0}
+    .sheet{margin-top:0;border-radius:0}
+  }
+</style>
+</head>
+<body>
+
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip">Supplier onboarding</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Setup progress</span>
+        <span class="progress-count" id="progressCount">0 of 7 complete</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <h1>Get your supply <em>live</em> on EatOuts.</h1>
+      <p>Tell us what you supply, set up your business profile, and list every product or service with its own price. No dashboard, no commission.</p>
+    </section>
+    <main class="sheet">
+      <div class="stack" id="stack"></div>
+    </main>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="primaryBtn" type="button">Start with provider category</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     CATALOG — 8 categories, all types, with metadata for
+     dynamic fields and pricing models.
+     ============================================================ */
+  var CATALOG = [
+    {
+      id:"infrastructure", name:"Infrastructure & Rentals", icon:"⛺",
+      blurb:"Tents, toilets, power, staging, flooring, climate.",
+      types:[
+        { id:"tent", name:"Tent & marquee", note:"Stretch, peg-and-pole, clear-span",
+          fields:[
+            { id:"structureStyle", label:"Structure style", type:"multi", options:["Stretch","Peg-and-pole","Clear-span","Pagoda","Sailcloth","Walkway"] },
+            { id:"dimensions", label:"Dimensions per structure", type:"text", placeholder:"e.g. 10 m × 20 m" },
+            { id:"seatedCapacity", label:"Seated capacity", type:"number", placeholder:"e.g. 150" },
+            { id:"surfaceTypes", label:"Supported surfaces", type:"multi", options:["Grass / soil","Concrete","Paving","Sand","Decking"] },
+            { id:"anchoringMethod", label:"Anchoring options", type:"multi", options:["Ground stakes","Water weights","Concrete weights","Site assessment required"] },
+            { id:"setupAndStrike", label:"Setup & strike included?", type:"select", options:["Both included","Setup only","Strike only","Neither","Depends on package"] }
+          ],
+          pricing:["per_day","per_event","package","per_square_metre","quote"]
+        },
+        { id:"ablution", name:"Mobile toilets", note:"VIP trailers and portaloos",
+          fields:[
+            { id:"unitType", label:"Unit type", type:"multi", options:["Standard","VIP","Accessible","Trailer","Urinal bank","Handwash","Shower"] },
+            { id:"unitsIncluded", label:"Number of units in offering", type:"number", placeholder:"e.g. 6" },
+            { id:"servicing", label:"Servicing plan", type:"select", options:["Delivery only","Daily service","Multiple services per day","On request"] },
+            { id:"utilities", label:"Utilities needed", type:"multi", options:["None","Water","Power","Water and power"] }
+          ],
+          pricing:["per_unit","per_day","package","quote"]
+        },
+        { id:"power", name:"Power & generators", note:"Silent backups, cabling",
+          fields:[
+            { id:"equipmentType", label:"Equipment supplied", type:"multi", options:["Generator","Inverter","Battery storage","Distribution board","Cables","Power technician"] },
+            { id:"capacityKva", label:"Generator capacity (kVA)", type:"number", placeholder:"e.g. 60" },
+            { id:"outputType", label:"Output", type:"multi", options:["Single phase","Three phase","USB / DC"] },
+            { id:"fuelPolicy", label:"Fuel arrangement", type:"select", options:["Fuel included","Customer supplies fuel","Fuel charged by consumption","Battery / no fuel"] }
+          ],
+          pricing:["per_day","per_event","per_unit","package","quote"]
+        },
+        { id:"climate", name:"Climate control", note:"Heaters, fans, mobile AC",
+          fields:[
+            { id:"climateType", label:"Climate equipment type", type:"multi", options:["Fan","Misting fan","Heater","Air conditioner","Evaporative cooler"] },
+            { id:"coverageArea", label:"Recommended coverage area", type:"text", placeholder:"e.g. 80 sqm" },
+            { id:"powerOrFuel", label:"Power / fuel needs", type:"text", placeholder:"e.g. 16A single phase" },
+            { id:"indoorOutdoor", label:"Use location", type:"multi", options:["Indoor","Outdoor","Covered outdoor"] }
+          ],
+          pricing:["per_unit","per_day","package","quote"]
+        },
+        { id:"flooring", name:"Flooring & carpeting", note:"Turf, deck, VIP carpet",
+          fields:[
+            { id:"floorMaterial", label:"Material / finish", type:"multi", options:["Wood","Composite deck","Artificial turf","Carpet","Vinyl","Interlocking panels"] },
+            { id:"areaAvailable", label:"Minimum / maximum area", type:"text", placeholder:"e.g. 20 – 400 sqm" },
+            { id:"surface", label:"Subfloor requirements", type:"multi", options:["Flat concrete","Grass / soil","Paving","Existing deck","Uneven surface assessment"] }
+          ],
+          pricing:["per_square_metre","per_day","package","quote"]
+        },
+        { id:"staging", name:"Staging & rigging", note:"Stage, catwalks, trussing",
+          fields:[
+            { id:"stageSystem", label:"System type", type:"multi", options:["Stage deck","Catwalk","Roof","Truss","Ground support","Backdrop","Steps / ramp"] },
+            { id:"stageDimensions", label:"Available dimensions", type:"text", placeholder:"e.g. 8 m × 6 m" },
+            { id:"loadCapacity", label:"Rated load capacity", type:"text", placeholder:"e.g. 750 kg/sqm" },
+            { id:"crewIncluded", label:"Qualified build / rigging crew included?", type:"select", options:["Yes","No","Optional"] }
+          ],
+          pricing:["per_day","package","per_square_metre","quote"]
+        }
+      ]
+    },
+    {
+      id:"catering", name:"Catering, Bar & Hospitality", icon:"🍽",
+      blurb:"Food, drinks, equipment, hospitality staff.",
+      types:[
+        { id:"food", name:"Food caterers", note:"Buffet, plated, spit braai",
+          fields:[
+            { id:"serviceStyle", label:"Catering service style", type:"multi", options:["Full-service plated","Buffet","Family style","Live cooking","Food truck","Drop-off / platter delivery"] },
+            { id:"cuisines", label:"Cuisines / menu styles", type:"multi", options:["Zimbabwean / Southern African","Pan-African","Braai / barbecue","Continental","Asian","Mediterranean","Middle Eastern","Custom menu"] },
+            { id:"minimumGuests", label:"Minimum guest count", type:"number", placeholder:"e.g. 30" },
+            { id:"maximumGuests", label:"Maximum guest count", type:"number", placeholder:"e.g. 300" },
+            { id:"dietary", label:"Dietary accommodations", type:"multi", options:["Vegetarian","Vegan","Gluten-free","Dairy-free","Nut-aware","Halal","Kosher","Child-friendly"] },
+            { id:"staffingIncluded", label:"Chefs / serving staff included?", type:"select", options:["Chefs and servers","Chefs only","Servers only","No staff","Depends on package"] }
+          ],
+          pricing:["per_person","per_item","package","per_event","minimum_spend","quote"]
+        },
+        { id:"equipment", name:"Catering equipment", note:"Tables, chairs, glassware",
+          fields:[
+            { id:"equipmentFamilies", label:"Equipment types stocked", type:"multi", options:["Tables","Chairs","Cutlery","Crockery","Glassware","Chafing dishes","Serving ware","Linen","Cooling / dispensing"] },
+            { id:"availableQuantity", label:"Available quantity", type:"number", placeholder:"e.g. 200" },
+            { id:"unitCondition", label:"Condition", type:"select", options:["New","Excellent","Good","Mixed"] },
+            { id:"breakagePolicy", label:"Loss / breakage policy", type:"textarea", placeholder:"Short description of the policy." }
+          ],
+          pricing:["per_item","per_day","per_set","package","quote"]
+        },
+        { id:"bar", name:"Mobile bar service", note:"Bar setup, ice, mixers",
+          fields:[
+            { id:"barFormat", label:"Bar format", type:"multi", options:["Cash bar","Hosted / open bar","Consumption-based","Mocktail-only","Dry hire / equipment only"] },
+            { id:"barSetup", label:"Bar setup", type:"multi", options:["Portable counter","Back bar","Refrigeration","Ice station","Glassware","Cocktail station","Menu / signage"] },
+            { id:"barStaff", label:"Staff included", type:"select", options:["Bartenders and barbacks","Bartenders only","No staff","Optional add-on"] }
+          ],
+          pricing:["package","per_person","per_hour","minimum_spend","quote"]
+        },
+        { id:"wholesale", name:"Alcohol & beverage", note:"Bulk beer, wine, spirits",
+          fields:[
+            { id:"productType", label:"Beverage category", type:"multi", options:["Beer","Cider","Wine","Spirits","Soft drinks","Water","Juice / mixer","Ice"] },
+            { id:"brandAndVariant", label:"Brand / product variant", type:"text", placeholder:"e.g. Castle Lite" },
+            { id:"packSize", label:"Pack size / volume", type:"text", placeholder:"e.g. 500 ml × 24" },
+            { id:"minimumWholesaleOrder", label:"Minimum wholesale order", type:"text", placeholder:"e.g. 10 cases" }
+          ],
+          pricing:["per_item","per_case","per_crate","tiered","minimum_spend","quote"]
+        },
+        { id:"specialty", name:"Specialty stations", note:"Coffee, cocktail, ice cream carts",
+          fields:[
+            { id:"stationType", label:"Station type", type:"multi", options:["Coffee","Tea","Cocktail / mocktail","Ice cream","Popcorn","Candy floss","Dessert","Juice","Smoothie"] },
+            { id:"serviceStyle", label:"Service style", type:"select", options:["Unlimited station","Fixed servings per guest","Pay per serving","Hosted tab","Dry hire"] },
+            { id:"stationFootprint", label:"Space / footprint required", type:"text", placeholder:"e.g. 3 m × 3 m" },
+            { id:"throughput", label:"Approx. servings per hour", type:"number", placeholder:"e.g. 80" }
+          ],
+          pricing:["per_person","per_serving","per_station","package","quote"]
+        },
+        { id:"waitron", name:"Waitron agency", note:"Uniformed waiters",
+          fields:[
+            { id:"staffRoles", label:"Roles supplied", type:"multi", options:["Waitron","Food runner","Host / hostess","Buffet attendant","Service captain","Supervisor"] },
+            { id:"staffCount", label:"Minimum / available staff count", type:"number", placeholder:"e.g. 6" },
+            { id:"minimumShift", label:"Minimum shift (hours)", type:"number", placeholder:"e.g. 6" },
+            { id:"uniformOptions", label:"Uniform options", type:"multi", options:["Black and white","Formal black","Brand uniform","Traditional attire","Client-provided"] }
+          ],
+          pricing:["per_hour","per_shift","package","quote"]
+        },
+        { id:"bartender", name:"Bartender / mixology", note:"Skilled cocktail staff",
+          fields:[
+            { id:"bartenderStyle", label:"Specialty", type:"multi", options:["Classic cocktails","Craft mixology","Mocktails","Flair bartending","High-volume bar","Wine service","Beer service"] },
+            { id:"menuDesign", label:"Can you design a custom drink menu?", type:"select", options:["Yes","No","By quote"] },
+            { id:"ingredientsSource", label:"Who supplies alcohol and ingredients?", type:"select", options:["Client supplies everything","Supplier sources ingredients","Supplier sources all beverages","Depends on package"] },
+            { id:"bartenderCount", label:"Team size available", type:"number", placeholder:"e.g. 4" }
+          ],
+          pricing:["per_hour","per_shift","per_event","package","quote"]
+        },
+        { id:"scullery", name:"Scullery & cleaning", note:"Dishwash, trash, tidy-up",
+          fields:[
+            { id:"cleaningScope", label:"Service scope", type:"multi", options:["Dishwashing","Kitchen cleaning","Guest-area cleanup","Waste collection","Restroom cleaning","Full venue cleanup"] },
+            { id:"teamSize", label:"Team size available", type:"number", placeholder:"e.g. 5" },
+            { id:"equipmentAndChemicals", label:"Equipment / chemicals provided", type:"select", options:["All supplied","Equipment only","Chemicals only","Client supplies","Agreed per booking"] }
+          ],
+          pricing:["per_hour","per_shift","package","quote"]
+        }
+      ]
+    },
+    {
+      id:"decor", name:"Decor, Styling & Florals", icon:"🎨",
+      blurb:"The visual identity of the event.",
+      types:[
+        { id:"stylist", name:"Event stylist / designer", note:"Mood board + concept",
+          fields:[
+            { id:"designDeliverables", label:"Deliverables", type:"multi", options:["Mood board","Colour palette","Layout / floor plan","Decor sourcing list","3D mock-up","Vendor coordination","Setup supervision"] },
+            { id:"styleSpecialties", label:"Specialties", type:"multi", options:["Weddings","Corporate events","Birthdays","Cultural ceremonies","Luxury events","Brand activations"] },
+            { id:"designOnlyOrBuild", label:"Service level", type:"select", options:["Design only","Design and source","Design and install","Full styling and management"] }
+          ],
+          pricing:["fixed_fee","per_event","package","per_hour","quote"]
+        },
+        { id:"florist", name:"Florist", note:"Centerpieces, arches, bouquets",
+          fields:[
+            { id:"arrangementType", label:"Arrangement type", type:"multi", options:["Bouquet","Centre piece","Arch","Aisle","Corsage","Flower wall","Installations","Bulk stems"] },
+            { id:"flowerPreference", label:"Flower sourcing", type:"select", options:["Seasonal flowers","Named flowers requested","Imported flowers by quote","Fresh and artificial options"] },
+            { id:"colourPalette", label:"Colour palette options", type:"text", placeholder:"e.g. Blush, ivory, sage" },
+            { id:"vaseHire", label:"Vases / stands included or hired?", type:"select", options:["Included","Hire deposit applies","Customer supplies","Optional add-on"] }
+          ],
+          pricing:["per_item","package","per_event","quote"]
+        },
+        { id:"furniture", name:"Furniture hire", note:"Lounges, cocktail tables, bar stools",
+          fields:[
+            { id:"furnitureType", label:"Furniture type", type:"select", options:["Chair","Table","Sofa / lounge","Bar stool","Throne","Counter","Set / bundle","Outdoor furniture"] },
+            { id:"dimensions", label:"Dimensions", type:"text", placeholder:"e.g. 90 × 90 × 75 cm" },
+            { id:"materialFinish", label:"Material / finish / colours", type:"text", placeholder:"e.g. Oak, natural" },
+            { id:"stockQuantity", label:"Quantity available", type:"number", placeholder:"e.g. 60" }
+          ],
+          pricing:["per_item","per_day","per_set","package","quote"]
+        },
+        { id:"draping", name:"Draping & fabric", note:"Ceiling, wall, fairy lights",
+          fields:[
+            { id:"drapeUse", label:"Draping application", type:"multi", options:["Ceiling","Wall","Stage","Backdrop","Entrance","Room divider"] },
+            { id:"fabricOptions", label:"Fabric / colour options", type:"text", placeholder:"e.g. Ivory chiffon, black velvet" },
+            { id:"coverageDimensions", label:"Maximum coverage / dimensions", type:"text", placeholder:"e.g. 30 m × 10 m" },
+            { id:"lightingAddon", label:"Integrated lighting available?", type:"select", options:["Yes","No","By quote"] }
+          ],
+          pricing:["per_metre","per_square_metre","per_room","package","quote"]
+        },
+        { id:"printing", name:"Signage & stationery", note:"Menus, seating charts, name cards",
+          fields:[
+            { id:"printProduct", label:"Product type", type:"multi", options:["Invitation","Menu","Name card","Seating chart","Welcome sign","Directional sign","Banner","Table number","Programme","Backdrop"] },
+            { id:"sizeMaterial", label:"Size and material", type:"text", placeholder:"e.g. A5, 300 gsm matte" },
+            { id:"designIncluded", label:"Design included?", type:"select", options:["Customer supplies print-ready artwork","Basic design included","Custom design quoted separately"] },
+            { id:"turnaroundDays", label:"Typical production time (days)", type:"number", placeholder:"e.g. 5" }
+          ],
+          pricing:["per_item","tiered","fixed_fee","package","quote"]
+        }
+      ]
+    },
+    {
+      id:"technical", name:"Technical Production (AV)", icon:"🔊",
+      blurb:"Sound, lighting, screens, effects.",
+      types:[
+        { id:"pa", name:"PA & sound engineer", note:"Speakers, mixer, monitors",
+          fields:[
+            { id:"audienceSize", label:"Recommended audience size", type:"text", placeholder:"e.g. 150 – 600" },
+            { id:"venueCoverage", label:"Venue coverage", type:"multi", options:["Indoor","Outdoor","Speech","Live band","DJ","Large audience"] },
+            { id:"inputChannels", label:"Mixer input channels", type:"number", placeholder:"e.g. 24" },
+            { id:"engineerIncluded", label:"Sound engineer included?", type:"select", options:["Yes","No","Optional"] }
+          ],
+          pricing:["per_hour","per_day","package","quote"]
+        },
+        { id:"mics", name:"Microphone specialist", note:"Lapel, roaming, instrument mics",
+          fields:[
+            { id:"micTypes", label:"Microphone types", type:"multi", options:["Wireless handheld","Lapel","Headset","Podium","Instrument","Boundary","Wired handheld"] },
+            { id:"quantityChannels", label:"Quantity / simultaneous channels", type:"number", placeholder:"e.g. 8" },
+            { id:"sparesIncluded", label:"Spare batteries / backup mic included?", type:"select", options:["Yes","No","Optional"] }
+          ],
+          pricing:["per_item","per_day","package","quote"]
+        },
+        { id:"lighting", name:"Lighting design", note:"Uplighting, stage lights, spotlights",
+          fields:[
+            { id:"lightingTypes", label:"Lighting services", type:"multi", options:["Uplighting","Stage wash","Moving heads","Spotlight","Pinspot","Gobo","Architectural","Dance effects"] },
+            { id:"fixtureCount", label:"Available fixture count", type:"number", placeholder:"e.g. 24" },
+            { id:"designIncluded", label:"Lighting design / programming included?", type:"select", options:["Yes","No","By quote"] }
+          ],
+          pricing:["per_item","per_day","package","fixed_fee","quote"]
+        },
+        { id:"visual", name:"LED wall & projectors", note:"Big screens, live feeds",
+          fields:[
+            { id:"displayType", label:"Display type", type:"multi", options:["LED wall","Projector / screen","Confidence monitor","Presentation display","Live feed"] },
+            { id:"displayDimensions", label:"Display dimensions", type:"text", placeholder:"e.g. 6 m × 3 m" },
+            { id:"resolutionPitch", label:"Resolution / pixel pitch / brightness", type:"text", placeholder:"e.g. P3.9, 5000 nits" }
+          ],
+          pricing:["per_square_metre","per_item","per_day","package","quote"]
+        },
+        { id:"sfx", name:"Special effects", note:"Sparklers, smoke, confetti",
+          fields:[
+            { id:"effectTypes", label:"Effect type", type:"multi", options:["Confetti","Cold spark","Low fog","Haze","CO₂ jet","Bubbles","Streamers","Flame effect"] },
+            { id:"activationCount", label:"Included activations", type:"number", placeholder:"e.g. 4" },
+            { id:"operatorProvided", label:"Trained operator included?", type:"select", options:["Yes","No","Optional"] },
+            { id:"venueRestrictions", label:"Venue restrictions / safety zone", type:"textarea", placeholder:"Short description of any restrictions." }
+          ],
+          pricing:["per_activation","package","per_event","quote"]
+        }
+      ]
+    },
+    {
+      id:"entertainment", name:"Entertainment & Talent", icon:"🎤",
+      blurb:"The people who keep the crowd engaged.",
+      types:[
+        { id:"mc", name:"MC / host", note:"Formal to high-energy hosting",
+          fields:[
+            { id:"hostingStyles", label:"Hosting styles", type:"multi", options:["Formal","Warm / conversational","Comedic","High-energy","Corporate","Cultural / traditional","Conference moderator"] },
+            { id:"languages", label:"Languages spoken on stage", type:"multi", options:["English","Shona","Ndebele","Setswana","Zulu","Other"] },
+            { id:"scriptSupport", label:"Script / speech support", type:"select", options:["Client provides final script","Review and polish supplied script","Create script from brief","No script required"] }
+          ],
+          pricing:["per_hour","half_day","full_day","per_event","package","quote"]
+        },
+        { id:"dj", name:"DJ", note:"Open-format, club, weddings",
+          fields:[
+            { id:"djStyles", label:"DJ styles", type:"multi", options:["Wedding / open-format","Club / electronic","Corporate ambient","Afrobeats / Amapiano","Hip-hop / R&B","House","Traditional / throwback","Family-friendly"] },
+            { id:"genres", label:"Genres played", type:"multi", options:["Amapiano","Afrobeats","House","Hip-hop","R&B","Pop","Dancehall","Gospel","Jazz / lounge","Old-school","Local / traditional"] },
+            { id:"equipmentSupplied", label:"Equipment supplied", type:"multi", options:["DJ controller","Turntables","Mixer","PA speakers","Subwoofers","Booth monitor","Lighting","None / venue supplies"] },
+            { id:"setupMinutes", label:"Setup time required (minutes)", type:"number", placeholder:"e.g. 60" }
+          ],
+          pricing:["per_hour","per_set","half_day","full_day","per_event","package","quote"]
+        },
+        { id:"band", name:"Live band / musician", note:"Solo, duo, up to full ensemble",
+          fields:[
+            { id:"lineup", label:"Lineup / formation", type:"select", options:["Solo","Duo","Trio","4-piece","5-piece","6+ piece","Flexible lineup"] },
+            { id:"genres", label:"Genres / repertoire", type:"multi", options:["Acoustic","Jazz","Rock","Pop covers","Soul / R&B","Gospel","Afro-fusion","Traditional","Brass","Original music"] },
+            { id:"setStructure", label:"Set structure", type:"text", placeholder:"e.g. 2 × 45 min" },
+            { id:"soundcheckMinutes", label:"Soundcheck duration (minutes)", type:"number", placeholder:"e.g. 45" }
+          ],
+          pricing:["per_set","per_hour","half_day","full_day","per_event","package","quote"]
+        },
+        { id:"cultural", name:"Cultural / traditional dancers", note:"Ceremonial and heritage performance",
+          fields:[
+            { id:"tradition", label:"Tradition / performance style", type:"text", placeholder:"e.g. Mbira, Amabhiza" },
+            { id:"groupSize", label:"Number of performers", type:"number", placeholder:"e.g. 8" },
+            { id:"costumes", label:"Costumes included?", type:"select", options:["Yes","No","By quote"] },
+            { id:"accompaniment", label:"Music / instruments", type:"multi", options:["Live drums","Live instruments","Recorded track","Vocals","Mixed"] }
+          ],
+          pricing:["per_set","per_performer","per_event","package","quote"]
+        },
+        { id:"contemporary", name:"Contemporary dancers", note:"Hip-hop, Afro-fusion, commercial",
+          fields:[
+            { id:"danceStyles", label:"Dance styles", type:"multi", options:["Contemporary","Hip-hop","Afro-fusion","Commercial","Ballroom","Street dance","Choreographed theme routine"] },
+            { id:"performerCount", label:"Performer count", type:"number", placeholder:"e.g. 6" },
+            { id:"routineDuration", label:"Routine / set duration (minutes)", type:"number", placeholder:"e.g. 12" },
+            { id:"customChoreo", label:"Custom choreography available?", type:"select", options:["Yes","No","By quote"] }
+          ],
+          pricing:["per_routine","per_performer","per_event","package","quote"]
+        },
+        { id:"hype", name:"Hype man / announcer", note:"Crowd warm-up and brand activations",
+          fields:[
+            { id:"hypeStyle", label:"Hype style", type:"multi", options:["Festival","Club","Sports","Brand activation","Family-friendly","Corporate","Street / community"] },
+            { id:"audienceInteraction", label:"Audience interaction activities", type:"multi", options:["Call-and-response","Competitions","Sponsor mentions","Crowd warm-up","Announcements","Dance prompts"] },
+            { id:"brandMentions", label:"Sponsor / brand script support", type:"select", options:["Yes","No","By quote"] }
+          ],
+          pricing:["per_hour","per_set","half_day","full_day","per_event","quote"]
+        },
+        { id:"keynote", name:"Keynote / celebrity speaker", note:"Talks, panels, workshops",
+          fields:[
+            { id:"speakerTopics", label:"Topics / expertise", type:"text", placeholder:"e.g. Leadership, entrepreneurship" },
+            { id:"talkLength", label:"Talk duration", type:"select", options:["10–20 minutes","20–30 minutes","30–45 minutes","45–60 minutes","Half-day workshop","Full-day workshop"] },
+            { id:"qaFormat", label:"Q&A / panel formats", type:"multi", options:["No Q&A","Audience Q&A","Moderated panel","Fireside chat","Workshop interaction"] },
+            { id:"recordingPolicy", label:"Recording / rebroadcast policy", type:"select", options:["No recording","Recording by agreement","Recording included","Usage rights quoted separately"] }
+          ],
+          pricing:["per_talk","per_hour","half_day","full_day","per_event","quote"]
+        }
+      ]
+    },
+    {
+      id:"security", name:"Safety, Security & Logistics", icon:"🛡",
+      blurb:"Keep the event lawful, safe, orderly.",
+      types:[
+        { id:"vipsecurity", name:"VIP / close protection", note:"Discreet protection",
+          fields:[
+            { id:"protectionScope", label:"Service scope", type:"multi", options:["Close protection","VIP escort","Advance assessment","Arrival / departure","Protective transport coordination"] },
+            { id:"teamSize", label:"Protective team size", type:"number", placeholder:"e.g. 3" },
+            { id:"coverageHours", label:"Coverage hours", type:"number", placeholder:"e.g. 10" },
+            { id:"transportMode", label:"Transport arrangement", type:"select", options:["Client vehicle","Supplier vehicle","Third-party vehicle","Not included"] }
+          ],
+          pricing:["per_hour","per_shift","per_day","per_event","package","quote"]
+        },
+        { id:"staticsecurity", name:"Venue static security", note:"Entrance and perimeter",
+          fields:[
+            { id:"postTypes", label:"Post types", type:"multi", options:["Entrance","Perimeter","Backstage","Parking edge","Asset protection","Overnight","Crowd control"] },
+            { id:"guardsPerPost", label:"Guards needed per post", type:"number", placeholder:"e.g. 2" },
+            { id:"shiftLength", label:"Minimum shift length (hours)", type:"number", placeholder:"e.g. 12" },
+            { id:"reportFrequency", label:"Reporting frequency", type:"select", options:["At shift end","Every 2 hours","Hourly","Incident-based","Custom"] }
+          ],
+          pricing:["per_hour","per_shift","per_day","per_event","package","quote"]
+        },
+        { id:"access", name:"Access control & ticketing", note:"Entrance staffing and scanners",
+          fields:[
+            { id:"accessServices", label:"Services offered", type:"multi", options:["Scanning","Guest list","Wristbands","VIP / backstage passes","Box office","Queue management"] },
+            { id:"entryPoints", label:"Entry points covered", type:"number", placeholder:"e.g. 4" },
+            { id:"ticketPlatform", label:"Ticketing systems supported", type:"text", placeholder:"e.g. Quicket" },
+            { id:"devicesIncluded", label:"Scanning devices supplied?", type:"select", options:["Yes","No","Optional"] }
+          ],
+          pricing:["per_hour","per_entry_point","per_ticket","per_event","package","quote"]
+        },
+        { id:"parking", name:"Parking marshals", note:"Traffic, drop-off, VIP parking",
+          fields:[
+            { id:"marshalRoles", label:"Roles", type:"multi", options:["Parking","VIP parking","Drop-off / pickup","Traffic steward","Valet coordination","Shuttle queue"] },
+            { id:"vehicleVolume", label:"Estimated vehicles", type:"number", placeholder:"e.g. 250" },
+            { id:"parkingCapacity", label:"Parking capacity / lots covered", type:"text", placeholder:"e.g. 120 bays" },
+            { id:"signageSupplied", label:"Cones / signage / radios supplied?", type:"select", options:["Yes","No","Optional"] }
+          ],
+          pricing:["per_hour","per_shift","per_lot","per_event","package","quote"]
+        },
+        { id:"armed", name:"Armed response / K9", note:"Licensed and registered only",
+          fields:[
+            { id:"serviceScope", label:"Service scope", type:"multi", options:["Licensed armed response","K9 detection","K9 perimeter support","Alarm response coordination"] },
+            { id:"teamCount", label:"Team / handler count", type:"number", placeholder:"e.g. 2" },
+            { id:"k9Specialty", label:"K9 specialty (if applicable)", type:"select", options:["Not applicable","Detection","Perimeter support","Search support","Other licensed purpose"] },
+            { id:"dispatchCoverage", label:"Coverage hours", type:"select", options:["Event hours","24-hour service area","Scheduled windows","By contract"] }
+          ],
+          pricing:["per_hour","per_shift","per_day","per_event","contract","quote"]
+        },
+        { id:"healthsafety", name:"Health & safety officer", note:"Risk assessments and onsite safety",
+          fields:[
+            { id:"safetyDeliverables", label:"Deliverables", type:"multi", options:["Risk assessment","Safety plan","Emergency action plan","Site inspection","Safety officer onsite","Staff briefing","Incident reporting"] },
+            { id:"eventSize", label:"Event capacity / risk class", type:"text", placeholder:"e.g. Under 500" },
+            { id:"siteVisit", label:"Site inspection needed?", type:"select", options:["Required","Recommended","Not usually required"] },
+            { id:"reportFormat", label:"Report / plan formats", type:"multi", options:["PDF report","Site map annotations","Emergency contact matrix","Briefing session","Onsite log"] }
+          ],
+          pricing:["fixed_fee","per_site_visit","per_hour","per_day","package","quote"]
+        },
+        { id:"medical", name:"Medical emergency services", note:"First aid to paramedic cover",
+          fields:[
+            { id:"medicalLevel", label:"Level of medical cover", type:"multi", options:["First aid","Advanced first aid","Paramedic","Ambulance","Medical station","Medical planning"] },
+            { id:"crewQualifications", label:"Crew qualifications / staffing", type:"textarea", placeholder:"Short description of clinical staffing." },
+            { id:"vehicleAndEquipment", label:"Vehicles / equipment supplied", type:"multi", options:["First-aid kit","AED","Treatment station","Response vehicle","Ambulance","Oxygen / clinical equipment"] },
+            { id:"coverageHours", label:"Coverage hours", type:"number", placeholder:"e.g. 12" }
+          ],
+          pricing:["per_hour","per_shift","per_day","per_event","package","quote"]
+        }
+      ]
+    },
+    {
+      id:"media", name:"Media, Memories & Marketing", icon:"📸",
+      blurb:"Capture it, broadcast it, remember it.",
+      types:[
+        { id:"photographer", name:"Event photographer", note:"Coverage packages and albums",
+          fields:[
+            { id:"photoStyles", label:"Photography styles", type:"multi", options:["Documentary","Editorial","Portrait","Fine art","Corporate","Concert / low-light","Product / brand"] },
+            { id:"coverageHours", label:"Coverage hours", type:"number", placeholder:"e.g. 8" },
+            { id:"photographerCount", label:"Photographer count", type:"number", placeholder:"e.g. 2" },
+            { id:"editedImages", label:"Typical edited image count", type:"number", placeholder:"e.g. 400" },
+            { id:"deliveryDays", label:"Delivery turnaround (days)", type:"number", placeholder:"e.g. 14" },
+            { id:"rawFiles", label:"Raw files available?", type:"select", options:["Not supplied","Available by agreement","Included in package"] }
+          ],
+          pricing:["per_hour","half_day","full_day","per_event","package","quote"]
+        },
+        { id:"videographer", name:"Videographer / cinematographer", note:"Highlight films and full edits",
+          fields:[
+            { id:"videoDeliverables", label:"Video deliverables", type:"multi", options:["Highlight film","Full event edit","Ceremony / speeches","Interviews","Vertical reels","Raw footage by agreement","Same-day edit"] },
+            { id:"crewSize", label:"Crew size", type:"number", placeholder:"e.g. 2" },
+            { id:"cameraCount", label:"Camera count", type:"number", placeholder:"e.g. 3" },
+            { id:"audioCapture", label:"Audio capture", type:"multi", options:["Camera audio","Wireless lavalier","Board feed","Dedicated audio recorder","Client supplies audio feed"] },
+            { id:"deliveryWeeks", label:"Final delivery timeframe (weeks)", type:"number", placeholder:"e.g. 4" }
+          ],
+          pricing:["per_hour","half_day","full_day","package","quote"]
+        },
+        { id:"drone", name:"Drone operator", note:"Aerial photo and video",
+          fields:[
+            { id:"droneDeliverables", label:"Deliverables", type:"multi", options:["Aerial photos","Aerial video","Short highlight clip","Venue overview","Edited social reels"] },
+            { id:"aircraftCapability", label:"Aircraft / camera capability", type:"text", placeholder:"e.g. 4K 60fps, Mavic 3" },
+            { id:"flightPermissions", label:"Required flight permissions available?", type:"select", options:["Yes","No","By quote"] },
+            { id:"weatherPolicy", label:"Weather cancellation / reschedule policy", type:"textarea", placeholder:"Short description of the policy." }
+          ],
+          pricing:["per_hour","per_event","package","quote"]
+        },
+        { id:"streaming", name:"Live-streaming technician", note:"YouTube, Facebook, hybrid events",
+          fields:[
+            { id:"streamType", label:"Streaming format", type:"multi", options:["Single camera","Multi-camera","Hybrid","Private / invitation-only","Remote speaker","Recording-only"] },
+            { id:"platforms", label:"Supported platforms", type:"text", placeholder:"e.g. YouTube, Facebook, Zoom" },
+            { id:"cameraCount", label:"Camera count", type:"number", placeholder:"e.g. 3" },
+            { id:"internetUpload", label:"Minimum upload bandwidth required", type:"text", placeholder:"e.g. 10 Mbps" },
+            { id:"recordingIncluded", label:"Clean recording included?", type:"select", options:["Yes","No","Optional"] }
+          ],
+          pricing:["per_hour","half_day","full_day","package","quote"]
+        },
+        { id:"photobooth", name:"Photo booth vendor", note:"Enclosed, open-air, 360",
+          fields:[
+            { id:"boothFormat", label:"Booth format", type:"multi", options:["Enclosed","Open-air","360 video","GIF / boomerang","Roaming","Green screen"] },
+            { id:"printsIncluded", label:"Prints included", type:"number", placeholder:"e.g. 100" },
+            { id:"digitalDelivery", label:"Digital delivery", type:"multi", options:["QR download","Email","WhatsApp / link","Online gallery","USB"] },
+            { id:"footprint", label:"Space and power needed", type:"text", placeholder:"e.g. 3 m × 3 m, 16A" }
+          ],
+          pricing:["per_hour","per_event","package","quote"]
+        }
+      ]
+    },
+    {
+      id:"management", name:"Management & Coordination", icon:"📋",
+      blurb:"The glue that keeps everything together.",
+      types:[
+        { id:"planner", name:"Event planner / coordinator", note:"Full-service planning",
+          fields:[
+            { id:"planningScope", label:"Planning scope", type:"multi", options:["Full service","Partial planning","Venue / supplier sourcing","Budget management","Run-of-show","Design coordination","Vendor management"] },
+            { id:"planningStart", label:"When planning begins", type:"select", options:["12+ months before","6–12 months","3–6 months","1–3 months","Final month","Flexible"] },
+            { id:"guestRange", label:"Typical guest count range", type:"text", placeholder:"e.g. 80 – 400" },
+            { id:"meetingsIncluded", label:"Meetings included", type:"number", placeholder:"e.g. 6" },
+            { id:"budgetHandling", label:"Budget handling", type:"select", options:["Advice / tracking only","Purchasing with client approval","Full vendor payment management by contract","Not included"] }
+          ],
+          pricing:["fixed_fee","per_event","package","per_hour","monthly_retainer","quote"]
+        },
+        { id:"onday", name:"On-the-day coordinator", note:"Event-day management",
+          fields:[
+            { id:"coverageWindow", label:"Coverage window", type:"select", options:["Setup through event end","Ceremony only","Main programme only","Setup and handover","Custom hours"] },
+            { id:"coordinatorCount", label:"Coordinators supplied", type:"number", placeholder:"e.g. 2" },
+            { id:"vendorCheckIn", label:"Vendor arrival / check-in management?", type:"select", options:["Yes","No","Optional"] },
+            { id:"rehearsal", label:"Rehearsal included?", type:"select", options:["Yes","No","By quote"] }
+          ],
+          pricing:["per_hour","half_day","full_day","per_event","package","quote"]
+        },
+        { id:"rsvp", name:"RSVP & guest manager", note:"Guest list, reminders, check-in",
+          fields:[
+            { id:"guestServices", label:"Guest management services", type:"multi", options:["RSVP setup","RSVP follow-up","WhatsApp reminders","Phone follow-up","Seating list","Dietary collection","Guest helpdesk","Event check-in"] },
+            { id:"guestCount", label:"Guest list size supported", type:"text", placeholder:"e.g. 50 – 500" },
+            { id:"rsvpChannels", label:"RSVP channels", type:"multi", options:["WhatsApp","SMS","Phone","Email","Online form","Client platform"] },
+            { id:"reporting", label:"Reports provided", type:"multi", options:["Confirmed / declined","Pending responses","Plus-ones","Dietary requirements","Seating list","Check-in list"] }
+          ],
+          pricing:["per_person","fixed_fee","per_hour","package","quote"]
+        }
+      ]
+    }
+  ];
+
+  var PRICING_MODELS = {
+    quote:        { label:"Custom quote", help:"Collect the scope details and respond with a written quote." },
+    fixed_fee:    { label:"Fixed fee", help:"One price for a clearly defined scope." },
+    per_hour:     { label:"Per hour", help:"Price multiplied by booked hours." },
+    per_shift:    { label:"Per shift", help:"Price for a defined work shift." },
+    per_day:      { label:"Per day", help:"Daily hire or service rate." },
+    half_day:     { label:"Half-day rate", help:"A defined half-day booking block." },
+    full_day:     { label:"Full-day rate", help:"A defined full-day booking block." },
+    per_event:    { label:"Per event", help:"One rate for the specified event scope." },
+    package:      { label:"Package price", help:"A bundle with specified inclusions and limits." },
+    per_person:   { label:"Per guest / person", help:"Price per person served or attending." },
+    per_item:     { label:"Per item", help:"Price for each item selected." },
+    per_unit:     { label:"Per unit", help:"Price for a clearly named charge unit." },
+    per_set:      { label:"Per set", help:"One price for a defined matching set." },
+    per_case:     { label:"Per case / carton", help:"Price per case; state its contents." },
+    per_crate:    { label:"Per crate", help:"Price per crate; state bottle / can count." },
+    per_serving:  { label:"Per serving", help:"Price for each serving dispensed." },
+    per_station:  { label:"Per station", help:"Price for each staffed or equipped station." },
+    per_square_metre:{ label:"Per square metre", help:"Price per measured square metre." },
+    per_metre:    { label:"Per linear metre", help:"Price per measured linear metre." },
+    per_room:     { label:"Per room", help:"Price per room or defined space." },
+    per_routine:  { label:"Per routine", help:"Price per choreographed routine." },
+    per_performer:{ label:"Per performer", help:"Price multiplied by performer count." },
+    per_talk:     { label:"Per talk", help:"Price for one talk or address." },
+    per_activation:{ label:"Per activation", help:"Price for each effect activation." },
+    per_entry_point:{ label:"Per entry point", help:"Price per managed entry point." },
+    per_ticket:   { label:"Per ticket", help:"Price per ticket processed." },
+    per_lot:      { label:"Per parking lot", help:"Price per defined parking area." },
+    tiered:       { label:"Tiered / quantity pricing", help:"Different rates by quantity band." },
+    minimum_spend:{ label:"Minimum spend", help:"Booking proceeds only if the agreed minimum spend is met." },
+    monthly_retainer:{ label:"Monthly retainer", help:"Recurring fee for an agreed monthly scope." },
+    per_site_visit:{ label:"Per site visit", help:"Price per inspection or visit." }
+  };
+
+  var CURRENCIES = ["BWP","USD","ZAR","ZWG","EUR"];
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  var STORE_KEY = "eatouts.supplier-onboarding.v2";
+
+  var state = {
+    category:"",
+    type:"",
+    business:{
+      name:"", legalName:"", contact:"", phone:"", whatsapp:"",
+      email:"", location:"", description:"", website:"",
+      instagram:"", facebook:"", years:"", regNumber:""
+    },
+    typeFields:{},   // keyed by field id
+    offerings:[],
+    availability:{
+      leadTimeDays:"", blackoutNotes:"", sameDay:false, responseTime:"", cancellation:""
+    },
+    submitted:false
+  };
+
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && typeof p === "object") {
+        if (p.category) state.category = p.category;
+        if (p.type) state.type = p.type;
+        if (p.business) state.business = Object.assign(state.business, p.business);
+        if (p.typeFields) state.typeFields = p.typeFields;
+        if (Array.isArray(p.offerings)) state.offerings = p.offerings;
+        if (p.availability) state.availability = Object.assign(state.availability, p.availability);
+        state.submitted = !!p.submitted;
+      }
+    }
+  } catch (e) {}
+
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function uid(p) {
+    return p + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7);
+  }
+  function nonEmpty(v) { return v != null && String(v).trim().length > 0; }
+  function money(v) { return "P" + (Number(v) || 0).toFixed(2); }
+
+  function getCategory() {
+    for (var i = 0; i < CATALOG.length; i++) if (CATALOG[i].id === state.category) return CATALOG[i];
+    return null;
+  }
+  function getType() {
+    var c = getCategory();
+    if (!c) return null;
+    for (var i = 0; i < c.types.length; i++) if (c.types[i].id === state.type) return c.types[i];
+    return null;
+  }
+
+  function priceLabel(pricing) {
+    if (!pricing || !pricing.model || pricing.model === "quote") return "Price on request";
+    var m = PRICING_MODELS[pricing.model];
+    var unit = pricing.unit ? " " + pricing.unit : (m && m.label ? " " + m.label.toLowerCase() : "");
+    return money(pricing.basePrice) + (unit ? " · " + unit.replace(/^ /, "") : "");
+  }
+
+  var stack = $("#stack");
+  var toastEl = $("#toast");
+  var primaryBtn = $("#primaryBtn");
+  var progressFill = $("#progressFill");
+  var progressCount = $("#progressCount");
+  var toastTimer = null;
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2000);
+  }
+
+  /* ============================================================
+     COMPLETION RULES
+     ============================================================ */
+  function catDone() { return !!state.category; }
+  function typeDone() { return !!state.type; }
+  function businessDone() { return nonEmpty(state.business.name) && nonEmpty(state.business.whatsapp); }
+  function typeFieldsDone() {
+    var t = getType();
+    if (!t) return false;
+    if (!t.fields.length) return true;
+    // Require at least one field to be filled for "touched"
+    return t.fields.some(function (f) { return nonEmpty(state.typeFields[f.id]); });
+  }
+  function offeringsDone() {
+    return state.offerings.length > 0 && state.offerings.some(function (o) {
+      return nonEmpty(o.name) && (o.pricing && (o.pricing.model === "quote" || nonEmpty(o.pricing.basePrice)));
+    });
+  }
+  function availabilityDone() { return nonEmpty(state.availability.leadTimeDays); }
+  function reviewDone() {
+    return catDone() && typeDone() && businessDone() && typeFieldsDone() && offeringsDone() && availabilityDone();
+  }
+
+  function moduleTouched(key) {
+    if (key === "category")   return catDone();
+    if (key === "type")       return typeDone();
+    if (key === "business")   return nonEmpty(state.business.name) || nonEmpty(state.business.whatsapp) || nonEmpty(state.business.location);
+    if (key === "typeFields") return typeFieldsDone();
+    if (key === "offerings")  return state.offerings.length > 0;
+    if (key === "availability") return availabilityDone();
+    if (key === "review")     return reviewDone();
+    return false;
+  }
+  function moduleDone(key) {
+    if (key === "category")   return catDone();
+    if (key === "type")       return typeDone();
+    if (key === "business")   return businessDone();
+    if (key === "typeFields") return typeFieldsDone();
+    if (key === "offerings")  return offeringsDone();
+    if (key === "availability") return availabilityDone();
+    if (key === "review")     return reviewDone();
+    return false;
+  }
+
+  var MODULES = [
+    { key:"category",    title:"Provider category",     sub:"What kind of supplier you are" },
+    { key:"type",        title:"Supplier type",         sub:"The specific service you offer" },
+    { key:"business",    title:"Business profile",      sub:"Name, contact and location" },
+    { key:"typeFields",  title:"Specialised details",   sub:"Details specific to your service" },
+    { key:"offerings",   title:"Your services & products", sub:"Each with its own price" },
+    { key:"availability",title:"Availability & booking",sub:"Lead time and response" },
+    { key:"review",      title:"Review & publish",      sub:"Check everything, then submit" }
+  ];
+
+  function completedCount() {
+    var n = 0;
+    MODULES.forEach(function (m) {
+      if (m.key !== "review" && moduleDone(m.key)) n++;
+    });
+    return n;
+  }
+
+  /* ============================================================
+     RENDER — module bodies
+     ============================================================ */
+  function bodyCategory() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Pick the category that best matches your business. Your onboarding questions will be customised for the type you choose next.</p>' +
+        '<div class="pick-list" id="catPickList">' +
+          CATALOG.map(function (c) {
+            var on = state.category === c.id;
+            return '<button type="button" class="pick' + (on ? " on" : "") + '" data-cat-pick="' + c.id + '">' +
+              '<span class="pick-ico">' + esc(c.icon) + '</span>' +
+              '<span class="pick-txt">' +
+                '<b>' + esc(c.name) + '</b>' +
+                '<span>' + esc(c.blurb) + '</span>' +
+              '</span>' +
+            '</button>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyType() {
+    var c = getCategory();
+    if (!c) {
+      return '<div class="module"><div class="empty-note">Pick a provider category first.</div></div>';
+    }
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Choose the specific type that matches what you supply. This is what customers will filter by.</p>' +
+        '<div class="pick-list">' +
+          c.types.map(function (t) {
+            var on = state.type === t.id;
+            return '<button type="button" class="pick' + (on ? " on" : "") + '" data-type-pick="' + t.id + '">' +
+              '<span class="pick-txt">' +
+                '<b>' + esc(t.name) + '</b>' +
+                '<span>' + esc(t.note) + '</span>' +
+              '</span>' +
+            '</button>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyBusiness() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">This is what customers see first. Keep it short and specific about what you supply and where you are.</p>' +
+
+        '<div class="field">' +
+          '<label>Business name</label>' +
+          '<input class="input" type="text" data-biz="name" placeholder="e.g. Kalahari Fresh Produce" value="' + esc(state.business.name) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Contact person</label>' +
+          '<input class="input" type="text" data-biz="contact" placeholder="Full name" value="' + esc(state.business.contact) + '">' +
+        '</div>' +
+
+        '<div class="row-2">' +
+          '<div class="field">' +
+            '<label>WhatsApp</label>' +
+            '<input class="input" type="tel" data-biz="whatsapp" placeholder="+267 …" value="' + esc(state.business.whatsapp) + '">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Phone <span class="opt">— optional</span></label>' +
+            '<input class="input" type="tel" data-biz="phone" placeholder="+267 …" value="' + esc(state.business.phone) + '">' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Email <span class="opt">— optional</span></label>' +
+          '<input class="input" type="email" data-biz="email" placeholder="orders@…" value="' + esc(state.business.email) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Based in <span class="opt">— town or region</span></label>' +
+          '<input class="input" type="text" data-biz="location" placeholder="e.g. Gaborone" value="' + esc(state.business.location) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Short description</label>' +
+          '<textarea class="textarea" data-biz="description" placeholder="Two or three lines about what you supply, your capacity and what makes you reliable.">' +
+            esc(state.business.description) + '</textarea>' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Website <span class="opt">— optional</span></label>' +
+          '<input class="input" type="url" data-biz="website" placeholder="https://…" value="' + esc(state.business.website) + '">' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderFieldInput(f) {
+    var val = state.typeFields[f.id] || "";
+    if (f.type === "multi") {
+      var opts = f.options || [];
+      return '<div class="field">' +
+        '<label>' + esc(f.label) + '</label>' +
+        '<div class="chip-grid">' +
+          opts.map(function (o) {
+            var on = Array.isArray(val) ? val.indexOf(o) > -1 : false;
+            return '<button type="button" class="chip' + (on ? " on" : "") + '" data-multi-field="' + esc(f.id) + '" data-multi-val="' + esc(o) + '">' + esc(o) + '</button>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+    }
+    if (f.type === "select") {
+      return '<div class="field">' +
+        '<label>' + esc(f.label) + '</label>' +
+        '<select class="select" data-type-field="' + esc(f.id) + '">' +
+          '<option value="">Select…</option>' +
+          (f.options || []).map(function (o) {
+            return '<option value="' + esc(o) + '"' + (val === o ? " selected" : "") + '>' + esc(o) + '</option>';
+          }).join("") +
+        '</select>' +
+      '</div>';
+    }
+    if (f.type === "textarea") {
+      return '<div class="field">' +
+        '<label>' + esc(f.label) + '</label>' +
+        '<textarea class="textarea" data-type-field="' + esc(f.id) + '" placeholder="' + esc(f.placeholder || "") + '">' + esc(val) + '</textarea>' +
+      '</div>';
+    }
+    if (f.type === "number") {
+      return '<div class="field">' +
+        '<label>' + esc(f.label) + '</label>' +
+        '<input class="input" type="number" min="0" data-type-field="' + esc(f.id) + '" placeholder="' + esc(f.placeholder || "") + '" value="' + esc(val) + '">' +
+      '</div>';
+    }
+    return '<div class="field">' +
+      '<label>' + esc(f.label) + '</label>' +
+      '<input class="input" type="text" data-type-field="' + esc(f.id) + '" placeholder="' + esc(f.placeholder || "") + '" value="' + esc(val) + '">' +
+    '</div>';
+  }
+
+  function bodyTypeFields() {
+    var t = getType();
+    if (!t) {
+      return '<div class="module"><div class="empty-note">Pick a supplier type first.</div></div>';
+    }
+    if (!t.fields || !t.fields.length) {
+      return '<div class="module"><div class="empty-note">This supplier type has no additional specialised fields. Continue to the next step.</div></div>';
+    }
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">These questions are specific to <b>' + esc(t.name) + '</b>. They help buyers filter and match with you.</p>' +
+        t.fields.map(renderFieldInput).join("") +
+      '</div>';
+  }
+
+  function offeringCardHTML(o) {
+    var img = (o.images && o.images[0]) || "";
+    var thumbInner = img ? '<img src="' + esc(img) + '" alt="">' : '<span>📦</span>';
+    return '' +
+      '<article class="offering" data-offering="' + esc(o.id) + '" role="button" tabindex="0">' +
+        '<div class="offering-thumb">' + thumbInner + '</div>' +
+        '<div class="offering-info">' +
+          '<b>' + esc(o.name || "Untitled offering") + '</b>' +
+          '<div class="price">' + esc(priceLabel(o.pricing)) + '</div>' +
+          (o.shortDescription ? '<div class="desc">' + esc(o.shortDescription) + '</div>' : '') +
+        '</div>' +
+        '<div class="offering-actions">' +
+          '<button type="button" class="mini-btn" data-dup-offering="' + esc(o.id) + '" aria-label="Duplicate">⎘</button>' +
+          '<button type="button" class="mini-btn danger" data-del-offering="' + esc(o.id) + '" aria-label="Remove">✕</button>' +
+        '</div>' +
+      '</article>';
+  }
+
+  function bodyOfferings() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">List every product, service, package or rental you sell. Each one has its own description and its own price.</p>' +
+        (state.offerings.length
+          ? state.offerings.map(offeringCardHTML).join("")
+          : '<div class="empty-note">No offerings yet. Add at least one product, service or package to publish your supplier profile.</div>') +
+        '<button type="button" class="add-btn" data-add-offering="1">+ Add an offering</button>' +
+      '</div>';
+  }
+
+  function bodyAvailability() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Buyers filter by lead time and response, so accurate settings get you more relevant enquiries.</p>' +
+
+        '<div class="field">' +
+          '<label>Typical lead time (days)</label>' +
+          '<input class="input" type="number" min="0" data-avail="leadTimeDays" placeholder="e.g. 7" value="' + esc(state.availability.leadTimeDays) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Typical quote response time</label>' +
+          '<select class="select" data-avail="responseTime">' +
+            '<option value="">Select…</option>' +
+            ["Within 2 hours","Same day","Within 24 hours","Within 2 business days","Other"].map(function (o) {
+              return '<option value="' + esc(o) + '"' + (state.availability.responseTime === o ? " selected" : "") + '>' + esc(o) + '</option>';
+            }).join("") +
+          '</select>' +
+        '</div>' +
+
+        '<label class="check-row">' +
+          '<input type="checkbox" data-avail-check="sameDay"' + (state.availability.sameDay ? " checked" : "") + '>' +
+          '<span>Accept same-day bookings</span>' +
+        '</label>' +
+
+        '<div class="field" style="margin-top:14px">' +
+          '<label>Blackout dates / unavailability <span class="opt">— optional</span></label>' +
+          '<textarea class="textarea" data-avail="blackoutNotes" placeholder="e.g. Closed 15–25 December. No Sunday bookings.">' + esc(state.availability.blackoutNotes) + '</textarea>' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Cancellation policy</label>' +
+          '<textarea class="textarea" data-avail="cancellation" placeholder="Short summary of your cancellation terms.">' + esc(state.availability.cancellation) + '</textarea>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyReview() {
+    var rows = [
+      { key:"category",     label:"Provider category" },
+      { key:"type",         label:"Supplier type" },
+      { key:"business",     label:"Business profile" },
+      { key:"typeFields",   label:"Specialised details" },
+      { key:"offerings",    label:"Services & products" },
+      { key:"availability", label:"Availability & booking" }
+    ];
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">' +
+          (reviewDone()
+            ? "Everything required is filled in. Submit and our team will publish your supplier page within 48 hours."
+            : "Some required steps are still empty. Tap them above to finish, then come back here.") +
+        '</p>' +
+        '<div class="summary">' +
+          rows.map(function (r) {
+            var ok = moduleDone(r.key);
+            return '<div class="sum-row' + (ok ? " ok" : "") + '">' +
+              '<span class="dot"></span>' +
+              '<span>' + esc(r.label) + '</span>' +
+              '<em>' + (ok ? "Done" : "Empty") + '</em>' +
+            '</div>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyFor(key) {
+    if (key === "category")     return bodyCategory();
+    if (key === "type")         return bodyType();
+    if (key === "business")     return bodyBusiness();
+    if (key === "typeFields")   return bodyTypeFields();
+    if (key === "offerings")    return bodyOfferings();
+    if (key === "availability") return bodyAvailability();
+    if (key === "review")       return bodyReview();
+    return "";
+  }
+
+  /* ============================================================
+     BUILD STACK
+     ============================================================ */
+  function buildStack() {
+    stack.innerHTML = MODULES.map(function (m, i) {
+      var locked = false;
+      if (m.key === "type" && !state.category) locked = true;
+      if (m.key === "typeFields" && !state.type) locked = true;
+      var isOpen = false; // always start closed
+
+      return '' +
+        '<section class="acc' + (isOpen ? " open" : "") + (locked ? " locked" : "") +
+          (moduleTouched(m.key) ? " touched" : "") + '" data-key="' + m.key + '">' +
+          '<button class="acc-head" type="button" aria-expanded="false">' +
+            '<span class="step-num">' + (i + 1) + '</span>' +
+            '<span class="acc-title">' +
+              '<b>' + esc(m.title) + '</b>' +
+              '<span class="acc-sub">' + esc(m.sub) + '</span>' +
+            '</span>' +
+          '</button>' +
+          '<div class="acc-body">' +
+            '<div class="acc-inner" data-body="' + m.key + '">' +
+              bodyFor(m.key) +
+            '</div>' +
+          '</div>' +
+        '</section>';
+    }).join("");
+  }
+
+  /* ============================================================
+     STATUS REFRESH
+     ============================================================ */
+  function refreshStatus() {
+    MODULES.forEach(function (m) {
+      var acc = stack.querySelector('.acc[data-key="' + m.key + '"]');
+      if (!acc) return;
+      acc.classList.toggle("touched", moduleTouched(m.key));
+      var locked = false;
+      if (m.key === "type" && !state.category) locked = true;
+      if (m.key === "typeFields" && !state.type) locked = true;
+      acc.classList.toggle("locked", locked);
+    });
+
+    var done = completedCount();
+    progressCount.textContent = done + " of 7 complete";
+    progressFill.style.width = Math.round((done / 7) * 100) + "%";
+
+    var all = reviewDone();
+    primaryBtn.classList.toggle("ready", all);
+    primaryBtn.textContent = all ? "Submit supplier profile" : "Continue";
+  }
+
+  function refreshTypeFields() {
+    var body = stack.querySelector('[data-body="typeFields"]');
+    if (body) body.innerHTML = bodyTypeFields();
+  }
+  function refreshTypeList() {
+    var body = stack.querySelector('[data-body="type"]');
+    if (body) body.innerHTML = bodyType();
+  }
+  function refreshOfferings() {
+    var body = stack.querySelector('[data-body="offerings"]');
+    if (body) body.innerHTML = bodyOfferings();
+  }
+  function refreshReview() {
+    var body = stack.querySelector('[data-body="review"]');
+    if (body) body.innerHTML = bodyReview();
+  }
+  function refreshCategoryPick() {
+    var body = stack.querySelector('[data-body="category"]');
+    if (body) body.innerHTML = bodyCategory();
+  }
+
+  /* ============================================================
+     ACCORDION
+     ============================================================ */
+  var openKey = null;
+
+  function openAccordion(key, scrollTo) {
+    MODULES.forEach(function (m) {
+      var acc = stack.querySelector('.acc[data-key="' + m.key + '"]');
+      if (!acc) return;
+      var head = acc.querySelector(".acc-head");
+      var isOpen = m.key === key;
+      acc.classList.toggle("open", isOpen);
+      if (head) head.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+    openKey = key;
+    if (key && scrollTo) {
+      var acc = stack.querySelector('.acc[data-key="' + key + '"]');
+      if (acc) {
+        setTimeout(function () {
+          try { acc.scrollIntoView({ behavior:"smooth", block:"start" }); } catch (e) {}
+        }, 330);
+      }
+    }
+  }
+
+  function toggleAccordion(key) {
+    if (openKey === key) openAccordion(null);
+    else openAccordion(key, true);
+  }
+
+  function nextIncompleteKey() {
+    for (var i = 0; i < MODULES.length; i++) {
+      var k = MODULES[i].key;
+      if (k === "review") continue;
+      if (!moduleDone(k)) return k;
+    }
+    return "review";
+  }
+
+  /* ============================================================
+     EVENT DELEGATION
+     ============================================================ */
+  stack.addEventListener("click", function (e) {
+
+    /* accordion header */
+    var head = e.target.closest(".acc-head");
+    if (head) {
+      var acc = head.closest(".acc");
+      if (acc && !acc.classList.contains("locked")) toggleAccordion(acc.dataset.key);
+      return;
+    }
+
+    /* category pick */
+    var catPick = e.target.closest("[data-cat-pick]");
+    if (catPick) {
+      var newCat = catPick.dataset.catPick;
+      if (state.category && state.category !== newCat) {
+        if (!confirm("Changing category will clear your supplier type and specialised fields. Continue?")) return;
+        state.type = "";
+        state.typeFields = {};
+      }
+      state.category = newCat;
+      save();
+      refreshCategoryPick();
+      refreshTypeList();
+      refreshTypeFields();
+      refreshStatus();
+      return;
+    }
+
+    /* type pick */
+    var typePick = e.target.closest("[data-type-pick]");
+    if (typePick) {
+      var newType = typePick.dataset.typePick;
+      if (state.type && state.type !== newType) {
+        state.typeFields = {};  // reset fields on type change
+      }
+      state.type = newType;
+      save();
+      refreshTypeList();
+      refreshTypeFields();
+      refreshStatus();
+      // auto open specialised details
+      setTimeout(function () { openAccordion("typeFields", true); }, 100);
+      return;
+    }
+
+    /* multi-select chip in type fields */
+    var multi = e.target.closest("[data-multi-field]");
+    if (multi) {
+      var fid = multi.dataset.multiField;
+      var fval = multi.dataset.multiVal;
+      var current = state.typeFields[fid];
+      if (!Array.isArray(current)) current = [];
+      var idx = current.indexOf(fval);
+      if (idx > -1) current.splice(idx, 1);
+      else current.push(fval);
+      state.typeFields[fid] = current;
+      multi.classList.toggle("on", idx === -1);
+      save();
+      refreshStatus();
+      return;
+    }
+
+    /* add offering */
+    if (e.target.closest("[data-add-offering]")) {
+      offeringModal(null);
+      return;
+    }
+
+    /* edit offering (tap on card, not on action buttons) */
+    var offering = e.target.closest("[data-offering]");
+    if (offering && !e.target.closest("[data-dup-offering]") && !e.target.closest("[data-del-offering]")) {
+      var oid = offering.dataset.offering;
+      var o = state.offerings.filter(function (x) { return x.id === oid; })[0];
+      if (o) offeringModal(o);
+      return;
+    }
+
+    /* duplicate */
+    var dup = e.target.closest("[data-dup-offering]");
+    if (dup) {
+      e.stopPropagation();
+      var srcId = dup.dataset.dupOffering;
+      var src = state.offerings.filter(function (x) { return x.id === srcId; })[0];
+      if (!src) return;
+      var copy = JSON.parse(JSON.stringify(src));
+      copy.id = uid("off");
+      copy.name = src.name + " (copy)";
+      state.offerings.push(copy);
+      save();
+      refreshOfferings();
+      refreshStatus();
+      refreshReview();
+      toast("Offering duplicated");
+      return;
+    }
+
+    /* remove */
+    var del = e.target.closest("[data-del-offering]");
+    if (del) {
+      e.stopPropagation();
+      var rid = del.dataset.delOffering;
+      var o2 = state.offerings.filter(function (x) { return x.id === rid; })[0];
+      if (!o2) return;
+      if (!confirm("Remove \"" + o2.name + "\"? This cannot be undone.")) return;
+      state.offerings = state.offerings.filter(function (x) { return x.id !== rid; });
+      save();
+      refreshOfferings();
+      refreshStatus();
+      refreshReview();
+      toast("Offering removed");
+      return;
+    }
+  });
+
+  /* ---- input handling ---- */
+  stack.addEventListener("input", function (e) {
+    var el = e.target;
+    if (!el || !el.dataset) return;
+
+    if (el.dataset.biz) {
+      state.business[el.dataset.biz] = el.value;
+      save();
+      refreshStatus();
+      refreshReview();
+      return;
+    }
+    if (el.dataset.typeField) {
+      state.typeFields[el.dataset.typeField] = el.value;
+      save();
+      refreshStatus();
+      return;
+    }
+    if (el.dataset.avail) {
+      state.availability[el.dataset.avail] = el.value;
+      save();
+      refreshStatus();
+      refreshReview();
+      return;
+    }
+  });
+
+  stack.addEventListener("change", function (e) {
+    var el = e.target;
+    if (!el || !el.dataset) return;
+
+    if (el.dataset.typeField) {
+      state.typeFields[el.dataset.typeField] = el.value;
+      save();
+      refreshStatus();
+      return;
+    }
+    if (el.dataset.availCheck) {
+      state.availability[el.dataset.availCheck] = el.checked;
+      save();
+      refreshStatus();
+      return;
+    }
+  });
+
+  /* ============================================================
+     OFFERING MODAL
+     ============================================================ */
+  function offeringModal(existing) {
+    var isNew = !existing;
+    var o = existing ? JSON.parse(JSON.stringify(existing)) : {
+      id: uid("off"),
+      name: "",
+      shortDescription: "",
+      description: "",
+      images: [],
+      included: [],
+      excluded: [],
+      pricing: {
+        model: "fixed_fee",
+        currency: "BWP",
+        basePrice: "",
+        unit: "",
+        minQuantity: "",
+        minSpend: "",
+        notes: ""
+      },
+      extras: [],
+      active: true
+    };
+    if (!Array.isArray(o.images)) o.images = [];
+    if (!Array.isArray(o.included)) o.included = [];
+    if (!Array.isArray(o.excluded)) o.excluded = [];
+    if (!Array.isArray(o.extras)) o.extras = [];
+    if (!o.pricing) o.pricing = { model:"fixed_fee", currency:"BWP", basePrice:"", unit:"", minQuantity:"", minSpend:"", notes:"" };
+
+    /* available pricing models: filtered by supplier type, or all if no type */
+    var availableModels = Object.keys(PRICING_MODELS);
+    var t = getType();
+    if (t && t.pricing && t.pricing.length) availableModels = t.pricing.slice();
+
+    var modelOpts = availableModels.map(function (m) {
+      var label = PRICING_MODELS[m] ? PRICING_MODELS[m].label : m;
+      return '<option value="' + m + '"' + (o.pricing.model === m ? " selected" : "") + '>' + esc(label) + '</option>';
+    }).join("");
+
+    var currencyOpts = CURRENCIES.map(function (c) {
+      return '<option value="' + c + '"' + (o.pricing.currency === c ? " selected" : "") + '>' + c + '</option>';
+    }).join("");
+
+    var body =
+      /* Image gallery */
+      '<div class="gallery-section">' +
+        '<div class="gallery-rail" id="offGalleryRail">' +
+          '<label class="gallery-tile add-tile" id="offAddTile">' +
+            '<span>+</span>' +
+            '<input type="file" accept="image/*" multiple id="offImgInput">' +
+          '</label>' +
+        '</div>' +
+        '<div class="gallery-dots" id="offGalleryDots"></div>' +
+      '</div>' +
+
+      /* Name */
+      '<div class="form-section">' +
+        '<label class="form-label">Offering name</label>' +
+        '<input class="input" type="text" id="off-name" placeholder="e.g. Premium Buffet — 50 guests" value="' + esc(o.name) + '">' +
+      '</div>' +
+
+      /* Short description */
+      '<div class="form-section">' +
+        '<label class="form-label">Short summary</label>' +
+        '<input class="input" type="text" id="off-short" maxlength="140" placeholder="A one-line summary that appears on listing cards." value="' + esc(o.shortDescription) + '">' +
+      '</div>' +
+
+      /* Full description */
+      '<div class="form-section">' +
+        '<label class="form-label">Full description</label>' +
+        '<textarea class="textarea" id="off-desc" placeholder="Explain exactly what is included, excluded, and who this option suits.">' + esc(o.description) + '</textarea>' +
+      '</div>' +
+
+      /* Pricing block */
+      '<div class="form-section">' +
+        '<label class="form-label">Pricing model</label>' +
+        '<select class="select" id="off-model">' + modelOpts + '</select>' +
+        '<p class="form-hint">Choose the way this offering is priced. The relevant fields appear below.</p>' +
+      '</div>' +
+
+      '<div class="form-row-2" id="off-price-row">' +
+        '<div class="form-section">' +
+          '<label class="form-label">Currency</label>' +
+          '<select class="select" id="off-currency">' + currencyOpts + '</select>' +
+        '</div>' +
+        '<div class="form-section">' +
+          '<label class="form-label">Base price</label>' +
+          '<input class="input" type="number" min="0" step="0.01" id="off-price" placeholder="0.00" value="' + esc(o.pricing.basePrice) + '">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="form-row-2">' +
+        '<div class="form-section">' +
+          '<label class="form-label">Charge unit <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" id="off-unit" placeholder="e.g. per guest" value="' + esc(o.pricing.unit) + '">' +
+        '</div>' +
+        '<div class="form-section">' +
+          '<label class="form-label">Minimum quantity <span class="opt">— optional</span></label>' +
+          '<input class="input" type="number" min="0" id="off-minqty" placeholder="e.g. 30" value="' + esc(o.pricing.minQuantity) + '">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="form-section">' +
+        '<label class="form-label">Pricing notes &amp; exclusions <span class="opt">— optional</span></label>' +
+        '<textarea class="textarea" id="off-notes" placeholder="Anything the buyer must know about the price, e.g. deposit, travel fee, what is not included.">' + esc(o.pricing.notes) + '</textarea>' +
+      '</div>' +
+
+      /* Included */
+      '<div class="form-section">' +
+        '<div class="form-label-row">' +
+          '<span class="form-label">What is included</span>' +
+          '<button class="link-btn" type="button" id="addInc">+ Add</button>' +
+        '</div>' +
+        '<div id="incList"></div>' +
+      '</div>' +
+
+      /* Excluded */
+      '<div class="form-section">' +
+        '<div class="form-label-row">' +
+          '<span class="form-label">What is not included</span>' +
+          '<button class="link-btn" type="button" id="addExc">+ Add</button>' +
+        '</div>' +
+        '<div id="excList"></div>' +
+      '</div>' +
+
+      /* Extras */
+      '<div class="form-section">' +
+        '<div class="form-label-row">' +
+          '<span class="form-label">Optional extras</span>' +
+          '<button class="link-btn" type="button" id="addExtra">+ Add</button>' +
+        '</div>' +
+        '<div id="extrasList"></div>' +
+        '<p class="form-hint">Each extra is a separately priced add-on the buyer can choose.</p>' +
+      '</div>' +
+
+      /* Live price preview */
+      '<div class="price-preview" id="pricePreview">' +
+        '<div class="lbl">How buyers will see the price</div>' +
+        '<div class="val" id="priceVal">—</div>' +
+      '</div>';
+
+    var footer =
+      '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+      '<button class="btn btn-primary" type="button" data-save>' +
+        (isNew ? "Add offering" : "Save offering") +
+      '</button>';
+
+    var scrim = openModal({
+      title: isNew ? "Add offering" : "Edit offering",
+      body: body,
+      footer: footer
+    });
+
+    /* ========================================================
+       IMAGE GALLERY
+       ======================================================== */
+    var galleryImages = o.images.slice();
+    var rail = scrim.querySelector("#offGalleryRail");
+    var dots = scrim.querySelector("#offGalleryDots");
+    var addTile = scrim.querySelector("#offAddTile");
+    var fileInput = scrim.querySelector("#offImgInput");
+
+    function renderGallery() {
+      Array.prototype.forEach.call(rail.querySelectorAll(".gallery-tile:not(.add-tile)"), function (t) { t.remove(); });
+      galleryImages.forEach(function (src, i) {
+        var tile = document.createElement("div");
+        tile.className = "gallery-tile" + (i === 0 ? " main" : "");
+        tile.innerHTML = '<img src="' + esc(src) + '" alt="">' +
+          '<button type="button" class="tile-x" aria-label="Remove image">✕</button>';
+        tile.querySelector(".tile-x").addEventListener("click", function (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          galleryImages.splice(i, 1);
+          renderGallery();
+        });
+        rail.insertBefore(tile, addTile);
+      });
+      dots.innerHTML = galleryImages.map(function (_, i) {
+        return '<span class="dot' + (i === 0 ? " first" : "") + '"></span>';
+      }).join("");
+      addTile.style.display = galleryImages.length >= 8 ? "none" : "";
+    }
+
+    fileInput.addEventListener("change", function () {
+      var files = Array.prototype.slice.call(fileInput.files || []);
+      if (!files.length) return;
+      var remaining = 8 - galleryImages.length;
+      if (remaining <= 0) { fileInput.value = ""; toast("Max 8 images"); return; }
+      var take = files.slice(0, remaining);
+      var loaded = 0;
+      take.forEach(function (f) {
+        var r = new FileReader();
+        r.onload = function (ev) {
+          galleryImages.push(ev.target.result);
+          loaded++;
+          if (loaded === take.length) {
+            renderGallery();
+            if (files.length > remaining) toast("Max 8 images");
+          }
+        };
+        r.readAsDataURL(f);
+      });
+      fileInput.value = "";
+    });
+
+    renderGallery();
+
+    /* ========================================================
+       REPEATABLE ROWS
+       ======================================================== */
+    function pointRow(container, val) {
+      var row = document.createElement("div");
+      row.className = "point-row";
+      row.innerHTML =
+        '<span class="bullet">•</span>' +
+        '<input class="input" type="text" value="' + esc(val || "") + '" placeholder="Add a line">' +
+        '<button type="button" class="row-del" aria-label="Remove">✕</button>';
+      row.querySelector(".row-del").onclick = function () { row.remove(); };
+      container.appendChild(row);
+    }
+    function extraRow(val) {
+      val = val || { name: "", price: "" };
+      var row = document.createElement("div");
+      row.className = "row-input";
+      row.innerHTML =
+        '<input class="input" type="text" data-extra-name placeholder="Extra name" value="' + esc(val.name || "") + '">' +
+        '<input class="input" type="number" min="0" step="0.01" data-extra-price placeholder="+P" value="' + esc(val.price || "") + '">' +
+        '<button type="button" class="row-del" aria-label="Remove">✕</button>';
+      row.querySelector(".row-del").onclick = function () { row.remove(); updatePricePreview(); };
+      row.querySelector("[data-extra-price]").addEventListener("input", updatePricePreview);
+      extrasList.appendChild(row);
+    }
+
+    var incList = scrim.querySelector("#incList");
+    var excList = scrim.querySelector("#excList");
+    var extrasList = scrim.querySelector("#extrasList");
+
+    (o.included || []).forEach(function (v) { pointRow(incList, v); });
+    (o.excluded || []).forEach(function (v) { pointRow(excList, v); });
+    (o.extras || []).forEach(function (x) { extraRow(x); });
+
+    scrim.querySelector("#addInc").onclick = function () { pointRow(incList, ""); };
+    scrim.querySelector("#addExc").onclick = function () { pointRow(excList, ""); };
+    scrim.querySelector("#addExtra").onclick = function () { extraRow(); };
+
+    /* ========================================================
+       PRICING — live preview
+       ======================================================== */
+    function updatePricePreview() {
+      var model = scrim.querySelector("#off-model").value;
+      var price = scrim.querySelector("#off-price").value;
+      var unit = scrim.querySelector("#off-unit").value;
+      var currency = scrim.querySelector("#off-currency").value;
+      var valEl = scrim.querySelector("#priceVal");
+      var priceRow = scrim.querySelector("#off-price-row");
+
+      if (model === "quote") {
+        priceRow.style.display = "none";
+        valEl.innerHTML = 'Price on request';
+      } else {
+        priceRow.style.display = "";
+        var m = PRICING_MODELS[model];
+        var unitText = unit || (m ? m.label.toLowerCase() : "");
+        valEl.innerHTML = esc(currency) + " " + (price ? Number(price).toFixed(2) : "0.00") +
+          (unitText ? '<span class="unit">' + esc(unitText) + '</span>' : '');
+      }
+    }
+
+    scrim.querySelector("#off-model").addEventListener("change", updatePricePreview);
+    scrim.querySelector("#off-price").addEventListener("input", updatePricePreview);
+    scrim.querySelector("#off-unit").addEventListener("input", updatePricePreview);
+    scrim.querySelector("#off-currency").addEventListener("change", updatePricePreview);
+
+    updatePricePreview();
+
+    /* ========================================================
+       SAVE
+       ======================================================== */
+    scrim.querySelector("[data-save]").onclick = function () {
+      var name = scrim.querySelector("#off-name").value.trim();
+      if (!name) { toast("Give the offering a name"); scrim.querySelector("#off-name").focus(); return; }
+
+      var model = scrim.querySelector("#off-model").value;
+      var basePrice = scrim.querySelector("#off-price").value;
+
+      if (model !== "quote" && !nonEmpty(basePrice)) {
+        toast("Add a base price or select Custom quote");
+        scrim.querySelector("#off-price").focus();
+        return;
+      }
+
+      var included = $$("#incList .point-row input", scrim).map(function (i) { return i.value.trim(); }).filter(Boolean);
+      var excluded = $$("#excList .point-row input", scrim).map(function (i) { return i.value.trim(); }).filter(Boolean);
+      var extras = $$("#extrasList .row-input", scrim).map(function (r) {
+        var n = r.querySelector("[data-extra-name]").value.trim();
+        if (!n) return null;
+        return { name: n, price: Number(r.querySelector("[data-extra-price]").value) || 0 };
+      }).filter(Boolean);
+
+      var data = {
+        id: o.id,
+        name: name,
+        shortDescription: scrim.querySelector("#off-short").value.trim(),
+        description: scrim.querySelector("#off-desc").value.trim(),
+        images: galleryImages.slice(),
+        included: included,
+        excluded: excluded,
+        extras: extras,
+        pricing: {
+          model: model,
+          currency: scrim.querySelector("#off-currency").value,
+          basePrice: model === "quote" ? "" : Number(basePrice) || 0,
+          unit: scrim.querySelector("#off-unit").value.trim(),
+          minQuantity: scrim.querySelector("#off-minqty").value,
+          minSpend: o.pricing.minSpend || "",
+          notes: scrim.querySelector("#off-notes").value.trim()
+        },
+        active: true
+      };
+
+      if (isNew) {
+        state.offerings.push(data);
+        toast("Offering added");
+      } else {
+        var idx = state.offerings.findIndex(function (x) { return x.id === o.id; });
+        if (idx > -1) state.offerings[idx] = data;
+        toast("Offering saved");
+      }
+      save();
+      refreshOfferings();
+      refreshStatus();
+      refreshReview();
+      scrim.remove();
+    };
+
+    setTimeout(function () {
+      try { scrim.querySelector("#off-name").focus(); } catch (e) {}
+    }, 80);
+  }
+
+  /* ============================================================
+     MODAL SYSTEM
+     ============================================================ */
+  function openModal(opts) {
+    var scrim = document.createElement("div");
+    scrim.className = "modal-scrim";
+    scrim.innerHTML =
+      '<div class="modal" role="dialog" aria-modal="true">' +
+        '<div class="modal-hdr">' +
+          '<h3>' + esc(opts.title) + '</h3>' +
+          '<button class="modal-close" type="button" data-close aria-label="Close">✕</button>' +
+        '</div>' +
+        '<div class="modal-body">' + opts.body + '</div>' +
+        '<div class="modal-foot">' + opts.footer + '</div>' +
+      '</div>';
+    document.body.appendChild(scrim);
+    scrim.querySelectorAll("[data-close]").forEach(function (b) {
+      b.onclick = function () { scrim.remove(); };
+    });
+    scrim.addEventListener("click", function (e) {
+      if (e.target === scrim) scrim.remove();
+    });
+    return scrim;
+  }
+
+  /* ============================================================
+     PRIMARY ACTION
+     ============================================================ */
+  primaryBtn.addEventListener("click", function () {
+    if (reviewDone()) {
+      state.submitted = true;
+      save();
+      toast("Supplier profile submitted — we'll be in touch");
+      primaryBtn.textContent = "Submitted";
+      primaryBtn.classList.add("ready");
+      return;
+    }
+    var key = nextIncompleteKey();
+    openAccordion(key, true);
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  buildStack();
+  refreshStatus();
+  openAccordion(null);
+
+})();
+</script>
+
+</body>
+</html>

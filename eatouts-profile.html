@@ -577,6 +577,14 @@
   <div class="scroll" id="scroll">
     <section class="intro" id="intro">
       <h1>Your <em>profile</em>.</h1>
+      <div style="display:flex;align-items:center;gap:16px;margin:16px 0 8px 0">
+        <div id="avatarPreview" style="width:72px;height:72px;border-radius:50%;background:#e9edf2;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--line);font-size:28px;color:#9aa1ac">?</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input type="file" id="avatarInput" accept="image/*" hidden>
+          <button type="button" class="btn btn-ghost btn-sm" id="avatarBtn">Upload photo</button>
+          <div class="hint">JPEG, PNG, WebP up to ~5MB</div>
+        </div>
+      </div>
       <p>Personal details, contacts, delivery defaults and notification preferences.</p>
     </section>
     <main class="sheet" id="app"></main>
@@ -660,6 +668,7 @@ document.addEventListener("DOMContentLoaded", function () {
     surname:   u.surname   || "",
     dob:       u.dob       || "",
     gender:    u.gender    || "Prefer not to say",
+    bio:       u.bio       || "",
     contacts:  Array.isArray(u.contacts) ? u.contacts.slice() : [],
     notify: {
       promo: u.notify ? (u.notify.promo !== false) : true,
@@ -683,6 +692,7 @@ document.addEventListener("DOMContentLoaded", function () {
             working.surname   !== (u.surname   || "") ||
             working.dob       !== (u.dob       || "") ||
             working.gender    !== (u.gender    || "Prefer not to say") ||
+            (working.bio || "") !== (u.bio || "") ||
             working.contacts.join("\n") !== (u.contacts || []).join("\n") ||
             (working.notify.promo !== (u.notify ? (u.notify.promo !== false) : true)) ||
             (working.notify.order !== (u.notify ? (u.notify.order !== false) : true));
@@ -750,7 +760,7 @@ document.addEventListener("DOMContentLoaded", function () {
           '</select>' +
         '</div>' +
       '</div>' +
-      '<div class="save-row">' +
+      '<div class="field"><label>Bio</label>          <textarea data-k="bio" rows="3" maxlength="240" placeholder="Tell people a little about you">' + escapeAttr(working.bio || '') + '</textarea></div><div class="save-row">' +
         '<button type="button" class="btn btn-save" data-save="personal"' + (profileDirty() ? '' : ' disabled') + '>' +
           (profileDirty() ? 'Save profile' : 'Saved') +
         '</button>' +
@@ -1104,6 +1114,7 @@ document.addEventListener("DOMContentLoaded", function () {
       surname:   working.surname,
       dob:       working.dob,
       gender:    working.gender,
+      bio:       working.bio || '',
       contacts:  working.contacts.slice(),
       notify: {
         promo: !!working.notify.promo,
@@ -1154,6 +1165,47 @@ document.addEventListener("DOMContentLoaded", function () {
       if (acc) toggleAccordion(acc.getAttribute('data-key'));
     }
   });
+
+  /* ============================================================
+     AVATAR
+     ============================================================ */
+  var avatarBtn = document.getElementById('avatarBtn');
+  var avatarInput = document.getElementById('avatarInput');
+  var avatarPrev = document.getElementById('avatarPreview');
+  function setAvatarUrl(url){
+    if(!avatarPrev) return;
+    if(url){
+      avatarPrev.innerHTML = '<img src="' + url + '" alt="avatar" style="width:100%;height:100%;object-fit:cover">';
+    }else{
+      avatarPrev.textContent = '?';
+    }
+  }
+  if(u && (u.photoKey || u.avatar || (u.profile && (u.profile.photoKey||u.profile.avatar||u.profile.photo)))){
+    var au = u.photoKey || u.avatar || (u.profile && (u.profile.photoKey||u.profile.avatar||u.profile.photo));
+    setAvatarUrl(au);
+  }
+  if(avatarBtn && avatarInput){
+    avatarBtn.addEventListener('click', function(){ avatarInput.click(); });
+    avatarInput.addEventListener('change', function(){
+      var f=avatarInput.files && avatarInput.files[0];
+      if(!f) return;
+      var id=(u&&u.id)||(window.EO&&EO.currentUser()&&EO.currentUser().id);
+      if(window.EatoutsCustomer && window.EatoutsCustomer.uploadAvatar){
+        avatarBtn.disabled=true; avatarBtn.textContent='Uploading...';
+        window.EatoutsCustomer.uploadAvatar(f,id).then(function(res){
+          var url=res&&res.url?res.url:res;
+          if(url) setAvatarUrl(url);
+          avatarBtn.disabled=false; avatarBtn.textContent='Upload photo';
+          try{ toast('Photo updated'); }catch(e){}
+        }).catch(function(){
+          avatarBtn.disabled=false; avatarBtn.textContent='Upload photo';
+          try{ toast('Upload failed'); }catch(e){}
+        });
+      }else{
+        avatarBtn.disabled=false;
+      }
+    });
+  }
 
   /* ============================================================
      BOOT

@@ -55,7 +55,8 @@ export async function onRequestGet(context) {
 }
 
 var PROFILE_FIELDS = ['firstName', 'surname', 'dob', 'gender', 'town', 'area',
-  'contacts', 'favRestaurants', 'favBottleStore', 'notify', 'bio', 'deliveryLocation'];
+  'contacts', 'favRestaurants', 'favBottleStore', 'notify', 'bio', 'deliveryLocation',
+  'photo', 'photoKey', 'avatar', 'photo_key'];
 
 async function updateProfile(context) {
   var session = await getSession(context.env, context.request);
@@ -76,6 +77,13 @@ async function updateProfile(context) {
     if (patch[f] !== undefined) profile[f] = patch[f];
   });
 
+  var photoKey = patch.photoKey || patch.photo_key || patch.photo || patch.avatar;
+  if (photoKey !== undefined && photoKey !== null && photoKey !== '') {
+    profile.photoKey = photoKey;
+    profile.avatar = photoKey;
+    profile.photo = photoKey;
+  }
+
   var name = row.name;
   if (patch.firstName !== undefined || patch.surname !== undefined) {
     var fn = patch.firstName !== undefined ? patch.firstName : (profile.firstName || '');
@@ -89,7 +97,7 @@ async function updateProfile(context) {
   try {
     await env.DB.prepare(
       'UPDATE users SET profile = ?, name = ?, photo_key = ?, updated_at = ? WHERE id = ?'
-    ).bind(JSON.stringify(profile), name, photo, now(), row.id).run();
+    ).bind(JSON.stringify(profile), name, (photoKey !== undefined && photoKey !== null && photoKey !== '') ? photoKey : (photo || row.photo_key || null), now(), row.id).run();
   } catch (e) {
     return json({ ok: false, error: 'update_failed' }, 500);
   }

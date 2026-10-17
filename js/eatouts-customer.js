@@ -444,6 +444,19 @@
     return uploadFile(file, 'customers/' + id);
   }
 
+  function uploadAvatar(file, id) {
+    var uid = id || (state.user && state.user.id);
+    if (!file || !uid) return Promise.resolve(null);
+    return uploadFile(file, 'customers/' + uid).then(function (res) {
+      var keyOrUrl = res && res.url ? res.url : res;
+      if (!keyOrUrl) return null;
+      try {
+        updateProfile({ photoKey: keyOrUrl, avatar: keyOrUrl, photo: keyOrUrl });
+      } catch (e) {}
+      return keyOrUrl;
+    });
+  }
+
   /* ---------- init ---------- */
 
   function init() {
@@ -472,6 +485,7 @@
     verify: verify,
     login: login,
     logout: logout,
+    uploadAvatar: uploadAvatar,
     updateProfile: updateProfile,
     favourites: {
       list: listFavourites,

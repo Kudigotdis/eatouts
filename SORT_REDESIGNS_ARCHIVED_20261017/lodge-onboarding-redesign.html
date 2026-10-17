@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Lodge onboarding · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  /* ================= shell ================= */
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* ================= top bar ================= */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 0;
+  }
+  .topbar-row{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:13px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+
+  /* ---- progress ---- */
+  .progress{
+    padding-bottom:14px;
+  }
+  .progress-top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:11px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .progress-count{
+    font-size:11.5px;font-weight:800;
+    color:var(--orange-2);
+    letter-spacing:.02em;
+  }
+  .progress-track{
+    height:5px;border-radius:99px;
+    background:rgba(255,255,255,.13);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ================= scroll ================= */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ================= intro ================= */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* ================= body sheet ================= */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+  }
+
+  /* ================= accordion stack ================= */
+  .stack{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+
+  /* ---- header (no chevron / arrow / plus) ---- */
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:16px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+
+  .acc-head .dot{
+    width:10px;height:10px;border-radius:50%;flex:0 0 auto;
+    background:#D3D7DE;
+    transition:background .25s ease,box-shadow .25s ease;
+  }
+  .acc.touched .acc-head .dot{
+    background:var(--green);
+    box-shadow:0 0 0 3px var(--green-soft);
+  }
+
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:1px;
+  }
+  .acc-title b{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+
+  /* ---- collapsible body ---- */
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+
+  .module{
+    padding:2px 15px 18px;
+  }
+  .module-note{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+    margin:0 0 14px;
+    padding:11px 12px;
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+  }
+
+  /* ================= fields ================= */
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+
+  .field label{
+    display:block;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:7px;
+  }
+  .field label .opt{
+    text-transform:none;letter-spacing:0;
+    font-weight:650;color:var(--faint);
+    font-size:11px;
+  }
+
+  .input,
+  .textarea,
+  .select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.4;
+    padding:13px 13px;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  .textarea{
+    min-height:96px;
+    resize:vertical;
+    line-height:1.55;
+  }
+  .select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 13px center;
+    background-size:14px;
+    padding-right:38px;
+  }
+  .input:focus,
+  .textarea:focus,
+  .select:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.13);
+  }
+  .input::placeholder,
+  .textarea::placeholder{color:#B7BDC6}
+
+  .counter{
+    margin-top:6px;
+    font-size:11px;
+    color:var(--faint);
+    text-align:right;
+  }
+  .counter.warn{color:var(--orange)}
+
+  /* ================= chips (amenities) ================= */
+  .chip-grid{
+    display:flex;flex-wrap:wrap;gap:8px;
+  }
+  .chip{
+    display:inline-flex;align-items:center;
+    padding:9px 14px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:13px;font-weight:650;
+    color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s,transform .08s;
+  }
+  .chip:active{transform:scale(.97)}
+  .chip.on{
+    background:var(--orange-soft);
+    border-color:var(--orange-line);
+    color:var(--orange);
+    font-weight:750;
+  }
+
+  /* ================= room rows ================= */
+  .room{
+    border:1px solid var(--line);
+    border-radius:13px;
+    padding:13px;
+    margin-bottom:10px;
+    background:#FAFBFC;
+  }
+  .room-top{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;margin-bottom:11px;
+  }
+  .room-top b{
+    font-size:12px;font-weight:850;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--orange);
+  }
+  .room-remove{
+    border:0;background:transparent;
+    font-size:11.5px;font-weight:750;
+    color:var(--faint);
+    padding:5px 8px;border-radius:8px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .room-remove:active{background:#F1F2F4;color:#B91C1C}
+
+  .row-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .room .field{margin-bottom:11px}
+  .room .field:last-child{margin-bottom:0}
+
+  .add-btn{
+    width:100%;
+    border:1px dashed #D3D7DE;
+    background:#fff;
+    border-radius:12px;
+    padding:13px;
+    font-size:13.5px;font-weight:750;
+    color:var(--orange);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;
+  }
+  .add-btn:active{background:var(--orange-soft);border-color:var(--orange-line)}
+
+  /* ================= review summary ================= */
+  .summary{
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .sum-row{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 12px;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+    background:#FAFBFC;
+  }
+  .sum-row .dot{
+    width:8px;height:8px;border-radius:50%;flex:0 0 auto;
+    background:#D3D7DE;
+  }
+  .sum-row.ok .dot{background:var(--green)}
+  .sum-row span{
+    flex:1 1 auto;min-width:0;
+    font-size:13.5px;font-weight:650;color:var(--ink-2);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .sum-row em{
+    font-style:normal;
+    font-size:10.5px;font-weight:800;
+    letter-spacing:.07em;text-transform:uppercase;
+    color:var(--faint);
+  }
+  .sum-row.ok em{color:var(--green)}
+
+  /* ================= actions ================= */
+  .actions{
+    flex:0 0 auto;
+    padding:11px 14px calc(11px + env(safe-area-inset-bottom));
+    background:#fff;
+    border-top:1px solid var(--line);
+  }
+  .btn{
+    width:100%;
+    height:52px;
+    border:0;
+    border-radius:13px;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    text-decoration:none;
+    transition:transform .1s ease,background .15s,opacity .15s;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-primary{
+    background:#141418;
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(20,20,25,.45);
+  }
+  .btn-primary:active{background:#000}
+  .btn-primary.ready{
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    box-shadow:0 6px 20px -6px rgba(255,90,31,.55);
+  }
+  .btn-primary.ready:active{background:var(--orange)}
+
+  /* ================= toast ================= */
+  .toast{
+    position:fixed;left:50%;z-index:40;
+    bottom:calc(88px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  /* ================= print ================= */
+  @media print{
+    body{background:#fff;display:block}
+    #shell{max-width:none;height:auto;box-shadow:none;display:block;overflow:visible}
+    .topbar,.actions{display:none!important}
+    .scroll{overflow:visible;height:auto}
+    .acc-body{grid-template-rows:1fr!important}
+    .intro{border-radius:0}
+    .sheet{margin-top:0;border-radius:0}
+  }
+</style>
+</head>
+<body data-page="lodge-onboarding">
+
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip">Lodge onboarding</span>
+    </div>
+
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Setup progress</span>
+        <span class="progress-count" id="progressCount">0 of 6 complete</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+
+    <section class="intro">
+      <h1>Get your lodge <em>live</em> on EatOuts.</h1>
+      <p>Six short modules. Tap any one to open it, fill it in, and we'll publish your page for you. No dashboard, no commission.</p>
+    </section>
+
+    <main class="sheet">
+      <div class="stack" id="stack"></div>
+    </main>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="primaryBtn" type="button">Start with business details</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     CONFIG
+     ============================================================ */
+  var STORE_KEY = "eatouts.lodge-onboarding.v2";
+
+  var AMENITIES = [
+    "Swimming pool", "Wi-Fi", "Restaurant", "Bar", "Secure parking",
+    "Game drives", "Spa", "Air conditioning", "Airport shuttle",
+    "Conference room", "Guided walks", "Laundry"
+  ];
+
+  var MODULES = [
+    { key: "business",  title: "Business details",   sub: "Name, area and a short intro" },
+    { key: "rooms",     title: "Rooms & rates",      sub: "Room types and price per night" },
+    { key: "amenities", title: "Amenities",          sub: "What guests can expect" },
+    { key: "photos",    title: "Photos",             sub: "Links to your best images" },
+    { key: "contact",   title: "Contact & WhatsApp", sub: "Where orders and enquiries land" },
+    { key: "review",    title: "Review & publish",   sub: "Check everything, then submit" }
+  ];
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  var state = {
+    business: { name: "", area: "", about: "" },
+    rooms: [{ type: "", price: "", sleeps: "2" }],
+    amenities: [],
+    photos: ["", "", ""],
+    contact: { whatsapp: "", phone: "", email: "" },
+    submitted: false
+  };
+
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        if (parsed.business) state.business = parsed.business;
+        if (Array.isArray(parsed.rooms) && parsed.rooms.length) state.rooms = parsed.rooms;
+        if (Array.isArray(parsed.amenities)) state.amenities = parsed.amenities;
+        if (Array.isArray(parsed.photos) && parsed.photos.length === 3) state.photos = parsed.photos;
+        if (parsed.contact) state.contact = parsed.contact;
+        state.submitted = !!parsed.submitted;
+      }
+    }
+  } catch (e) { /* ignore corrupt storage */ }
+
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function nonEmpty(v) {
+    return v != null && String(v).trim().length > 0;
+  }
+
+  var stack = $("#stack");
+  var toastEl = $("#toast");
+  var primaryBtn = $("#primaryBtn");
+  var progressFill = $("#progressFill");
+  var progressCount = $("#progressCount");
+
+  var toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2100);
+  }
+
+  /* ============================================================
+     COMPLETION RULES
+     ============================================================ */
+  function businessDone() {
+    return nonEmpty(state.business.name);
+  }
+  function validRooms() {
+    return state.rooms.filter(function (r) {
+      return nonEmpty(r.type) && nonEmpty(r.price);
+    });
+  }
+  function roomsDone() {
+    return validRooms().length > 0;
+  }
+  function amenitiesDone() {
+    return state.amenities.length > 0;
+  }
+  function photosDone() {
+    return state.photos.some(nonEmpty);
+  }
+  function contactDone() {
+    return nonEmpty(state.contact.whatsapp);
+  }
+
+  function moduleDone(key) {
+    if (key === "business")  return businessDone();
+    if (key === "rooms")     return roomsDone();
+    if (key === "amenities") return amenitiesDone();
+    if (key === "photos")    return photosDone();
+    if (key === "contact")   return contactDone();
+    if (key === "review") {
+      return businessDone() && roomsDone() && amenitiesDone() && contactDone();
+    }
+    return false;
+  }
+
+  /* ---- touched: any information at all has been provided ---- */
+  function moduleTouched(key) {
+    if (key === "business") {
+      return nonEmpty(state.business.name) ||
+             nonEmpty(state.business.area) ||
+             nonEmpty(state.business.about);
+    }
+    if (key === "rooms") {
+      return state.rooms.some(function (r) {
+        return nonEmpty(r.type) || nonEmpty(r.price);
+      });
+    }
+    if (key === "amenities") {
+      return state.amenities.length > 0;
+    }
+    if (key === "photos") {
+      return state.photos.some(nonEmpty);
+    }
+    if (key === "contact") {
+      return nonEmpty(state.contact.whatsapp) ||
+             nonEmpty(state.contact.phone) ||
+             nonEmpty(state.contact.email);
+    }
+    if (key === "review") {
+      return moduleDone("review");
+    }
+    return false;
+  }
+
+  function completedCount() {
+    var n = 0;
+    MODULES.forEach(function (m) {
+      if (m.key !== "review" && moduleDone(m.key)) n++;
+    });
+    return n;
+  }
+
+  /* ============================================================
+     MODULE BODY TEMPLATES
+     ============================================================ */
+  function bodyBusiness() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">This is what diners and travellers see first. Keep it short and specific.</p>' +
+
+        '<div class="field">' +
+          '<label for="bizName">Lodge name</label>' +
+          '<input class="input" id="bizName" type="text" data-field="business.name" ' +
+            'placeholder="e.g. Thuli Bush Lodge" value="' + esc(state.business.name) + '" autocomplete="organization">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label for="bizArea">Area <span class="opt">— town or region</span></label>' +
+          '<input class="input" id="bizArea" type="text" data-field="business.area" ' +
+            'placeholder="e.g. Kasane, Chobe" value="' + esc(state.business.area) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label for="bizAbout">Short description</label>' +
+          '<textarea class="textarea" id="bizAbout" maxlength="160" data-field="business.about" ' +
+            'placeholder="Two or three lines about the lodge, its setting and what makes it special.">' +
+            esc(state.business.about) + '</textarea>' +
+          '<div class="counter" id="aboutCount">' + state.business.about.length + ' / 160</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function roomRowHTML(r, i) {
+    return '' +
+      '<div class="room" data-room="' + i + '">' +
+        '<div class="room-top">' +
+          '<b>Room type ' + (i + 1) + '</b>' +
+          (state.rooms.length > 1
+            ? '<button class="room-remove" type="button" data-remove-room="' + i + '">Remove</button>'
+            : '') +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Room name</label>' +
+          '<input class="input" type="text" data-room-field="type" data-room-index="' + i + '" ' +
+            'placeholder="e.g. River-facing chalet" value="' + esc(r.type) + '">' +
+        '</div>' +
+
+        '<div class="row-2">' +
+          '<div class="field">' +
+            '<label>Price / night</label>' +
+            '<input class="input" type="number" inputmode="decimal" min="0" ' +
+              'data-room-field="price" data-room-index="' + i + '" ' +
+              'placeholder="P0" value="' + esc(r.price) + '">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Sleeps</label>' +
+            '<select class="select" data-room-field="sleeps" data-room-index="' + i + '">' +
+              [1,2,3,4,5,6].map(function (n) {
+                return '<option value="' + n + '"' + (String(r.sleeps) === String(n) ? ' selected' : '') + '>' + n + ' guests</option>';
+              }).join('') +
+            '</select>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyRooms() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Add every room type you sell. Rates are shown as a starting price — you confirm the final amount on WhatsApp.</p>' +
+        '<div id="roomsList">' +
+          state.rooms.map(roomRowHTML).join("") +
+        '</div>' +
+        '<button class="add-btn" type="button" id="addRoom">Add another room type</button>' +
+      '</div>';
+  }
+
+  function bodyAmenities() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Tap everything you offer. These become filter tags in the EatOuts directory.</p>' +
+        '<div class="chip-grid">' +
+          AMENITIES.map(function (a) {
+            var on = state.amenities.indexOf(a) > -1;
+            return '<button class="chip' + (on ? " on" : "") + '" type="button" ' +
+              'data-amenity="' + esc(a) + '">' + esc(a) + '</button>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyPhotos() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Paste links to your photos, or WhatsApp them to us and we\'ll add them for you. The first image becomes your cover.</p>' +
+        [0, 1, 2].map(function (i) {
+          return '<div class="field">' +
+            '<label for="photo' + i + '">Image ' + (i + 1) +
+              (i === 0 ? '' : ' <span class="opt">— optional</span>') + '</label>' +
+            '<input class="input" id="photo' + i + '" type="url" inputmode="url" ' +
+              'data-photo="' + i + '" placeholder="https://…" value="' + esc(state.photos[i]) + '">' +
+          '</div>';
+        }).join("") +
+      '</div>';
+  }
+
+  function bodyContact() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Orders and enquiries are sent straight to your WhatsApp. We never sit in the middle.</p>' +
+
+        '<div class="field">' +
+          '<label for="cWhats">WhatsApp number</label>' +
+          '<input class="input" id="cWhats" type="tel" inputmode="tel" ' +
+            'data-field="contact.whatsapp" placeholder="+267 …" value="' + esc(state.contact.whatsapp) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label for="cPhone">Phone <span class="opt">— optional</span></label>' +
+          '<input class="input" id="cPhone" type="tel" inputmode="tel" ' +
+            'data-field="contact.phone" placeholder="+267 …" value="' + esc(state.contact.phone) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label for="cEmail">Email <span class="opt">— optional</span></label>' +
+          '<input class="input" id="cEmail" type="email" inputmode="email" ' +
+            'data-field="contact.email" placeholder="reservations@…" value="' + esc(state.contact.email) + '">' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyReview() {
+    var rows = [
+      { key: "business",  label: "Business details" },
+      { key: "rooms",     label: "Rooms & rates" },
+      { key: "amenities", label: "Amenities" },
+      { key: "photos",    label: "Photos" },
+      { key: "contact",   label: "Contact & WhatsApp" }
+    ];
+
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">' +
+          (moduleDone("review")
+            ? "Everything required is filled in. Submit and our team will publish your lodge within 48 hours."
+            : "Some required modules are still empty. Tap them above to finish, then come back here.") +
+        '</p>' +
+        '<div class="summary">' +
+          rows.map(function (r) {
+            var ok = moduleDone(r.key);
+            return '<div class="sum-row' + (ok ? " ok" : "") + '">' +
+              '<span class="dot"></span>' +
+              '<span>' + esc(r.label) + '</span>' +
+              '<em>' + (ok ? "Done" : "Empty") + '</em>' +
+            '</div>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyFor(key) {
+    if (key === "business")  return bodyBusiness();
+    if (key === "rooms")     return bodyRooms();
+    if (key === "amenities") return bodyAmenities();
+    if (key === "photos")    return bodyPhotos();
+    if (key === "contact")   return bodyContact();
+    if (key === "review")    return bodyReview();
+    return "";
+  }
+
+  /* ============================================================
+     BUILD STACK (once — keeps input focus intact)
+     ============================================================ */
+  function buildStack() {
+    stack.innerHTML = MODULES.map(function (m) {
+      return '' +
+        '<section class="acc" data-key="' + m.key + '">' +
+          '<button class="acc-head" type="button" aria-expanded="false">' +
+            '<span class="dot"></span>' +
+            '<span class="acc-title">' +
+              '<b>' + esc(m.title) + '</b>' +
+              '<span class="acc-sub">' + esc(m.sub) + '</span>' +
+            '</span>' +
+          '</button>' +
+          '<div class="acc-body">' +
+            '<div class="acc-inner" data-body="' + m.key + '">' +
+              bodyFor(m.key) +
+            '</div>' +
+          '</div>' +
+        '</section>';
+    }).join("");
+  }
+
+  /* ============================================================
+     LIGHTWEIGHT STATUS REFRESH (never touches inputs)
+     ============================================================ */
+  function refreshStatus() {
+    MODULES.forEach(function (m) {
+      var acc = stack.querySelector('.acc[data-key="' + m.key + '"]');
+      if (!acc) return;
+      acc.classList.toggle("touched", moduleTouched(m.key));
+    });
+
+    var done = completedCount();
+    progressCount.textContent = done + " of 6 complete";
+    progressFill.style.width = Math.round((done / 6) * 100) + "%";
+
+    var all = moduleDone("review");
+    primaryBtn.classList.toggle("ready", all);
+    primaryBtn.textContent = all ? "Submit listing" : "Continue";
+  }
+
+  function refreshReview() {
+    var body = stack.querySelector('[data-body="review"]');
+    if (body) body.innerHTML = bodyReview();
+  }
+
+  function refreshRooms() {
+    var list = $("#roomsList");
+    if (!list) return;
+    list.innerHTML = state.rooms.map(roomRowHTML).join("");
+  }
+
+  /* ============================================================
+     ACCORDION — one open at a time, closed by default
+     ============================================================ */
+  var openKey = null;
+
+  function openAccordion(key, scrollTo) {
+    MODULES.forEach(function (m) {
+      var acc = stack.querySelector('.acc[data-key="' + m.key + '"]');
+      if (!acc) return;
+      var head = acc.querySelector(".acc-head");
+      var isOpen = m.key === key;
+      acc.classList.toggle("open", isOpen);
+      if (head) head.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+
+    openKey = key;
+    if (key && scrollTo) {
+      var acc = stack.querySelector('.acc[data-key="' + key + '"]');
+      if (acc) {
+        setTimeout(function () {
+          try {
+            acc.scrollIntoView({ behavior: "smooth", block: "start" });
+          } catch (err) {}
+        }, 330);
+      }
+    }
+  }
+
+  function toggleAccordion(key) {
+    if (openKey === key) openAccordion(null);
+    else openAccordion(key, true);
+  }
+
+  function nextIncompleteKey() {
+    for (var i = 0; i < MODULES.length; i++) {
+      var k = MODULES[i].key;
+      if (k === "review") continue;
+      if (!moduleDone(k)) return k;
+    }
+    return "review";
+  }
+
+  /* ============================================================
+     EVENT DELEGATION
+     ============================================================ */
+  stack.addEventListener("click", function (e) {
+
+    /* ---- accordion header ---- */
+    var head = e.target.closest(".acc-head");
+    if (head) {
+      var acc = head.closest(".acc");
+      if (acc) toggleAccordion(acc.dataset.key);
+      return;
+    }
+
+    /* ---- amenity chip ---- */
+    var chip = e.target.closest("[data-amenity]");
+    if (chip) {
+      var a = chip.dataset.amenity;
+      var idx = state.amenities.indexOf(a);
+      if (idx > -1) state.amenities.splice(idx, 1);
+      else state.amenities.push(a);
+      chip.classList.toggle("on", idx === -1);
+      save();
+      refreshStatus();
+      refreshReview();
+      return;
+    }
+
+    /* ---- add room ---- */
+    if (e.target.closest("#addRoom")) {
+      state.rooms.push({ type: "", price: "", sleeps: "2" });
+      save();
+      refreshRooms();
+      refreshStatus();
+      return;
+    }
+
+    /* ---- remove room ---- */
+    var rm = e.target.closest("[data-remove-room]");
+    if (rm) {
+      var i = parseInt(rm.dataset.removeRoom, 10);
+      if (state.rooms.length > 1) {
+        state.rooms.splice(i, 1);
+        save();
+        refreshRooms();
+        refreshStatus();
+      }
+      return;
+    }
+  });
+
+  /* ---- text / textarea / select input ---- */
+  stack.addEventListener("input", function (e) {
+    var el = e.target;
+    if (!el || !el.dataset) return;
+
+    /* business / contact nested fields */
+    var field = el.dataset.field;
+    if (field) {
+      var parts = field.split(".");
+      if (parts.length === 2 && state[parts[0]]) {
+        state[parts[0]][parts[1]] = el.value;
+        save();
+        refreshStatus();
+        refreshReview();
+      }
+      if (field === "business.about") {
+        var c = $("#aboutCount");
+        if (c) {
+          c.textContent = el.value.length + " / 160";
+          c.classList.toggle("warn", el.value.length > 140);
+        }
+      }
+      return;
+    }
+
+    /* photos */
+    if (el.dataset.photo != null) {
+      var pi = parseInt(el.dataset.photo, 10);
+      state.photos[pi] = el.value;
+      save();
+      refreshStatus();
+      refreshReview();
+      return;
+    }
+
+    /* rooms */
+    if (el.dataset.roomField != null) {
+      var ri = parseInt(el.dataset.roomIndex, 10);
+      var rf = el.dataset.roomField;
+      if (state.rooms[ri]) {
+        state.rooms[ri][rf] = el.value;
+        save();
+        refreshStatus();
+      }
+    }
+  });
+
+  /* select changes fire 'change', not always 'input' */
+  stack.addEventListener("change", function (e) {
+    var el = e.target;
+    if (el && el.dataset && el.dataset.roomField != null) {
+      var ri = parseInt(el.dataset.roomIndex, 10);
+      var rf = el.dataset.roomField;
+      if (state.rooms[ri]) {
+        state.rooms[ri][rf] = el.value;
+        save();
+        refreshStatus();
+      }
+    }
+  });
+
+  /* ============================================================
+     PRIMARY ACTION
+     ============================================================ */
+  primaryBtn.addEventListener("click", function () {
+    if (moduleDone("review")) {
+      state.submitted = true;
+      save();
+      toast("Listing submitted — we'll be in touch on WhatsApp");
+      primaryBtn.textContent = "Submitted";
+      primaryBtn.classList.add("ready");
+      return;
+    }
+    var key = nextIncompleteKey();
+    openAccordion(key, true);
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  buildStack();
+  refreshStatus();
+  openAccordion(null);
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Platform settings · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --blue:#0284C7;
+    --blue-soft:#E0F2FE;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* ============ TOPBAR ============ */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 14px;
+    position:relative;
+    z-index:10;
+  }
+  .topbar-row{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:13px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+
+  .progress{padding-bottom:2px}
+  .progress-top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:11px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .progress-count{
+    font-size:11.5px;font-weight:800;
+    color:var(--orange-2);
+    letter-spacing:.02em;
+  }
+  .progress-track{
+    height:5px;border-radius:99px;
+    background:rgba(255,255,255,.13);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ============ SCROLL ============ */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ============ INTRO ============ */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* ============ SHEET ============ */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+    min-height:60vh;
+  }
+
+  /* ============ META CARD ============ */
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .meta-row{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:11px;
+  }
+  .meta-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .meta-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .meta-dot.warn{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+  .meta-text{
+    font-size:13.5px;
+    color:var(--ink-2);
+    line-height:1.4;
+    min-width:0;
+    flex:1 1 auto;
+  }
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding-top:11px;
+    border-top:1px solid var(--line-2);
+  }
+  .stat{text-align:center}
+  .stat b{
+    display:block;
+    font-size:19px;font-weight:850;
+    letter-spacing:-.03em;
+    color:var(--ink);
+    line-height:1.1;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat span{
+    display:block;
+    margin-top:3px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* ============ ACCORDION STACK ============ */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:13px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+
+  .sec-thumb{
+    width:48px;height:48px;flex:0 0 auto;
+    border-radius:11px;
+    background:var(--orange-soft);
+    color:var(--orange);
+    display:grid;place-items:center;
+    font-size:17px;font-weight:850;
+    letter-spacing:-.02em;
+    position:relative;
+  }
+  .sec-thumb.plain{
+    background:#F0F1F4;color:var(--faint);
+  }
+
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .acc-title b{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font-weight:550;
+  }
+
+  .vis-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .vis-dot.off{background:#D3D7DE;box-shadow:none}
+  .vis-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+
+  .module{padding:2px 15px 18px}
+
+  .module-note{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+    margin:0 0 14px;
+    padding:11px 12px;
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+  }
+  .module-note b{color:var(--ink);font-weight:750}
+
+  /* ============ FORM FIELDS ============ */
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field > label{
+    display:block;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:7px;
+  }
+  .field .hint{
+    display:block;
+    margin-top:6px;
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.45;
+    font-weight:550;
+  }
+  .field input,
+  .field select,
+  .field textarea{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.4;
+    padding:13px;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;
+    appearance:none;
+    font-family:inherit;
+  }
+  .field textarea{min-height:130px;resize:vertical;line-height:1.55}
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.13);
+  }
+  .field input::placeholder,
+  .field textarea::placeholder{color:#B7BDC6}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:400px){.grid2{grid-template-columns:1fr}}
+
+  /* ============ FEATURE FLAG ROWS ============ */
+  .flag-row{
+    display:flex;align-items:center;gap:12px;
+    padding:14px 13px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    margin-bottom:8px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;
+  }
+  .flag-row:last-child{margin-bottom:0}
+  .flag-row:active{background:#FAFBFC}
+  .flag-row.on{
+    border-color:var(--orange-line);
+    background:var(--orange-soft);
+  }
+  .flag-row input{
+    width:20px;height:20px;
+    accent-color:var(--orange);
+    margin:0;flex:0 0 auto;
+  }
+  .flag-body{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .flag-body b{
+    font-size:13.5px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    line-height:1.3;
+  }
+  .flag-body span{
+    font-size:11.5px;
+    color:var(--muted);
+    line-height:1.4;
+    font-weight:550;
+  }
+  .flag-state{
+    flex:0 0 auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 8px;border-radius:999px;
+    background:#F0F1F4;color:var(--muted);
+    line-height:1.3;
+  }
+  .flag-row.on .flag-state{
+    background:#fff;color:var(--orange);
+  }
+
+  /* ============ SAVE BUTTON ============ */
+  .save-row{
+    margin-top:16px;
+    display:flex;
+    gap:9px;
+  }
+  .save-row .btn{
+    flex:1;
+    height:52px;
+    border-radius:13px;
+    font-size:15px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    border:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .1s ease,background .15s;
+  }
+  .save-row .btn:active{transform:scale(.98)}
+  .btn-save{
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+  }
+  .btn-save:active{background:var(--orange)}
+  .btn-revert{
+    flex:0 0 auto!important;
+    padding:0 18px;
+    background:#F4F5F7;
+    border:1px solid var(--line)!important;
+    color:var(--ink-2);
+    font-size:14px!important;
+  }
+  .btn-revert:active{background:#EBEDF0}
+
+  /* ============ EMPTY / BLOCKED ============ */
+  .blocked-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:22px 18px;
+    text-align:center;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .blocked-card h2{
+    margin:0 0 8px;
+    font-size:18px;font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .blocked-card p{
+    margin:0 0 16px;
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--muted);
+  }
+  .blocked-card a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    height:48px;
+    border-radius:12px;
+    font-size:14.5px;
+    font-weight:750;
+    text-decoration:none;
+    margin-top:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+  }
+
+  /* ============ TOAST ============ */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(28px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body data-page="eatouts-settings">
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip">Platform settings</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Configuration</span>
+        <span class="progress-count" id="progressCount">—</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro" id="intro">
+      <h1>Platform <em>settings</em>.</h1>
+      <p>Currency, fees, delivery zones and feature flags for the entire platform.</p>
+    </section>
+    <main class="sheet" id="app"></main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="js/eatouts-manager-db.js"></script>
+<script src="assets/data/demo/the-food-place/demo-data.js"></script>
+<script src="js/eatouts-manager-seed.js"></script>
+<script src="js/eatouts-roles.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-feedback.js"></script>
+<script src="js/eatouts-blog-admin.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-manager.js"></script>
+<script src="js/eatouts-audit.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  /* ---- Auth guard (unchanged) ---- */
+  if (!EO.guard({"roles": ["platform_admin"]})) return;
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function esc(v){
+    return String(v == null ? "" : v)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function escapeAttr(v){ return esc(v).replace(/`/g,"&#96;"); }
+  function cssEscape(s){ return String(s).replace(/["\\]/g, '\\$&'); }
+
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2000);
+  }
+
+  /* Only one accordion open at a time; null = all closed */
+  var OPEN = null;
+
+  /* Snapshot at page load for revert + dirty detection */
+  var settings = EatoutsMgrDB.get().settings;
+  var initial = JSON.parse(JSON.stringify(settings));
+
+  /* ============================================================
+     LIVE FORM STATE
+     We keep a working copy in memory and only persist on Save.
+     ============================================================ */
+  var working = {
+    currency:            settings.currency || "",
+    setupFee:            settings.setupFee != null ? Number(settings.setupFee) : 0,
+    defaultDeliveryFee:  settings.defaultDeliveryFee != null ? Number(settings.defaultDeliveryFee) : 0,
+    zones:               Array.isArray(settings.zones) ? settings.zones.slice() : [],
+    featureFlags: {
+      reviews:  !!(settings.featureFlags && settings.featureFlags.reviews),
+      delivery: !!(settings.featureFlags && settings.featureFlags.delivery),
+      quotes:   !!(settings.featureFlags && settings.featureFlags.quotes)
+    }
+  };
+
+  function isDirty(){
+    return JSON.stringify(working) !== JSON.stringify({
+      currency:           initial.currency || "",
+      setupFee:           initial.setupFee != null ? Number(initial.setupFee) : 0,
+      defaultDeliveryFee: initial.defaultDeliveryFee != null ? Number(initial.defaultDeliveryFee) : 0,
+      zones:              Array.isArray(initial.zones) ? initial.zones.slice() : [],
+      featureFlags: {
+        reviews:  !!(initial.featureFlags && initial.featureFlags.reviews),
+        delivery: !!(initial.featureFlags && initial.featureFlags.delivery),
+        quotes:   !!(initial.featureFlags && initial.featureFlags.quotes)
+      }
+    });
+  }
+
+  /* ============================================================
+     SECTION SUBTITLES
+     ============================================================ */
+  function currencySub(){
+    var c = working.currency || "—";
+    return c + " · setup " + working.setupFee;
+  }
+  function deliverySub(){
+    return "Default " + working.defaultDeliveryFee;
+  }
+  function zonesSub(){
+    var n = working.zones.length;
+    return n ? n + " zone" + (n === 1 ? "" : "s") : "No zones set";
+  }
+  function flagsSub(){
+    var on = Object.keys(working.featureFlags).filter(function(k){ return working.featureFlags[k]; });
+    return on.length ? on.length + " of 3 enabled" : "All disabled";
+  }
+
+  /* ============================================================
+     MODULE HTML
+     ============================================================ */
+  function currencyModule(){
+    return '<div class="module">' +
+      '<p class="module-note">Base currency code and the one-off setup fee charged to new businesses.</p>' +
+      '<div class="grid2">' +
+        '<div class="field">' +
+          '<label>Currency</label>' +
+          '<input type="text" data-k="currency" value="' + escapeAttr(working.currency) + '" placeholder="e.g. BWP">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Setup fee</label>' +
+          '<input type="number" data-k="setupFee" value="' + escapeAttr(working.setupFee) + '" placeholder="0">' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function deliveryModule(){
+    return '<div class="module">' +
+      '<p class="module-note">The fallback delivery fee shown when a business has not configured its own.</p>' +
+      '<div class="field">' +
+        '<label>Default delivery fee</label>' +
+        '<input type="number" data-k="defaultDeliveryFee" value="' + escapeAttr(working.defaultDeliveryFee) + '" placeholder="0">' +
+        '<span class="hint">Applied platform-wide unless the business overrides it.</span>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function zonesModule(){
+    return '<div class="module">' +
+      '<p class="module-note">One zone per line. These are the default delivery zones offered on the platform.</p>' +
+      '<div class="field">' +
+        '<label>Default zones</label>' +
+        '<textarea data-k="zones" placeholder="Gaborone Central&#10;Broadhurst&#10;Extension 12">' + esc(working.zones.join("\n")) + '</textarea>' +
+        '<span class="hint">' + working.zones.length + ' zone' + (working.zones.length === 1 ? "" : "s") + ' currently saved.</span>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function flagRow(key, title, description){
+    var on = !!working.featureFlags[key];
+    return '<label class="flag-row' + (on ? ' on' : '') + '" data-flag="' + escapeAttr(key) + '">' +
+      '<input type="checkbox" data-k="flag:' + escapeAttr(key) + '"' + (on ? ' checked' : '') + '>' +
+      '<span class="flag-body">' +
+        '<b>' + esc(title) + '</b>' +
+        '<span>' + esc(description) + '</span>' +
+      '</span>' +
+      '<span class="flag-state">' + (on ? 'On' : 'Off') + '</span>' +
+    '</label>';
+  }
+
+  function flagsModule(){
+    return '<div class="module">' +
+      '<p class="module-note">Turn platform-wide features on or off. Changes take effect after saving.</p>' +
+      flagRow('reviews',  'Reviews',  'Allow customers to leave and read reviews.') +
+      flagRow('delivery', 'Delivery', 'Enable delivery orders across the platform.') +
+      flagRow('quotes',   'Quotes',   'Allow businesses to send price quotes for custom requests.') +
+    '</div>';
+  }
+
+  /* ============================================================
+     ACCORDION BUILDER
+     ============================================================ */
+  function section(key, letter, title, sub, body){
+    var isOpen = OPEN === key;
+    var cls = 'acc' + (isOpen ? ' open' : '');
+    return '<section class="' + cls + '" data-key="' + escapeAttr(key) + '">' +
+      '<button class="acc-head" type="button" aria-expanded="' + (isOpen ? 'true' : 'false') + '">' +
+        '<span class="sec-thumb">' + esc(letter) + '</span>' +
+        '<span class="acc-title">' +
+          '<b>' + esc(title) + '</b>' +
+          '<span class="acc-sub">' + esc(sub) + '</span>' +
+        '</span>' +
+        '<span class="vis-dot off"></span>' +
+      '</button>' +
+      '<div class="acc-body">' +
+        '<div class="acc-inner">' + body + '</div>' +
+      '</div>' +
+    '</section>';
+  }
+
+  /* ============================================================
+     META CARD + PROGRESS
+     ============================================================ */
+  function renderMeta(){
+    var flagsOn = Object.keys(working.featureFlags).filter(function(k){ return working.featureFlags[k]; }).length;
+    var zonesN  = working.zones.length;
+
+    var dotClass = 'green';
+    var msg = 'Platform configured · ' + flagsOn + ' of 3 features on';
+
+    if (!working.currency){
+      dotClass = 'warn';
+      msg = 'Currency not set — configure before going live';
+    }
+
+    return '<div class="meta-card">' +
+      '<div class="meta-row">' +
+        '<span class="meta-dot ' + dotClass + '"></span>' +
+        '<span class="meta-text">' + msg + '</span>' +
+      '</div>' +
+      '<div class="meta-stats">' +
+        '<div class="stat"><b>' + esc(working.currency || '—') + '</b><span>Currency</span></div>' +
+        '<div class="stat"><b>' + zonesN + '</b><span>Zones</span></div>' +
+        '<div class="stat"><b>' + flagsOn + '/3</b><span>Features</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function updateProgress(){
+    var filled = 0;
+    var total  = 4;
+    if (working.currency) filled++;
+    if (working.defaultDeliveryFee) filled++;
+    if (working.zones.length) filled++;
+    if (Object.keys(working.featureFlags).some(function(k){ return working.featureFlags[k]; })) filled++;
+    var pct = Math.round((filled / total) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressCount').textContent =
+      filled + ' of ' + total + ' section' + (total === 1 ? '' : 's') + ' configured';
+  }
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
+  var mount = document.getElementById('app');
+
+  function render(){
+    var dirty = isDirty();
+
+    var saveRow = '<div class="save-row">' +
+      (dirty ? '<button type="button" class="btn btn-revert" id="btnRevert">Revert</button>' : '') +
+      '<button type="button" class="btn btn-save" id="btnSave">' + (dirty ? 'Save changes' : 'Saved') + '</button>' +
+    '</div>';
+
+    mount.innerHTML =
+      renderMeta() +
+      '<div class="stack">' +
+        section('currency', 'C', 'Currency & fees', currencySub(), currencyModule()) +
+        section('delivery', 'D', 'Delivery', deliverySub(), deliveryModule()) +
+        section('zones',    'Z', 'Delivery zones', zonesSub(), zonesModule()) +
+        section('flags',    'F', 'Feature flags', flagsSub(), flagsModule()) +
+      '</div>' +
+      saveRow;
+
+    updateProgress();
+    wireInputs();
+    wireSave();
+  }
+
+  /* ============================================================
+     ACCORDION BEHAVIOUR — only one open at a time
+     ============================================================ */
+  function toggleAccordion(key){
+    OPEN = (OPEN === key) ? null : key;
+    var accs = mount.querySelectorAll('.acc');
+    for (var i = 0; i < accs.length; i++){
+      var acc = accs[i];
+      var isOpen = acc.getAttribute('data-key') === OPEN;
+      acc.classList.toggle('open', isOpen);
+      var head = acc.querySelector('.acc-head');
+      if (head) head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    if (OPEN){
+      var opened = mount.querySelector('.acc[data-key="' + cssEscape(OPEN) + '"]');
+      if (opened){
+        setTimeout(function(){
+          try { opened.scrollIntoView({ behavior:'smooth', block:'start' }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+
+  /* ============================================================
+     INPUT WIRING (updates working copy, then re-renders)
+     ============================================================ */
+  function wireInputs(){
+    /* text + number inputs and textarea */
+    mount.querySelectorAll('[data-k]').forEach(function(el){
+      var k = el.getAttribute('data-k');
+
+      if (k.indexOf('flag:') === 0){
+        var key = k.slice(5);
+        el.onchange = function(){
+          working.featureFlags[key] = el.checked;
+          render();
+        };
+        return;
+      }
+
+      el.oninput = el.onchange = function(){
+        if (k === 'currency')            working.currency = el.value;
+        else if (k === 'setupFee')       working.setupFee = el.value === '' ? 0 : Number(el.value);
+        else if (k === 'defaultDeliveryFee') working.defaultDeliveryFee = el.value === '' ? 0 : Number(el.value);
+        else if (k === 'zones')          working.zones = el.value.split("\n").map(function(s){ return s.trim(); }).filter(Boolean);
+      };
+    });
+
+    /* update live subtitle hints without stealing focus from a textarea */
+    mount.querySelectorAll('.acc').forEach(function(acc){
+      var key = acc.getAttribute('data-key');
+      var sub = acc.querySelector('.acc-sub');
+      if (!sub) return;
+      if (key === 'currency') sub.textContent = currencySub();
+      if (key === 'delivery') sub.textContent = deliverySub();
+      if (key === 'zones')    sub.textContent = zonesSub();
+      if (key === 'flags')    sub.textContent = flagsSub();
+    });
+
+    /* update the flag-row visual state while toggling */
+    mount.querySelectorAll('.flag-row').forEach(function(row){
+      var cb = row.querySelector('input[type="checkbox"]');
+      if (!cb) return;
+      var key = row.getAttribute('data-flag');
+      var state = row.querySelector('.flag-state');
+      function paint(){
+        var on = !!working.featureFlags[key];
+        row.classList.toggle('on', on);
+        if (state) state.textContent = on ? 'On' : 'Off';
+      }
+      paint();
+      cb.onchange = function(){
+        working.featureFlags[key] = cb.checked;
+        paint();
+        /* only refresh meta + progress + save row, keep inputs in place */
+        refreshMetaAndProgress();
+      };
+    });
+
+    /* meta card counts should follow live edits */
+    ['currency','setupFee','defaultDeliveryFee'].forEach(function(k){
+      var el = mount.querySelector('[data-k="' + k + '"]');
+      if (!el) return;
+      var prev = el.oninput;
+      el.oninput = function(ev){
+        if (prev) prev.call(el, ev);
+        refreshMetaAndProgress();
+      };
+      el.onchange = el.oninput;
+    });
+
+    var zonesEl = mount.querySelector('[data-k="zones"]');
+    if (zonesEl){
+      var prevZ = zonesEl.oninput;
+      zonesEl.oninput = function(ev){
+        if (prevZ) prevZ.call(zonesEl, ev);
+        refreshMetaAndProgress();
+      };
+    }
+  }
+
+  /* Light-touch refresh of the meta card, progress bar and save row
+     without re-rendering the accordion body (avoids losing focus). */
+  function refreshMetaAndProgress(){
+    var metaCard = mount.querySelector('.meta-card');
+    if (metaCard){
+      var wrap = document.createElement('div');
+      wrap.innerHTML = renderMeta();
+      metaCard.replaceWith(wrap.firstChild);
+    }
+    updateProgress();
+
+    /* Save row: swap label + show/hide Revert */
+    var saveBtn = document.getElementById('btnSave');
+    var revertBtn = document.getElementById('btnRevert');
+    var dirty = isDirty();
+    if (saveBtn) saveBtn.textContent = dirty ? 'Save changes' : 'Saved';
+    if (dirty && !revertBtn){
+      var row = document.querySelector('.save-row');
+      if (row){
+        var rb = document.createElement('button');
+        rb.type = 'button';
+        rb.className = 'btn btn-revert';
+        rb.id = 'btnRevert';
+        rb.textContent = 'Revert';
+        rb.onclick = revertAll;
+        row.insertBefore(rb, saveBtn);
+      }
+    } else if (!dirty && revertBtn){
+      revertBtn.remove();
+    }
+  }
+
+  /* ============================================================
+     SAVE / REVERT
+     ============================================================ */
+  function wireSave(){
+    var saveBtn = document.getElementById('btnSave');
+    var revertBtn = document.getElementById('btnRevert');
+
+    if (saveBtn){
+      saveBtn.onclick = function(){
+        if (!isDirty()){
+          toast('No changes to save');
+          return;
+        }
+        var before = JSON.parse(JSON.stringify(settings));
+
+        settings.currency           = working.currency;
+        settings.setupFee           = Number(working.setupFee);
+        settings.defaultDeliveryFee = Number(working.defaultDeliveryFee);
+        settings.zones              = working.zones.slice();
+        settings.featureFlags       = {
+          reviews:  !!working.featureFlags.reviews,
+          delivery: !!working.featureFlags.delivery,
+          quotes:   !!working.featureFlags.quotes
+        };
+
+        try { EatoutsMgrDB.save(); } catch (e) {}
+
+        if (window.EatoutsAudit && window.EatoutsAudit.log){
+          try {
+            EatoutsAudit.log('settings.updated', 'platform',
+              before, JSON.parse(JSON.stringify(settings)));
+          } catch (_) {}
+        }
+
+        /* Snapshot for future dirty comparisons */
+        initial = JSON.parse(JSON.stringify(settings));
+
+        toast('Platform settings saved');
+        render();
+      };
+    }
+
+    if (revertBtn) revertBtn.onclick = revertAll;
+  }
+
+  function revertAll(){
+    working = {
+      currency:            initial.currency || "",
+      setupFee:            initial.setupFee != null ? Number(initial.setupFee) : 0,
+      defaultDeliveryFee:  initial.defaultDeliveryFee != null ? Number(initial.defaultDeliveryFee) : 0,
+      zones:               Array.isArray(initial.zones) ? initial.zones.slice() : [],
+      featureFlags: {
+        reviews:  !!(initial.featureFlags && initial.featureFlags.reviews),
+        delivery: !!(initial.featureFlags && initial.featureFlags.delivery),
+        quotes:   !!(initial.featureFlags && initial.featureFlags.quotes)
+      }
+    };
+    toast('Changes reverted');
+    render();
+  }
+
+  /* ============================================================
+     DELEGATED CLICKS — accordion headers
+     ============================================================ */
+  mount.addEventListener('click', function(e){
+    var head = e.target.closest('.acc-head');
+    if (head){
+      var acc = head.closest('.acc');
+      if (acc) toggleAccordion(acc.getAttribute('data-key'));
+    }
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  render();
+});
+</script>
+</body>
+</html>

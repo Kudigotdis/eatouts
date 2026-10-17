@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<!-- PAGE: Restaurant Delivery -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Restaurant Delivery — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--ink:#1a1a1a;--bg:#faf8f2;--muted:#a89a7e;--muted2:#8a8170;--bd:#ece7db;--bd2:#f1ece1;--ok:#17834b;--warn:#8a7a55;--danger:#c43c3c;--wa:#dff5e4;--wabd:#b8e6c1}
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#e9e5db;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit;font-family:inherit}
+button{cursor:pointer;border:0;background:none;text-align:left;padding:0}
+img{display:block;max-width:100%}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+@media(min-width:520px){#shell{border-left:1px solid var(--bd);border-right:1px solid var(--bd)}}
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;border-bottom:1px solid var(--bd);z-index:58;padding-top:env(safe-area-inset-top)}
+a.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;text-decoration:none}
+.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--bd);border-radius:20px;padding:4px 9px;background:var(--bg);white-space:nowrap}
+.hdr-chip.ok{color:var(--ok);border-color:var(--wabd);background:#e3f5e9}
+/* ---- scroll fix ---- */
+.viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#fff}
+.scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff}
+#nav{flex:0 0 auto;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
+.nav-btn{flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.42);text-decoration:none;transition:color .18s}
+.nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn:active{color:rgba(255,255,255,.75)}
+.rcard{display:flex;gap:12px;padding:14px;background:#fff;border-bottom:1px solid var(--bd)}
+.rthumb{width:90px;height:90px;flex:0 0 auto;border-radius:12px;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:38px;border:1px solid var(--bd2)}
+.rthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.rinfo{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.rname{font-size:18px;font-weight:900;color:var(--ink);line-height:1.2}
+.rmeta{font-size:14px;color:var(--muted);margin-top:5px;font-weight:600;line-height:1.4}
+.rmeta b{color:var(--ok);font-weight:800}
+.osum{padding:14px;background:#fff;border-bottom:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;gap:12px;width:100%}
+.osum:active{background:var(--bg)}
+.osum-info{flex:1;min-width:0;text-align:left}
+.osum-lbl{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.osum-tot{font-size:20px;font-weight:900;color:var(--ink);letter-spacing:-.02em;line-height:1.1}
+.osum-items{font-size:13px;color:var(--ink);font-weight:700;margin-top:3px}
+.osum-tap{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2)}
+.acc{margin:12px 14px;background:#fff;border:1px solid var(--bd);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.acc.open{border-color:var(--ink)}
+.acc-hdr{width:100%;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.acc-hdr:active{background:var(--bg)}
+.acc-title{flex:1;min-width:0}
+.acc-lbl{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:block}
+.acc-val{font-size:13.5px;font-weight:800;color:var(--ink);line-height:1.3;display:block}
+.acc-val.muted{color:var(--muted);font-style:italic;font-weight:600}
+.acc-ctl{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.acc.open .acc-body{max-height:20000px}
+.acc-in{padding:14px 16px 16px;border-top:1px solid var(--bd2)}
+.fld{margin-bottom:12px}
+.fld:last-child{margin-bottom:0}
+.fld label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fld input[type=text],.fld input[type=number],.fld input[type=date],.fld textarea{width:100%;min-height:44px;padding:11px 13px;background:var(--bg);border:1px solid var(--bd);border-radius:11px;font-size:13.5px;color:var(--ink);outline:none}
+.fld input:focus,.fld textarea:focus{border-color:var(--ink);background:#fff}
+.fld textarea{min-height:80px;resize:vertical;line-height:1.5}
+.fld .hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.45}
+.drpset{position:relative}
+.drp{width:100%;min-height:44px;padding:11px 13px;background:var(--bg);border:1px solid var(--bd);border-radius:11px;font-size:13.5px;color:var(--ink);display:flex;align-items:center;gap:8px;cursor:pointer;text-align:left}
+.drp.ph{color:var(--muted)}
+.drp:active{background:#f4efe4}
+.drp-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--bd);border-radius:11px;box-shadow:0 10px 28px -10px rgba(0,0,0,.2);max-height:260px;overflow-y:auto;z-index:30;display:none}
+.drp-list.open{display:block}
+.drp-opt{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--bd2);cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.drp-opt:active{background:var(--bg)}
+.drp-opt.sel{background:var(--bg);font-weight:800}
+.drp-opt small{font-size:10.5px;color:var(--muted);font-weight:700}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:11px 16px;border-radius:11px;font-size:12.5px;font-weight:800;letter-spacing:.02em;background:var(--bg);border:1px solid var(--bd);color:var(--ink);font-family:inherit;cursor:pointer;text-decoration:none}
+.btn:active{background:var(--bd2)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--muted2)}
+.btn.wa{background:var(--wa);border-color:var(--wabd);color:#1c6b2e}
+.btn.danger{background:#fbeaea;color:var(--danger);border-color:#f0d1d1}
+.btn.full{width:100%}
+.btn.half{flex:1}
+.btn.sm{min-height:34px;padding:7px 12px;font-size:11px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.st{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.st.pending{background:#f0eee8;color:#7a7466}
+.st.active{background:#eef4ff;color:#24476e}
+.st.ready{background:#fdf3dc;color:#8a7a55}
+.st.delivered{background:#e3f5e9;color:#17834b}
+.st.exception{background:#fbeaea;color:#c43c3c}
+.orow{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--bd2);align-items:flex-start}
+.orow:last-child{border-bottom:0}
+.orow-info{flex:1;min-width:0}
+.orow-ref{font-size:12.5px;font-weight:900;color:var(--ink);letter-spacing:.02em}
+.orow-meta{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45;font-weight:600}
+.orow-amt{font-size:12.5px;font-weight:900;color:var(--ink);flex:0 0 auto}
+.slot-r{margin-bottom:6px;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;width:100%;text-align:left}
+.slot-r:active{background:var(--bg)}
+.slot-r.full{opacity:.55}
+.slot-r .lbl{font-size:12.5px;font-weight:800}
+.slot-r .sub{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:2px}
+.slot-r .cap{font-size:11px;font-weight:800;flex:0 0 auto;color:var(--ok)}
+.slot-r.full .cap{color:var(--muted2)}
+.bar{flex:0 0 auto;background:#fff;border-top:1px solid var(--bd);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px}
+.bar-info{flex:1;min-width:0}
+.bar-lbl{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block}
+.bar-tot{font-size:15px;font-weight:900;color:var(--ink);margin-top:2px;display:block;letter-spacing:-.01em}
+.sheet-scrim{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:100;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sheet-scrim.on{display:flex;animation:fadeIn .18s ease}
+.sheet{background:#fff;width:100%;max-width:460px;max-height:88vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+@media(min-width:520px){.sheet{border-radius:20px}}
+.sheet-hdr{padding:14px 18px;border-bottom:1px solid var(--bd2);display:flex;align-items:center;gap:10px}
+.sheet-hdr h3{margin:0;font-size:14.5px;font-weight:900;flex:1}
+.sheet-body{flex:1 1 auto;overflow-y:auto;padding:14px 18px}
+.sheet-foot{padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--bd2);background:#fafaf7;display:flex;gap:9px}
+.msgbox{background:var(--bg);border:1px solid var(--bd);border-radius:11px;padding:14px;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;max-height:340px;overflow-y:auto}
+#toast{position:fixed;bottom:calc(150px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:12.5px;font-weight:800;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 40px);text-align:center}
+#toast.on{opacity:1}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body data-page="restaurant-delivery">
+<div id="shell">
+  <header id="hdr">
+    <a class="brand-mark" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
+    <div class="hdr-right">
+      <span class="hdr-chip">Restaurant</span>
+      <span class="hdr-chip ok">Open</span>
+    </div>
+  </header>
+  <div class="viewport"><div class="scroll" id="scroll"></div></div>
+  <div class="bar" id="bar"></div>
+  <nav id="nav">
+    <a class="nav-btn" href="index.html#promos" aria-label="Promos"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></a>
+    <a class="nav-btn" href="index.html#restaurants" aria-label="Restaurants"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg></a>
+    <a class="nav-btn" href="index.html#reserve" aria-label="Events"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></a>
+    <a class="nav-btn" href="index.html#gallery" aria-label="Gallery"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></a>
+    <a class="nav-btn" href="index.html#about" aria-label="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></a>
+  </nav>
+</div>
+<div class="sheet-scrim" id="sheet"></div>
+<div id="toast"></div>
+
+<script src="assets/data/deliveries/the_food_place_50_scheduled_deliveries.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ---- safe storage ---- */
+function safeGet(key){
+  try { return (window.localStorage ? window.localStorage.getItem(key) : null); }
+  catch(e){ return null; }
+}
+function safeSet(key,val){
+  try { if(window.localStorage) window.localStorage.setItem(key,val); }
+  catch(e){}
+}
+
+var RESTAURANT = { name:'The Food Place', meta:'Café & Bar · Gaborone · CBD', metaSub:'Open · 07:30–21:00', thumb:'🍽', whatsapp:'26771844129' };
+
+var WINDOWS = ['06:00–07:00','07:00–08:00','08:00–09:00','09:00–10:00','10:00–11:00','11:00–12:00','12:00–13:00','13:00–14:00','14:00–15:00','15:00–16:00','16:00–17:00','17:00–18:00','18:00–19:00','19:00–20:00','20:00–21:00','21:00–22:00','22:00–23:00','23:00–00:00'];
+
+var STATE = {
+  openAcc:{'overview':true},
+  openSlot:null,
+  openDrp:null,
+  openRound:'',
+  focused:null,
+  orders:[],
+  slots:{}
+};
+
+WINDOWS.forEach(function(w){ STATE.slots[w]={cap:6, accepted:0, route:'', closed:false} });
+[['06:00–07:00',4,'Central Blocks'],['07:00–08:00',6,'Central Blocks'],['08:00–09:00',4,'Broadfields'],
+ ['09:00–10:00',2,'Broadhurst'],['10:00–11:00',4,'North & East'],['11:00–12:00',4,'Village'],
+ ['12:00–13:00',6,'Gaborone West'],['13:00–14:00',3,'Central Blocks'],['14:00–15:00',4,'Central Extensions'],
+ ['15:00–16:00',4,'Broadhurst'],['17:00–18:00',2,'Gaborone West'],['18:00–19:00',5,'Central Blocks'],
+ ['19:00–20:00',6,'Gaborone West'],['20:00–21:00',3,'Broadhurst'],['21:00–22:00',4,'Village']
+].forEach(function(x){ STATE.slots[x[0]].accepted=x[1]; STATE.slots[x[0]].route=x[2]; });
+
+/* ---- Demo dataset backfill ------------------------------------------
+   assets/data/deliveries/the_food_place_50_scheduled_deliveries.js holds
+   the 50-order scheduled-delivery snapshot. It seeds this page whenever no
+   live orders exist in storage yet; stored orders always win. */
+function bd(){ return window.EATOUTS_FOOD_PLACE_DELIVERY_BACKFILL||null; }
+function bdStatus(s){
+  return {'Pending dispatch':'awaiting','En route':'ready','Arrived · handover pending':'ready','Delivered':'delivered'}[s]||'awaiting';
+}
+function bdItems(s){
+  var n=0;
+  String(s||'').split(';').forEach(function(part){
+    var m=part.match(/(\d+)\s*x/i);
+    n+=(m?parseInt(m[1],10):0)||(part.trim()?1:0);
+  });
+  return n||1;
+}
+function bdOrders(){
+  var b=bd(); if(!b||!b.orders) return [];
+  return b.orders.map(function(o){
+    return {
+      ref:o.id, name:o.customer, phone:'',
+      type:'scheduled', window:o.window,
+      items:bdItems(o.itemsSummary), subtotal:o.foodSubtotal, fee:o.deliveryFee, total:o.total,
+      area:o.area, status:bdStatus(o.status)
+    };
+  });
+}
+function bdDrivers(){
+  var b=bd(); if(!b||!b.drivers||!b.drivers.length) return null;
+  return b.drivers.map(function(d){
+    return {id:String(d.name).toLowerCase().split(' ')[0], name:d.name, tier:d.areaTier, status:'on duty', assigned:d.assignedOrders};
+  });
+}
+
+var incoming=[];
+try{
+  var raw=safeGet('eatouts_delivery_orders_v1');
+  if(raw){ var parsed=JSON.parse(raw); if(Array.isArray(parsed)) incoming=parsed; }
+}catch(e){ incoming=[]; }
+if(!incoming.length){
+  incoming=bdOrders();
+  incoming.forEach(function(o){
+    if(STATE.slots[o.window]) STATE.slots[o.window].accepted+=1;
+  });
+}
+
+var DRIVERS=bdDrivers()||[
+  {id:'thabo', name:'Thabo Molefe', tier:'core', status:'on duty', assigned:4},
+  {id:'dumisani', name:'Dumisani Ncube', tier:'peripheral', status:'on duty', assigned:2},
+  {id:'tawanda', name:'Tawanda Zhou', tier:'core', status:'on break', assigned:0}
+];
+
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function money(n){return 'P'+(Number(n)||0).toFixed(2)}
+function toast(m){var t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('on')},2000)}
+
+function render(){
+  var focused=STATE.focused?STATE.orders.filter(function(o){return o.ref===STATE.focused})[0]:(incoming[0]||null);
+  document.getElementById('scroll').innerHTML=
+    renderRestaurant()+
+    renderFocused(focused)+
+    renderOverview()+
+    renderIncoming()+
+    renderImmediate()+
+    renderScheduled()+
+    renderKitchen()+
+    renderRoutes()+
+    renderSettings()+
+    renderComms()+
+    renderExceptions();
+  renderBar();
+}
+
+function renderRestaurant(){
+  return '<div class="rcard">'+
+    '<div class="rthumb">'+RESTAURANT.thumb+'</div>'+
+    '<div class="rinfo">'+
+      '<div class="rname">'+esc(RESTAURANT.name)+'</div>'+
+      '<div class="rmeta">'+esc(RESTAURANT.meta)+'<br><b>'+esc(RESTAURANT.metaSub)+'</b></div>'+
+    '</div>'+
+  '</div>';
+}
+function renderFocused(o){
+  if(!o){ return '<button class="osum" data-act="openFocused">'+
+    '<div class="osum-info"><div class="osum-lbl">Focused order</div><div class="osum-tot">P0.00</div><div class="osum-items">No order selected</div></div>'+
+    '<span class="osum-tap">View order</span></button>';
+  }
+  return '<button class="osum" data-act="openFocused">'+
+    '<div class="osum-info">'+
+      '<div class="osum-lbl">Focused · '+esc(o.ref)+'</div>'+
+      '<div class="osum-tot">'+money(o.subtotal)+'</div>'+
+      '<div class="osum-items">'+o.items+' item'+(o.items===1?'':'s')+' · '+esc(o.name)+'</div>'+
+    '</div>'+
+    '<span class="osum-tap">View order</span>'+
+  '</button>';
+}
+function accOpen(id){ return !!STATE.openAcc[id] }
+function accBox(id,label,val,valClass,body){
+  var open=accOpen(id);
+  return '<div class="acc'+(open?' open':'')+'">'+
+    '<button class="acc-hdr" data-acc="'+id+'">'+
+      '<span class="acc-title"><span class="acc-lbl">'+esc(label)+'</span><span class="acc-val'+(valClass==='muted'?' muted':'')+'">'+esc(val)+'</span></span>'+
+      '<span class="acc-ctl">'+(open?'Hide details':'View details')+'</span>'+
+    '</button>'+
+    '<div class="acc-body"><div class="acc-in">'+(open?body:'')+'</div></div>'+
+  '</div>';
+}
+
+function renderOverview(){
+  var immediate=incoming.filter(function(o){return o.type==='immediate'});
+  var scheduled=incoming.filter(function(o){return o.type==='scheduled'});
+  var awaiting=scheduled.filter(function(o){return o.status==='awaiting'});
+  var body='';
+  body+='<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Today · Saturday, 10 October</div>';
+  body+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+  body+='<div class="slot-r" data-act="jumpImmediate"><div><div class="lbl">Immediate</div><div class="sub">'+immediate.filter(function(o){return o.status==='awaiting'}).length+' pending · '+immediate.filter(function(o){return o.status==='preparing'}).length+' preparing</div></div><span class="cap">'+immediate.length+' total</span></div>';
+  body+='<div class="slot-r" data-act="jumpScheduled"><div><div class="lbl">Scheduled</div><div class="sub">'+scheduled.length+' accepted · '+(Object.keys(STATE.slots).filter(function(w){return STATE.slots[w].accepted>0}).length)+' rounds</div></div><span class="cap">'+scheduled.length+' total</span></div>';
+  body+='</div>';
+  body+='<div style="margin-top:12px;padding:12px;background:#fdf9ef;border:1px solid #ece0be;border-radius:11px;font-size:12.5px;color:#8a7a55;line-height:1.5"><b style="color:#8a7a55">Requires attention</b><br>'+awaiting.length+' awaiting confirmation · 0 exceptions</div>';
+  return accBox('overview','Delivery Overview',immediate.length+' immediate · '+scheduled.length+' scheduled',null,body);
+}
+
+function renderIncoming(){
+  var list=incoming.filter(function(o){return o.status==='awaiting'});
+  var val=list.length?list.length+' new':(incoming.length?'All reviewed':'No requests');
+  var body='';
+  if(!list.length){
+    body+='<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">No requests awaiting review.</div>';
+  } else {
+    list.forEach(function(o){
+      body+='<div class="orow">'+
+        '<div class="orow-info">'+
+          '<div class="orow-ref">'+esc(o.ref)+' · '+esc(o.name)+'</div>'+
+          '<div class="orow-meta">'+esc(o.type==='scheduled'?'Scheduled '+o.window:'Immediate')+' · '+o.items+' items<br>'+esc(o.area)+'</div>'+
+        '</div>'+
+        '<div class="orow-amt">'+money(o.total)+'</div>'+
+      '</div>';
+      body+='<div class="row2" style="margin:-4px 0 12px">'+
+        '<button class="btn ghost sm" data-act="viewOrder" data-ref="'+esc(o.ref)+'">View order</button>'+
+        '<button class="btn primary sm" data-act="accept" data-ref="'+esc(o.ref)+'">Accept request</button>'+
+      '</div>';
+    });
+  }
+  body+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd2)">'+
+    '<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px">Received a request on your own WhatsApp without an app record? Record it here.</div>'+
+    '<button class="btn ghost sm" data-act="manualIntake">Record WhatsApp order</button>'+
+  '</div>';
+  return accBox('incoming','Incoming Requests',val,list.length?'':'muted',body);
+}
+
+function renderImmediate(){
+  var im=incoming.filter(function(o){return o.type==='immediate'});
+  var val=im.length?im.filter(function(o){return o.status==='preparing'}).length+' preparing · '+im.filter(function(o){return o.status==='ready'}).length+' ready':'None';
+  var body='';
+  if(!im.length){
+    body+='<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">No immediate requests right now.</div>';
+  } else {
+    im.forEach(function(o){
+      body+='<div class="orow">'+
+        '<div class="orow-info">'+
+          '<div class="orow-ref">'+esc(o.ref)+' · '+esc(o.name)+'</div>'+
+          '<div class="orow-meta">'+o.items+' items · '+esc(o.area)+'</div>'+
+        '</div>'+
+        '<div class="orow-amt">'+money(o.total)+'</div>'+
+      '</div>';
+      body+='<div class="row3" style="margin:-4px 0 12px">'+
+        '<button class="btn ghost sm" data-act="progress" data-ref="'+esc(o.ref)+'">Progress</button>'+
+        '<button class="btn ghost sm" data-act="assign" data-ref="'+esc(o.ref)+'">Assign</button>'+
+        '<button class="btn primary sm" data-act="waDriver" data-ref="'+esc(o.ref)+'">Manifest</button>'+
+      '</div>';
+    });
+  }
+  return accBox('immediate','Immediate Delivery',val,im.length?'':'muted',body);
+}
+
+function renderScheduled(){
+  var total=WINDOWS.reduce(function(s,w){return s+(STATE.slots[w].accepted||0)},0);
+  var val=total+' accepted across '+Object.keys(STATE.slots).filter(function(w){return STATE.slots[w].accepted>0}).length+' rounds';
+  var body='';
+  body+='<div class="fld"><label>Delivery date</label><input type="date" value="2026-10-10" readonly></div>';
+  body+='<div style="margin-top:6px">';
+  WINDOWS.forEach(function(w){
+    var s=STATE.slots[w];
+    var remaining=s.cap-s.accepted;
+    var full=remaining<=0;
+    var open=STATE.openSlot===w;
+    body+='<button class="slot-r'+(full?' full':'')+'" data-slot="'+esc(w)+'">'+
+      '<span><span class="lbl">'+esc(w)+'</span><span class="sub">'+esc(s.route||'Route not set')+' · cap '+s.cap+' · accepted '+s.accepted+'</span></span>'+
+      '<span class="cap">'+(full?'Full':(remaining+' left'))+'</span>'+
+    '</button>';
+    if(open){
+      var acceptedOrders=incoming.filter(function(o){return o.type==='scheduled'&&o.window===w});
+      body+='<div style="padding:12px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;margin:-2px 0 8px">';
+      if(!acceptedOrders.length){
+        body+='<div style="font-size:12px;color:var(--muted)">No accepted orders in this round yet.</div>';
+      } else {
+        acceptedOrders.forEach(function(o){
+          body+='<div class="orow" style="padding:8px 0">'+
+            '<div class="orow-info"><div class="orow-ref">'+esc(o.ref)+' · '+esc(o.name)+'</div><div class="orow-meta">'+esc(o.area)+'</div></div>'+
+            '<div class="orow-amt"><span class="st '+esc(o.status==='ready'?'ready':(o.status==='preparing'?'active':'pending'))+'">'+esc(o.status)+'</span></div>'+
+          '</div>';
+        });
+      }
+      body+='<div class="row2" style="margin-top:10px">'+
+        '<button class="btn ghost sm" data-act="setRoute" data-slot="'+esc(w)+'">Set route</button>'+
+        '<button class="btn ghost sm" data-act="closeSlot" data-slot="'+esc(w)+'">'+(s.closed?'Reopen slot':'Close slot')+'</button>'+
+      '</div>';
+      body+='</div>';
+    }
+  });
+  body+='</div>';
+  return accBox('scheduled','Scheduled Deliveries',val,null,body);
+}
+
+function renderKitchen(){
+  var active=incoming.filter(function(o){return ['accepted','preparing','ready'].indexOf(o.status)>-1});
+  var val=active.length+' in progress';
+  var body='';
+  if(!active.length){
+    body+='<div style="font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center">No orders in preparation.</div>';
+  } else {
+    active.forEach(function(o){
+      var steps=[{k:'accepted',l:'Order accepted'},{k:'preparing',l:'Preparation started'},{k:'nearly',l:'Nearly ready'},{k:'ready',l:'Ready for collection'},{k:'handed',l:'Handed to driver'}];
+      body+='<div style="padding:12px;border:1px solid var(--bd);border-radius:11px;margin-bottom:10px">'+
+        '<div class="orow-ref">'+esc(o.ref)+' · '+esc(o.name)+'</div>'+
+        '<div class="orow-meta" style="margin-bottom:8px">'+esc(o.type==='scheduled'?'Scheduled '+o.window:'Immediate')+' · '+o.items+' items</div>';
+      steps.forEach(function(st){
+        var on = st.k===o.status || (st.k==='accepted' && ['preparing','nearly','ready','handed'].indexOf(o.status)>-1) ||
+                (st.k==='preparing' && ['nearly','ready','handed'].indexOf(o.status)>-1) ||
+                (st.k==='nearly' && ['ready','handed'].indexOf(o.status)>-1) ||
+                (st.k==='ready' && o.status==='handed');
+        body+='<label style="display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12.5px;font-weight:700"><input type="checkbox"'+(on?' checked':'')+' style="width:auto;min-height:auto;accent-color:#1a1a1a"> '+esc(st.l)+'</label>';
+      });
+      body+='<div class="row2" style="margin-top:10px">'+
+        '<button class="btn ghost sm" data-act="progress" data-ref="'+esc(o.ref)+'">Record progress</button>'+
+        '<button class="btn wa sm" data-act="waCustomer" data-ref="'+esc(o.ref)+'">Update customer</button>'+
+      '</div>';
+    });
+  }
+  return accBox('kitchen','Kitchen Preparation',val,null,body);
+}
+
+function renderRoutes(){
+  var body='';
+  body+='<div class="fld"><label>Delivery window</label>'+
+    '<div class="drpset">'+
+      '<div class="drp'+((STATE.openRound)?'':' ph')+'" data-round-open="1">'+(STATE.openRound||'Choose a round')+'</div>'+
+      (STATE.openDrp==='round'?'<div class="drp-list open">'+WINDOWS.filter(function(w){return STATE.slots[w].accepted>0}).map(function(w){
+        return '<div class="drp-opt" data-round-pick="'+esc(w)+'">'+esc(w)+' <small>'+STATE.slots[w].accepted+' orders</small></div>';
+      }).join('')+'</div>':'')+
+    '</div>'+
+  '</div>';
+  if(STATE.openRound){
+    var s=STATE.slots[STATE.openRound];
+    body+='<div class="fld"><label>Destination group</label><input type="text" value="'+esc(s.route||'—')+'" readonly></div>';
+    body+='<div class="fld"><label>Driver</label>'+
+      '<div class="drpset">'+
+        '<div class="drp'+(STATE.selectedDriver?'':' ph')+'" data-driver-open="1">'+(STATE.selectedDriver||'Choose a rider')+'</div>'+
+        (STATE.openDrp==='driver'?'<div class="drp-list open">'+DRIVERS.map(function(d){
+          return '<div class="drp-opt" data-driver-pick="'+esc(d.id)+'">'+esc(d.name)+' <small>'+esc(d.status)+' · '+d.assigned+' assigned</small></div>';
+        }).join('')+'</div>':'')+
+      '</div>'+
+    '</div>';
+    var stopList=incoming.filter(function(o){return o.type==='scheduled'&&o.window===STATE.openRound});
+    body+='<div class="fld"><label>Route sequence</label>';
+    if(!stopList.length){
+      body+='<div style="font-size:12px;color:var(--muted)">No accepted orders in this round yet.</div>';
+    } else {
+      stopList.forEach(function(o,i){
+        body+='<div class="orow" style="padding:8px 0">'+
+          '<div class="orow-info"><div class="orow-ref">Stop '+(i+1)+' · '+esc(o.ref)+'</div><div class="orow-meta">'+esc(o.name)+' · '+esc(o.area)+'</div></div>'+
+          '<div class="orow-amt">'+money(o.total)+'</div>'+
+        '</div>';
+      });
+    }
+    body+='</div>';
+    body+='<div class="row3" style="margin-top:10px">'+
+      '<button class="btn ghost sm" data-act="setRoute" data-slot="'+esc(STATE.openRound)+'">Set route</button>'+
+      '<button class="btn ghost sm" data-act="manifest">Manifest</button>'+
+      '<button class="btn primary sm" data-act="waManifest">Send manifest</button>'+
+    '</div>';
+  }
+  return accBox('routes','Route &amp; Driver Assignment',STATE.openRound||'Not started',null,body);
+}
+
+function renderSettings(){
+  var body='';
+  body+='<div class="fld"><label>Immediate fees</label><div class="row2">'+
+    '<input type="number" value="40" readonly title="Local"><input type="number" value="70" readonly title="Peripheral"></div><div class="hint">Local / Peripheral (BWP)</div></div>';
+  body+='<div class="fld"><label>Scheduled fees</label><div class="row2">'+
+    '<input type="number" value="15" readonly title="Local"><input type="number" value="30" readonly title="Peripheral"></div><div class="hint">Local / Peripheral (BWP)</div></div>';
+  body+='<div class="fld"><label>Immediate delivery open</label><div class="row2"><input type="text" value="10:00" readonly><input type="text" value="22:00" readonly></div></div>';
+  body+='<div class="fld"><label>Scheduled delivery open</label><div class="row2"><input type="text" value="06:00" readonly><input type="text" value="00:00" readonly></div></div>';
+  body+='<div class="fld"><label>Scheduled interval</label><input type="text" value="60 minutes" readonly></div>';
+  body+='<div class="fld"><label>Service area</label><input type="text" value="Gaborone Internal + Near &amp; Around Gaborone" readonly></div>';
+  body+='<div class="fld"><label>Preparation lead time</label><input type="text" value="25 minutes" readonly></div>';
+  body+='<div class="hint">Changes to settings apply to new requests and future slots. They never change an agreed fee on an accepted order.</div>';
+  return accBox('settings','Delivery Settings','Defaults · taps to edit later',null,body);
+}
+
+function renderComms(){
+  var body='';
+  var templates=[
+    {k:'accepted',l:'Order accepted',t:'EATOUTS ORDER UPDATE\n\nOrder EO-1042\nYour delivery request has been accepted.\nWindow 14:00–15:00 · Delivery fee P15.00\nEstimated total P200.00'},
+    {k:'ready',l:'Order ready for dispatch',t:'EATOUTS DELIVERY UPDATE\n\nOrder EO-1042\nYour order is ready. A driver will be assigned shortly.'},
+    {k:'delay',l:'Delay notice',t:'EATOUTS DELIVERY UPDATE\n\nOrder EO-1042\nYour delivery is delayed.\nRevised window: __:__–__:__'},
+    {k:'cancel',l:'Cancellation',t:'EATOUTS ORDER UPDATE\n\nOrder EO-1042\nYour order has been cancelled.\nReason: ____________________'}
+  ];
+  templates.forEach(function(tp){
+    body+='<div style="padding:12px;border:1px solid var(--bd);border-radius:11px;margin-bottom:10px">'+
+      '<div style="font-size:12.5px;font-weight:800;margin-bottom:6px">'+esc(tp.l)+'</div>'+
+      '<div class="msgbox" style="font-size:11px;max-height:140px">'+esc(tp.t)+'</div>'+
+      '<div class="row2" style="margin-top:10px">'+
+        '<button class="btn ghost sm" data-act="copyTpl" data-tpl="'+esc(tp.k)+'">Copy</button>'+
+        '<button class="btn wa sm" data-act="waTpl" data-tpl="'+esc(tp.k)+'">Open WhatsApp</button>'+
+      '</div>'+
+    '</div>';
+  });
+  return accBox('comms','Customer Communication','4 templates ready',null,body);
+}
+
+function renderExceptions(){
+  var body='';
+  body+='<div style="font-size:12.5px;color:var(--muted);padding:10px 0">No open exceptions right now.</div>';
+  return accBox('exc','Exceptions &amp; Feedback','None open','muted',body);
+}
+
+function renderBar(){
+  document.getElementById('bar').innerHTML=
+    '<div class="bar-info"><span class="bar-lbl">Today</span><span class="bar-tot">'+incoming.length+' orders · '+(incoming.filter(function(o){return o.status==='awaiting'}).length)+' awaiting</span></div>'+
+    '<button class="btn primary" data-act="jumpIncoming">Open queue</button>';
+}
+
+function openOrderSheet(ref){
+  var o=incoming.filter(function(x){return x.ref===ref})[0];
+  if(!o) return;
+  var scrim=document.getElementById('sheet');
+  scrim.innerHTML='<div class="sheet" data-stop="1">'+
+    '<div class="sheet-hdr"><h3>'+esc(o.ref)+'</h3><button class="btn ghost sm" data-sheet-close>Close</button></div>'+
+    '<div class="sheet-body">'+
+      '<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Customer</div>'+
+      '<div style="font-size:13px;font-weight:800;margin-bottom:12px">'+esc(o.name)+'</div>'+
+      '<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Delivery</div>'+
+      '<div style="font-size:12.5px;line-height:1.5;margin-bottom:12px">'+esc(o.type==='scheduled'?('Scheduled · '+o.window):'Immediate')+'<br>'+esc(o.area)+'</div>'+
+      '<div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Items (read-only)</div>'+
+      '<div style="font-size:12.5px;line-height:1.55">'+o.items+' items · subtotal '+money(o.subtotal)+'<br><em style="color:var(--muted);font-style:italic">Menu definitions are managed in the main app.</em></div>'+
+      '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd2);display:flex;justify-content:space-between"><span style="font-size:12.5px;color:var(--muted2);font-weight:700">Delivery fee</span><b>'+money(o.fee)+'</b></div>'+
+      '<div style="display:flex;justify-content:space-between;padding-top:6px"><span style="font-size:14px;font-weight:900">Total</span><b>'+money(o.total)+'</b></div>'+
+    '</div>'+
+    '<div class="sheet-foot">'+
+      '<button class="btn ghost half" data-sheet-close>Close</button>'+
+      '<button class="btn primary half" data-act="accept" data-ref="'+esc(o.ref)+'">Accept request</button>'+
+    '</div>'+
+  '</div>';
+  scrim.classList.add('on');
+}
+
+document.addEventListener('click',function(e){
+  if(e.target.closest('[data-sheet-close]')||e.target.id==='sheet'){ document.getElementById('sheet').classList.remove('on'); return }
+
+  var ro=e.target.closest('[data-round-open]'); if(ro){ STATE.openDrp=STATE.openDrp==='round'?null:'round'; render(); return }
+  var rp=e.target.closest('[data-round-pick]'); if(rp){ STATE.openRound=rp.getAttribute('data-round-pick'); STATE.openDrp=null; render(); return }
+  var dO=e.target.closest('[data-driver-open]'); if(dO){ STATE.openDrp=STATE.openDrp==='driver'?null:'driver'; render(); return }
+  var dP=e.target.closest('[data-driver-pick]');
+  if(dP){
+    var did=dP.getAttribute('data-driver-pick');
+    var d=DRIVERS.filter(function(x){return x.id===did})[0];
+    STATE.selectedDriver=d?d.name:'';
+    STATE.openDrp=null; render(); return;
+  }
+  var slot=e.target.closest('[data-slot]');
+  if(slot){
+    var w=slot.getAttribute('data-slot');
+    STATE.openSlot=STATE.openSlot===w?null:w;
+    render(); return;
+  }
+  var acc=e.target.closest('[data-acc]');
+  if(acc){
+    var id=acc.getAttribute('data-acc');
+    STATE.openAcc[id]=!STATE.openAcc[id];
+    render(); return;
+  }
+  if(e.target.closest('[data-act="openFocused"]')){
+    var f=STATE.focused||incoming[0].ref;
+    openOrderSheet(f); return;
+  }
+  var vo=e.target.closest('[data-act="viewOrder"]');
+  if(vo){ openOrderSheet(vo.getAttribute('data-ref')); return }
+  var ac=e.target.closest('[data-act="accept"]');
+  if(ac){
+    var ref=ac.getAttribute('data-ref');
+    var o=incoming.filter(function(x){return x.ref===ref})[0];
+    if(o){
+      o.status='accepted';
+      if(o.type==='scheduled'){ STATE.slots[o.window].accepted=(STATE.slots[o.window].accepted||0)+1 }
+      toast('Accepted '+ref+' · prepare WhatsApp confirmation');
+      var msg='EATOUTS ORDER UPDATE\n\nOrder '+o.ref+'\nYour delivery request has been accepted.'+
+        (o.type==='scheduled'?('\nWindow '+o.window):'')+
+        '\nDelivery fee '+money(o.fee)+'\nEstimated total '+money(o.total)+
+        '\n\nWe will update you if the status changes.';
+      window.open('https://wa.me/'+RESTAURANT.whatsapp+'?text='+encodeURIComponent(msg),'_blank');
+    }
+    document.getElementById('sheet').classList.remove('on');
+    render(); return;
+  }
+  var pr=e.target.closest('[data-act="progress"]');
+  if(pr){
+    var r=pr.getAttribute('data-ref');
+    var oo=incoming.filter(function(x){return x.ref===r})[0];
+    if(oo){
+      var next={'awaiting':'accepted','accepted':'preparing','preparing':'ready','ready':'delivered'}[oo.status]||'preparing';
+      oo.status=next; toast(r+' → '+next);
+    }
+    render(); return;
+  }
+  var sr=e.target.closest('[data-act="setRoute"]');
+  if(sr){
+    var sl=sr.getAttribute('data-slot');
+    var route=prompt('Route group for '+sl+':',STATE.slots[sl].route||'');
+    if(route){ STATE.slots[sl].route=route; render() }
+    return;
+  }
+  var cs=e.target.closest('[data-act="closeSlot"]');
+  if(cs){
+    var sl2=cs.getAttribute('data-slot');
+    STATE.slots[sl2].closed=!STATE.slots[sl2].closed;
+    toast(STATE.slots[sl2].closed?'Slot closed':'Slot reopened');
+    render(); return;
+  }
+  var mn=e.target.closest('[data-act="manifest"]');
+  if(mn){
+    if(!STATE.openRound){ toast('Choose a round first'); return }
+    var stops=incoming.filter(function(o){return o.type==='scheduled'&&o.window===STATE.openRound});
+    var msg='EATOUTS DELIVERY MANIFEST\n\nRestaurant: '+RESTAURANT.name+'\nRound: '+STATE.openRound+
+      '\nDriver: '+(STATE.selectedDriver||'(unassigned)')+'\nStops: '+stops.length+'\n';
+    stops.forEach(function(o,i){
+      msg+='\nSTOP '+(i+1)+'\nOrder: '+o.ref+'\nRecipient: '+o.name+'\nArea: '+o.area+'\nPayment: Cash\nOrder total: '+money(o.total)+'\n';
+    });
+    var s=document.getElementById('sheet');
+    s.innerHTML='<div class="sheet" data-stop="1">'+
+      '<div class="sheet-hdr"><h3>Route manifest</h3><button class="btn ghost sm" data-sheet-close>Close</button></div>'+
+      '<div class="sheet-body"><div class="msgbox">'+esc(msg)+'</div></div>'+
+      '<div class="sheet-foot"><button class="btn ghost half" data-sheet-close>Close</button><button class="btn wa half" data-act="waManifestText" data-text="'+encodeURIComponent(msg)+'">Open WhatsApp</button></div>'+
+    '</div>';
+    s.classList.add('on'); return;
+  }
+  var wm=e.target.closest('[data-act="waManifestText"]');
+  if(wm){ window.open('https://wa.me/?text='+wm.getAttribute('data-text'),'_blank'); return }
+  var wd=e.target.closest('[data-act="waDriver"]');
+  if(wd){
+    var o2=incoming.filter(function(x){return x.ref===wd.getAttribute('data-ref')})[0];
+    if(o2){ window.open('https://wa.me/?text='+encodeURIComponent('EATOUTS DELIVERY MANIFEST\n\nOrder '+o2.ref+'\nRecipient: '+o2.name+'\nArea: '+o2.area+'\nOrder total: '+money(o2.total)),'_blank') }
+    return;
+  }
+  var wc=e.target.closest('[data-act="waCustomer"]');
+  if(wc){
+    var o3=incoming.filter(function(x){return x.ref===wc.getAttribute('data-ref')})[0];
+    if(o3){ window.open('https://wa.me/?text='+encodeURIComponent('EATOUTS DELIVERY UPDATE\n\nOrder '+o3.ref+'\nYour order is being prepared.'),'_blank') }
+    return;
+  }
+  if(e.target.closest('[data-act="jumpImmediate"]')){ STATE.openAcc['immediate']=true; STATE.openAcc['overview']=false; render(); return }
+  if(e.target.closest('[data-act="jumpScheduled"]')){ STATE.openAcc['scheduled']=true; STATE.openAcc['overview']=false; render(); return }
+  if(e.target.closest('[data-act="jumpIncoming"]')){ STATE.openAcc['incoming']=true; STATE.openAcc['overview']=false; render(); setTimeout(function(){var el=document.querySelector('[data-acc="incoming"]');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},40); return }
+  if(e.target.closest('[data-act="manualIntake"]')){
+    var s2=document.getElementById('sheet');
+    s2.innerHTML='<div class="sheet" data-stop="1">'+
+      '<div class="sheet-hdr"><h3>Record WhatsApp order</h3><button class="btn ghost sm" data-sheet-close>Close</button></div>'+
+      '<div class="sheet-body">'+
+        '<div class="fld"><label>Paste the WhatsApp message</label><textarea style="min-height:120px"></textarea></div>'+
+        '<div class="fld"><label>Customer name</label><input type="text"></div>'+
+        '<div class="fld"><label>Recipient phone</label><input type="tel" placeholder="+267"></div>'+
+        '<div class="fld"><label>Item subtotal</label><input type="number" placeholder="0.00"></div>'+
+        '<div class="fld"><label>Town</label><input type="text" value="Gaborone"></div>'+
+        '<div class="fld"><label>Area</label><input type="text"></div>'+
+      '</div>'+
+      '<div class="sheet-foot"><button class="btn ghost half" data-sheet-close>Cancel</button><button class="btn primary half" data-sheet-close>Save to queue</button></div>'+
+    '</div>';
+    s2.classList.add('on'); return;
+  }
+});
+
+document.addEventListener('click',function(e){
+  var ct=e.target.closest('[data-act="copyTpl"]');
+  if(ct){
+    var key=ct.getAttribute('data-tpl');
+    if(navigator.clipboard) navigator.clipboard.writeText(templateText(key)).then(function(){toast('Copied')});
+    return;
+  }
+  var wt=e.target.closest('[data-act="waTpl"]');
+  if(wt){
+    var key2=wt.getAttribute('data-tpl');
+    window.open('https://wa.me/?text='+encodeURIComponent(templateText(key2)),'_blank');
+    return;
+  }
+});
+function templateText(k){
+  return ({accepted:'EATOUTS ORDER UPDATE\n\nOrder EO-1042\nYour delivery request has been accepted.',
+    ready:'EATOUTS DELIVERY UPDATE\n\nOrder EO-1042\nYour order is ready.',
+    delay:'EATOUTS DELIVERY UPDATE\n\nOrder EO-1042\nYour delivery is delayed.',
+    cancel:'EATOUTS ORDER UPDATE\n\nOrder EO-1042\nYour order has been cancelled.'})[k]||'';
+}
+
+try {
+  render();
+} catch (err) {
+  var el=document.getElementById('scroll');
+  if(el) el.innerHTML=
+    '<div style="padding:40px 20px;color:#c43c3c;font-family:-apple-system,sans-serif;font-size:13px;line-height:1.7">'+
+      '<b>EatOuts Restaurant failed to start.</b><br><br>'+
+      (err && err.message ? err.message : String(err))+
+      '<br><br><span style="color:#7a7466;font-size:11px">Press F12 → Console for the full stack.</span>'+
+    '</div>';
+  if(window.console && console.error) console.error(err);
+}
+})();
+</script>
+</body>
+</html>

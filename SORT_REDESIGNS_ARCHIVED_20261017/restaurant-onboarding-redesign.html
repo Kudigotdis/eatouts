@@ -1,0 +1,2335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Restaurant setup · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --blue:#0284C7;
+    --blue-soft:#E0F2FE;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* top bar */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 0;
+  }
+  .topbar-row{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:13px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+
+  .progress{padding-bottom:14px}
+  .progress-top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:11px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .progress-count{
+    font-size:11.5px;font-weight:800;
+    color:var(--orange-2);
+    letter-spacing:.02em;
+  }
+  .progress-track{
+    height:5px;border-radius:99px;
+    background:rgba(255,255,255,.13);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* scroll */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* intro */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* sheet */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+  }
+
+  /* meta card */
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .meta-row{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:11px;
+  }
+  .meta-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .meta-text{
+    font-size:13.5px;
+    color:var(--ink-2);
+    line-height:1.4;
+    min-width:0;
+  }
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-bar{
+    height:6px;border-radius:99px;
+    background:#EEF0F3;overflow:hidden;
+    margin-bottom:10px;
+  }
+  .meta-bar i{
+    display:block;height:100%;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    border-radius:99px;
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+  .meta-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding-top:11px;
+    border-top:1px solid var(--line-2);
+  }
+  .stat{text-align:center}
+  .stat b{
+    display:block;
+    font-size:19px;font-weight:850;
+    letter-spacing:-.03em;
+    color:var(--ink);
+    line-height:1.1;
+  }
+  .stat span{
+    display:block;
+    margin-top:3px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* accordion stack */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:16px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+  .acc-head .dot{
+    width:10px;height:10px;border-radius:50%;flex:0 0 auto;
+    background:#D3D7DE;
+    transition:background .25s ease,box-shadow .25s ease;
+  }
+  .acc.touched .acc-head .dot{
+    background:var(--green);
+    box-shadow:0 0 0 3px var(--green-soft);
+  }
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:1px;
+  }
+  .acc-title b{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc.touched .acc-sub{color:var(--green);font-weight:650}
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+  .module{padding:2px 15px 18px}
+  .module-note{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+    margin:0 0 14px;
+    padding:11px 12px;
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+  }
+
+  /* fields */
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field label{
+    display:block;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:7px;
+  }
+  .field label .opt{
+    text-transform:none;letter-spacing:0;
+    font-weight:650;color:var(--faint);
+    font-size:11px;
+  }
+  .input,.textarea,.select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.4;
+    padding:13px;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  .textarea{min-height:88px;resize:vertical;line-height:1.55}
+  .select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 13px center;
+    background-size:14px;
+    padding-right:38px;
+  }
+  .input:focus,.textarea:focus,.select:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.13);
+  }
+  .input::placeholder,.textarea::placeholder{color:#B7BDC6}
+
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* chips */
+  .chip-grid{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 14px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:13px;font-weight:650;
+    color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s,transform .08s;
+  }
+  .chip:active{transform:scale(.97)}
+  .chip.on{
+    background:var(--orange-soft);
+    border-color:var(--orange-line);
+    color:var(--orange);
+    font-weight:750;
+  }
+  .chip.add{
+    border-style:dashed;
+    color:var(--orange);
+    background:#fff;
+  }
+
+  /* lists / records */
+  .record{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:13px;
+    padding:12px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s,transform .08s;
+    margin-bottom:9px;
+  }
+  .record:last-child{margin-bottom:0}
+  .record:active{transform:scale(.99);border-color:var(--orange-line)}
+  .record-badge{
+    width:48px;height:48px;flex:0 0 auto;
+    border-radius:12px;
+    background:#F0F1F4;
+    display:grid;place-items:center;
+    font-size:17px;font-weight:800;
+    color:var(--ink-2);
+    overflow:hidden;
+  }
+  .record-badge img{width:100%;height:100%;object-fit:cover;display:block}
+  .record-badge .mono{
+    font-size:15px;font-weight:850;
+    letter-spacing:-.02em;
+  }
+  .record-info{flex:1 1 auto;min-width:0}
+  .record-name{
+    font-size:14.5px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    line-height:1.25;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .record-meta{
+    font-size:12px;
+    color:var(--faint);
+    margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font-weight:550;
+  }
+  .record-actions{
+    display:flex;gap:5px;flex:0 0 auto;
+  }
+  .mini-btn{
+    width:32px;height:32px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    color:var(--faint);
+    font-size:12px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .mini-btn:active{background:#F4F5F7}
+  .mini-btn.danger:active{background:var(--red-soft);color:var(--red);border-color:#FECACA}
+
+  .badge{
+    display:inline-flex;align-items:center;
+    padding:2px 8px;border-radius:999px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.05em;text-transform:uppercase;
+  }
+  .badge.primary{background:var(--orange-soft);color:var(--orange)}
+  .badge.published{background:var(--green-soft);color:var(--green)}
+  .badge.draft{background:#F0F1F4;color:var(--faint)}
+  .badge.wa{background:var(--green-soft);color:var(--green)}
+
+  .add-btn{
+    width:100%;
+    border:1.5px dashed #D3D7DE;
+    background:#fff;
+    border-radius:12px;
+    padding:14px;
+    font-size:14px;font-weight:750;
+    color:var(--orange);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;
+    margin-top:10px;
+  }
+  .add-btn:active{background:var(--orange-soft);border-color:var(--orange-line)}
+
+  .empty-note{
+    font-size:12.5px;
+    color:var(--faint);
+    text-align:center;
+    padding:18px 12px;
+    border:1.5px dashed #DCE0E6;
+    border-radius:11px;
+    background:#FAFBFC;
+    line-height:1.5;
+  }
+
+  /* ============ IMAGE GALLERY ============ */
+  .picker-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .picker-card{
+    flex:1 1 0;
+    min-width:0;
+    background:#FAFBFC;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:11px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  .picker-label{
+    font-size:9.5px;
+    font-weight:800;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--faint);
+    align-self:stretch;
+    text-align:center;
+  }
+  .picker-box{
+    width:100%;
+    aspect-ratio:1 / 1;
+    max-width:110px;
+    border-radius:13px;
+    background:#F0F1F4;
+    border:1.5px dashed #C8CDD4;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    cursor:pointer;
+    position:relative;
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s,background .15s;
+  }
+  .picker-box:active{border-color:var(--orange);background:var(--orange-soft)}
+  .picker-box.has-img{border-style:solid;border-color:var(--line)}
+  .picker-box img{width:100%;height:100%;object-fit:cover;display:block}
+  .picker-box .glyph{
+    font-size:24px;
+    color:var(--orange);
+    line-height:1;
+    font-weight:300;
+  }
+  .picker-box input{display:none}
+
+  /* gallery rail */
+  .gallery-section{margin-bottom:20px}
+  .gallery-header{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:10px;
+  }
+  .gallery-header .label{
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  .gallery-header .count{
+    font-size:11.5px;
+    font-weight:750;
+    color:var(--faint);
+  }
+  .gallery-header .count.has-items{color:var(--green);font-weight:800}
+  .gallery-rail{
+    display:flex;gap:10px;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding:6px 2px;
+    margin:0 -2px;
+  }
+  .gallery-rail::-webkit-scrollbar{display:none}
+  .gallery-tile{
+    flex:0 0 calc((100% - 20px) / 3);
+    max-width:120px;
+    aspect-ratio:1/1;
+    border-radius:14px;
+    background:#F0F1F4;
+    border:1px solid var(--line);
+    overflow:hidden;
+    position:relative;
+    scroll-snap-align:start;
+  }
+  .gallery-tile img{
+    width:100%;height:100%;
+    object-fit:cover;
+    display:block;
+    pointer-events:none;
+  }
+  .gallery-tile.main{
+    outline:3px solid rgba(255,90,31,.08);
+    outline-offset:2px;
+    border-color:var(--orange-line);
+  }
+  .gallery-tile .tile-x{
+    position:absolute;
+    top:6px;right:6px;
+    width:26px;height:26px;
+    border:0;border-radius:50%;
+    background:rgba(15,15,18,.68);
+    color:#fff;
+    font-size:11px;font-weight:800;
+    line-height:1;
+    display:grid;place-items:center;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .gallery-tile .tile-x:active{background:var(--red)}
+  .gallery-tile.add-tile{
+    border:1.5px dashed #C8CDD4;
+    background:#FAFBFC;
+    display:grid;place-items:center;
+    color:var(--orange);
+    font-size:34px;font-weight:300;line-height:1;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .gallery-tile.add-tile:active{background:var(--orange-soft);border-color:var(--orange)}
+  .gallery-tile.add-tile input{display:none}
+  .gallery-dots{
+    display:flex;gap:6px;justify-content:center;align-items:center;
+    margin-top:12px;min-height:6px;
+  }
+  .gallery-dots .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:#D3D7DE;transition:background .2s;
+  }
+  .gallery-dots .dot.first{background:var(--orange)}
+
+  /* hours rows */
+  .hours-row{
+    display:grid;
+    grid-template-columns:54px 1fr 1fr;
+    gap:8px;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .hours-row .dow{
+    font-size:11px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);
+    text-align:center;
+  }
+  .hours-row input{
+    min-height:42px;
+    padding:10px 12px;
+    font-size:14px;
+  }
+
+  /* actions */
+  .actions{
+    flex:0 0 auto;
+    display:flex;
+    gap:9px;
+    padding:11px 14px calc(11px + env(safe-area-inset-bottom));
+    background:#fff;
+    border-top:1px solid var(--line);
+  }
+  .btn{
+    height:50px;
+    border:0;
+    border-radius:13px;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:transform .1s ease,background .15s;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-ghost{
+    flex:1 1 auto;
+    background:#F4F5F7;
+    border:1px solid var(--line);
+    color:var(--ink-2);
+  }
+  .btn-ghost:active{background:#EDE9DF}
+  .btn-primary{
+    flex:1 1 auto;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+  }
+  .btn-primary:active{background:var(--orange)}
+  .btn-primary.ready{
+    box-shadow:0 6px 22px -6px rgba(255,90,31,.62);
+  }
+  .btn-primary[disabled]{
+    opacity:.45;pointer-events:none;
+  }
+
+  /* modal */
+  .modal-scrim{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(15,15,18,.55);
+    display:flex;align-items:flex-end;justify-content:center;
+    animation:fade .18s ease;
+  }
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @media(min-width:520px){.modal-scrim{align-items:center;padding:20px}}
+  .modal{
+    background:#fff;
+    width:100%;max-width:460px;
+    height:94vh;max-height:94vh;
+    border-radius:20px 20px 0 0;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    animation:slideup .25s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  @media(min-width:520px){
+    .modal{border-radius:18px;height:auto;max-height:92vh}
+    @keyframes slideup{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+  }
+  .modal-hdr{
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:12px;
+    background:#fff;
+    flex:0 0 auto;
+  }
+  .modal-hdr h3{
+    margin:0;flex:1;
+    font-size:16px;font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .modal-close{
+    width:32px;height:32px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    color:var(--muted);
+    font-size:14px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .modal-close:active{background:#F4F5F7}
+  .modal-body{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:16px 18px;
+    scrollbar-width:none;
+  }
+  .modal-body::-webkit-scrollbar{display:none}
+  .modal-foot{
+    flex:0 0 auto;
+    padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);
+    background:#FAFBFC;
+    display:flex;gap:9px;
+  }
+  .modal-foot .btn{flex:1;height:48px}
+
+  /* switch */
+  .switch{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 13px;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    margin-bottom:10px;
+  }
+  .switch:last-child{margin-bottom:0}
+  .switch input{display:none}
+  .switch .track{
+    width:44px;height:26px;
+    background:#D3D7DE;
+    border-radius:999px;
+    position:relative;flex:0 0 auto;
+    transition:background .2s;
+  }
+  .switch .track:after{
+    content:"";
+    position:absolute;top:3px;left:3px;
+    width:20px;height:20px;
+    background:#fff;border-radius:50%;
+    transition:transform .2s;
+    box-shadow:0 1px 3px rgba(0,0,0,.15);
+  }
+  .switch input:checked + .track{background:var(--orange)}
+  .switch input:checked + .track:after{transform:translateX(18px)}
+  .switch .lbl{
+    font-size:14px;font-weight:650;
+    color:var(--ink-2);
+  }
+
+  /* toast */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(88px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media print{
+    body{background:#fff;display:block}
+    #shell{max-width:none;height:auto;box-shadow:none;display:block;overflow:visible}
+    .topbar,.actions{display:none!important}
+    .scroll{overflow:visible;height:auto}
+    .acc-body{grid-template-rows:1fr!important}
+    .intro{border-radius:0}
+    .sheet{margin-top:0;border-radius:0}
+  }
+</style>
+</head>
+<body>
+
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip">Restaurant setup</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Profile completeness</span>
+        <span class="progress-count" id="progressCount">0% complete</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <h1>Set up your <em>restaurant</em> on EatOuts.</h1>
+      <p>Tap a section to open it. Everything auto-saves, and only one section stays open at a time so you can focus on one thing.</p>
+    </section>
+    <main class="sheet">
+      <div class="meta-card" id="metaCard"></div>
+      <div class="stack" id="stack"></div>
+    </main>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-ghost" id="btnDraft" type="button">Save draft</button>
+    <button class="btn btn-primary" id="btnPublish" type="button">Preview &amp; publish</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     CONFIG
+     ============================================================ */
+  var STORE_KEY = "eatouts.restaurant-onboarding.v1";
+  var MAX_GALLERY = 12;
+  var MAX_LOGOS = 1;
+
+  var TYPES = [
+    "Restaurant","Café","Fast Food","Takeaway","Bakery",
+    "Bar & Grill","Pub","Lounge","Bistro","Food Court",
+    "Coffee Shop","Steakhouse","Pizzeria","Family Restaurant",
+    "Fine Dining","Food Truck","Other"
+  ];
+
+  var PAYMENTS = ["Cash","Visa","Mastercard","Orange Money","MyZaka","Bank Transfer"];
+
+  var SOCIALS = ["instagram","facebook","whatsapp","tiktok","youtube","twitter","website"];
+
+  var DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+  var CHARACTER_DEFAULTS = ["Cozy","Trendy","Romantic","Family-friendly","Traditional","Modern","Rustic"];
+
+  var AMENITY_DEFAULTS = [
+    "Free Wi-Fi","Table service","Dedicated parking","Kids area",
+    "Outdoor seating","Indoor seating","Air conditioning","Charging points",
+    "Wheelchair accessible","Restrooms","Baby changing","Power backup",
+    "Smoking area","Non-smoking area","Pet friendly","Takeaway",
+    "Delivery","Catering","Private dining","Event space"
+  ];
+
+  var MENU_TAG_GROUPS = {
+    "Cuisine": ["Setswana","Zimbabwean","African","South African","Indian","Chinese","Italian","American","Mexican","Mediterranean","Fusion"],
+    "Meal": ["Breakfast","Brunch","Lunch","Dinner","Late Night","Dessert"],
+    "Dietary": ["Vegetarian options","Vegan options","Halal","Gluten-free options","Dairy-free options"]
+  };
+
+  var MODULES = [
+    { key:"identity",     title:"Restaurant identity",   sub:"Name, logo, cover, description" },
+    { key:"location",     title:"Location",              sub:"Where you are and how to find you" },
+    { key:"contacts",     title:"Contact numbers",       sub:"Phone, WhatsApp and purpose" },
+    { key:"socials",      title:"Social links",          sub:"Instagram, Facebook, TikTok and more" },
+    { key:"hours",        title:"Operating hours",       sub:"Weekly schedule plus custom blocks" },
+    { key:"character",    title:"Restaurant character",  sub:"The vibe and personality" },
+    { key:"amenities",    title:"Amenities",             sub:"What guests can expect" },
+    { key:"menuTags",     title:"Menu tags",             sub:"Cuisine, meal type and dietary" },
+    { key:"capacity",     title:"Capacity",              sub:"Indoor, outdoor and private rooms" },
+    { key:"payments",     title:"Payments",              sub:"Accepted payment methods" },
+    { key:"reservations", title:"Reservations",          sub:"Guest limits, WhatsApp and rules" },
+    { key:"services",     title:"Reservation services",  sub:"Birthday setup, VIP booth, and more" },
+    { key:"staff",        title:"Service staff",         sub:"Waiters, hosts, chefs, MCs" },
+    { key:"users",        title:"Restaurant users",      sub:"Team roles and permissions" }
+  ];
+
+  /* ============================================================
+     SEED STATE
+     ============================================================ */
+  function seed() {
+    return {
+      identity:{
+        name:"", description:"",
+        logo:"", cover:"",
+        gallery:[],
+        types:[],
+        status:"draft"
+      },
+      location:{
+        city:"", area:"", plotNumber:"", streetName:"", streetNumber:"",
+        building:"", landmark:"", latitude:null, longitude:null
+      },
+      contacts:[],
+      socials:{ instagram:"", facebook:"", whatsapp:"", tiktok:"", youtube:"", twitter:"", website:"" },
+      hours:{
+        weekly: DAYS.map(function (d) { return { day:d, open:"", close:"" }; }),
+        custom:[]
+      },
+      character:{ title:"Restaurant character", options:[] },
+      amenities:{ title:"Amenities", options:[] },
+      menuTags:{ title:"Menu tags", options:[] },
+      capacity:[],
+      payments:[],
+      reservations:{
+        enabled:true,
+        whatsappContactId:null,
+        callContactId:null,
+        minimumGuests:2,
+        maximumGuests:12,
+        sameDay:true,
+        advanceBooking:true,
+        cancellationNotes:""
+      },
+      services:[],
+      staff:[],
+      users:[]
+    };
+  }
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  var state = seed();
+
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && typeof p === "object") {
+        state = deepMerge(state, p);
+        // migrations
+        if (!Array.isArray(state.identity.gallery)) state.identity.gallery = [];
+      }
+    }
+  } catch (e) {}
+
+  function deepMerge(target, src) {
+    if (Array.isArray(target)) return Array.isArray(src) ? src : target;
+    if (typeof target === "object" && target !== null) {
+      var out = {};
+      Object.keys(target).forEach(function (k) {
+        out[k] = (src && typeof src === "object" && k in src)
+          ? deepMerge(target[k], src[k])
+          : target[k];
+      });
+      // also copy any extra keys from src
+      Object.keys(src || {}).forEach(function (k) {
+        if (!(k in out)) out[k] = src[k];
+      });
+      return out;
+    }
+    return (src !== undefined && src !== null) ? src : target;
+  }
+
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function uid(p) {
+    return p + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7);
+  }
+  function nonEmpty(v) { return v != null && String(v).trim().length > 0; }
+  function money(v) { return "P" + (Number(v) || 0).toFixed(2); }
+
+  var stack = $("#stack");
+  var metaCard = $("#metaCard");
+  var toastEl = $("#toast");
+  var progressFill = $("#progressFill");
+  var progressCount = $("#progressCount");
+  var toastTimer = null;
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2000);
+  }
+
+  /* ============================================================
+     COMPLETENESS
+     ============================================================ */
+  function touched(key) {
+    if (key === "identity")     return nonEmpty(state.identity.name) || state.identity.types.length > 0 || state.identity.gallery.length > 0 || nonEmpty(state.identity.logo) || nonEmpty(state.identity.cover);
+    if (key === "location")     return nonEmpty(state.location.city) || nonEmpty(state.location.area) || nonEmpty(state.location.landmark);
+    if (key === "contacts")     return state.contacts.length > 0;
+    if (key === "socials")      return SOCIALS.some(function (s) { return nonEmpty(state.socials[s]); });
+    if (key === "hours")        return state.hours.weekly.some(function (h) { return nonEmpty(h.open) && nonEmpty(h.close); }) || state.hours.custom.length > 0;
+    if (key === "character")    return state.character.options.length > 0;
+    if (key === "amenities")    return state.amenities.options.length > 0;
+    if (key === "menuTags")     return state.menuTags.options.length > 0;
+    if (key === "capacity")     return state.capacity.length > 0;
+    if (key === "payments")     return state.payments.length > 0;
+    if (key === "reservations") return state.reservations.enabled;
+    if (key === "services")     return state.services.length > 0;
+    if (key === "staff")        return state.staff.length > 0;
+    if (key === "users")        return state.users.length > 0;
+    return false;
+  }
+
+  function required(key) {
+    if (key === "identity")     return nonEmpty(state.identity.name) && state.identity.types.length > 0;
+    if (key === "location")     return nonEmpty(state.location.city) && nonEmpty(state.location.area);
+    if (key === "contacts")     return state.contacts.length > 0;
+    return true;
+  }
+
+  function completeness() {
+    var total = 0, passed = 0;
+    MODULES.forEach(function (m) {
+      if (!m.required) return;
+      total++;
+      if (required(m.key)) passed++;
+    });
+    return total ? Math.round((passed / total) * 100) : 0;
+  }
+
+  /* ============================================================
+     MODULE BODIES
+     ============================================================ */
+  function bodyIdentity() {
+    var id = state.identity;
+    var logoImg = id.logo;
+    var coverImg = id.cover;
+
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">These are the first things customers see. Add a logo, a cover image, and a few photos of your restaurant.</p>' +
+
+        /* Logo + Cover pickers */
+        '<div class="picker-row">' +
+          '<div class="picker-card">' +
+            '<span class="picker-label">Logo</span>' +
+            '<label class="picker-box' + (logoImg ? " has-img" : "") + '" data-picker="logo">' +
+              (logoImg ? '<img src="' + esc(logoImg) + '" alt="">' : '<span class="glyph">+</span>') +
+              '<input type="file" accept="image/*" data-input="logo">' +
+            '</label>' +
+          '</div>' +
+          '<div class="picker-card">' +
+            '<span class="picker-label">Cover</span>' +
+            '<label class="picker-box' + (coverImg ? " has-img" : "") + '" data-picker="cover">' +
+              (coverImg ? '<img src="' + esc(coverImg) + '" alt="">' : '<span class="glyph">+</span>') +
+              '<input type="file" accept="image/*" data-input="cover">' +
+            '</label>' +
+          '</div>' +
+        '</div>' +
+
+        /* Gallery rail */
+        '<div class="gallery-section">' +
+          '<div class="gallery-header">' +
+            '<span class="label">Restaurant photos</span>' +
+            '<span class="count' + (id.gallery.length ? " has-items" : "") + '">' +
+              (id.gallery.length ? id.gallery.length + " photo" + (id.gallery.length === 1 ? "" : "s") : "Optional") +
+            '</span>' +
+          '</div>' +
+          '<div class="gallery-rail" data-gallery="restaurant">' +
+            id.gallery.map(function (src, i) {
+              return '<div class="gallery-tile' + (i === 0 ? " main" : "") + '" data-tile="' + i + '">' +
+                '<img src="' + esc(src) + '" alt="">' +
+                '<button type="button" class="tile-x" data-remove-tile="' + i + '" aria-label="Remove image">✕</button>' +
+              '</div>';
+            }).join("") +
+            '<label class="gallery-tile add-tile" data-add-tile="1">' +
+              '<span>+</span>' +
+              '<input type="file" accept="image/*" multiple data-gallery-input="restaurant">' +
+            '</label>' +
+          '</div>' +
+          '<div class="gallery-dots">' +
+            id.gallery.map(function (_, i) {
+              return '<span class="dot' + (i === 0 ? " first" : "") + '"></span>';
+            }).join("") +
+          '</div>' +
+          '<p style="margin:8px 0 0;font-size:11.5px;color:var(--faint);line-height:1.5">The first photo becomes your cover. Add up to ' + MAX_GALLERY + ' photos.</p>' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Restaurant name</label>' +
+          '<input class="input" type="text" data-biz="identity.name" placeholder="e.g. The Yellow Giraffe Coffee Club" value="' + esc(id.name) + '">' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Short description</label>' +
+          '<textarea class="textarea" data-biz="identity.description" placeholder="A short description customers will read first.">' + esc(id.description) + '</textarea>' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<label>Restaurant type</label>' +
+          '<div class="chip-grid" data-chips="types">' +
+            TYPES.map(function (t) {
+              var on = id.types.indexOf(t) > -1;
+              return '<button type="button" class="chip' + (on ? " on" : "") + '" data-type-chip="' + esc(t) + '">' + esc(t) + '</button>';
+            }).join("") +
+            '<button type="button" class="chip add" data-add-type="1">+ Custom</button>' +
+          '</div>' +
+          (id.types.filter(function (t) { return TYPES.indexOf(t) === -1; }).length
+            ? '<div style="margin-top:10px" class="chip-grid">' +
+                id.types.filter(function (t) { return TYPES.indexOf(t) === -1; }).map(function (t) {
+                  return '<button type="button" class="chip on" data-type-chip="' + esc(t) + '">' + esc(t) + ' ✕</button>';
+                }).join("") +
+              '</div>'
+            : '') +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyLocation() {
+    var l = state.location;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Buyers filter by city and area, so accurate location gets you found faster.</p>' +
+
+        '<div class="row-2">' +
+          '<div class="field"><label>Village / Town / City</label>' +
+            '<input class="input" type="text" data-biz="location.city" placeholder="Gaborone" value="' + esc(l.city) + '"></div>' +
+          '<div class="field"><label>Area / Neighbourhood</label>' +
+            '<input class="input" type="text" data-biz="location.area" placeholder="CBD" value="' + esc(l.area) + '"></div>' +
+        '</div>' +
+
+        '<div class="row-2">' +
+          '<div class="field"><label>Plot number</label>' +
+            '<input class="input" type="text" data-biz="location.plotNumber" value="' + esc(l.plotNumber) + '"></div>' +
+          '<div class="field"><label>Street name</label>' +
+            '<input class="input" type="text" data-biz="location.streetName" value="' + esc(l.streetName) + '"></div>' +
+        '</div>' +
+
+        '<div class="row-2">' +
+          '<div class="field"><label>Street number</label>' +
+            '<input class="input" type="text" data-biz="location.streetNumber" value="' + esc(l.streetNumber) + '"></div>' +
+          '<div class="field"><label>Building / complex</label>' +
+            '<input class="input" type="text" data-biz="location.building" value="' + esc(l.building) + '"></div>' +
+        '</div>' +
+
+        '<div class="field"><label>Landmark</label>' +
+          '<input class="input" type="text" data-biz="location.landmark" placeholder="e.g. Opposite Airport Junction" value="' + esc(l.landmark) + '"></div>' +
+
+        '<div class="row-2">' +
+          '<div class="field"><label>Latitude</label>' +
+            '<input class="input" type="number" step="0.000001" data-biz="location.latitude" value="' + (l.latitude == null ? "" : l.latitude) + '"></div>' +
+          '<div class="field"><label>Longitude</label>' +
+            '<input class="input" type="number" step="0.000001" data-biz="location.longitude" value="' + (l.longitude == null ? "" : l.longitude) + '"></div>' +
+        '</div>' +
+
+        '<button type="button" class="add-btn" data-use-location="1">Use my current location</button>' +
+      '</div>';
+  }
+
+  function bodyContacts() {
+    var cs = state.contacts;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Numbers added here are reused across menus, promos and events. Add at least one WhatsApp-enabled number.</p>' +
+        (cs.length
+          ? cs.map(function (c) {
+              return '<article class="record" data-contact="' + esc(c.id) + '">' +
+                '<div class="record-badge"><span class="mono">' + esc((c.title || c.number || "?").charAt(0).toUpperCase()) + '</span></div>' +
+                '<div class="record-info">' +
+                  '<div class="record-name">' + esc(c.title || "Number") +
+                    (c.primary ? ' <span class="badge primary">Primary</span>' : '') +
+                    (c.whatsapp ? ' <span class="badge wa">WhatsApp</span>' : '') +
+                  '</div>' +
+                  '<div class="record-meta">' + esc((c.countryCode || "") + " " + (c.number || "")) + ' · ' + esc(c.purpose || "—") + '</div>' +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-contact="' + esc(c.id) + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No contact numbers yet. Add at least one.</div>') +
+        '<button type="button" class="add-btn" data-add-contact="1">+ Add contact number</button>' +
+      '</div>';
+  }
+
+  function bodySocials() {
+    var s = state.socials;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Add the profiles you actually use. Leave the others empty.</p>' +
+        SOCIALS.map(function (p) {
+          return '<div class="field">' +
+            '<label>' + esc(p.charAt(0).toUpperCase() + p.slice(1)) + '</label>' +
+            '<input class="input" type="url" inputmode="url" data-social="' + esc(p) + '" placeholder="https://…" value="' + esc(s[p] || "") + '">' +
+          '</div>';
+        }).join("") +
+      '</div>';
+  }
+
+  function bodyHours() {
+    var h = state.hours;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Set your standard weekly hours. Leave both times blank to mark a day as closed.</p>' +
+        h.weekly.map(function (row) {
+          return '<div class="hours-row">' +
+            '<span class="dow">' + esc(row.day) + '</span>' +
+            '<input class="input" type="time" data-hour="' + esc(row.day) + '" data-hk="open" value="' + esc(row.open || "") + '">' +
+            '<input class="input" type="time" data-hour="' + esc(row.day) + '" data-hk="close" value="' + esc(row.close || "") + '">' +
+          '</div>';
+        }).join("") +
+
+        '<div style="margin-top:16px;font-size:11.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Custom schedules</div>' +
+        (h.custom.length
+          ? h.custom.map(function (s) {
+              return '<article class="record" data-schedule="' + esc(s.id) + '">' +
+                '<div class="record-badge"><span class="mono">⏱</span></div>' +
+                '<div class="record-info">' +
+                  '<div class="record-name">' + esc(s.title || "Schedule") + '</div>' +
+                  '<div class="record-meta">' + esc(s.days || "—") + ' · ' + esc(s.start || "—") + "–" + esc(s.end || "—") + '</div>' +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-schedule="' + esc(s.id) + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No custom schedules yet. Add a happy hour, weekend brunch, or seasonal block.</div>') +
+        '<button type="button" class="add-btn" data-add-schedule="1">+ Add custom schedule</button>' +
+      '</div>';
+  }
+
+  function bodyCharacter() {
+    var c = state.character;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Pick the words that best describe your restaurant. Customers use these to filter.</p>' +
+        '<div class="field">' +
+          '<label>Section title</label>' +
+          '<input class="input" type="text" data-title="character" value="' + esc(c.title) + '">' +
+        '</div>' +
+        '<div class="chip-grid">' +
+          CHARACTER_DEFAULTS.map(function (n) {
+            var on = c.options.indexOf(n) > -1;
+            return '<button type="button" class="chip' + (on ? " on" : "") + '" data-char-chip="' + esc(n) + '">' + esc(n) + '</button>';
+          }).join("") +
+          c.options.filter(function (n) { return CHARACTER_DEFAULTS.indexOf(n) === -1; }).map(function (n) {
+            return '<button type="button" class="chip on" data-char-chip="' + esc(n) + '">' + esc(n) + ' ✕</button>';
+          }).join("") +
+          '<button type="button" class="chip add" data-add-char="1">+ Custom</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyAmenities() {
+    var a = state.amenities;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">What can guests expect when they arrive? These become filter tags.</p>' +
+        '<div class="field">' +
+          '<label>Section title</label>' +
+          '<input class="input" type="text" data-title="amenities" value="' + esc(a.title) + '">' +
+        '</div>' +
+        '<div class="chip-grid">' +
+          AMENITY_DEFAULTS.map(function (n) {
+            var on = a.options.indexOf(n) > -1;
+            return '<button type="button" class="chip' + (on ? " on" : "") + '" data-amen-chip="' + esc(n) + '">' + esc(n) + '</button>';
+          }).join("") +
+          a.options.filter(function (n) { return AMENITY_DEFAULTS.indexOf(n) === -1; }).map(function (n) {
+            return '<button type="button" class="chip on" data-amen-chip="' + esc(n) + '">' + esc(n) + ' ✕</button>';
+          }).join("") +
+          '<button type="button" class="chip add" data-add-amen="1">+ Custom</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyMenuTags() {
+    var m = state.menuTags;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Cuisine, meal type and dietary tags. These are used to filter menus.</p>' +
+        '<div class="field">' +
+          '<label>Section title</label>' +
+          '<input class="input" type="text" data-title="menuTags" value="' + esc(m.title) + '">' +
+        '</div>' +
+        Object.keys(MENU_TAG_GROUPS).map(function (g) {
+          return '<div style="margin-top:12px;margin-bottom:8px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">' + esc(g) + '</div>' +
+            '<div class="chip-grid">' +
+              MENU_TAG_GROUPS[g].map(function (n) {
+                var on = m.options.indexOf(n) > -1;
+                return '<button type="button" class="chip' + (on ? " on" : "") + '" data-mt-chip="' + esc(n) + '">' + esc(n) + '</button>';
+              }).join("") +
+            '</div>';
+        }).join("") +
+        '<div style="margin-top:12px">' +
+          '<button type="button" class="chip add" data-add-mt="1">+ Custom tag</button>' +
+          m.options.filter(function (n) {
+            var found = false;
+            Object.keys(MENU_TAG_GROUPS).forEach(function (g) {
+              if (MENU_TAG_GROUPS[g].indexOf(n) > -1) found = true;
+            });
+            return !found;
+          }).map(function (n) {
+            return '<button type="button" class="chip on" data-mt-chip="' + esc(n) + '" style="margin-left:8px">' + esc(n) + ' ✕</button>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyCapacity() {
+    var list = state.capacity;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Indoor seats, outdoor seats, private rooms — anything that helps guests plan.</p>' +
+        (list.length
+          ? list.map(function (c) {
+              return '<article class="record" data-capacity="' + esc(c.id) + '">' +
+                '<div class="record-badge"><span class="mono">' + esc(c.value || "—") + '</span></div>' +
+                '<div class="record-info">' +
+                  '<div class="record-name">' + esc(c.title || "Capacity") + '</div>' +
+                  (c.description ? '<div class="record-meta">' + esc(c.description) + '</div>' : '') +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-capacity="' + esc(c.id) + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No capacity entries yet.</div>') +
+        '<button type="button" class="add-btn" data-add-capacity="1">+ Add capacity</button>' +
+      '</div>';
+  }
+
+  function bodyPayments() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Tap every payment method you accept. These appear on your listing card.</p>' +
+        '<div class="chip-grid">' +
+          PAYMENTS.map(function (p) {
+            var on = state.payments.indexOf(p) > -1;
+            return '<button type="button" class="chip' + (on ? " on" : "") + '" data-pay-chip="' + esc(p) + '">' + esc(p) + '</button>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyReservations() {
+    var r = state.reservations;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Reservations are handled on your own WhatsApp. Guests message you directly.</p>' +
+        '<label class="switch">' +
+          '<input type="checkbox" data-res="enabled"' + (r.enabled ? " checked" : "") + '>' +
+          '<span class="track"></span>' +
+          '<span class="lbl">Reservations available</span>' +
+        '</label>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Minimum guests</label>' +
+            '<input class="input" type="number" min="1" data-res="minimumGuests" value="' + esc(r.minimumGuests) + '"></div>' +
+          '<div class="field"><label>Maximum guests</label>' +
+            '<input class="input" type="number" min="1" data-res="maximumGuests" value="' + esc(r.maximumGuests) + '"></div>' +
+        '</div>' +
+        '<label class="switch">' +
+          '<input type="checkbox" data-res="sameDay"' + (r.sameDay ? " checked" : "") + '>' +
+          '<span class="track"></span>' +
+          '<span class="lbl">Same-day reservations</span>' +
+        '</label>' +
+        '<label class="switch">' +
+          '<input type="checkbox" data-res="advanceBooking"' + (r.advanceBooking ? " checked" : "") + '>' +
+          '<span class="track"></span>' +
+          '<span class="lbl">Advance booking required</span>' +
+        '</label>' +
+        '<div class="field" style="margin-top:14px">' +
+          '<label>Cancellation notes</label>' +
+          '<textarea class="textarea" data-res="cancellationNotes" placeholder="Any rules guests should know about cancelling.">' + esc(r.cancellationNotes) + '</textarea>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyServices() {
+    var list = state.services;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Any add-ons guests can book alongside a table — birthday setup, VIP booth, cake, and more.</p>' +
+        (list.length
+          ? list.map(function (s) {
+              return '<article class="record" data-service="' + esc(s.id) + '">' +
+                '<div class="record-badge"><span class="mono">＋</span></div>' +
+                '<div class="record-info">' +
+                  '<div class="record-name">' + esc(s.name) + '</div>' +
+                  '<div class="record-meta">' +
+                    (s.price ? money(s.price) + ' · ' + esc(s.pricingType || "") : 'Custom quote') +
+                  '</div>' +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-service="' + esc(s.id) + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No reservation services yet.</div>') +
+        '<button type="button" class="add-btn" data-add-service="1">+ Add service</button>' +
+      '</div>';
+  }
+
+  function bodyStaff() {
+    var list = state.staff;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Optional. Add named staff members, their roles, and any charges.</p>' +
+        (list.length
+          ? list.map(function (s) {
+              return '<article class="record" data-staff="' + esc(s.id) + '">' +
+                '<div class="record-badge"><span class="mono">' + esc(((s.firstName || "?")[0] || "?").toUpperCase()) + '</span></div>' +
+                '<div class="record-info">' +
+                  '<div class="record-name">' + esc((s.firstName || "") + " " + (s.surname || "")) + '</div>' +
+                  '<div class="record-meta">' + esc(s.role || "") + (s.price ? ' · ' + money(s.price) : '') + '</div>' +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-staff="' + esc(s.id) + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No staff yet. This is optional.</div>') +
+        '<button type="button" class="add-btn" data-add-staff="1">+ Add staff member</button>' +
+      '</div>';
+  }
+
+  function bodyUsers() {
+    var list = state.users;
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Give teammates access to manage your listing. Each user gets their own login.</p>' +
+        (list.length
+          ? list.map(function (u) {
+              return '<article class="record" data-user="' + esc(u.id) + '">' +
+                '<div class="record-badge"><span class="mono">' + esc(((u.name || "?")[0] || "?").toUpperCase()) + '</span></div>' +
+                '<div class="record-info">' +
+                  '<div class="record-name">' + esc(u.name || u.email || "User") + '</div>' +
+                  '<div class="record-meta">' + esc(u.role || "") + ' · ' + esc(u.email || "") + '</div>' +
+                '</div>' +
+                '<div class="record-actions">' +
+                  '<button type="button" class="mini-btn danger" data-del-user="' + esc(u.id) + '" aria-label="Remove">✕</button>' +
+                '</div>' +
+              '</article>';
+            }).join("")
+          : '<div class="empty-note">No users yet.</div>') +
+        '<button type="button" class="add-btn" data-add-user="1">+ Add user</button>' +
+      '</div>';
+  }
+
+  function bodyFor(key) {
+    if (key === "identity")     return bodyIdentity();
+    if (key === "location")     return bodyLocation();
+    if (key === "contacts")     return bodyContacts();
+    if (key === "socials")      return bodySocials();
+    if (key === "hours")        return bodyHours();
+    if (key === "character")    return bodyCharacter();
+    if (key === "amenities")    return bodyAmenities();
+    if (key === "menuTags")     return bodyMenuTags();
+    if (key === "capacity")     return bodyCapacity();
+    if (key === "payments")     return bodyPayments();
+    if (key === "reservations") return bodyReservations();
+    if (key === "services")     return bodyServices();
+    if (key === "staff")        return bodyStaff();
+    if (key === "users")        return bodyUsers();
+    return "";
+  }
+
+  /* ============================================================
+     BUILD STACK
+     ============================================================ */
+  var openKey = null;
+
+  function buildStack() {
+    stack.innerHTML = MODULES.map(function (m) {
+      var isOpen = openKey === m.key;
+      var has = touched(m.key);
+      return '' +
+        '<section class="acc' + (isOpen ? " open" : "") + (has ? " touched" : "") + '" data-key="' + m.key + '">' +
+          '<button class="acc-head" type="button" aria-expanded="' + isOpen + '">' +
+            '<span class="dot"></span>' +
+            '<span class="acc-title">' +
+              '<b>' + esc(m.title) + '</b>' +
+              '<span class="acc-sub">' + esc(m.sub) + '</span>' +
+            '</span>' +
+          '</button>' +
+          '<div class="acc-body">' +
+            '<div class="acc-inner" data-body="' + m.key + '">' +
+              bodyFor(m.key) +
+            '</div>' +
+          '</div>' +
+        '</section>';
+    }).join("");
+  }
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
+  function render() {
+    buildStack();
+    renderMeta();
+  }
+
+  function renderMeta() {
+    var pct = completeness();
+    var id = state.identity;
+
+    metaCard.innerHTML =
+      '<div class="meta-row">' +
+        '<span class="meta-dot"></span>' +
+        '<span class="meta-text">' +
+          (nonEmpty(id.name) ? '<b>' + esc(id.name) + '</b>' : "Add your restaurant name to get started") +
+        '</span>' +
+      '</div>' +
+      '<div class="meta-bar"><i style="width:' + pct + '%"></i></div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">' +
+        '<span>Profile completeness</span>' +
+        '<span style="color:var(--orange)">' + pct + '%</span>' +
+      '</div>';
+
+    progressFill.style.width = pct + "%";
+    progressCount.textContent = pct + "% complete";
+  }
+
+  function refreshMeta() {
+    renderMeta();
+    // refresh accordion dots only (no body re-render, so inputs stay intact)
+    MODULES.forEach(function (m) {
+      var acc = stack.querySelector('.acc[data-key="' + m.key + '"]');
+      if (!acc) return;
+      acc.classList.toggle("touched", touched(m.key));
+    });
+  }
+
+  /* ============================================================
+     ACCORDION
+     ============================================================ */
+  function openAccordion(key, scrollTo) {
+    openKey = key;
+    $$(".acc", stack).forEach(function (acc) {
+      var isOpen = acc.dataset.key === key;
+      acc.classList.toggle("open", isOpen);
+      var head = acc.querySelector(".acc-head");
+      if (head) head.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+    if (key && scrollTo) {
+      var acc = stack.querySelector('.acc[data-key="' + key + '"]');
+      if (acc) {
+        setTimeout(function () {
+          try { acc.scrollIntoView({ behavior:"smooth", block:"start" }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+
+  function toggleAccordion(key) {
+    if (openKey === key) openAccordion(null);
+    else openAccordion(key, true);
+  }
+
+  /* ============================================================
+     MODAL SYSTEM
+     ============================================================ */
+  function openModal(opts) {
+    var scrim = document.createElement("div");
+    scrim.className = "modal-scrim";
+    scrim.innerHTML =
+      '<div class="modal" role="dialog" aria-modal="true">' +
+        '<div class="modal-hdr">' +
+          '<h3>' + esc(opts.title) + '</h3>' +
+          '<button class="modal-close" type="button" data-close aria-label="Close">✕</button>' +
+        '</div>' +
+        '<div class="modal-body">' + opts.body + '</div>' +
+        '<div class="modal-foot">' + opts.footer + '</div>' +
+      '</div>';
+    document.body.appendChild(scrim);
+    scrim.querySelectorAll("[data-close]").forEach(function (b) {
+      b.onclick = function () { scrim.remove(); };
+    });
+    scrim.addEventListener("click", function (e) {
+      if (e.target === scrim) scrim.remove();
+    });
+    return scrim;
+  }
+
+  function promptText(title, label, placeholder, cb) {
+    var scrim = openModal({
+      title: title,
+      body:
+        '<div class="field">' +
+          '<label>' + esc(label) + '</label>' +
+          '<input class="input" type="text" id="promptInput" placeholder="' + esc(placeholder || "") + '">' +
+        '</div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-ok>Add</button>'
+    });
+    var input = scrim.querySelector("#promptInput");
+    setTimeout(function () { try { input.focus(); } catch (e) {} }, 60);
+    scrim.querySelector("[data-ok]").onclick = function () {
+      var v = input.value.trim();
+      if (!v) { toast("Enter a value"); return; }
+      cb(v);
+      scrim.remove();
+    };
+  }
+
+  /* ============================================================
+     CONTACT MODAL
+     ============================================================ */
+  function contactModal() {
+    var scrim = openModal({
+      title: "Add contact number",
+      body:
+        '<div class="field"><label>Title</label>' +
+          '<input class="input" type="text" id="c-title" placeholder="Reservations / Orders / Manager"></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Country code</label>' +
+            '<input class="input" type="tel" id="c-cc" placeholder="+267" value="+267"></div>' +
+          '<div class="field"><label>Number</label>' +
+            '<input class="input" type="tel" id="c-num" placeholder="71 234 567"></div>' +
+        '</div>' +
+        '<div class="field"><label>Purpose</label>' +
+          '<select class="select" id="c-purpose">' +
+            ["General enquiries","Orders","Reservations","Delivery","Catering","Events","Functions","Manager","Customer support","Other"]
+              .map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + '</option>'; }).join("") +
+          '</select></div>' +
+        '<label class="switch"><input type="checkbox" id="c-primary"><span class="track"></span><span class="lbl">Primary number</span></label>' +
+        '<label class="switch"><input type="checkbox" id="c-wa" checked><span class="track"></span><span class="lbl">WhatsApp enabled</span></label>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add contact</button>'
+    });
+
+    scrim.querySelector("[data-save]").onclick = function () {
+      var num = scrim.querySelector("#c-num").value.trim();
+      if (!num) { toast("Add a number"); return; }
+      var isPrimary = scrim.querySelector("#c-primary").checked;
+      if (isPrimary) {
+        state.contacts.forEach(function (c) { c.primary = false; });
+      }
+      state.contacts.push({
+        id: uid("contact"),
+        title: scrim.querySelector("#c-title").value.trim(),
+        countryCode: scrim.querySelector("#c-cc").value.trim(),
+        number: num,
+        purpose: scrim.querySelector("#c-purpose").value,
+        primary: isPrimary,
+        whatsapp: scrim.querySelector("#c-wa").checked,
+        active: true
+      });
+      save();
+      var body = stack.querySelector('[data-body="contacts"]');
+      if (body) body.innerHTML = bodyContacts();
+      refreshMeta();
+      scrim.remove();
+      toast("Contact added");
+    };
+  }
+
+  /* ============================================================
+     SCHEDULE MODAL
+     ============================================================ */
+  function scheduleModal() {
+    var scrim = openModal({
+      title: "Add custom schedule",
+      body:
+        '<div class="field"><label>Title</label>' +
+          '<input class="input" type="text" id="s-title" placeholder="Happy Hour Thursdays"></div>' +
+        '<div class="field"><label>Days</label>' +
+          '<input class="input" type="text" id="s-days" placeholder="Thursday, Friday"></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Start time</label><input class="input" type="time" id="s-start"></div>' +
+          '<div class="field"><label>End time</label><input class="input" type="time" id="s-end"></div>' +
+        '</div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add schedule</button>'
+    });
+
+    scrim.querySelector("[data-save]").onclick = function () {
+      var title = scrim.querySelector("#s-title").value.trim();
+      if (!title) { toast("Give the schedule a title"); return; }
+      state.hours.custom.push({
+        id: uid("sched"),
+        title: title,
+        days: scrim.querySelector("#s-days").value.trim(),
+        start: scrim.querySelector("#s-start").value,
+        end: scrim.querySelector("#s-end").value
+      });
+      save();
+      var body = stack.querySelector('[data-body="hours"]');
+      if (body) body.innerHTML = bodyHours();
+      bindHourInputs();
+      refreshMeta();
+      scrim.remove();
+      toast("Schedule added");
+    };
+  }
+
+  /* ============================================================
+     CAPACITY MODAL
+     ============================================================ */
+  function capacityModal() {
+    var scrim = openModal({
+      title: "Add capacity",
+      body:
+        '<div class="field"><label>Title</label>' +
+          '<input class="input" type="text" id="cap-title" placeholder="Indoor seating"></div>' +
+        '<div class="field"><label>Seats</label>' +
+          '<input class="input" type="number" min="0" id="cap-val" placeholder="e.g. 60"></div>' +
+        '<div class="field"><label>Description <span class="opt">— optional</span></label>' +
+          '<textarea class="textarea" id="cap-desc" placeholder="Any extra notes."></textarea></div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add capacity</button>'
+    });
+
+    scrim.querySelector("[data-save]").onclick = function () {
+      var title = scrim.querySelector("#cap-title").value.trim();
+      var val = scrim.querySelector("#cap-val").value;
+      if (!title) { toast("Give the capacity a title"); return; }
+      state.capacity.push({
+        id: uid("cap"),
+        title: title,
+        value: val,
+        description: scrim.querySelector("#cap-desc").value.trim()
+      });
+      save();
+      var body = stack.querySelector('[data-body="capacity"]');
+      if (body) body.innerHTML = bodyCapacity();
+      refreshMeta();
+      scrim.remove();
+      toast("Capacity added");
+    };
+  }
+
+  /* ============================================================
+     SERVICE MODAL
+     ============================================================ */
+  function serviceModal() {
+    var scrim = openModal({
+      title: "Add reservation service",
+      body:
+        '<div class="field"><label>Service name</label>' +
+          '<input class="input" type="text" id="sv-name" placeholder="Birthday setup"></div>' +
+        '<div class="field"><label>Description <span class="opt">— optional</span></label>' +
+          '<textarea class="textarea" id="sv-desc" placeholder="What is included."></textarea></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Price</label>' +
+            '<input class="input" type="number" min="0" step="0.01" id="sv-price" placeholder="0.00"></div>' +
+          '<div class="field"><label>Pricing type</label>' +
+            '<select class="select" id="sv-type">' +
+              ["Per person","Per table","Per hour","Per booking","Per item","Fixed price","Custom quote"]
+                .map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + '</option>'; }).join("") +
+            '</select></div>' +
+        '</div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add service</button>'
+    });
+
+    scrim.querySelector("[data-save]").onclick = function () {
+      var name = scrim.querySelector("#sv-name").value.trim();
+      if (!name) { toast("Give the service a name"); return; }
+      state.services.push({
+        id: uid("svc"),
+        name: name,
+        description: scrim.querySelector("#sv-desc").value.trim(),
+        price: Number(scrim.querySelector("#sv-price").value) || 0,
+        pricingType: scrim.querySelector("#sv-type").value
+      });
+      save();
+      var body = stack.querySelector('[data-body="services"]');
+      if (body) body.innerHTML = bodyServices();
+      refreshMeta();
+      scrim.remove();
+      toast("Service added");
+    };
+  }
+
+  /* ============================================================
+     STAFF MODAL
+     ============================================================ */
+  function staffModal() {
+    var scrim = openModal({
+      title: "Add staff member",
+      body:
+        '<div class="row-2">' +
+          '<div class="field"><label>First name</label><input class="input" type="text" id="st-first"></div>' +
+          '<div class="field"><label>Surname</label><input class="input" type="text" id="st-surname"></div>' +
+        '</div>' +
+        '<div class="field"><label>Role</label>' +
+          '<select class="select" id="st-role">' +
+            ["Waiter","Waitress","Host","Bartender","Chef","Private chef","Sommelier","Event staff","Security","Photographer","Decorator","MC","Other"]
+              .map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + '</option>'; }).join("") +
+          '</select></div>' +
+        '<div class="row-2">' +
+          '<div class="field"><label>Price <span class="opt">— optional</span></label>' +
+            '<input class="input" type="number" min="0" step="0.01" id="st-price" placeholder="0.00"></div>' +
+          '<div class="field"><label>Pricing type</label>' +
+            '<select class="select" id="st-type">' +
+              ["No additional charge","Per booking","Per hour","Per person","Per item"]
+                .map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + '</option>'; }).join("") +
+            '</select></div>' +
+        '</div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add staff</button>'
+    });
+
+    scrim.querySelector("[data-save]").onclick = function () {
+      var first = scrim.querySelector("#st-first").value.trim();
+      var surname = scrim.querySelector("#st-surname").value.trim();
+      if (!first && !surname) { toast("Add a name"); return; }
+      state.staff.push({
+        id: uid("staff"),
+        firstName: first,
+        surname: surname,
+        role: scrim.querySelector("#st-role").value,
+        price: Number(scrim.querySelector("#st-price").value) || 0,
+        pricingType: scrim.querySelector("#st-type").value,
+        active: true
+      });
+      save();
+      var body = stack.querySelector('[data-body="staff"]');
+      if (body) body.innerHTML = bodyStaff();
+      refreshMeta();
+      scrim.remove();
+      toast("Staff added");
+    };
+  }
+
+  /* ============================================================
+     USER MODAL
+     ============================================================ */
+  function userModal() {
+    var scrim = openModal({
+      title: "Add user",
+      body:
+        '<div class="field"><label>Name</label><input class="input" type="text" id="u-name"></div>' +
+        '<div class="field"><label>Email</label><input class="input" type="email" id="u-email"></div>' +
+        '<div class="field"><label>Role</label>' +
+          '<select class="select" id="u-role">' +
+            ["Owner","Manager","Menu Manager","Marketing Manager"]
+              .map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + '</option>'; }).join("") +
+          '</select></div>',
+      footer:
+        '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+        '<button class="btn btn-primary" type="button" data-save>Add user</button>'
+    });
+
+    scrim.querySelector("[data-save]").onclick = function () {
+      var name = scrim.querySelector("#u-name").value.trim();
+      var email = scrim.querySelector("#u-email").value.trim();
+      if (!name && !email) { toast("Add a name or email"); return; }
+      state.users.push({
+        id: uid("user"),
+        name: name,
+        email: email,
+        role: scrim.querySelector("#u-role").value
+      });
+      save();
+      var body = stack.querySelector('[data-body="users"]');
+      if (body) body.innerHTML = bodyUsers();
+      refreshMeta();
+      scrim.remove();
+      toast("User added");
+    };
+  }
+
+  /* ============================================================
+     HOUR INPUT BINDING
+     ============================================================ */
+  function bindHourInputs() {
+    $$("[data-hour]").forEach(function (el) {
+      el.onchange = function () {
+        var day = el.dataset.hour;
+        var k = el.dataset.hk;
+        var row = state.hours.weekly.filter(function (x) { return x.day === day; })[0];
+        if (!row) return;
+        row[k] = el.value;
+        save();
+        refreshMeta();
+      };
+    });
+  }
+
+  /* ============================================================
+     GALLERY BINDING
+     ============================================================ */
+  function bindGallery() {
+    // remove tile
+    $$("[data-remove-tile]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var i = parseInt(btn.dataset.removeTile, 10);
+        state.identity.gallery.splice(i, 1);
+        save();
+        var body = stack.querySelector('[data-body="identity"]');
+        if (body) {
+          body.innerHTML = bodyIdentity();
+          bindIdentityInputs();
+        }
+        refreshMeta();
+      };
+    });
+
+    // add file
+    var input = $('[data-gallery-input="restaurant"]');
+    if (input) {
+      input.onchange = function () {
+        var files = Array.prototype.slice.call(input.files || []);
+        if (!files.length) return;
+        var remaining = MAX_GALLERY - state.identity.gallery.length;
+        if (remaining <= 0) { input.value = ""; toast("Max " + MAX_GALLERY + " photos"); return; }
+        var take = files.slice(0, remaining);
+        var loaded = 0;
+        take.forEach(function (f) {
+          var r = new FileReader();
+          r.onload = function (ev) {
+            state.identity.gallery.push(ev.target.result);
+            loaded++;
+            if (loaded === take.length) {
+              save();
+              var body = stack.querySelector('[data-body="identity"]');
+              if (body) {
+                body.innerHTML = bodyIdentity();
+                bindIdentityInputs();
+              }
+              refreshMeta();
+              if (files.length > remaining) toast("Max " + MAX_GALLERY + " photos");
+            }
+          };
+          r.readAsDataURL(f);
+        });
+        input.value = "";
+      };
+    }
+  }
+
+  /* ============================================================
+     IDENTITY PICKERS (logo / cover)
+     ============================================================ */
+  function bindIdentityInputs() {
+    // logo + cover file inputs
+    $$('[data-input="logo"], [data-input="cover"]').forEach(function (input) {
+      input.onchange = function () {
+        var f = input.files && input.files[0];
+        if (!f) return;
+        var key = input.dataset.input;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          state.identity[key] = ev.target.result;
+          save();
+          var body = stack.querySelector('[data-body="identity"]');
+          if (body) {
+            body.innerHTML = bodyIdentity();
+            bindIdentityInputs();
+          }
+          refreshMeta();
+        };
+        reader.readAsDataURL(f);
+        input.value = "";
+      };
+    });
+
+    // remove logo / cover
+    $$('[data-picker]').forEach(function (picker) {
+      picker.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+        var key = picker.dataset.picker;
+        if (state.identity[key]) {
+          if (!confirm("Remove " + key + " image?")) return;
+          state.identity[key] = "";
+          save();
+          var body = stack.querySelector('[data-body="identity"]');
+          if (body) {
+            body.innerHTML = bodyIdentity();
+            bindIdentityInputs();
+          }
+          refreshMeta();
+        }
+      });
+    });
+
+    bindGallery();
+  }
+
+  /* ============================================================
+     EVENT DELEGATION ON STACK
+     ============================================================ */
+  stack.addEventListener("click", function (e) {
+
+    /* accordion header */
+    var head = e.target.closest(".acc-head");
+    if (head) {
+      var acc = head.closest(".acc");
+      if (acc) toggleAccordion(acc.dataset.key);
+      return;
+    }
+
+    /* --- identity: type chips --- */
+    var typeChip = e.target.closest("[data-type-chip]");
+    if (typeChip) {
+      var t = typeChip.dataset.typeChip;
+      var idx = state.identity.types.indexOf(t);
+      if (idx > -1) state.identity.types.splice(idx, 1);
+      else state.identity.types.push(t);
+      save();
+      var iBody = stack.querySelector('[data-body="identity"]');
+      if (iBody) { iBody.innerHTML = bodyIdentity(); bindIdentityInputs(); }
+      refreshMeta();
+      return;
+    }
+    if (e.target.closest("[data-add-type]")) {
+      promptText("Custom restaurant type", "Name", "e.g. Vegan kitchen", function (v) {
+        if (state.identity.types.indexOf(v) === -1) state.identity.types.push(v);
+        save();
+        var iBody = stack.querySelector('[data-body="identity"]');
+        if (iBody) { iBody.innerHTML = bodyIdentity(); bindIdentityInputs(); }
+        refreshMeta();
+      });
+      return;
+    }
+
+    /* --- location: use my location --- */
+    if (e.target.closest("[data-use-location]")) {
+      if (!navigator.geolocation) { toast("Geolocation not available"); return; }
+      navigator.geolocation.getCurrentPosition(function (p) {
+        state.location.latitude = +p.coords.latitude.toFixed(6);
+        state.location.longitude = +p.coords.longitude.toFixed(6);
+        save();
+        var lBody = stack.querySelector('[data-body="location"]');
+        if (lBody) lBody.innerHTML = bodyLocation();
+        bindBizInputs();
+        refreshMeta();
+        toast("Location set");
+      }, function () {
+        toast("Permission denied");
+      });
+      return;
+    }
+
+    /* --- contacts --- */
+    if (e.target.closest("[data-add-contact]")) { contactModal(); return; }
+    var delContact = e.target.closest("[data-del-contact]");
+    if (delContact) {
+      e.stopPropagation();
+      if (!confirm("Remove this contact?")) return;
+      state.contacts = state.contacts.filter(function (c) { return c.id !== delContact.dataset.delContact; });
+      save();
+      var cBody = stack.querySelector('[data-body="contacts"]');
+      if (cBody) cBody.innerHTML = bodyContacts();
+      refreshMeta();
+      return;
+    }
+
+    /* --- schedules --- */
+    if (e.target.closest("[data-add-schedule]")) { scheduleModal(); return; }
+    var delSched = e.target.closest("[data-del-schedule]");
+    if (delSched) {
+      e.stopPropagation();
+      if (!confirm("Remove this schedule?")) return;
+      state.hours.custom = state.hours.custom.filter(function (s) { return s.id !== delSched.dataset.delSchedule; });
+      save();
+      var hBody = stack.querySelector('[data-body="hours"]');
+      if (hBody) { hBody.innerHTML = bodyHours(); bindHourInputs(); }
+      refreshMeta();
+      return;
+    }
+
+    /* --- character chips --- */
+    var charChip = e.target.closest("[data-char-chip]");
+    if (charChip) {
+      var cn = charChip.dataset.charChip;
+      var ci = state.character.options.indexOf(cn);
+      if (ci > -1) state.character.options.splice(ci, 1);
+      else state.character.options.push(cn);
+      save();
+      var chBody = stack.querySelector('[data-body="character"]');
+      if (chBody) {
+        chBody.innerHTML = bodyCharacter();
+        bindTitleInputs();
+      }
+      refreshMeta();
+      return;
+    }
+    if (e.target.closest("[data-add-char]")) {
+      promptText("Custom character", "Name", "e.g. Afrocentric", function (v) {
+        if (state.character.options.indexOf(v) === -1) state.character.options.push(v);
+        save();
+        var chBody = stack.querySelector('[data-body="character"]');
+        if (chBody) { chBody.innerHTML = bodyCharacter(); bindTitleInputs(); }
+        refreshMeta();
+      });
+      return;
+    }
+
+    /* --- amenity chips --- */
+    var amenChip = e.target.closest("[data-amen-chip]");
+    if (amenChip) {
+      var an = amenChip.dataset.amenChip;
+      var ai = state.amenities.options.indexOf(an);
+      if (ai > -1) state.amenities.options.splice(ai, 1);
+      else state.amenities.options.push(an);
+      save();
+      var aBody = stack.querySelector('[data-body="amenities"]');
+      if (aBody) { aBody.innerHTML = bodyAmenities(); bindTitleInputs(); }
+      refreshMeta();
+      return;
+    }
+    if (e.target.closest("[data-add-amen]")) {
+      promptText("Custom amenity", "Name", "e.g. Rooftop terrace", function (v) {
+        if (state.amenities.options.indexOf(v) === -1) state.amenities.options.push(v);
+        save();
+        var aBody = stack.querySelector('[data-body="amenities"]');
+        if (aBody) { aBody.innerHTML = bodyAmenities(); bindTitleInputs(); }
+        refreshMeta();
+      });
+      return;
+    }
+
+    /* --- menu tag chips --- */
+    var mtChip = e.target.closest("[data-mt-chip]");
+    if (mtChip) {
+      var mn = mtChip.dataset.mtChip;
+      var mi = state.menuTags.options.indexOf(mn);
+      if (mi > -1) state.menuTags.options.splice(mi, 1);
+      else state.menuTags.options.push(mn);
+      save();
+      var mBody = stack.querySelector('[data-body="menuTags"]');
+      if (mBody) { mBody.innerHTML = bodyMenuTags(); bindTitleInputs(); }
+      refreshMeta();
+      return;
+    }
+    if (e.target.closest("[data-add-mt]")) {
+      promptText("Custom menu tag", "Name", "e.g. Farm-to-table", function (v) {
+        if (state.menuTags.options.indexOf(v) === -1) state.menuTags.options.push(v);
+        save();
+        var mBody = stack.querySelector('[data-body="menuTags"]');
+        if (mBody) { mBody.innerHTML = bodyMenuTags(); bindTitleInputs(); }
+        refreshMeta();
+      });
+      return;
+    }
+
+    /* --- capacity --- */
+    if (e.target.closest("[data-add-capacity]")) { capacityModal(); return; }
+    var delCap = e.target.closest("[data-del-capacity]");
+    if (delCap) {
+      e.stopPropagation();
+      if (!confirm("Remove this capacity entry?")) return;
+      state.capacity = state.capacity.filter(function (c) { return c.id !== delCap.dataset.delCapacity; });
+      save();
+      var capBody = stack.querySelector('[data-body="capacity"]');
+      if (capBody) capBody.innerHTML = bodyCapacity();
+      refreshMeta();
+      return;
+    }
+
+    /* --- payments --- */
+    var payChip = e.target.closest("[data-pay-chip]");
+    if (payChip) {
+      var pn = payChip.dataset.payChip;
+      var pi = state.payments.indexOf(pn);
+      if (pi > -1) state.payments.splice(pi, 1);
+      else state.payments.push(pn);
+      save();
+      payChip.classList.toggle("on");
+      refreshMeta();
+      return;
+    }
+
+    /* --- services --- */
+    if (e.target.closest("[data-add-service]")) { serviceModal(); return; }
+    var delSvc = e.target.closest("[data-del-service]");
+    if (delSvc) {
+      e.stopPropagation();
+      if (!confirm("Remove this service?")) return;
+      state.services = state.services.filter(function (s) { return s.id !== delSvc.dataset.delService; });
+      save();
+      var sBody = stack.querySelector('[data-body="services"]');
+      if (sBody) sBody.innerHTML = bodyServices();
+      refreshMeta();
+      return;
+    }
+
+    /* --- staff --- */
+    if (e.target.closest("[data-add-staff]")) { staffModal(); return; }
+    var delStaff = e.target.closest("[data-del-staff]");
+    if (delStaff) {
+      e.stopPropagation();
+      if (!confirm("Remove this staff member?")) return;
+      state.staff = state.staff.filter(function (s) { return s.id !== delStaff.dataset.delStaff; });
+      save();
+      var stBody = stack.querySelector('[data-body="staff"]');
+      if (stBody) stBody.innerHTML = bodyStaff();
+      refreshMeta();
+      return;
+    }
+
+    /* --- users --- */
+    if (e.target.closest("[data-add-user]")) { userModal(); return; }
+    var delUser = e.target.closest("[data-del-user]");
+    if (delUser) {
+      e.stopPropagation();
+      if (!confirm("Remove this user?")) return;
+      state.users = state.users.filter(function (u) { return u.id !== delUser.dataset.delUser; });
+      save();
+      var uBody = stack.querySelector('[data-body="users"]');
+      if (uBody) uBody.innerHTML = bodyUsers();
+      refreshMeta();
+      return;
+    }
+  });
+
+  /* ============================================================
+     INPUT BINDING
+     ============================================================ */
+  function bindBizInputs() {
+    $$("[data-biz]").forEach(function (el) {
+      el.oninput = function () {
+        var path = el.dataset.biz.split(".");
+        var group = path[0], key = path[1];
+        var v = el.value;
+        if (key === "latitude" || key === "longitude") v = v === "" ? null : Number(v);
+        state[group][key] = v;
+        save();
+        refreshMeta();
+      };
+    });
+  }
+
+  function bindTitleInputs() {
+    $$("[data-title]").forEach(function (el) {
+      el.oninput = function () {
+        var k = el.dataset.title;
+        if (state[k]) state[k].title = el.value;
+        save();
+        refreshMeta();
+      };
+    });
+  }
+
+  function bindSocialInputs() {
+    $$("[data-social]").forEach(function (el) {
+      el.oninput = function () {
+        state.socials[el.dataset.social] = el.value;
+        save();
+        refreshMeta();
+      };
+    });
+  }
+
+  function bindResInputs() {
+    $$("[data-res]").forEach(function (el) {
+      var k = el.dataset.res;
+      var handler = function () {
+        if (el.type === "checkbox") state.reservations[k] = el.checked;
+        else if (el.type === "number") state.reservations[k] = Number(el.value) || 0;
+        else state.reservations[k] = el.value;
+        save();
+        refreshMeta();
+      };
+      if (el.type === "checkbox") el.onchange = handler;
+      else el.oninput = handler;
+    });
+  }
+
+  function bindAllInputs() {
+    bindBizInputs();
+    bindTitleInputs();
+    bindSocialInputs();
+    bindHourInputs();
+    bindResInputs();
+    bindIdentityInputs();
+  }
+
+  /* ============================================================
+     BOTTOM ACTIONS
+     ============================================================ */
+  $("#btnDraft").addEventListener("click", function () {
+    state.identity.status = "draft";
+    save();
+    toast("Saved as draft");
+  });
+
+  $("#btnPublish").addEventListener("click", function () {
+    if (!nonEmpty(state.identity.name)) { toast("Add a restaurant name first"); openAccordion("identity", true); return; }
+    if (!nonEmpty(state.location.city)) { toast("Add your city first"); openAccordion("location", true); return; }
+    if (!state.contacts.length) { toast("Add at least one contact"); openAccordion("contacts", true); return; }
+    state.identity.status = "published";
+    save();
+    toast("Submitted for review — we'll confirm by WhatsApp");
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  render();
+  bindAllInputs();
+  openAccordion(null);
+
+})();
+</script>
+
+</body>
+</html>

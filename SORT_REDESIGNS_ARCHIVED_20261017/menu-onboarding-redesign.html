@@ -1,0 +1,2278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Menu Management · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+    --gallery-tile:120px;
+    --gallery-gap:10px;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  /* ================= shell ================= */
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* ================= top bar ================= */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 13px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+
+  /* ================= scroll ================= */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ================= intro ================= */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:8px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* ================= body sheet ================= */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+  }
+
+  /* ================= meta card ================= */
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .meta-row{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:11px;
+  }
+  .meta-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--green);
+    box-shadow:0 0 0 3px var(--green-soft);
+  }
+  .meta-text{
+    font-size:13.5px;
+    color:var(--ink-2);
+    line-height:1.4;
+  }
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{
+    display:flex;align-items:center;gap:10px;
+    padding-top:11px;
+    border-top:1px solid var(--line-2);
+    font-size:11.5px;
+    color:var(--muted);
+    font-weight:650;
+    letter-spacing:.01em;
+  }
+  .meta-stats b{
+    color:var(--ink);
+    font-weight:800;
+    font-size:13px;
+    margin-right:2px;
+  }
+  .meta-sep{color:#D3D7DE}
+
+  /* ================= accordion stack ================= */
+  .stack{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:13px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+
+  .acc-head .dot{
+    width:10px;height:10px;border-radius:50%;flex:0 0 auto;
+    background:#D3D7DE;
+    transition:background .25s ease,box-shadow .25s ease;
+  }
+  .acc.has-items .acc-head .dot{
+    background:var(--green);
+    box-shadow:0 0 0 3px var(--green-soft);
+  }
+
+  .acc-head .ico{
+    width:48px;height:48px;flex:0 0 auto;
+    border-radius:13px;
+    background:#F0F1F4;
+    display:grid;place-items:center;
+    font-size:20px;line-height:1;
+    overflow:hidden;
+    transition:background .2s;
+    color:#B7BDC6;
+  }
+  .acc.open .acc-head .ico{background:var(--orange-soft);color:var(--orange)}
+  .acc-head .ico img{width:100%;height:100%;object-fit:cover;display:block}
+
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:1px;
+  }
+  .acc-title b{
+    font-size:15.5px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc.has-items .acc-sub{color:var(--green);font-weight:650}
+
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+
+  .items{
+    display:flex;flex-direction:column;gap:9px;
+    padding:12px;
+    background:#FAFBFC;
+    border-top:1px solid var(--line);
+  }
+
+  /* ================= item card (tap to edit) ================= */
+  .item{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:10px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s,transform .08s;
+    cursor:pointer;
+  }
+  .item:active{transform:scale(.99);border-color:var(--orange-line)}
+
+  .thumb-lg{
+    width:90px;height:90px;flex:0 0 auto;
+    border-radius:14px;
+    background:#F0F1F4;
+    display:grid;place-items:center;
+    font-size:30px;line-height:1;
+    color:#C3C8D0;
+    overflow:hidden;
+    position:relative;
+  }
+  .thumb-lg img{width:100%;height:100%;object-fit:cover;display:block}
+
+  .item .info{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .item .nm{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    line-height:1.25;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .item .meta-line{
+    display:flex;align-items:center;gap:9px;
+  }
+  .item .pr{
+    font-size:14px;font-weight:750;
+    color:var(--ink-2);
+    letter-spacing:-.01em;
+  }
+  .status-dot{
+    width:10px;height:10px;border-radius:50%;flex:0 0 auto;
+    display:inline-block;
+  }
+  .status-dot.available{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .status-dot.sold-out{background:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+  .status-dot.temp{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+  .status-dot.hidden{background:var(--faint)}
+
+  .item .type-tag{
+    font-size:10px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* ================= add row inside category ================= */
+  .add-row{
+    display:flex;flex-direction:column;gap:8px;
+    margin-top:3px;
+  }
+  .add-item-btn{
+    width:100%;
+    border:1px dashed #D3D7DE;
+    background:#fff;
+    border-radius:12px;
+    padding:13px;
+    font-size:13.5px;font-weight:750;
+    color:var(--orange);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;
+  }
+  .add-item-btn:active{background:var(--orange-soft);border-color:var(--orange-line)}
+
+  .edit-cat-btn{
+    width:100%;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:12px;
+    padding:11px;
+    font-size:12.5px;font-weight:700;
+    color:var(--muted);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .edit-cat-btn:active{background:#F4F5F7;color:var(--ink-2)}
+
+  /* ================= empty state ================= */
+  .empty-state{
+    text-align:center;
+    padding:32px 22px;
+    background:var(--card);
+    border:1px dashed #D3D7DE;
+    border-radius:16px;
+  }
+  .empty-state .ico{
+    font-size:34px;line-height:1;
+    margin-bottom:10px;
+    opacity:.55;
+  }
+  .empty-state h3{
+    margin:0 0 6px;
+    font-size:15px;font-weight:750;
+    color:var(--ink);
+  }
+  .empty-state p{
+    margin:0 auto;
+    font-size:13px;
+    color:var(--muted);
+    max-width:26ch;
+    line-height:1.5;
+  }
+
+  /* ================= links accordion body ================= */
+  .links-body{
+    padding:14px 15px 18px;
+    display:flex;flex-direction:column;gap:12px;
+    background:#FAFBFC;
+    border-top:1px solid var(--line);
+  }
+
+  /* ================= actions ================= */
+  .actions{
+    flex:0 0 auto;
+    display:flex;
+    gap:9px;
+    padding:11px 14px calc(11px + env(safe-area-inset-bottom));
+    background:#fff;
+    border-top:1px solid var(--line);
+  }
+  .btn{
+    height:50px;
+    border:0;
+    border-radius:13px;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    text-decoration:none;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .1s ease,background .15s,color .15s;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-ghost{
+    flex:1 1 auto;
+    background:#F4F5F7;
+    border:1px solid var(--line);
+    color:var(--ink-2);
+  }
+  .btn-ghost:active{background:#EDE9DF}
+  .btn-primary{
+    flex:1 1 auto;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+  }
+  .btn-primary:active{background:var(--orange)}
+
+  /* ================= modal ================= */
+  .modal-scrim{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(15,15,18,.55);
+    display:flex;align-items:flex-end;justify-content:center;
+    animation:fade .18s ease;
+  }
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @media(min-width:520px){.modal-scrim{align-items:center;padding:20px}}
+  .modal{
+    background:#fff;
+    width:100%;max-width:460px;
+    height:94vh;max-height:94vh;
+    border-radius:20px 20px 0 0;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    animation:slideup .25s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  @media(min-width:520px){
+    .modal{border-radius:18px;height:auto}
+    @keyframes slideup{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+  }
+  .modal.small{height:auto;max-height:92vh}
+
+  .modal-hdr{
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:12px;
+    background:#fff;
+    flex:0 0 auto;
+  }
+  .modal-hdr h3{
+    margin:0;flex:1;
+    font-size:16px;font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .modal-close{
+    width:32px;height:32px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    color:var(--muted);
+    font-size:14px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .modal-close:active{background:#F4F5F7}
+
+  .modal-body{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:16px 18px;
+    scrollbar-width:none;
+  }
+  .modal-body::-webkit-scrollbar{display:none}
+
+  .modal-foot{
+    flex:0 0 auto;
+    padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);
+    background:#FAFBFC;
+    display:flex;gap:9px;
+  }
+  .modal-foot .btn{flex:1;height:48px}
+
+  /* ================= form ================= */
+  .form-section{margin-bottom:16px}
+  .form-section:last-child{margin-bottom:0}
+
+  .form-label{
+    display:block;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .form-label-row{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .form-label-row .form-label{margin-bottom:0}
+
+  .link-btn{
+    border:0;background:transparent;
+    font-size:12.5px;font-weight:750;
+    color:var(--orange);
+    padding:3px 6px;border-radius:7px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .link-btn:active{background:var(--orange-soft)}
+
+  .input,
+  .textarea,
+  .select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.4;
+    padding:13px 13px;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  .textarea{
+    min-height:80px;
+    resize:vertical;
+    line-height:1.55;
+  }
+  .select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 13px center;
+    background-size:14px;
+    padding-right:38px;
+  }
+  .input:focus,
+  .textarea:focus,
+  .select:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.13);
+  }
+  .input::placeholder,
+  .textarea::placeholder{color:#B7BDC6}
+
+  .form-row-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .check-row{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 13px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    font-size:14px;font-weight:650;
+    color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s,background .15s;
+  }
+  .check-row:active{background:#FAFBFC}
+  .check-row input{
+    width:20px;height:20px;
+    accent-color:var(--orange);
+    margin:0;
+    flex:0 0 auto;
+  }
+
+  .form-hint{
+    margin:8px 0 0;
+    font-size:11.5px;line-height:1.5;
+    color:var(--faint);
+  }
+
+  /* ================= IMAGE GALLERY ================= */
+  .gallery-section{
+    margin-bottom:20px;
+  }
+  .gallery-rail{
+    display:flex;
+    gap:var(--gallery-gap);
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding:6px 2px;
+    margin:0 -2px;
+  }
+  .gallery-rail::-webkit-scrollbar{display:none}
+
+  .gallery-tile{
+    /* 3 tiles fit exactly in the visible area, capped at 120px */
+    flex:0 0 calc((100% - (var(--gallery-gap) * 2)) / 3);
+    width:var(--gallery-tile);
+    max-width:var(--gallery-tile);
+    aspect-ratio:1 / 1;
+    border-radius:14px;
+    background:#F0F1F4;
+    border:1px solid var(--line);
+    overflow:hidden;
+    position:relative;
+    scroll-snap-align:start;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .gallery-tile img{
+    width:100%;height:100%;
+    object-fit:cover;
+    display:block;
+    pointer-events:none;
+  }
+
+  /* main image indicator: orange @ 8% opacity, 3px outline */
+  .gallery-tile.main{
+    outline:3px solid rgba(255,90,31,.08);
+    outline-offset:2px;
+    border-color:var(--orange-line);
+  }
+
+  .gallery-tile .tile-x{
+    position:absolute;
+    top:6px;right:6px;
+    width:26px;height:26px;
+    border:0;border-radius:50%;
+    background:rgba(15,15,18,.68);
+    color:#fff;
+    font-size:11px;font-weight:800;
+    line-height:1;
+    display:grid;place-items:center;
+    padding:0;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+    transition:background .15s;
+  }
+  .gallery-tile .tile-x:active{background:var(--red)}
+
+  .gallery-tile.add-tile{
+    border:1.5px dashed #C8CDD4;
+    background:#FAFBFC;
+    display:grid;
+    place-items:center;
+    cursor:pointer;
+    color:var(--orange);
+    font-size:38px;
+    font-weight:300;
+    line-height:1;
+    transition:background .15s,border-color .15s;
+  }
+  .gallery-tile.add-tile:active{
+    background:var(--orange-soft);
+    border-color:var(--orange);
+  }
+  .gallery-tile.add-tile .plus{
+    line-height:1;
+    margin-top:-4px;
+    font-weight:300;
+    user-select:none;
+  }
+  .gallery-tile.add-tile input{display:none}
+
+  .gallery-dots{
+    display:flex;
+    gap:6px;
+    justify-content:center;
+    align-items:center;
+    margin-top:12px;
+    min-height:6px;
+  }
+  .gallery-dots .dot{
+    width:6px;height:6px;
+    border-radius:50%;
+    background:#D3D7DE;
+    transition:background .2s;
+  }
+  .gallery-dots .dot.first{
+    background:var(--orange);
+  }
+
+  /* ================= points (ingredients) ================= */
+  .point-row{
+    display:grid;
+    grid-template-columns:26px 1fr 34px;
+    gap:8px;align-items:center;
+    margin-bottom:8px;
+  }
+  .point-row .bullet{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--orange-soft);
+    color:var(--orange);
+    font-size:11px;font-weight:800;
+    display:grid;place-items:center;
+  }
+  .point-row .input{padding:11px 12px;font-size:14.5px}
+  .point-row .row-del{
+    width:34px;height:34px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:10px;
+    color:var(--faint);
+    font-size:13px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .point-row .row-del:active{background:var(--red-soft);color:var(--red);border-color:#FECACA}
+
+  /* ================= extras simple row ================= */
+  .extra-mini{
+    display:grid;
+    grid-template-columns:1fr 90px 34px;
+    gap:8px;align-items:center;
+    margin-bottom:8px;
+  }
+  .extra-mini .input{padding:11px 12px;font-size:14.5px}
+  .extra-mini .row-del{
+    width:34px;height:34px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:10px;
+    color:var(--faint);
+    font-size:13px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .extra-mini .row-del:active{background:var(--red-soft);color:var(--red)}
+
+  /* ================= price / prep wraps ================= */
+  .price-wrap{position:relative}
+  .price-wrap::before{
+    content:"P";
+    position:absolute;left:14px;top:50%;
+    transform:translateY(-50%);
+    font-size:13px;font-weight:800;
+    color:var(--muted);
+    pointer-events:none;
+  }
+  .price-wrap .input{padding-left:30px}
+  .prep-wrap{position:relative}
+  .prep-wrap::after{
+    content:"min";
+    position:absolute;right:14px;top:50%;
+    transform:translateY(-50%);
+    font-size:11.5px;font-weight:800;
+    color:var(--muted);
+    pointer-events:none;
+  }
+  .prep-wrap .input{padding-right:46px}
+
+  /* ================= nested accordion (in modal) ================= */
+  .nested-acc{
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    margin-bottom:12px;
+    background:#FAFBFC;
+  }
+  .nested-acc-hdr{
+    width:100%;
+    display:flex;align-items:center;gap:11px;
+    padding:14px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .nested-acc-hdr:active{background:#F4F5F7}
+  .nested-acc-hdr .t{
+    flex:1 1 auto;
+    font-size:14.5px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .nested-acc-hdr .n{
+    font-size:11px;font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;
+    color:var(--faint);
+    padding:3px 9px;border-radius:99px;
+    background:#F0F1F4;
+    transition:background .2s,color .2s;
+  }
+  .nested-acc.open .nested-acc-hdr .n{background:var(--orange-soft);color:var(--orange)}
+  .nested-acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .3s cubic-bezier(.4,0,.2,1);
+  }
+  .nested-acc.open .nested-acc-body{grid-template-rows:1fr}
+  .nested-acc-inner{overflow:hidden;min-height:0}
+  .nested-acc-content{
+    padding:2px 15px 16px;
+    border-top:1px solid var(--line);
+    margin-top:-1px;
+  }
+
+  /* ================= size chips ================= */
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+  .chip{
+    min-height:36px;padding:0 15px;
+    border-radius:99px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink-2);
+    font:inherit;
+    font-size:13px;font-weight:700;
+    display:inline-flex;align-items:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s,transform .08s;
+  }
+  .chip:active{transform:scale(.97)}
+  .chip.on{
+    background:var(--orange-soft);
+    border-color:var(--orange-line);
+    color:var(--orange);
+    font-weight:800;
+  }
+
+  /* ================= variant card ================= */
+  .variant-card{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:10px;
+    background:#fff;
+  }
+  .variant-head{
+    display:flex;align-items:center;gap:8px;
+    margin-bottom:10px;
+  }
+  .variant-head .input{
+    min-height:44px;
+    font-weight:700;
+    font-size:14.5px;
+    padding:11px 12px;
+  }
+  .variant-head .row-del{
+    width:36px;height:36px;flex:0 0 auto;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:10px;
+    color:var(--faint);
+    font-size:13px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .variant-head .row-del:active{background:var(--red-soft);color:var(--red);border-color:#FECACA}
+  .variant-card .input{margin-bottom:9px}
+  .variant-card .input:last-child{margin-bottom:0}
+
+  /* ================= extra card (advanced) ================= */
+  .extra-card{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:10px;
+    background:#fff;
+  }
+  .extra-top{
+    display:flex;gap:10px;align-items:flex-start;
+    margin-bottom:10px;
+  }
+  .extra-thumb{
+    width:56px;height:56px;flex:0 0 auto;
+    border-radius:12px;
+    background:#F0F1F4;
+    border:1.5px dashed #D3D7DE;
+    display:grid;place-items:center;
+    font-size:20px;color:#B7BDC6;
+    overflow:hidden;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .extra-thumb:active{border-color:var(--orange);background:var(--orange-soft)}
+  .extra-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .extra-thumb input{display:none}
+  .extra-fields{flex:1 1 auto;min-width:0}
+  .extra-fields .input{margin-bottom:8px;font-size:14px;padding:11px 12px}
+  .extra-fields .input:last-child{margin-bottom:0}
+  .extra-actions{
+    display:flex;justify-content:flex-end;
+  }
+  .remove-link{
+    border:0;background:transparent;
+    font-size:11.5px;font-weight:750;
+    color:var(--faint);
+    padding:5px 9px;border-radius:8px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .remove-link:active{background:var(--red-soft);color:var(--red)}
+
+  /* ================= discount block ================= */
+  .disc-block{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px;
+    background:#fff;
+  }
+  .disc-sub{
+    font-size:10.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);
+    margin:16px 0 9px;
+  }
+  .disc-sub:first-child{margin-top:0}
+  .day-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .day-chip{
+    min-height:34px;padding:0 12px;
+    border-radius:99px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink-2);
+    font:inherit;
+    font-size:12px;font-weight:750;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s;
+  }
+  .day-chip:active{transform:scale(.97)}
+  .day-chip.on{
+    background:var(--orange-soft);
+    border-color:var(--orange-line);
+    color:var(--orange);
+  }
+
+  /* ================= add row button (in modal) ================= */
+  .add-full-btn{
+    width:100%;
+    border:1px dashed #D3D7DE;
+    background:#fff;
+    border-radius:11px;
+    padding:12px;
+    font-size:13.5px;font-weight:750;
+    color:var(--orange);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;
+  }
+  .add-full-btn:active{background:var(--orange-soft);border-color:var(--orange-line)}
+
+  /* ================= toast ================= */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(88px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<div id="shell">
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="mark">E</span>
+      <span class="word">EatOuts</span>
+    </a>
+    <span class="hdr-chip">Menu Management</span>
+  </header>
+
+  <div class="scroll" id="scroll">
+
+    <section class="intro">
+      <h1>Build your <em>menu</em> on EatOuts.</h1>
+      <p>Group dishes into categories, set prices and discounts, and we'll publish it to your listing. Tap a category to open it.</p>
+    </section>
+
+    <main class="sheet">
+      <div class="meta-card" id="metaCard"></div>
+      <div class="stack" id="stack"></div>
+    </main>
+
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-ghost" id="btnPreview" type="button">Preview Menu</button>
+    <button class="btn btn-primary" id="btnAddCat" type="button">+ Add Category</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     CONFIG
+     ============================================================ */
+  var STORE_KEY = "eatouts.menu-onboarding.v3";
+  var MAX_IMAGES = 8;
+
+  var ITEM_TYPES = [
+    { value:"starter",       label:"Starter" },
+    { value:"main",          label:"Main" },
+    { value:"side",          label:"Side" },
+    { value:"dessert",       label:"Dessert" },
+    { value:"snack",         label:"Snack" },
+    { value:"bakery",        label:"Bakery" },
+    { value:"breakfast",     label:"Breakfast" },
+    { value:"soft-drink",    label:"Soft drink" },
+    { value:"juice",         label:"Juice" },
+    { value:"water",         label:"Water" },
+    { value:"energy-drink",  label:"Energy drink" },
+    { value:"hot-beverage",  label:"Hot beverage" },
+    { value:"coffee",        label:"Coffee" },
+    { value:"tea",           label:"Tea" },
+    { value:"smoothie",      label:"Smoothie" },
+    { value:"milkshake",     label:"Milkshake" },
+    { value:"beer",          label:"Beer" },
+    { value:"cider",         label:"Cider" },
+    { value:"wine",          label:"Wine" },
+    { value:"spirit",        label:"Spirit" },
+    { value:"cocktail",      label:"Cocktail" },
+    { value:"mocktail",      label:"Mocktail" },
+    { value:"other",         label:"Other" }
+  ];
+
+  var STATUSES = [
+    { value:"available",              label:"Available",              cls:"available" },
+    { value:"sold-out",               label:"Sold Out",               cls:"sold-out" },
+    { value:"temporarily-unavailable",label:"Temp. Unavailable",      cls:"temp" },
+    { value:"hidden",                 label:"Hidden",                 cls:"hidden" }
+  ];
+
+  var DISCOUNT_TYPES = [
+    { value:"none",     label:"None" },
+    { value:"percent",  label:"Percentage off (%)" },
+    { value:"fixed",    label:"Fixed amount off (P)" },
+    { value:"setprice", label:"Fixed / set price" },
+    { value:"bogo",     label:"Buy 1 Get 1 Free" },
+    { value:"bxgy",     label:"Buy X Get Y Free" },
+    { value:"bundle",   label:"Bundle price" }
+  ];
+
+  var DAYS = [
+    { value:"mon", label:"Mon" },{ value:"tue", label:"Tue" },
+    { value:"wed", label:"Wed" },{ value:"thu", label:"Thu" },
+    { value:"fri", label:"Fri" },{ value:"sat", label:"Sat" },
+    { value:"sun", label:"Sun" }
+  ];
+
+  /* ============================================================
+     SEED
+     ============================================================ */
+  function seed() {
+    var now = Date.now();
+    return {
+      lastEdited: now - 1000 * 60 * 12,
+      links: { website:"", instagram:"", facebook:"", tiktok:"" },
+      categories: [
+        { id:"cat_1", order:1, visible:true, name:"Burgers", image:"", description:"Handmade patties, fresh buns" },
+        { id:"cat_2", order:2, visible:true, name:"Pizza",   image:"", description:"Wood-fired, thin crust" },
+        { id:"cat_3", order:3, visible:true, name:"Sides",   image:"", description:"" },
+        { id:"cat_4", order:4, visible:true, name:"Drinks",  image:"", description:"" }
+      ],
+      items: [
+        { id:"item_1", categoryId:"cat_1", order:1, name:"Classic Beef Burger",
+          description:"Beef patty, cheddar, lettuce, tomato",
+          basePrice:65, status:"available", image:"", images:[], type:"main",
+          ingredients:["Beef patty","Cheddar","Lettuce","Tomato","Brioche bun"],
+          preparationMinutes:15, extras:[], variants:[], modifierGroups:[],
+          discount:{ type:"none" } },
+        { id:"item_2", categoryId:"cat_1", order:2, name:"Grilled Chicken Burger",
+          description:"Marinated chicken breast, garlic mayo",
+          basePrice:55, status:"available", image:"", images:[], type:"main",
+          ingredients:["Chicken breast","Garlic mayo","Lettuce","Brioche bun"],
+          preparationMinutes:12, extras:[], variants:[], modifierGroups:[],
+          discount:{ type:"none" } },
+        { id:"item_3", categoryId:"cat_1", order:3, name:"Veggie Burger",
+          description:"Black bean patty, avocado, salsa",
+          basePrice:50, status:"sold-out", image:"", images:[], type:"main",
+          ingredients:["Black bean patty","Avocado","Salsa","Brioche bun"],
+          preparationMinutes:10, extras:[], variants:[], modifierGroups:[],
+          discount:{ type:"none" } },
+        { id:"item_4", categoryId:"cat_2", order:1, name:"Margherita",
+          description:"Tomato, mozzarella, fresh basil",
+          basePrice:75, status:"available", image:"", images:[], type:"main",
+          ingredients:["Tomato","Mozzarella","Basil"],
+          preparationMinutes:18, extras:[], variants:[
+            { id:"v_1", name:"Small (25cm)", description:"", price:75, advancedPrice:null },
+            { id:"v_2", name:"Large (35cm)", description:"", price:95, advancedPrice:null }
+          ], modifierGroups:[], discount:{ type:"bogo" } },
+        { id:"item_5", categoryId:"cat_2", order:2, name:"Pepperoni",
+          description:"Pepperoni, mozzarella, oregano",
+          basePrice:85, status:"available", image:"", images:[], type:"main",
+          ingredients:["Pepperoni","Mozzarella","Oregano"],
+          preparationMinutes:18, extras:[], variants:[], modifierGroups:[],
+          discount:{ type:"none" } },
+        { id:"item_6", categoryId:"cat_3", order:1, name:"Fries",
+          description:"Crispy golden fries, sea salt",
+          basePrice:25, status:"available", image:"", images:[], type:"side",
+          ingredients:["Potatoes","Sea salt","Sunflower oil"],
+          preparationMinutes:6, extras:[], variants:[], modifierGroups:[],
+          discount:{ type:"none" } },
+        { id:"item_7", categoryId:"cat_4", order:1, name:"Coca-Cola",
+          description:"330ml can",
+          basePrice:15, status:"available", image:"", images:[], type:"soft-drink",
+          ingredients:["Carbonated water","Sugar","Caramel colour"],
+          preparationMinutes:1, extras:[], variants:[], modifierGroups:[],
+          discount:{ type:"none" } },
+        { id:"item_8", categoryId:"cat_4", order:2, name:"Still Water",
+          description:"500ml bottle",
+          basePrice:12, status:"temporarily-unavailable", image:"", images:[], type:"water",
+          ingredients:["Mineral water"],
+          preparationMinutes:1, extras:[], variants:[], modifierGroups:[],
+          discount:{ type:"none" } }
+      ]
+    };
+  }
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  var state = seed();
+
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && Array.isArray(p.categories) && Array.isArray(p.items)) {
+        state = p;
+        if (!state.links) state.links = { website:"", instagram:"", facebook:"", tiktok:"" };
+        if (!state.lastEdited) state.lastEdited = Date.now();
+        /* migrate: ensure every item has images array */
+        state.items.forEach(function (it) {
+          if (!Array.isArray(it.images)) {
+            it.images = it.image ? [it.image] : [];
+          }
+        });
+      }
+    }
+  } catch (e) {}
+
+  function save() {
+    state.lastEdited = Date.now();
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function uid(prefix) {
+    return prefix + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7);
+  }
+  function money(v) { return "P" + (Number(v) || 0).toFixed(2); }
+  function typeLabel(t) {
+    for (var i = 0; i < ITEM_TYPES.length; i++) if (ITEM_TYPES[i].value === t) return ITEM_TYPES[i].label;
+    return "Other";
+  }
+  function statusObj(s) {
+    for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].value === s) return STATUSES[i];
+    return STATUSES[0];
+  }
+  function timeAgo(ts) {
+    var s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+    if (s < 60) return s + "s ago";
+    var m = Math.floor(s / 60);
+    if (m < 60) return m + "m ago";
+    var h = Math.floor(m / 60);
+    if (h < 24) return h + "h ago";
+    var d = Math.floor(h / 24);
+    return d + (d === 1 ? " day ago" : " days ago");
+  }
+  /* main image = first image in array */
+  function mainImage(it) {
+    if (it.images && it.images.length) return it.images[0];
+    return it.image || "";
+  }
+
+  var stack = $("#stack");
+  var metaCard = $("#metaCard");
+  var toastEl = $("#toast");
+  var toastTimer = null;
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2000);
+  }
+
+  /* ============================================================
+     RENDER — meta
+     ============================================================ */
+  function renderMeta() {
+    metaCard.innerHTML =
+      '<div class="meta-row">' +
+        '<span class="meta-dot"></span>' +
+        '<span class="meta-text">Menu last edited <b>' + esc(timeAgo(state.lastEdited)) + '</b></span>' +
+      '</div>' +
+      '<div class="meta-stats">' +
+        '<span><b>' + state.categories.length + '</b>categories</span>' +
+        '<span class="meta-sep">·</span>' +
+        '<span><b>' + state.items.length + '</b>items</span>' +
+      '</div>';
+  }
+
+  /* ============================================================
+     RENDER — item card
+     ============================================================ */
+  function itemCardHTML(it) {
+    var s = statusObj(it.status);
+    var hasVariants = it.variants && it.variants.length > 0;
+    var price = hasVariants
+      ? "From " + money(Math.min.apply(null, it.variants.map(function (v) { return Number(v.price) || 0; })))
+      : money(it.basePrice);
+
+    var img = mainImage(it);
+    var thumbInner = img
+      ? '<img src="' + esc(img) + '" alt="">'
+      : '<span class="glyph">🍽</span>';
+
+    return '' +
+      '<article class="item" data-item="' + esc(it.id) + '" role="button" tabindex="0">' +
+        '<div class="thumb-lg">' + thumbInner + '</div>' +
+        '<div class="info">' +
+          '<div class="nm">' + esc(it.name) + '</div>' +
+          '<div class="meta-line">' +
+            '<span class="pr">' + price + '</span>' +
+            '<span class="status-dot ' + s.cls + '" title="' + esc(s.label) + '"></span>' +
+            '<span class="type-tag">' + esc(typeLabel(it.type)) + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+  }
+
+  /* ============================================================
+     RENDER — category accordion
+     ============================================================ */
+  function categoryAccHTML(cat, openKey) {
+    var items = state.items
+      .filter(function (i) { return i.categoryId === cat.id; })
+      .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+    var hasItems = items.length > 0;
+    var isOpen = openKey === cat.id;
+
+    var sub = hasItems
+      ? (items.length + " item" + (items.length === 1 ? "" : "s") +
+         (cat.visible === false ? " · Hidden" : ""))
+      : (cat.visible === false ? "Hidden · no items yet" : "No items yet");
+
+    var iconInner = cat.image
+      ? '<img src="' + esc(cat.image) + '" alt="">'
+      : '<span class="glyph">📂</span>';
+
+    return '' +
+      '<section class="acc' + (isOpen ? " open" : "") +
+        (hasItems ? " has-items" : "") + '" data-key="' + esc(cat.id) + '">' +
+
+        '<button class="acc-head" type="button" aria-expanded="' + isOpen + '">' +
+          '<span class="dot"></span>' +
+          '<span class="ico">' + iconInner + '</span>' +
+          '<span class="acc-title">' +
+            '<b>' + esc(cat.name) + '</b>' +
+            '<span class="acc-sub">' + esc(sub) + '</span>' +
+          '</span>' +
+        '</button>' +
+
+        '<div class="acc-body">' +
+          '<div class="acc-inner">' +
+            '<div class="items">' +
+              items.map(itemCardHTML).join("") +
+              '<div class="add-row">' +
+                '<button class="add-item-btn" type="button" data-add-item="' + esc(cat.id) + '">' +
+                  '+ Add item to ' + esc(cat.name) +
+                '</button>' +
+                '<button class="edit-cat-btn" type="button" data-edit-cat="' + esc(cat.id) + '">' +
+                  'Edit category' +
+                '</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</section>';
+  }
+
+  /* ============================================================
+     RENDER — links accordion
+     ============================================================ */
+  function linksAccHTML(openKey) {
+    var isOpen = openKey === "__links";
+    var linkCount = ["website","instagram","facebook","tiktok"].filter(function (k) {
+      return (state.links[k] || "").trim().length > 0;
+    }).length;
+
+    var sub = linkCount
+      ? linkCount + " link" + (linkCount === 1 ? "" : "s") + " added"
+      : "Website · Instagram · Facebook · TikTok";
+
+    return '' +
+      '<section class="acc' + (isOpen ? " open" : "") +
+        (linkCount ? " has-items" : "") + '" data-key="__links">' +
+
+        '<button class="acc-head" type="button" aria-expanded="' + isOpen + '">' +
+          '<span class="dot"></span>' +
+          '<span class="ico">🔗</span>' +
+          '<span class="acc-title">' +
+            '<b>Add Link</b>' +
+            '<span class="acc-sub">' + esc(sub) + '</span>' +
+          '</span>' +
+        '</button>' +
+
+        '<div class="acc-body">' +
+          '<div class="acc-inner">' +
+            '<div class="links-body">' +
+              '<div class="form-section">' +
+                '<label class="form-label">Website</label>' +
+                '<input class="input" type="url" inputmode="url" data-link="website" ' +
+                  'placeholder="https://…" value="' + esc(state.links.website || "") + '">' +
+              '</div>' +
+              '<div class="form-section">' +
+                '<label class="form-label">Instagram</label>' +
+                '<input class="input" type="url" inputmode="url" data-link="instagram" ' +
+                  'placeholder="https://instagram.com/…" value="' + esc(state.links.instagram || "") + '">' +
+              '</div>' +
+              '<div class="form-section">' +
+                '<label class="form-label">Facebook</label>' +
+                '<input class="input" type="url" inputmode="url" data-link="facebook" ' +
+                  'placeholder="https://facebook.com/…" value="' + esc(state.links.facebook || "") + '">' +
+              '</div>' +
+              '<div class="form-section">' +
+                '<label class="form-label">TikTok</label>' +
+                '<input class="input" type="url" inputmode="url" data-link="tiktok" ' +
+                  'placeholder="https://tiktok.com/@…" value="' + esc(state.links.tiktok || "") + '">' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</section>';
+  }
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
+  var openKey = null;
+
+  function render() {
+    renderMeta();
+
+    var cats = state.categories.slice().sort(function (a, b) {
+      return (a.order || 0) - (b.order || 0);
+    });
+
+    if (!cats.length) {
+      stack.innerHTML =
+        '<div class="empty-state">' +
+          '<div class="ico">🍽</div>' +
+          '<h3>No categories yet</h3>' +
+          '<p>Tap <b>+ Add Category</b> to start building your menu.</p>' +
+        '</div>' +
+        linksAccHTML(openKey);
+      return;
+    }
+
+    stack.innerHTML =
+      cats.map(function (c) { return categoryAccHTML(c, openKey); }).join("") +
+      linksAccHTML(openKey);
+  }
+
+  function openAccordion(key, scrollTo) {
+    openKey = key;
+    $$(".acc", stack).forEach(function (acc) {
+      var isOpen = acc.dataset.key === key;
+      acc.classList.toggle("open", isOpen);
+      var head = acc.querySelector(".acc-head");
+      if (head) head.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+    if (key && scrollTo) {
+      var acc = stack.querySelector('.acc[data-key="' + key + '"]');
+      if (acc) {
+        setTimeout(function () {
+          try { acc.scrollIntoView({ behavior:"smooth", block:"start" }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+
+  function toggleAccordion(key) {
+    if (openKey === key) openAccordion(null);
+    else openAccordion(key, true);
+  }
+
+  /* ============================================================
+     MODAL SYSTEM
+     ============================================================ */
+  function openModal(opts) {
+    var scrim = document.createElement("div");
+    scrim.className = "modal-scrim";
+    scrim.innerHTML =
+      '<div class="modal' + (opts.size === "small" ? " small" : "") + '" role="dialog" aria-modal="true">' +
+        '<div class="modal-hdr">' +
+          '<h3>' + esc(opts.title) + '</h3>' +
+          '<button class="modal-close" type="button" data-close aria-label="Close">✕</button>' +
+        '</div>' +
+        '<div class="modal-body">' + opts.body + '</div>' +
+        '<div class="modal-foot">' + opts.footer + '</div>' +
+      '</div>';
+    document.body.appendChild(scrim);
+    scrim.querySelectorAll("[data-close]").forEach(function (b) {
+      b.onclick = function () { scrim.remove(); };
+    });
+    scrim.addEventListener("click", function (e) {
+      if (e.target === scrim) scrim.remove();
+    });
+    if (opts.onMount) opts.onMount(scrim);
+    return scrim;
+  }
+
+  /* ============================================================
+     CATEGORY MODAL
+     ============================================================ */
+  function categoryModal(existing) {
+    var isNew = !existing;
+    var cat = existing || { name:"", image:"", description:"", visible:true };
+
+    var body =
+      '<div class="form-section">' +
+        '<label class="form-label">Category name</label>' +
+        '<input class="input" type="text" id="cat-name" ' +
+          'placeholder="e.g. Burgers" value="' + esc(cat.name) + '">' +
+      '</div>' +
+
+      '<div class="form-section">' +
+        '<label class="form-label">Description</label>' +
+        '<textarea class="textarea" id="cat-desc" ' +
+          'placeholder="Optional — a short line about this section.">' +
+          esc(cat.description || "") + '</textarea>' +
+      '</div>' +
+
+      '<label class="check-row">' +
+        '<input type="checkbox" id="cat-visible"' + (cat.visible !== false ? " checked" : "") + '>' +
+        '<span>Visible to customers</span>' +
+      '</label>';
+
+    var footer =
+      '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+      '<button class="btn btn-primary" type="button" data-save>' +
+        (isNew ? "Add category" : "Save changes") +
+      '</button>';
+
+    var scrim = openModal({
+      title: isNew ? "Add category" : "Edit category",
+      body: body,
+      footer: footer,
+      size: "small"
+    });
+
+    var nameInput = scrim.querySelector("#cat-name");
+    setTimeout(function () { try { nameInput.focus(); } catch (e) {} }, 60);
+
+    scrim.querySelector("[data-save]").onclick = function () {
+      var name = nameInput.value.trim();
+      if (!name) { toast("Give the category a name"); nameInput.focus(); return; }
+
+      var data = {
+        name: name,
+        image: cat.image || "",
+        description: scrim.querySelector("#cat-desc").value.trim(),
+        visible: scrim.querySelector("#cat-visible").checked
+      };
+
+      if (isNew) {
+        state.categories.push(Object.assign({
+          id: uid("cat"),
+          order: state.categories.length + 1
+        }, data));
+        save();
+        openKey = state.categories[state.categories.length - 1].id;
+        render();
+        toast("Category added");
+      } else {
+        Object.assign(existing, data);
+        save();
+        render();
+        toast("Category saved");
+      }
+      scrim.remove();
+    };
+  }
+
+  /* ============================================================
+     ITEM MODAL — full editor with image gallery
+     ============================================================ */
+  function itemModal(existing, catId) {
+    var isNew = !existing;
+    var it = existing || {
+      name:"", type:"main", description:"", image:"", images:[],
+      basePrice:0, preparationMinutes:null, status:"available",
+      ingredients:[], extras:[], variants:[], modifierGroups:[],
+      discount:{ type:"none" }
+    };
+    if (!Array.isArray(it.images)) it.images = it.image ? [it.image] : [];
+    if (!it.ingredients) it.ingredients = [];
+    if (!it.extras) it.extras = [];
+    if (!it.variants) it.variants = [];
+    if (!it.discount) it.discount = { type:"none" };
+
+    /* ---- select options ---- */
+    var typeOpts = ITEM_TYPES.map(function (t) {
+      return '<option value="' + t.value + '"' + (it.type === t.value ? " selected" : "") + '>' +
+        esc(t.label) + '</option>';
+    }).join("");
+
+    var statusOpts = STATUSES.map(function (s) {
+      return '<option value="' + s.value + '"' + (it.status === s.value ? " selected" : "") + '>' +
+        esc(s.label) + '</option>';
+    }).join("");
+
+    var discOpts = DISCOUNT_TYPES.map(function (d) {
+      var sel = (it.discount && it.discount.type) === d.value ? " selected" : "";
+      return '<option value="' + d.value + '"' + sel + '>' + esc(d.label) + '</option>';
+    }).join("");
+
+    var selectedDays = (it.discount && it.discount.schedule && it.discount.schedule.days) || [];
+    var dayChips = DAYS.map(function (d) {
+      var on = selectedDays.indexOf(d.value) > -1;
+      return '<button type="button" class="day-chip' + (on ? " on" : "") +
+        '" data-day="' + d.value + '">' + d.label + '</button>';
+    }).join("");
+
+    /* ---- body ---- */
+    var body =
+      /* Image gallery (row 1) */
+      '<div class="gallery-section">' +
+        '<div class="gallery-rail" id="galleryRail">' +
+          '<label class="gallery-tile add-tile" id="galleryAddTile">' +
+            '<span class="plus">+</span>' +
+            '<input type="file" accept="image/*" multiple id="galleryImgInput">' +
+          '</label>' +
+        '</div>' +
+        '<div class="gallery-dots" id="galleryDots"></div>' +
+      '</div>' +
+
+      /* Item name (row 2) */
+      '<div class="form-section">' +
+        '<label class="form-label">Item Name</label>' +
+        '<input class="input" type="text" id="it-name" placeholder="e.g. Classic Beef Burger" value="' + esc(it.name) + '">' +
+      '</div>' +
+
+      /* Type (row 3) */
+      '<div class="form-section">' +
+        '<label class="form-label">Type</label>' +
+        '<select class="select" id="it-type">' + typeOpts + '</select>' +
+      '</div>' +
+
+      /* Status (row 4) */
+      '<div class="form-section">' +
+        '<label class="form-label">Status</label>' +
+        '<select class="select" id="it-status">' + statusOpts + '</select>' +
+      '</div>' +
+
+      /* Description (row 5) */
+      '<div class="form-section">' +
+        '<label class="form-label">Description</label>' +
+        '<textarea class="textarea" id="it-desc" placeholder="Short customer-facing description…">' +
+          esc(it.description) + '</textarea>' +
+      '</div>' +
+
+      /* Ingredients (row 6) */
+      '<div class="form-section">' +
+        '<div class="form-label-row">' +
+          '<span class="form-label">Ingredients</span>' +
+          '<button class="link-btn" type="button" id="addIng">+ Add</button>' +
+        '</div>' +
+        '<div id="ingList"></div>' +
+      '</div>' +
+
+      /* Prep time (row 7) */
+      '<div class="form-section">' +
+        '<label class="form-label">Prep Time</label>' +
+        '<div class="prep-wrap">' +
+          '<input class="input" type="number" min="0" step="1" id="it-prep" ' +
+            'placeholder="15" value="' + esc(it.preparationMinutes || "") + '">' +
+        '</div>' +
+      '</div>' +
+
+      /* Base price (row 8) */
+      '<div class="form-section">' +
+        '<label class="form-label">Base Price</label>' +
+        '<div class="price-wrap">' +
+          '<input class="input" type="number" min="0" step="0.01" id="it-price" ' +
+            'placeholder="0.00" value="' + esc(it.basePrice || 0) + '">' +
+        '</div>' +
+      '</div>' +
+
+      /* Extras (row 9) */
+      '<div class="form-section">' +
+        '<div class="form-label-row">' +
+          '<span class="form-label">Extras</span>' +
+          '<button class="link-btn" type="button" id="addExtraSimple">+ Add</button>' +
+        '</div>' +
+        '<div id="extrasSimpleList"></div>' +
+      '</div>' +
+
+      /* Advanced (row 10) */
+      '<div class="nested-acc" data-nested="advanced">' +
+        '<button class="nested-acc-hdr" type="button" aria-expanded="false">' +
+          '<span class="t">Advanced</span>' +
+          '<span class="n">Optional</span>' +
+        '</button>' +
+        '<div class="nested-acc-body">' +
+          '<div class="nested-acc-inner">' +
+            '<div class="nested-acc-content">' +
+
+              /* Size & Variants */
+              '<div class="form-label" style="margin-top:14px">Size &amp; Variants</div>' +
+              '<div class="chips" id="sizeChips">' +
+                '<button type="button" class="chip" data-size="Small">Small</button>' +
+                '<button type="button" class="chip" data-size="Medium">Medium</button>' +
+                '<button type="button" class="chip" data-size="Large">Large</button>' +
+                '<button type="button" class="chip" data-size="Custom">Custom</button>' +
+              '</div>' +
+              '<div id="variantList"></div>' +
+              '<button type="button" class="add-full-btn" id="addVariant">+ Add Variant</button>' +
+
+              /* Advanced extras */
+              '<div class="form-label" style="margin-top:22px">Extras</div>' +
+              '<div class="form-hint" style="margin-top:0;margin-bottom:10px">' +
+                'Full extras built like mini items — image, name, description, price.' +
+              '</div>' +
+              '<div id="extrasAdvancedList"></div>' +
+              '<button type="button" class="add-full-btn" id="addExtraAdvanced">+ Add Extra</button>' +
+
+              /* Discounts */
+              '<div class="form-label" style="margin-top:22px">Discounts</div>' +
+              '<div class="disc-block">' +
+
+                '<div class="form-section">' +
+                  '<label class="form-label">Discount type</label>' +
+                  '<select class="select" id="discType">' + discOpts + '</select>' +
+                '</div>' +
+
+                '<div class="form-section" data-show="percent,fixed,setprice">' +
+                  '<label class="form-label">Value</label>' +
+                  '<input class="input" type="number" min="0" step="0.01" id="discValue" ' +
+                    'placeholder="e.g. 20" value="' + esc((it.discount && it.discount.value) || "") + '">' +
+                '</div>' +
+
+                '<div class="form-row-2" data-show="bxgy">' +
+                  '<div class="form-section">' +
+                    '<label class="form-label">Buy quantity</label>' +
+                    '<input class="input" type="number" min="1" step="1" id="discBuyQty" ' +
+                      'value="' + esc((it.discount && it.discount.buyQty) || 1) + '">' +
+                  '</div>' +
+                  '<div class="form-section">' +
+                    '<label class="form-label">Get free quantity</label>' +
+                    '<input class="input" type="number" min="1" step="1" id="discGetQty" ' +
+                      'value="' + esc((it.discount && it.discount.getQty) || 1) + '">' +
+                  '</div>' +
+                '</div>' +
+
+                '<div class="form-section" data-show="bundle">' +
+                  '<label class="form-label">Bundle price</label>' +
+                  '<div class="price-wrap">' +
+                    '<input class="input" type="number" min="0" step="0.01" id="discBundlePrice" ' +
+                      'placeholder="0.00" value="' + esc((it.discount && it.discount.bundlePrice) || "") + '">' +
+                  '</div>' +
+                '</div>' +
+
+                '<div class="disc-sub">Schedule</div>' +
+                '<div class="day-chips" id="discDays">' + dayChips + '</div>' +
+                '<div class="form-row-2">' +
+                  '<div class="form-section">' +
+                    '<label class="form-label">Start time</label>' +
+                    '<input class="input" type="time" id="discStartTime" ' +
+                      'value="' + esc((it.discount && it.discount.schedule && it.discount.schedule.startTime) || "") + '">' +
+                  '</div>' +
+                  '<div class="form-section">' +
+                    '<label class="form-label">End time</label>' +
+                    '<input class="input" type="time" id="discEndTime" ' +
+                      'value="' + esc((it.discount && it.discount.schedule && it.discount.schedule.endTime) || "") + '">' +
+                  '</div>' +
+                '</div>' +
+                '<div class="form-row-2">' +
+                  '<div class="form-section">' +
+                    '<label class="form-label">Start date</label>' +
+                    '<input class="input" type="date" id="discStartDate" ' +
+                      'value="' + esc((it.discount && it.discount.schedule && it.discount.schedule.startDate) || "") + '">' +
+                  '</div>' +
+                  '<div class="form-section">' +
+                    '<label class="form-label">End date</label>' +
+                    '<input class="input" type="date" id="discEndDate" ' +
+                      'value="' + esc((it.discount && it.discount.schedule && it.discount.schedule.endDate) || "") + '">' +
+                  '</div>' +
+                '</div>' +
+
+                '<div class="disc-sub">Conditions</div>' +
+                '<div class="form-row-2">' +
+                  '<div class="form-section">' +
+                    '<label class="form-label">Min subtotal</label>' +
+                    '<div class="price-wrap">' +
+                      '<input class="input" type="number" min="0" step="0.01" id="discMinSubtotal" ' +
+                        'placeholder="0.00" value="' + esc((it.discount && it.discount.conditions && it.discount.conditions.minSubtotal) || "") + '">' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="form-section">' +
+                    '<label class="form-label">Min quantity</label>' +
+                    '<input class="input" type="number" min="1" step="1" id="discMinQty" ' +
+                      'placeholder="1" value="' + esc((it.discount && it.discount.conditions && it.discount.conditions.minQty) || "") + '">' +
+                  '</div>' +
+                '</div>' +
+
+                '<div class="disc-sub">Limits</div>' +
+                '<div class="form-row-2">' +
+                  '<div class="form-section">' +
+                    '<label class="form-label">Max discount cap</label>' +
+                    '<div class="price-wrap">' +
+                      '<input class="input" type="number" min="0" step="0.01" id="discMaxCap" ' +
+                        'placeholder="0.00" value="' + esc((it.discount && it.discount.limits && it.discount.limits.maxDiscount) || "") + '">' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="form-section">' +
+                    '<label class="form-label">Per customer</label>' +
+                    '<input class="input" type="number" min="1" step="1" id="discPerCustomer" ' +
+                      'placeholder="1" value="' + esc((it.discount && it.discount.limits && it.discount.limits.perCustomer) || "") + '">' +
+                  '</div>' +
+                '</div>' +
+                '<div class="form-section">' +
+                  '<label class="form-label">Total redemption cap</label>' +
+                  '<input class="input" type="number" min="1" step="1" id="discTotalUses" ' +
+                    'placeholder="e.g. 100" value="' + esc((it.discount && it.discount.limits && it.discount.limits.totalUses) || "") + '">' +
+                '</div>' +
+
+                '<div class="disc-sub">Display</div>' +
+                '<div class="form-section">' +
+                  '<label class="form-label">Badge text</label>' +
+                  '<input class="input" type="text" id="discBadgeText" maxlength="24" ' +
+                    'placeholder="e.g. 20% OFF" value="' + esc((it.discount && it.discount.display && it.discount.display.badgeText) || "") + '">' +
+                '</div>' +
+                '<label class="check-row">' +
+                  '<input type="checkbox" id="discStrikethrough"' +
+                    ((it.discount && it.discount.display && it.discount.display.showStrikethrough) ? " checked" : "") + '>' +
+                  '<span>Show original price struck through</span>' +
+                '</label>' +
+
+                '<div class="disc-sub">Stacking</div>' +
+                '<label class="check-row">' +
+                  '<input type="checkbox" id="discStackable"' +
+                    ((it.discount && it.discount.stackable) ? " checked" : "") + '>' +
+                  '<span>Stackable with other discounts</span>' +
+                '</label>' +
+
+              '</div>' +
+
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    var footer =
+      '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+      '<button class="btn btn-primary" type="button" data-save>' +
+        (isNew ? "Add item" : "Save changes") +
+      '</button>';
+
+    var scrim = openModal({
+      title: isNew ? "Add menu item" : "Edit item",
+      body: body,
+      footer: footer
+    });
+
+    /* =========================================================
+       IMAGE GALLERY
+       ========================================================= */
+    var galleryImages = (it.images || []).slice();
+    var rail = scrim.querySelector("#galleryRail");
+    var dots = scrim.querySelector("#galleryDots");
+    var addTile = scrim.querySelector("#galleryAddTile");
+    var fileInput = scrim.querySelector("#galleryImgInput");
+
+    function renderGallery() {
+      /* remove existing image tiles (keep add tile) */
+      var existing = rail.querySelectorAll(".gallery-tile:not(.add-tile)");
+      Array.prototype.forEach.call(existing, function (t) { t.remove(); });
+
+      /* insert image tiles before the add tile */
+      galleryImages.forEach(function (src, i) {
+        var tile = document.createElement("div");
+        tile.className = "gallery-tile" + (i === 0 ? " main" : "");
+        tile.innerHTML =
+          '<img src="' + esc(src) + '" alt="">' +
+          '<button type="button" class="tile-x" aria-label="Remove image">✕</button>';
+        tile.querySelector(".tile-x").addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          galleryImages.splice(i, 1);
+          renderGallery();
+        });
+        rail.insertBefore(tile, addTile);
+      });
+
+      /* dots — one per image, first is highlighted as main */
+      dots.innerHTML = galleryImages.map(function (_, i) {
+        return '<span class="dot' + (i === 0 ? " first" : "") + '"></span>';
+      }).join("");
+
+      /* hide add tile when at max */
+      addTile.style.display = galleryImages.length >= MAX_IMAGES ? "none" : "";
+    }
+
+    fileInput.addEventListener("change", function () {
+      var files = Array.prototype.slice.call(fileInput.files || []);
+      if (!files.length) return;
+      var remaining = MAX_IMAGES - galleryImages.length;
+      if (remaining <= 0) {
+        fileInput.value = "";
+        toast("Max " + MAX_IMAGES + " images");
+        return;
+      }
+      var take = files.slice(0, remaining);
+      var loaded = 0;
+      take.forEach(function (f) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          galleryImages.push(e.target.result);
+          loaded++;
+          if (loaded === take.length) {
+            renderGallery();
+            if (files.length > remaining) toast("Max " + MAX_IMAGES + " images");
+          }
+        };
+        reader.readAsDataURL(f);
+      });
+      fileInput.value = "";
+    });
+
+    renderGallery();
+
+    /* =========================================================
+       INGREDIENTS
+       ========================================================= */
+    var ingList = scrim.querySelector("#ingList");
+    function ingredientRow(val) {
+      var row = document.createElement("div");
+      row.className = "point-row";
+      row.innerHTML =
+        '<span class="bullet">•</span>' +
+        '<input class="input" type="text" data-ing value="' + esc(val || "") + '" placeholder="e.g. Beef patty">' +
+        '<button type="button" class="row-del" aria-label="Remove">✕</button>';
+      row.querySelector(".row-del").onclick = function () { row.remove(); };
+      return row;
+    }
+    (it.ingredients || []).forEach(function (v) { ingList.appendChild(ingredientRow(v)); });
+    scrim.querySelector("#addIng").onclick = function () { ingList.appendChild(ingredientRow("")); };
+
+    /* =========================================================
+       EXTRAS (simple)
+       ========================================================= */
+    var extrasSimpleList = scrim.querySelector("#extrasSimpleList");
+    function extraMiniRow(data) {
+      data = data || {};
+      var row = document.createElement("div");
+      row.className = "extra-mini";
+      row.innerHTML =
+        '<input class="input" type="text" data-ex-name placeholder="Extra name" value="' + esc(data.name || "") + '">' +
+        '<input class="input" type="number" min="0" step="0.01" data-ex-price placeholder="+P" value="' + esc(data.price || "") + '">' +
+        '<button type="button" class="row-del" aria-label="Remove">✕</button>';
+      row.querySelector(".row-del").onclick = function () { row.remove(); };
+      return row;
+    }
+    (it.extras || []).forEach(function (e) { extrasSimpleList.appendChild(extraMiniRow(e)); });
+    scrim.querySelector("#addExtraSimple").onclick = function () { extrasSimpleList.appendChild(extraMiniRow({})); };
+
+    /* =========================================================
+       NESTED ACCORDION (Advanced)
+       ========================================================= */
+    var nestedAcc = scrim.querySelector('[data-nested="advanced"]');
+    var nestedHdr = nestedAcc.querySelector(".nested-acc-hdr");
+    nestedHdr.onclick = function () {
+      var open = nestedAcc.classList.toggle("open");
+      nestedHdr.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+
+    /* =========================================================
+       DISCOUNT VISIBILITY
+       ========================================================= */
+    var discType = scrim.querySelector("#discType");
+    function updateDiscountVisibility() {
+      var t = discType.value;
+      scrim.querySelectorAll("[data-show]").forEach(function (el) {
+        var types = el.getAttribute("data-show").split(",");
+        el.style.display = types.indexOf(t) > -1 ? "" : "none";
+      });
+    }
+    discType.addEventListener("change", updateDiscountVisibility);
+    updateDiscountVisibility();
+
+    scrim.querySelector("#discDays").addEventListener("click", function (e) {
+      var chip = e.target.closest(".day-chip");
+      if (!chip) return;
+      chip.classList.toggle("on");
+    });
+
+    /* =========================================================
+       VARIANTS
+       ========================================================= */
+    var variantList = scrim.querySelector("#variantList");
+    var sizeChips = scrim.querySelector("#sizeChips");
+
+    function variantCard(data) {
+      data = data || {};
+      var card = document.createElement("div");
+      card.className = "variant-card";
+      card.innerHTML =
+        '<div class="variant-head">' +
+          '<input class="input" type="text" data-v-name placeholder="Variant name" value="' + esc(data.name || "") + '">' +
+          '<button type="button" class="row-del" aria-label="Remove">✕</button>' +
+        '</div>' +
+        '<input class="input" type="text" data-v-desc placeholder="Short description (optional)" value="' + esc(data.description || "") + '">' +
+        '<div class="form-row-2">' +
+          '<div class="price-wrap">' +
+            '<input class="input" type="number" min="0" step="0.01" data-v-price placeholder="Price" value="' + esc(data.price || "") + '">' +
+          '</div>' +
+          '<div class="price-wrap">' +
+            '<input class="input" type="number" min="0" step="0.01" data-v-adv placeholder="Advanced Price" value="' + esc(data.advancedPrice || "") + '">' +
+          '</div>' +
+        '</div>';
+      card.querySelector(".row-del").onclick = function () {
+        var nm = card.querySelector('[data-v-name]').value.trim();
+        if (nm) {
+          var chip = sizeChips.querySelector('.chip[data-size="' + nm.replace(/"/g, "") + '"]');
+          if (chip) chip.classList.remove("on");
+        }
+        card.remove();
+      };
+      return card;
+    }
+
+    function addVariant(data) {
+      var card = variantCard(data);
+      variantList.appendChild(card);
+      if (!data || !data.name) {
+        setTimeout(function () { try { card.querySelector('[data-v-name]').focus(); } catch (e) {} }, 60);
+      }
+      return card;
+    }
+
+    (it.variants || []).forEach(function (v) { addVariant(v); });
+
+    setTimeout(function () {
+      (it.variants || []).forEach(function (v) {
+        var chip = sizeChips.querySelector('.chip[data-size="' + String(v.name || "").replace(/"/g, "") + '"]');
+        if (chip) chip.classList.add("on");
+      });
+    }, 10);
+
+    sizeChips.addEventListener("click", function (e) {
+      var chip = e.target.closest(".chip");
+      if (!chip) return;
+      var size = chip.dataset.size;
+      if (size === "Custom") { addVariant(); return; }
+      if (chip.classList.contains("on")) {
+        chip.classList.remove("on");
+        $$(".variant-card", variantList).forEach(function (c) {
+          var nm = c.querySelector('[data-v-name]').value.trim();
+          if (nm.toLowerCase() === size.toLowerCase()) c.remove();
+        });
+      } else {
+        chip.classList.add("on");
+        addVariant({ name: size });
+      }
+    });
+
+    scrim.querySelector("#addVariant").onclick = function () { addVariant(); };
+
+    /* =========================================================
+       EXTRAS (advanced)
+       ========================================================= */
+    var extrasAdvList = scrim.querySelector("#extrasAdvancedList");
+    function extraAdvCard(data) {
+      data = data || {};
+      var card = document.createElement("div");
+      card.className = "extra-card";
+      card.innerHTML =
+        '<div class="extra-top">' +
+          '<label class="extra-thumb">' +
+            (data.image ? '<img src="' + esc(data.image) + '" alt="">' : '<span>+</span>') +
+            '<input type="file" accept="image/*">' +
+          '</label>' +
+          '<div class="extra-fields">' +
+            '<input class="input" type="text" data-e-name placeholder="Extra name" value="' + esc(data.name || "") + '">' +
+            '<input class="input" type="text" data-e-desc placeholder="Short description (optional)" value="' + esc(data.description || "") + '">' +
+          '</div>' +
+        '</div>' +
+        '<div class="form-row-2">' +
+          '<div class="price-wrap">' +
+            '<input class="input" type="number" min="0" step="0.01" data-e-price placeholder="Price" value="' + esc(data.price || "") + '">' +
+          '</div>' +
+          '<div class="price-wrap">' +
+            '<input class="input" type="number" min="0" step="0.01" data-e-adv placeholder="Advanced Price" value="' + esc(data.advancedPrice || "") + '">' +
+          '</div>' +
+        '</div>' +
+        '<div class="extra-actions">' +
+          '<button type="button" class="remove-link">Remove</button>' +
+        '</div>';
+
+      var thumb = card.querySelector(".extra-thumb");
+      var fInput = thumb.querySelector('input[type=file]');
+      fInput.addEventListener("change", function () {
+        var f = fInput.files && fInput.files[0];
+        if (!f) return;
+        var r = new FileReader();
+        r.onload = function (e) {
+          var img = thumb.querySelector("img");
+          var span = thumb.querySelector("span");
+          if (!img) {
+            img = document.createElement("img");
+            thumb.insertBefore(img, fInput);
+          }
+          img.src = e.target.result;
+          if (span) span.style.display = "none";
+          card.dataset.image = e.target.result;
+        };
+        r.readAsDataURL(f);
+        fInput.value = "";
+      });
+      if (data.image) card.dataset.image = data.image;
+      card.querySelector(".remove-link").onclick = function () { card.remove(); };
+      return card;
+    }
+    (it.extrasAdvanced || []).forEach(function (x) { extrasAdvList.appendChild(extraAdvCard(x)); });
+    scrim.querySelector("#addExtraAdvanced").onclick = function () { extrasAdvList.appendChild(extraAdvCard({})); };
+
+    /* =========================================================
+       SAVE
+       ========================================================= */
+    scrim.querySelector("[data-save]").onclick = function () {
+      var name = scrim.querySelector("#it-name").value.trim();
+      if (!name) { toast("Give the item a name"); scrim.querySelector("#it-name").focus(); return; }
+
+      var ingredients = $$("[data-ing]", scrim).map(function (el) { return el.value.trim(); }).filter(Boolean);
+
+      var extrasSimple = $$(".extra-mini", scrim).map(function (r) {
+        var nm = r.querySelector("[data-ex-name]").value.trim();
+        if (!nm) return null;
+        return {
+          id: uid("extra"),
+          name: nm,
+          price: Number(r.querySelector("[data-ex-price]").value) || 0
+        };
+      }).filter(Boolean);
+
+      var variants = $$(".variant-card", scrim).map(function (c) {
+        var nm = c.querySelector('[data-v-name]').value.trim();
+        if (!nm) return null;
+        var advRaw = c.querySelector('[data-v-adv]').value;
+        return {
+          id: uid("var"),
+          name: nm,
+          description: c.querySelector('[data-v-desc]').value.trim(),
+          price: Number(c.querySelector('[data-v-price]').value) || 0,
+          advancedPrice: advRaw === "" ? null : Number(advRaw)
+        };
+      }).filter(Boolean);
+
+      var extrasAdvanced = $$(".extra-card", scrim).map(function (c) {
+        var nm = c.querySelector('[data-e-name]').value.trim();
+        if (!nm) return null;
+        var advRaw = c.querySelector('[data-e-adv]').value;
+        return {
+          id: uid("exadv"),
+          name: nm,
+          description: c.querySelector('[data-e-desc]').value.trim(),
+          price: Number(c.querySelector('[data-e-price]').value) || 0,
+          advancedPrice: advRaw === "" ? null : Number(advRaw),
+          image: c.dataset.image || ""
+        };
+      }).filter(Boolean);
+
+      var days = $$("#discDays .day-chip.on", scrim).map(function (c) { return c.dataset.day; });
+
+      function numOrNull(id) {
+        var el = scrim.querySelector(id);
+        if (!el) return null;
+        return el.value === "" ? null : Number(el.value);
+      }
+      function strOrEmpty(id) {
+        var el = scrim.querySelector(id);
+        return el ? (el.value || "").trim() : "";
+      }
+
+      var discount = {
+        type: discType.value,
+        value: numOrNull("#discValue"),
+        buyQty: numOrNull("#discBuyQty"),
+        getQty: numOrNull("#discGetQty"),
+        bundlePrice: numOrNull("#discBundlePrice"),
+        schedule: {
+          days: days,
+          startTime: strOrEmpty("#discStartTime"),
+          endTime:   strOrEmpty("#discEndTime"),
+          startDate: strOrEmpty("#discStartDate"),
+          endDate:   strOrEmpty("#discEndDate")
+        },
+        conditions: {
+          minSubtotal: numOrNull("#discMinSubtotal"),
+          minQty: numOrNull("#discMinQty")
+        },
+        limits: {
+          maxDiscount: numOrNull("#discMaxCap"),
+          perCustomer: numOrNull("#discPerCustomer"),
+          totalUses: numOrNull("#discTotalUses")
+        },
+        display: {
+          badgeText: strOrEmpty("#discBadgeText"),
+          showStrikethrough: scrim.querySelector("#discStrikethrough").checked
+        },
+        stackable: scrim.querySelector("#discStackable").checked
+      };
+
+      var data = {
+        name: name,
+        type: scrim.querySelector("#it-type").value,
+        status: scrim.querySelector("#it-status").value,
+        description: scrim.querySelector("#it-desc").value.trim(),
+        images: galleryImages.slice(),
+        image: galleryImages[0] || "",
+        ingredients: ingredients,
+        preparationMinutes: numOrNull("#it-prep"),
+        basePrice: Number(scrim.querySelector("#it-price").value) || 0,
+        extras: extrasSimple,
+        variants: variants,
+        extrasAdvanced: extrasAdvanced,
+        discount: discount
+      };
+
+      if (isNew) {
+        state.items.push(Object.assign({
+          id: uid("item"),
+          categoryId: catId,
+          order: state.items.filter(function (x) { return x.categoryId === catId; }).length + 1,
+          modifierGroups: []
+        }, data));
+        save();
+        openKey = catId;
+        render();
+        toast("Item added to menu");
+      } else {
+        Object.assign(existing, data);
+        save();
+        render();
+        toast("Item saved");
+      }
+      scrim.remove();
+    };
+
+    setTimeout(function () {
+      try { scrim.querySelector("#it-name").focus(); } catch (e) {}
+    }, 80);
+  }
+
+  /* ============================================================
+     CLICK DELEGATION
+     ============================================================ */
+  stack.addEventListener("click", function (e) {
+
+    var head = e.target.closest(".acc-head");
+    if (head) {
+      var acc = head.closest(".acc");
+      if (acc) toggleAccordion(acc.dataset.key);
+      return;
+    }
+
+    var itemCard = e.target.closest(".item[data-item]");
+    if (itemCard) {
+      var it = state.items.filter(function (x) { return x.id === itemCard.dataset.item; })[0];
+      if (it) itemModal(it, it.categoryId);
+      return;
+    }
+
+    var addItemBtn = e.target.closest("[data-add-item]");
+    if (addItemBtn) {
+      itemModal(null, addItemBtn.dataset.addItem);
+      return;
+    }
+
+    var editCatBtn = e.target.closest("[data-edit-cat]");
+    if (editCatBtn) {
+      var cat = state.categories.filter(function (c) { return c.id === editCatBtn.dataset.editCat; })[0];
+      if (cat) categoryModal(cat);
+      return;
+    }
+  });
+
+  /* links input */
+  stack.addEventListener("input", function (e) {
+    var el = e.target;
+    if (el && el.dataset && el.dataset.link) {
+      state.links[el.dataset.link] = el.value;
+      save();
+      var acc = el.closest(".acc");
+      if (acc) {
+        var sub = acc.querySelector(".acc-sub");
+        var linkCount = ["website","instagram","facebook","tiktok"].filter(function (k) {
+          return (state.links[k] || "").trim().length > 0;
+        }).length;
+        if (sub) {
+          sub.textContent = linkCount
+            ? (linkCount + " link" + (linkCount === 1 ? "" : "s") + " added")
+            : "Website · Instagram · Facebook · TikTok";
+        }
+        acc.classList.toggle("has-items", linkCount > 0);
+      }
+    }
+  });
+
+  /* ============================================================
+     BOTTOM ACTIONS
+     ============================================================ */
+  $("#btnAddCat").addEventListener("click", function () { categoryModal(null); });
+  $("#btnPreview").addEventListener("click", function () { toast("Preview would open your live menu"); });
+
+  /* live "last edited" ticker */
+  setInterval(renderMeta, 60000);
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  render();
+  openAccordion(null);
+
+})();
+</script>
+
+</body>
+</html>

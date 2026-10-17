@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+<title>Order manager · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --bg:#f4f5f7;
+    --ink:#0f1115;
+    --ink-2:#374151;
+    --muted:#6b7280;
+    --faint:#9aa1ac;
+    --line:#e6e8ec;
+    --brand:#ff5a1f;
+    --brand-dark:#e64a12;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:#e9ebef;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overflow:hidden;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button{font-family:inherit}
+
+  .app{
+    width:100%;
+    max-width:430px;
+    height:100vh;
+    height:100dvh;
+    background:var(--bg);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    box-shadow:0 0 44px rgba(15,17,21,.10);
+  }
+
+  /* ---------------- top bar ---------------- */
+  .topbar{
+    flex:0 0 auto;
+    padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
+    background:#fff;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:11px}
+  .logo{
+    width:36px;height:36px;flex:0 0 auto;border-radius:11px;
+    background:var(--brand);color:#fff;
+    display:grid;place-items:center;
+    font-weight:800;font-size:11.5px;letter-spacing:.03em;
+  }
+  .titles{flex:1 1 auto;min-width:0}
+  .titles h1{
+    margin:0;font-size:16px;line-height:1.2;
+    font-weight:700;letter-spacing:-.015em;
+  }
+  .titles p{
+    margin:3px 0 0;font-size:12px;color:var(--faint);
+    display:flex;align-items:center;gap:6px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .live-dot{
+    width:6px;height:6px;border-radius:50%;background:#16a34a;flex:0 0 auto;
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(22,163,74,.45)}
+    70%{box-shadow:0 0 0 7px rgba(22,163,74,0)}
+    100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}
+  }
+  .reset-btn{
+    flex:0 0 auto;
+    padding:7px 12px;border-radius:9px;
+    border:1px solid var(--line);background:#fff;
+    font-size:12px;font-weight:650;color:var(--muted);
+    cursor:pointer;touch-action:manipulation;
+    transition:background .15s,color .15s;
+  }
+  .reset-btn:active{background:#f1f2f4;color:var(--ink-2)}
+
+  /* ---------------- accordion stack ---------------- */
+  .stack{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+    padding:12px 14px calc(28px + env(safe-area-inset-bottom));
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .stack::-webkit-scrollbar{display:none}
+
+  .acc{
+    flex:0 0 auto;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:#dfe3e9;
+    box-shadow:0 2px 10px rgba(15,17,21,.055);
+  }
+
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:11px;
+    padding:16px 15px;
+    background:#fff;border:0;
+    font-size:15px;font-weight:650;letter-spacing:-.01em;
+    color:var(--ink);
+    text-align:left;
+    cursor:pointer;touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#fafbfc}
+  .acc.open .acc-head{border-bottom:1px solid var(--line)}
+
+  .acc-head .dot{
+    width:10px;height:10px;border-radius:50%;flex:0 0 auto;
+    transition:opacity .2s;
+  }
+  .acc-head .label{flex:1 1 auto;min-width:0}
+
+  .acc-head .count{
+    flex:0 0 auto;
+    min-width:28px;text-align:center;
+    padding:3px 10px;border-radius:999px;
+    background:#f1f2f4;
+    font-size:12.5px;font-weight:700;color:var(--muted);
+    transition:background .2s,color .2s;
+  }
+  .acc.open .acc-head .count{background:#0f1115;color:#fff}
+
+  .acc.is-empty .acc-head .label{color:var(--faint);font-weight:600}
+  .acc.is-empty .acc-head .dot{opacity:.3}
+
+  /* ---- collapsible body ---- */
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .3s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-body-inner{overflow:hidden;min-height:0}
+
+  .acc-list{
+    display:flex;flex-direction:column;gap:11px;
+    padding:12px;
+  }
+
+  .empty{
+    font-size:13px;color:var(--faint);text-align:center;
+    padding:18px 8px;
+    border:1px dashed #dcdfe5;border-radius:11px;
+    background:#fafbfc;
+  }
+
+  /* ---------------- order card ---------------- */
+  .card{
+    background:#f8f9fb;
+    border:1px solid #eceef2;
+    border-radius:12px;
+    padding:14px;
+    animation:cardin .22s ease;
+  }
+  @keyframes cardin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .card.is-cancelled{opacity:.7}
+
+  .card-top{
+    display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  }
+  .oid{font-size:16px;font-weight:750;letter-spacing:-.015em}
+  .time{font-size:12.5px;color:var(--faint);white-space:nowrap}
+
+  .cust{
+    font-size:15.5px;font-weight:600;color:var(--ink);
+    margin-top:4px;
+  }
+
+  .items{
+    list-style:none;margin:10px 0 0;padding:0;
+    display:flex;flex-direction:column;gap:4px;
+    font-size:14.5px;color:var(--ink-2);line-height:1.4;
+  }
+  .items li{position:relative;padding-left:13px}
+  .items li::before{
+    content:"";position:absolute;left:0;top:8px;
+    width:4px;height:4px;border-radius:50%;background:#c3c8d0;
+  }
+
+  .meta{
+    display:flex;align-items:baseline;gap:7px;
+    margin-top:12px;font-size:13.5px;color:var(--muted);
+  }
+  .meta .total{font-size:16px;font-weight:750;color:var(--ink)}
+  .meta .sep{color:#cbd0d8}
+  .meta .addr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  .actions{display:flex;gap:9px;margin-top:14px}
+  .btn{
+    border:1px solid transparent;border-radius:10px;
+    padding:12px 14px;
+    font-size:14px;font-weight:650;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;
+    cursor:pointer;touch-action:manipulation;
+    transition:transform .08s ease,background .15s,color .15s,border-color .15s;
+  }
+  .btn:active{transform:scale(.97)}
+  .btn-advance{flex:1 1 auto;background:var(--brand);color:#fff}
+  .btn-advance:active{background:var(--brand-dark)}
+  .btn-cancel{
+    flex:0 0 auto;
+    background:#fff;border-color:#e2e5ea;color:#8a9099;
+  }
+  .btn-cancel.armed{
+    background:#fee2e2;border-color:#fecaca;color:#b91c1c;
+  }
+
+  .stamp{
+    margin-top:12px;padding-top:10px;
+    border-top:1px dashed #e2e5ea;
+    font-size:13.5px;font-weight:700;
+    color:#16a34a;
+  }
+  .card.is-cancelled .stamp{color:#dc2626}
+
+  /* ---------------- add order button (in stack) ---------------- */
+  .add-btn{
+    align-self:center;
+    margin-top:16px;
+    height:52px;
+    padding:0 26px;
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    border:0;border-radius:999px;
+    background:var(--ink);color:#fff;
+    font-size:15px;font-weight:650;
+    box-shadow:0 8px 22px rgba(15,17,21,.22);
+    cursor:pointer;touch-action:manipulation;
+    transition:transform .1s ease,background .15s;
+  }
+  .add-btn:active{transform:scale(.97);background:#000}
+  .add-btn .plus{font-size:20px;line-height:1;margin-top:-2px;font-weight:400}
+
+  /* ---------------- toast ---------------- */
+  .toast{
+    position:fixed;left:50%;z-index:30;
+    bottom:calc(28px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:86vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">EO</div>
+      <div class="titles">
+        <h1>Order manager</h1>
+        <p><span class="live-dot"></span>The Food Place · live queue</p>
+      </div>
+      <button class="reset-btn" id="reset" type="button">Reset</button>
+    </div>
+  </header>
+
+  <main class="stack" id="stack"></main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ================= config ================= */
+  var STATUSES = [
+    { key: "new",        label: "New",        color: "#2563eb" },
+    { key: "accepted",   label: "Accepted",   color: "#7c3aed" },
+    { key: "preparing",  label: "Preparing",  color: "#d97706" },
+    { key: "ready",      label: "Ready",      color: "#0d9488" },
+    { key: "dispatched", label: "Dispatch",   color: "#0284c7" },
+    { key: "delivered",  label: "Delivered",  color: "#16a34a" },
+    { key: "cancelled",  label: "Cancelled",  color: "#dc2626" }
+  ];
+  var FLOW = ["new", "accepted", "preparing", "ready", "dispatched", "delivered"];
+  var ACTION = {
+    new:        "Accept",
+    accepted:   "Start preparing",
+    preparing:  "Mark ready",
+    ready:      "Dispatch order",
+    dispatched: "Mark delivered"
+  };
+  var TERMINAL = ["delivered", "cancelled"];
+  var KEY = "eatouts.ordermanager.v3";
+
+  /* ================= helpers ================= */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function money(n) { return "$" + (Number(n) || 0).toFixed(2); }
+  function minsAgo(m) { return Date.now() - m * 60000; }
+
+  function statusMeta(k) {
+    for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].key === k) return STATUSES[i];
+    return STATUSES[0];
+  }
+
+  function ago(ts) {
+    var s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+    if (s < 60) return s + "s ago";
+    var m = Math.floor(s / 60);
+    if (m < 60) return m + "m ago";
+    var h = Math.floor(m / 60);
+    if (h < 24) return h + "h ago";
+    return Math.floor(h / 24) + "d ago";
+  }
+
+  /* ================= seed ================= */
+  function seed() {
+    return [
+      { id:"1052", customer:"Maya R.",  items:["Chicken wrap ×2","Sweet potato fries","Cola"], total:24.50, delivery:"12 Oak St · Apt 4", created:minsAgo(1),  status:"new" },
+      { id:"1051", customer:"Daniel K.", items:["Margherita pizza","Garlic bread"],             total:19.00, delivery:"88 Pine Ave",       created:minsAgo(4),  status:"new" },
+      { id:"1050", customer:"Aisha N.",  items:["Beef burger","Onion rings","Lemonade"],        total:22.75, delivery:"5 Harbour Rd",      created:minsAgo(9),  status:"accepted" },
+      { id:"1049", customer:"Tom B.",    items:["Pad thai","Spring rolls"],                     total:18.20, delivery:"41 Elm St",         created:minsAgo(13), status:"accepted" },
+      { id:"1048", customer:"Grace L.",  items:["Sushi set ×2","Miso soup"],                    total:31.40, delivery:"7 Kingsway",        created:minsAgo(18), status:"preparing" },
+      { id:"1047", customer:"Omar S.",   items:["Chicken shawarma","Fries","Water"],            total:16.90, delivery:"203 River Rd",      created:minsAgo(22), status:"preparing" },
+      { id:"1046", customer:"Elena V.",  items:["Veggie bowl","Green tea"],                     total:14.00, delivery:"19 Maple Cres",     created:minsAgo(27), status:"ready" },
+      { id:"1045", customer:"Chris P.",  items:["Pepperoni pizza","Wings ×6"],                  total:27.60, delivery:"92 Station Rd",     created:minsAgo(34), status:"dispatched" },
+      { id:"1044", customer:"Nadia F.",  items:["Falafel wrap","Hummus"],                       total:13.25, delivery:"3 Birch Ln",        created:minsAgo(52), status:"delivered" },
+      { id:"1043", customer:"Liam O.",   items:["Steak sandwich","Iced tea"],                   total:20.10, delivery:"64 Cedar Ave",      created:minsAgo(68), status:"delivered" },
+      { id:"1042", customer:"Sara M.",   items:["Ramen","Gyoza"],                               total:21.00, delivery:"11 Willow St",      created:minsAgo(83), status:"cancelled" }
+    ];
+  }
+
+  /* ================= state ================= */
+  var orders;
+  try {
+    var raw = localStorage.getItem(KEY);
+    var parsed = raw ? JSON.parse(raw) : null;
+    orders = (Array.isArray(parsed) && parsed.length && parsed.every(function (o) {
+      return o && o.id && o.status;
+    })) ? parsed : seed();
+  } catch (e) { orders = seed(); }
+
+  var openKey = null;   // single-open accordion
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(orders)); } catch (e) {}
+  }
+
+  /* ================= dom refs ================= */
+  var stack = $("#stack");
+  var toastEl = $("#toast");
+  var toastTimer = null;
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 1900);
+  }
+
+  /* ================= templates ================= */
+  function cardHTML(o) {
+    var terminal = TERMINAL.indexOf(o.status) > -1;
+    var action = ACTION[o.status] || "";
+    var items = (o.items || []).map(function (i) {
+      return "<li>" + esc(i) + "</li>";
+    }).join("");
+
+    return '' +
+      '<article class="card' + (o.status === "cancelled" ? " is-cancelled" : "") +
+        '" data-id="' + esc(o.id) + '">' +
+
+        '<div class="card-top">' +
+          '<span class="oid">#' + esc(o.id) + '</span>' +
+          '<span class="time" data-ts="' + o.created + '">' + ago(o.created) + '</span>' +
+        '</div>' +
+
+        '<div class="cust">' + esc(o.customer) + '</div>' +
+
+        '<ul class="items">' + items + '</ul>' +
+
+        '<div class="meta">' +
+          '<span class="total">' + money(o.total) + '</span>' +
+          '<span class="sep">·</span>' +
+          '<span class="addr">' + esc(o.delivery) + '</span>' +
+        '</div>' +
+
+        (terminal
+          ? '<div class="stamp">' +
+              (o.status === "delivered" ? "Delivered" : "Cancelled") +
+            '</div>'
+          : '<div class="actions">' +
+              '<button class="btn btn-advance" type="button" data-next="' + esc(o.id) + '">' +
+                esc(action) +
+              '</button>' +
+              '<button class="btn btn-cancel" type="button" data-cancel="' + esc(o.id) +
+                '" aria-label="Cancel order ' + esc(o.id) + '">Cancel</button>' +
+            '</div>') +
+
+      '</article>';
+  }
+
+  function accHTML(s) {
+    var list = orders.filter(function (o) { return o.status === s.key; })
+                     .sort(function (a, b) { return b.created - a.created; });
+
+    var isOpen = openKey === s.key;
+
+    return '' +
+      '<section class="acc' + (isOpen ? " open" : "") +
+        (list.length ? "" : " is-empty") + '" data-status="' + s.key + '">' +
+
+        '<button class="acc-head" type="button" aria-expanded="' + isOpen + '">' +
+          '<span class="dot" style="background:' + s.color + '"></span>' +
+          '<span class="label">' + esc(s.label) + '</span>' +
+          '<span class="count">' + list.length + '</span>' +
+        '</button>' +
+
+        '<div class="acc-body">' +
+          '<div class="acc-body-inner">' +
+            '<div class="acc-list">' +
+              (list.length
+                ? list.map(cardHTML).join("")
+                : '<div class="empty">No orders</div>') +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+      '</section>';
+  }
+
+  /* ================= render ================= */
+  function render() {
+    var prevScroll = stack.scrollTop;
+    stack.innerHTML =
+      STATUSES.map(accHTML).join("") +
+      '<button class="add-btn" id="addDemo" type="button">' +
+        '<span class="plus">+</span> New order' +
+      '</button>';
+    stack.scrollTop = prevScroll;
+  }
+
+  /* ================= accordion toggling ================= */
+  function closeAll() {
+    var open = stack.querySelectorAll(".acc.open");
+    for (var i = 0; i < open.length; i++) {
+      open[i].classList.remove("open");
+      var h = open[i].querySelector(".acc-head");
+      if (h) h.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  function openAcc(acc) {
+    acc.classList.add("open");
+    var h = acc.querySelector(".acc-head");
+    if (h) h.setAttribute("aria-expanded", "true");
+  }
+
+  /* ================= actions ================= */
+  function advance(id) {
+    var o = null;
+    for (var i = 0; i < orders.length; i++) if (orders[i].id === id) o = orders[i];
+    if (!o) return;
+
+    var idx = FLOW.indexOf(o.status);
+    if (idx < 0 || idx >= FLOW.length - 1) return;
+
+    o.status = FLOW[idx + 1];
+    o.updated = Date.now();
+    save();
+    render();
+    toast("#" + o.id + " · " + statusMeta(o.status).label);
+  }
+
+  function cancel(id) {
+    var o = null;
+    for (var i = 0; i < orders.length; i++) if (orders[i].id === id) o = orders[i];
+    if (!o || TERMINAL.indexOf(o.status) > -1) return;
+
+    o.status = "cancelled";
+    o.updated = Date.now();
+    save();
+    render();
+    toast("#" + o.id + " cancelled");
+  }
+
+  /* ================= events ================= */
+  stack.addEventListener("click", function (e) {
+
+    /* ---- add demo order ---- */
+    if (e.target.closest("#addDemo")) {
+      addDemo();
+      return;
+    }
+
+    /* ---- accordion header ---- */
+    var head = e.target.closest(".acc-head");
+    if (head) {
+      var acc = head.closest(".acc");
+      var key = acc.dataset.status;
+
+      if (openKey === key) {
+        openKey = null;
+        acc.classList.remove("open");
+        head.setAttribute("aria-expanded", "false");
+      } else {
+        closeAll();
+        openKey = key;
+        openAcc(acc);
+        setTimeout(function () {
+          if (!acc.isConnected) return;
+          try { acc.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (err) {}
+        }, 320);
+      }
+      return;
+    }
+
+    /* ---- advance ---- */
+    var nextBtn = e.target.closest("[data-next]");
+    if (nextBtn) {
+      advance(nextBtn.dataset.next);
+      return;
+    }
+
+    /* ---- cancel (two-tap confirm) ---- */
+    var cancelBtn = e.target.closest("[data-cancel]");
+    if (!cancelBtn) return;
+
+    if (cancelBtn.dataset.armed === "1") {
+      cancel(cancelBtn.dataset.cancel);
+      return;
+    }
+
+    cancelBtn.dataset.armed = "1";
+    cancelBtn.textContent = "Tap again";
+    cancelBtn.classList.add("armed");
+
+    setTimeout(function () {
+      if (!cancelBtn.isConnected) return;
+      delete cancelBtn.dataset.armed;
+      cancelBtn.textContent = "Cancel";
+      cancelBtn.classList.remove("armed");
+    }, 2600);
+  });
+
+  /* ================= demo order generator ================= */
+  var NAMES   = ["Alex T.","Priya S.","Marco D.","Zoe H.","Ben C.","Lena W.","Ivan K.","Ruby J.","Noah G.","Farah A."];
+  var STREETS = ["12 Oak St","88 Pine Ave","5 Harbour Rd","41 Elm St","7 Kingsway","203 River Rd","19 Maple Cres","92 Station Rd"];
+  var DISHES  = [
+    { items:["Chicken wrap ×2","Fries","Cola"],     total:24.50 },
+    { items:["Margherita pizza","Garlic bread"],    total:19.00 },
+    { items:["Beef burger","Onion rings"],          total:17.40 },
+    { items:["Pad thai","Spring rolls"],            total:18.20 },
+    { items:["Sushi set","Miso soup"],              total:26.80 },
+    { items:["Veggie bowl","Green tea"],            total:14.00 },
+    { items:["Chicken shawarma","Fries"],           total:15.90 },
+    { items:["Ramen","Gyoza"],                      total:21.00 }
+  ];
+
+  function nextId() {
+    var max = 1041;
+    for (var i = 0; i < orders.length; i++) {
+      var n = parseInt(orders[i].id, 10);
+      if (!isNaN(n) && n > max) max = n;
+    }
+    return String(max + 1);
+  }
+
+  function addDemo() {
+    var dish   = DISHES[Math.floor(Math.random() * DISHES.length)];
+    var name   = NAMES[Math.floor(Math.random() * NAMES.length)];
+    var street = STREETS[Math.floor(Math.random() * STREETS.length)];
+
+    var o = {
+      id: nextId(),
+      customer: name,
+      items: dish.items.slice(),
+      total: dish.total,
+      delivery: street,
+      created: Date.now(),
+      status: "new"
+    };
+
+    orders.push(o);
+    save();
+
+    /* open the New accordion so the new order is visible */
+    openKey = "new";
+    render();
+    stack.scrollTo({ top: 0, behavior: "smooth" });
+    toast("New order #" + o.id + " · " + name);
+  }
+
+  $("#reset").addEventListener("click", function () {
+    orders = seed();
+    openKey = null;
+    save();
+    render();
+    stack.scrollTo({ top: 0, behavior: "smooth" });
+    toast("Demo data reset");
+  });
+
+  /* ================= live clock ================= */
+  setInterval(function () {
+    var els = document.querySelectorAll("[data-ts]");
+    for (var i = 0; i < els.length; i++) {
+      els[i].textContent = ago(Number(els[i].dataset.ts));
+    }
+  }, 10000);
+
+  /* ================= boot ================= */
+  render();
+})();
+</script>
+</body>
+</html>

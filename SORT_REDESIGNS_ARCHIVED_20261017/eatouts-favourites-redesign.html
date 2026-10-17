@@ -1,0 +1,1277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Favourites · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --blue:#0284C7;
+    --blue-soft:#E0F2FE;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* ============ TOPBAR ============ */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 14px;
+    position:relative;
+    z-index:10;
+  }
+  .topbar-row{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:13px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+
+  .progress{padding-bottom:2px}
+  .progress-top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:11px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .progress-count{
+    font-size:11.5px;font-weight:800;
+    color:var(--orange-2);
+    letter-spacing:.02em;
+  }
+  .progress-track{
+    height:5px;border-radius:99px;
+    background:rgba(255,255,255,.13);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ============ SCROLL ============ */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ============ INTRO ============ */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* ============ SHEET ============ */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+    min-height:60vh;
+  }
+
+  /* ============ META CARD ============ */
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .meta-row{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:11px;
+  }
+  .meta-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .meta-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .meta-dot.warn{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+  .meta-dot.red{background:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+  .meta-text{
+    font-size:13.5px;
+    color:var(--ink-2);
+    line-height:1.4;
+    min-width:0;
+    flex:1 1 auto;
+  }
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding-top:11px;
+    border-top:1px solid var(--line-2);
+  }
+  .stat{text-align:center}
+  .stat b{
+    display:block;
+    font-size:19px;font-weight:850;
+    letter-spacing:-.03em;
+    color:var(--ink);
+    line-height:1.1;
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .stat span{
+    display:block;
+    margin-top:3px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* ============ ACCORDION STACK ============ */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+  .acc.has-items .acc-sub{color:var(--green);font-weight:650}
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:13px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+
+  .sec-thumb{
+    width:48px;height:48px;flex:0 0 auto;
+    border-radius:11px;
+    background:var(--orange-soft);
+    color:var(--orange);
+    display:grid;place-items:center;
+    font-size:18px;font-weight:850;
+    letter-spacing:-.02em;
+    position:relative;
+  }
+  .sec-thumb.plain{
+    background:#F0F1F4;color:var(--faint);
+  }
+  .sec-thumb .count{
+    position:absolute;
+    bottom:3px;right:3px;
+    background:rgba(15,15,18,.72);
+    color:#fff;
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:.02em;
+    padding:1.5px 5px;
+    border-radius:4px;
+    line-height:1;
+  }
+
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .acc-title b{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font-weight:550;
+  }
+
+  .vis-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .vis-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .vis-dot.off{background:#D3D7DE;box-shadow:none}
+
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+
+  .module{padding:2px 15px 18px}
+
+  /* ============ FAVOURITE ROW (90px thumbnail) ============ */
+  .fav-row{
+    display:flex;
+    gap:12px;
+    padding:12px;
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:12px;
+    margin-bottom:8px;
+    align-items:flex-start;
+  }
+  .fav-row:last-child{margin-bottom:0}
+
+  .fav-thumb{
+    width:90px;height:90px;flex:0 0 auto;
+    border-radius:12px;
+    background:linear-gradient(145deg,#FFF3EC,#FFE2D2);
+    color:var(--orange);
+    display:grid;place-items:center;
+    font-size:30px;font-weight:850;
+    letter-spacing:-.03em;
+    overflow:hidden;
+    position:relative;
+    border:0;padding:0;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .fav-thumb img{
+    width:100%;height:100%;
+    object-fit:cover;display:block;
+  }
+  .fav-thumb .ph{
+    width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:30px;
+  }
+
+  .fav-body{
+    flex:1 1 auto;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .fav-title{
+    font-size:14px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    line-height:1.3;
+    word-break:break-word;
+    margin:0;
+  }
+  .fav-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    font-weight:550;
+    line-height:1.35;
+    margin:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    word-break:break-word;
+  }
+  .fav-price{
+    font-size:13px;
+    font-weight:850;
+    color:var(--orange);
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-.01em;
+    margin-top:2px;
+  }
+  .fav-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:6px;
+  }
+
+  .mini-btn{
+    height:32px;
+    padding:0 12px;
+    border-radius:9px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink-2);
+    font-size:11.5px;
+    font-weight:750;
+    letter-spacing:-.005em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s;
+  }
+  .mini-btn:active{background:#F4F5F7}
+  .mini-btn.orange{
+    border-color:transparent;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 4px 12px -6px rgba(255,90,31,.55);
+  }
+  .mini-btn.orange:active{background:var(--orange)}
+  .mini-btn.danger{
+    color:var(--red);
+    border-color:#FECACA;
+    background:#FEF2F2;
+  }
+  .mini-btn.danger:active{background:var(--red-soft)}
+
+  /* Inline items list */
+  .items-list{
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px solid var(--line-2);
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .items-list ul{
+    margin:0;
+    padding-left:16px;
+  }
+  .items-list li{margin-bottom:2px}
+
+  /* Load more button */
+  .load-more{
+    display:block;
+    width:100%;
+    height:42px;
+    border-radius:11px;
+    border:1.5px dashed #D3D7DE;
+    background:#fff;
+    color:var(--orange);
+    font-size:13px;
+    font-weight:750;
+    margin-top:8px;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;
+  }
+  .load-more:active{background:var(--orange-soft);border-color:var(--orange-line)}
+
+  /* Empty state inside accordion */
+  .empty-note{
+    font-size:12.5px;
+    color:var(--faint);
+    text-align:center;
+    padding:18px 14px;
+    border:1.5px dashed #DCE0E6;
+    border-radius:11px;
+    background:#FAFBFC;
+    line-height:1.5;
+  }
+  .empty-note b{color:var(--ink-2);font-weight:750}
+
+  /* ============ DETAIL SHEET ============ */
+  #fdbs{
+    display:none;
+    position:absolute;
+    inset:0;
+    background:rgba(15,15,18,.55);
+    z-index:100;
+    align-items:flex-end;
+    justify-content:center;
+    animation:fade .18s ease;
+  }
+  #fdbs.on{display:flex}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  .fdbsheet{
+    background:#fff;
+    width:100%;
+    max-height:86vh;
+    border-radius:20px 20px 0 0;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    animation:slideup .25s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+
+  .fdbimg{
+    width:100%;
+    aspect-ratio:16/9;
+    background:#F0F1F4;
+    object-fit:cover;
+    display:block;
+    flex:0 0 auto;
+  }
+  .fdbph{
+    width:100%;
+    aspect-ratio:16/9;
+    background:linear-gradient(145deg,#FFF3EC,#FFE2D2);
+    color:var(--orange);
+    display:grid;
+    place-items:center;
+    font-size:52px;
+    font-weight:850;
+    flex:0 0 auto;
+  }
+  .fdbbody{
+    padding:16px 18px;
+    overflow-y:auto;
+    flex:1 1 auto;
+    min-height:0;
+    -webkit-overflow-scrolling:touch;
+  }
+  .fdbbody::-webkit-scrollbar{display:none}
+  .fdbbody h3{
+    margin:0 0 4px;
+    font-size:17px;
+    font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--ink);
+    line-height:1.3;
+  }
+  .fdbbody .sub{
+    font-size:12.5px;
+    color:var(--faint);
+    font-weight:650;
+    margin-bottom:12px;
+    line-height:1.45;
+  }
+  .fdbbody .desc{
+    font-size:13px;
+    color:var(--ink-2);
+    line-height:1.55;
+  }
+  .fdbbody .desc strong{
+    display:block;
+    font-size:11.5px;
+    font-weight:800;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .fdbbody .desc ul{
+    margin:0;
+    padding-left:18px;
+  }
+  .fdbbody .desc li{margin-bottom:3px}
+
+  .fdbfoot{
+    padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);
+    display:flex;
+    gap:9px;
+    background:#FAFBFC;
+    flex:0 0 auto;
+    flex-wrap:wrap;
+  }
+  .fdbfoot .btn{
+    flex:1 1 auto;
+    min-width:0;
+    height:48px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    border:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .1s ease,background .15s;
+  }
+  .fdbfoot .btn:active{transform:scale(.98)}
+  .fdbfoot .btn.half{flex:1 1 40%}
+  .fdbfoot .btn.primary{
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+  }
+  .fdbfoot .btn.danger{
+    background:#FEF2F2;
+    border:1px solid #FECACA!important;
+    color:var(--red);
+  }
+  .fdbfoot .btn.ghost{
+    background:#F4F5F7;
+    border:1px solid var(--line)!important;
+    color:var(--ink-2);
+  }
+
+  /* ============ TOAST ============ */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(28px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body data-page="eatouts-favourites">
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip">Favourites</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Saved across EatOuts</span>
+        <span class="progress-count" id="progressCount">—</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro" id="intro">
+      <h1>Your <em>favourites</em>.</h1>
+      <p>Saved restaurants, menus, items, drinks, promos, events, gallery images and summaries.</p>
+    </section>
+    <main class="sheet" id="app"></main>
+  </div>
+
+  <div id="fdbs" role="dialog" aria-modal="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="js/eatouts-manager-db.js"></script>
+<script src="assets/data/demo/the-food-place/demo-data.js"></script>
+<script src="js/eatouts-manager-seed.js"></script>
+<script src="js/eatouts-roles.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-feedback.js"></script>
+<script src="js/eatouts-blog-admin.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-manager.js"></script>
+<script src="js/eatouts-customer.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  /* ============================================================
+     AUTH
+     ============================================================ */
+  var S = window.EatoutsCustomer;
+  var user = S && S.getUser && S.getUser();
+  if (!user){ location.href = "eatouts-login.html"; return; }
+  var uid = user.id || user.userId || "";
+
+  /* ============================================================
+     CONFIG
+     ============================================================ */
+  var TABS = [
+    { id:"promo",      label:"Promos",         letter:"P", icon:"🏷" },
+    { id:"restaurant", label:"Restaurants",    letter:"R", icon:"🍽" },
+    { id:"menu",       label:"Food Menus",     letter:"M", icon:"📋" },
+    { id:"item",       label:"Food Items",     letter:"I", icon:"🍔" },
+    { id:"drink",      label:"Drink Items",    letter:"D", icon:"🥤" },
+    { id:"event",      label:"Events",         letter:"E", icon:"📅" },
+    { id:"gallery",    label:"Gallery",        letter:"G", icon:"🖼" },
+    { id:"summary",    label:"Saved Summaries",letter:"S", icon:"🧾" }
+  ];
+  var PAGE = 8;
+  var ADDABLE = { promo:1, menu:1, item:1, drink:1 };
+
+  /* Only one accordion open at a time */
+  var OPEN = null;
+
+  /* Per-section "shown" count so each remembers how much is loaded */
+  var shownMap = {};
+  /* Currently open detail sheet: {type, ref} or null */
+  var ov = null;
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function esc(v){
+    return String(v == null ? "" : v)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function escapeAttr(v){ return esc(v).replace(/`/g,"&#96;"); }
+  function cssEscape(s){ return String(s).replace(/["\\]/g, '\\$&'); }
+
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2000);
+  }
+
+  function tabMeta(id){
+    for (var i = 0; i < TABS.length; i++) if (TABS[i].id === id) return TABS[i];
+    return TABS[0];
+  }
+
+  /* ============================================================
+     DATA ACCESS (preserved from original)
+     ============================================================ */
+  function storeRows(t){ return S && S.favourites ? S.favourites.list(t) : []; }
+  function legacyRows(t){
+    return EatoutsMgrDB.collection("favourites").filter(function(x){
+      return (!uid || String(x.userId || "") === String(uid) || !x.userId) && x.type === t;
+    });
+  }
+  function dedupe(a){
+    var seen = {};
+    return a.filter(function(x){
+      var k = String(x.type) + ":" + String(x.refId || x.ref_id || x.id);
+      if (seen[k]) return false;
+      seen[k] = 1; return true;
+    });
+  }
+  function norm(x){
+    return {
+      type:      x.type || OPEN,
+      refId:     x.refId || x.ref_id || x.ref || x.id,
+      title:     x.title || x.venueName || x.refId || "Saved",
+      subtitle:  x.subtitle || "",
+      price:     (x.price != null ? x.price : (x.total != null ? x.total : null)),
+      imageRef:  x.imageRef || x.image_ref || x.venueLogo || null,
+      venueId:   x.venueId || x.venue_id || null,
+      payload:   x.payload || null,
+      source:    x.source || null,
+      id:        x.id || null,
+      legacy:    !!x.legacy
+    };
+  }
+  function rows(t){
+    var a = [];
+    if (t === "event") {
+      a = dedupe(storeRows("event").map(norm).concat((S.events ? S.events.list() : []).map(norm)));
+    } else if (t === "drink") {
+      a = dedupe(storeRows("beverage").map(norm).concat(storeRows("bottle_store").map(norm)));
+    } else if (t === "summary") {
+      a = (S.summaries ? S.summaries.list() : []).map(norm);
+    } else {
+      a = storeRows(t).map(norm);
+    }
+    if (a.length) return a;
+    return legacyRows(t).map(function(x){ x.legacy = true; return norm(x); });
+  }
+  function itemList(row){
+    var p = row.payload || {};
+    if (Array.isArray(p.items) && p.items.length){
+      return p.items.map(function(it){
+        return typeof it === "string"
+          ? { name: it, price: 0 }
+          : { name: it.name || "", price: Number(it.price) || 0 };
+      });
+    }
+    return null;
+  }
+  function findRow(ref, type){
+    return rows(type).filter(function(x){
+      return String(x.refId) === String(ref) && x.type === type;
+    })[0] || null;
+  }
+
+  /* ============================================================
+     ROW CARD (90px thumbnail)
+     ============================================================ */
+  function rowCard(row){
+    var list = itemList(row);
+    var price = (row.price != null && row.price !== "") ? ("P" + Number(row.price).toFixed(2)) : "";
+    var meta = tabMeta(row.type);
+
+    var thumbInner = row.imageRef
+      ? '<img src="' + escapeAttr(row.imageRef) + '" alt="">'
+      : '<span class="ph">' + esc(meta.icon) + '</span>';
+
+    var canAdd   = !!ADDABLE[row.type];
+    var canItems = !!list || row.type === "menu";
+
+    var actions = '';
+    if (canItems) {
+      actions += '<button class="mini-btn" type="button" data-items="' + escapeAttr(row.refId) + '">Items</button>';
+    }
+    if (canAdd) {
+      actions += '<button class="mini-btn orange" type="button" data-add="' + escapeAttr(row.refId) + '">Add</button>';
+    } else {
+      actions += '<button class="mini-btn" type="button" data-view="' + escapeAttr(row.refId) + '">View</button>';
+    }
+    actions += '<button class="mini-btn danger" type="button" data-remove="' + escapeAttr(row.refId) + '">Remove</button>';
+
+    var itemsHTML = list
+      ? '<div class="items-list" data-items-list="' + escapeAttr(row.refId) + '" hidden>' +
+          '<ul>' + list.slice(0, 20).map(function(n){
+            return '<li>' + esc(n.name) + (n.price ? ' · P' + Number(n.price).toFixed(2) : '') + '</li>';
+          }).join('') + '</ul>' +
+        '</div>'
+      : '';
+
+    return '<div class="fav-row" data-ref="' + escapeAttr(row.refId) + '" data-type="' + escapeAttr(row.type) + '"' +
+      (row.legacy ? ' data-legacy="1"' : '') + '>' +
+      '<button class="fav-thumb" type="button" data-view="' + escapeAttr(row.refId) + '" aria-label="View details">' +
+        thumbInner +
+      '</button>' +
+      '<div class="fav-body">' +
+        '<div class="fav-title">' + esc(row.title) + '</div>' +
+        (row.subtitle ? '<div class="fav-sub">' + esc(row.subtitle) + '</div>' : '') +
+        (price ? '<div class="fav-price">' + esc(price) + '</div>' : '') +
+        '<div class="fav-actions">' + actions + '</div>' +
+        itemsHTML +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ============================================================
+     SECTION BUILDER
+     ============================================================ */
+  function sectionSub(tabId, count){
+    if (!count) return "Nothing saved yet";
+    var list = rows(tabId);
+    var first = list[0];
+    var suffix = count === 1 ? "" : "s";
+    return count + " item" + suffix + (first ? " · " + first.title : "");
+  }
+
+  function sectionBody(tabId){
+    var all = rows(tabId);
+    var shown = shownMap[tabId] || PAGE;
+    var slice = all.slice(0, shown);
+
+    if (!all.length){
+      return '<div class="module"><div class="empty-note">No saved ' + esc(tabMeta(tabId).label.toLowerCase()) +
+             ' yet.<br><b>Items you save</b> while browsing EatOuts appear here.</div></div>';
+    }
+
+    var html = '<div class="module">' + slice.map(rowCard).join('');
+    if (all.length > shown){
+      html += '<button class="load-more" type="button" data-load="' + escapeAttr(tabId) + '">Load more (' +
+              (all.length - shown) + ' more)</button>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function sectionHTML(tab){
+    var isOpen = OPEN === tab.id;
+    var all = rows(tab.id);
+    var count = all.length;
+    var cls = 'acc' + (isOpen ? ' open' : '') + (count ? ' has-items' : '');
+
+    var countBadge = count > 0 ? '<span class="count">' + count + '</span>' : '';
+
+    return '<section class="' + cls + '" data-key="' + escapeAttr(tab.id) + '">' +
+      '<button class="acc-head" type="button" aria-expanded="' + (isOpen ? 'true' : 'false') + '">' +
+        '<span class="sec-thumb' + (count ? '' : ' plain') + '">' + esc(tab.letter) + countBadge + '</span>' +
+        '<span class="acc-title">' +
+          '<b>' + esc(tab.label) + '</b>' +
+          '<span class="acc-sub">' + esc(sectionSub(tab.id, count)) + '</span>' +
+        '</span>' +
+        '<span class="vis-dot ' + (count ? 'green' : 'off') + '"></span>' +
+      '</button>' +
+      '<div class="acc-body">' +
+        '<div class="acc-inner">' + sectionBody(tab.id) + '</div>' +
+      '</div>' +
+    '</section>';
+  }
+
+  /* ============================================================
+     META CARD + PROGRESS
+     ============================================================ */
+  function totalCount(){
+    return TABS.reduce(function(sum, t){ return sum + rows(t.id).length; }, 0);
+  }
+  function categoriesWithItems(){
+    return TABS.filter(function(t){ return rows(t.id).length > 0; }).length;
+  }
+
+  function renderMeta(){
+    var total = totalCount();
+    var filled = categoriesWithItems();
+
+    var dotClass, msg;
+    if (total === 0){
+      dotClass = "warn";
+      msg = "Nothing saved yet";
+    } else {
+      dotClass = "green";
+      msg = "<b>" + total + "</b> saved item" + (total === 1 ? "" : "s") +
+            " across " + filled + " categor" + (filled === 1 ? "y" : "ies");
+    }
+
+    return '<div class="meta-card">' +
+      '<div class="meta-row">' +
+        '<span class="meta-dot ' + dotClass + '"></span>' +
+        '<span class="meta-text">' + msg + '</span>' +
+      '</div>' +
+      '<div class="meta-stats">' +
+        '<div class="stat"><b>' + total + '</b><span>Saved</span></div>' +
+        '<div class="stat"><b>' + filled + '</b><span>Categories</span></div>' +
+        '<div class="stat"><b>' + TABS.length + '</b><span>Available</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function updateProgress(){
+    var total = totalCount();
+    var pct = total ? Math.min(100, Math.round((total / 20) * 100)) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressCount').textContent =
+      total + ' saved item' + (total === 1 ? '' : 's');
+  }
+
+  /* ============================================================
+     MAIN RENDER
+     ============================================================ */
+  var mount = document.getElementById('app');
+
+  function render(){
+    mount.innerHTML =
+      renderMeta() +
+      '<div class="stack">' + TABS.map(sectionHTML).join('') + '</div>';
+    updateProgress();
+    renderSheet();
+  }
+
+  /* ============================================================
+     ACCORDION BEHAVIOUR — only one open at a time
+     ============================================================ */
+  function toggleAccordion(key){
+    OPEN = (OPEN === key) ? null : key;
+    var accs = mount.querySelectorAll('.acc');
+    for (var i = 0; i < accs.length; i++){
+      var acc = accs[i];
+      var isOpen = acc.getAttribute('data-key') === OPEN;
+      acc.classList.toggle('open', isOpen);
+      var head = acc.querySelector('.acc-head');
+      if (head) head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    if (OPEN){
+      var opened = mount.querySelector('.acc[data-key="' + cssEscape(OPEN) + '"]');
+      if (opened){
+        setTimeout(function(){
+          try { opened.scrollIntoView({ behavior:'smooth', block:'start' }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+
+  /* Re-render only one section body in place (keeps others intact) */
+  function refreshSection(tabId){
+    var acc = mount.querySelector('.acc[data-key="' + cssEscape(tabId) + '"]');
+    if (!acc) return;
+    var inner = acc.querySelector('.acc-inner');
+    if (inner) inner.innerHTML = sectionBody(tabId);
+
+    /* Update the sub-line and count badge */
+    var all = rows(tabId);
+    var count = all.length;
+    var sub = acc.querySelector('.acc-sub');
+    if (sub) sub.textContent = sectionSub(tabId, count);
+    var thumb = acc.querySelector('.sec-thumb');
+    if (thumb){
+      var tab = tabMeta(tabId);
+      var badge = thumb.querySelector('.count');
+      if (count > 0){
+        if (!badge){
+          badge = document.createElement('span');
+          badge.className = 'count';
+          thumb.appendChild(badge);
+        }
+        badge.textContent = count;
+        thumb.classList.remove('plain');
+      } else {
+        if (badge) badge.remove();
+        thumb.classList.add('plain');
+      }
+    }
+    acc.classList.toggle('has-items', count > 0);
+  }
+
+  /* ============================================================
+     DETAIL SHEET
+     ============================================================ */
+  function sourceHref(row){
+    if (row.type === "event")      return "eatouts-events.html";
+    if (row.type === "gallery")    return "eatouts-gallery.html";
+    if (row.type === "summary")    return "eatouts-checkout-summary.html";
+    if (row.type === "restaurant" || row.type === "menu" || row.type === "item") return "index.html#restaurants";
+    if (row.type === "drink")      return "index.html#restaurants";
+    if (row.type === "promo")      return "index.html#promos";
+    return "index.html";
+  }
+
+  function renderSheet(){
+    var host = document.getElementById("fdbs");
+    if (!host) return;
+
+    if (!ov){
+      host.classList.remove("on");
+      host.innerHTML = "";
+      return;
+    }
+
+    var row = findRow(ov.ref, ov.type) || ov.snapshot;
+    if (!row){
+      ov = null;
+      host.classList.remove("on");
+      host.innerHTML = "";
+      return;
+    }
+
+    var list = itemList(row);
+    var price = (row.price != null && row.price !== "") ? ("P" + Number(row.price).toFixed(2)) : "";
+    var meta = tabMeta(row.type);
+
+    var heroHTML = row.imageRef
+      ? '<img class="fdbimg" src="' + escapeAttr(row.imageRef) + '" alt="">'
+      : '<div class="fdbph">' + esc(meta.icon) + '</div>';
+
+    var itemsHTML = list
+      ? '<div class="desc"><strong>Items</strong><ul>' +
+          list.map(function(n){
+            return '<li>' + esc(n.name) + (n.price ? ' · P' + Number(n.price).toFixed(2) : '') + '</li>';
+          }).join('') + '</ul></div>'
+      : '';
+
+    var addBtn = ADDABLE[row.type]
+      ? '<button class="btn primary half" type="button" data-add-sheet>Add</button>'
+      : '';
+
+    host.innerHTML =
+      '<div class="fdbsheet">' +
+        heroHTML +
+        '<div class="fdbbody">' +
+          '<h3>' + esc(row.title) + '</h3>' +
+          '<div class="sub">' + esc(row.subtitle || "") + (price ? " · " + price : "") + '</div>' +
+          itemsHTML +
+        '</div>' +
+        '<div class="fdbfoot">' +
+          addBtn +
+          '<a class="btn half ghost" href="' + sourceHref(row) + '">Open</a>' +
+          '<button class="btn half danger" type="button" data-remove-sheet>Remove</button>' +
+          '<button class="btn half ghost" type="button" data-close-sheet>Close</button>' +
+        '</div>' +
+      '</div>';
+
+    host.classList.add("on");
+  }
+
+  /* ============================================================
+     ADD TO ORDER (preserved)
+     ============================================================ */
+  function addToOrder(row){
+    var order = null;
+    try {
+      var raw = localStorage.getItem("eatouts_order_v1");
+      order = raw ? JSON.parse(raw) : null;
+    } catch (e) { order = null; }
+
+    if (!order || !order.restaurant){
+      order = {
+        v: 1,
+        source: "favourites",
+        restaurant: {
+          id: row.venueId || "",
+          name: (row.subtitle || "EatOuts"),
+          meta: "",
+          logo: null,
+          whatsapp: ""
+        },
+        contact: { name:"", phone:"", notes:"" },
+        items: [],
+        subtotal: 0,
+        split: null,
+        delivery: null
+      };
+    }
+
+    var lines;
+    var list = itemList(row);
+    if (row.type === "menu" && list) {
+      lines = list.map(function(n){ return { name:n.name, unit:Number(n.price) || 0 }; });
+    } else {
+      lines = [{ name: row.title, size: (row.payload && row.payload.size) || null, unit: Number(row.price) || 0 }];
+    }
+
+    lines.forEach(function(l){
+      var u = Number(l.unit || row.price) || 0;
+      order.items.push({
+        name: l.name,
+        size: l.size || null,
+        qty: 1,
+        unit: u,
+        extras: [],
+        lineTotal: u
+      });
+    });
+
+    order.subtotal = order.items.reduce(function(s, x){ return s + (Number(x.lineTotal) || 0); }, 0);
+
+    try { localStorage.setItem("eatouts_order_v1", JSON.stringify(order)); } catch (e) {}
+
+    location.href = "customer-delivery.html";
+  }
+
+  /* ============================================================
+     REMOVE
+     ============================================================ */
+  function removeRow(row){
+    if (!EO.confirm("Remove this from your favourites?")) return;
+
+    if (row.legacy){
+      var m = legacyRows(row.type).filter(function(x){
+        return String(x.refId || x.id) === String(row.refId);
+      })[0];
+      if (m) EatoutsMgrDB.remove("favourites", m.id);
+    } else if (row.type === "summary"){
+      S.summaries.remove(row.id || row.refId);
+    } else if (row.type === "event" && row.source){
+      try { S.events.remove(row.refId); } catch (e) {}
+    } else {
+      S.favourites.remove({ type: row.type, refId: row.refId });
+    }
+
+    ov = null;
+    render();
+  }
+
+  /* ============================================================
+     CLICK DELEGATION
+     ============================================================ */
+  mount.addEventListener("click", function(e){
+
+    /* Load more inside a section */
+    var loadBtn = e.target.closest('[data-load]');
+    if (loadBtn){
+      e.stopPropagation();
+      var tabId = loadBtn.getAttribute('data-load');
+      shownMap[tabId] = (shownMap[tabId] || PAGE) + PAGE;
+      refreshSection(tabId);
+      return;
+    }
+
+    /* Inline items toggle */
+    var itemsBtn = e.target.closest('[data-items]');
+    if (itemsBtn){
+      e.stopPropagation();
+      var ref = itemsBtn.getAttribute('data-items');
+      var rowEl = itemsBtn.closest('.fav-row');
+      if (rowEl){
+        var list = rowEl.querySelector('[data-items-list="' + cssEscape(ref) + '"]');
+        if (list) list.hidden = !list.hidden;
+      }
+      return;
+    }
+
+    /* Add to order (inline) */
+    var addBtn = e.target.closest('[data-add]');
+    if (addBtn){
+      e.stopPropagation();
+      var rId = addBtn.getAttribute('data-add');
+      var rEl = addBtn.closest('.fav-row');
+      var type = rEl ? rEl.getAttribute('data-type') : null;
+      var row = findRow(rId, type);
+      if (row) addToOrder(row);
+      return;
+    }
+
+    /* View details (inline or thumbnail) */
+    var viewBtn = e.target.closest('[data-view]');
+    if (viewBtn){
+      e.stopPropagation();
+      var vId = viewBtn.getAttribute('data-view');
+      var vEl = viewBtn.closest('.fav-row');
+      var vType = vEl ? vEl.getAttribute('data-type') : null;
+      var vRow = findRow(vId, vType);
+      if (vRow){ ov = { ref: vRow.refId, type: vRow.type, snapshot: vRow }; renderSheet(); }
+      return;
+    }
+
+    /* Remove (inline) */
+    var removeBtn = e.target.closest('[data-remove]');
+    if (removeBtn){
+      e.stopPropagation();
+      var xId = removeBtn.getAttribute('data-remove');
+      var xEl = removeBtn.closest('.fav-row');
+      var xType = xEl ? xEl.getAttribute('data-type') : null;
+      var xRow = findRow(xId, xType);
+      if (xRow) removeRow(xRow);
+      return;
+    }
+
+    /* Accordion header (last, so inner buttons still work) */
+    var head = e.target.closest('.acc-head');
+    if (head){
+      var acc = head.closest('.acc');
+      if (acc) toggleAccordion(acc.getAttribute('data-key'));
+      return;
+    }
+  });
+
+  /* ============================================================
+     SHEET CLICK DELEGATION
+     ============================================================ */
+  document.getElementById('fdbs').addEventListener('click', function(e){
+    /* Backdrop click */
+    if (e.target === this){ ov = null; renderSheet(); return; }
+
+    /* Close */
+    if (e.target.closest('[data-close-sheet]')){ ov = null; renderSheet(); return; }
+
+    /* Add from sheet */
+    if (e.target.closest('[data-add-sheet]')){
+      var row = findRow(ov.ref, ov.type) || ov.snapshot;
+      if (row) addToOrder(row);
+      return;
+    }
+
+    /* Remove from sheet */
+    if (e.target.closest('[data-remove-sheet]')){
+      var r = findRow(ov.ref, ov.type) || ov.snapshot;
+      if (r) removeRow(r);
+      return;
+    }
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  render();
+
+  /* Live updates if customer store changes */
+  if (S && typeof S.onChange === "function"){
+    try {
+      S.onChange(function(){
+        shownMap = {};
+        render();
+      });
+    } catch (e) {}
+  }
+});
+</script>
+</body>
+</html>

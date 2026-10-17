@@ -1,0 +1,1108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Partner pricing · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --blue:#0284C7;
+    --blue-soft:#E0F2FE;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+  a{color:inherit;text-decoration:none}
+
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* topbar */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 13px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+  }
+
+  /* scroll */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* intro / hero */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* sheet */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+  }
+
+  /* meta card */
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .meta-row{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:11px;
+  }
+  .meta-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .meta-text{
+    font-size:13.5px;
+    color:var(--ink-2);
+    line-height:1.4;
+    min-width:0;
+  }
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding-top:11px;
+    border-top:1px solid var(--line-2);
+  }
+  .stat{text-align:center}
+  .stat b{
+    display:block;
+    font-size:19px;font-weight:850;
+    letter-spacing:-.03em;
+    color:var(--ink);
+    line-height:1.1;
+  }
+  .stat span{
+    display:block;
+    margin-top:3px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* accordion */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+  .acc.featured{
+    border-color:var(--orange-line);
+    background:linear-gradient(180deg,#FFF9F5 0%,#FFFFFF 100%);
+  }
+  .acc.featured.open{
+    box-shadow:0 6px 22px -6px rgba(255,90,31,.32);
+  }
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:16px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+  .acc-head .dot{
+    width:10px;height:10px;border-radius:50%;flex:0 0 auto;
+    background:#D3D7DE;
+    transition:background .25s ease,box-shadow .25s ease;
+  }
+  .acc.touched .acc-head .dot{
+    background:var(--green);
+    box-shadow:0 0 0 3px var(--green-soft);
+  }
+  .acc.featured .acc-head .dot{
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:1px;
+  }
+  .acc-title b{
+    font-size:15px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc.touched .acc-sub{color:var(--green);font-weight:650}
+  .acc.featured .acc-sub{color:var(--orange);font-weight:650}
+  .acc-price{
+    flex:0 0 auto;
+    font-size:15px;
+    font-weight:850;
+    letter-spacing:-.02em;
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+    padding-left:8px;
+  }
+  .acc-price small{
+    font-size:10.5px;
+    font-weight:700;
+    color:var(--faint);
+    margin-left:2px;
+    letter-spacing:0;
+  }
+  .acc.featured .acc-price{color:var(--orange)}
+
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+  .module{padding:2px 15px 18px}
+  .module-note{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+    margin:0 0 14px;
+    padding:11px 12px;
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+  }
+
+  /* big amount */
+  .amount-block{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin-bottom:6px;
+  }
+  .amount-block .amt{
+    font-size:42px;
+    font-weight:850;
+    letter-spacing:-.045em;
+    color:var(--ink);
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .amount-block .amt .sup{
+    font-size:20px;
+    font-weight:800;
+    vertical-align:super;
+    margin-right:2px;
+    color:var(--orange);
+  }
+  .amount-block .per{
+    font-size:13px;
+    font-weight:700;
+    color:var(--faint);
+    letter-spacing:-.01em;
+  }
+  .amount-sub{
+    font-size:12.5px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .amount-sub b{color:var(--ink);font-weight:750}
+
+  /* bullet list */
+  .feature-list{
+    list-style:none;
+    margin:14px 0 0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .feature-list li{
+    position:relative;
+    padding-left:26px;
+    font-size:13.5px;
+    line-height:1.45;
+    color:var(--ink-2);
+  }
+  .feature-list li::before{
+    content:"";
+    position:absolute;
+    left:0;top:2px;
+    width:17px;height:17px;
+    border-radius:50%;
+    background-color:var(--green-soft);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316A34A' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:10px 10px;
+  }
+  .feature-list li.off{
+    color:var(--faint);
+  }
+  .feature-list li.off::before{
+    background-color:#F0F1F4;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239AA1AC' stroke-width='3' stroke-linecap='round'%3E%3Cline x1='6' y1='12' x2='18' y2='12'/%3E%3C/svg%3E");
+  }
+  .feature-list li b{color:var(--ink);font-weight:750}
+
+  /* featured tag inside a plan */
+  .plan-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:3px 9px;
+    border-radius:999px;
+    font-size:9.5px;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .plan-tag::before{
+    content:"";
+    width:5px;height:5px;border-radius:50%;
+    background:currentColor;
+    flex:0 0 auto;
+  }
+  .plan-tag.popular{background:var(--orange-soft);color:var(--orange)}
+  .plan-tag.top{background:var(--ink);color:#fff}
+  .plan-tag.base{background:#F0F1F4;color:var(--faint)}
+
+  /* feature matrix */
+  .matrix{
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+    padding:0;
+    overflow:hidden;
+    margin-top:4px;
+  }
+  .matrix-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .matrix-scroll::-webkit-scrollbar{display:none}
+  .matrix table{
+    width:100%;
+    min-width:380px;
+    border-collapse:collapse;
+    font-size:12.5px;
+  }
+  .matrix th,.matrix td{
+    padding:10px 9px;
+    border-bottom:1px solid var(--line-2);
+    text-align:left;
+    vertical-align:top;
+  }
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix th{
+    background:#F4F5F7;
+    font-size:9.5px;
+    font-weight:800;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--faint);
+    white-space:nowrap;
+  }
+  .matrix td.h{
+    font-weight:650;
+    color:var(--ink-2);
+    font-size:12.5px;
+    line-height:1.4;
+  }
+  .matrix td.c{
+    text-align:center;
+    font-weight:750;
+    color:var(--ink);
+    font-size:12px;
+    white-space:nowrap;
+  }
+  .matrix td.c .yes{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:18px;height:18px;
+    border-radius:50%;
+    background:var(--green-soft);
+    color:var(--green);
+    font-weight:900;
+    font-size:11px;
+  }
+  .matrix td.c .no{
+    display:inline-block;
+    color:#D3D7DE;
+    font-weight:800;
+  }
+  .matrix td.c .v{
+    display:inline-block;
+    padding:2px 8px;
+    background:var(--orange-soft);
+    color:var(--orange);
+    border-radius:999px;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.03em;
+  }
+
+  /* rules block */
+  .rules-block{
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:10px;
+  }
+  .rules-block:last-child{margin-bottom:0}
+  .rules-block h4{
+    margin:0 0 6px;
+    font-size:13.5px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .rules-block p{
+    margin:0;
+    font-size:12.5px;
+    line-height:1.55;
+    color:var(--muted);
+  }
+  .rules-block p + p{margin-top:6px}
+  .rules-block b{color:var(--ink);font-weight:750}
+  .rules-block a{
+    color:var(--orange);
+    font-weight:750;
+  }
+
+  /* CTA button */
+  .cta-btn{
+    width:100%;
+    height:52px;
+    border:0;
+    border-radius:13px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .1s ease,background .15s;
+    margin-top:14px;
+  }
+  .cta-btn:active{transform:scale(.98);background:var(--orange)}
+  .cta-btn .wa{
+    width:17px;height:17px;
+    flex:0 0 auto;
+    display:block;
+  }
+
+  .cta-secondary{
+    width:100%;
+    height:48px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    color:var(--ink-2);
+    font-family:inherit;
+    font-size:14px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;
+    margin-top:9px;
+  }
+  .cta-secondary:active{background:#F4F5F7}
+
+  /* footer note */
+  .foot-note{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.6;
+    margin-top:18px;
+    padding:0 6px;
+  }
+  .foot-note a{
+    color:var(--ink-3);
+    font-weight:700;
+    border-bottom:1px solid var(--line);
+    padding-bottom:1px;
+  }
+
+  /* toast */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(28px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media print{
+    body{background:#fff;display:block}
+    #shell{max-width:none;height:auto;box-shadow:none;display:block;overflow:visible}
+    .topbar{display:none!important}
+    .scroll{overflow:visible;height:auto}
+    .acc-body{grid-template-rows:1fr!important}
+    .intro{border-radius:0}
+    .sheet{margin-top:0;border-radius:0}
+  }
+</style>
+</head>
+<body>
+
+<div id="shell">
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="mark">E</span>
+      <span class="word">EatOuts</span>
+    </a>
+    <span class="hdr-chip">Partner pricing</span>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <h1>One setup. Three plans. <em>No commission</em>.</h1>
+      <p>A one-time onboarding fee and a simple monthly subscription. We never take a cut — every WhatsApp message goes straight to your own number.</p>
+    </section>
+
+    <main class="sheet">
+      <div class="meta-card" id="metaCard"></div>
+      <div class="stack" id="stack"></div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     PRICING — single source of truth
+     ============================================================ */
+  var PRICING = {
+    currency: "BWP",
+    symbol: "P",
+    setup: 300,
+    tiers: {
+      starter: {
+        key:"starter",
+        name:"Starter",
+        price:100,
+        blurb:"Get listed and take orders.",
+        tag:"Base",
+        tagClass:"base",
+        features:[
+          { text:"Directory listing", on:true },
+          { text:"Menu (categories + items)", on:true },
+          { text:"Up to 1 active promo", on:true },
+          { text:"1 gallery group", on:true },
+          { text:"Events + performers", on:false },
+          { text:"Reservation settings", on:false },
+          { text:"Featured placement", on:false },
+          { text:"Support: WhatsApp", on:true }
+        ]
+      },
+      growth: {
+        key:"growth",
+        name:"Growth",
+        price:300,
+        blurb:"Add promos, events and bookings.",
+        tag:"Popular",
+        tagClass:"popular",
+        featured:true,
+        features:[
+          { text:"Directory listing", on:true },
+          { text:"Menu (categories + items)", on:true },
+          { text:"Up to 3 active promos", on:true },
+          { text:"3 gallery groups", on:true },
+          { text:"Events + performers", on:true },
+          { text:"Reservation settings", on:true },
+          { text:"Featured placement", on:false },
+          { text:"Support: Priority", on:true }
+        ]
+      },
+      pro: {
+        key:"pro",
+        name:"Pro",
+        price:500,
+        blurb:"Featured, unlimited, priority review.",
+        tag:"Top",
+        tagClass:"top",
+        features:[
+          { text:"Directory listing", on:true },
+          { text:"Menu (categories + items)", on:true },
+          { text:"Unlimited active promos", on:true },
+          { text:"Unlimited gallery groups", on:true },
+          { text:"Events + performers", on:true },
+          { text:"Reservation settings", on:true },
+          { text:"Featured placement", on:true },
+          { text:"Support: Priority + review", on:true }
+        ]
+      }
+    },
+    features: [
+      { label:"Directory listing",        starter:"yes",       growth:"yes",       pro:"yes" },
+      { label:"Menu (categories/items)",  starter:"yes",       growth:"yes",       pro:"yes" },
+      { label:"Promos",                   starter:"1 active",  growth:"3 active",  pro:"Unlimited" },
+      { label:"Events + performers",      starter:"—",         growth:"yes",       pro:"yes" },
+      { label:"Gallery groups",           starter:"1",         growth:"3",         pro:"Unlimited" },
+      { label:"Reservation settings",     starter:"—",         growth:"yes",       pro:"yes" },
+      { label:"Featured placement",       starter:"—",         growth:"—",         pro:"yes" },
+      { label:"Support",                  starter:"WhatsApp",  growth:"Priority",  pro:"Priority + review" }
+    ]
+  };
+
+  // Expose globally like the old page did
+  window.EATOUTS_PRICING = PRICING;
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function money(n) { return PRICING.symbol + Number(n || 0).toFixed(0); }
+
+  var toastEl = $("#toast");
+  var toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2000);
+  }
+
+  /* ============================================================
+     PERSIST PRICING INTO DB SO OTHER PAGES READ THE SAME
+     ============================================================ */
+  try {
+    if (window.EatoutsDB && typeof EatoutsDB.load === "function" && typeof EatoutsDB.save === "function") {
+      var db = EatoutsDB.load();
+      db.settings = db.settings || {};
+      db.settings.pricing = PRICING;
+      EatoutsDB.save(db);
+    }
+  } catch (e) { /* graceful */ }
+
+  /* ============================================================
+     META CARD
+     ============================================================ */
+  function currentPlan() {
+    try {
+      var db = EatoutsDB.load();
+      return (db.settings && db.settings.plan) || "starter";
+    } catch (e) { return "starter"; }
+  }
+
+  function renderMeta() {
+    var plan = currentPlan();
+    var tier = PRICING.tiers[plan] || PRICING.tiers.starter;
+    var card = $("#metaCard");
+    card.innerHTML =
+      '<div class="meta-row">' +
+        '<span class="meta-dot"></span>' +
+        '<span class="meta-text">' +
+          'Your plan: <b>' + esc(tier.name) + '</b> · ' + money(tier.price) + ' / month' +
+        '</span>' +
+      '</div>' +
+      '<div class="meta-stats">' +
+        '<div class="stat"><b>' + money(PRICING.setup) + '</b><span>Setup</span></div>' +
+        '<div class="stat"><b>' + money(PRICING.tiers.starter.price) + '</b><span>From</span></div>' +
+        '<div class="stat"><b>0%</b><span>Commission</span></div>' +
+      '</div>';
+  }
+
+  /* ============================================================
+     MODULES
+     ============================================================ */
+  function bodySetup() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">One-time fee, paid before publishing. Covers concierge setup of your profile, menu, photos and first promo. Non-refundable.</p>' +
+        '<div class="amount-block">' +
+          '<span class="amt"><span class="sup">P</span>' + PRICING.setup + '</span>' +
+          '<span class="per">one-time</span>' +
+        '</div>' +
+        '<div class="amount-sub">Required before your listing goes live on the directory.</div>' +
+        '<ul class="feature-list">' +
+          '<li>Full profile setup by our team</li>' +
+          '<li>Menu, categories and items uploaded</li>' +
+          '<li>Cover image and gallery photos optimised</li>' +
+          '<li>First promo drafted and scheduled</li>' +
+          '<li>WhatsApp routing set up to your own number</li>' +
+        '</ul>' +
+      '</div>';
+  }
+
+  function bodyTier(tierKey) {
+    var t = PRICING.tiers[tierKey];
+    if (!t) return "";
+    var isCurrent = currentPlan() === tierKey;
+
+    var featuresHTML = t.features.map(function (f) {
+      return '<li class="' + (f.on ? "" : "off") + '">' +
+        (f.on ? esc(f.text) : esc(f.text)) +
+      '</li>';
+    }).join("");
+
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">' + esc(t.blurb) + '</p>' +
+
+        (t.tag
+          ? '<span class="plan-tag ' + t.tagClass + '">' + esc(t.tag) + '</span>'
+          : '') +
+
+        '<div class="amount-block">' +
+          '<span class="amt"><span class="sup">P</span>' + t.price + '</span>' +
+          '<span class="per">/ month</span>' +
+        '</div>' +
+        '<div class="amount-sub">' +
+          (isCurrent
+            ? 'This is your <b>current plan</b>.'
+            : 'Billed monthly from the day you go live.') +
+        '</div>' +
+
+        '<ul class="feature-list">' + featuresHTML + '</ul>' +
+
+        '<button type="button" class="cta-btn" data-choose="' + esc(tierKey) + '">' +
+          (isCurrent
+            ? 'Current plan'
+            : 'Choose ' + esc(t.name)) +
+        '</button>' +
+      '</div>';
+  }
+
+  function bodyMatrix() {
+    var head =
+      '<tr>' +
+        '<th>Feature</th>' +
+        '<th class="c">Starter</th>' +
+        '<th class="c">Growth</th>' +
+        '<th class="c">Pro</th>' +
+      '</tr>';
+
+    var rows = PRICING.features.map(function (f) {
+      function cell(v) {
+        if (v === "yes") return '<td class="c"><span class="yes">✓</span></td>';
+        if (v === "—")   return '<td class="c"><span class="no">—</span></td>';
+        return '<td class="c"><span class="v">' + esc(v) + '</span></td>';
+      }
+      return '<tr>' +
+        '<td class="h">' + esc(f.label) + '</td>' +
+        cell(f.starter) + cell(f.growth) + cell(f.pro) +
+      '</tr>';
+    }).join("");
+
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Everything in each plan, side by side.</p>' +
+        '<div class="matrix">' +
+          '<div class="matrix-scroll">' +
+            '<table><thead>' + head + '</thead><tbody>' + rows + '</tbody></table>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyRules() {
+    return '' +
+      '<div class="module">' +
+        '<div class="rules-block">' +
+          '<h4>Publishing</h4>' +
+          '<p>Your listing is <b>published on the live directory only after the ' + money(PRICING.setup) + ' setup fee is confirmed</b>. Before that, you have a private draft you can preview — no one else can see it.</p>' +
+        '</div>' +
+
+        '<div class="rules-block">' +
+          '<h4>Billing</h4>' +
+          '<p>Subscriptions are billed monthly from the day you go live. Downgrades take effect at the start of the next billing cycle.</p>' +
+          '<p>Cancellations stop the next renewal. We do not issue pro-rated refunds.</p>' +
+        '</div>' +
+
+        '<div class="rules-block">' +
+          '<h4>No commission</h4>' +
+          '<p>EatOuts never takes a percentage of your orders. Customers message you directly on WhatsApp. You keep 100% of every Pula.</p>' +
+        '</div>' +
+
+        '<div class="rules-block">' +
+          '<h4>Terms</h4>' +
+          '<p>Full details are in the <a href="partner-terms.html">Merchant Terms of Service</a>.</p>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyCta() {
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">Ready to get your venue live? Send us a message and we will set everything up for you.</p>' +
+        '<button type="button" class="cta-btn" id="btnWhatsapp">' +
+          '<svg class="wa" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+            '<path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.11.82.83-3.04-.19-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.26.86 5.81 2.42a8.16 8.16 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.15.16-.29.18-.53.06-.25-.13-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.15-.25-.02-.38.11-.5.11-.11.25-.29.37-.44.13-.15.17-.25.25-.42.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01-.16 0-.43.06-.66.31-.23.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29Z"/>' +
+          '</svg>' +
+          'Talk to us on WhatsApp' +
+        '</button>' +
+        '<a class="cta-secondary" href="get-started.html">See how it works</a>' +
+        '<div class="foot-note">' +
+          'Prices in Botswana Pula (BWP). Subject to change with 30 days\' notice.<br>' +
+          '<a href="partner-terms.html">Merchant Terms</a>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyFor(key) {
+    if (key === "setup")    return bodySetup();
+    if (key === "starter")  return bodyTier("starter");
+    if (key === "growth")   return bodyTier("growth");
+    if (key === "pro")      return bodyTier("pro");
+    if (key === "matrix")   return bodyMatrix();
+    if (key === "rules")    return bodyRules();
+    if (key === "cta")      return bodyCta();
+    return "";
+  }
+
+  /* ============================================================
+     BUILD STACK
+     ============================================================ */
+  var openKey = null;
+
+  function getModules() {
+    return [
+      {
+        key: "setup",
+        title: "One-time setup",
+        sub: "Paid once, before publishing",
+        price: "P" + PRICING.setup,
+        priceSmall: "once",
+        touched: false
+      },
+      {
+        key: "starter",
+        title: "Starter",
+        sub: "Get listed and take orders",
+        price: "P" + PRICING.tiers.starter.price,
+        priceSmall: "/ mo",
+        touched: false
+      },
+      {
+        key: "growth",
+        title: "Growth",
+        sub: "Promos, events and bookings",
+        price: "P" + PRICING.tiers.growth.price,
+        priceSmall: "/ mo",
+        featured: true
+      },
+      {
+        key: "pro",
+        title: "Pro",
+        sub: "Featured, unlimited, priority",
+        price: "P" + PRICING.tiers.pro.price,
+        priceSmall: "/ mo",
+        touched: false
+      },
+      {
+        key: "matrix",
+        title: "Full feature matrix",
+        sub: "Everything side by side",
+        touched: false
+      },
+      {
+        key: "rules",
+        title: "Publishing rules",
+        sub: "Billing, publishing and refunds",
+        touched: false
+      },
+      {
+        key: "cta",
+        title: "Ready to get started?",
+        sub: "Talk to us on WhatsApp",
+        touched: false
+      }
+    ];
+  }
+
+  function buildStack() {
+    var modules = getModules();
+    var stack = $("#stack");
+
+    stack.innerHTML = modules.map(function (m) {
+      var isOpen = openKey === m.key;
+      var cls = "acc";
+      if (isOpen) cls += " open";
+      if (m.touched) cls += " touched";
+      if (m.featured) cls += " featured";
+
+      var priceHTML = m.price
+        ? '<span class="acc-price">' + esc(m.price) +
+          (m.priceSmall ? '<small>' + esc(m.priceSmall) + '</small>' : '') +
+          '</span>'
+        : '';
+
+      return '' +
+        '<section class="' + cls + '" data-key="' + esc(m.key) + '">' +
+          '<button class="acc-head" type="button" aria-expanded="' + isOpen + '">' +
+            '<span class="dot"></span>' +
+            '<span class="acc-title">' +
+              '<b>' + esc(m.title) + '</b>' +
+              '<span class="acc-sub">' + esc(m.sub) + '</span>' +
+            '</span>' +
+            priceHTML +
+          '</button>' +
+          '<div class="acc-body">' +
+            '<div class="acc-inner" data-body="' + esc(m.key) + '">' +
+              bodyFor(m.key) +
+            '</div>' +
+          '</div>' +
+        '</section>';
+    }).join("");
+  }
+
+  /* ============================================================
+     ACCORDION
+     ============================================================ */
+  function openAccordion(key, scrollTo) {
+    openKey = key;
+    Array.prototype.forEach.call(document.querySelectorAll(".acc"), function (acc) {
+      var isOpen = acc.dataset.key === key;
+      acc.classList.toggle("open", isOpen);
+      var head = acc.querySelector(".acc-head");
+      if (head) head.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+    if (key && scrollTo) {
+      var acc = document.querySelector('.acc[data-key="' + key + '"]');
+      if (acc) {
+        setTimeout(function () {
+          try { acc.scrollIntoView({ behavior:"smooth", block:"start" }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+
+  function toggleAccordion(key) {
+    if (openKey === key) openAccordion(null);
+    else openAccordion(key, true);
+  }
+
+  /* ============================================================
+     EVENT DELEGATION
+     ============================================================ */
+  var stack = $("#stack");
+
+  stack.addEventListener("click", function (e) {
+
+    /* accordion header */
+    var head = e.target.closest(".acc-head");
+    if (head) {
+      var acc = head.closest(".acc");
+      if (acc) toggleAccordion(acc.dataset.key);
+      return;
+    }
+
+    /* choose plan */
+    var chooseBtn = e.target.closest("[data-choose]");
+    if (chooseBtn) {
+      e.stopPropagation();
+      var key = chooseBtn.dataset.choose;
+      var tier = PRICING.tiers[key];
+      if (!tier) return;
+
+      if (currentPlan() === key) {
+        toast("You are already on " + tier.name);
+        return;
+      }
+
+      try {
+        var db = EatoutsDB.load();
+        db.settings = db.settings || {};
+        db.settings.plan = key;
+        EatoutsDB.save(db);
+      } catch (err) {}
+
+      toast("Switched to " + tier.name + " · P" + tier.price + " / month");
+      renderMeta();
+      buildStack();
+      // reopen the tier the user just chose
+      setTimeout(function () { openAccordion(key, false); }, 30);
+      return;
+    }
+
+    /* WhatsApp CTA in the final module */
+    var waBtn = e.target.closest("#btnWhatsapp");
+    if (waBtn) {
+      e.stopPropagation();
+      var number = "26771844129";
+      try {
+        var db2 = EatoutsDB.load();
+        if (db2.settings && db2.settings.whatsapp) {
+          number = String(db2.settings.whatsapp).replace(/[^\d]/g, "");
+        }
+      } catch (err) {}
+      var msg = "Hi EatOuts — I'd like to talk about partner pricing. I saw the P" +
+                PRICING.setup + " setup + Starter/Growth/Pro tiers on your pricing page.";
+      window.open("https://wa.me/" + number + "?text=" + encodeURIComponent(msg), "_blank");
+      return;
+    }
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  renderMeta();
+  buildStack();
+  openAccordion(null);
+
+})();
+</script>
+
+</body>
+</html>

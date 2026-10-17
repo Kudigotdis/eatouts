@@ -1,0 +1,1921 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Food truck schedule · EatOuts</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;
+    --ink-2:#2A2A30;
+    --ink-3:#4A4A52;
+    --paper:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E6E8EC;
+    --line-2:#F0F1F4;
+    --orange:#FF5A1F;
+    --orange-2:#FF7A42;
+    --orange-soft:#FFEDE4;
+    --orange-line:#FFD5C2;
+    --green:#16A34A;
+    --green-soft:#E7F7EE;
+    --red:#DC2626;
+    --red-soft:#FEE2E2;
+    --amber:#B45309;
+    --amber-soft:#FEF3C7;
+    --blue:#0284C7;
+    --blue-soft:#E0F2FE;
+    --muted:#6B7280;
+    --faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:#E9EBEF;
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+    display:flex;
+    justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+  a{color:inherit;text-decoration:none}
+
+  #shell{
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    height:100dvh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* topbar */
+  .topbar{
+    flex:0 0 auto;
+    background:#141418;
+    padding:calc(13px + env(safe-area-inset-top)) 18px 0;
+  }
+  .topbar-row{
+    display:flex;align-items:center;gap:10px;
+    padding-bottom:13px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{
+    color:#fff;font-size:15px;font-weight:800;
+    letter-spacing:-.02em;
+  }
+  .hdr-chip{
+    margin-left:auto;
+    font-size:10px;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);
+    background:rgba(255,90,31,.1);
+    border-radius:999px;
+    padding:5px 11px;
+    white-space:nowrap;
+    max-width:180px;
+    overflow:hidden;text-overflow:ellipsis;
+  }
+
+  .progress{padding-bottom:14px}
+  .progress-top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:11px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .progress-count{
+    font-size:11.5px;font-weight:800;
+    color:var(--orange-2);
+    letter-spacing:.02em;
+  }
+  .progress-track{
+    height:5px;border-radius:99px;
+    background:rgba(255,255,255,.13);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* scroll */
+  .scroll{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* intro */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+  }
+  .intro::after{
+    content:"";
+    position:absolute;
+    top:-80px;right:-80px;
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
+    pointer-events:none;
+  }
+  .intro h1{
+    position:relative;
+    margin:0 auto 12px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#fff;
+    max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{
+    position:relative;
+    margin:0 auto;
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,.6);
+    max-width:32ch;
+  }
+
+  /* sheet */
+  .sheet{
+    position:relative;
+    z-index:1;
+    margin-top:-26px;
+    background:var(--paper);
+    border-radius:26px 26px 0 0;
+    padding:20px 14px 30px;
+  }
+
+  /* meta card */
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:15px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,20,25,.03);
+  }
+  .meta-row{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:11px;
+  }
+  .meta-dot{
+    width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+    background:var(--orange);
+    box-shadow:0 0 0 3px var(--orange-soft);
+  }
+  .meta-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .meta-dot.warn{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+  .meta-text{
+    font-size:13.5px;
+    color:var(--ink-2);
+    line-height:1.4;
+    min-width:0;
+    flex:1 1 auto;
+  }
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding-top:11px;
+    border-top:1px solid var(--line-2);
+  }
+  .stat{text-align:center}
+  .stat b{
+    display:block;
+    font-size:19px;font-weight:850;
+    letter-spacing:-.03em;
+    color:var(--ink);
+    line-height:1.1;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat span{
+    display:block;
+    margin-top:3px;
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* accordion stack */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .acc.open{
+    border-color:var(--orange-line);
+    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);
+  }
+  .acc.today{
+    border-color:var(--orange);
+  }
+  .acc.open.today{
+    box-shadow:0 6px 22px -6px rgba(255,90,31,.32);
+  }
+  .acc.empty{
+    background:#FAFBFC;
+  }
+
+  .acc-head{
+    width:100%;
+    display:flex;align-items:center;gap:12px;
+    padding:14px 15px;
+    background:transparent;border:0;
+    text-align:left;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s;
+  }
+  .acc-head:active{background:#FAFBFC}
+
+  .day-badge{
+    width:46px;height:46px;flex:0 0 auto;
+    border-radius:12px;
+    background:linear-gradient(145deg,#2A2A30,#141418);
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:13px;font-weight:850;
+    letter-spacing:-.02em;
+    line-height:1;
+    position:relative;
+    overflow:hidden;
+    flex-direction:column;
+  }
+  .acc.today .day-badge{
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    box-shadow:0 4px 12px -4px rgba(255,90,31,.5);
+  }
+  .acc.empty .day-badge{
+    background:#F0F1F4;
+    color:var(--faint);
+  }
+  .day-badge .abbr{
+    font-size:14px;
+    font-weight:850;
+    line-height:1;
+  }
+  .day-badge .sub{
+    font-size:8.5px;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.55);
+    margin-top:2px;
+  }
+  .acc.today .day-badge .sub{color:rgba(255,255,255,.75)}
+  .acc.empty .day-badge .sub{color:var(--faint)}
+  .day-badge .tick{
+    position:absolute;
+    top:5px;right:5px;
+    width:8px;height:8px;
+    border-radius:50%;
+    background:var(--green);
+    border:1.5px solid #141418;
+  }
+  .acc.today .day-badge .tick{
+    background:#fff;
+    border-color:rgba(255,255,255,.3);
+  }
+
+  .acc-title{
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .acc-title b{
+    font-size:14.5px;font-weight:750;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    line-height:1.25;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .acc-sub{
+    font-size:11.5px;
+    color:var(--faint);
+    line-height:1.35;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font-weight:550;
+  }
+  .acc-sub .dot-sep{margin:0 4px;color:#D3D7DE}
+  .acc.has-loc .acc-sub{color:var(--ink-2);font-weight:650}
+
+  .status-pill{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:2px 7px;border-radius:999px;
+    font-size:9px;font-weight:800;
+    letter-spacing:.05em;text-transform:uppercase;
+    margin-left:6px;
+    vertical-align:1px;
+  }
+  .status-pill::before{
+    content:"";
+    width:4px;height:4px;border-radius:50%;
+    background:currentColor;
+    flex:0 0 auto;
+  }
+  .status-pill.confirmed{background:var(--green-soft);color:var(--green)}
+  .status-pill.tentative{background:var(--amber-soft);color:var(--amber)}
+  .status-pill.cancelled{background:var(--red-soft);color:var(--red)}
+  .status-pill.live{background:var(--orange);color:#fff}
+
+  .live-tag{
+    display:inline-flex;align-items:center;gap:4px;
+    font-size:9.5px;font-weight:850;
+    letter-spacing:.08em;text-transform:uppercase;
+    color:var(--orange);
+    padding-left:6px;
+  }
+  .live-tag .pulse{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--orange);
+    box-shadow:0 0 0 0 rgba(255,90,31,.6);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(255,90,31,.55)}
+    70%{box-shadow:0 0 0 8px rgba(255,90,31,0)}
+    100%{box-shadow:0 0 0 0 rgba(255,90,31,0)}
+  }
+
+  .acc-body{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+  }
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+  .module{padding:2px 15px 18px}
+  .module-note{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--muted);
+    margin:0 0 14px;
+    padding:11px 12px;
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+  }
+  .module-note b{color:var(--ink);font-weight:750}
+
+  /* detail grid */
+  .detail-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+    margin-bottom:14px;
+  }
+  .detail-tile{
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:11px;
+    padding:11px 12px;
+  }
+  .detail-tile .lbl{
+    font-size:9.5px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);
+    margin-bottom:4px;
+  }
+  .detail-tile .val{
+    font-size:13.5px;font-weight:750;
+    color:var(--ink);
+    letter-spacing:-.01em;
+    line-height:1.35;
+    word-break:break-word;
+  }
+  .detail-tile.wide{grid-column:1 / -1}
+
+  /* live toggle */
+  .live-row{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 13px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:11px;
+    margin-bottom:10px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s,background .15s;
+  }
+  .live-row:active{background:#FAFBFC}
+  .live-row.on{
+    border-color:var(--orange);
+    background:var(--orange-soft);
+  }
+  .live-row input{
+    width:20px;height:20px;
+    accent-color:var(--orange);
+    margin:0;flex:0 0 auto;
+  }
+  .live-row .info{flex:1 1 auto;min-width:0}
+  .live-row .title{
+    font-size:13.5px;
+    font-weight:750;
+    color:var(--ink);
+    letter-spacing:-.01em;
+  }
+  .live-row .sub{
+    font-size:11.5px;
+    color:var(--faint);
+    font-weight:550;
+    margin-top:2px;
+  }
+  .live-row.on .sub{color:var(--orange)}
+  .live-row.on .title{color:var(--orange)}
+
+  /* action buttons */
+  .act-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:12px;
+  }
+  .act-btn{
+    height:44px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:11px;
+    font-size:13px;
+    font-weight:750;
+    color:var(--ink-2);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s,color .15s,transform .08s;
+    padding:0 12px;
+  }
+  .act-btn:active{transform:scale(.98);background:#F4F5F7}
+  .act-btn.primary{
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    border-color:transparent;
+    color:#fff;
+    box-shadow:0 4px 14px -6px rgba(255,90,31,.55);
+  }
+  .act-btn.primary:active{background:var(--orange)}
+  .act-btn.danger{
+    color:var(--red);
+    border-color:#FECACA;
+    background:#FEF2F2;
+  }
+  .act-btn.danger:active{background:var(--red-soft)}
+  .act-btn.wide{grid-column:1 / -1}
+  .act-btn[disabled]{opacity:.35;pointer-events:none}
+
+  /* empty state */
+  .empty-note{
+    font-size:12.5px;
+    color:var(--faint);
+    text-align:center;
+    padding:18px 12px;
+    border:1.5px dashed #DCE0E6;
+    border-radius:11px;
+    background:#FAFBFC;
+    line-height:1.5;
+  }
+
+  /* substitution card */
+  .sub-card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:13px;
+    padding:12px;
+    margin-bottom:9px;
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    -webkit-tap-highlight-color:transparent;
+    cursor:pointer;
+    transition:border-color .15s,transform .08s;
+  }
+  .sub-card:last-child{margin-bottom:0}
+  .sub-card:active{transform:scale(.99);border-color:var(--orange-line)}
+  .sub-date{
+    width:52px;height:52px;flex:0 0 auto;
+    border-radius:11px;
+    background:linear-gradient(145deg,#2A2A30,#141418);
+    color:#fff;
+    display:grid;place-items:center;
+    flex-direction:column;
+    line-height:1;
+  }
+  .sub-date .d{
+    font-size:17px;
+    font-weight:850;
+    letter-spacing:-.02em;
+  }
+  .sub-date .m{
+    font-size:8.5px;
+    font-weight:800;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.55);
+    margin-top:2px;
+  }
+  .sub-info{flex:1 1 auto;min-width:0}
+  .sub-title{
+    font-size:14px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    line-height:1.3;
+  }
+  .sub-title b{color:var(--orange);font-weight:800}
+  .sub-meta{
+    font-size:11.5px;
+    color:var(--faint);
+    margin-top:3px;
+    font-weight:550;
+    line-height:1.4;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .sub-actions{
+    display:flex;flex:0 0 auto;
+  }
+  .mini-btn{
+    width:32px;height:32px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    color:var(--faint);
+    font-size:12px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .mini-btn:active{background:#F4F5F7}
+  .mini-btn.danger:active{background:var(--red-soft);color:var(--red);border-color:#FECACA}
+
+  /* info block */
+  .info-block{
+    background:#FAFBFC;
+    border:1px solid var(--line-2);
+    border-radius:12px;
+    padding:13px 14px;
+    margin-bottom:10px;
+  }
+  .info-block:last-child{margin-bottom:0}
+  .info-block h4{
+    margin:0 0 6px;
+    font-size:13.5px;font-weight:750;
+    letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .info-block p{
+    margin:0;
+    font-size:12.5px;
+    line-height:1.55;
+    color:var(--muted);
+  }
+  .info-block p + p{margin-top:6px}
+  .info-block b{color:var(--ink);font-weight:750}
+
+  /* add button */
+  .add-btn{
+    width:100%;
+    border:1.5px dashed #D3D7DE;
+    background:#fff;
+    border-radius:12px;
+    padding:14px;
+    font-size:14px;font-weight:750;
+    color:var(--orange);
+    -webkit-tap-highlight-color:transparent;
+    transition:background .15s,border-color .15s;
+    margin-top:10px;
+  }
+  .add-btn:active{background:var(--orange-soft);border-color:var(--orange-line)}
+
+  /* bottom action */
+  .actions{
+    flex:0 0 auto;
+    display:flex;
+    gap:9px;
+    padding:11px 14px calc(11px + env(safe-area-inset-bottom));
+    background:#fff;
+    border-top:1px solid var(--line);
+  }
+  .btn{
+    height:52px;
+    border:0;
+    border-radius:13px;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:750;
+    letter-spacing:-.01em;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    transition:transform .1s ease,background .15s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-primary{
+    width:100%;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;
+    box-shadow:0 6px 18px -6px rgba(255,90,31,.5);
+  }
+  .btn-primary:active{background:var(--orange)}
+
+  /* modal */
+  .modal-scrim{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(15,15,18,.55);
+    display:flex;align-items:flex-end;justify-content:center;
+    animation:fade .18s ease;
+  }
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @media(min-width:520px){.modal-scrim{align-items:center;padding:20px}}
+  .modal{
+    background:#fff;
+    width:100%;max-width:460px;
+    height:94vh;max-height:94vh;
+    border-radius:20px 20px 0 0;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    animation:slideup .25s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  @media(min-width:520px){
+    .modal{border-radius:18px;height:auto;max-height:92vh}
+    @keyframes slideup{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+  }
+  .modal-hdr{
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:12px;
+    background:#fff;
+    flex:0 0 auto;
+  }
+  .modal-hdr h3{
+    margin:0;flex:1;
+    font-size:16px;font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .modal-close{
+    width:32px;height:32px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    color:var(--muted);
+    font-size:14px;line-height:1;
+    display:grid;place-items:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .modal-close:active{background:#F4F5F7}
+  .modal-body{
+    flex:1 1 auto;min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:16px 18px 20px;
+    scrollbar-width:none;
+  }
+  .modal-body::-webkit-scrollbar{display:none}
+  .modal-foot{
+    flex:0 0 auto;
+    padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);
+    background:#FAFBFC;
+    display:flex;gap:9px;
+  }
+  .modal-foot .btn{flex:1;height:48px;font-size:14.5px}
+  .modal-foot .btn-ghost{
+    background:#F4F5F7;
+    border:1px solid var(--line);
+    color:var(--ink-2);
+  }
+
+  /* form */
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field label{
+    display:block;
+    font-size:11.5px;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:7px;
+  }
+  .field label .opt{
+    text-transform:none;letter-spacing:0;
+    font-weight:650;color:var(--faint);
+    font-size:11px;
+  }
+  .input,.textarea,.select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.4;
+    padding:13px;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  .textarea{min-height:80px;resize:vertical;line-height:1.55}
+  .select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 13px center;
+    background-size:14px;
+    padding-right:38px;
+  }
+  .input:focus,.select:focus,.textarea:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.13);
+  }
+  .input::placeholder,.textarea::placeholder{color:#B7BDC6}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .check-row{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 13px;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:#fff;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    font-size:14px;font-weight:650;
+    color:var(--ink-2);
+    margin-bottom:10px;
+  }
+  .check-row:last-child{margin-bottom:0}
+  .check-row:active{background:#FAFBFC}
+  .check-row input{
+    width:20px;height:20px;
+    accent-color:var(--orange);
+    margin:0;flex:0 0 auto;
+  }
+
+  /* toast */
+  .toast{
+    position:fixed;left:50%;z-index:200;
+    bottom:calc(88px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;
+    padding:12px 18px;border-radius:999px;
+    max-width:88vw;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media print{
+    body{background:#fff;display:block}
+    #shell{max-width:none;height:auto;box-shadow:none;display:block;overflow:visible}
+    .topbar,.actions{display:none!important}
+    .scroll{overflow:visible;height:auto}
+    .acc-body{grid-template-rows:1fr!important}
+    .intro{border-radius:0}
+    .sheet{margin-top:0;border-radius:0}
+  }
+</style>
+</head>
+<body>
+
+<div id="shell">
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip" id="hdrChip">Food truck schedule</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label" id="progressLabel">Weekly rotation</span>
+        <span class="progress-count" id="progressCount">0 of 7 days set</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <h1>Weekly <em>route</em>.</h1>
+      <p>Set where the truck parks each day and mark it live so customers know where to find you right now.</p>
+    </section>
+    <main class="sheet">
+      <div class="meta-card" id="metaCard"></div>
+      <div class="stack" id="stack"></div>
+    </main>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="btnAdd" type="button">+ Add or edit a day</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     CONFIG
+     ============================================================ */
+  var STORE_KEY = "eatouts.food-truck-schedule.v1";
+  var LIVE_EXPIRY_MS = 12 * 60 * 60 * 1000;
+
+  var DAYS = [
+    { k:"mon", label:"Monday",    abbr:"Mon" },
+    { k:"tue", label:"Tuesday",   abbr:"Tue" },
+    { k:"wed", label:"Wednesday", abbr:"Wed" },
+    { k:"thu", label:"Thursday",  abbr:"Thu" },
+    { k:"fri", label:"Friday",    abbr:"Fri" },
+    { k:"sat", label:"Saturday",  abbr:"Sat" },
+    { k:"sun", label:"Sunday",    abbr:"Sun" }
+  ];
+
+  var STATUSES = ["confirmed","tentative","cancelled"];
+
+  var DISTRICTS = [
+    "South-East","Kweneng","Kgatleng","Southern","Central","North-East","North-West","Chobe","Ghanzi","Kgalagadi"
+  ];
+
+  var DIST_TOWNS = {
+    "South-East": ["Gaborone","Ramotswa","Mogoditshane","Tlokweng"],
+    "Kweneng":    ["Molepolole","Thamaga","Mogoditshane (West)","Kumakwane"],
+    "Kgatleng":   ["Mochudi","Bokaa","Artesia"],
+    "Southern":   ["Kanye","Moshupa","Jwaneng","Goodhope"],
+    "Central":    ["Serowe","Palapye","Mahalapye","Bobonong","Selebi-Phikwe"],
+    "North-East": ["Francistown","Masunga","Tati Siding"],
+    "North-West": ["Maun","Shakawe","Gumare"],
+    "Chobe":      ["Kasane","Kazungula"],
+    "Ghanzi":     ["Ghanzi","Charles Hill"],
+    "Kgalagadi":  ["Tsabong","Hukuntsi"]
+  };
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  function seed() {
+    return {
+      bizName: "The Rolling Grill",
+      weekly: [
+        {
+          day: "mon",
+          location: { district:"South-East", town:"Gaborone", area:"CBD", plot:"Main Mall", landmark:"Near the fountain" },
+          backup: "Extension 12",
+          startTime: "11:00",
+          endTime: "15:00",
+          status: "confirmed",
+          notes: "Cash and Orange Money only.",
+          liveNow: false,
+          liveSetAt: null
+        },
+        {
+          day: "tue",
+          location: { district:"South-East", town:"Gaborone", area:"Airport Junction", plot:"Parking lot B", landmark:"Next to KFC" },
+          backup: "",
+          startTime: "11:00",
+          endTime: "15:00",
+          status: "confirmed",
+          notes: "",
+          liveNow: false,
+          liveSetAt: null
+        },
+        {
+          day: "wed",
+          location: { district:"South-East", town:"Mogoditshane", area:"Gabane Road", plot:"", landmark:"" },
+          backup: "",
+          startTime: "12:00",
+          endTime: "16:00",
+          status: "tentative",
+          notes: "Weather dependent.",
+          liveNow: false,
+          liveSetAt: null
+        },
+        {
+          day: "thu",
+          location: { district:"South-East", town:"Gaborone", area:"Fairgrounds", plot:"", landmark:"" },
+          backup: "",
+          startTime: "11:00",
+          endTime: "15:00",
+          status: "confirmed",
+          notes: "",
+          liveNow: false,
+          liveSetAt: null
+        },
+        {
+          day: "fri",
+          location: { district:"South-East", town:"Gaborone", area:"Main Mall", plot:"", landmark:"Opposite the cinema" },
+          backup: "",
+          startTime: "17:00",
+          endTime: "22:00",
+          status: "confirmed",
+          notes: "Evening market.",
+          liveNow: false,
+          liveSetAt: null
+        },
+        {
+          day: "sat",
+          location: { district:"South-East", town:"Gaborone", area:"Riverwalk", plot:"", landmark:"Riverside entrance" },
+          backup: "",
+          startTime: "10:00",
+          endTime: "21:00",
+          status: "confirmed",
+          notes: "",
+          liveNow: false,
+          liveSetAt: null
+        }
+      ],
+      substitutions: [
+        {
+          date: offsetDate(5),
+          originalDay: "sat",
+          override: {
+            location: { district:"Kgatleng", town:"Mochudi", area:"Main Kgotla", plot:"", landmark:"Next to the kgotla" },
+            startTime: "11:00",
+            endTime: "18:00",
+            status: "confirmed",
+            notes: "Mochudi market day."
+          }
+        }
+      ]
+    };
+  }
+
+  function offsetDate(days) {
+    var d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+  }
+  function todayDate() {
+    return new Date().toISOString().slice(0, 10);
+  }
+  function todayAbbr() {
+    var map = ["sun","mon","tue","wed","thu","fri","sat"];
+    return map[new Date().getDay()];
+  }
+
+  var state = seed();
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && typeof p === "object") {
+        if (p.bizName) state.bizName = p.bizName;
+        if (Array.isArray(p.weekly)) state.weekly = p.weekly;
+        if (Array.isArray(p.substitutions)) state.substitutions = p.substitutions;
+      }
+    }
+  } catch (e) {}
+
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function nonEmpty(v) { return v != null && String(v).trim().length > 0; }
+  function uid(p) {
+    return p + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7);
+  }
+  function dayLabel(k) {
+    for (var i = 0; i < DAYS.length; i++) if (DAYS[i].k === k) return DAYS[i].label;
+    return k;
+  }
+  function dayAbbr(k) {
+    for (var i = 0; i < DAYS.length; i++) if (DAYS[i].k === k) return DAYS[i].abbr;
+    return k;
+  }
+  function fmtDateShort(iso) {
+    if (!iso) return { d:"—", m:"" };
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d)) return { d:"—", m:"" };
+    return {
+      d: String(d.getDate()).padStart(2,"0"),
+      m: d.toLocaleDateString("en-GB", { month:"short" }).toUpperCase()
+    };
+  }
+  function locationLine(loc) {
+    if (!loc) return "";
+    var parts = [loc.town, loc.area, loc.plot].filter(nonEmpty);
+    return parts.join(" · ");
+  }
+  function findDay(k) {
+    return state.weekly.filter(function (x) { return x.day === k; })[0] || null;
+  }
+  function isStale(x) {
+    return !!x.liveNow && (!x.liveSetAt || Date.now() - x.liveSetAt > LIVE_EXPIRY_MS);
+  }
+  function isLive(x) {
+    return !!x.liveNow && !isStale(x);
+  }
+
+  var toastEl = $("#toast");
+  var toastTimer = null;
+  function toast(m) {
+    toastEl.textContent = m;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2000);
+  }
+
+  /* ============================================================
+     META CARD
+     ============================================================ */
+  function renderMeta() {
+    var set = state.weekly.length;
+    var confirmed = state.weekly.filter(function (x) { return x.status === "confirmed"; }).length;
+    var live = state.weekly.filter(isLive).length;
+
+    var dotClass = "";
+    var message;
+    if (set === 0) {
+      dotClass = "warn";
+      message = "No days set yet — add your first weekly slot";
+    } else if (live > 0) {
+      dotClass = "green";
+      message = "Truck is <b>live now</b> · " + live + " day" + (live === 1 ? "" : "s") + " active";
+    } else if (set < 7) {
+      dotClass = "";
+      message = "<b>" + set + "</b> of 7 days set · " + confirmed + " confirmed";
+    } else {
+      dotClass = "green";
+      message = "Full week scheduled · " + confirmed + " day" + (confirmed === 1 ? "" : "s") + " confirmed";
+    }
+
+    $("#metaCard").innerHTML =
+      '<div class="meta-row">' +
+        '<span class="meta-dot ' + dotClass + '"></span>' +
+        '<span class="meta-text">' + message + '</span>' +
+      '</div>' +
+      '<div class="meta-stats">' +
+        '<div class="stat"><b>' + set + '</b><span>Days set</span></div>' +
+        '<div class="stat"><b>' + confirmed + '</b><span>Confirmed</span></div>' +
+        '<div class="stat"><b>' + state.substitutions.length + '</b><span>Overrides</span></div>' +
+      '</div>';
+
+    var pct = Math.round((set / 7) * 100);
+    $("#progressFill").style.width = pct + "%";
+    $("#progressCount").textContent = set + " of 7 days set";
+  }
+
+  /* ============================================================
+     MODULE BODIES
+     ============================================================ */
+  function dayModuleHTML(d) {
+    var x = findDay(d.k);
+    var isToday = todayAbbr() === d.k;
+
+    if (!x) {
+      return '' +
+        '<div class="module">' +
+          '<p class="module-note">No schedule set for <b>' + esc(d.label) + '</b> yet. Add a location and times to publish this day.</p>' +
+          '<div class="empty-note">Nothing planned for this day.</div>' +
+          '<button type="button" class="add-btn" data-edit="' + esc(d.k) + '">+ Set ' + esc(d.label) + '</button>' +
+        '</div>';
+    }
+
+    var loc = x.location || {};
+    var isLiveDay = isLive(x);
+    var isStaleDay = isStale(x);
+    var statusLabel = x.status || "tentative";
+
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">' +
+          (loc.town
+            ? 'Scheduled at <b>' + esc(locationLine(loc) || loc.town) + '</b>. Toggle live when the truck is on site.'
+            : 'Add the location details so customers know where to find you.') +
+        '</p>' +
+
+        '<div class="detail-grid">' +
+          '<div class="detail-tile wide">' +
+            '<div class="lbl">Location</div>' +
+            '<div class="val">' + (nonEmpty(loc.town) ? esc(locationLine(loc)) : "—") + '</div>' +
+            (loc.landmark ? '<div style="font-size:11.5px;color:var(--faint);margin-top:4px;font-weight:550">' + esc(loc.landmark) + '</div>' : '') +
+          '</div>' +
+          '<div class="detail-tile">' +
+            '<div class="lbl">Start</div>' +
+            '<div class="val">' + esc(x.startTime || "—") + '</div>' +
+          '</div>' +
+          '<div class="detail-tile">' +
+            '<div class="lbl">End</div>' +
+            '<div class="val">' + esc(x.endTime || "—") + '</div>' +
+          '</div>' +
+          (x.backup
+            ? '<div class="detail-tile wide">' +
+                '<div class="lbl">Backup location</div>' +
+                '<div class="val">' + esc(x.backup) + '</div>' +
+              '</div>'
+            : '') +
+          (x.notes
+            ? '<div class="detail-tile wide">' +
+                '<div class="lbl">Notes for customers</div>' +
+                '<div class="val" style="font-weight:600;font-size:12.5px">' + esc(x.notes) + '</div>' +
+              '</div>'
+            : '') +
+        '</div>' +
+
+        '<label class="live-row' + (isLiveDay ? " on" : "") + '" data-live-for="' + esc(d.k) + '">' +
+          '<input type="checkbox" data-live-toggle="' + esc(d.k) + '"' + (isLiveDay ? " checked" : "") + '>' +
+          '<span class="info">' +
+            '<span class="title">' + (isLiveDay ? "Live now" : (isStaleDay ? "Live expired" : "Mark as live")) + '</span>' +
+            '<span class="sub">' +
+              (isLiveDay
+                ? "Customers see you as live on the map"
+                : (isStaleDay ? "Expired after 12 hours · toggle to refresh" : "Flip this on when the truck is on site")) +
+            '</span>' +
+          '</span>' +
+        '</label>' +
+
+        '<div class="act-grid">' +
+          '<button type="button" class="act-btn primary" data-edit="' + esc(d.k) + '">Edit details</button>' +
+          '<button type="button" class="act-btn" data-copy="' + esc(d.k) + '">Duplicate</button>' +
+          '<button type="button" class="act-btn danger wide" data-del="' + esc(d.k) + '">Remove this day</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function dayHeaderHTML(d) {
+    var x = findDay(d.k);
+    var isToday = todayAbbr() === d.k;
+    var cls = "acc";
+    if (isToday) cls += " today";
+    if (!x) cls += " empty";
+    if (x && x.location && x.location.town) cls += " has-loc";
+    if (x && isLive(x)) cls += " has-loc";
+
+    var badgeHtml = '';
+    if (!x) {
+      badgeHtml = '<span class="day-badge"><span class="abbr">' + esc(d.abbr) + '</span><span class="sub">Open</span></span>';
+    } else {
+      badgeHtml = '<span class="day-badge">' +
+        '<span class="abbr">' + esc(d.abbr) + '</span>' +
+        '<span class="sub">' + (isToday ? "Today" : (x.status ? x.status.slice(0,3) : "")) + '</span>' +
+        (x.location && x.location.town ? '<span class="tick"></span>' : '') +
+      '</span>';
+    }
+
+    var title = esc(d.label);
+    var subParts = [];
+    if (!x) {
+      subParts.push("Not scheduled");
+    } else {
+      var loc = x.location || {};
+      if (loc.town) subParts.push(esc(loc.town) + (loc.area ? ", " + esc(loc.area) : ""));
+      else subParts.push("No location");
+      if (x.startTime && x.endTime) subParts.push(esc(x.startTime) + "–" + esc(x.endTime));
+    }
+
+    var statusPill = x
+      ? '<span class="status-pill ' + esc(x.status || "tentative") + '">' + esc(x.status || "tentative") + '</span>'
+      : '';
+
+    var liveBadge = x && isLive(x)
+      ? '<span class="live-tag"><span class="pulse"></span>Live</span>'
+      : '';
+
+    return '' +
+      '<button class="acc-head" type="button" aria-expanded="false">' +
+        badgeHtml +
+        '<span class="acc-title">' +
+          '<b>' + title + statusPill + liveBadge + '</b>' +
+          '<span class="acc-sub">' + subParts.join('<span class="dot-sep">·</span>') + '</span>' +
+        '</span>' +
+      '</button>';
+  }
+
+  function buildDaySection(d) {
+    return '' +
+      '<section class="' + dayClass(d) + '" data-key="' + esc(d.k) + '">' +
+        dayHeaderHTML(d) +
+        '<div class="acc-body">' +
+          '<div class="acc-inner" data-body="' + esc(d.k) + '">' +
+            dayModuleHTML(d) +
+          '</div>' +
+        '</div>' +
+      '</section>';
+  }
+
+  function dayClass(d) {
+    var x = findDay(d.k);
+    var isToday = todayAbbr() === d.k;
+    var cls = "acc";
+    if (isToday) cls += " today";
+    if (!x) cls += " empty";
+    if (x && x.location && x.location.town) cls += " has-loc";
+    return cls;
+  }
+
+  function substitutionsModuleHTML() {
+    var list = state.substitutions.slice().sort(function (a, b) {
+      return (a.date || "").localeCompare(b.date || "");
+    });
+
+    if (!list.length) {
+      return '' +
+        '<div class="module">' +
+          '<p class="module-note">Override a single date without changing the weekly pattern. Useful for markets, festivals, or one-off events.</p>' +
+          '<div class="empty-note">No dated substitutions yet.</div>' +
+          '<button type="button" class="add-btn" data-add-sub="1">+ Add one-off substitution</button>' +
+        '</div>';
+    }
+
+    return '' +
+      '<div class="module">' +
+        '<p class="module-note">' + list.length + ' dated override' + (list.length === 1 ? "" : "s") + '. These replace the weekly slot for that specific date only.</p>' +
+        list.map(function (s) {
+          var parts = fmtDateShort(s.date);
+          var loc = (s.override && s.override.location) || {};
+          var time = (s.override && s.override.startTime && s.override.endTime)
+            ? s.override.startTime + "–" + s.override.endTime
+            : "";
+          return '<article class="sub-card" data-sub-id="' + esc(s.date) + '|' + esc(s.originalDay) + '">' +
+            '<div class="sub-date"><span class="d">' + esc(parts.d) + '</span><span class="m">' + esc(parts.m) + '</span></div>' +
+            '<div class="sub-info">' +
+              '<div class="sub-title">Replaces <b>' + esc(dayLabel(s.originalDay)) + '</b></div>' +
+              '<div class="sub-meta">' +
+                (nonEmpty(loc.town) ? esc(locationLine(loc)) : "—") +
+                (time ? " · " + esc(time) : "") +
+              '</div>' +
+            '</div>' +
+            '<div class="sub-actions">' +
+              '<button type="button" class="mini-btn danger" data-del-sub="' + esc(s.date) + '|' + esc(s.originalDay) + '" aria-label="Remove">✕</button>' +
+            '</div>' +
+          '</article>';
+        }).join("") +
+        '<button type="button" class="add-btn" data-add-sub="1">+ Add one-off substitution</button>' +
+      '</div>';
+  }
+
+  function howItWorksModuleHTML() {
+    return '' +
+      '<div class="module">' +
+        '<div class="info-block">' +
+          '<h4>Live status</h4>' +
+          '<p>Toggle <b>Mark as live</b> when the truck is actually on site. Live status expires automatically after <b>12 hours</b> so customers never see a stale pin.</p>' +
+        '</div>' +
+
+        '<div class="info-block">' +
+          '<h4>Status</h4>' +
+          '<p><b>Confirmed</b> means you are committed to that day. <b>Tentative</b> means the location may still change. <b>Cancelled</b> hides the day from customers.</p>' +
+        '</div>' +
+
+        '<div class="info-block">' +
+          '<h4>One-off substitutions</h4>' +
+          '<p>Use substitutions when the truck is going somewhere different for a single date — markets, festivals, private events. They override the weekly pattern for that date only.</p>' +
+        '</div>' +
+
+        '<div class="info-block">' +
+          '<h4>Duplicate day</h4>' +
+          '<p>Tap <b>Duplicate</b> on any day to copy its location and times to another weekday. Useful when the same route repeats during the week.</p>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bodyFor(key) {
+    if (key === "__subs") return substitutionsModuleHTML();
+    if (key === "__how") return howItWorksModuleHTML();
+    var d = DAYS.filter(function (x) { return x.k === key; })[0];
+    if (!d) return "";
+    return dayModuleHTML(d);
+  }
+
+  /* ============================================================
+     BUILD STACK
+     ============================================================ */
+  var openKey = null;
+
+  function buildStack() {
+    var stack = $("#stack");
+
+    var daySections = DAYS.map(function (d) {
+      var isOpen = openKey === d.k;
+      var cls = dayClass(d);
+      if (isOpen) cls += " open";
+
+      return '' +
+        '<section class="' + cls + '" data-key="' + esc(d.k) + '">' +
+          dayHeaderHTML(d) +
+          '<div class="acc-body">' +
+            '<div class="acc-inner" data-body="' + esc(d.k) + '">' +
+              dayModuleHTML(d) +
+            '</div>' +
+          '</div>' +
+        '</section>';
+    }).join("");
+
+    /* substitutions section */
+    var subsOpen = openKey === "__subs";
+    var subsSub = state.substitutions.length
+      ? state.substitutions.length + " dated override" + (state.substitutions.length === 1 ? "" : "s")
+      : "No overrides yet";
+    var subsSection = '' +
+      '<section class="acc' + (subsOpen ? " open" : "") + (state.substitutions.length ? " has-loc" : " empty") + '" data-key="__subs">' +
+        '<button class="acc-head" type="button" aria-expanded="' + subsOpen + '">' +
+          '<span class="day-badge"><span class="abbr">★</span><span class="sub">Sub</span></span>' +
+          '<span class="acc-title">' +
+            '<b>One-off substitutions</b>' +
+            '<span class="acc-sub">' + esc(subsSub) + '</span>' +
+          '</span>' +
+        '</button>' +
+        '<div class="acc-body">' +
+          '<div class="acc-inner" data-body="__subs">' +
+            substitutionsModuleHTML() +
+          '</div>' +
+        '</div>' +
+      '</section>';
+
+    /* how it works */
+    var howOpen = openKey === "__how";
+    var howSection = '' +
+      '<section class="acc' + (howOpen ? " open" : "") + '" data-key="__how">' +
+        '<button class="acc-head" type="button" aria-expanded="' + howOpen + '">' +
+          '<span class="day-badge"><span class="abbr">i</span><span class="sub">Info</span></span>' +
+          '<span class="acc-title">' +
+            '<b>How the schedule works</b>' +
+            '<span class="acc-sub">Live status, substitutions and rules</span>' +
+          '</span>' +
+        '</button>' +
+        '<div class="acc-body">' +
+          '<div class="acc-inner" data-body="__how">' +
+            howItWorksModuleHTML() +
+          '</div>' +
+        '</div>' +
+      '</section>';
+
+    stack.innerHTML = daySections + subsSection + howSection;
+  }
+
+  function render() {
+    renderMeta();
+    buildStack();
+  }
+
+  function refreshBody(key) {
+    var body = $("#stack").querySelector('[data-body="' + key + '"]');
+    if (!body) return;
+    body.innerHTML = bodyFor(key);
+  }
+
+  /* ============================================================
+     ACCORDION
+     ============================================================ */
+  function openAccordion(key, scrollTo) {
+    openKey = key;
+    $$(".acc", $("#stack")).forEach(function (acc) {
+      var isOpen = acc.dataset.key === key;
+      acc.classList.toggle("open", isOpen);
+      var head = acc.querySelector(".acc-head");
+      if (head) head.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+    if (key && scrollTo) {
+      var acc = $("#stack").querySelector('.acc[data-key="' + key + '"]');
+      if (acc) {
+        setTimeout(function () {
+          try { acc.scrollIntoView({ behavior:"smooth", block:"start" }); } catch (e) {}
+        }, 320);
+      }
+    }
+  }
+  function toggleAccordion(key) {
+    if (openKey === key) openAccordion(null);
+    else openAccordion(key, true);
+  }
+
+  /* ============================================================
+     MODAL SYSTEM
+     ============================================================ */
+  function openModal(opts) {
+    var scrim = document.createElement("div");
+    scrim.className = "modal-scrim";
+    scrim.innerHTML =
+      '<div class="modal" role="dialog" aria-modal="true">' +
+        '<div class="modal-hdr">' +
+          '<h3>' + esc(opts.title) + '</h3>' +
+          '<button class="modal-close" type="button" data-close aria-label="Close">✕</button>' +
+        '</div>' +
+        '<div class="modal-body">' + opts.body + '</div>' +
+        '<div class="modal-foot">' + opts.footer + '</div>' +
+      '</div>';
+    document.body.appendChild(scrim);
+    scrim.querySelectorAll("[data-close]").forEach(function (b) {
+      b.onclick = function () { scrim.remove(); };
+    });
+    scrim.addEventListener("click", function (e) {
+      if (e.target === scrim) scrim.remove();
+    });
+    if (opts.onMount) opts.onMount(scrim);
+    return scrim;
+  }
+
+  /* ============================================================
+     DAY EDIT MODAL
+     ============================================================ */
+  function editDayModal(dayKey) {
+    var d = DAYS.filter(function (x) { return x.k === dayKey; })[0];
+    if (!d) return;
+    var existing = findDay(dayKey);
+    var x = existing ? JSON.parse(JSON.stringify(existing)) : {
+      day: dayKey,
+      location: { district:"", town:"", area:"", plot:"", landmark:"" },
+      backup: "",
+      startTime: "11:00",
+      endTime: "15:00",
+      status: "tentative",
+      notes: "",
+      liveNow: false,
+      liveSetAt: null
+    };
+    x.location = Object.assign({ district:"", town:"", area:"", plot:"", landmark:"" }, x.location || {});
+
+    var districtOpts = DISTRICTS.map(function (dd) {
+      return '<option value="' + esc(dd) + '"' + (x.location.district === dd ? " selected" : "") + '>' + esc(dd) + '</option>';
+    }).join("");
+
+    var townOpts = (DIST_TOWNS[x.location.district] || []).map(function (t) {
+      return '<option value="' + esc(t) + '"' + (x.location.town === t ? " selected" : "") + '>' + esc(t) + '</option>';
+    }).join("");
+
+    var statusOpts = STATUSES.map(function (s) {
+      return '<option value="' + s + '"' + ((x.status || "tentative") === s ? " selected" : "") + '>' +
+        s.charAt(0).toUpperCase() + s.slice(1) + '</option>';
+    }).join("");
+
+    var body =
+      '<div class="field">' +
+        '<label>District</label>' +
+        '<select class="select" id="ed-district"><option value="">— Select district —</option>' + districtOpts + '</select>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Town / city</label>' +
+        '<select class="select" id="ed-town"><option value="">— Select town —</option>' + townOpts + '</select>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Area / neighbourhood <span class="opt">— optional</span></label>' +
+        '<input class="input" type="text" id="ed-area" value="' + esc(x.location.area) + '" placeholder="e.g. CBD">' +
+      '</div>' +
+
+      '<div class="row-2">' +
+        '<div class="field">' +
+          '<label>Plot / street <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" id="ed-plot" value="' + esc(x.location.plot) + '">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Landmark <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" id="ed-landmark" value="' + esc(x.location.landmark) + '" placeholder="Near…">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="row-2">' +
+        '<div class="field">' +
+          '<label>Start time</label>' +
+          '<input class="input" type="time" id="ed-start" value="' + esc(x.startTime || "11:00") + '">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>End time</label>' +
+          '<input class="input" type="time" id="ed-end" value="' + esc(x.endTime || "15:00") + '">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Status</label>' +
+        '<select class="select" id="ed-status">' + statusOpts + '</select>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Backup location <span class="opt">— optional</span></label>' +
+        '<input class="input" type="text" id="ed-backup" value="' + esc(x.backup || "") + '" placeholder="Used if main site unavailable">' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Customer notes <span class="opt">— optional</span></label>' +
+        '<textarea class="textarea" id="ed-notes" placeholder="e.g. Cash and mobile money only.">' + esc(x.notes || "") + '</textarea>' +
+      '</div>' +
+
+      '<label class="check-row">' +
+        '<input type="checkbox" id="ed-live"' + (isLive(x) ? " checked" : "") + '>' +
+        '<span>Mark truck live right now</span>' +
+      '</label>';
+
+    var footer =
+      '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+      '<button class="btn btn-primary" type="button" data-save>' + (existing ? "Save changes" : "Add " + d.label) + '</button>';
+
+    var scrim = openModal({
+      title: (existing ? "Edit " : "Add ") + d.label,
+      body: body,
+      footer: footer
+    });
+
+    /* wire district → town dropdown */
+    var districtSel = scrim.querySelector("#ed-district");
+    var townSel = scrim.querySelector("#ed-town");
+    districtSel.onchange = function () {
+      var list = DIST_TOWNS[districtSel.value] || [];
+      townSel.innerHTML = '<option value="">— Select town —</option>' +
+        list.map(function (t) {
+          return '<option value="' + esc(t) + '">' + esc(t) + '</option>';
+        }).join("");
+    };
+
+    scrim.querySelector("[data-save]").onclick = function () {
+      var town = townSel.value.trim();
+      if (!town) { toast("Select a town"); townSel.focus(); return; }
+
+      var start = scrim.querySelector("#ed-start").value;
+      var end = scrim.querySelector("#ed-end").value;
+      if (!start || !end) { toast("Add start and end times"); return; }
+      if (end <= start) { toast("End time must be after start"); return; }
+
+      var status = scrim.querySelector("#ed-status").value;
+      var liveCheck = scrim.querySelector("#ed-live");
+      var wantLive = liveCheck.checked && status !== "cancelled";
+
+      var data = {
+        day: dayKey,
+        location: {
+          district: districtSel.value,
+          town: town,
+          area: scrim.querySelector("#ed-area").value.trim(),
+          plot: scrim.querySelector("#ed-plot").value.trim(),
+          landmark: scrim.querySelector("#ed-landmark").value.trim()
+        },
+        backup: scrim.querySelector("#ed-backup").value.trim(),
+        startTime: start,
+        endTime: end,
+        status: status,
+        notes: scrim.querySelector("#ed-notes").value.trim(),
+        liveNow: wantLive,
+        liveSetAt: wantLive ? Date.now() : null
+      };
+
+      var idx = state.weekly.findIndex(function (y) { return y.day === dayKey; });
+      if (idx >= 0) state.weekly[idx] = data;
+      else state.weekly.push(data);
+
+      // keep weekly sorted by DAYS order
+      state.weekly.sort(function (a, b) {
+        return DAYS.findIndex(function (z) { return z.k === a.day; }) -
+               DAYS.findIndex(function (z) { return z.k === b.day; });
+      });
+
+      save();
+      render();
+      scrim.remove();
+      openAccordion(dayKey, false);
+      toast(existing ? "Day updated" : d.label + " added");
+    };
+
+    setTimeout(function () {
+      try { townSel.focus(); } catch (e) {}
+    }, 80);
+  }
+
+  /* ============================================================
+     SUBSTITUTION MODAL
+     ============================================================ */
+  function addSubstitutionModal() {
+    var tomorrow = offsetDate(1);
+
+    var dayOpts = DAYS.map(function (d) {
+      return '<option value="' + esc(d.k) + '">' + esc(d.label) + '</option>';
+    }).join("");
+
+    var districtOpts = DISTRICTS.map(function (d) {
+      return '<option value="' + esc(d) + '">' + esc(d) + '</option>';
+    }).join("");
+
+    var body =
+      '<div class="field">' +
+        '<label>Date</label>' +
+        '<input class="input" type="date" id="sb-date" min="' + esc(todayDate()) + '" value="' + esc(tomorrow) + '">' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Replaces</label>' +
+        '<select class="select" id="sb-original">' + dayOpts + '</select>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>District</label>' +
+        '<select class="select" id="sb-district"><option value="">— Select district —</option>' + districtOpts + '</select>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Town / city</label>' +
+        '<select class="select" id="sb-town"><option value="">— Select town —</option></select>' +
+      '</div>' +
+
+      '<div class="row-2">' +
+        '<div class="field">' +
+          '<label>Area <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" id="sb-area" placeholder="e.g. Main Kgotla">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Plot / location <span class="opt">— optional</span></label>' +
+          '<input class="input" type="text" id="sb-plot">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="row-2">' +
+        '<div class="field">' +
+          '<label>Start time</label>' +
+          '<input class="input" type="time" id="sb-start" value="11:00">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>End time</label>' +
+          '<input class="input" type="time" id="sb-end" value="15:00">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label>Notes <span class="opt">— optional</span></label>' +
+        '<input class="input" type="text" id="sb-notes" placeholder="e.g. Mochudi market day">' +
+      '</div>';
+
+    var footer =
+      '<button class="btn btn-ghost" type="button" data-close>Cancel</button>' +
+      '<button class="btn btn-primary" type="button" data-save>Add substitution</button>';
+
+    var scrim = openModal({
+      title: "Add one-off substitution",
+      body: body,
+      footer: footer
+    });
+
+    var districtSel = scrim.querySelector("#sb-district");
+    var townSel = scrim.querySelector("#sb-town");
+    districtSel.onchange = function () {
+      var list = DIST_TOWNS[districtSel.value] || [];
+      townSel.innerHTML = '<option value="">— Select town —</option>' +
+        list.map(function (t) {
+          return '<option value="' + esc(t) + '">' + esc(t) + '</option>';
+        }).join("");
+    };
+
+    scrim.querySelector("[data-save]").onclick = function () {
+      var date = scrim.querySelector("#sb-date").value;
+      var orig = scrim.querySelector("#sb-original").value;
+      var town = townSel.value.trim();
+      var start = scrim.querySelector("#sb-start").value;
+      var end = scrim.querySelector("#sb-end").value;
+
+      if (!date) { toast("Choose a date"); return; }
+      if (!town) { toast("Select a town"); return; }
+      if (!start || !end) { toast("Add start and end times"); return; }
+      if (end <= start) { toast("End time must be after start"); return; }
+
+      var replacement = {
+        date: date,
+        originalDay: orig,
+        override: {
+          location: {
+            district: districtSel.value,
+            town: town,
+            area: scrim.querySelector("#sb-area").value.trim(),
+            plot: scrim.querySelector("#sb-plot").value.trim(),
+            landmark: ""
+          },
+          startTime: start,
+          endTime: end,
+          status: "confirmed",
+          notes: scrim.querySelector("#sb-notes").value.trim()
+        }
+      };
+
+      var idx = state.substitutions.findIndex(function (s) { return s.date === date; });
+      if (idx >= 0) state.substitutions[idx] = replacement;
+      else state.substitutions.push(replacement);
+
+      save();
+      render();
+      scrim.remove();
+      openAccordion("__subs", false);
+      toast("Substitution saved");
+    };
+
+    setTimeout(function () {
+      try { townSel.focus(); } catch (e) {}
+    }, 80);
+  }
+
+  /* ============================================================
+     EVENT DELEGATION
+     ============================================================ */
+  var stack = $("#stack");
+
+  stack.addEventListener("click", function (e) {
+
+    /* accordion header */
+    var head = e.target.closest(".acc-head");
+    if (head) {
+      var acc = head.closest(".acc");
+      if (acc) toggleAccordion(acc.dataset.key);
+      return;
+    }
+
+    /* edit day */
+    var edit = e.target.closest("[data-edit]");
+    if (edit) {
+      e.stopPropagation();
+      editDayModal(edit.dataset.edit);
+      return;
+    }
+
+    /* duplicate day */
+    var dup = e.target.closest("[data-copy]");
+    if (dup) {
+      e.stopPropagation();
+      duplicateDay(dup.dataset.copy);
+      return;
+    }
+
+    /* delete day */
+    var del = e.target.closest("[data-del]");
+    if (del) {
+      e.stopPropagation();
+      var k = del.dataset.del;
+      var d = findDay(k);
+      if (!d) return;
+      if (!confirm("Remove " + dayLabel(k) + " from the weekly schedule?")) return;
+      state.weekly = state.weekly.filter(function (x) { return x.day !== k; });
+      save();
+      render();
+      if (openKey === k) openAccordion(null);
+      toast(dayLabel(k) + " removed");
+      return;
+    }
+
+    /* live toggle */
+    var liveBtn = e.target.closest("[data-live-for]");
+    if (liveBtn && !e.target.closest("input")) {
+      e.stopPropagation();
+      var lid = liveBtn.dataset.liveFor;
+      toggleLive(lid);
+      return;
+    }
+
+    /* add substitution */
+    if (e.target.closest("[data-add-sub]")) {
+      e.stopPropagation();
+      addSubstitutionModal();
+      return;
+    }
+
+    /* delete substitution */
+    var delSub = e.target.closest("[data-del-sub]");
+    if (delSub) {
+      e.stopPropagation();
+      var parts = delSub.dataset.delSub.split("|");
+      var date = parts[0];
+      if (!confirm("Remove this substitution?")) return;
+      state.substitutions = state.substitutions.filter(function (s) { return s.date !== date; });
+      save();
+      render();
+      if (openKey === "__subs") openAccordion("__subs", false);
+      toast("Substitution removed");
+      return;
+    }
+  });
+
+  /* live toggle change */
+  stack.addEventListener("change", function (e) {
+    var check = e.target.closest("[data-live-toggle]");
+    if (!check) return;
+    e.stopPropagation();
+    var k = check.dataset.liveToggle;
+    toggleLive(k);
+  });
+
+  function toggleLive(k) {
+    var d = findDay(k);
+    if (!d) return;
+    if (d.status === "cancelled") {
+      toast("This day is cancelled");
+      return;
+    }
+    var wantLive = !isLive(d);
+    d.liveNow = wantLive;
+    d.liveSetAt = wantLive ? Date.now() : null;
+    save();
+    refreshBody(k);
+    renderMeta();
+    // refresh header too
+    var acc = $("#stack").querySelector('.acc[data-key="' + k + '"]');
+    if (acc) {
+      var headEl = acc.querySelector(".acc-head");
+      if (headEl) headEl.outerHTML = dayHeaderHTML(DAYS.filter(function (x) { return x.k === k; })[0]);
+    }
+    toast(wantLive ? "Truck marked live" : "Live status off");
+  }
+
+  function duplicateDay(sourceKey) {
+    var src = findDay(sourceKey);
+    if (!src) { toast("Nothing to duplicate"); return; }
+
+    var target = prompt("Duplicate " + dayLabel(sourceKey) + " to which day?\nEnter: mon, tue, wed, thu, fri, sat, or sun");
+    if (!target) return;
+    var k = target.toLowerCase().slice(0, 3);
+    var d = DAYS.filter(function (x) { return x.k === k; })[0];
+    if (!d) { toast("Please enter a valid weekday"); return; }
+
+    var copy = JSON.parse(JSON.stringify(src));
+    copy.day = k;
+    copy.liveNow = false;
+    copy.liveSetAt = null;
+
+    var idx = state.weekly.findIndex(function (x) { return x.day === k; });
+    if (idx >= 0) state.weekly[idx] = copy;
+    else state.weekly.push(copy);
+
+    state.weekly.sort(function (a, b) {
+      return DAYS.findIndex(function (z) { return z.k === a.day; }) -
+             DAYS.findIndex(function (z) { return z.k === b.day; });
+    });
+
+    save();
+    render();
+    openAccordion(k, false);
+    toast("Duplicated to " + d.label);
+  }
+
+  /* ============================================================
+     BOTTOM ACTION
+     ============================================================ */
+  $("#btnAdd").addEventListener("click", function () {
+    // jump to today's day (or monday) for editing
+    var k = todayAbbr();
+    if (!findDay(k)) k = "mon";
+    // open the edit modal directly for the current day
+    editDayModal(k);
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  render();
+  openAccordion(null);
+
+})();
+</script>
+</body>
+</html>
