@@ -64,7 +64,8 @@ const SUITES = [
   'content.js',
   'inventory.js',
   'venue-slug.js',
-  'venue-slug-integration.js'
+  'venue-slug-integration.js',
+  'business-profiles.js'
 ];
 
 function pad(n, width) {

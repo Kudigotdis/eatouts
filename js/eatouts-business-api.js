@@ -418,7 +418,131 @@
     return { id: s.id, serverId: s.id, name: s.name || '', order: s.position || 0, visible: true };
   }
 
-  window.EatoutsBusinessApi = {
+  /* ---------- business profiles / contacts / services / users ---------- */
+
+function businessProfilesGet(businessId) {
+  return api('/api/business/profiles?business_id=' + encodeURIComponent(businessId));
+}
+
+function businessProfilesCreate(data) {
+  return api('/api/business/profiles', { method: 'POST', body: data });
+}
+
+function businessProfilesPatch(businessId, data) {
+  return api('/api/business/profiles?business_id=' + encodeURIComponent(businessId), {
+    method: 'PATCH', body: data
+  });
+}
+
+function businessProfilesDelete(businessId) {
+  return api('/api/business/profiles?business_id=' + encodeURIComponent(businessId), { method: 'DELETE' });
+}
+
+function businessContactsGet(businessId) {
+  return api('/api/business/contacts?business_id=' + encodeURIComponent(businessId));
+}
+
+function businessContactsCreate(businessId, data) {
+  return api('/api/business/contacts', { method: 'POST', body: Object.assign({ business_id: businessId }, data || {}) });
+}
+
+function businessContactsPatch(contactId, data) {
+  return api('/api/business/contacts?id=' + encodeURIComponent(contactId), { method: 'PATCH', body: data });
+}
+
+function businessContactsDelete(contactId) {
+  return api('/api/business/contacts?id=' + encodeURIComponent(contactId), { method: 'DELETE' });
+}
+
+function businessServicesGet(businessId) {
+  return api('/api/business/services?business_id=' + encodeURIComponent(businessId));
+}
+
+function businessServicesCreate(businessId, data) {
+  return api('/api/business/services', { method: 'POST', body: Object.assign({ business_id: businessId }, data || {}) });
+}
+
+function businessServicesPatch(serviceId, data) {
+  return api('/api/business/services?id=' + encodeURIComponent(serviceId), { method: 'PATCH', body: data });
+}
+
+function businessServicesDelete(serviceId) {
+  return api('/api/business/services?id=' + encodeURIComponent(serviceId), { method: 'DELETE' });
+}
+
+function businessUsersGet(businessId) {
+  return api('/api/business/users?business_id=' + encodeURIComponent(businessId));
+}
+
+function businessUsersCreate(businessId, data) {
+  return api('/api/business/users', { method: 'POST', body: Object.assign({ business_id: businessId }, data || {}) });
+}
+
+function businessUsersPatch(userId, data) {
+  return api('/api/business/users?id=' + encodeURIComponent(userId), { method: 'PATCH', body: data });
+}
+
+function businessUsersDelete(userId) {
+  return api('/api/business/users?id=' + encodeURIComponent(userId), { method: 'DELETE' });
+}
+
+/* local onboarding model <-> server profile row */
+function businessProfileToModel(model) {
+  var m = model || {};
+  var loc = m.location || {};
+  var out = {};
+  function set(k, v) { if (v !== undefined && v !== null && v !== '') out[k] = v; }
+  set('name', m.name || (m.identity && m.identity.name));
+  set('description', m.description || (m.identity && m.identity.description));
+  set('logo', m.logo);
+  set('coverImage', m.coverImage);
+  set('status', m.status || 'draft');
+  set('types', m.types || (m.menuTags && m.menuTags.cuisine) || []);
+  set('category', m.category || m.type);
+  set('location', m.location || loc);
+  set('socials', m.socials || m.socialsFields || {});
+  set('operatingHours', m.operatingHours || m.hours || {});
+  set('character', m.character || []);
+  set('amenities', m.amenities || []);
+  set('menuTags', m.menuTags || []);
+  set('capacity', m.capacity || []);
+  set('payments', m.payments || []);
+  set('reservations', m.reservations || {});
+  set('setupFeePaid', m.setupFeePaid || 0);
+  set('plan', m.plan || 'starter');
+  return out;
+}
+
+function businessProfileFromServer(row) {
+  return {
+    id: row.id,
+    businessId: row.id,
+    userId: row.user_id,
+    slug: row.slug,
+    name: row.name,
+    description: row.description,
+    logo: row.logo,
+    coverImage: row.cover_image,
+    status: row.status,
+    types: JSON.parse(row.types_json || '[]'),
+    category: row.category,
+    location: JSON.parse(row.location_json || '{}'),
+    socials: JSON.parse(row.socials_json || '{}'),
+    operatingHours: JSON.parse(row.operating_hours_json || '{}'),
+    character: JSON.parse(row.character_json || '[]'),
+    amenities: JSON.parse(row.amenities_json || '[]'),
+    menuTags: JSON.parse(row.menu_tags_json || '[]'),
+    capacity: JSON.parse(row.capacity_json || '[]'),
+    payments: JSON.parse(row.payments_json || '[]'),
+    reservations: JSON.parse(row.reservations_json || '{}'),
+    setupFeePaid: !!row.setup_fee_paid,
+    plan: row.plan,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+window.EatoutsBusinessApi = {
     state: state,
     api: api,
     mine: mine,
@@ -461,6 +585,24 @@
     eventFromServer: eventFromServer,
     promosRead: promosRead,
     promoSubmit: promoSubmit,
-    promoToSubmission: promoToSubmission
+    promoToSubmission: promoToSubmission,
+    businessProfilesGet: businessProfilesGet,
+    businessProfilesCreate: businessProfilesCreate,
+    businessProfilesPatch: businessProfilesPatch,
+    businessProfilesDelete: businessProfilesDelete,
+    businessContactsGet: businessContactsGet,
+    businessContactsCreate: businessContactsCreate,
+    businessContactsPatch: businessContactsPatch,
+    businessContactsDelete: businessContactsDelete,
+    businessServicesGet: businessServicesGet,
+    businessServicesCreate: businessServicesCreate,
+    businessServicesPatch: businessServicesPatch,
+    businessServicesDelete: businessServicesDelete,
+    businessUsersGet: businessUsersGet,
+    businessUsersCreate: businessUsersCreate,
+    businessUsersPatch: businessUsersPatch,
+    businessUsersDelete: businessUsersDelete,
+    businessProfileToModel: businessProfileToModel,
+    businessProfileFromServer: businessProfileFromServer
   };
 })();

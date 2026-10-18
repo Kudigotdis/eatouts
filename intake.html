@@ -153,6 +153,7 @@ input:focus,textarea:focus,select:focus{border-color:#1a1a1a;box-shadow:0 0 0 3p
 <script src="js/eatouts-video-validator.js"></script>
 <script src="js/eatouts-brand.js"></script>
 <script src="js/eatouts-locations.js"></script>
+<script src="js/eatouts-business-api.js"></script>
 <script src="botswana_locations.js"></script>
 <script>
 if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
@@ -1106,9 +1107,48 @@ else{EatoutsAuth.applyActive();}
     if(act==='printChecklist'){ window.print(); return; }
   });
 
+  /* ---------- D1 persistence ---------- */
+  async function intakeSaveToD1(){
+    try{
+      var session=EatoutsAuth.currentSession?EatoutsAuth.currentSession():null;
+      var userId=session&&session.userId;
+      if(!userId)return;
+      var model={
+        name:draft.identity.name,
+        description:draft.identity.description,
+        logo:draft.identity.logo,
+        coverImage:draft.identity.coverImage,
+        status:'draft',
+        types:draft.identity.types||[],
+        category:null,
+        location:draft.location||{},
+        socials:draft.socials||{},
+        operatingHours:draft.hours||{},
+        character:draft.character||[],
+        amenities:draft.amenities||[],
+        menuTags:draft.menuTags||[],
+        capacity:draft.capacity||[],
+        payments:draft.payments||[],
+        reservations:draft.reservations||{},
+        setupFeePaid:0,
+        plan:'starter'
+      };
+      var result;
+      if(draft.serverBusinessId){
+        result=await EatoutsBusinessApi.businessProfilesPatch(draft.serverBusinessId,model);
+      }else{
+        result=await EatoutsBusinessApi.businessProfilesCreate(model);
+      }
+      if(result.ok&&result.data&&result.data.business){
+        draft.serverBusinessId=result.data.business.businessId||result.data.business.id;
+        draftSave(draft);
+      }
+    }catch(e){/* D1 save failed - localStorage still works */}
+  }
+
   /* ---------- action bar ---------- */
-  document.getElementById('btnSave').onclick = function(){
-    draft.updatedAt = Date.now(); draftSave(draft); toast('Draft saved');
+  document.getElementById('btnSave').onclick = async function(){
+    draft.updatedAt = Date.now(); draftSave(draft); await intakeSaveToD1(); toast('Draft saved');
   };
   document.getElementById('btnExport').onclick = function(){
     var slug = slugify(draft.identity.name) || 'untitled';

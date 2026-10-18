@@ -138,6 +138,7 @@ input:focus,textarea:focus,select:focus{border-color:#1a1a1a;box-shadow:0 0 0 3p
 <script src="js/eatouts-image-compressor.js"></script>
 <script src="js/eatouts-video-validator.js"></script>
 <script src="js/eatouts-upload.js"></script>
+<script src="js/eatouts-business-api.js"></script>
 <script>
 /* Operator pages are only reachable through the About Us sign-in.
    This runs before any page content paints. */
@@ -170,7 +171,27 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function move(arr,id,dir){const i=arr.findIndex(x=>x.id===id);if(i<0)return;const j=i+dir;if(j<0||j>=arr.length)return;const tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;arr.forEach((x,k)=>x.order=k+1);}
 
 let DB=dbLoad();
-function save(silent){dbSave(DB);if(!silent)toast('Saved');render();}
+function save(silent){dbSave(DB);saveToD1();if(!silent)toast('Saved');render();}
+
+async function saveToD1(){
+  try{
+    var session=EatoutsAuth.currentSession?EatoutsAuth.currentSession():null;
+    var userId=session&&session.userId;
+    if(!userId)return;
+    var model=EatoutsBusinessApi.businessProfileToModel(DB.restaurant);
+    model.userId=userId;
+    var result;
+    if(DB.restaurant.serverBusinessId){
+      result=await EatoutsBusinessApi.businessProfilesPatch(DB.restaurant.serverBusinessId,model);
+    }else{
+      result=await EatoutsBusinessApi.businessProfilesCreate(model);
+    }
+    if(result.ok&&result.data&&result.data.business){
+      DB.restaurant.serverBusinessId=result.data.business.businessId||result.data.business.id;
+      dbSave(DB);
+    }
+  }catch(e){/* D1 save failed - localStorage still works */}
+}
 
 /* ========== MODAL SYSTEM ========== */
 function openForm({title,fields,values,onSave,saveLabel}){

@@ -281,6 +281,33 @@
     if (!r.ok) return r;
     var b = F.bindOwner(r.venue, u.id, u.id);
     S.claimedId = r.venue.id;
+
+    /* Also create a D1 business profile so the venue is reachable at /<slug>. */
+    (async function(){
+      try{
+        var slug = String(name || '').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'business';
+        await EatoutsBusinessApi.businessProfilesCreate({
+          userId: u.id,
+          slug: slug,
+          name: String(name || '').trim(),
+          status: 'draft',
+          types: [cat],
+          category: null,
+          location: {},
+          socials: {},
+          operatingHours: {},
+          character: [],
+          amenities: [],
+          menuTags: [],
+          capacity: [],
+          payments: [],
+          reservations: {},
+          setupFeePaid: 0,
+          plan: 'starter'
+        });
+      }catch(e){/* best-effort D1 profile creation */}
+    })();
+
     return { ok: true, venue: b.venue };
   }
   function doSaveProfile(id, vals) {
