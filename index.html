@@ -197,7 +197,7 @@ img{display:block;max-width:100%}
 /* ---------- ACCORDION (smooth collapse/expand) ---------- */
 .acc-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
 .acc-wrap>.acc-in{overflow:hidden;min-height:0}
-.ecard.open>.acc-wrap,.mitem.open>.acc-wrap,.ritem.open>.acc-wrap{grid-template-rows:1fr}
+.ecard.open>.acc-wrap,.mitem.open>.acc-wrap,.ritem.open>.acc-wrap,.venuemenu.open>.acc-wrap{grid-template-rows:1fr}
 @media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}.screen.anim{animation:none}.fpop{animation:none}#filter-bar.on{animation:none}#cbar.on{animation:none}.bev-toggle-thumb{transition:none}::view-transition-old(app-vp),::view-transition-new(app-vp){animation:none}.panelfade-out{animation:none}.fpop-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,18,12,.42)}.fpop .week-days{transition:none}.az-bubble,.az-rail .az-letter{transition:none}}
 
 /* ---------- COUNTERS ---------- */
@@ -280,14 +280,15 @@ img{display:block;max-width:100%}
 .preview-layer .preview-img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.55);object-fit:contain}
 .preview-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:19px;line-height:1;padding:0}
 
-/* ---------- BEVERAGES PANEL (swipe inside the Restaurants tab) ---------- */
-/* Two-button strip above the pager: tap to jump, or swipe the pages. */
+/* ---------- RESTAURANTS PANEL (swipe inside the Restaurants tab) ---------- */
+/* Three-button strip above the pager: tap to jump, or swipe the pages. */
 .bev-toggle{position:relative;display:flex;align-items:center;flex:0 0 auto;min-height:2.25em;margin:0 0 8px;padding:5px;border-radius:0;background-color:#e7eff9;border:0;overflow:hidden}
-.bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc(50% - 5px);height:calc(100% - 10px);border-radius:3px;background:#fff;transition:transform .4s ease}
-.bev-toggle.bev .bev-toggle-thumb{transform:translateX(100%)}
-.bev-toggle-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;background:transparent;border:0;padding:9px 15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:11.5px;font-weight:700;line-height:normal;letter-spacing:.06em;text-transform:uppercase;color:#7e93ad;cursor:pointer;transition:color .2s}
-.bev-toggle-btn:first-of-type{text-align:left}
-.bev-toggle-btn:last-of-type{text-align:right}
+.bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc((100% - 10px)/3);height:calc(100% - 10px);border-radius:3px;background:#fff;transition:transform .4s ease}
+.bev-toggle.catering .bev-toggle-thumb{transform:translateX(100%)}
+.bev-toggle.bev .bev-toggle-thumb{transform:translateX(200%)}
+.bev-toggle-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;background:transparent;border:0;padding:9px 15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:11.5px;font-weight:700;line-height:normal;letter-spacing:.06em;text-transform:uppercase;color:#7e93ad;cursor:pointer;transition:color .2s}
+.bev-toggle-btn:first-of-type{justify-content:flex-start}
+.bev-toggle-btn:last-of-type{justify-content:flex-end}
 .bev-toggle-btn:active{color:#1a1a1a}
 .bev-toggle-btn.on{color:#7e93ad;font-weight:700;opacity:1}
 /* Horizontal pager: page 1 = Restaurants list, page 2 = Beverages. Native
@@ -632,16 +633,22 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 /* .ritem wraps the row + its options so the options can live OUTSIDE the
    row button (interactive content inside a <button> is invalid) and still
    animate via the shared .acc-wrap grid-rows transition. */
-.ritem{background:#ffffff;border:1px solid #ece7db;border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px rgba(16,24,40,.06);transition:box-shadow .25s ease,border-color .25s ease}
+.ritem{width:calc(100% - 20px);margin:7px 10px;background:#ffffff;border:1px solid #ece7db;border-radius:7px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px rgba(16,24,40,.06);transition:box-shadow .25s ease,border-color .25s ease}
 .ritem.open{border-color:#dfe3e9;box-shadow:0 2px 4px rgba(16,24,40,.06),0 18px 40px rgba(16,24,40,.10)}
 .ritem.open>.rrow{background:#ffffff}
 .rrow{display:flex;align-items:center;gap:13px;padding:13px 14px;background:#ffffff;border-bottom:0;width:100%;cursor:pointer;text-align:left;font:inherit;color:inherit;border-top:0;border-left:0;border-right:0;-webkit-tap-highlight-color:transparent}
 .rrow:active{background:#fafbfc}
+.venuemenu{background:#f4f1ea;border:1px solid #ece7db;border-radius:14px;overflow:hidden;margin:8px auto 16px;max-width:370px}
+.vmrow{display:block;width:100%;text-align:center;padding:14px;background:#e8e3d8;color:#3a3324;font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border:0;cursor:pointer}
+.vmrow:active{background:#ddd6c8}
 /* Layout box only. The square itself is painted by the injected
    .eo-thumb styles (js/eatouts-brand.js) so there is a single border
    and the colour fills the whole tile instead of hugging the letter. */
 .rthumb{width:54px;height:54px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:15px;overflow:hidden;background:#333;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);padding:0;border:0;cursor:pointer}
 .rthumb .eo-thumb{width:54px;height:54px}
+.ritem .rthumb{width:90px;height:90px;border-radius:12px;background:transparent;box-shadow:none}
+.ritem .rthumb .eo-thumb{width:90px;height:90px}
+.ritem .rthumb .eo-thumb-img{background-color:transparent;background-size:cover;background-position:center}
 .rinfo{flex:1;min-width:0}
 /* Business title: bold sans, deep charcoal, matching the app's default
    system font stack for a consistent look across the whole app. */
@@ -664,6 +671,7 @@ img[src*="heart_inactive_icon"]{opacity:.5}
    Promos) plus a centred icon row, matching the menu-selector redesign.
    Scoped to the accordion cards so other .ropts users keep the grid. */
 .ropts.brows{display:flex;flex-direction:column;gap:9px;padding:2px 14px 16px;background:#ffffff;border-bottom:0}
+.venuemenu .ropts.brows{padding-top:12px}
 .brow{display:flex;gap:8px;align-items:center}
 .brow .cbtn,.brow .cbtn-area{flex:1 1 0;min-width:0;overflow:hidden;text-align:center;text-overflow:ellipsis;white-space:nowrap}
 .brow .ropt{flex:1 1 0;min-width:0}
@@ -810,10 +818,12 @@ a.dlg-btn{display:flex;align-items:center;justify-content:center;text-decoration
 <script src="assets/data/event_types.js"></script>
 <script src="assets/data/venue-provider-list.js"></script>
 <script src="assets/data/BottleLliquorStoresDatabase.js"></script>
+<script src="assets/data/CateringServicesDatabase.js"></script>
 <script src="botswana_locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-brand.js"></script>
 <script src="js/eatouts-bottle-stores.js"></script>
+<script src="js/eatouts-catering.js"></script>
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-customer.js"></script>
@@ -3558,11 +3568,13 @@ profilePhoto:null,
 
   /* Restaurants tab */
   restaurantOpen:null,
+  venueMenuOpen:true,
   restBranchOf:{},
   restLocPicker:null,
   restNotice:null,
   cardAlert:null,
   restaurantView:null,
+  venueAboutOrphan:null,
   restTown:"All",
   restDistrict:"",
   restDistrictName:"",
@@ -3579,7 +3591,7 @@ profilePhoto:null,
      Restaurants nav button while already on the list toggles it */
   restFilterOpen:false,
 
-  /* Beverages panel (swipe page 2 of the Restaurants tab) */
+  /* Beverages panel (swipe page 3 of the Restaurants tab) */
   restPanel:"food",
   bevView:null,
   bevCheckout:false,
@@ -3604,7 +3616,14 @@ profilePhoto:null,
   bottleArea:"All",
   bottleQuery:"",
   bottleTownFilter:false,
-  bottleAreaFilter:false
+  bottleAreaFilter:false,
+
+  /* Catering directory (swipe page 2 of the Restaurants tab). Separate
+     accordion / branch / picker state from the food + beverage panels. */
+  cateringOpen:null,
+  cateringBranchOf:{},
+  cateringLocPicker:null,
+  cateringQuery:""
 };
 let restNoticeTimer=null;
 
@@ -4299,6 +4318,16 @@ function syncRestAccordions(){
     const on=state.restaurantOpen===el.getAttribute("data-racc");
     el.classList.toggle("open",on);
     const b=el.querySelector('.rrow[data-act="toggleRestaurant"]');
+    if(b) b.setAttribute("aria-expanded",on?"true":"false");
+  });
+}
+function syncVenueMenuAccordions(){
+  const vp=document.getElementById("viewport");
+  if(!vp) return;
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-vmacc]"),function(el){
+    const on=!!state.venueMenuOpen;
+    el.classList.toggle("open",on);
+    const b=el.querySelector('[data-act="toggleVenueMenu"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
 }
@@ -5047,20 +5076,26 @@ function buildRestaurantsHTML(){
   return h;
 }
 /* PAGE: restaurants-pager — Restaurants */
+function restPanelClass(p){return p==='catering'?'catering':(p==='beverages'?'bev':'food');}
+function restPanelAct(p){return p==='catering'?'panelCatering':(p==='beverages'?'panelBev':'panelFood');}
 function renderRestaurantsPager(){
-  const foodOn=(state.restPanel==='food');
-  const hideToggle = state.restPanel==='beverages'
+  const panel=state.restPanel;
+  const hideToggle = panel==='beverages'
     && (state.bevView || state.bevCheckout || state.bevTypes.length>0);
   let h='';
   if(!hideToggle){
-    h+='<div class="bev-toggle'+(foodOn?' food':' bev')+'" role="tablist">';
+    h+='<div class="bev-toggle '+restPanelClass(panel)+'" role="tablist">';
     h+='<span class="bev-toggle-thumb ai-custom-slider" aria-hidden="true"></span>';
-    h+='<button role="tab" class="bev-toggle-btn'+(foodOn?' on':'')+'" data-act="panelFood" aria-selected="'+(foodOn?'true':'false')+'">Restaurants</button>';
-    h+='<button role="tab" class="bev-toggle-btn'+(foodOn?'':' on')+'" data-act="panelBev" aria-selected="'+(foodOn?'false':'true')+'">Beverages</button>';
+    ['food','catering','beverages'].forEach(function(p){
+      const on=(p===panel);
+      const label=p==='food'?'Restaurants':(p==='catering'?'Catering':'Beverages');
+      h+='<button role="tab" class="bev-toggle-btn'+(on?' on':'')+'" data-act="'+restPanelAct(p)+'" aria-selected="'+(on?'true':'false')+'">'+label+'</button>';
+    });
     h+='</div>';
   }
   h+='<div class="bev-pager" id="bev-pager">';
   h+='<div class="bevpage" data-page="food">'+renderRestaurants()+'</div>';
+  h+='<div class="bevpage" data-page="catering">'+renderCatering()+'</div>';
   const bevInner=state.bevCheckout
     ?renderBeveragesCheckout()
     :(state.bevView&&state.bevView.type==='store')
@@ -5075,14 +5110,19 @@ function renderRestaurantsPager(){
     :(state.bevView&&state.bevView.type==='store')?"bottle-menu"
     :state.bevView?"bev-category"
     :(state.bevTypes.length?"bev-filter":"beverages");
-  return page(state.restPanel==='beverages'?bevPage:"restaurants-pager",h);
+  return page(panel==='beverages'?bevPage:panel==='catering'?"catering":"restaurants-pager",h);
+}
+const REST_PANELS=['food','catering','beverages'];
+function restPanelFromScroll(pager){
+  const pageW=pager.clientWidth||1;
+  const at=pageW>0?(pager.scrollLeft/pageW):0;
+  const i=Math.max(0,Math.min(REST_PANELS.length-1,Math.round(at)));
+  return REST_PANELS[i];
 }
 function syncBeveragesPanel(){
   const pager=document.getElementById('bev-pager');
   if(!pager) return;
-  const pageW=pager.clientWidth||1;
-  const at=pageW>0?(pager.scrollLeft/pageW):0;
-  const panel=at>=0.5?'beverages':'food';
+  const panel=restPanelFromScroll(pager);
   if(panel!==state.restPanel){
     /* route through the existing crossfade; do NOT clear view state
        if the user was mid-scroll inside a sub-view (bottle menu, category) */
@@ -5097,28 +5137,27 @@ function syncBeveragesPanel(){
   if(shellEl) shellEl.classList.toggle('bev-panel', state.tab==='restaurants' && state.restPanel==='beverages' && !state.restaurantView && !state.bevView && !state.bevCheckout);
   const bar=pager.previousElementSibling;
   if(bar&&bar.classList&&bar.classList.contains('bev-toggle')){
-    bar.classList.toggle('food',state.restPanel==='food');
+    REST_PANELS.forEach(function(p){
+      bar.classList.toggle(restPanelClass(p),state.restPanel===p);
+    });
     Array.prototype.forEach.call(bar.querySelectorAll('.bev-toggle-btn'),function(b){
-      const on=(b.getAttribute('data-act')==='panelFood')===(state.restPanel==='food');
+      const on=b.getAttribute('data-act')===restPanelAct(state.restPanel);
       b.classList.toggle('on',on);
       b.setAttribute('aria-selected',on?'true':'false');
     });
   }
 }
-function scrollToBeveragesPage(){
+function scrollToRestPanelPage(){
   try{
     const el=document.getElementById('bev-pager');
     if(!el) return;
-    if(state.restPanel==='beverages'){
-      el.scrollTo({left:el.scrollWidth, behavior:'auto'});
-    }else{
-      el.scrollTo({left:0, behavior:'auto'});
-    }
+    const i=REST_PANELS.indexOf(state.restPanel);
+    el.scrollTo({left:Math.max(0,i)*el.clientWidth, behavior:'auto'});
   }catch(e){}
 }
-/* Restaurants <-> Beverages panel switch: crossfade instead of the harsh
-   full-viewport re-render flash. View Transitions when available, a cloned
-   overlay fade otherwise. */
+/* Restaurants <-> Catering <-> Beverages panel switch: crossfade instead of
+   the harsh full-viewport re-render flash. View Transitions when available,
+   a cloned overlay fade otherwise. */
 let panelFade=false;
 function reduceMotion(){return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches);}
 function switchRestPanel(panel){
@@ -5136,6 +5175,134 @@ function switchRestPanel(panel){
   }else{
     doChange();
   }
+}
+
+/* ================================================================
+   CATERING DIRECTORY (Catering landing)
+   Flat list of catering businesses from
+   assets/data/CateringServicesDatabase.js (window.EATOUTS_CATERING),
+   rendered with the same row + options pattern as the restaurants list.
+   Businesses with several branches collapse to one card with a branch
+   picker. Menu currently opens the flagship venue menu as a stand-in.
+   ================================================================ */
+function cateringAPI(){return window.EatoutsCatering||null;}
+function cateringBrands(){
+  const api=cateringAPI();
+  if(!api) return [];
+  return api.all();
+}
+function cateringActiveBranch(brand){
+  if(!brand||!brand.branches||!brand.branches.length) return null;
+  const sel=state.cateringBranchOf&&state.cateringBranchOf[brand.slug];
+  if(sel)for(let i=0;i<brand.branches.length;i++)if(brand.branches[i].id===sel)return brand.branches[i];
+  return brand.branches[0];
+}
+function cateringThumb(brand){
+  const B=window.EatoutsBrand;
+  if(B&&typeof B.thumbHtml==="function")return B.thumbHtml({name:brand.name,slug:brand.slug,logo:brand.logo});
+  return "";
+}
+/* PAGE: catering — Catering */
+function renderCatering(){
+  let h='<div class="scroll">';
+  if(!cateringAPI()){h+='<div class="empty">Catering services are loading…</div></div>';return h;}
+  const brands=cateringBrands();
+  if(!brands.length){h+='<div class="empty">No catering services found.</div></div>';return h;}
+  brands.forEach(function(b){h+=cateringItem(b);});
+  h+='<div style="height:24px"></div></div>';
+  return h;
+}
+function cateringItem(brand){
+  const open=state.cateringOpen===brand.slug;
+  const meta=brand.locationCount>1?(brand.locationCount+" places"):((brand.branches[0]&&brand.branches[0].town)||"");
+  let h='<div class="ritem'+(open?" open":"")+'" data-cacc="'+esc(brand.slug)+'">';
+  h+='<button class="rrow" data-act="toggleCatering" data-id="'+esc(brand.slug)+'" aria-expanded="'+(open?"true":"false")+'">';
+  h+='<div class="rthumb">'+cateringThumb(brand)+'</div>';
+  h+='<div class="rinfo"><div class="rname">'+esc(brand.name)+'</div>';
+  h+='<div class="rmeta">'+esc(brand.type||"Catering")+(meta?" · "+esc(meta):"")+'</div></div>';
+  h+='</button>';
+  h+='<div class="acc-wrap"><div class="acc-in">'+cateringOptions(brand,cateringActiveBranch(brand))+'</div></div>';
+  h+='</div>';
+  return h;
+}
+function cateringOptions(brand,active){
+  const chosen=!!(state.cateringBranchOf&&state.cateringBranchOf[brand.slug]);
+  const auto=(brand.branches||[]).length<=1;
+  const locationReady=auto||chosen;
+  const townSel=locationReady?String((active&&active.town)||"").trim():"";
+  const areaSel=locationReady?String((active&&active.area)||"").trim():"";
+  const lockMsg="Choose a Town / City first — every branch has its own contact details.";
+  const lockAttrs=' data-locked="1" data-lock-title="'+esc("Select a Town / City")+'" data-lock-msg="'+esc(lockMsg)+
+    '" data-lock-act="openCateringLocPicker" data-lock-label="'+esc("Select Town")+'" data-lock-axis="town" aria-disabled="true"';
+  const menuBtn='<button class="line line-action'+(locationReady?"":" is-disabled")+'" data-act="openCateringMenu" data-brand="'+esc(brand.slug)+'"'+(locationReady?"":lockAttrs)+'>Menu</button>';
+  const promosBtn='<button class="line line-action is-disabled" data-act="showRestNotice" data-notice="'+esc("No promos available at this location right now.")+'" aria-disabled="true">Promos</button>';
+  const addr=(locationReady&&active&&active.address)?'<div class="baddr">'+esc(active.address)+'</div>':'';
+  const favBtn=favButton("catering",brand.slug,{title:brand.name,subtitle:(active&&(active.address||active.town))||"",venueId:(active&&active.id)||null,imageRef:brand.logo||null},"Save");
+  const waBtn='<button class="ico-btn" data-act="waCateringAbout" data-brand="'+esc(brand.slug)+'" aria-label="WhatsApp" title="WhatsApp"><img src="'+IMG.iconWA+'" alt=""></button>';
+  const infoBtn='<button class="ico-btn" data-act="openCateringAbout" data-brand="'+esc(brand.slug)+'" aria-label="About '+esc(brand.name)+'" title="About"><img class="ico-info-img" src="'+IMG.iconInfo+'" alt=""></button>';
+  return '<div class="ropts brows">'+
+    '<button class="line line-select'+(townSel?" is-set":"")+'" data-act="openCateringLocPicker" data-brand="'+esc(brand.slug)+'" data-axis="town" aria-haspopup="listbox"><span>'+esc(townSel||"Select Town")+'</span></button>'+
+    '<button class="line line-select'+(areaSel?" is-set":"")+(locationReady?"":" is-disabled")+'" data-act="openCateringLocPicker" data-brand="'+esc(brand.slug)+'" data-axis="area" aria-haspopup="listbox"'+(locationReady?"":lockAttrs)+'><span>'+esc(areaSel||"Select Area")+'</span></button>'+
+    menuBtn+promosBtn+
+    '<div class="card-ico-row">'+favBtn+waBtn+infoBtn+'</div>'+
+    '</div>'+addr;
+}
+function renderCateringLocPicker(){
+  const lp=state.cateringLocPicker;
+  if(!lp)return "";
+  const api=cateringAPI();
+  const brand=api?api.get(lp.brand):null;
+  if(!brand)return "";
+  const active=cateringActiveBranch(brand);
+  const axis=lp.axis;
+  let h='<div class="fpop-scrim" data-act="closeCateringLocPicker"></div>';
+  h+='<div class="fpop rest-loc-pop" role="listbox" aria-label="Choose '+(axis==="town"?"town":"area or neighbourhood")+'">';
+  if(axis==="town"){
+    const seen={};
+    const towns=[];
+    brand.branches.forEach(function(b){
+      const t=String(b.town||"").trim();
+      if(!t||seen[t.toLowerCase()])return;
+      seen[t.toLowerCase()]=true;towns.push(t);
+    });
+    towns.sort(function(a,b){return a.localeCompare(b);});
+    towns.forEach(function(t){
+      const matches=brand.branches.filter(function(b){return String(b.town||"").trim().toLowerCase()===t.toLowerCase();});
+      const target=matches[0];
+      const selected=active&&String(active.town||"").trim().toLowerCase()===t.toLowerCase();
+      h+='<button class="loc-town-main'+(selected?" on":"")+'" data-act="pickCateringBranch" data-id="'+esc(target.id)+'" data-brand="'+esc(brand.slug)+'" role="option" aria-selected="'+selected+'">'+
+        '<span class="lbl">'+esc(t)+'</span>'+(matches.length>1?'<span class="loc-count">'+matches.length+'</span>':'')+
+        '</button>';
+    });
+  }else{
+    const activeTown=String((active&&active.town)||"").trim().toLowerCase();
+    const seen={};
+    const opts=[];
+    brand.branches.forEach(function(b){
+      if(activeTown&&String(b.town||"").trim().toLowerCase()!==activeTown)return;
+      const area=String(b.area||"").trim();
+      const town=String(b.town||"").trim();
+      const key=(area+"|"+town).toLowerCase();
+      if(seen[key])return;seen[key]=true;
+      opts.push({b:b,label:area?(area+" · "+town):(town||"Other")});
+    });
+    opts.sort(function(a,b){return a.label.toLowerCase().localeCompare(b.label.toLowerCase());});
+    opts.forEach(function(o){
+      const selected=active&&active.id===o.b.id;
+      h+='<button class="loc-area-option'+(selected?" on":"")+'" data-act="pickCateringBranch" data-id="'+esc(o.b.id)+'" data-brand="'+esc(brand.slug)+'" role="option" aria-selected="'+selected+'"><span>'+esc(o.label)+(o.b.address?'<span class="loc-sub">'+esc(o.b.address)+'</span>':'')+'</span></button>';
+    });
+  }
+  return h+'</div>';
+}
+function syncCateringAccordions(){
+  const vp=document.getElementById("viewport");
+  if(!vp) return;
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-cacc]"),function(el){
+    const on=state.cateringOpen===el.getAttribute("data-cacc");
+    el.classList.toggle("open",on);
+    const b=el.querySelector('.rrow[data-act="toggleCatering"]');
+    if(b) b.setAttribute("aria-expanded",on?"true":"false");
+  });
 }
 
 /* One brand row plus its always-present, collapsed options panel. Each row
@@ -5435,10 +5602,64 @@ function renderRestLocPicker(){
   return h+'</div>';
 }
 
+function renderVenueNotFound(rv){
+  var slug=rv&&rv.slug?rv.slug:"";
+  var name=rv&&rv.name?rv.name:"Business not available";
+  document.title="Business not available — EatOuts";
+  var robots=document.querySelector('meta[name="robots"][data-orphan="1"]');
+  if(!robots){
+    robots=document.createElement("meta");
+    robots.name="robots";
+    robots.dataset.orphan="1";
+    var head=document.getElementsByTagName("head")[0];
+    if(head)head.appendChild(robots);
+  }
+  robots.content="noindex";
+  if(rv&&!window.__orphanReported){
+    window.__orphanReported=window.__orphanReported||{};
+    if(!window.__orphanReported[rv.slug]){
+      window.__orphanReported[rv.slug]=true;
+      try{navigator.sendBeacon("/api/links/check",JSON.stringify({slug:rv.slug,kind:rv.kind,name:rv.name}));}catch(e){}
+    }
+  }
+  return '<div class="pad" style="padding-top:0"><div class="empty"><h2>Business not available</h2><p>This '+esc(rv&&rv.kind?rv.kind:"venue")+' is not available right now. Browse other businesses instead.</p><button class="btn full" data-act="backFromRestView">Browse businesses</button></div></div>';
+}
+
+function renderRestaurantAboutShell(rv){
+  var name=rv&&rv.name?rv.name:rv.slug;
+  return '<div class="pad" style="padding-top:0"><h2>'+esc(name)+'</h2><p>Loading venue details…</p><div class="skeleton" style="margin:16px 0;height:48px;background:#e8e2d8;border-radius:8px"></div><div class="skeleton" style="margin:8px 0;height:24px;background:#e8e2d8;border-radius:4px;width:70%"></div><p style="margin-top:16px;color:#666;font-size:13px">Details temporarily unavailable. Try refreshing.</p></div>';
+}
+
 function renderRestaurantSubView(){
   const rv=state.restaurantView;
+  if(state.venueAboutOrphan)return page("venue-about",renderVenueNotFound(state.venueAboutOrphan));
+
+  /* Non-restaurant venues: resolve from the client-side directories, no
+     bridge lookup. Their About page reuses the venue-about screen. */
+  if(rv&&rv.kind==="catering"){
+    const api=cateringAPI();
+    const brand=api?(api.get(rv.brand||"")||api.get(rv.id||"")):null;
+    if(!brand){state.restaurantView=null;state.restPanel="catering";return page("restaurants-pager",renderRestaurantsPager());}
+    const active=cateringActiveBranch(brand);
+    const crumb='<div class="crumb"><button data-act="backFromRestView">Catering</button>'+
+                '<span class="sep">/</span><span class="cur">'+esc(brand.name)+'</span></div>';
+    return page("venue-about",'<div class="scroll">'+crumb+renderCateringAbout(brand,active)+'<div style="height:24px"></div></div>');
+  }
+  if(rv&&rv.kind==="bottle_store"){
+    const api=bottleAPI();
+    const brand=api?(api.get(rv.brand||"")||api.get(rv.id||"")):null;
+    if(!brand){state.restaurantView=null;state.restPanel="beverages";return page("restaurants-pager",renderRestaurantsPager());}
+    const active=bottleActiveBranch(brand);
+    const crumb='<div class="crumb"><button data-act="backFromRestView">Beverages</button>'+
+                '<span class="sep">/</span><span class="cur">'+esc(brand.name)+'</span></div>';
+    return page("venue-about",'<div class="scroll">'+crumb+renderBottleStoreAbout(brand,active)+'<div style="height:24px"></div></div>');
+  }
+
   const r=rv&&hasBridge()?EatoutsBridge.byId(rv.id):null;
-  if(!r){state.restaurantView=null;return page("restaurants-pager",renderRestaurants());}
+  if(!r){
+    if(rv.view==="about") return page("venue-about",renderRestaurantAboutShell(rv));
+    state.restaurantView=null;return page("restaurants-pager",renderRestaurants());
+  }
   EatoutsBridge.setActive(r.id);
 
   const crumb='<div class="crumb"><button data-act="backFromRestView">Restaurants</button>'+
@@ -5702,18 +5923,37 @@ function renderRestSocialRow(r,profile){
 function renderRestaurantAbout(r){
   const bundle=EatoutsBridge.bundleOf(r.id);
   const p=(bundle&&bundle.profile)||{};
+  const owns=!!(bundle&&!bundle.isSharing);
   const oh=p.operating_hours||{};
   const loc=p.location||{};
   const logo=restLogo(r);
+  const rbrand=brandKeyOf(r);
+  const rtown=String((r.location&&r.location.town)||"").trim();
+  const rarea=String((r.location&&r.location.area)||"").trim();
+  const rcat=(r.types&&r.types.length?r.types.join(" · "):"Restaurant");
 
   let h='';
   /* logo gets its own roomy slot between the crumb and the hero */
   if(logo) h+='<div class="rabout-logo"><img src="'+esc(logo)+'" alt="'+esc(r.name)+'"></div>';
+  /* The shared content template is every venue's default profile, so its
+     name belongs to the flagship. Only trust the profile name when the
+     venue owns its content; otherwise show the venue's own name. */
   h+='<div class="rabout-hero">';
-  h+='<h2>'+esc(p.name||r.name)+'</h2>';
-  h+='<p>'+esc(r.category)+' · '+esc(EatoutsBridge.placeLabel(r)||"")+'</p></div>';
+  h+='<h2>'+esc((owns&&p.name)||r.name)+'</h2>';
+  h+='<p>'+esc(rcat)+' · '+esc(EatoutsBridge.placeLabel(r)||"")+'</p></div>';
 
   h+='<div class="pad" style="padding-top:16px;padding-bottom:0">'+renderRestSocialRow(r,p)+'</div>';
+
+  /* Menu accordion under social-row */
+  h+='<div class="venuemenu'+(state.venueMenuOpen?" open":"")+'" data-vmacc="menu">';
+  h+='<button class="vmrow" data-act="toggleVenueMenu" aria-expanded="'+(state.venueMenuOpen?"true":"false")+'">Options</button>';
+  h+='<div class="acc-wrap"><div class="acc-in"><div class="ropts brows">';
+  h+='<button class="line line-select'+(rtown?" is-set":"")+'" data-act="openRestLocPicker" data-brand="'+esc(rbrand)+'" data-axis="town" aria-haspopup="listbox"><span>'+esc(rtown||"Select Town / City")+'</span></button>';
+  h+='<button class="line line-select'+(rarea?" is-set":"")+'" data-act="openRestLocPicker" data-brand="'+esc(rbrand)+'" data-axis="area" aria-haspopup="listbox"><span>'+esc(rarea||"Select Neighbourhood")+'</span></button>';
+  h+='<button class="line line-action" data-act="openRestView" data-id="'+esc(r.id)+'" data-brand="'+esc(rbrand)+'" data-view="menu">Menu</button>';
+  h+='<button class="line line-action" data-act="openRestView" data-id="'+esc(r.id)+'" data-brand="'+esc(rbrand)+'" data-view="promos">Promos</button>';
+  h+='</div></div></div>';
+  h+='</div>';
 
   h+='<div class="pad">';
   h+='<div class="subh">Location</div>';
@@ -5749,6 +5989,78 @@ function renderRestaurantAbout(r){
   /* Back sits under the WhatsApp button so the page can be left without
      reaching for the crumb at the top */
   h+='<div style="margin-top:10px"><button class="btn ghost full" data-act="backCats">Back to Menu</button></div>';
+  h+='</div>';
+  return h;
+}
+
+/* PAGE: venue-about — About */
+/* Shared About body for the non-restaurant directories (catering, bottle
+   stores). Same hero + Options accordion + Location layout as a restaurant
+   About, so every venue type reaches the same data-page="venue-about". */
+function venueAboutLocationRows(branch){
+  let h='';
+  if(branch&&branch.address) h+='<div class="kv"><span class="k">Address</span><span class="v">'+esc(branch.address)+'</span></div>';
+  if(branch&&branch.town) h+='<div class="kv"><span class="k">Town</span><span class="v">'+esc(branch.town)+'</span></div>';
+  if(branch&&branch.area) h+='<div class="kv"><span class="k">Area</span><span class="v">'+esc(branch.area)+'</span></div>';
+  if(branch&&branch.phones&&branch.phones.length) h+='<div class="kv"><span class="k">Phone</span><span class="v">'+esc(branch.phones.join(", "))+'</span></div>';
+  return h;
+}
+function venueAboutOptions(menuAct,locAct,brandSlug,branch,townLabel,areaLabel){
+  const townSel=String((branch&&branch.town)||"").trim();
+  const areaSel=String((branch&&branch.area)||"").trim();
+  let h='<div class="venuemenu'+(state.venueMenuOpen?" open":"")+'" data-vmacc="menu">';
+  h+='<button class="vmrow" data-act="toggleVenueMenu" aria-expanded="'+(state.venueMenuOpen?"true":"false")+'">Options</button>';
+  h+='<div class="acc-wrap"><div class="acc-in"><div class="ropts brows">';
+  h+='<button class="line line-select'+(townSel?" is-set":"")+'" data-act="'+locAct+'" data-brand="'+esc(brandSlug)+'" data-axis="town" aria-haspopup="listbox"><span>'+esc(townSel||townLabel)+'</span></button>';
+  h+='<button class="line line-select'+(areaSel?" is-set":"")+'" data-act="'+locAct+'" data-brand="'+esc(brandSlug)+'" data-axis="area" aria-haspopup="listbox"><span>'+esc(areaSel||areaLabel)+'</span></button>';
+  h+='<button class="line line-action" data-act="'+menuAct+'" data-brand="'+esc(brandSlug)+'">Menu</button>';
+  h+='</div></div></div>';
+  h+='</div>';
+  return h;
+}
+function renderCateringAbout(brand,active){
+  const logo=brand.logo||null;
+  const place=[(active&&active.area),(active&&active.town)].filter(Boolean).join(" · ");
+  let h='';
+  if(logo) h+='<div class="rabout-logo"><img src="'+esc(logo)+'" alt="'+esc(brand.name)+'"></div>';
+  h+='<div class="rabout-hero">';
+  h+='<h2>'+esc(brand.name)+'</h2>';
+  h+='<p>'+esc(brand.type||"Catering service")+(place?' · '+esc(place):'')+'</p></div>';
+
+  h+='<div class="pad" style="padding-top:16px;padding-bottom:0">'+venueAboutOptions("openCateringMenu","openCateringLocPicker",brand.slug,active,"Select Town / City","Select Neighbourhood")+'</div>';
+
+  h+='<div class="pad">';
+  h+='<div class="subh">Location</div>';
+  h+=venueAboutLocationRows(active)||'<div class="kv"><span class="k">Address</span><span class="v">Not on file</span></div>';
+  h+='<div class="subh" style="margin-top:20px">Details</div>';
+  h+='<div class="kv"><span class="k">Type</span><span class="v">'+esc(brand.type||"Catering service")+'</span></div>';
+  if(brand.locationCount>1) h+='<div class="kv"><span class="k">Branches</span><span class="v">'+esc(String(brand.locationCount))+'</span></div>';
+  if(active&&active.established) h+='<div class="kv"><span class="k">Established</span><span class="v">'+esc(String(active.established))+'</span></div>';
+  if(active&&active.yearsWithUs) h+='<div class="kv"><span class="k">Years with EatOuts</span><span class="v">'+esc(String(active.yearsWithUs))+'</span></div>';
+  h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waCateringAbout" data-brand="'+esc(brand.slug)+'">Send via WhatsApp</button></div>';
+  h+='<div style="margin-top:10px"><button class="btn ghost full" data-act="backFromRestView">Back to Catering</button></div>';
+  h+='</div>';
+  return h;
+}
+function renderBottleStoreAbout(brand,active){
+  const logo=brand.logo||null;
+  const place=[(active&&active.area),(active&&active.town)].filter(Boolean).join(" · ");
+  let h='';
+  if(logo) h+='<div class="rabout-logo"><img src="'+esc(logo)+'" alt="'+esc(brand.name)+'"></div>';
+  h+='<div class="rabout-hero">';
+  h+='<h2>'+esc(brand.name)+'</h2>';
+  h+='<p>'+esc(brand.isChain?"Liquor chain":"Bottle & liquor store")+(place?' · '+esc(place):'')+'</p></div>';
+
+  h+='<div class="pad" style="padding-top:16px;padding-bottom:0">'+venueAboutOptions("openBottleMenu","openBottleLocPicker",brand.slug,active,"Select Town / City","Select Neighbourhood")+'</div>';
+
+  h+='<div class="pad">';
+  h+='<div class="subh">Location</div>';
+  h+=venueAboutLocationRows(active)||'<div class="kv"><span class="k">Address</span><span class="v">Not on file</span></div>';
+  h+='<div class="subh" style="margin-top:20px">Details</div>';
+  h+='<div class="kv"><span class="k">Type</span><span class="v">'+esc(brand.isChain?"Liquor chain":"Bottle & liquor store")+'</span></div>';
+  if(brand.locationCount>1) h+='<div class="kv"><span class="k">Branches</span><span class="v">'+esc(String(brand.locationCount))+'</span></div>';
+  h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waBottle" data-brand="'+esc(brand.slug)+'">Send via WhatsApp</button></div>';
+  h+='<div style="margin-top:10px"><button class="btn ghost full" data-act="backFromRestView">Back to Bottle Stores</button></div>';
   h+='</div>';
   return h;
 }
@@ -5862,9 +6174,16 @@ function renderControlBarInner(){
 
   /* ---- Restaurants tab: food filters, beverage filters, search ---- */
   if(state.tab==="restaurants"){
+    /* Catering panel: no filter bar of its own yet — keep the bar hidden. */
+    if(state.restPanel==='catering'){
+      cb.classList.remove("on"); cb.innerHTML="";
+      state.bevTypePicker=false;state.bottleTownFilter=false;state.bottleAreaFilter=false;
+      state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
+      return;
+    }
     /* Beverages panel: its own filter bar, hidden unless toggled open */
     if(state.restPanel==='beverages'){
-      if(state.bevView||state.bevCheckout||!state.bevFilterOpen){
+      if(state.bevView||state.bevCheckout||state.restaurantView||!state.bevFilterOpen){
         cb.classList.remove("on"); cb.innerHTML="";
         state.bevTypePicker=false;state.bevTypeDraft=state.bevTypes.slice();state.bevTypeSearch="";
         state.bottleTownFilter=false;state.bottleAreaFilter=false;
@@ -5958,12 +6277,13 @@ let lastViewKey=null;
 function viewKey(){
   return [state.tab,state.promoView,state.promoDay,
     state.promoWeekStart&&state.promoWeekStart.getTime(),
-    state.restaurantView&&state.restaurantView.view,state.menuCat,
+    state.restaurantView&&state.restaurantView.kind,state.restaurantView&&state.restaurantView.id,state.restaurantView&&state.restaurantView.view,state.menuCat,
     state.reserveCat,state.reserveGroup,state.reserveSub,
     state.reserveVenueTown,state.reserveVenueQuery,state.reserveVenueTownPicker,
     state.galleryView,state.aboutView,
     state.operatorView,state.legalView,state.checkoutView,state.splitOpen,
-    state.restPanel,state.bevCheckout,state.bevSplitOpen,(state.bevView&&state.bevView.type+":"+state.bevView.id)||""].join("|");
+    state.restPanel,state.bevCheckout,state.bevSplitOpen,(state.bevView&&state.bevView.type+":"+state.bevView.id)||"",
+    state.cateringOpen||"",JSON.stringify(state.cateringLocPicker)].join("|");
 }
 
 /* ================================================================
@@ -5981,6 +6301,7 @@ const PAGE_TITLES={
   "promos-gallery":"Promos · Gallery",
   "promos-link":"Promos · Link",
   "restaurants-pager":"Restaurants",
+  "catering":"Catering",
   "venue-menu":"Menu",
   "venue-locked":"Menu (locked)",
   "venue-menu-item":"Menu · Item",
@@ -6071,7 +6392,7 @@ function renderViewport(){
   const pageId=activePage||"";
   const pageTitle=PAGE_TITLES[pageId]||"";
   const pageIns=pageRef();
-  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'" data-page="'+esc(pageId)+'" data-page-title="'+esc(pageTitle)+'" data-page-ref="'+esc(pageIns)+'">'+screenHtml+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderRestNotice()+renderCardAlert()+renderPromoMonthPicker()+renderPromoWeekPicker();
+  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'" data-page="'+esc(pageId)+'" data-page-title="'+esc(pageTitle)+'" data-page-ref="'+esc(pageIns)+'">'+screenHtml+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderCateringLocPicker()+renderRestNotice()+renderCardAlert()+renderPromoMonthPicker()+renderPromoWeekPicker();
   if(document.body){ document.body.dataset.page=pageId; document.body.dataset.pageRef=pageIns; }
   if(doFade&&prevScreen){
     const old=prevScreen.cloneNode(true);
@@ -6101,7 +6422,7 @@ function renderViewport(){
   const pagerEl=document.getElementById("bev-pager");
   if(pagerEl){
     pagerEl.addEventListener("scroll",syncBeveragesPanel,{passive:true});
-    scrollToBeveragesPage();
+    scrollToRestPanelPage();
   }
   if(state.galleryView==="photo") scrollPhotoTo();
   scrollPromoPickerToActive();
@@ -6132,6 +6453,7 @@ function renderScreen(){
         return page("venue-promo-detail",'<div class="scroll">'+renderRestaurantPromoDetail(r,state.restaurantView.promoId)+'<div style="height:24px"></div></div>');
       }
     }
+    if(state.venueAboutOrphan)return page("venue-about",renderVenueNotFound(state.venueAboutOrphan));
     if(state.restaurantView)return renderRestaurantSubView();
     loadBeverageData();
     return renderRestaurantsPager();
@@ -8197,6 +8519,46 @@ function bootEatoutsBridge(){
 
 /* Pull a venue's canonical D1 content into the local store, then re-render
    once it lands. No-op when the backend is unreachable or has nothing. */
+function resetSeoMeta(){
+  var el=document.querySelector('meta[name="robots"][data-orphan="1"]');
+  if(el)el.remove();
+  document.title="EatOuts";
+  state.venueAboutOrphan=null;
+}
+
+function readVenueMeta(){
+  var el=document.querySelector('meta[name="eatouts-venue"]');
+  if(!el)return null;
+  try{return JSON.parse(el.getAttribute("content"));}catch(e){return null;}
+}
+
+function openVenueFromSlug(meta){
+  if(!meta||!meta.id)return false;
+  state.venueAboutOrphan=null;
+
+  if(meta.kind==="bottle_store"||meta.kind==="catering"){
+    var api=(meta.kind==="bottle_store")?bottleAPI():cateringAPI();
+    var found=api&&api.get(meta.slug);
+    if(!found){
+      state.venueAboutOrphan={id:meta.id,slug:meta.slug,kind:meta.kind,name:meta.name};
+      state.tab="restaurants";
+      state.restPanel=(meta.kind==="catering")?"catering":"beverages";
+      return true;
+    }
+  }
+
+  state.restaurantView={
+    id:meta.id,slug:meta.slug,brand:meta.slug,
+    view:"about",promoId:null,kind:meta.kind,name:meta.name
+  };
+  state.tab="restaurants";
+  state.restPanel=(meta.kind==="bottle_store")?"beverages":(meta.kind==="catering"?"catering":"food");
+  state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};
+  state.bevView=null;state.bevCheckout=false;state.bottleOpen=false;state.cateringOpen=false;
+  resetSeoMeta();
+  return true;
+}
+
 function hydrateVenueContent(id){
   if(!id||!window.EatoutsContent||typeof window.EatoutsContent.hydrate!=="function")return;
   window.EatoutsContent.hydrate(id).then(function(applied){
@@ -8483,23 +8845,18 @@ document.addEventListener("click",function(e){
     window.location.href=waLink(msg,r);
     return;
   }
-  /* Information icon on a bottle-store card: the store's location details,
-     with a primary button that opens the WhatsApp enquiry. */
+  /* Information icon on a bottle-store card: open that store's About page
+     (data-page="venue-about"), resolved from the bottle-store directory. */
   if(act==="bottleStoreInfo"){
     const api=bottleAPI();
     const brand=api&&api.get(t.getAttribute("data-brand"));
     if(!brand)return;
     const active=bottleActiveBranch(brand);
-    const where=[(active&&active.area),(active&&active.town)].filter(Boolean).join(", ");
-    const lines=[brand.isChain?"Liquor chain":"Bottle & liquor store",where,active&&active.address].filter(Boolean);
-    state.cardAlert={
-      icon:"i",
-      title:brand.name,
-      message:lines.join("\n"),
-      act:"waBottle",
-      label:"Message on WhatsApp",
-      brand:brand.slug
-    };
+    state.cardAlert=null;
+    state.restPanel="beverages";
+    state.bottleOpen=null;
+    state.restLocPicker=null;state.bottleLocPicker=null;state.restNotice=null;
+    state.restaurantView={kind:"bottle_store",id:(active&&active.id)||brand.slug,brand:brand.slug,view:"about",promoId:null};
     render();return;
   }
   if(act==="waPoetry"){
@@ -8630,11 +8987,12 @@ document.addEventListener("click",function(e){
     render(); return;
   }
   if(act==="toggleRestaurant"){const nextId=id;state.restaurantOpen=(state.restaurantOpen===nextId)?null:nextId;state.restaurantView=null;state.menuCat=null;state.menuOpen=null;state.filterOpen=false;state.restLocPicker=null;state.restNotice=null;syncRestAccordions();return;}
+if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMenuAccordions();return;}
   if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   /* Restaurant-Card name/tagline tap: open the venue information page. */
   if(act==="openRestAbout"){const rid=id||(state.restaurantView&&state.restaurantView.id);if(!rid)return;const brand=(state.restaurantView&&state.restaurantView.brand)||state.restaurantOpen||rid;state.restaurantOpen=brand;state.restaurantView={id:rid,brand:brand,view:"about",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(rid);render();return;}
   if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
-  if(act==="backFromRestView"){state.restaurantView=null;state.restaurantOpen=null;state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;render();return;}
+  if(act==="backFromRestView"){resetSeoMeta();state.restaurantView=null;state.restaurantOpen=null;state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;render();return;}
   /* Promos on an expanded restaurant row opens the Gallery tab scoped to
      that venue and its promos. */
   if(act==="openRestGallery"){
@@ -8676,6 +9034,7 @@ document.addEventListener("click",function(e){
     const brand=t.getAttribute("data-brand")||(state.restLocPicker&&state.restLocPicker.brand)||"";
     if(brand&&id)state.restBranchOf[brand]=id;
     else if(brand)delete state.restBranchOf[brand];
+    if(id&&state.restaurantView&&state.restaurantView.view==="about"){state.restaurantView.id=id;if(brand)state.restaurantView.brand=brand;if(hasBridge())EatoutsBridge.setActive(id);}
     state.restLocPicker=null;render();return;
   }
   if(act==="backRestPromo"){if(state.restaurantView){state.restaurantView.view="promos";state.restaurantView.promoId=null;}render();return;}
@@ -8733,6 +9092,7 @@ document.addEventListener("click",function(e){
 
   /* BEVERAGES PANEL */
   if(act==="panelFood"){switchRestPanel('food');return;}
+  if(act==="panelCatering"){switchRestPanel('catering');return;}
   if(act==="panelBev"){switchRestPanel('beverages');return;}
   if(act==="bevOpenSub"){state.bevView={type:'subcat',id:id,store:(state.bevView&&state.bevView.type==='store')?state.bevView.id:null};state.bevCheckout=false;render();return;}
   if(act==="bevOpenBucket"){state.bevView={type:'bucket',id:id,store:(state.bevView&&state.bevView.type==='store')?state.bevView.id:null};state.bevCheckout=false;render();return;}
@@ -8740,7 +9100,7 @@ document.addEventListener("click",function(e){
   if(act==="bevBack"){const s=state.bevView&&state.bevView.store;state.bevView=s?{type:'store',id:s}:null;state.bevCheckout=false;render();return;}
   /* BOTTLE STORE DIRECTORY (Beverages landing) */
   if(act==="toggleBottleStore"){state.bottleOpen=(state.bottleOpen===id)?null:id;state.bottleLocPicker=null;state.restNotice=null;syncBottleAccordions();return;}
-  if(act==="openBottleMenu"){state.bevView={type:'store',id:t.getAttribute("data-brand")||""};state.bevCheckout=false;state.bottleLocPicker=null;render();return;}
+  if(act==="openBottleMenu"){state.bevView={type:'store',id:t.getAttribute("data-brand")||""};state.bevCheckout=false;state.bottleLocPicker=null;state.restaurantView=null;render();return;}
   if(act==="openBottlePromos"){
     const api=bottleAPI();
     const brand=api?api.get(t.getAttribute("data-brand")||""):null;
@@ -8766,7 +9126,74 @@ document.addEventListener("click",function(e){
     const brand=t.getAttribute("data-brand")||(state.bottleLocPicker&&state.bottleLocPicker.brand)||"";
     if(brand&&id)state.bottleBranchOf[brand]=id;
     else if(brand)delete state.bottleBranchOf[brand];
+    if(id&&state.restaurantView&&state.restaurantView.kind==="bottle_store")state.restaurantView.id=id;
     state.bottleLocPicker=null;render();return;
+  }
+  /* CATERING DIRECTORY */
+  if(act==="toggleCatering"){state.cateringOpen=(state.cateringOpen===id)?null:id;state.cateringLocPicker=null;state.restNotice=null;syncCateringAccordions();return;}
+  if(act==="openCateringLocPicker"){
+    const brand=t.getAttribute("data-brand")||"";
+    const axis=t.getAttribute("data-axis")||"town";
+    state.cardAlert=null;
+    if(state.cateringLocPicker&&state.cateringLocPicker.brand===brand&&state.cateringLocPicker.axis===axis)state.cateringLocPicker=null;
+    else state.cateringLocPicker={brand:brand,axis:axis};
+    render();return;
+  }
+  if(act==="closeCateringLocPicker"){state.cateringLocPicker=null;render();return;}
+  if(act==="pickCateringBranch"){
+    const brand=t.getAttribute("data-brand")||(state.cateringLocPicker&&state.cateringLocPicker.brand)||"";
+    if(brand&&id)state.cateringBranchOf[brand]=id;
+    else if(brand)delete state.cateringBranchOf[brand];
+    if(id&&state.restaurantView&&state.restaurantView.kind==="catering")state.restaurantView.id=id;
+    state.cateringLocPicker=null;render();return;
+  }
+  if(act==="openCateringMenu"){
+    const api=cateringAPI();
+    const brand=api?api.get(t.getAttribute("data-brand")||""):null;
+    const bid=(brand&&brand.branches[0]&&brand.branches[0].id)||"";
+    let r=null;
+    if(hasBridge()){
+      r=EatoutsBridge.byId(bid)||EatoutsBridge.byId("rest_"+bid)||null;
+      /* placeholder flagship menu until the caterer publishes one of its own */
+      if(!r)r=EatoutsBridge.byId("rest_the-yellow-giraffe");
+    }
+    if(r){
+      const bkey=(EatoutsBridge.brandKeyOf?EatoutsBridge.brandKeyOf(r):null)||r.slug||r.id;
+      state.restaurantOpen=bkey;
+      state.restaurantView={id:r.id,brand:bkey,view:"menu",promoId:null};
+      state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;
+      state.splitPeople=[];state.splitAssign={};state.cateringLocPicker=null;state.restNotice=null;
+      if(EatoutsBridge.setActive)EatoutsBridge.setActive(r.id);
+      render();return;
+    }
+    state.restNotice="Menu coming soon — this catering service is not listed as a venue yet.";
+    render();
+    if(restNoticeTimer)clearTimeout(restNoticeTimer);
+    restNoticeTimer=setTimeout(function(){if(state.restNotice){state.restNotice=null;render();}},2800);
+    return;
+  }
+  if(act==="openCateringAbout"){
+    const api=cateringAPI();
+    const brand=api?api.get(t.getAttribute("data-brand")||""):null;
+    if(!brand)return;
+    const active=cateringActiveBranch(brand);
+    state.cardAlert=null;
+    state.restPanel="catering";
+    state.cateringOpen=null;
+    state.restLocPicker=null;state.cateringLocPicker=null;state.restNotice=null;
+    state.restaurantView={kind:"catering",id:(active&&active.id)||brand.slug,brand:brand.slug,view:"about",promoId:null};
+    render();return;
+  }
+  if(act==="waCateringAbout"){
+    const api=cateringAPI();
+    const brand=api?api.get(t.getAttribute("data-brand")||(state.cardAlert&&state.cardAlert.brand)||""):null;
+    if(!brand)return;
+    const active=cateringActiveBranch(brand);
+    const r=(active&&active.phones&&active.phones[0])||null;
+    const where=[(active&&active.address),(active&&active.town)].filter(Boolean).join(", ");
+    const msg="*CATERING ENQUIRY*\n"+brand.name+(where?("\n"+where):"")+"\n\nHi, I'd like to ask about your catering services, pricing and availability.";
+    window.location.href=waLink(msg,r);
+    return;
   }
   if(act==="openBottleTownFilter"){state.bottleTownFilter=!state.bottleTownFilter;state.bottleAreaFilter=false;state.bevTypePicker=false;renderControlBar();return;}
   if(act==="closeBottleTownFilter"){state.bottleTownFilter=false;renderControlBar();return;}
@@ -9385,6 +9812,7 @@ try{
     }
   }
 }catch(e){}
+openVenueFromSlug(readVenueMeta());
 render();
 loadRestaurantTypeFilters();
 loadDirectoryMenus(function(){
