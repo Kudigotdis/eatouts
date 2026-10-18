@@ -183,6 +183,7 @@ one-liner, e.g. `PAGE: venue-menu-item — Menu · Item  [rest_pizza-perfect:bur
 | Venue Promos | That venue's own promotions | `rv.view === "promos"` | `renderRestaurantPromos(r)` | `PAGE: venue-promos — Promos` | 5441 |
 | Venue Promo Detail | Deep-link to a specific promo | `rv.view === "promo"` | `renderRestaurantPromoDetail(r, promoId)` | `PAGE: venue-promo-detail — Promo` | 5464 |
 | Venue About | That venue's info / contact page | `rv.view === "about"` | `renderRestaurantAbout(r)` | `PAGE: venue-about — About` | 5654 |
+| Catering About | Catering supplier info / contact page | `rv.kind === "catering"` | `renderCateringAbout()` | `PAGE: catering — Catering` | 5988 |
 
 ### Beverages panel sub-screens
 

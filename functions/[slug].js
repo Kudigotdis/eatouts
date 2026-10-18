@@ -28,8 +28,8 @@ var RESERVED = {
   dashboard: 1, ops: 1, test: 1, demo: 1, health: 1, robots: 1
 };
 
-/* Per plan B1: slug regex /^[a-z0-9]{1,64}$/i — no dots, 1-64 chars. */
-var SLUG_RE = /^[a-z0-9]{1,64}$/i;
+/* Per plan B1: slug regex /^[a-z0-9-]{1,64}$/i — hyphens allowed now (91 hyphenated restaurant slugs). */
+var SLUG_RE = /^[a-z0-9-]{1,64}$/i;
 
 function escAttr(s) {
   return String(s == null ? '' : s)
@@ -88,16 +88,19 @@ export async function onRequest(context) {
   /* ---- Lookup order: restaurants first, then business_links ---- */
   var row = null;
   var kind = 'restaurant';
+  var metaId = null;
   var d1Error = null;
   try {
     row = await env.DB.prepare(
       'SELECT * FROM restaurants WHERE slug = ? LIMIT 1'
     ).bind(slug).first();
+    metaId = row && row.id;
 
     if (!row && slug !== slug.toLowerCase()) {
       row = await env.DB.prepare(
         'SELECT * FROM restaurants WHERE lower(slug) = ? LIMIT 1'
       ).bind(slug.toLowerCase()).first();
+      metaId = row && row.id;
     }
 
     if (!row) {
@@ -105,11 +108,37 @@ export async function onRequest(context) {
         'SELECT * FROM business_links WHERE country_code = ? AND slug = ? LIMIT 1'
       ).bind('bw', slug).first();
       kind = kindForType(row && row.type);
+      /* If business_links type=restaurant, resolve ref_id to the actual
+         restaurant id so the client bridge lookup (EatoutsBridge.byId) finds it. */
+      var metaId = row && row.id;
+      if (row && row.type === 'restaurant' && row.ref_id) {
+        var restRow = await env.DB.prepare(
+          'SELECT * FROM restaurants WHERE id = ? LIMIT 1'
+        ).bind(row.ref_id).first();
+        if (restRow) {
+          metaId = restRow.id;
+          if (!row.name && restRow.name) row.name = restRow.name;
+        } else {
+          metaId = row.ref_id;
+        }
+      }
       if (!row && slug !== slug.toLowerCase()) {
         row = await env.DB.prepare(
           'SELECT * FROM business_links WHERE country_code = ? AND lower(slug) = ? LIMIT 1'
         ).bind('bw', slug.toLowerCase()).first();
         kind = kindForType(row && row.type);
+        metaId = row && row.id;
+        if (row && row.type === 'restaurant' && row.ref_id) {
+          restRow = await env.DB.prepare(
+            'SELECT * FROM restaurants WHERE id = ? LIMIT 1'
+          ).bind(row.ref_id).first();
+          if (restRow) {
+            metaId = restRow.id;
+            if (!row.name && restRow.name) row.name = restRow.name;
+          } else {
+            metaId = row.ref_id;
+          }
+        }
       }
     }
   } catch (err) {
@@ -145,7 +174,7 @@ export async function onRequest(context) {
   if (!shell) return html('<!doctype html><meta charset="utf-8"><title>EatOuts</title>', 503);
 
   var metaObj = {
-    id: row.id,
+    id: metaId,
     slug: slug,
     kind: kind,
     name: row.name || row.slug || slug

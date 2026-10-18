@@ -157,7 +157,7 @@ function ctx(url, env, nextFn) {
   /* ---- invalid slug format -> next() ---- */
   nextCalled = false;
   res = await mod.onRequest(ctx('https://eatouts.site/not-a-slug', env, () => { nextCalled = true; return NEXT_SENTINEL; }));
-  check('hyphenated slug -> next()', nextCalled && res === NEXT_SENTINEL);
+  check('hyphenated slug -> 404 (hyphens now valid)', !nextCalled && res.status === 404, nextCalled ? 'next() called' : res.status);
 
   nextCalled = false;
   res = await mod.onRequest(ctx('https://eatouts.site/has.dot', env, () => { nextCalled = true; return NEXT_SENTINEL; }));

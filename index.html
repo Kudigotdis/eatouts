@@ -5627,7 +5627,7 @@ function renderVenueNotFound(rv){
 
 function renderRestaurantAboutShell(rv){
   var name=rv&&rv.name?rv.name:rv.slug;
-  return '<div class="pad" style="padding-top:0"><h2>'+esc(name)+'</h2><p>Loading venue details…</p><div class="skeleton" style="margin:16px 0;height:48px;background:#e8e2d8;border-radius:8px"></div><div class="skeleton" style="margin:8px 0;height:24px;background:#e8e2d8;border-radius:4px;width:70%"></div><p style="margin-top:16px;color:#666;font-size:13px">Details temporarily unavailable. Try refreshing.</p></div>';
+  return '<div class="pad" style="padding-top:0" id="venueAboutShell"><h2>'+esc(name)+'</h2><p class="venue-loading">Loading venue details…</p><div class="skeleton" style="margin:16px 0;height:48px;background:#e8e2d8;border-radius:8px"></div><div class="skeleton" style="margin:8px 0;height:24px;background:#e8e2d8;border-radius:4px;width:70%"></div><p class="venue-unavailable" style="margin-top:16px;color:#666;font-size:13px;display:none">Details temporarily unavailable. Try refreshing.</p></div>';
 }
 
 function renderRestaurantSubView(){
@@ -8566,11 +8566,27 @@ function hydrateVenueContent(id){
   }).catch(function(){});
 }
 
+function scheduleShellTimeout(){
+  var shell=document.getElementById('venueAboutShell');
+  if(shell && !shell.dataset.timeoutScheduled){
+    shell.dataset.timeoutScheduled='1';
+    setTimeout(function(){
+      var loading=shell.querySelector('.venue-loading');
+      var unavailable=shell.querySelector('.venue-unavailable');
+      if(loading && unavailable){
+        loading.style.display='none';
+        unavailable.style.display='block';
+      }
+    },8000);
+  }
+}
+
 function render(){
   bootEatoutsBridge();
   if(!state.promoWeekStart) state.promoWeekStart = startOfWeek(new Date());
   if(!state.promoMonth){const d=new Date();state.promoMonth={year:d.getFullYear(),monthIndex:d.getMonth()};}
   renderViewport();
+  scheduleShellTimeout();
   if(state.tab==="gallery" && state.galleryView!=="photo") setTimeout(armGalleryScroll,0);
   setTimeout(armTownRails,0);
 }
