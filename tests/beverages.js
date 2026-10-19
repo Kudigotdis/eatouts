@@ -47,7 +47,8 @@ setTimeout(() => {
   check('restaurants pager rendered', !!doc.querySelector('#viewport #bev-pager'));
   check('pager has a food page', !!doc.querySelector('#viewport .bevpage[data-page="food"]'));
   check('pager has a beverages page', !!doc.querySelector('#viewport .bevpage[data-page="beverages"]'));
-  check('panel toggle strip present', doc.querySelectorAll('.bev-toggle-btn').length === 2);
+  check('pager has a catering page', !!doc.querySelector('#viewport .bevpage[data-page="catering"]'));
+  check('panel toggle strip present', doc.querySelectorAll('.bev-toggle-btn').length === 3);
   const toggle = doc.querySelector('.bev-toggle');
   check('toggle rides a sliding thumb', !!doc.querySelector('.bev-toggle-thumb'), toggle ? toggle.outerHTML : 'missing');
   check('toggle starts in food position', toggle && toggle.classList.contains('food'), toggle && toggle.className);
@@ -55,7 +56,85 @@ setTimeout(() => {
   check('toggle thumb moves to beverages',
     doc.querySelector('.bev-toggle').classList.contains('bev'),
     doc.querySelector('.bev-toggle').className);
-  ev('state.restPanel="food";render()');
+  ev('state.restPanel="catering";render()');
+  check('toggle thumb moves to catering',
+    doc.querySelector('.bev-toggle').classList.contains('catering'),
+    doc.querySelector('.bev-toggle').className);
+
+  /* ---------- catering directory panel ---------- */
+  const catCards = doc.querySelectorAll('.bevpage[data-page="catering"] [data-cacc]');
+  check('catering landing lists businesses', catCards.length > 0, catCards.length);
+  check('catering card offers a Menu button',
+    !!doc.querySelector('.bevpage[data-page="catering"] [data-act="openCateringMenu"]'));
+  check('catering card offers a WhatsApp button',
+    !!doc.querySelector('.bevpage[data-page="catering"] [data-act="waCateringAbout"]'));
+  check('catering card offers an About button',
+    !!doc.querySelector('.bevpage[data-page="catering"] [data-act="openCateringAbout"]'));
+  check('catering list no longer shows restaurants', !doc.querySelector('.bevpage[data-page="catering"] [data-racc]'));
+  const fedics = Array.from(catCards).find(c => c.getAttribute('data-cacc') === 'fedics-food-service');
+  if (fedics) {
+    fedics.querySelector('.rrow').dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    check('tapping a multi-branch caterer opens its accordion', ev('state.cateringOpen') === 'fedics-food-service', ev('state.cateringOpen'));
+    check('catering accordion offers a town picker',
+      !!fedics.querySelector('[data-act="openCateringLocPicker"][data-axis="town"]'));
+    fedics.querySelector('[data-act="openCateringLocPicker"][data-axis="town"]')
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    check('town picker opens', !!ev('state.cateringLocPicker'), JSON.stringify(ev('state.cateringLocPicker')));
+    const jwaneng = Array.from(doc.querySelectorAll('[data-act="pickCateringBranch"]'))
+      .find(b => /jwaneng/i.test(b.textContent));
+    if (jwaneng) {
+      jwaneng.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+      check('picking a branch records the selection', ev('state.cateringBranchOf["fedics-food-service"]'), JSON.stringify(ev('state.cateringBranchOf')));
+      check('picker closes after picking', ev('state.cateringLocPicker') === null);
+    } else {
+      check('picker lists the second branch (Jwaneng)', false, 'no Jwaneng option');
+    }
+  } else {
+    check('multi-branch caterer (Fedics) present', false, 'Fedics card not found');
+  }
+  ev('state.cateringOpen=null;state.cateringLocPicker=null;state.cateringBranchOf={};state.restPanel="catering";render()');
+
+  /* ---------- a caterer's Menu opens a venue menu ---------- */
+  const mmantlo = Array.from(doc.querySelectorAll('.bevpage[data-page="catering"] [data-cacc]'))
+    .find(c => c.getAttribute('data-cacc') === 'mmantlo-goodies');
+  if (mmantlo) {
+    const menuBtn = mmantlo.querySelector('[data-act="openCateringMenu"]');
+    check('single-branch caterer Menu is enabled', !!menuBtn && !menuBtn.classList.contains('is-disabled'));
+    click(menuBtn);
+    check('catering Menu opens a venue menu',
+      ev('state.restaurantView && state.restaurantView.view') === 'menu',
+      JSON.stringify(ev('state.restaurantView')));
+    ev('state.restaurantView=null;state.restaurantOpen=null;state.restNotice=null;state.restPanel="catering";render()');
+  } else {
+    check('single-branch caterer (Mmantlo) present', false, 'Mmantlo card not found');
+  }
+
+  /* ---------- a caterer's About icon opens the shared venue-about page ---------- */
+  const aboutCaterer = Array.from(doc.querySelectorAll('.bevpage[data-page="catering"] [data-cacc]'))
+    .find(c => c.getAttribute('data-cacc') === 'fedics-food-service');
+  if (aboutCaterer) {
+    const aboutBtn = aboutCaterer.querySelector('[data-act="openCateringAbout"]');
+    check('caterer About button bound to its brand',
+      !!aboutBtn && aboutBtn.getAttribute('data-brand') === 'fedics-food-service');
+    click(aboutBtn);
+    check('caterer About opens the venue-about page',
+      ev('state.restaurantView && state.restaurantView.kind') === 'catering' &&
+      ev('state.restaurantView && state.restaurantView.view') === 'about',
+      JSON.stringify(ev('state.restaurantView')));
+    const catAbout = doc.querySelector('#viewport .screen[data-page="venue-about"]');
+    check('venue-about page is active for the caterer', !!catAbout);
+    const catHero = catAbout && catAbout.querySelector('.rabout-hero h2');
+    check('venue-about hero names the caterer (not the flagship)',
+      !!catHero && /fedics/i.test(catHero.textContent) &&
+      catHero.textContent.trim() !== 'The Yellow Giraffe Coffee Club',
+      catHero ? catHero.textContent : 'none');
+    click(catAbout.querySelector('[data-act="backFromRestView"]'));
+    check('Back from caterer About returns to the catering panel',
+      ev('state.restaurantView') === null && ev('state.restPanel') === 'catering');
+  } else {
+    check('caterer (Fedics) present for About test', false, 'Fedics card not found');
+  }
+  ev('state.restaurantView=null;state.restPanel="food";render()');
 
   /* ---------- landing is now the bottle-store directory ---------- */
   ev('state.restPanel="beverages";render()');

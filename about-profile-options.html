@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EatOuts — Profile Options</title>
+<!-- PAGE: About Profile Options -->
+<style>
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#f0ece2}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#1a1a1a;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{cursor:pointer;border:0;background:none;font-family:inherit;font-size:inherit;color:inherit}
+img{display:block;max-width:100%}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+
+/* ───── Shell ───── */
+#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;border-bottom:1px solid #ece7db;position:relative;z-index:58}
+#viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#fff}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff}
+.scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:#fff}
+#nav{flex:0 0 auto;position:relative;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;z-index:50}
+.nav-btn{flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.42)}
+.nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.on{color:#fff}
+.brand-mark{display:flex;align-items:center;height:34px}
+.brand-mark img{height:100%;width:auto;object-fit:contain}
+
+/* ───── About Page ───── */
+.about-hero{padding:26px 18px 20px;background:#fff;border-bottom:1px solid #ece7db;text-align:center}
+.about-logo{display:block;width:76%;max-width:290px;height:auto;max-height:150px;object-fit:contain;margin:0 auto 16px}
+.about-hero p{margin:0;font-size:12px;color:#8a8170}
+.pad{padding:14px}
+.pcdivider{height:1px;background:rgba(0,0,0,.10);margin:18px 0}
+.setlist{margin-top:20px;border-top:1px solid #f1ece1}
+.setrow{display:block;width:100%;text-align:center;padding:14px;font-size:16px;font-weight:800;color:#1a1a1a;background:#fff;border-bottom:1px solid #f1ece1;font-family:inherit;cursor:pointer}
+.profilecard.logged{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px 12px 12px;border:2px solid rgba(0,0,0,.10);border-radius:16px;background:rgba(0,0,0,.04);font:inherit;cursor:pointer;text-align:left}
+.profilecard.logged .pc-thumb{width:90px;height:90px;flex:0 0 auto;border-radius:10px;overflow:hidden;background:#e9e5db;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.profilecard.logged .pc-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.profilecard.logged .pc-main{flex:1 1 auto;min-width:0;display:block}
+.profilecard.logged .pc-main strong{display:block;font-size:17px;font-weight:900;color:#1a1a1a;line-height:1.25;}
+
+/* ───── Popup Foundation ───── */
+.card-alert-scrim{position:fixed;inset:0;z-index:78;background:rgba(9,13,20,.55);backdrop-filter:blur(8px) saturate(1.1);-webkit-backdrop-filter:blur(8px) saturate(1.1);animation:cardScrimIn .18s ease}
+@keyframes cardScrimIn{from{opacity:0}to{opacity:1}}
+.card-alert{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:79;width:100%;max-width:340px;max-height:calc(100% - 40px);overflow:hidden;background:#fff;border-radius:24px;padding:22px 22px 18px;text-align:center;box-shadow:0 28px 64px rgba(0,0,0,.34),0 2px 6px rgba(0,0,0,.08);animation:cardAlertIn .24s cubic-bezier(.34,1.56,.64,1);display:flex;flex-direction:column}
+@keyframes cardAlertIn{from{opacity:0;transform:translate(-50%,-50%) scale(.92)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
+/* Fpop variant */
+.card-alert.fpop{padding:0;text-align:left;}
+.card-alert.fpop .fpop-head{flex:0 0 auto;padding:14px 16px;border-bottom:1px solid #f1ece1;text-align:center;}
+.card-alert.fpop .fpop-title{font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.2}
+.card-alert.fpop .fpop-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:16px;min-height:0;}
+.card-alert.fpop .fpop-footer{flex:0 0 auto;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid #f1ece1;background:#fff;}
+.card-alert.fpop .fpop-back-btn{width:100%;min-height:46px;padding:12px;border-radius:12px;border:1px solid #ece7db;background:#faf8f2;font:inherit;font-size:14px;font-weight:800;color:#1a1a1a;cursor:pointer;}
+
+/* Profile Popup */
+.profile-popup-head{display:flex;flex-direction:column;align-items:center;gap:12px;padding:6px 0 22px;border-bottom:1px solid #f1ece1;margin-bottom:16px;}
+.profile-popup-thumb{width:90px;height:90px;border-radius:12px;overflow:hidden;background:#e9e5db;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;}
+.profile-popup-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-popup-name{font-size:18px;font-weight:900;color:#1a1a1a;text-align:center;line-height:1.25}
+
+/* Menu Rows */
+.fav-menu-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;margin-bottom:8px;border:1px solid #f1ece1;border-radius:12px;background:#faf8f2;font:inherit;cursor:pointer;text-align:left}
+.fav-menu-btn .fm-label{font-size:14px;font-weight:800;color:#1a1a1a}
+.fav-menu-btn .fm-meta{font-size:11px;color:#a89a7e;font-weight:700;margin-top:2px}
+.fav-menu-btn .fm-arrow{font-size:20px;color:#c8bda6;font-weight:700}
+.lg-signout{width:100%;padding:14px 16px;border:1px solid #f1ece1;border-radius:12px;background:#fff;font:inherit;font-size:14px;font-weight:800;color:#8a3a3a;margin-top:4px}
+
+/* Item Rows */
+.fav-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1ece1;width:100%;text-align:left;background:none;border-left:0;border-right:0;border-top:0;font:inherit;cursor:pointer}
+.fav-item:last-child{border-bottom:0}
+.fav-thumb{width:90px;height:90px;flex:0 0 auto;border-radius:10px;overflow:hidden;background:#f1ece1;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.fav-info{flex:1;min-width:0}
+.fav-name{font-size:14px;font-weight:800;color:#1a1a1a;line-height:1.3}
+.fav-meta{font-size:12px;color:#8a8170;font-weight:600;margin-top:3px}
+.edit-icon{position:absolute;bottom:4px;right:4px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;border:0;padding:0}
+
+/* Ph tile */
+.ph-tile{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px}
+
+/* Gallery */
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0}
+.gallery-cell{aspect-ratio:1;background:#f1ece1;border-radius:6px;overflow:hidden;cursor:pointer;border:0;padding:0;display:block}
+.gallery-cell .ph-tile{font-size:42px}
+
+/* Lightbox */
+.preview-layer{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:10vh 8vw;background:rgba(20,18,12,.65);backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1);animation:cardScrimIn .18s ease}
+.preview-layer .preview-img{width:min(80vw,320px);height:min(80vw,320px);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.preview-layer .preview-img .ph-tile{font-size:96px;border-radius:14px}
+.preview-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+</style>
+</head>
+<body data-page="about-profile-options">
+
+<div id="shell">
+  <header id="hdr"><div class="brand-mark"><img id="hdrLogo" alt="EatOuts"></div></header>
+  <div id="viewport"></div>
+  <nav id="nav"></nav>
+</div>
+<div id="popup-root"></div>
+<div id="preview-root"></div>
+
+<script>
+/* ───── Helpers ───── */
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h);}
+const PALETTES=['#3b2a12,#8a5410','#2c1a10,#7a3a18','#1f2c1a,#3f7a2a','#2c1a24,#7a2c4a','#1a2434,#2c6288','#342a18,#9a761c','#241c2e,#62407e','#2c2014,#8a4a2a','#142c2e,#2c8a76','#2c2618,#767628','#341c1c,#96302c','#1c1c30,#40408a'];
+function tileHtml(emoji, seed){
+  const c=PALETTES[hash(seed||emoji)%PALETTES.length];
+  return '<div class="ph-tile" style="background:linear-gradient(135deg,'+c+')">'+emoji+'</div>';
+}
+const LOGO_SVG='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120"><text x="120" y="62" font-family="Arial Black, Arial, sans-serif" font-size="44" font-weight="900" text-anchor="middle" fill="#111">Eat<tspan fill="#e11d2e">Outs</tspan></text><text x="120" y="90" font-family="Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle" fill="#a89a7e" letter-spacing="3">DISCOVER BOTSWANA</text></svg>');
+const AVATAR_SVG='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e11d2e"/><stop offset="1" stop-color="#8a5410"/></linearGradient></defs><rect width="90" height="90" fill="url(#g)"/><text x="45" y="58" font-family="Arial Black, Arial, sans-serif" font-size="34" font-weight="900" fill="#fff" text-anchor="middle">TM</text></svg>');
+
+const NAV_ICONS={
+  tag:'<svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+  shop:'<svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/></svg>',
+  cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  img:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+  info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+};
+
+const DEMO_USER={name:'Thabo Moloi',photo:AVATAR_SVG};
+
+const FAV_PROMOS={
+  beverage:[{id:'b1',name:'Castle Lite Bucket',price:220,store:'Liquorama Main Mall',emoji:'🍺'},{id:'b2',name:'Heineken 6-Pack',price:180,store:'Tops at Spar',emoji:'🍺'},{id:'b3',name:'Bernini Blush 2-for-1',price:26,store:'The Yellow Giraffe',emoji:'🥂'}],
+  food:[{id:'f1',name:'Beef Stew Special',price:75,store:'The Yellow Giraffe',emoji:'🍲'},{id:'f2',name:'Meat Lovers Pizza',price:120,store:'Pizza Palace',emoji:'🍕'},{id:'f3',name:'Seafood Combo',price:150,store:'Ocean Basket',emoji:'🍤'}],
+  event:[{id:'e1',name:'Simply Piano 4th Edition',date:'25 Sep 2026',time:'18:00',place:'Fairgrounds, Gaborone',emoji:'🎹'},{id:'e2',name:'AmaPiano Fest',date:'14 Nov 2026',time:'14:00',place:'National Stadium',emoji:'🎵'},{id:'e3',name:'Masa Poetry Nights',date:'22 Nov 2026',time:'19:00',place:'Masa Square, Gaborone',emoji:'🎤'}],
+  combo:[{id:'c1',name:'Braai Platter + 4 Beers',price:399,qty:4,store:'The Yellow Giraffe',emoji:'🍖'},{id:'c2',name:'Taco Fiesta + 4 Ciders',price:365,qty:4,store:'Taco Loco',emoji:'🌮'}]
+};
+const FAV_RESTAURANTS=[{id:'r1',name:'The Yellow Giraffe',area:'Tshukudu Road',town:'Gaborone',emoji:'🦒'},{id:'r2',name:'Pizza Palace',area:'Broadhurst',town:'Gaborone',emoji:'🍕'}];
+const FAV_CATERING=[{id:'ct1',name:'Taste Catering Co.',area:'Main Mall',town:'Gaborone',emoji:'🍽'}];
+const FAV_BOTTLES=[{id:'bt1',name:'Liquorama Main Mall',area:'Main Mall',town:'Gaborone',emoji:'🍷'},{id:'bt2',name:'Tops at Spar',area:'Broadhurst',town:'Gaborone',emoji:'🍾'}];
+const FAV_VENUES=[{id:'v1',name:'Fairgrounds Gaborone',area:'Fairgrounds',town:'Gaborone',emoji:'🏟'},{id:'v2',name:'Masa Square Conference Centre',area:'CBD',town:'Gaborone',emoji:'🏛'}];
+const FAV_SUPPLIERS=[
+  {category:'infrastructure', name:'Infrastructure & Rentals', icon:'⛺', items:[{id:'s1',name:'Elite Tents BW',area:'G-West',town:'Gaborone',emoji:'⛺'},{id:'s2',name:'PowerPro Generators',area:'Broadhurst',town:'Gaborone',emoji:'⚡'}]},
+  {category:'catering', name:'Catering, Bar & Hospitality', icon:'🍽', items:[{id:'s3',name:'Taste Catering Co.',area:'Main Mall',town:'Gaborone',emoji:'🍽'}]},
+  {category:'decor', name:'Decor, Styling & Florals', icon:'🎨', items:[]},
+  {category:'technical', name:'Technical Production (AV)', icon:'🔊', items:[{id:'s4',name:'Soundwave AV',area:'CBD',town:'Gaborone',emoji:'🔊'}]},
+  {category:'entertainment', name:'Entertainment & Talent', icon:'🎤', items:[]},
+  {category:'security', name:'Safety, Security & Logistics', icon:'🛡', items:[]},
+  {category:'media', name:'Media, Memories & Marketing', icon:'📸', items:[]},
+  {category:'management', name:'Management & Coordination', icon:'📋', items:[]}
+];
+const DEMO_ORDERS=[{id:'o1',title:'Lunch at The Yellow Giraffe',date:'18 Oct 2026',emoji:'🍽'},{id:'o2',title:'Friday Pizza Night',date:'12 Oct 2026',emoji:'🍕'},{id:'o3',title:'Groceries from Tops at Spar',date:'05 Oct 2026',emoji:'🛒'}];
+const DEMO_SUMMARIES=[{id:'s1',title:'Braai for 12 — 15 Nov',date:'18 Oct 2026',emoji:'🍖'},{id:'s2',title:'Birthday cake shopping list',date:'14 Oct 2026',emoji:'🎂'},{id:'s3',title:'Office Friday lunch order',date:'10 Oct 2026',emoji:'🥗'}];
+const GALLERY_ITEMS=(()=>{const emojis=['🍕','🍔','🍣','🍝','🍰','🍺','🍷','🥂','🍜','🍩','🍦','🥗','🍗','🥩','🍤','🍹','🥘','🍱','🍰','🍪'];const labels=['Pizza','Burger','Sushi','Pasta','Cake','Beer','Wine','Champagne','Noodles','Donut','Ice Cream','Salad','Chicken','Steak','Prawns','Cocktail','Curry','Bento','Cake','Cookie'];const out=[];for(let i=0;i<60;i++)out.push({id:'g'+i,emoji:emojis[i%emojis.length],label:labels[i%labels.length]});return out;})();
+
+/* ───── State ───── */
+const state={ cardAlert:'profile-options', favView:'main', favPromoView:null, favSupplierCat:null, previewImage:null, galleryShown:30, checkoutSource:null, checkoutItemId:null, eventItemId:null, venueItemId:null };
+
+/* ───── Shell ───── */
+function renderHeader(){document.getElementById('hdrLogo').src=LOGO_SVG;}
+function renderNav(){document.getElementById('nav').innerHTML=['tag','shop','cal','img','info'].map((k,i)=>'<button class="nav-btn'+(i===4?' on':'')+'" aria-label="'+k+'">'+NAV_ICONS[k]+'</button>').join('');}
+function renderAboutPage(){
+  let h='<div class="screen" data-page="about-main"><div class="scroll">';
+  h+='<div class="about-hero"><img class="about-logo" src="'+LOGO_SVG+'" alt="EatOuts"><p>Discover restaurants, food, promos and events<br>across Botswana.</p></div>';
+  h+='<div class="pad"><div class="pcdivider"></div>';
+  h+='<div class="profilecard logged" data-act="openProfileOptions" role="button" tabindex="0">';
+  h+='<span class="pc-thumb" data-act="previewAvatar"><img src="'+DEMO_USER.photo+'" alt=""></span>';
+  h+='<span class="pc-main"><strong>'+DEMO_USER.name+'</strong></span></div>';
+  h+='<div class="setlist"><button class="setrow">About EatOuts</button><button class="setrow">Install EatOuts</button><button class="setrow">Blog</button><button class="setrow">Terms of Service</button><button class="setrow">Privacy Policy</button></div>';
+  h+='</div><div style="height:34px"></div></div></div>';
+  return h;
+}
+
+/* ───── Navigation ───── */
+function popupBackTarget(){
+  if(state.cardAlert==='profile-options') return 'close';
+  if(state.cardAlert==='favourites'){
+    if(state.favView==='main') return 'profile-options';
+    if(state.favView==='promos') return state.favPromoView?'favourites-promos':'favourites-main';
+    if(state.favView==='suppliers') return state.favSupplierCat?'favourites-suppliers':'favourites-main';
+    return 'favourites-main';
+  }
+  if(state.cardAlert==='orders'||state.cardAlert==='summaries'||state.cardAlert==='gallery') return 'profile-options';
+  if(state.cardAlert==='checkout-summary') return 'favourites-promos-view';
+  if(state.cardAlert==='favourites-event') return 'favourites-promos-view';
+  if(state.cardAlert==='favourites-venue') return 'favourites-main';
+  return 'close';
+}
+
+function popupBackLabel(){
+  if(state.cardAlert==='profile-options') return 'Back to About';
+  if(state.cardAlert==='favourites'){
+    if(state.favView==='main') return 'Back to Profile';
+    if(state.favView==='promos') return state.favPromoView?'Back to Promos':'Back to Favourites';
+    if(state.favView==='suppliers') return state.favSupplierCat?'Back to Suppliers':'Back to Favourites';
+    return 'Back to Favourites';
+  }
+  if(state.cardAlert==='orders'||state.cardAlert==='summaries'||state.cardAlert==='gallery') return 'Back to Profile';
+  if(state.cardAlert==='checkout-summary') {
+    const labels={beverage:'Back to Beverages',food:'Back to Food',combo:'Back to Combos'};
+    return labels[state.checkoutSource]||'Back';
+  }
+  if(state.cardAlert==='favourites-event') return 'Back to Events';
+  if(state.cardAlert==='favourites-venue') return 'Back to Favourites';
+  return 'Back';
+}
+
+function runPopupBack(){
+  const target=popupBackTarget();
+  if(target==='close') { state.cardAlert=null; }
+  else if(target==='profile-options') { state.cardAlert='profile-options'; }
+  else if(target==='favourites-main') { state.cardAlert='favourites'; state.favView='main'; state.favPromoView=null; state.favSupplierCat=null; }
+  else if(target==='favourites-promos') { state.favPromoView=null; }
+  else if(target==='favourites-suppliers') { state.favSupplierCat=null; }
+  else if(target==='favourites-promos-view') { state.cardAlert='favourites'; state.favView='promos'; }
+  else { state.cardAlert=target; }
+  renderPopup();
+}
+
+/* ───── Renders ───── */
+function popupScrim(){return '<div class="card-alert-scrim" data-act="closePopup"></div>';}
+function popupShell(title, bodyHtml, opts){
+  opts=opts||{};
+  let h=popupScrim()+'<div class="card-alert fpop" role="alertdialog" aria-modal="true">';
+  h+='<div class="fpop-head"><div class="fpop-title">'+title+'</div></div>';
+  h+='<div class="fpop-body"'+(opts.bodyStyle?' style="'+opts.bodyStyle+'"':'')+'>'+bodyHtml+'</div>';
+  if(opts.noFooter!==true) h+='<div class="fpop-footer"><button class="fpop-back-btn" data-act="popupBack">'+popupBackLabel()+'</button></div>';
+  h+='</div>';
+  return h;
+}
+
+function renderProfileOptionsPopup(){
+  let body='<div class="profile-popup-head"><span class="profile-popup-thumb" data-act="previewAvatar"><img src="'+DEMO_USER.photo+'" alt=""></span><div class="profile-popup-name">'+DEMO_USER.name+'</div></div>';
+  body+='<button class="fav-menu-btn" data-act="openLoggedPopup" data-view="favourites"><div><div class="fm-label">Favourites</div><div class="fm-meta">'+(FAV_PROMOS.beverage.length+FAV_PROMOS.food.length+FAV_PROMOS.event.length+FAV_PROMOS.combo.length+FAV_RESTAURANTS.length+FAV_CATERING.length+FAV_BOTTLES.length+FAV_VENUES.length+FAV_SUPPLIERS.reduce((s,c)=>s+c.items.length,0))+' saved</div></div><span class="fm-arrow">›</span></button>';
+  body+='<button class="fav-menu-btn" data-act="openLoggedPopup" data-view="orders"><div><div class="fm-label">Orders</div><div class="fm-meta">'+DEMO_ORDERS.length+' past orders</div></div><span class="fm-arrow">›</span></button>';
+  body+='<button class="fav-menu-btn" data-act="openLoggedPopup" data-view="summaries"><div><div class="fm-label">Summaries</div><div class="fm-meta">'+DEMO_SUMMARIES.length+' saved summaries</div></div><span class="fm-arrow">›</span></button>';
+  body+='<button class="fav-menu-btn" data-act="openLoggedPopup" data-view="gallery"><div><div class="fm-label">Gallery</div><div class="fm-meta">'+GALLERY_ITEMS.length+' photos</div></div><span class="fm-arrow">›</span></button>';
+  body+='<button class="lg-signout" data-act="signOut">Sign out</button>';
+  return popupShell('My Profile', body);
+}
+
+function renderFavouritesMain(){
+  const supCount=FAV_SUPPLIERS.reduce((s,c)=>s+c.items.length,0);
+  let body='';
+  body+='<button class="fav-menu-btn" data-act="favMenu" data-view="promos"><div><div class="fm-label">Promos</div><div class="fm-meta">'+(FAV_PROMOS.beverage.length+FAV_PROMOS.food.length+FAV_PROMOS.event.length+FAV_PROMOS.combo.length)+' saved</div></div><span class="fm-arrow">›</span></button>';
+  body+='<button class="fav-menu-btn" data-act="favMenu" data-view="restaurants"><div><div class="fm-label">Restaurants</div><div class="fm-meta">'+FAV_RESTAURANTS.length+' saved</div></div><span class="fm-arrow">›</span></button>';
+  body+='<button class="fav-menu-btn" data-act="favMenu" data-view="catering"><div><div class="fm-label">Catering</div><div class="fm-meta">'+FAV_CATERING.length+' saved</div></div><span class="fm-arrow">›</span></button>';
+  body+='<button class="fav-menu-btn" data-act="favMenu" data-view="bottles"><div><div class="fm-label">Bottle Stores</div><div class="fm-meta">'+FAV_BOTTLES.length+' saved</div></div><span class="fm-arrow">›</span></button>';
+  body+='<button class="fav-menu-btn" data-act="favMenu" data-view="venues"><div><div class="fm-label">Venues</div><div class="fm-meta">'+FAV_VENUES.length+' saved</div></div><span class="fm-arrow">›</span></button>';
+  body+='<button class="fav-menu-btn" data-act="favMenu" data-view="suppliers"><div><div class="fm-label">Suppliers</div><div class="fm-meta">'+FAV_SUPPLIERS.length+' categories · '+supCount+' saved</div></div><span class="fm-arrow">›</span></button>';
+  return popupShell('Favourites', body);
+}
+
+function renderFavouritesPromos(){
+  let body='';
+  ['beverage','food','event','combo'].forEach(k=>{
+    const label={beverage:'Beverage',food:'Food',event:'Event',combo:'Combo'}[k];
+    body+='<button class="fav-menu-btn" data-act="favPromoView" data-view="'+k+'"><div><div class="fm-label">'+label+'</div><div class="fm-meta">'+FAV_PROMOS[k].length+' saved</div></div><span class="fm-arrow">›</span></button>';
+  });
+  return popupShell('Promos', body);
+}
+
+function renderFavouritesItems(kind){
+  const items=FAV_PROMOS[kind]||[];
+  const label={beverage:'Beverage',food:'Food',event:'Event',combo:'Combo'}[kind];
+  let body='';
+  if(!items.length) body+='<p style="text-align:center;color:#a89a7e;padding:24px 0">Nothing saved yet.</p>';
+  items.forEach(it=>{
+    let meta= kind==='event' ? it.date+' · '+it.time+' at '+it.place : kind==='combo' ? 'P'+it.price.toFixed(2)+' for '+it.qty+' at '+it.store : 'P'+it.price.toFixed(2)+' at '+it.store;
+    body+='<div class="fav-item" data-act="favItemAction" data-kind="'+kind+'" data-id="'+it.id+'"><span class="fav-thumb" data-act="preview" data-emoji="'+it.emoji+'" data-seed="'+it.id+'">'+tileHtml(it.emoji,it.id)+'</span><div class="fav-info"><div class="fav-name">'+it.name+'</div><div class="fav-meta">'+meta+'</div></div></div>';
+  });
+  return popupShell(label, body);
+}
+
+function renderFavouritesVenueList(kind){
+  const map={restaurants:FAV_RESTAURANTS,catering:FAV_CATERING,bottles:FAV_BOTTLES,venues:FAV_VENUES};
+  const items=map[kind]||[];
+  const label={restaurants:'Restaurants',catering:'Catering',bottles:'Bottle Stores',venues:'Venues'}[kind];
+  let body='';
+  if(!items.length) body+='<p style="text-align:center;color:#a89a7e;padding:24px 0">Nothing saved yet.</p>';
+  items.forEach(it=>{
+    body+='<div class="fav-item" data-act="favItemAction" data-kind="'+kind+'" data-id="'+it.id+'"><span class="fav-thumb" data-act="preview" data-emoji="'+it.emoji+'" data-seed="'+it.id+'">'+tileHtml(it.emoji,it.id)+'</span><div class="fav-info"><div class="fav-name">'+it.name+'</div><div class="fav-meta">'+it.area+' · '+it.town+'</div></div></div>';
+  });
+  return popupShell(label, body);
+}
+
+function renderFavouritesSuppliers(){
+  let body='';
+  FAV_SUPPLIERS.forEach(cat=>{
+    body+='<button class="fav-menu-btn" data-act="favSupplierCat" data-cat="'+cat.category+'"><div><div class="fm-label">'+cat.icon+' '+cat.name+'</div><div class="fm-meta">'+cat.items.length+' saved</div></div><span class="fm-arrow">›</span></button>';
+  });
+  return popupShell('Suppliers', body);
+}
+
+function renderFavouritesSupplierCat(){
+  const cat=FAV_SUPPLIERS.find(c=>c.category===state.favSupplierCat);
+  if(!cat) return '';
+  let body='';
+  if(!cat.items.length) body+='<p style="text-align:center;color:#a89a7e;padding:24px 0">Nothing saved in this category.</p>';
+  cat.items.forEach(it=>{
+    body+='<div class="fav-item" data-act="favItemAction" data-kind="suppliers" data-id="'+it.id+'"><span class="fav-thumb" data-act="preview" data-emoji="'+it.emoji+'" data-seed="'+it.id+'">'+tileHtml(it.emoji,it.id)+'</span><div class="fav-info"><div class="fav-name">'+it.name+'</div><div class="fav-meta">'+it.area+' · '+it.town+'</div></div></div>';
+  });
+  return popupShell(cat.icon+' '+cat.name, body);
+}
+
+function renderOrdersPopup(){
+  let body='';
+  DEMO_ORDERS.forEach(o=>{
+    body+='<div class="fav-item"><span class="fav-thumb" data-act="preview" data-emoji="'+o.emoji+'" data-seed="'+o.id+'">'+tileHtml(o.emoji,o.id)+'<button class="edit-icon" data-act="editThumb" data-id="'+o.id+'">✎</button></span><div class="fav-info"><div class="fav-name">'+o.title+'</div><div class="fav-meta">'+o.date+'</div></div></div>';
+  });
+  return popupShell('Orders', body);
+}
+
+function renderSummariesPopup(){
+  let body='';
+  DEMO_SUMMARIES.forEach(o=>{
+    body+='<div class="fav-item"><span class="fav-thumb" data-act="preview" data-emoji="'+o.emoji+'" data-seed="'+o.id+'">'+tileHtml(o.emoji,o.id)+'<button class="edit-icon" data-act="editThumb" data-id="'+o.id+'">✎</button></span><div class="fav-info"><div class="fav-name">'+o.title+'</div><div class="fav-meta">'+o.date+'</div></div></div>';
+  });
+  return popupShell('Summaries', body);
+}
+
+function renderGalleryPopup(){
+  const shown=Math.min(state.galleryShown,GALLERY_ITEMS.length);
+  let body='<div class="gallery-grid" id="galgrid">';
+  for(let i=0;i<shown;i++){
+    const g=GALLERY_ITEMS[i];
+    body+='<button class="gallery-cell" data-act="preview" data-emoji="'+g.emoji+'" data-seed="'+g.id+'">'+tileHtml(g.emoji,g.id)+'</button>';
+  }
+  body+='</div>';
+  if(shown<GALLERY_ITEMS.length) body+='<div id="galsentinel" style="padding:10px;text-align:center"><button class="dlg-btn" data-act="galMore">Load more</button></div>';
+  return popupShell('Gallery', body, {bodyStyle:'padding:8px'});
+}
+
+function renderCheckoutSummary(){
+  const item=FAV_PROMOS[state.checkoutSource].find(x=>x.id===state.checkoutItemId);
+  let body='<div class="fav-item" style="border-bottom:0;padding-top:0">';
+  body+='<span class="fav-thumb" data-act="preview" data-emoji="'+item.emoji+'" data-seed="'+item.id+'">'+tileHtml(item.emoji,item.id)+'</span>';
+  body+='<div class="fav-info"><div class="fav-name">'+item.name+'</div><div class="fav-meta">P'+item.price.toFixed(2)+'</div></div></div>';
+  body+='<div class="subh" style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#a89a7e;font-weight:800;margin:16px 0 9px">Quantity</div><div style="display:flex;align-items:center;gap:16px;margin-bottom:16px"><button style="width:36px;height:36px;border-radius:50%;border:1px solid #ece7db;background:#faf8f2;font-size:20px">-</button><span style="font-weight:900;font-size:18px">1</span><button style="width:36px;height:36px;border-radius:50%;border:1px solid #ece7db;background:#faf8f2;font-size:20px">+</button></div>';
+  body+='<div class="subh" style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#a89a7e;font-weight:800;margin:16px 0 9px">Add-ons</div>';
+  body+='<div style="padding:12px;border:1px solid #f1ece1;border-radius:12px;background:#faf8f2;margin-bottom:8px;font-size:14px;font-weight:600;display:flex;justify-content:space-between"><span>Extra Cheese</span><span>+ P10.00</span></div>';
+  body+='<div style="padding:12px;border:1px solid #f1ece1;border-radius:12px;background:#faf8f2;margin-bottom:16px;font-size:14px;font-weight:600;display:flex;justify-content:space-between"><span>Bacon Bits</span><span>+ P15.00</span></div>';
+  body+='<button class="dlg-btn primary" style="width:100%">Add to Checkout</button>';
+  return popupShell('Add to Checkout', body);
+}
+
+function renderFavouritesEvent(){
+  const ev=FAV_PROMOS.event.find(x=>x.id===state.eventItemId);
+  let body='<div class="fav-item" style="border-bottom:0;padding-top:0"><span class="fav-thumb" data-act="preview" data-emoji="'+ev.emoji+'" data-seed="'+ev.id+'">'+tileHtml(ev.emoji,ev.id)+'</span><div class="fav-info"><div class="fav-name">'+ev.name+'</div><div class="fav-meta">'+ev.date+' · '+ev.time+' at '+ev.place+'</div></div></div>';
+  body+='<p style="color:#6b7280;font-size:14px;line-height:1.55;margin-top:16px">Join us for an unforgettable evening of music, food, and great company. Doors open at '+ev.time+'. Don\'t miss out on this incredible experience.</p>';
+  return popupShell('Event Details', body);
+}
+
+function renderFavouritesVenue(){
+  const map={restaurants:FAV_RESTAURANTS,catering:FAV_CATERING,bottles:FAV_BOTTLES,venues:FAV_VENUES,suppliers:FAV_SUPPLIERS.reduce((s,c)=>s.concat(c.items),[])};
+  let it=null;
+  if(state.favView==='suppliers') it=map.suppliers.find(x=>x.id===state.venueItemId);
+  else it=(map[state.favView]||[]).find(x=>x.id===state.venueItemId);
+  if(!it) return '';
+  let body='<div class="fav-item" style="border-bottom:0;padding-top:0"><span class="fav-thumb" data-act="preview" data-emoji="'+it.emoji+'" data-seed="'+it.id+'">'+tileHtml(it.emoji,it.id)+'</span><div class="fav-info"><div class="fav-name">'+it.name+'</div><div class="fav-meta">'+it.area+' · '+it.town+'</div></div></div>';
+  body+='<div style="margin-top:16px;border-top:1px solid #f1ece1;padding-top:16px"><p style="color:#6b7280;font-size:14px">Full venue page opens here.</p></div>';
+  return popupShell(it.name, body);
+}
+
+/* ───── Dispatch ───── */
+function renderPopup(){
+  const root=document.getElementById('popup-root');
+  const a=state.cardAlert;
+  if(!a){root.innerHTML='';return;}
+  if(a==='profile-options'){root.innerHTML=renderProfileOptionsPopup();return;}
+  if(a==='favourites'){
+    if(state.favView==='main') root.innerHTML=renderFavouritesMain();
+    else if(state.favView==='promos'){
+      if(state.favPromoView) root.innerHTML=renderFavouritesItems(state.favPromoView);
+      else root.innerHTML=renderFavouritesPromos();
+    }
+    else if(state.favView==='suppliers'){
+      if(state.favSupplierCat) root.innerHTML=renderFavouritesSupplierCat();
+      else root.innerHTML=renderFavouritesSuppliers();
+    }
+    else root.innerHTML=renderFavouritesVenueList(state.favView);
+    return;
+  }
+  if(a==='orders'){root.innerHTML=renderOrdersPopup();return;}
+  if(a==='summaries'){root.innerHTML=renderSummariesPopup();return;}
+  if(a==='gallery'){root.innerHTML=renderGalleryPopup();armGalleryScroll();return;}
+  if(a==='checkout-summary'){root.innerHTML=renderCheckoutSummary();return;}
+  if(a==='favourites-event'){root.innerHTML=renderFavouritesEvent();return;}
+  if(a==='favourites-venue'){root.innerHTML=renderFavouritesVenue();return;}
+}
+
+function renderPreview(){
+  const p=state.previewImage;
+  if(!p) return '';
+  const inner=p.kind==='avatar'?'<img src="'+p.src+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px">':tileHtml(p.emoji,p.seed);
+  return '<div class="preview-layer" data-act="closePreview"><div class="preview-img">'+inner+'</div><button class="preview-close" data-act="closePreview">×</button></div>';
+}
+
+function render(){
+  renderHeader();
+  document.getElementById('viewport').innerHTML=renderAboutPage();
+  renderNav();
+  renderPopup();
+  document.getElementById('preview-root').innerHTML=renderPreview();
+}
+
+/* ───── Gallery Scroll ───── */
+function armGalleryScroll(){
+  const s=document.getElementById('galsentinel');
+  if(!s||!('IntersectionObserver' in window)) return;
+  if(window.__galIO) window.__galIO.disconnect();
+  const root=document.querySelector('.fpop-body');
+  window.__galIO=new IntersectionObserver(es=>{ if(es.some(x=>x.isIntersecting)) loadMoreGallery(); },{root:root,rootMargin:'200px'});
+  window.__galIO.observe(s);
+}
+function loadMoreGallery(){
+  const next=Math.min(state.galleryShown+30,GALLERY_ITEMS.length);
+  if(next===state.galleryShown) return;
+  const grid=document.getElementById('galgrid');
+  if(!grid) return;
+  let add='';
+  for(let i=state.galleryShown;i<next;i++){
+    const g=GALLERY_ITEMS[i];
+    add+='<button class="gallery-cell" data-act="preview" data-emoji="'+g.emoji+'" data-seed="'+g.id+'">'+tileHtml(g.emoji,g.id)+'</button>';
+  }
+  grid.insertAdjacentHTML('beforeend',add);
+  state.galleryShown=next;
+  const s=document.getElementById('galsentinel');
+  if(s&&next>=GALLERY_ITEMS.length) s.remove();
+}
+
+/* ───── Events ───── */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');
+  if(!t) return;
+  const act=t.getAttribute('data-act');
+
+  if(act==='preview'){e.stopPropagation();state.previewImage={kind:'emoji',emoji:t.getAttribute('data-emoji'),seed:t.getAttribute('data-seed')};document.getElementById('preview-root').innerHTML=renderPreview();return;}
+  if(act==='editThumb'){e.stopPropagation();state.previewImage={kind:'emoji',emoji:'✎',seed:t.getAttribute('data-id')||'edit'};document.getElementById('preview-root').innerHTML=renderPreview();return;}
+  if(act==='previewAvatar'){e.stopPropagation();state.previewImage={kind:'avatar',src:DEMO_USER.photo};document.getElementById('preview-root').innerHTML=renderPreview();return;}
+  if(act==='closePreview'){state.previewImage=null;document.getElementById('preview-root').innerHTML='';return;}
+
+  if(act==='openProfileOptions'){state.cardAlert='profile-options';state.favView='main';state.favPromoView=null;state.favSupplierCat=null;renderPopup();return;}
+  if(act==='popupBack'){runPopupBack();return;}
+  if(act==='closePopup'){state.cardAlert=null;renderPopup();return;}
+
+  if(act==='openLoggedPopup'){state.cardAlert=t.getAttribute('data-view');state.favView='main';state.favPromoView=null;state.favSupplierCat=null;state.galleryShown=30;renderPopup();return;}
+  if(act==='signOut'){alert('Sign out clicked');return;}
+
+  if(act==='favMenu'){state.favView=t.getAttribute('data-view');renderPopup();return;}
+  if(act==='favPromoView'){state.favPromoView=t.getAttribute('data-view');renderPopup();return;}
+  if(act==='favSupplierCat'){state.favSupplierCat=t.getAttribute('data-cat');renderPopup();return;}
+  
+  if(act==='favItemAction'){
+    const kind=t.getAttribute('data-kind');
+    const id=t.getAttribute('data-id');
+    if(state.favView==='promos'){
+      if(state.favPromoView==='event'){state.cardAlert='favourites-event';state.eventItemId=id;}
+      else{state.cardAlert='checkout-summary';state.checkoutSource=state.favPromoView;state.checkoutItemId=id;}
+    }else{
+      state.cardAlert='favourites-venue';state.venueItemId=id;
+    }
+    renderPopup();
+    return;
+  }
+  if(act==='galMore'){loadMoreGallery();return;}
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'||e.keyCode===27){
+    if(state.previewImage){state.previewImage=null;document.getElementById('preview-root').innerHTML='';return;}
+    if(state.cardAlert){runPopupBack();}
+  }
+});
+
+render();
+</script>
+</body>
+</html>

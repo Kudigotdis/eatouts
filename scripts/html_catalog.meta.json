@@ -827,14 +827,46 @@
       "group": "public-customer",
       "purpose": "Public About EatOuts page.",
       "audience": "Everyone",
-      "entry": "From index.html About \u2192 Settings \u2192 About EatOuts.",
+      "entry": "From index.html About → Settings → About EatOuts.",
       "interactions": "Read the EatOuts story; follow social links.",
       "auth": false,
       "status": "FULL",
       "notes": "Standalone page split out of the About tab."
+    },
+    {
+      "id": 66,
+      "file": "about-guest-popup.html",
+      "group": "public-customer",
+      "purpose": "Standalone demo of the Create Profile popup on the About tab.",
+      "audience": "Everyone",
+      "entry": "Open from About tab",
+      "interactions": "Popup opens on click, Sign In navigates to profile options.",
+      "auth": false,
+      "status": "FULL",
+      "notes": "Added as part of Pop‑Up States Plan."
+    },
+    {
+      "id": 67,
+      "file": "about-profile-options.html",
+      "group": "public-customer",
+      "purpose": "Standalone demo of the logged‑in profile‑options popup.",
+      "audience": "Everyone",
+      "entry": "Open from About tab",
+      "interactions": "Popup opens on load, navigation via buttons.",
+      "auth": false,
+      "status": "FULL",
+      "notes": "Added as part of Pop‑Up States Plan."
     }
   ],
   "changelog": [
+    {
+      "date": "2026-10-18",
+      "note": "Added about‑guest-popup.html and about‑profile‑options.html as new catalog entries."
+    },
+    {
+      "date": "2026-10-18",
+      "note": "Venue About page fix (index.html): the shared venue-about screen now correctly shows the specific venue (Nando's, KFC, caterers, bottle stores) instead of the flagship profile. The About icon (i) on each venue card navigates to that venue's About page. Reused state.restaurantView with a kind field (restaurant|catering|bottle_store) for unified routing. Added renderCateringAbout/renderBottleStoreAbout, venueAboutLocationRows/venueAboutOptions helpers. Updated openCateringAbout, bottleStoreInfo, openBottleMenu, pickCateringBranch/pickBottleBranch, viewKey. Extended tests/beverages.js and tests/bottle-stores.js with About navigation coverage. npm test 48/48."
+    },
     {
       "date": "2026-10-11",
       "note": "Created HTML_CATALOG.md with a numbered master index, navigation map and per-page detail; generator (scripts/build_html_catalog.mjs) + guard test (tests/html-catalog.js) enforce that every root .html is catalogued."

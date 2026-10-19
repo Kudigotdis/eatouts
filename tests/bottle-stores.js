@@ -203,6 +203,23 @@ setTimeout(() => {
   check('back from the grid returns to the directory',
     ev('state.bevView') === null && doc.querySelectorAll(bevSel + '.ritem[data-bacc]').length === 47);
 
+  /* ---- About icon opens the shared venue-about page ---- */
+  ev('state.bottleOpen="liquorama";render()');
+  click(doc.querySelector(bevSel + '.ritem[data-bacc="liquorama"] [data-act="bottleStoreInfo"]'));
+  check('store About opens the venue-about page',
+    ev('state.restaurantView && state.restaurantView.kind') === 'bottle_store' &&
+    ev('state.restaurantView && state.restaurantView.view') === 'about',
+    JSON.stringify(ev('state.restaurantView')));
+  const storeAbout = doc.querySelector('#viewport .screen[data-page="venue-about"]');
+  check('venue-about page is active for the store', !!storeAbout);
+  const storeHero = storeAbout && storeAbout.querySelector('.rabout-hero h2');
+  check('venue-about hero names the store (not the flagship)',
+    !!storeHero && /liquorama/i.test(storeHero.textContent), storeHero ? storeHero.textContent : 'none');
+  click(storeAbout.querySelector('[data-act="backFromRestView"]'));
+  check('Back from store About returns to the beverages panel',
+    ev('state.restaurantView') === null && ev('state.restPanel') === 'beverages');
+  ev('state.bottleOpen=null;render()');
+
   /* ---- Promos jumps to the Promos tab ---- */
   click(doc.querySelector(bevSel + '.ritem[data-bacc="liquorama"] [data-act="openBottlePromos"]'));
   check('Promos switches to the Promos tab', ev('state.tab') === 'promos', ev('state.tab'));

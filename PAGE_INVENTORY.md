@@ -15,7 +15,7 @@ only reads; it never rewrites this file. It warns on line drift.
 
 ## How to use this document
 
-- **Part 1** — Standalone `*.html` files (65 files in the project root). Each
+- **Part 1** — Standalone `*.html` files (67 files in the project root). Each
   carries `<!-- PAGE: <title> -->` near the top and `data-page="<slug>"` on
   `<body>`.
 - **Part 2** — Screens within the SPA (`index.html`), organised by tab. Each
@@ -132,6 +132,8 @@ only reads; it never rewrites this file. It warns on line drift.
 | 63 | `seed-demo.html` | Seed demo data tool. | Direct link | `PAGE: Seed & Verify` | 441 |
 | 64 | `eatout_event_builder.html` | Event builder tool for testing. | Direct link | `PAGE: EatOuts — Event Planner` | 4202 |
 | 65 | `eatouts-disputes.html` | Disputes page. | admin dashboard / app links | `PAGE: Disputes` | 3 |
+| 66 | `about-guest-popup.html` | Standalone demo of the Create Profile (guest) popup on the About tab. | About tab | `PAGE: About Guest Popup` | 162 |
+| 67 | `about-profile-options.html` | Standalone demo of the logged-in profile-options popup. | About tab | `PAGE: About Profile Options` | 473 |
 
 ---
 
