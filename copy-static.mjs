@@ -2,7 +2,7 @@
 // Stages the public app files into ./dist for Cloudflare Workers deployment.
 // Local-only files (notes, fix scripts, backups) are never copied.
 
-import { cp, mkdir, rm } from 'node:fs/promises';
+import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 
 const OUT = 'dist';
@@ -125,6 +125,27 @@ await mkdir(OUT, { recursive: true });
 
 let copied = 0;
 const missing = [];
+
+// ---- _routes.json -----------------------------------------------------------
+// functions/[slug].js is a catch-all for /<slug>, so it shadows every static
+// page (and the _redirects rules, which only run when no Function matches).
+// The Function itself now falls through via context.next() when the path is a
+// real asset; these excludes keep static/asset traffic off the Function
+// entirely (and keep the file within the 100-rule cap).
+const staticExcludes = [
+  '/assets/*', '/js/*', '/css/*', '/img/*',
+  '/*.html', '/_headers', '/_redirects', '/_routes.json',
+  '/robots.txt', '/manifest.json', '/favicon.ico',
+];
+
+const routes = {
+  version: 1,
+  include: ['/*'],
+  exclude: staticExcludes,
+};
+await writeFile(`${OUT}/_routes.json`, JSON.stringify(routes, null, 2) + '\n');
+console.log(`✓ generated:    _routes.json (${routes.exclude.length} excludes)`);
+copied++;
 
 // ---- Copy folders ----
 for (const folder of FOLDERS) {

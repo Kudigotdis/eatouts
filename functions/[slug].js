@@ -58,6 +58,20 @@ async function assetText(env, request, file) {
   }
 }
 
+/* True when the request path resolves to a real static asset. env.ASSETS.fetch
+   wants the pretty path (/venue-about, not /venue-about.html) and runs redirect
+   + header rules, so a 2xx or 3xx both mean "the asset server owns this path". */
+async function assetExists(env, request) {
+  if (!env || !env.ASSETS || !env.ASSETS.fetch) return false;
+  var url = new URL(request.url);
+  var path = url.pathname.replace(/\/+$/, '') || '/';
+  try {
+    var res = await env.ASSETS.fetch(new Request(url.origin + path, { method: 'GET' }));
+    if (res && (res.status < 400)) return true;
+  } catch (e) { /* no asset server -> never fall through here */ }
+  return false;
+}
+
 function kindForType(type) {
   if (type === 'bottle_store') return 'bottle_store';
   if (type === 'supplier') return 'catering';
@@ -161,6 +175,14 @@ export async function onRequest(context) {
   }
 
   if (!row) {
+    /* This catch-all matches every single-segment path, so it would shadow
+       real static pages (/venue-about, /eatouts-blog, ...) and the _redirects
+       rules, which only run when no Function matches. Before answering 404,
+       hand the request back to Pages so a static asset or redirect can serve
+       it; only fall through to the custom 404 when there is nothing there. */
+    var assetHit = await assetExists(env, request);
+    if (assetHit) return context.next();
+
     var notFound = await assetText(env, request, '/404.html');
     if (notFound && /<head[^>]*>/i.test(notFound)) {
       notFound = notFound.replace(/<head([^>]*)>/i, '<head$1><base href="/">');

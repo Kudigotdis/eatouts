@@ -90,7 +90,26 @@ function ctx(url, env, nextFn) {
 (async () => {
   const base = path.resolve(__dirname, '..', 'functions');
   const mod = await import(pathToFileURL(path.join(base, '[slug].js')).href);
-  const env = { DB: fakeDB(), ASSETS: { fetch: async () => new Response('<!doctype html><html><head><title>EatOuts</title></head><body></body></html>', { status: 200, headers: { 'content-type': 'text/html' } }) } };
+
+  /* Fake asset server: real pages exist, venue slugs do not. Path-aware so the
+     router can fall through to a static page (/venue-about) but still 404 an
+     unknown slug. */
+  const PAGES = ['/venue-about', '/eatouts-blog', '/eatouts-login', '/suppliers', '/'];
+  function fakeAssets() {
+    return {
+      fetch: async (input) => {
+        const u = new URL(typeof input === 'string' ? input : (input && input.url) || String(input));
+        if (PAGES.indexOf(u.pathname) >= 0) {
+          return new Response('<!doctype html><html><head><title>EatOuts</title></head><body>page</body></html>', { status: 200, headers: { 'content-type': 'text/html' } });
+        }
+        if (u.pathname === '/index.html' || u.pathname === '/404.html') {
+          return new Response('<!doctype html><html><head><title>EatOuts</title></head><body></body></html>', { status: 200, headers: { 'content-type': 'text/html' } });
+        }
+        return new Response('not found', { status: 404 });
+      }
+    };
+  }
+  const env = { DB: fakeDB(), ASSETS: fakeAssets() };
 
   /* ---- restaurant found ---- */
   let res = await mod.onRequest(ctx('https://eatouts.site/kfc', env));
@@ -135,11 +154,29 @@ function ctx(url, env, nextFn) {
   res = await mod.onRequest(ctx('https://eatouts.site/LIQUORAMA', env));
   check('case-insensitive bottle_store -> 200', res.status === 200, res.status);
 
-  /* ---- unknown slug -> 404 ---- */
+  /* ---- unknown slug with no static page -> 404 ---- */
   res = await mod.onRequest(ctx('https://eatouts.site/nope', env));
   check('unknown -> 404', res.status === 404, res.status);
   text = await res.text();
   check('unknown -> has base href', text.indexOf('<base href="/">') >= 0);
+
+  /* ---- unknown slug that IS a static page -> next() (no shadowing) ---- */
+  let ftCalled = false;
+  res = await mod.onRequest(ctx('https://eatouts.site/venue-about', env, () => { ftCalled = true; return NEXT_SENTINEL; }));
+  check('static page /venue-about -> next()', ftCalled && res === NEXT_SENTINEL, ftCalled ? 'next() called' : res.status);
+
+  ftCalled = false;
+  res = await mod.onRequest(ctx('https://eatouts.site/eatouts-blog', env, () => { ftCalled = true; return NEXT_SENTINEL; }));
+  check('static page /eatouts-blog -> next()', ftCalled && res === NEXT_SENTINEL, ftCalled ? 'next() called' : res.status);
+
+  ftCalled = false;
+  res = await mod.onRequest(ctx('https://eatouts.site/suppliers', env, () => { ftCalled = true; return NEXT_SENTINEL; }));
+  check('redirect alias /suppliers -> next()', ftCalled && res === NEXT_SENTINEL, ftCalled ? 'next() called' : res.status);
+
+  /* ---- a real venue slug must NOT fall through ---- */
+  ftCalled = false;
+  res = await mod.onRequest(ctx('https://eatouts.site/kfc', env, () => { ftCalled = true; return NEXT_SENTINEL; }));
+  check('venue slug /kfc does not next()', !ftCalled && res.status === 200, ftCalled ? 'next() called' : res.status);
 
   /* ---- unconfigured -> 503 ---- */
   res = await mod.onRequest(ctx('https://eatouts.site/kfc', {}));
