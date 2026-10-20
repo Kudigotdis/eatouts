@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Catering services directory.
  *
  * Plain classic script (no ES modules) so it can be loaded with a normal
@@ -45,14 +45,15 @@
     'lh-cuisine-and-events': 'assets/logo/LH_Cuisine&_Events_Logo.jpg',
     'platter-house': 'assets/logo/Platter_House_Logo.jpg',
     'no-bites-catering': 'assets/logo/No-Bites_Catering_Logo.jpg',
-    'the-studio-cafe': 'assets/logo/The_studio_cafe_logo.jpg'
+    'the-studio-cafe': 'assets/logo/The_studio_cafe_logo.jpg',
+    'desert-flames-grill-and-pizza': 'assets/logo/Desert_Flames_Grill_&_Pizza_logo.jpg'
   };
 
   function slugify(s) {
     return String(s == null ? '' : s)
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
+      .replace(/[Ì€-Í¯]/g, '')
       .replace(/&/g, ' and ')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
@@ -97,7 +98,7 @@
     { business_name: "Fairground Holdings (Pty) Ltd t/a Botswana Conference and Exhibition Centre", type: "Conference & Exhibition Centre", aliases: [], locations: [{ address: "Private Bag BO3, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: "+267 397 5555", established: 1986, years_with_us: null, verified: true, source: "List A" }] },
     { business_name: "House of Hope", type: "NGO / Orphan Care", aliases: [], locations: [{ address: "Old Mall, Behind Barclays Bank, Boikago Ward, P.O. Box 15, Palapye, Botswana", town_city: "Palapye", country: "Botswana", phone: "+267 4923830", established: 1999, years_with_us: null, verified: true, source: "List A" }] },
     { business_name: "Pie Time", type: "Bakery / Pie Producer", aliases: [], locations: [{ address: "Plot 25001, Maakgadigau Road, Gaborone West, Botswana", town_city: "Gaborone", country: "Botswana", phone: "+267 397 5730", established: 1997, years_with_us: null, verified: true, source: "List A" }] },
-    { business_name: "City Caterers - Mnanaka", type: "Catering Services", aliases: ["City Caterers – Mnanaka"], locations: [{ address: "Mnanaka Complex Area 7 Mnanaka, P.O. Box 21061, Francistown, Botswana", town_city: "Francistown", country: "Botswana", phone: "+267 2440908", established: null, years_with_us: null, verified: true, source: "List A + List B" }] },
+    { business_name: "City Caterers - Mnanaka", type: "Catering Services", aliases: ["City Caterers â€“ Mnanaka"], locations: [{ address: "Mnanaka Complex Area 7 Mnanaka, P.O. Box 21061, Francistown, Botswana", town_city: "Francistown", country: "Botswana", phone: "+267 2440908", established: null, years_with_us: null, verified: true, source: "List A + List B" }] },
     { business_name: "Ford Foods", type: "Food Services", aliases: [], locations: [{ address: "Opp WLK, Industrial Site, P.O. Box 310, Jwaneng, Botswana", town_city: "Jwaneng", country: "Botswana", phone: "+267 5880181", established: null, years_with_us: null, verified: true, source: "List A + List B" }] },
     { business_name: "Four Seasons Catering Service", type: "Catering Services", aliases: [], locations: [{ address: "Plot 14817, Gaborone West, P.O. Box 746, Botswana", town_city: "Gaborone", country: "Botswana", phone: "+267 3924760", established: null, years_with_us: null, verified: true, source: "List A" }] },
     { business_name: "Rakis Catering Services", type: "Catering Services", aliases: [], locations: [{ address: "Plot 21734 Haskins Bldg Light Industrial, Francistown, Botswana", town_city: "Francistown", country: "Botswana", phone: "+267 2421850", established: null, years_with_us: null, verified: true, source: "List A" }] },
@@ -158,6 +159,27 @@
     { business_name: "Dripsins Burger & Grill", type: "Burgers, Grill, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
     { business_name: "LH Cuisine & Events", type: "Cuisine, Events, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
     { business_name: "Platter House", type: "Platters, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] }
+    { business_name: "Lwapa Restaurant & Catering Services", type: "Setswana, Catering", aliases: [], locations: [{ address: "Extension 2 Borakanelo, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Sanitas Restaurant & Catering", type: "Cafe, Events Catering", aliases: [], locations: [{ address: "Content Farm, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "The Courtyard Restaurant @botswanacraft", type: "African, Healthy, Events", aliases: [], locations: [{ address: "Extension 3 Village, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Mokolodi Bush Kitchen", type: "African, Outdoor Catering", aliases: [], locations: [{ address: "Gaborone Dam Area, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "At Nine Eatery + Cocktail Bar", type: "Specialty Food Market, African, Catering", aliases: [], locations: [{ address: "Phakalane (Extension 97), Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "The Patio Cafe & Deli", type: "American, Cafe, African, Corporate Catering", aliases: [], locations: [{ address: "Extension 9 Phologolo, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Roots of Africa Catering", type: "Italian, Pizza, Events", aliases: [], locations: [{ address: "Township (Area C) Ext 110, Francistown, Botswana", town_city: "Francistown", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Merilicious Cafe & Catering", type: "Cafe, Healthy, Private Catering", aliases: [], locations: [{ address: "Area L (Extension 111), Francistown, Botswana", town_city: "Francistown", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "The Eden Kitchen & Catering", type: "International, Private Events", aliases: [], locations: [{ address: "Village Maun, Maun, Botswana", town_city: "Maun", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Motsana Catering Services", type: "Bespoke Events, Buffet", aliases: [], locations: [{ address: "Sedibana, Maun, Botswana", town_city: "Maun", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Chobe Safari Lodge Catering", type: "African, Bush Banqueting", aliases: [], locations: [{ address: "Village Kasane, Kasane, Botswana", town_city: "Kasane", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "The Old House Catering", type: "Guesthouse, Restaurant & Private Catering", aliases: [], locations: [{ address: "Kazungula, Kasane, Botswana", town_city: "Kasane", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Bonita Gardens Catering", type: "Cafe, Fast Food, Outdoor Catering", aliases: [], locations: [{ address: "Village Palapye, Palapye, Botswana", town_city: "Palapye", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Shazzy Deli & Catering Services", type: "Deli, Platters, Events", aliases: [], locations: [{ address: "Power, Palapye, Botswana", town_city: "Palapye", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Kaytees Restaurant & Catering", type: "Setswana Cuisine, Function Catering", aliases: [], locations: [{ address: "Wards: Borotsi, Botalaote, Government Enclave, Mahalapye, Botswana", town_city: "Mahalapye", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Mantlentle Events Garden & Catering", type: "Restaurant/Event venue, Full-service Catering", aliases: [], locations: [{ address: "Village Serowe, Serowe, Botswana", town_city: "Serowe", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Mokala Restaurant Catering", type: "Setswana Traditional Catering", aliases: [], locations: [{ address: "Botepetepe, Serowe, Botswana", town_city: "Serowe", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Lwapa Restaurant & Catering Services", type: "Setswana, Event Catering", aliases: [], locations: [{ address: "Village Bobonong, Bobonong, Botswana", town_city: "Bobonong", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Ko Gae Cafe Catering", type: "Cafe, Platters, Private Parties", aliases: [], locations: [{ address: "Village Kanye, Kanye, Botswana", town_city: "Kanye", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Arabella Cafe Catering", type: "Coffee & Tea, African, Corporate Catering", aliases: [], locations: [{ address: "Town Centre (Extension 110), Lobatse, Botswana", town_city: "Lobatse", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
+    { business_name: "Desert Flames Grill & Pizza", type: "Grill & Pizza", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
   ];
 
   function unique(used, base) {
