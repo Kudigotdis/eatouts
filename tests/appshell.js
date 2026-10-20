@@ -26,7 +26,6 @@ const TABS = ['promos', 'restaurants', 'reserve', 'gallery', 'about'];
 const MODES = {
   'index.html': 'index',
   'eatout_event_builder.html': 'tool',
-  'eatouts-event-planner.html': 'opinion',
   'eatouts-suppliers.html': 'opinion',
   'eatouts-blog.html': 'blog',
   'restaurant-onboarding.html': 'merchant',

@@ -8475,8 +8475,25 @@ function readVenueMeta(){
 
 function openVenueFromSlug(meta){
   if(!meta||!meta.id)return false;
-  location.href='venue-about.html?link='+encodeURIComponent(meta.slug||meta.id);
+  gotoVenueAbout(meta.slug||meta.id);
   return true;
+}
+
+/* Every "view a business" tap leaves the SPA for the standalone About page.
+   venue-about.html resolves the business from ?link=<slug>. */
+function venueAboutUrl(target){
+  return "venue-about.html?link="+encodeURIComponent(String(target||""));
+}
+
+/* Single exit point so tests can observe where an About tap would navigate.
+   jsdom cannot navigate, so surface the target on the document first. */
+function gotoVenueAbout(target){
+  const url=venueAboutUrl(target);
+  try{
+    const ev=new CustomEvent("eatouts:about-nav",{detail:{url:url,target:String(target||"")}});
+    document.dispatchEvent(ev);
+  }catch(e){}
+  location.href=url;
 }
 
 function hydrateVenueContent(id){
@@ -8486,27 +8503,11 @@ function hydrateVenueContent(id){
   }).catch(function(){});
 }
 
-function scheduleShellTimeout(){
-  var shell=document.getElementById('venueAboutShell');
-  if(shell && !shell.dataset.timeoutScheduled){
-    shell.dataset.timeoutScheduled='1';
-    setTimeout(function(){
-      var loading=shell.querySelector('.venue-loading');
-      var unavailable=shell.querySelector('.venue-unavailable');
-      if(loading && unavailable){
-        loading.style.display='none';
-        unavailable.style.display='block';
-      }
-    },8000);
-  }
-}
-
 function render(){
   bootEatoutsBridge();
   if(!state.promoWeekStart) state.promoWeekStart = startOfWeek(new Date());
   if(!state.promoMonth){const d=new Date();state.promoMonth={year:d.getFullYear(),monthIndex:d.getMonth()};}
   renderViewport();
-  scheduleShellTimeout();
   if(state.tab==="gallery" && state.galleryView!=="photo") setTimeout(armGalleryScroll,0);
   setTimeout(armTownRails,0);
 }
@@ -8779,14 +8780,14 @@ document.addEventListener("click",function(e){
     window.location.href=waLink(msg,r);
     return;
   }
-  /* Information icon on a bottle-store card: open that store's About page
-     (venue-about.html), resolved from the bottle-store directory. */
+  /* Information icon on a bottle-store card: leave for that store's standalone
+     About page (venue-about.html), resolved from the bottle-store directory. */
   if(act==="bottleStoreInfo"){
     const api=bottleAPI();
     const brand=api&&api.get(t.getAttribute("data-brand"));
     if(!brand)return;
     const active=bottleActiveBranch(brand);
-    location.href='venue-about.html?link='+encodeURIComponent((active&&active.slug)||brand.slug);
+    gotoVenueAbout((active&&active.slug)||brand.slug);
     return;
   }
   if(act==="waPoetry"){
@@ -8920,7 +8921,7 @@ document.addEventListener("click",function(e){
 if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMenuAccordions();return;}
   if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   /* Restaurant-Card name/tagline tap: open the venue information page. */
-  if(act==="openRestAbout"){const rid=id||(state.restaurantView&&state.restaurantView.id);if(!rid)return;const brand=(state.restaurantView&&state.restaurantView.brand)||state.restaurantOpen||rid;location.href='venue-about.html?link='+encodeURIComponent(brand);return;}
+  if(act==="openRestAbout"){const rid=id||(state.restaurantView&&state.restaurantView.id);if(!rid)return;const brand=(state.restaurantView&&state.restaurantView.brand)||state.restaurantOpen||rid;gotoVenueAbout(brand);return;}
   if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   if(act==="backFromRestView"){resetSeoMeta();state.restaurantView=null;state.restaurantOpen=null;state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;render();return;}
   /* Promos on an expanded restaurant row opens the Gallery tab scoped to
@@ -9107,7 +9108,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     const brand=api?api.get(t.getAttribute("data-brand")||""):null;
     if(!brand)return;
     const active=cateringActiveBranch(brand);
-    location.href='venue-about.html?link='+encodeURIComponent((active&&active.slug)||brand.slug);
+    gotoVenueAbout((active&&active.slug)||brand.slug);
     return;
   }
   if(act==="waCateringAbout"){

@@ -159,6 +159,20 @@ function click(el) {
   dom.window.close();
 })();
 
+/* ---------- round trip: index.html#<slug>/menu is understood ----------
+   venue-about.html's Menu/Promos buttons leave for index.html#<biz.slug>/menu
+   or /promos. index.html must parse that hash back into the same venue's
+   menu/promos view (historically the SPA did not understand the slug form). */
+(function () {
+  const seen = fs.readFileSync(path.join(APP_DIR, 'venue-about.html'), 'utf8');
+  check('About emits index.html#<slug>/menu',
+    /window\.location\.href\s*=\s*'index\.html#'\s*\+\s*biz\.slug\s*\+\s*'\/menu'/.test(seen));
+  check('About emits index.html#<slug>/promos',
+    /window\.location\.href\s*=\s*'index\.html#'\s*\+\s*biz\.slug\s*\+\s*'\/promos'/.test(seen));
+  check('index.html parses the #<slug>/menu|promos hash',
+    /hashParts\[1\]==="menu"\|\|hashParts\[1\]==="promos"/.test(fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8')));
+})();
+
 console.log('');
 if (fails) {
   console.log('VENUE ABOUT OPTIONS TEST FAILED (' + fails + ' checks)');

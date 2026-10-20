@@ -39,7 +39,6 @@ const FILES = [
 
   // Content + marketing pages
   'eatouts-blog.html',
-  'eatouts-event-planner.html',
   'eatouts-suppliers.html',
   'eatouts-about.html',
 

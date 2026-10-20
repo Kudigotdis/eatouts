@@ -113,16 +113,24 @@ setTimeout(() => {
     check('single-branch caterer (Mmantlo) present', false, 'Mmantlo card not found');
   }
 
-  /* ---------- a caterer's About icon opens the shared venue-about page ---------- */
+  /* ---------- a caterer's About icon leaves for the standalone page ---------- */
   const aboutCaterer = Array.from(doc.querySelectorAll('.bevpage[data-page="catering"] [data-cacc]'))
     .find(c => c.getAttribute('data-cacc') === 'fedics-food-service');
   if (aboutCaterer) {
     const aboutBtn = aboutCaterer.querySelector('[data-act="openCateringAbout"]');
     check('caterer About button bound to its brand',
       !!aboutBtn && aboutBtn.getAttribute('data-brand') === 'fedics-food-service');
+    let catNav = null;
+    doc.addEventListener('eatouts:about-nav', e => { catNav = e.detail && e.detail.url; });
     click(aboutBtn);
-    check('caterer About did not set inline about state', ev('state.restaurantView && state.restaurantView.view') !== 'about', ev('JSON.stringify(state.restaurantView)'));
-  check('inline venue-about screen is gone for the caterer', doc.querySelector('#viewport .screen[data-page="venue-about"]') === null);
+    check('caterer About does not render an inline about view',
+      ev('state.restaurantView && state.restaurantView.view') !== 'about',
+      ev('JSON.stringify(state.restaurantView)'));
+    check('inline venue-about screen is gone for the caterer',
+      doc.querySelector('#viewport .screen[data-page="venue-about"]') === null);
+    check('caterer About targets the standalone page for that caterer',
+      !!catNav && catNav.indexOf('venue-about.html?link=') === 0 &&
+      catNav.indexOf(encodeURIComponent('fedics-food-service')) > -1, catNav);
   } else {
     check('caterer (Fedics) present for About test', false, 'Fedics card not found');
   }

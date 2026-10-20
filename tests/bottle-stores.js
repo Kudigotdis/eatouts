@@ -207,11 +207,15 @@ setTimeout(() => {
   check('back from the grid returns to the directory',
     ev('state.bevView') === null && doc.querySelectorAll(bevSel + '.ritem[data-bacc]').length === 47);
 
-  /* ---- About icon opens the shared venue-about page ---- */
+  /* ---- About icon leaves for the standalone venue-about page ---- */
   ev('state.bottleOpen="liquorama";render()');
+  let storeNav = null;
+  doc.addEventListener('eatouts:about-nav', e => { storeNav = e.detail && e.detail.url; });
   click(doc.querySelector(bevSel + '.ritem[data-bacc="liquorama"] [data-act="bottleStoreInfo"]'));
   check('store About did not set inline about state', ev('state.restaurantView && state.restaurantView.view') !== 'about', ev('JSON.stringify(state.restaurantView)'));
   check('inline venue-about screen is gone for the store', doc.querySelector('#viewport .screen[data-page="venue-about"]') === null);
+  check('store About targets the standalone page for that store',
+    !!storeNav && storeNav.indexOf('venue-about.html?link=') === 0, storeNav);
   ev('state.bottleOpen=null;render()');
 
   /* ---- Promos jumps to the Promos tab ---- */

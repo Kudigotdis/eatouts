@@ -65,22 +65,49 @@ function done() {
 
 function screenDoc(doc) { return doc.querySelector('.screen'); }
 
-/* ---- a) restaurant slug: no inline venue-about screen ---- */
-pending++;
-runJSDOM(buildHtml({ id: 'rest_test', slug: 'testrest', kind: 'restaurant', name: 'Test Restaurant' }), (window, doc, click, errors) => {
+/* Boot must never render an inline about screen; a shared/metadata venue link
+   hands off to the standalone page. jsdom can't navigate, so stub the setters
+   boot uses and record the URL it tried to reach. */
+/* Boot must never render an inline about screen; a shared/metadata venue link
+   hands off to the standalone page. jsdom can't navigate, so boot's hand-off
+   dispatches an eatouts:about-nav event first; record it via beforeParse. */
+function navTargetOf(html) {
+  const vc = new VirtualConsole();
+  const rec = { target: null };
+  const dom = new JSDOM(html, {
+    url: 'http://localhost/index.html',
+    runScripts: 'dangerously',
+    pretendToBeVisual: true,
+    virtualConsole: vc,
+    beforeParse(win) {
+      win.document.addEventListener('eatouts:about-nav', e => {
+        rec.target = (e && e.detail && e.detail.url) || null;
+      });
+    }
+  });
+  return { dom, rec, get target() { return rec.target; } };
+}
+
+/* ---- a) restaurant slug: boot hands off to the standalone page ---- */
+const navA = navTargetOf(buildHtml({ id: 'rest_test', slug: 'testrest', kind: 'restaurant', name: 'Test Restaurant' }));
+{
+  const doc = navA.dom.window.document;
   const s = screenDoc(doc);
   check('a) no inline venue-about screen', !s || s.getAttribute('data-page') !== 'venue-about', s ? s.getAttribute('data-page') : 'missing');
-  done();
-});
+  check('a) boot hands off to venue-about.html?link=testrest',
+    !!navA.target && navA.target.indexOf('venue-about.html?link=testrest') > -1, navA.target);
+}
 
-/* ---- b) bottle_store orphan slug: no inline about screen, no orphan meta ---- */
-pending++;
-runJSDOM(buildHtml({ id: 'blk_orphan', slug: 'orphanstore', kind: 'bottle_store', name: 'Orphan Store' }), (window, doc, click, errors) => {
+/* ---- b) bottle_store orphan slug: same hand-off, no orphan meta/screen ---- */
+const navB = navTargetOf(buildHtml({ id: 'blk_orphan', slug: 'orphanstore', kind: 'bottle_store', name: 'Orphan Store' }));
+{
+  const doc = navB.dom.window.document;
   const s = screenDoc(doc);
   check('b) no inline venue-about screen for orphan', !s || s.getAttribute('data-page') !== 'venue-about', s ? s.getAttribute('data-page') : 'missing');
   check('b) no orphan robots meta', doc.querySelector('meta[name="robots"][data-orphan="1"]') === null);
-  done();
-});
+  check('b) boot hands off to venue-about.html?link=orphanstore',
+    !!navB.target && navB.target.indexOf('venue-about.html?link=orphanstore') > -1, navB.target);
+}
 
 /* ---- c) Meta parsing: readVenueMeta() parses all three kinds ---- */
 pending++;
@@ -102,5 +129,7 @@ runJSDOM(buildHtml(null), (window, doc, click, errors) => {
   injectAndCheck('restaurant', 'Test Restaurant');
   injectAndCheck('bottle_store', 'LIQUORAMA');
   injectAndCheck('catering', 'Bontle Makoni Catering');
+  navA.dom.window.close();
+  navB.dom.window.close();
   done();
 });

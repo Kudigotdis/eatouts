@@ -901,18 +901,8 @@
   var scrim = document.getElementById('popupScrim');
   if (scrim) scrim.addEventListener('click', closePopup);
 
-  /* ---- Empty state ---- */
-  if (!biz) {
-    document.title = 'Venue not found - EatOuts';
-    var h1e = document.querySelector('.hero h1'); if (h1e) h1e.textContent = 'Venue not found';
-    var sle = document.getElementById('statusLine');
-    if (sle) sle.innerHTML = '<span>This link does not match any business on EatOuts. <a href="index.html#restaurants" style="color:var(--ink);text-decoration:underline">Back to Restaurants</a></span>';
-    var logoE = document.getElementById('logoImg');
-    if (logoE) { logoE.style.opacity = '0'; }
-    var backE = document.getElementById('backBtn');
-    if (backE) backE.addEventListener('click', function () { window.location.href = 'index.html#restaurants'; });
-    return;
-  }
+  /* ---- No business resolved: hand back to the directory, no placeholder ---- */
+  if (!biz) { window.location.replace('index.html#restaurants'); return; }
 
   /* ---- Title & hero ---- */
   document.title = biz.name + ' - About - EatOuts';
@@ -1000,6 +990,7 @@
       if (channel === 'whatsapp') { on = C.wa.length > 0; href = on ? 'https://wa.me/' + String(C.wa[0].number).replace(/[^0-9]/g, '') : '#'; }
       else if (channel === 'call') { on = C.call.length > 0; href = on ? 'tel:' + String(C.call[0].number).replace(/[^0-9+]/g, '') : '#'; }
       else if (channel === 'location') { on = C.loc.length > 0; href = on ? C.loc[0].url : '#'; }
+      else if (channel === 'share' || channel === 'rate') { on = true; href = '#'; }
       else { var u = socialUrl(channel) || (channel === 'website' ? (biz.record && biz.record.website) : null); on = !!u; href = u || '#'; }
       var src = on ? onSrc : offSrc;
       var tag = on
@@ -1014,6 +1005,8 @@
       + icon('tiktok', 'TikTok', 'assets/icons/TikTok_icon.png', 'assets/icons/TikTok_Off.png')
       + icon('twitter', 'X (Twitter)', 'assets/icons/Twitter_icon.png', 'assets/icons/Twitter_Off.png')
       + icon('youtube', 'YouTube', 'assets/icons/YouTube_icon.png', 'assets/icons/YouTube_Off.png')
+      + icon('share', 'Share', 'assets/icons/Share_On.png', 'assets/icons/Share_On.png')
+      + icon('rate', 'Rate', 'assets/icons/rate_on.webp', 'assets/icons/rate_on.webp')
       + icon('website', 'Website', 'assets/icons/Website_icon.png', 'assets/icons/Website_Off.png')
       + icon('call', 'Call', 'assets/icons/Call_icon.png', 'assets/icons/Call_Off.png')
       + icon('location', 'Location', 'assets/icons/GPS - icon.png', 'assets/icons/GPS - Off.png');
@@ -1027,6 +1020,8 @@
     if (/whatsapp/i.test(label)) { e.preventDefault(); doWa(); }
     else if (/call/i.test(label)) { e.preventDefault(); doCall(); }
     else if (/location/i.test(label)) { e.preventDefault(); doLoc(); }
+    else if (/share/i.test(label)) { e.preventDefault(); doWa(); }
+    else if (/rate/i.test(label)) { e.preventDefault(); doRate(); }
   });
 
   function doWa() {
@@ -1065,6 +1060,16 @@
     }
     html += '</div></div>';
     openPopup('Locations', html);
+  }
+  function doRate() {
+    var html = '<div class="sheet-section"><h3>Rate ' + esc(biz.name) + '</h3>'
+      + '<p style="color:var(--ink-2);padding:4px 2px 10px">How was your experience?</p>'
+      + '<div class="popup-list">';
+    for (var i = 5; i >= 1; i--) {
+      html += '<button class="popup-row" data-rate="' + i + '">' + i + ' star' + (i > 1 ? 's' : '') + '</button>';
+    }
+    html += '</div></div>';
+    openPopup('Rate', html);
   }
 
   /* ---- Chips ---- */
@@ -1272,23 +1277,15 @@
     if (t) { selectedTown = t.getAttribute('data-pick-town'); selectedArea = ''; renderOptions(); closePopup(); return; }
     var a = e.target.closest('[data-pick-area]');
     if (a) { selectedArea = a.getAttribute('data-pick-area'); renderOptions(); closePopup(); }
+    var r = e.target.closest('[data-rate]');
+    if (r) { closePopup(); toast('Thanks for rating ' + biz.name + ' ' + r.getAttribute('data-rate') + '/5'); }
   });
 
   /* ---- Page history ---- */
   var backBtn = document.getElementById('backBtn');
   if (backBtn) backBtn.addEventListener('click', function () {
-    var items = [
-      { label: 'EatOuts Home', href: 'index.html#promos' },
-      { label: 'Restaurants', href: 'index.html#restaurants' },
-      { label: biz.name + ' - Menu', href: 'index.html#restaurants' },
-      { label: biz.name + ' - About', current: true }
-    ];
-    var html = '<div class="history-list">';
-    items.filter(function (p) { return !p.current; }).forEach(function (p) {
-      html += '<button class="history-item" onclick="window.location.href=\'' + p.href + '\'">' + p.label + '</button>';
-    });
-    html += '</div>';
-    openPopup('Page history', html);
+    if (document.referrer && document.referrer.indexOf(location.origin) === 0) { history.back(); return; }
+    window.location.href = 'index.html#restaurants';
   });
 
   /* ---- Logo overlay ---- */

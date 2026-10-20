@@ -39,13 +39,12 @@ only reads; it never rewrites this file. It warns on line drift.
 | 5 | `partner-terms.html` | Static partner/merchant terms. | Direct link | `PAGE: Merchant Terms` | 188 |
 | 6 | `404.html` | Custom not-found page with rotating Mophutsi quotes. | Served automatically | `PAGE: 404 — Page Not Here` | 232 |
 | 7 | `eatouts-blog.html` | Blog feed with per-post pages + on-device authoring. | Direct / home links | `PAGE: Blog` | 493 |
-| 8 | `eatouts-event-planner.html` | Self-contained event planner (guests, budget, timeline) → WhatsApp. | Direct link | `PAGE: Event Planner` | 1366 |
-| 9 | `eatouts-suppliers.html` | Supplier directory + self-onboarding and sign-in. | Direct link | `PAGE: Suppliers` | 1795 |
-| 10 | `eatouts_feedback.html` | Multi-step feedback form → WhatsApp to support. | About → Settings → Feedback | `PAGE: Send feedback` | 834 |
-| 11 | `eatouts-about.html` | Public About EatOuts page (standalone). | About → Settings → About EatOuts | `PAGE: About` | 92 |
-| 12 | `eatouts-checkout-summary.html` | Post-checkout order summary. | Direct link | `PAGE: Checkout summary` | 23 |
-| 13 | `intake.html` | Business intake / lead form. | Direct / marketing links | `PAGE: Concierge Intake` | 1155 |
-| 14 | `invoice.html` | Invoice page. | Direct link | `PAGE: Invoice` | 395 |
+| 8 | `eatouts-suppliers.html` | Supplier directory + self-onboarding and sign-in. | Direct link | `PAGE: Suppliers` | 1795 |
+| 9 | `eatouts_feedback.html` | Multi-step feedback form → WhatsApp to support. | About → Settings → Feedback | `PAGE: Send feedback` | 834 |
+| 10 | `eatouts-about.html` | Public About EatOuts page (standalone). | About → Settings → About EatOuts | `PAGE: About` | 92 |
+| 11 | `eatouts-checkout-summary.html` | Post-checkout order summary. | Direct link | `PAGE: Checkout summary` | 23 |
+| 12 | `intake.html` | Business intake / lead form. | Direct / marketing links | `PAGE: Concierge Intake` | 1155 |
+| 13 | `invoice.html` | Invoice page. | Direct link | `PAGE: Invoice` | 395 |
 
 ## B. Customer Account & Auth
 
