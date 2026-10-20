@@ -134,6 +134,7 @@ only reads; it never rewrites this file. It warns on line drift.
 | 65 | `eatouts-disputes.html` | Disputes page. | admin dashboard / app links | `PAGE: Disputes` | 3 |
 | 66 | `about-guest-popup.html` | Standalone demo of the Create Profile (guest) popup on the About tab. | About tab | `PAGE: About Guest Popup` | 162 |
 | 67 | `about-profile-options.html` | Standalone demo of the logged-in profile-options popup. | About tab | `PAGE: About Profile Options` | 473 |
+| 68 | `venue-about.html` | Data-driven standalone venue About page — resolves a business from the directory/demo registry/bottle/catering/bridge/API and renders its About surface from that business alone; unresolvable slugs show a "Choose a business" empty state. | Direct / shared links; `index.html#<slug>` | `PAGE: venue-about` | 1495 |
 
 ---
 
@@ -184,7 +185,6 @@ one-liner, e.g. `PAGE: venue-menu-item — Menu · Item  [rest_pizza-perfect:bur
 | Book Venue | Enquiry form → WhatsApp | `rv.view === "venue"` | `renderRestaurantVenue(r)` | `PAGE: venue-book — Book Venue` | 5425 |
 | Venue Promos | That venue's own promotions | `rv.view === "promos"` | `renderRestaurantPromos(r)` | `PAGE: venue-promos — Promos` | 5441 |
 | Venue Promo Detail | Deep-link to a specific promo | `rv.view === "promo"` | `renderRestaurantPromoDetail(r, promoId)` | `PAGE: venue-promo-detail — Promo` | 5464 |
-| Venue About | That venue's info / contact page | `rv.view === "about"` | `renderRestaurantAbout(r)` | `PAGE: venue-about — About` | 5654 |
 | Catering About | Catering supplier info / contact page | `rv.kind === "catering"` | `renderCateringAbout()` | `PAGE: catering — Catering` | 5988 |
 
 ### Beverages panel sub-screens

@@ -147,7 +147,7 @@ setTimeout(() => {
 
   /* ---------- card tap opens the venue info page ---------- */
   click(vp.querySelector('.menu-view .restcard-main'));
-  check('card name/tagline opens the venue About page', !!vp.querySelector('.rabout-hero'));
+  check('inline venue-about screen is gone after card tap', vp.querySelector('.rabout-hero') === null);
   check('About Back button returns to the Menu', !!vp.querySelector('[data-act="backCats"]'));
 
   /* ---------- tagline cascade never empty ---------- */

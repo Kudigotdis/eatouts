@@ -126,6 +126,10 @@ html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, src) => {
 });
 
 const vc = new VirtualConsole();
+  /* ---- test-only: ignore jsdom 'Not implemented: navigation' noise ---- */
+  (function(){ var _emit = vc.emit.bind(vc);
+    vc.emit = function(ev, e){ if (ev === 'jsdomError' && e && /Not implemented: navigation/.test(String(e.message || ''))) return false; return _emit(ev, e); };
+  })();
 vc.on('jsdomError', e => errors.push('jsdomError: ' + (e.stack || e.message)));
 vc.on('error', (...a) => errors.push('console.error: ' + a.join(' ')));
 
@@ -206,18 +210,8 @@ setTimeout(() => {
   /* ---- About icon opens the shared venue-about page ---- */
   ev('state.bottleOpen="liquorama";render()');
   click(doc.querySelector(bevSel + '.ritem[data-bacc="liquorama"] [data-act="bottleStoreInfo"]'));
-  check('store About opens the venue-about page',
-    ev('state.restaurantView && state.restaurantView.kind') === 'bottle_store' &&
-    ev('state.restaurantView && state.restaurantView.view') === 'about',
-    JSON.stringify(ev('state.restaurantView')));
-  const storeAbout = doc.querySelector('#viewport .screen[data-page="venue-about"]');
-  check('venue-about page is active for the store', !!storeAbout);
-  const storeHero = storeAbout && storeAbout.querySelector('.rabout-hero h2');
-  check('venue-about hero names the store (not the flagship)',
-    !!storeHero && /liquorama/i.test(storeHero.textContent), storeHero ? storeHero.textContent : 'none');
-  click(storeAbout.querySelector('[data-act="backFromRestView"]'));
-  check('Back from store About returns to the beverages panel',
-    ev('state.restaurantView') === null && ev('state.restPanel') === 'beverages');
+  check('store About did not set inline about state', ev('state.restaurantView && state.restaurantView.view') !== 'about', ev('JSON.stringify(state.restaurantView)'));
+  check('inline venue-about screen is gone for the store', doc.querySelector('#viewport .screen[data-page="venue-about"]') === null);
   ev('state.bottleOpen=null;render()');
 
   /* ---- Promos jumps to the Promos tab ---- */

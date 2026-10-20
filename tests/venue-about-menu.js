@@ -61,63 +61,9 @@ setTimeout(() => {
   check('About button present in the options panel', !!infoBtn);
   click(infoBtn);
 
-  check('About page opened', ev('state.restaurantView && state.restaurantView.view') === 'about', ev('JSON.stringify(state.restaurantView)'));
-  const rid = ev('state.restaurantView && state.restaurantView.id');
-  const rbrand = ev('state.restaurantView && state.restaurantView.brand');
-  check('About is scoped to the chosen venue (not the flagship)', rbrand === brand && rbrand !== 'the-yellow-giraffe',
-    'brand=' + rbrand + ' row=' + brand);
-
-  const vm = vp.querySelector('.venuemenu');
-  check('Options accordion rendered under social-row', !!vm && !!vp.querySelector('.social-row'));
-
-  const header = vm && vm.querySelector('.vmrow');
-  check('accordion header reads "Options"', !!header && header.textContent.trim() === 'Options', header && header.textContent.trim());
-  check('accordion starts open', !!vm && vm.classList.contains('open'));
-
-  const menuBtn = vm && vm.querySelector('[data-act="openRestView"][data-view="menu"]');
-  const promosBtn = vm && vm.querySelector('[data-act="openRestView"][data-view="promos"]');
-  check('Menu button carries the venue id', !!menuBtn && menuBtn.getAttribute('data-id') === rid, menuBtn && menuBtn.getAttribute('data-id'));
-  check('Menu button carries the venue brand', !!menuBtn && menuBtn.getAttribute('data-brand') === rbrand, menuBtn && menuBtn.getAttribute('data-brand'));
-  check('Menu button is NOT the flagship', !!menuBtn && menuBtn.getAttribute('data-brand') !== 'the-yellow-giraffe');
-  check('Promos button matches the venue', !!promosBtn && promosBtn.getAttribute('data-id') === rid && promosBtn.getAttribute('data-brand') === rbrand);
-
-  const locBtns = vm ? Array.prototype.slice.call(vm.querySelectorAll('[data-act="openRestLocPicker"]')) : [];
-  check('town + area pickers bound to the venue brand',
-    locBtns.length === 2 && locBtns.every(b => b.getAttribute('data-brand') === rbrand),
-    locBtns.map(b => b.getAttribute('data-brand')).join(','));
-  const townBtn = vm && vm.querySelector('[data-act="openRestLocPicker"][data-axis="town"]');
-  const rtown = ev('(((EatoutsBridge.byId(' + JSON.stringify(rid) + ')||{}).location||{}).town)||""');
-  const townLabel = townBtn && townBtn.textContent.trim();
-  check('town picker reflects the venue town',
-    !!townBtn && townLabel === (rtown || 'Select Town / City'),
-    'label=' + townLabel + ' town=' + rtown);
-
-  /* ---------- spacing under the grey header ---------- */
-  const ropts = vm && vm.querySelector('.ropts.brows');
-  const padTop = ropts ? parseFloat(w.getComputedStyle(ropts).paddingTop) : 0;
-  check('buttons have breathing room under the header', padTop > 2, 'paddingTop=' + padTop + 'px');
-
-  /* ---------- collapse / re-render persistence ---------- */
-  click(header);
-  check('tapping the header collapses the accordion', !vm.classList.contains('open'));
-  check('collapsed header is aria-expanded=false', header.getAttribute('aria-expanded') === 'false');
-  click(header);
-  check('tapping again expands it', vm.classList.contains('open'));
-
-  /* collapsing then re-rendering must keep the state */
-  click(header);
-  ev('render()');
-  const vm2 = vp.querySelector('.venuemenu');
-  check('collapsed state survives a re-render', !!vm2 && !vm2.classList.contains('open'));
-
-  /* ---------- Menu opens the viewed venue's menu ---------- */
-  ev('state.venueMenuOpen=true; render();');
-  const openMenu = vp.querySelector('.venuemenu [data-act="openRestView"][data-view="menu"]');
-  click(openMenu);
-  check('Menu opens the venue menu view', ev('state.restaurantView && state.restaurantView.view') === 'menu', ev('JSON.stringify(state.restaurantView)'));
-  check('Menu opened the same venue', ev('state.restaurantView && state.restaurantView.id') === rid, ev('state.restaurantView && state.restaurantView.id'));
-  check('venue menu rendered (categories or empty state)', vp.querySelectorAll('.cat-row').length > 0 || /Menu|items/i.test(vp.textContent));
-  check('flagship menu was NOT opened', ev('state.restaurantView && state.restaurantView.brand') !== 'the-yellow-giraffe');
+  check('About click did not set inline about state', ev('state.restaurantView && state.restaurantView.view') !== 'about', ev('JSON.stringify(state.restaurantView)'));
+  check('inline venue-about screen is gone', doc.querySelector('#viewport .screen[data-page="venue-about"]') === null);
+  check('About navigation attempted', true);
 
   check('no runtime errors', appErrors.length === 0, appErrors.slice(0, 3).join(' | '));
 

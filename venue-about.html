@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>About — EatOuts</title>
+<!-- PAGE: venue-about -->
+<style>
+  :root{
+    --brand-bg:       #f3ece0;
+    --hero-logo-bg:   #ffffff;
+    --acc-bg:         #ffffff;
+    --acc-summary-bg: #f6f1e6;
+    --chip-bg:        rgba(210,182,130,.10);
+    --chip-border:    rgba(180,150,100,.22);
+    --chip-ink:       #5c5140;
+
+    --white:   #ffffff;
+    --ink:     #191818;
+    --ink-2:   #3a352b;
+    --ink-3:   #7a7263;
+    --muted:   #a89a7e;
+    --border:  #ece5d5;
+    --border-strong:#d5cab0;
+    --accent:  #4d6b3a;
+    --accent-soft: rgba(77,107,58,.12);
+    --wa:      #25d366;
+    --call:    #3c7cc4;
+    --loc:     #d94f5c;
+    --green:   #2e9e56;
+    --red:     #c0392b;
+    --shadow-sm: 0 1px 2px rgba(60,45,20,.06);
+    --shadow-md: 0 4px 16px rgba(60,45,20,.10);
+    --shadow-popup: 0 24px 70px rgba(15,10,0,.28), 0 0 0 1px rgba(0,0,0,.04);
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  [hidden]{display:none!important}
+  button{font-family:inherit}
+
+  /* ── APP SHELL ── */
+  .app{
+    max-width:520px;margin:0 auto;min-height:100vh;
+    background:var(--brand-bg);
+    display:flex;flex-direction:column;
+    transition:background .25s ease;
+    position:relative;
+  }
+
+  .appbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px 6px;
+    position:sticky;top:0;z-index:20;
+  }
+  .brand-mark{
+    background:none;border:0;padding:0;cursor:pointer;
+    display:flex;align-items:center;gap:9px;
+    font-weight:800;color:var(--ink);font-size:15px;letter-spacing:-.2px;
+  }
+  .brand-mark .dot{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--ink);color:#f3ead8;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:900;
+  }
+
+  /* ── HERO-LOGO STRIP ── */
+  .hero-logo{
+    width:100%;
+    background:var(--hero-logo-bg);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    transition:background .25s ease, padding .15s ease;
+  }
+  .logo-btn{
+    background:none;border:0;padding:0;cursor:pointer;
+    display:block;
+    width:200px;height:200px;
+    max-width:calc(100vw - 60px);
+    aspect-ratio:1;
+    transition:transform .2s ease;
+    margin-top:16px;
+  }
+  .logo-btn:hover{transform:scale(1.02)}
+  .logo-btn:active{transform:scale(.98)}
+  .logo-btn img{
+    width:100%;height:100%;display:block;object-fit:contain;
+  }
+
+  /* Drag handle — 5% opacity */
+  .drag-handle{
+    width:100%;
+    height:16px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:ns-resize;
+    touch-action:none;
+    user-select:none;-webkit-user-select:none;
+    background:transparent;
+    margin-top:4px;
+    opacity:.05;
+    transition:opacity .2s ease;
+  }
+  .drag-handle:hover{opacity:.35}
+  .drag-handle::before{
+    content:'';
+    width:48px;height:3px;border-radius:999px;
+    background:rgba(0,0,0,.9);
+  }
+
+  /* ── HERO ── */
+  .hero{
+    width:100%;
+    background:#fff;
+    text-align:center;
+    padding:18px 24px 22px;
+  }
+  .hero h1{
+    margin:0 0 10px;
+    font-size:23px;line-height:1.2;
+    font-weight:800;letter-spacing:-.35px;color:var(--ink);
+  }
+  .status-line{
+    margin:0;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:center;
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--ink-2);
+  }
+  .status-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 0 3px rgba(46,158,86,.2);
+    flex:0 0 auto;
+  }
+  .status-dot.open{animation:pulse 2s ease-in-out infinite}
+  .status-dot.closed{background:var(--red);box-shadow:0 0 0 3px rgba(192,57,43,.18)}
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 3px rgba(46,158,86,.2)}
+    50%    {box-shadow:0 0 0 6px rgba(46,158,86,.05)}
+  }
+  .status-sep{color:var(--muted);font-weight:500}
+
+  /* ── CONTENT SHEET ── */
+  .content-sheet{
+    background:#fff;
+    border-radius:22px;
+    box-shadow:var(--shadow-md);
+    margin:12px auto 20px;
+    width:calc(100% - 32px);
+    padding:22px 0 10px;
+  }
+
+  /* ── SOCIAL ROW (56px frames) ── */
+  .social-wrap{padding:0 18px 22px;display:flex;justify-content:center}
+  .social-row{
+    display:flex;flex-wrap:wrap;justify-content:center;
+    gap:12px;max-width:370px;
+  }
+  .social-row::after{
+    content:"";flex-basis:100%;height:0;order:1;
+  }
+  .social-ico{order:0}
+  .social-ico:nth-child(n+6){order:2}
+
+  .social-ico{
+    width:56px;height:56px;border-radius:50%;
+    background:#f6f1e6;
+    border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink-3);text-decoration:none;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+    position:relative;padding:0;
+  }
+  .social-ico svg{
+    width:23px;height:23px;
+    stroke:currentColor;fill:none;
+    stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+  }
+  .social-ico.off{
+    color:#bfb49b;background:#f6f1e6;
+    border-color:transparent;opacity:.9;cursor:default;
+  }
+  .social-ico.on{
+    color:#fff;border-color:transparent;
+    box-shadow:0 3px 14px rgba(0,0,0,.14);
+  }
+  .social-ico.on[data-channel="whatsapp"]{background:var(--wa)}
+  .social-ico.on[data-channel="call"]    {background:var(--call)}
+  .social-ico.on[data-channel="location"]{background:var(--loc)}
+  .social-ico.on:hover{transform:translateY(-2px)}
+
+  /* ── PAD / ACCORDIONS ── */
+  .pad{padding:0 18px 8px}
+
+  .acc{
+    background:var(--acc-bg);
+    border:1px solid var(--border);
+    border-radius:16px;
+    margin-bottom:10px;
+    overflow:hidden;
+    box-shadow:var(--shadow-sm);
+    transition:background .2s ease;
+  }
+  .acc > summary{
+    list-style:none;cursor:pointer;
+    padding:15px 16px;
+    font-size:15px;font-weight:800;color:var(--ink);
+    letter-spacing:.1px;
+    display:flex;align-items:center;user-select:none;
+    background:var(--acc-summary-bg);
+    transition:background .15s ease;
+  }
+  .acc > summary::-webkit-details-marker{display:none}
+  .acc > summary::marker{content:""}
+  .acc > summary:hover{filter:brightness(.97)}
+  .acc[open] > summary{border-bottom:1px solid var(--border)}
+  .acc-body{
+    display:grid;grid-template-rows:0fr;
+    transition:grid-template-rows .28s ease;
+  }
+  .acc[open] .acc-body{grid-template-rows:1fr}
+  .acc-body > .acc-inner{overflow:hidden;min-height:0}
+  .acc-content{
+    padding:16px 16px 18px;
+    font-size:14.5px;color:var(--ink-2);line-height:1.6;
+  }
+
+  /* ── Generic KV rows ── */
+  .kv{
+    display:flex;justify-content:space-between;gap:16px;
+    padding:10px 0;
+    border-bottom:1px dashed var(--border);
+    font-size:14px;
+  }
+  .kv:first-child{padding-top:0}
+  .kv:last-child{border-bottom:0;padding-bottom:0}
+  .kv .k{color:var(--ink-3);font-weight:600;flex:1;min-width:0}
+  .kv .v{color:var(--ink);font-weight:700;text-align:right;flex:1;min-width:0}
+  .kv .v.closed{color:var(--red)}
+
+  /* ── OPERATING HOURS — single-column stacked, centred ── */
+  .acc-hours .acc-content{
+    padding:0 16px 16px;
+  }
+  .acc-hours .hours{
+    list-style:none;
+    margin:0;
+    padding:0;
+    border-top:1px solid rgba(0,0,0,.08);
+  }
+  .acc-hours .hours__row{
+    display:grid;
+    grid-template-columns:1fr;
+    justify-items:center;
+    text-align:center;
+    row-gap:.5rem;
+    padding-block:.75rem;
+    border-bottom:1px solid rgba(0,0,0,.08);
+  }
+  .acc-hours .hours__row:last-child{border-bottom:0}
+  .acc-hours .hours__day,
+  .acc-hours .hours__time{
+    text-align:center;
+    margin-inline:auto;
+    line-height:1.3;
+  }
+  .acc-hours .hours__day{
+    color:#4b5563;
+    font-weight:500;
+    font-size:16px;
+  }
+  .acc-hours .hours__time{
+    color:#111827;
+    font-weight:700;
+    font-size:1.25rem;
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+  .acc-hours .hours__time.is-closed{
+    color:#b91c1c;
+  }
+
+  /* ── CHIPS ── */
+  .tagwrap{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    font-size:18px;
+  }
+  .chip{
+    display:inline-flex;align-items:center;
+    padding:9px 16px;border-radius:22px;
+    background:var(--chip-bg);
+    color:var(--chip-ink);
+    font-size:16px;
+    font-weight:700;letter-spacing:.1px;
+    border:1px solid var(--chip-border);
+    cursor:pointer;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;
+    text-align:left;
+  }
+  .chip:hover{
+    background:rgba(210,182,130,.22);
+    border-color:rgba(180,150,100,.36);
+    transform:translateY(-1px);
+  }
+  .chip:active{transform:translateY(0)}
+
+  /* ── OPTIONS LIST ── */
+  .opt-list{
+    display:flex;flex-direction:column;
+    border-radius:12px;overflow:hidden;
+    background:#faf7f0;
+    border:1px solid var(--border);
+  }
+  .opt{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:13px 15px;
+    border:0;border-bottom:1px solid var(--border);
+    font-size:14px;font-weight:700;color:var(--ink);
+    background:transparent;text-align:left;width:100%;cursor:pointer;
+    transition:background .12s ease;
+  }
+  .opt:last-child{border-bottom:0}
+  .opt:hover{background:#fff}
+  .opt .lead{
+    color:var(--ink-3);font-weight:600;font-size:11.5px;
+    text-transform:uppercase;letter-spacing:.7px;
+  }
+  .opt .val{color:var(--ink);font-weight:800;font-size:14px}
+  .opt .val.muted{color:var(--muted);font-weight:700;font-style:italic}
+
+  /* ── CAROUSEL (used by Promos and Venue) ── */
+  .promo-carousel{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding:0 2px;
+  }
+  .promo-carousel::-webkit-scrollbar{display:none}
+
+  .promo-thumb{
+    flex:0 0 calc((100% - 16px) / 3);
+    aspect-ratio:1;
+    border-radius:12px;
+    background:#e9e4da;
+    border:0;
+    scroll-snap-align:start;
+    cursor:pointer;
+    position:relative;
+    transition:transform .15s ease, box-shadow .15s ease;
+    background-size:cover;background-position:center;
+  }
+  .promo-thumb:hover{transform:scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+
+  .promo-dots{
+    display:flex;justify-content:center;gap:6px;
+    padding:14px 0 4px;
+  }
+  .promo-dot{
+    width:6px;height:6px;border-radius:50%;
+    background:rgba(0,0,0,.15);
+    transition:background .2s ease, width .2s ease;
+  }
+  .promo-dot.on{
+    background:var(--ink-2);
+    width:18px;border-radius:3px;
+  }
+
+  /* ── ACTIONS ── */
+  .actions{padding:6px 18px 22px;display:flex;flex-direction:column;gap:10px}
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:15px 18px;border-radius:14px;
+    font-size:15px;font-weight:800;letter-spacing:.1px;
+    border:1px solid transparent;cursor:pointer;text-decoration:none;
+    transition:transform .12s ease, background .15s ease;
+  }
+  .btn:active{transform:scale(.985)}
+  .btn-ghost{
+    background:transparent;color:var(--ink);
+    border-color:var(--border-strong);
+  }
+  .btn-ghost:hover{background:#faf7f0}
+
+  /* ── TABBAR ── */
+  .tabbar{
+    position:sticky;bottom:0;
+    display:flex;justify-content:space-around;align-items:center;
+    background:#fff;border-top:1px solid var(--border);
+    padding:10px 6px calc(10px + env(safe-area-inset-bottom));
+    z-index:30;
+  }
+  .tab{
+    flex:1;background:none;border:0;padding:6px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--ink-3);
+    transition:color .15s ease;
+  }
+  .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .tab.on{color:var(--ink)}
+  .tab:hover{color:var(--ink-2)}
+
+  /* ── LOGO OVERLAY ── */
+  .logo-overlay{
+    position:fixed;inset:0;z-index:110;
+    background:rgba(10,8,4,.72);
+    backdrop-filter:blur(16px) saturate(140%);
+    -webkit-backdrop-filter:blur(16px) saturate(140%);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    padding:32px 24px calc(32px + env(safe-area-inset-bottom));
+    gap:28px;
+    opacity:0;pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .logo-overlay.open{opacity:1;pointer-events:auto}
+  .logo-overlay .logo-large{
+    width:min(280px, 72vw);height:min(280px, 72vw);
+    object-fit:contain;border-radius:18px;
+    box-shadow:0 24px 60px rgba(0,0,0,.55);
+    transform:scale(.88);
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+    background:#fdf6e4;
+  }
+  .logo-overlay.open .logo-large{transform:scale(1)}
+  .logo-overlay-close{
+    position:absolute;top:18px;right:18px;
+    width:40px;height:40px;border-radius:50%;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff;font-size:20px;line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:background .15s ease;
+  }
+  .logo-overlay-close:hover{background:rgba(255,255,255,.22)}
+
+  .settings-acc{
+    width:min(360px, 100%);
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:16px;color:#fff;overflow:hidden;
+  }
+  .settings-acc > summary{
+    list-style:none;cursor:pointer;padding:15px 20px;
+    font-weight:800;font-size:15px;
+    display:flex;align-items:center;color:#fff;
+  }
+  .settings-acc > summary::-webkit-details-marker{display:none}
+  .settings-acc > summary::marker{content:""}
+  .settings-acc > summary:hover{background:rgba(255,255,255,.06)}
+  .settings-acc[open] > summary{border-bottom:1px solid rgba(255,255,255,.12)}
+  .settings-body{
+    display:grid;grid-template-rows:0fr;
+    transition:grid-template-rows .25s ease;
+  }
+  .settings-acc[open] .settings-body{grid-template-rows:1fr}
+  .settings-body > .si{overflow:hidden;min-height:0}
+  .settings-body .si-inner{
+    padding:10px 12px 14px;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .settings-btn{
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    color:#fff;padding:13px 16px;border-radius:10px;
+    text-align:left;font-weight:600;font-size:14px;cursor:pointer;
+    transition:background .15s ease;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .settings-btn:hover{background:rgba(255,255,255,.14)}
+  .settings-btn small{color:rgba(255,255,255,.55);font-weight:500;font-size:12px}
+
+  /* ── FLOATING POPUP ── */
+  .popup-scrim{
+    position:fixed;inset:0;z-index:90;
+    background:rgba(15,10,5,.42);
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+    opacity:0;pointer-events:none;
+    transition:opacity .22s ease;
+  }
+  .popup-scrim.open{opacity:1;pointer-events:auto}
+
+  .popup{
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%, -50%) scale(.94);
+    width:calc(100% - 40px);
+    max-width:420px;
+    max-height:82vh;
+    background:#fff;
+    border-radius:20px;
+    box-shadow:var(--shadow-popup);
+    z-index:95;
+    opacity:0;pointer-events:none;
+    transition:opacity .22s ease, transform .3s cubic-bezier(.34,1.4,.64,1);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  .popup.open{
+    opacity:1;pointer-events:auto;
+    transform:translate(-50%, -50%) scale(1);
+  }
+  .popup-head{
+    padding:20px 22px 12px;
+    flex:0 0 auto;
+  }
+  .popup-title{
+    margin:0;
+    font-size:18px;font-weight:800;
+    color:var(--ink);letter-spacing:-.2px;
+  }
+  .popup-body{
+    padding:0 22px 22px;
+    overflow-y:auto;flex:1 1 auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .popup-body p{margin:0 0 12px;color:var(--ink-2);font-size:14.5px;line-height:1.6}
+
+  .sheet-section{margin:14px 0 4px}
+  .sheet-section:first-child{margin-top:0}
+  .sheet-section h3{
+    margin:0 0 4px;
+    font-size:11.5px;font-weight:800;
+    color:var(--ink-3);text-transform:uppercase;letter-spacing:.8px;
+  }
+
+  .popup-list{display:flex;flex-direction:column}
+  .popup-row{
+    display:block;width:100%;
+    padding:18px 2px;
+    margin:0;
+    border:0;
+    border-bottom:1px solid rgba(0,0,0,.08);
+    background:transparent;
+    text-align:left;
+    text-decoration:none;
+    color:var(--ink);
+    font-size:21px;
+    font-weight:700;
+    letter-spacing:-.2px;
+    cursor:pointer;
+    transition:background .12s ease;
+    font-family:inherit;
+    line-height:1.25;
+  }
+  .popup-row:last-child{border-bottom:0}
+  .popup-row:hover{background:rgba(0,0,0,.02)}
+
+  .history-list{display:flex;flex-direction:column}
+  .history-item{
+    display:block;width:100%;padding:18px 2px;
+    text-align:center;
+    background:transparent;
+    border:0;
+    border-bottom:1px solid rgba(0,0,0,.08);
+    font-size:17px;font-weight:700;color:var(--ink);
+    cursor:pointer;
+    font-family:inherit;
+    transition:background .12s ease;
+  }
+  .history-item:last-child{border-bottom:0}
+  .history-item:hover{background:rgba(0,0,0,.02)}
+  .history-item:active{transform:scale(.99)}
+
+  .chip-info-head{
+    margin-bottom:6px;
+    font-size:13px;font-weight:800;
+    color:var(--accent);
+    text-transform:uppercase;letter-spacing:.7px;
+  }
+  .chip-info-body{
+    color:var(--ink-2);font-size:14.5px;line-height:1.65;margin:0;
+  }
+
+  .color-row{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 0;border-bottom:1px dashed var(--border);
+  }
+  .color-row:last-child{border-bottom:0}
+  .color-row label{flex:1;font-size:13.5px;font-weight:700;color:var(--ink-2)}
+  .color-row .color-pickers{display:flex;gap:8px;align-items:center}
+  .color-row input[type="color"]{
+    width:40px;height:36px;border:1px solid var(--border);
+    border-radius:9px;background:none;padding:2px;cursor:pointer;
+  }
+  .color-row input[type="text"]{
+    width:98px;padding:8px 10px;border:1px solid var(--border);
+    border-radius:9px;font:inherit;font-size:13px;font-weight:600;
+    color:var(--ink);background:#faf7f0;
+  }
+  .color-row input[type="text"]:focus{outline:2px solid var(--accent);outline-offset:-1px}
+
+  .sheet-actions{display:flex;gap:8px;margin-top:16px}
+  .sheet-actions .btn{padding:13px}
+  .sheet-actions .btn-primary{background:var(--ink);color:#fff}
+  .sheet-actions .btn-secondary{background:#f6f1e6;color:var(--ink-2);border-color:var(--border)}
+
+  .toast{
+    position:fixed;bottom:96px;left:50%;transform:translate(-50%,20px);
+    background:rgba(25,24,24,.92);color:#fff;
+    padding:11px 20px;border-radius:12px;
+    font-size:13.5px;font-weight:600;
+    z-index:130;opacity:0;pointer-events:none;
+    transition:opacity .2s ease, transform .25s ease;
+    box-shadow:var(--shadow-md);
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  /* Empty state */
+  .emptystate{padding:46px 26px;text-align:center}
+  .emptystate h2{margin:0 0 8px;font-size:19px;font-weight:800;color:var(--ink)}
+  .emptystate p{margin:0 0 18px;color:var(--ink-3);font-size:14.5px;line-height:1.6}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body data-page="venue-about">
+
+<div class="app" id="app">
+
+  <header class="appbar">
+    <button class="brand-mark" type="button" id="brandMark" aria-label="EatOuts home">
+      <span class="dot">E</span>
+      EatOuts
+    </button>
+  </header>
+
+  <div id="screenMount"></div>
+
+</div>
+
+<!-- LOGO OVERLAY (lightbox for everyone; Settings accordion is owner-only) -->
+<div class="logo-overlay" id="logoOverlay" role="dialog" aria-modal="true" aria-label="Logo">
+  <button class="logo-overlay-close" id="logoOverlayClose" aria-label="Close">&times;</button>
+  <img class="logo-large" id="logoLarge" alt="Enlarged logo">
+</div>
+
+<!-- FLOATING POPUP -->
+<div class="popup-scrim" id="popupScrim"></div>
+<div class="popup" id="popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
+  <div class="popup-head">
+    <h2 class="popup-title" id="popupTitle">—</h2>
+  </div>
+  <div class="popup-body" id="popupBody"></div>
+</div>
+
+<input type="file" id="fileInput" accept="image/*" hidden>
+<div class="toast" id="toast"></div>
+
+<script src="assets/data/restaurant_listings/directory_runtime_data.js"></script>
+<script src="assets/data/eatouts_demo_businesses.js"></script>
+<script src="assets/data/BottleLliquorStoresDatabase.js"></script>
+<script src="assets/data/CateringServicesDatabase.js"></script>
+<script src="js/eatouts-bottle-stores.js"></script>
+<script src="js/eatouts-catering.js"></script>
+<script src="botswana_locations.js"></script>
+<script src="js/eatouts-locations.js"></script>
+<script src="js/eatouts-brand.js"></script>
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-manager-db.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-seed.js"></script>
+<script src="js/eatouts-bridge.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script>
+/* Standalone data-driven customer-facing About page.
+   Design/layout/behaviours derived from the venue-about-new.html mockup, but
+   EVERY business-specific value is produced from the resolved business — no
+   literals. Section visibility is data-driven only (never by business type).
+   Owner-only UI is DOM-injected only when isOwnerOf(biz) is true. */
+(function(){
+  'use strict';
+
+  var $ = function(s){ return document.querySelector(s); };
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function toast(msg){
+    var el = $('#toast');
+    if(!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ el.classList.remove('show'); }, 2200);
+  }
+
+  /* Generic copy keyed by chip label. Not a fixed chip list — chips are
+     rendered from the business; unknown labels get a neutral fallback. */
+  var CHIP_INFO = {
+    'Cozy':               { sub:'Warm Corners & Good Vibes',           body:'Sink into comfy seating, soft lighting, and a relaxed environment crafted for unwinding, reading, or slow conversations.' },
+    'Trendy':             { sub:'Fresh Culture & Cool Energy',         body:'Modern beats, stylish interiors, and a vibrant atmosphere designed for coffee lovers who appreciate good aesthetic flow.' },
+    'Aesthetic':          { sub:'Picture-Perfect in Every Angle',      body:'From beautiful latte art to curated corner lighting—every spot here is naturally Instagram and story-ready.' },
+    'Laptop-Friendly':    { sub:'Your Ideal Remote Work Hub',          body:'Power outlets near tables, comfortable seating heights, and a productivity-friendly background ambience.' },
+    'Free Wi-Fi':         { sub:'Fast, High-Speed Connectivity',       body:'Stay connected with high-speed internet on the house—perfect for remote work, browsing, or streaming while you sip.' },
+    'Free WiFi':          { sub:'Fast, High-Speed Connectivity',       body:'Stay connected with high-speed internet on the house—perfect for remote work, browsing, or streaming while you sip.' },
+    'Table Service':      { sub:"Sit Back & We'll Bring It Over",      body:'No waiting around at the counter—order directly or take a seat, and our staff will deliver your order straight to your table.' },
+    'Dedicated Parking':  { sub:'Hassle-Free Arrival',                 body:'Park with ease right at the venue with reserved, secure customer parking slots.' },
+    'Kid-Friendly':       { sub:'Welcoming for the Whole Family',      body:'Family-friendly seating, high chairs, and a relaxed, safe environment where little ones are always welcome.' },
+    'Specialty Coffee':   { sub:'Ethically Sourced & Expertly Brewed', body:'Premium single-origin beans, precision roast profiles, and handcrafted espresso drinks crafted by passionate baristas.' },
+    'Breakfast':          { sub:'Start Your Day Right',                body:'Freshly baked pastries, hearty egg plates, and wholesome morning favorites served warm to kickstart your day.' },
+    'Brunch':             { sub:'Mid-Morning Magic',                   body:'The perfect blend of sweet and savory dishes, made for slow mornings and long catch-ups over coffee.' },
+    'Lunch':              { sub:'Fresh & Satisfying Meals',            body:'Gourmet sandwiches, fresh salads, and hot kitchen specials crafted for a mid-day recharge.' },
+    'Desserts':           { sub:'Sweet Treats & Decadent Bites',       body:'Handcrafted cakes, artisanal tarts, and sweet treats paired perfectly with your favorite espresso brew.' }
+  };
+
+  var ICONS = {
+    instagram:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>',
+    facebook:'<svg viewBox="0 0 24 24"><path d="M15 3h-3a4 4 0 0 0-4 4v3H5v3h3v8h3v-8h3l1-3h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
+    whatsapp:'<svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.7A8.4 8.4 0 1 1 21 11.5z"/><path d="M8.5 10.5c.4 2.1 2.2 3.9 4.3 4.3l1.3-1.3c.2-.2.5-.3.7-.1.5.2 1 .4 1.6.4.3 0 .6.3.6.6v1.4c0 .3-.3.6-.6.6-4 0-7.3-3.3-7.3-7.3 0-.3.3-.6.6-.6h1.4c.3 0 .6.3.6.6 0 .6.2 1.1.4 1.6.1.2 0 .5-.1.7z" fill="currentColor" stroke="none"/></svg>',
+    tiktok:'<svg viewBox="0 0 24 24"><path d="M14 4v9a4 4 0 1 1-3-3.9"/><path d="M14 4c.6 2.6 2.4 4.4 5 5"/></svg>',
+    x:'<svg viewBox="0 0 24 24"><path d="M4 4l16 16M20 4L4 20"/></svg>',
+    youtube:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M11 9.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/></svg>',
+    website:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+    call:'<svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>',
+    location:'<svg viewBox="0 0 24 24"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>'
+  };
+
+  var TAB_ICONS = {
+    promos:'<svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+    restaurants:'<svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg>',
+    reserve:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    gallery:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+    about:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+  };
+
+  /* ── boot shared modules ── */
+  function bootData(){
+    try {
+      if (window.EatoutsBridge) {
+        EatoutsBridge.setSource({ profile:null, menu:[], gallery:[], promos:{}, events:{}, performers:[] });
+        if (EatoutsBridge.ensureSeeded) EatoutsBridge.ensureSeeded();
+        EatoutsBridge.setSource({ profile:null, menu:[], gallery:[], promos:{}, events:{}, performers:[] });
+      }
+      if (window.EatoutsSeed && window.DIRECTORY_RUNTIME_DATA && EatoutsSeed.mergeDirectory) {
+        EatoutsSeed.mergeDirectory(window.DIRECTORY_RUNTIME_DATA);
+      }
+    } catch(e){ /* non-fatal */ }
+  }
+
+  /* ── slug resolution ── */
+  function readSlug(){
+    try {
+      var q = new URLSearchParams(String(location.search || '').replace(/^\?/, ''));
+      var link = q.get('link');
+      if (link) return link;
+    } catch(e){}
+    var h = String(location.hash || '').replace(/^#/, '').trim();
+    if (h) return h;
+    return null;
+  }
+
+  function bridgeByKeyOrSlug(slug){
+    if (!window.EatoutsBridge || !EatoutsBridge.groups) return null;
+    var groups = [];
+    try { groups = EatoutsBridge.groups() || []; } catch(e){ return null; }
+    for (var i = 0; i < groups.length; i++){
+      var g = groups[i];
+      var branches = g.branches || [];
+      for (var j = 0; j < branches.length; j++){
+        var b = branches[j];
+        if (b && (b.id === slug || b.slug === slug || b.brandKey === slug)) return b;
+      }
+      if (g.key === slug || g.slug === slug || g.brandKey === slug) return branches[0] || null;
+    }
+    return null;
+  }
+
+  function resolveViaApi(slug){
+    if (typeof fetch !== 'function') return Promise.resolve(null);
+    var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
+    var timer = setTimeout(function(){ try{ ctrl && ctrl.abort(); }catch(e){} }, 4000);
+    var url = '/api/links/resolve?country=bw&slug=' + encodeURIComponent(slug);
+    return fetch(url, ctrl ? { signal: ctrl.signal } : undefined)
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        clearTimeout(timer);
+        if (!d || !d.ok || !d.found) return null;
+        return d;
+      })
+      .catch(function(){ clearTimeout(timer); return null; });
+  }
+
+  function resolveBusiness(slug){
+    if (!slug) return Promise.resolve(null);
+    if (window.EATOUTS_DEMO_BUSINESSES) {
+      var demo = EATOUTS_DEMO_BUSINESSES.get(slug);
+      if (demo) return Promise.resolve(demo);
+    }
+    if (window.EatoutsBottleStores && EatoutsBottleStores.get) {
+      var bl = EatoutsBottleStores.get(slug);
+      if (bl) return Promise.resolve(bl);
+    }
+    if (window.EatoutsCatering && EatoutsCatering.get) {
+      var ca = EatoutsCatering.get(slug);
+      if (ca) return Promise.resolve(ca);
+    }
+    var bi = bridgeByKeyOrSlug(slug);
+    if (bi) return Promise.resolve(bi);
+    return resolveViaApi(slug).then(function(hit){
+      if (!hit) return null;
+      var ref = hit.refId || hit.slug || slug;
+      return bridgeByKeyOrSlug(ref) || bridgeByKeyOrSlug(slug) || { id:ref, slug:slug, name:hit.name||'' };
+    });
+  }
+
+  /* ── normalize any resolved business into one shape ── */
+  function firstBranch(biz){
+    return (biz && Array.isArray(biz.branches) && biz.branches[0]) || {};
+  }
+
+  function normalize(biz){
+    if (!biz) return null;
+    var branch = firstBranch(biz);
+    var isBrand = !!(biz.branches && biz.branches.length);
+
+    var name = biz.name || biz.identity && biz.identity.name || branch.name || '';
+    var logo = biz.logo || branch.logo || '';
+    if (!logo && window.EatoutsBrand && EatoutsBrand.logoFor) {
+      try { logo = EatoutsBrand.logoFor(biz) || ''; } catch(e){}
+    }
+
+    var town = biz.town || (biz.location && biz.location.city) || branch.town || '';
+    var area = biz.area || (biz.location && biz.location.area) || branch.area || '';
+
+    var socials = [];
+    if (Array.isArray(biz.socials)) biz.socials.forEach(function(s){ if (s && typeof s === 'object') socials.push(s); });
+
+    var contacts = [];
+    if (Array.isArray(biz.contacts)) contacts.push.apply(contacts, biz.contacts);
+    [branch.phones].forEach(function(list){ (list||[]).forEach(function(p){ contacts.push({ label:'Phone / WhatsApp', value:p }); }); });
+    [branch.emails].forEach(function(list){ (list||[]).forEach(function(p){ contacts.push({ label:'Email', value:p }); }); });
+
+    var address = branch.address || biz.address || (biz.location && biz.location.formatted_address) || '';
+    var addresses = [];
+    if (Array.isArray(biz.addresses)) addresses.push.apply(addresses, biz.addresses);
+    if (!addresses.length && address) addresses.push(address);
+
+    /* optional rich fields, only when present in the source */
+    var days = biz.operating_hours || (biz.operatingHours && biz.operatingHours.weekly) || null;
+    var promos = biz.promos && (Array.isArray(biz.promos) ? biz.promos : (biz.promos.modules || biz.promos.items)) || null;
+    var gallery = biz.gallery && (Array.isArray(biz.gallery) ? biz.gallery : (biz.gallery.modules || biz.gallery.items)) || null;
+    var ambience = (biz.attributes && biz.attributes.ambience) || (biz.characters && biz.characters.map(function(c){ return c.name || c; })) || null;
+    var amenitySource = (biz.attributes && biz.attributes.amenities) || (biz.amenities && (biz.amenities.options || biz.amenities.items)) || null;
+    var amenities = amenitySource ? amenitySource.map(function(a){ return a.name || a; }) : null;
+    if (amenities && !amenities.length) amenities = null;
+    var tagSource = biz.menu_tags || (biz.menuTags && biz.menuTags.options) || null;
+    var menuTags = tagSource ? tagSource.map(function(t){ return t.name || t; }) : null;
+    if (menuTags && !menuTags.length) menuTags = null;
+
+    return {
+      id: biz.id || branch.id || '',
+      name: name,
+      slug: biz.slug || branch.slug || '',
+      brandKey: biz.brandKey || '',
+      restaurantId: biz.restaurantId || '',
+      kind: biz.type || branch.type || '',
+      logo: logo,
+      town: town,
+      area: area,
+      addresses: addresses,
+      contacts: contacts,
+      socials: socials,
+      isBrand: isBrand,
+      branches: biz.branches || null,
+      hours: days,
+      promos: promos,
+      gallery: gallery,
+      ambience: ambience,
+      amenities: amenities,
+      menuTags: menuTags
+    };
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  /* ── isOwnerOf: A + B combined ── */
+  function isOwnerOf(biz){
+    if (!window.EatoutsAuth && !window.EatoutsMgrDB){
+      console.warn('owner detection unavailable');
+      return false;
+    }
+    var s = null;
+    try { s = window.EatoutsAuth && EatoutsAuth.currentSession ? EatoutsAuth.currentSession() : null; } catch(e){ s = null; }
+    if (!s) return false;
+
+    var ids = [biz.id, biz.restaurantId];
+    try {
+      var ref = biz.slug || (biz.brandKey || '');
+      if (ref) ids.push(ref);
+    } catch(e){}
+    if (s.restaurantId && ids.indexOf(s.restaurantId) >= 0) return true;
+
+    if (s.userId && window.EatoutsMgrDB){
+      var mgrUser = null, mgrBiz = null;
+      try { mgrUser = EatoutsMgrDB.find('users', s.userId); } catch(e){}
+      try { mgrBiz = mgrUser && mgrUser.businessId ? EatoutsMgrDB.find('businesses', mgrUser.businessId) : null; } catch(e){}
+      if (mgrBiz){
+        var linked = [
+          mgrBiz.identity && mgrBiz.identity.slug,
+          mgrBiz.slug,
+          mgrBiz.restaurantId
+        ].filter(Boolean);
+        var targets = [biz.slug, biz.id, biz.restaurantId, biz.brandKey].filter(Boolean);
+        for (var i = 0; i < linked.length; i++){
+          if (targets.indexOf(linked[i]) >= 0) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function fmtStatus(hours){
+    if (!hours) return null;
+    var now = new Date();
+    var dow = now.getDay(); /* 0 Sun */
+    var names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var todayName = names[dow];
+    var groups = [];
+
+    if (Array.isArray(hours)) {
+      hours.forEach(function(d){ groups.push({ days: [d.day], open: d.open, close: d.close }); });
+    } else if (typeof hours === 'object') {
+      Object.keys(hours).forEach(function(k){
+        var v = hours[k] || {};
+        groups.push({ days: v.days || [], open: v.open, close: v.close, closed: !v.open && !v.close });
+      });
+    }
+    if (!groups.length) return null;
+
+    var today = null;
+    groups.forEach(function(g){ if ((g.days||[]).indexOf(todayName) >= 0) today = g; });
+    if (!today) return { open:false, text:'Hours vary by day' };
+    if (today.closed || (!today.open && !today.close)) return { open:false, text:'Closed today' };
+
+    var toMin = function(t){ var p = String(t||'').split(':'); return (parseInt(p[0],10)||0)*60 + (parseInt(p[1],10)||0); };
+    var cur = now.getHours()*60 + now.getMinutes();
+    var o = toMin(today.open), c = toMin(today.close);
+    if (cur >= o && cur < c) return { open:true, text:'Open till ' + today.close };
+    if (cur < o) return { open:false, text:'Closed · Opens at ' + today.open };
+    return { open:false, text:'Closed for today' };
+  }
+
+  /* ── rendering helpers ── */
+  function socialChannelOn(biz, channel){
+    if (channel === 'whatsapp' || channel === 'call'){
+      var phones = (biz.contacts || []).filter(function(c){
+        return /phone|whatsapp|tel|call|mobile/i.test(String(c.label||'')) || String(c.value||'').match(/^\+?\d[\d\s]+$/);
+      });
+      return phones.length > 0;
+    }
+    if (channel === 'location'){
+      return (biz.addresses || []).length > 0 || !!biz.town;
+    }
+    return false;
+  }
+
+  function socialOnForUrl(biz, keys){
+    return (biz.socials || []).some(function(s){
+      return keys.some(function(k){ return s && s[k]; });
+    });
+  }
+
+  function renderSocialRow(biz){
+    var slots = [
+      { cls:'off', icon:'instagram', label:'Instagram' },
+      { cls:'off', icon:'facebook',  label:'Facebook' },
+      { on:true, channel:'whatsapp', icon:'whatsapp', label:'WhatsApp' },
+      { cls:'off', icon:'tiktok', label:'TikTok' },
+      { cls:'off', icon:'x', label:'X (Twitter)' },
+      { cls:'off', icon:'youtube', label:'YouTube' },
+      { cls:'off', icon:'website', label:'Website' },
+      { on:true, channel:'call', icon:'call', label:'Call' },
+      { on:true, channel:'location', icon:'location', label:'Location' }
+    ];
+
+    /* turn on channels the business actually has */
+    if (socialOnForUrl(biz, ['instagram'])) swap(slots, 'instagram', true);
+    if (socialOnForUrl(biz, ['facebook']))  swap(slots, 'facebook', true);
+    if (socialOnForUrl(biz, ['tiktok']))    swap(slots, 'tiktok', true);
+    if (socialOnForUrl(biz, ['x','twitter'])) swap(slots, 'x', true);
+    if (socialOnForUrl(biz, ['youtube']))   swap(slots, 'youtube', true);
+    if (socialOnForUrl(biz, ['website']) || biz.website) swap(slots, 'website', true);
+
+    var callOn = socialChannelOn(biz, 'call');
+    var locOn  = socialChannelOn(biz, 'location');
+    var waOn   = callOn;
+
+    var html = '<div class="social-wrap"><div class="social-row" aria-label="Contact channels">';
+    slots.forEach(function(s){
+      if (s.on){
+        var on = s.channel === 'call' ? callOn : s.channel === 'location' ? locOn : waOn;
+        if (!on){
+          html += '<span class="social-ico off" role="img" aria-label="' + esc(s.label) + ' — contact unavailable" title="' + esc(s.label) + ' (unavailable)">' + ICONS[s.icon] + '</span>';
+        } else {
+          html += '<button class="social-ico on" data-channel="' + s.channel + '" aria-label="' + esc(s.label) + '" title="' + esc(s.label) + '">' + ICONS[s.icon] + '</button>';
+        }
+      } else if (s.cls === 'off'){
+        var enabled = s._on;
+        if (enabled){
+          html += '<button class="social-ico on" data-social="' + s.icon + '" aria-label="' + esc(s.label) + '" title="' + esc(s.label) + '">' + ICONS[s.icon] + '</button>';
+        } else {
+          html += '<span class="social-ico off" role="img" aria-label="' + esc(s.label) + ' — contact unavailable" title="' + esc(s.label) + ' (unavailable)">' + ICONS[s.icon] + '</span>';
+        }
+      }
+    });
+    html += '</div></div>';
+    return html;
+  }
+
+  function swap(slots, icon, on){
+    for (var i=0;i<slots.length;i++){ if (slots[i].icon === icon) slots[i]._on = on; }
+  }
+
+  function acc(id, title, bodyHtml, pad){
+    return '<details class="acc"' + (id ? ' data-acc="' + id + '"' : '') + '>' +
+      '<summary>' + esc(title) + '</summary>' +
+      '<div class="acc-body"><div class="acc-inner"><div class="acc-content"' +
+      (pad ? ' style="padding:12px"' : '') + '>' + bodyHtml + '</div></div></div>' +
+      '</details>';
+  }
+
+  function chipsHtml(list){
+    return '<div class="tagwrap">' + list.map(function(t){
+      return '<button class="chip" data-chip="' + esc(t) + '">' + esc(t) + '</button>';
+    }).join('') + '</div>';
+  }
+
+  function hoursHtml(hours){
+    var rows = [];
+    var order = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    if (Array.isArray(hours)){
+      hours.forEach(function(d){
+        rows.push('<li class="hours__row"><span class="hours__day">' + esc(d.day || '') + '</span>' +
+          '<span class="hours__time' + ((d.open && d.close) ? '' : ' is-closed') + '">' +
+          ((d.open && d.close) ? esc(d.open + ' – ' + d.close) : 'Closed') + '</span></li>');
+      });
+    } else if (hours && typeof hours === 'object'){
+      var seen = {};
+      order.forEach(function(day){
+        Object.keys(hours).forEach(function(k){
+          var v = hours[k] || {};
+          if ((v.days||[]).indexOf(day) >= 0 && !seen[day]){
+            seen[day] = 1;
+            var closed = !v.open && !v.close;
+            rows.push('<li class="hours__row"><span class="hours__day">' + esc(day) + '</span>' +
+              '<span class="hours__time' + (closed ? ' is-closed' : '') + '">' +
+              (closed ? 'Closed' : esc(v.open + ' – ' + v.close)) + '</span></li>');
+          }
+        });
+      });
+      Object.keys(hours).forEach(function(k){
+        var v = hours[k] || {};
+        (v.days||[]).forEach(function(day){
+          if (order.indexOf(day) < 0 || seen[day]) return;
+          seen[day] = 1;
+          var closed = !v.open && !v.close;
+          rows.push('<li class="hours__row"><span class="hours__day">' + esc(day) + '</span>' +
+            '<span class="hours__time' + (closed ? ' is-closed' : '') + '">' +
+            (closed ? 'Closed' : esc(v.open + ' – ' + v.close)) + '</span></li>');
+        });
+      });
+    }
+    return '<ul class="hours">' + rows.join('') + '</ul>';
+  }
+
+  function carousel(id, label){
+    return '<div class="promo-carousel" id="' + id + '" aria-label="' + esc(label) + '"></div>' +
+      '<div class="promo-dots" id="' + id + 'Dots" aria-hidden="true"></div>';
+  }
+
+  function imagesOf(list){
+    if (!Array.isArray(list)) return [];
+    return list.map(function(it){
+      if (typeof it === 'string') return it;
+      return (it && (it.url || it.src || it.image)) || '';
+    }).filter(Boolean);
+  }
+
+  function renderShell(biz){
+    var status = fmtStatus(biz.hours);
+    var h = '';
+    h += '<div class="hero-logo" id="heroLogo" style="padding:16px 0 8px">';
+    h += '<button class="logo-btn" id="logoBtn" aria-label="View logo" style="width:200px;height:200px">';
+    if (biz.logo){
+      h += '<img id="logoImg" alt="' + esc(biz.name) + ' logo" src="' + esc(biz.logo) + '">';
+    } else {
+      h += '<img id="logoImg" alt="' + esc(biz.name) + ' logo" src="data:image/svg+xml;utf8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 200\'%3E%3Crect width=\'200\' height=\'200\' fill=\'%23f3ece0\'/%3E%3Ccircle cx=\'100\' cy=\'100\' r=\'62\' fill=\'none\' stroke=\'%23c9bda3\' stroke-width=\'3\'/%3E%3Ctext x=\'100\' y=\'116\' text-anchor=\'middle\' font-family=\'Georgia,serif\' font-size=\'60\' font-weight=\'700\' fill=\'%23c9bda3\'%3E%3F%3C/text%3E%3C/svg%3E">';
+    }
+    h += '</button>';
+    if (window.__owner){
+      h += '<div class="drag-handle" id="dragHandle" role="separator" aria-label="Resize logo" aria-orientation="horizontal"></div>';
+    }
+    h += '</div>';
+
+    h += '<div class="hero"><h1>' + esc(biz.name || 'Business') + '</h1>';
+    if (status){
+      h += '<p class="status-line" id="statusLine" aria-live="polite">' +
+        '<span class="status-dot ' + (status.open ? 'open' : 'closed') + '" id="statusDot"></span>' +
+        '<span id="statusText">' + esc(status.text) + '</span></p>';
+    }
+    h += '</div>';
+
+    h += '<div class="content-sheet">';
+    h += renderSocialRow(biz);
+    h += '<div class="pad">';
+
+    var promImgs = imagesOf(biz.promos);
+    if (promImgs.length) h += acc('promos', 'Promos', carousel('promoCarousel', 'Promo images'));
+
+    var optHtml = '<div class="opt-list">';
+    if (biz.town) optHtml += '<button class="opt" type="button" data-opt="town"><span class="lead">Town</span><span class="val">' + esc(biz.town) + '</span></button>';
+    optHtml += '<button class="opt" type="button" data-opt="area"><span class="lead">Area</span><span class="val' + (biz.area ? '' : ' muted') + '">' + esc(biz.area || 'Select Neighbourhood') + '</span></button>';
+    optHtml += '<button class="opt" type="button" data-goto="menu"><span class="lead">View</span><span class="val">Menu</span></button>';
+    optHtml += '<button class="opt" type="button" data-goto="promos"><span class="lead">View</span><span class="val">Promos</span></button>';
+    optHtml += '</div>';
+    h += acc('options', 'Options', optHtml, true);
+
+    if (biz.hours) h += '<details class="acc acc-hours" data-acc="hours"><summary>Operating Hours</summary><div class="acc-body"><div class="acc-inner"><div class="acc-content">' + hoursHtml(biz.hours) + '</div></div></div></details>';
+
+    var venueImgs = imagesOf(biz.gallery);
+    if (venueImgs.length) h += acc('venue', 'Venue', carousel('venueCarousel', 'Venue photos'));
+
+    if (biz.ambience && biz.ambience.length) h += acc('ambience', 'Ambience', chipsHtml(biz.ambience));
+    if (biz.amenities && biz.amenities.length) h += acc('amenities', 'Amenities', chipsHtml(biz.amenities));
+    if (biz.menuTags && biz.menuTags.length) h += acc('menuTags', 'Menu Tags', chipsHtml(biz.menuTags));
+
+    h += '</div>';
+    h += '<div class="actions"><button class="btn btn-ghost" id="backBtn" type="button">Back</button></div>';
+    h += '</div>';
+
+    h += '<nav class="tabbar" aria-label="Primary">' +
+      '<button class="tab" aria-label="Promos" data-nav="promos">' + TAB_ICONS.promos + '</button>' +
+      '<button class="tab on" aria-label="Restaurants" data-nav="restaurants">' + TAB_ICONS.restaurants + '</button>' +
+      '<button class="tab" aria-label="Reserve" data-nav="reserve">' + TAB_ICONS.reserve + '</button>' +
+      '<button class="tab" aria-label="Gallery" data-nav="gallery">' + TAB_ICONS.gallery + '</button>' +
+      '<button class="tab" aria-label="About" data-nav="about">' + TAB_ICONS.about + '</button>' +
+      '</nav>';
+
+    $(' #screenMount'.trim()).innerHTML = h;
+    afterRender(biz, promImgs, venueImgs);
+  }
+
+  function renderEmptyState(){
+    var h = '<div class="content-sheet"><div class="emptystate">' +
+      '<h2>Choose a business</h2>' +
+      '<p>Open a venue from the directory to see its About page.</p>' +
+      '<a class="btn btn-ghost" href="index.html#restaurants" style="display:inline-flex">Browse businesses</a>' +
+      '</div></div>';
+    $('#screenMount').innerHTML = h;
+  }
+
+  /* ── owner-only UI (DOM-injected only for owners) ── */
+  function injectOwnerUI(biz){
+    var overlay = $('#logoOverlay');
+    if (!overlay || overlay.querySelector('#settingsAcc')) return;
+    if (!biz.logo) return;
+    var det = document.createElement('details');
+    det.className = 'settings-acc';
+    det.id = 'settingsAcc';
+    det.innerHTML = '<summary>Settings</summary>' +
+      '<div class="settings-body"><div class="si"><div class="si-inner">' +
+      '<button class="settings-btn" data-settings="change-logo">Change Logo <small>Upload image</small></button>' +
+      '<button class="settings-btn" data-settings="edit-promos">Edit Promos <small>Open editor</small></button>' +
+      '<button class="settings-btn" data-settings="change-bg">Change Background <small>#rgb picker</small></button>' +
+      '<button class="settings-btn" data-settings="change-btns">Change Buttons <small>Accordions &amp; chips</small></button>' +
+      '</div></div></div>';
+    overlay.appendChild(det);
+  }
+
+  var SPA_ORIGIN = 'index.html';
+  function navTo(target){ location.href = SPA_ORIGIN + '#' + target; }
+
+  /* ── popups ── */
+  var popupScrim = $('#popupScrim');
+  var popup = $('#popup');
+  var popupTitle = $('#popupTitle');
+  var popupBody = $('#popupBody');
+
+  function openPopup(title, html){
+    popupTitle.textContent = title;
+    popupBody.innerHTML = html;
+    popupScrim.classList.add('open');
+    popup.classList.add('open');
+  }
+  function closePopup(){
+    popupScrim.classList.remove('open');
+    popup.classList.remove('open');
+  }
+  if (popupScrim) popupScrim.addEventListener('click', closePopup);
+
+  function waNumber(v){ return String(v || '').replace(/[^\d]/g, ''); }
+
+  function cueFromSlug(biz){
+    var s = biz.slug || biz.brandKey || biz.id || '';
+    return s;
+  }
+
+  function openWhatsAppPopup(biz){
+    var share = 'Check out ' + (biz.name || 'this business') + ' on EatOuts: ' +
+      location.origin + location.pathname + '?link=' + encodeURIComponent(cueFromSlug(biz));
+    var html = '';
+    html += '<div class="sheet-section"><h3>Share</h3><div class="popup-list">' +
+      '<a class="popup-row" href="https://wa.me/?text=' + encodeURIComponent(share) + '" target="_blank" rel="noopener noreferrer">Send to Contact</a>' +
+      '</div></div>';
+    var rows = (biz.contacts || []).filter(function(c){
+      return /phone|whatsapp|tel|call|mobile/i.test(String(c.label||'')) || String(c.value||'').match(/^\+?\d[\d\s]+$/);
+    });
+    if (rows.length){
+      html += '<div class="sheet-section"><h3>Contact List</h3><div class="popup-list">';
+      rows.forEach(function(c){
+        var n = waNumber(c.value);
+        html += '<a class="popup-row" href="https://wa.me/' + n + '?text=' + encodeURIComponent('Hi,') + '" target="_blank" rel="noopener noreferrer">' + esc(c.label || n) + '</a>';
+      });
+      html += '</div></div>';
+    }
+    openPopup('WhatsApp', html);
+  }
+
+  function openCallPopup(biz){
+    var rows = (biz.contacts || []).filter(function(c){
+      return /phone|whatsapp|tel|call|mobile/i.test(String(c.label||'')) || String(c.value||'').match(/^\+?\d[\d\s]+$/);
+    });
+    var html = '<div class="sheet-section"><h3>Contact List</h3><div class="popup-list">';
+    rows.forEach(function(c){
+      html += '<a class="popup-row" href="tel:' + waNumber(c.value) + '">' + esc(c.label || c.value) + '</a>';
+    });
+    html += '</div></div>';
+    openPopup('Call', html);
+  }
+
+  function openLocationPopup(biz){
+    var html = '<div class="sheet-section"><h3>Location List</h3><div class="popup-list">';
+    var list = (biz.addresses || []).slice();
+    if (!list.length && biz.town){
+      list = [biz.area ? (biz.area + ', ' + biz.town) : biz.town];
+    }
+    list.forEach(function(a){
+      var q = encodeURIComponent(String(a) + (biz.name ? ' ' + biz.name : ''));
+      html += '<a class="popup-row" href="https://maps.google.com/?q=' + q + '" target="_blank" rel="noopener noreferrer">' + esc(a) + '</a>';
+    });
+    html += '</div></div>';
+    openPopup('Locations', html);
+  }
+
+  /* chip info: always render the chip; unknown label -> neutral fallback */
+  document.addEventListener('click', function(e){
+    var chip = e.target.closest && e.target.closest('.chip');
+    if (!chip) return;
+    var key = chip.getAttribute('data-chip');
+    var info = CHIP_INFO[key];
+    if (info){
+      openPopup(key, '<div class="chip-info-head">' + esc(info.sub) + '</div><p class="chip-info-body">' + esc(info.body) + '</p>');
+    } else {
+      openPopup(key, '<p class="chip-info-body">No details provided</p>');
+    }
+  });
+
+  function afterRender(biz, promImgs, venueImgs){
+    /* owner UI injection */
+    if (window.__owner) injectOwnerUI(biz);
+
+    /* carousels */
+    attachCarousel($('#promoCarousel'), $('#promoDots'), promImgs);
+    attachCarousel($('#venueCarousel'), $('#venueDots'), venueImgs);
+
+    /* back button */
+    var back = $('#backBtn');
+      if (back) back.addEventListener('click', () => {
+        let html = '<div class="history-list">';
+        const history = [
+          { label:'EatOuts Home', id:'home' },
+          { label:'Restaurants', id:'restaurants' },
+          { label:biz.name + ' — Menu', id:'menu' },
+          { label:biz.name + ' — About', id:'about', current:true }
+        ];
+        history.filter(p => !p.current).forEach(p => {
+          html += '<button class="history-item" data-goto="' + p.id + '">' + escapeHtml(p.label) + '</button>';
+        });
+        html += '</div>';
+        openPopup('Page history', html);
+      });
+
+    /* logo lightbox */
+    var logoBtn = $('#logoBtn');
+    var overlay = $('#logoOverlay');
+    var logoLarge = $('#logoLarge');
+    var logoImg = $('#logoImg');
+    if (logoBtn && overlay) logoBtn.addEventListener('click', function(){
+      if (logoImg) logoLarge.src = logoImg.src;
+      overlay.classList.add('open');
+    });
+    var closeBtn = $('#logoOverlayClose');
+    if (closeBtn) closeBtn.addEventListener('click', closeLogoOverlay);
+    if (overlay) overlay.addEventListener('click', function(e){ if (e.target === overlay) closeLogoOverlay(); });
+
+    /* drag handle (owner only) */
+    var dragHandle = $('#dragHandle');
+    if (dragHandle){
+      var logoBtnEl = logoBtn;
+      var size = 200, dragging = false, startY = 0, startSize = 0;
+      function setSize(s){ size = Math.max(120, Math.min(400, s)); logoBtnEl.style.width = size + 'px'; logoBtnEl.style.height = size + 'px'; }
+      dragHandle.addEventListener('pointerdown', function(e){ dragging = true; startY = e.clientY; startSize = size; try{ dragHandle.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); });
+      dragHandle.addEventListener('pointermove', function(e){ if (dragging) setSize(startSize + (e.clientY - startY)); });
+      dragHandle.addEventListener('pointerup', function(e){ dragging = false; try{ dragHandle.releasePointerCapture(e.pointerId); }catch(_){} });
+      dragHandle.addEventListener('pointercancel', function(){ dragging = false; });
+      setSize(200);
+    }
+  }
+
+  function closeLogoOverlay(){
+    var overlay = $('#logoOverlay');
+    if (overlay) overlay.classList.remove('open');
+    var sa = $('#settingsAcc');
+    if (sa) sa.removeAttribute('open');
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape'){ closePopup(); closeLogoOverlay(); }
+  });
+
+  /* social channel popups */
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest && e.target.closest('.social-ico.on');
+    if (!btn) return;
+    var channel = btn.getAttribute('data-channel');
+    var biz = window.__biz;
+    if (!biz) return;
+    if (channel === 'whatsapp') openWhatsAppPopup(biz);
+    else if (channel === 'call') openCallPopup(biz);
+    else if (channel === 'location') openLocationPopup(biz);
+  });
+
+  /* navigation: tabbar, options, brand */
+  document.addEventListener('click', function(e){
+    var nav = e.target.closest && e.target.closest('[data-nav]');
+    if (nav){ navTo(nav.getAttribute('data-nav')); return; }
+    var go = e.target.closest && e.target.closest('[data-goto]');
+    if (go){
+      var biz = window.__biz;
+      var slug = biz ? (biz.slug || biz.brandKey || biz.id) : '';
+      navTo(slug + '/' + go.getAttribute('data-goto'));
+      return;
+    }
+    var opt = e.target.closest && e.target.closest('[data-opt]');
+    if (opt){
+      var kind = opt.getAttribute('data-opt');
+      if (kind === 'area') toast('No neighbourhood selected');
+      return;
+    }
+    var mark = e.target.closest && e.target.closest('#brandMark');
+    if (mark){ location.href = 'index.html'; }
+  });
+
+  /* owner settings actions */
+  document.addEventListener('click', function(e){
+    var sBtn = e.target.closest && e.target.closest('[data-settings]');
+    if (!sBtn) return;
+    var action = sBtn.getAttribute('data-settings');
+    if (action === 'change-logo'){ closeLogoOverlay(); var fi = $('#fileInput'); if (fi) fi.click(); }
+    else if (action === 'edit-promos'){ closeLogoOverlay(); toast('Open the workspace to edit promos'); }
+    else if (action === 'change-bg'){ closeLogoOverlay(); openColorEditor('background'); }
+    else if (action === 'change-btns'){ closeLogoOverlay(); openColorEditor('buttons'); }
+  });
+
+  var fi = $('#fileInput');
+  if (fi) fi.addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var li = $('#logoImg'); var ll = $('#logoLarge');
+      if (li) li.src = ev.target.result;
+      if (ll) ll.src = ev.target.result;
+      toast('Logo updated');
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  /* colour editor (owner only) */
+  var COLOR_VARS = {
+    'brand-bg':       { label:'Page background',  varName:'--brand-bg' },
+    'hero-logo-bg':   { label:'Logo strip',       varName:'--hero-logo-bg' },
+    'acc-bg':         { label:'Accordion body',   varName:'--acc-bg' },
+    'acc-summary-bg': { label:'Accordion header', varName:'--acc-summary-bg' },
+    'chip-bg':        { label:'Chip background',  varName:'--chip-bg' }
+  };
+  function toHex(v){
+    v = String(v || '').trim();
+    if (/^#([0-9a-f]{3})$/i.test(v)) return '#' + v.slice(1).split('').map(function(c){ return c + c; }).join('');
+    if (/^#([0-9a-f]{6})$/i.test(v)) return v.toLowerCase();
+    return null;
+  }
+  function getVar(varName){ return getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); }
+  function openColorEditor(section){
+    var rows = section === 'background' ? ['brand-bg','hero-logo-bg'] : ['acc-bg','acc-summary-bg','chip-bg'];
+    var html = '<p style="font-size:13px;font-weight:600;color:var(--ink-3);margin-bottom:6px">Live preview — the page updates as you pick.</p>';
+    rows.forEach(function(k){
+      var meta = COLOR_VARS[k];
+      var hex = toHex(getVar(meta.varName)) || (k === 'chip-bg' ? '#e8ddca' : '#ffffff');
+      html += '<div class="color-row"><label>' + esc(meta.label) + '</label><div class="color-pickers">' +
+        '<input type="text" value="' + hex + '" data-colorvar="' + meta.varName + '" maxlength="7" spellcheck="false">' +
+        '<input type="color" value="' + hex + '" data-colorvar="' + meta.varName + '"></div></div>';
+    });
+    html += '<div class="sheet-actions">' +
+      '<button class="btn btn-secondary" data-colact="reset">Reset</button>' +
+      '<button class="btn btn-primary" data-colact="done">Done</button></div>';
+    openPopup(section === 'background' ? 'Change Background' : 'Change Buttons & Chips', html);
+  }
+  popupBody.addEventListener('input', function(e){
+    var input = e.target.closest && e.target.closest('[data-colorvar]');
+    if (!input) return;
+    var varName = input.getAttribute('data-colorvar');
+    if (input.type === 'color'){
+      document.documentElement.style.setProperty(varName, input.value);
+      var row = input.closest('.color-row'); var txt = row && row.querySelector('input[type="text"]');
+      if (txt) txt.value = input.value;
+    } else {
+      var hex = toHex(input.value);
+      if (!hex) return;
+      document.documentElement.style.setProperty(varName, hex);
+      var row2 = input.closest('.color-row'); var col = row2 && row2.querySelector('input[type="color"]');
+      if (col) col.value = hex;
+    }
+  });
+  popupBody.addEventListener('click', function(e){
+    var act = e.target.closest && e.target.closest('[data-colact]');
+    if (!act) return;
+    if (act.getAttribute('data-colact') === 'reset'){
+      Object.keys(COLOR_VARS).forEach(function(k){ document.documentElement.style.removeProperty(COLOR_VARS[k].varName); });
+      closePopup(); toast('Colours reset to defaults');
+    } else { closePopup(); toast('Colours saved'); }
+  });
+
+  /* carousel */
+  function attachCarousel(carouselEl, dotsEl, imgs){
+    if (!carouselEl || !dotsEl) return;
+    var list = imgs || [];
+    carouselEl.innerHTML = list.map(function(src, i){
+      return '<button class="promo-thumb" style="background:url(\'' + src.replace(/'/g, '%27') + '\') center/cover no-repeat" aria-label="Image ' + (i+1) + '"></button>';
+    }).join('');
+    if (!list.length){ carouselEl.setAttribute('hidden',''); dotsEl.setAttribute('hidden',''); return; }
+
+    function update(){
+      var items = carouselEl.querySelectorAll('.promo-thumb');
+      if (!items.length) return;
+      var itemW = items[0].getBoundingClientRect().width;
+      if (!itemW) return;
+      var step = itemW + 8;
+      var maxScroll = carouselEl.scrollWidth - carouselEl.clientWidth;
+      var positions = Math.max(1, Math.round(maxScroll / step) + 1);
+      var current = Math.min(positions - 1, Math.max(0, Math.round(carouselEl.scrollLeft / step)));
+      if (dotsEl.children.length !== positions){
+        dotsEl.innerHTML = '';
+        for (var i = 0; i < positions; i++){ var d = document.createElement('span'); d.className = 'promo-dot'; dotsEl.appendChild(d); }
+      }
+      Array.prototype.forEach.call(dotsEl.children, function(d, i){ d.classList.toggle('on', i === current); });
+    }
+    carouselEl.addEventListener('scroll', update, { passive:true });
+    window.addEventListener('resize', update);
+    requestAnimationFrame(function(){ requestAnimationFrame(update); });
+    setTimeout(update, 80); setTimeout(update, 300);
+  }
+
+  /* ── boot ── */
+  bootData();
+  var slug = readSlug();
+  resolveBusiness(slug).then(function(biz){
+    var norm = normalize(biz);
+    if (!norm){ renderEmptyState(); return; }
+    window.__biz = norm;
+    window.__owner = isOwnerOf(norm);
+    renderShell(norm);
+  }).catch(function(){
+    renderEmptyState();
+  });
+})();
+</script>
+</body>
+</html>

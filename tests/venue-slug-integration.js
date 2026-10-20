@@ -1,12 +1,13 @@
 /* Integration tests for venue-slug routing (Layer 3).
    Loads index.html in jsdom with injected <meta name="eatouts-venue"> so
-   boot runs openVenueFromSlug(readVenueMeta()). Covers H4 cases a-e:
+   boot runs openVenueFromSlug(readVenueMeta()). About is now a standalone
+   page (venue-about.html?link=<slug>), so this test verifies that the
+   inline .screen[data-page="venue-about"] is no longer rendered in
+   index.html and that boot does not crash on navigation.
 
-   a) Null-bridge skeleton: restaurant slug not in bridge → venue-about skeleton
-   b) Orphan shell: bottle_store / catering slug not in client API → orphan page
+   a) restaurant slug not in bridge -> no inline about screen
+   b) bottle_store orphan slug -> no inline about screen, no orphan meta
    c) Meta parsing: readVenueMeta() parses all three kinds
-   d) resetSeoMeta: click CTA from orphan → meta removed, title reset
-   e) backFromRestView: click CTA from orphan → orphan state cleared
  */
 const fs = require('fs');
 const path = require('path');
@@ -31,7 +32,10 @@ function buildHtml(venueMeta) {
 function runJSDOM(html, fn) {
   const vc = new VirtualConsole();
   const errors = [];
-  vc.on('jsdomError', e => errors.push('jsdomError: ' + (e.stack || e.message)));
+  vc.on('jsdomError', e => {
+    if (/Not implemented: navigation/.test(String((e && e.message) || ''))) return;
+    errors.push('jsdomError: ' + (e.stack || e.message));
+  });
   const dom = new JSDOM(html, {
     url: 'http://localhost/index.html',
     runScripts: 'dangerously',
@@ -61,38 +65,20 @@ function done() {
 
 function screenDoc(doc) { return doc.querySelector('.screen'); }
 
-/* ---- a) Null-bridge skeleton: restaurant not in bridge → venue-about skeleton ---- */
+/* ---- a) restaurant slug: no inline venue-about screen ---- */
 pending++;
 runJSDOM(buildHtml({ id: 'rest_test', slug: 'testrest', kind: 'restaurant', name: 'Test Restaurant' }), (window, doc, click, errors) => {
   const s = screenDoc(doc);
-  check('a) venue-about page present', s && s.getAttribute('data-page') === 'venue-about', s ? s.getAttribute('data-page') : 'missing');
-  check('a) hero contains name not slug', doc.body.textContent.indexOf('Test Restaurant') >= 0);
-  check('a) skeleton present', doc.querySelector('.skeleton') !== null);
+  check('a) no inline venue-about screen', !s || s.getAttribute('data-page') !== 'venue-about', s ? s.getAttribute('data-page') : 'missing');
   done();
 });
 
-/* ---- b) Orphan shell: bottle_store not in client API ---- */
+/* ---- b) bottle_store orphan slug: no inline about screen, no orphan meta ---- */
 pending++;
 runJSDOM(buildHtml({ id: 'blk_orphan', slug: 'orphanstore', kind: 'bottle_store', name: 'Orphan Store' }), (window, doc, click, errors) => {
   const s = screenDoc(doc);
-  check('b) venue-about page present for orphan', s && s.getAttribute('data-page') === 'venue-about', s ? s.getAttribute('data-page') : 'missing');
-  check('b) title is "Business not available — EatOuts"', doc.title === 'Business not available — EatOuts', doc.title);
-  const robots = doc.querySelector('meta[name="robots"][data-orphan="1"]');
-  check('b) robots noindex orphan meta exists', !!robots && robots.getAttribute('content') === 'noindex', robots ? robots.outerHTML : 'missing');
-  check('b) hero does NOT contain orphan name', doc.body.textContent.indexOf('Orphan Store') < 0);
-
-  /* ---- d) resetSeoMeta: click CTA clears orphan meta + title ---- */
-  const cta = s.querySelector('button[data-act="backFromRestView"]');
-  check('b/d) CTA button present', !!cta);
-  if (cta) {
-    click(cta);
-    check('d) orphan meta removed after CTA', !doc.querySelector('meta[name="robots"][data-orphan="1"]'));
-    check('d) title reset to "EatOuts" after CTA', doc.title === 'EatOuts', doc.title);
-  }
-
-  /* ---- e) backFromRestView clears orphan state ---- */
-  check('e) orphan meta removed after backFromRestView', !doc.querySelector('meta[name="robots"][data-orphan="1"]'));
-  check('e) title reset after backFromRestView', doc.title === 'EatOuts', doc.title);
+  check('b) no inline venue-about screen for orphan', !s || s.getAttribute('data-page') !== 'venue-about', s ? s.getAttribute('data-page') : 'missing');
+  check('b) no orphan robots meta', doc.querySelector('meta[name="robots"][data-orphan="1"]') === null);
   done();
 });
 
@@ -100,7 +86,7 @@ runJSDOM(buildHtml({ id: 'blk_orphan', slug: 'orphanstore', kind: 'bottle_store'
 pending++;
 runJSDOM(buildHtml(null), (window, doc, click, errors) => {
   const readVenueMeta = window.readVenueMeta;
-  check('c) no meta → readVenueMeta returns null', readVenueMeta() === null);
+  check('c) no meta -> readVenueMeta returns null', readVenueMeta() === null);
 
   function injectAndCheck(kind, name) {
     const existing = doc.querySelector('meta[name="eatouts-venue"]');

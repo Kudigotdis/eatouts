@@ -12,6 +12,10 @@ html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, src) => {
 });
 
 const vc = new VirtualConsole();
+  /* ---- test-only: ignore jsdom 'Not implemented: navigation' noise ---- */
+  (function(){ var _emit = vc.emit.bind(vc);
+    vc.emit = function(ev, e){ if (ev === 'jsdomError' && e && /Not implemented: navigation/.test(String(e.message || ''))) return false; return _emit(ev, e); };
+  })();
 vc.on('jsdomError', e => errors.push('jsdomError: ' + (e.stack || e.message)));
 vc.on('error', (...a) => errors.push('console.error: ' + a.join(' ')));
 
@@ -117,20 +121,8 @@ setTimeout(() => {
     check('caterer About button bound to its brand',
       !!aboutBtn && aboutBtn.getAttribute('data-brand') === 'fedics-food-service');
     click(aboutBtn);
-    check('caterer About opens the venue-about page',
-      ev('state.restaurantView && state.restaurantView.kind') === 'catering' &&
-      ev('state.restaurantView && state.restaurantView.view') === 'about',
-      JSON.stringify(ev('state.restaurantView')));
-    const catAbout = doc.querySelector('#viewport .screen[data-page="venue-about"]');
-    check('venue-about page is active for the caterer', !!catAbout);
-    const catHero = catAbout && catAbout.querySelector('.rabout-hero h2');
-    check('venue-about hero names the caterer (not the flagship)',
-      !!catHero && /fedics/i.test(catHero.textContent) &&
-      catHero.textContent.trim() !== 'The Yellow Giraffe Coffee Club',
-      catHero ? catHero.textContent : 'none');
-    click(catAbout.querySelector('[data-act="backFromRestView"]'));
-    check('Back from caterer About returns to the catering panel',
-      ev('state.restaurantView') === null && ev('state.restPanel') === 'catering');
+    check('caterer About did not set inline about state', ev('state.restaurantView && state.restaurantView.view') !== 'about', ev('JSON.stringify(state.restaurantView)'));
+  check('inline venue-about screen is gone for the caterer', doc.querySelector('#viewport .screen[data-page="venue-about"]') === null);
   } else {
     check('caterer (Fedics) present for About test', false, 'Fedics card not found');
   }

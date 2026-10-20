@@ -513,6 +513,7 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 .pc-fav span{font-size:11px;font-weight:800;color:#a89a7e}
 .pc-toggle{flex:0 0 auto;width:34px;height:34px;border:0;background:transparent;cursor:pointer;font:inherit;font-size:18px;line-height:1;font-weight:900;color:#8a8170;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
 .pc-toggle:active{opacity:.6}
+.pc-chev{flex:0 0 auto;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;font-weight:900;color:#a89a7e}
 .pc-rows{border:2px solid rgba(0,0,0,.10);border-top:0;border-radius:0 0 14px 14px;overflow:hidden;margin-top:-2px}
 .pc-row{display:flex;width:100%;text-align:left;padding:14px 16px;background:#fff;border:0;border-bottom:1px solid #f1ece1;font-size:13.5px;font-weight:800;color:#1a1a1a;text-decoration:none;cursor:pointer;font-family:inherit}
 .pc-row:last-child{border-bottom:0}
@@ -725,6 +726,46 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 a.dlg-btn{display:flex;align-items:center;justify-content:center;text-decoration:none}
 .dlg-btn:active{transform:scale(.985)}
 .dlg-btn.primary{background:#e11d2e;border-color:#e11d2e;color:#ffffff;box-shadow:0 8px 18px rgba(225,29,46,.26)}
+/* ---------- ABOUT TAB POPUPS (guest explainer + profile options) ---------- */
+@keyframes cardAlertIn{from{opacity:0;transform:translate(-50%,-50%) scale(.92)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes cardScrimIn{from{opacity:0}to{opacity:1}}
+.card-alert-scrim.pp{background:rgba(9,13,20,.55);backdrop-filter:blur(8px) saturate(1.1);-webkit-backdrop-filter:blur(8px) saturate(1.1);animation:cardScrimIn .18s ease}
+.card-alert.pp{max-width:340px;animation:cardAlertIn .24s cubic-bezier(.34,1.56,.64,1)}
+.card-alert.pp .card-alert-logo{width:240px;height:120px;max-width:100%;margin:0 auto 16px;border-radius:0;object-fit:contain}
+.card-alert.pp h3{font-size:18px;font-weight:800;line-height:1.25}
+.card-alert.pp .card-alert-actions{flex-direction:row;gap:8px}
+.card-alert.pp .card-alert-actions .dlg-btn{flex:1 1 0;min-width:0;width:auto}
+.card-alert.fpop.pp{left:50%;right:auto;top:50%;bottom:auto;transform:translate(-50%,-50%);padding:0;text-align:left;overflow:hidden;display:flex;flex-direction:column;width:100%;max-width:340px;max-height:calc(100% - 40px)}
+.card-alert.fpop.pp .fpop-head{flex:0 0 auto;padding:14px 16px;border-bottom:1px solid #f1ece1;text-align:center}
+.card-alert.fpop.pp .fpop-title{font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.2}
+.card-alert.fpop.pp .fpop-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:16px;min-height:0}
+.card-alert.fpop.pp .fpop-footer{flex:0 0 auto;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid #f1ece1;background:#ffffff}
+.card-alert.fpop.pp .fpop-back-btn{width:100%;min-height:46px;padding:12px;border-radius:12px;border:1px solid #ece7db;background:#faf8f2;font:inherit;font-size:14px;font-weight:800;color:#1a1a1a;cursor:pointer}
+.about-head{display:flex;flex-direction:column;align-items:center;gap:12px;padding:6px 0 22px;border-bottom:1px solid #f1ece1;margin-bottom:16px}
+.about-thumb{width:90px;height:90px;border-radius:12px;overflow:hidden;background:#e9e5db;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.about-head .about-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.about-name{font-size:18px;font-weight:900;color:#1a1a1a;text-align:center;line-height:1.25}
+.card-alert.fpop.pp .about-menu-row{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;margin-bottom:8px;border:1px solid #f1ece1;border-bottom:1px solid #f1ece1;border-radius:12px;background:#faf8f2;font:inherit;font-size:14px;cursor:pointer;text-align:left}
+.about-menu-label{font-size:14px;font-weight:800;color:#1a1a1a}
+.about-menu-meta{font-size:11px;color:#a89a7e;font-weight:700;margin-top:2px}
+.about-menu-arrow{font-size:20px;color:#c8bda6;font-weight:700;line-height:1}
+.card-alert.fpop.pp .about-signout{width:100%;padding:14px 16px;border:1px solid #f1ece1;border-bottom:1px solid #f1ece1;border-radius:12px;background:#ffffff;font:inherit;font-size:14px;font-weight:800;color:#8a3a3a;margin-top:4px;cursor:pointer;text-align:center}
+.about-fav-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1ece1;width:100%;text-align:left;background:none;border-left:0;border-right:0;border-top:0;font:inherit;cursor:pointer}
+.about-fav-row:last-child{border-bottom:0}
+.about-fav-thumb{width:90px;height:90px;flex:0 0 auto;border-radius:10px;overflow:hidden;background:#f1ece1;display:flex;align-items:center;justify-content:center;position:relative}
+.about-fav-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.about-fav-info{flex:1;min-width:0}
+.about-fav-name{font-size:14px;font-weight:800;color:#1a1a1a;line-height:1.3}
+.about-fav-meta{font-size:12px;color:#8a8170;font-weight:600;margin-top:3px}
+.about-tile{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px}
+.about-empty{text-align:center;color:#a89a7e;padding:24px 0;font-size:13px}
+.about-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0}
+.card-alert.fpop.pp .about-gcell{aspect-ratio:1;background:#f1ece1;border:0;border-bottom:0;border-radius:6px;overflow:hidden;cursor:pointer;padding:0;display:block;width:100%}
+.card-alert.fpop.pp .about-gcell:active{background:#f4efe4}
+.about-gcell .about-tile{font-size:42px}
+.about-rev{position:fixed;inset:0;z-index:92;display:flex;align-items:center;justify-content:center;padding:10vh 8vw;background:rgba(20,18,12,.65);backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1);animation:cardScrimIn .18s ease}
+.about-rev .about-rev-img{width:min(80vw,320px);height:min(80vw,320px);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.about-rev-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.18);color:#ffffff;border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
 .ropt:active{background:#f4efe4;border-color:#1a1a1a;transform:translateY(1px)}
 .ropt em{font-style:normal;font-size:9px;color:#a89a7e;font-weight:800;letter-spacing:.08em;text-transform:uppercase;flex:0 0 auto}
 
@@ -833,6 +874,7 @@ a.dlg-btn{display:flex;align-items:center;justify-content:center;text-decoration
 <script src="js/eatouts-content.js"></script>
 <script src="js/eatouts-slug.js"></script>
 <script src="js/eatouts-router.js"></script>
+
 <script>
 /* ================================================================
    CONFIG & CONSTANTS
@@ -3573,8 +3615,13 @@ profilePhoto:null,
   restLocPicker:null,
   restNotice:null,
   cardAlert:null,
+  /* About tab popups: null | guest-main | guest-feature | profile-options |
+     favourites | orders | summaries | gallery */
+  about:null,
+  aboutFeature:null,
+  aboutPreview:null,
   restaurantView:null,
-  venueAboutOrphan:null,
+
   restTown:"All",
   restDistrict:"",
   restDistrictName:"",
@@ -5602,62 +5649,22 @@ function renderRestLocPicker(){
   return h+'</div>';
 }
 
-function renderVenueNotFound(rv){
-  var slug=rv&&rv.slug?rv.slug:"";
-  var name=rv&&rv.name?rv.name:"Business not available";
-  document.title="Business not available — EatOuts";
-  var robots=document.querySelector('meta[name="robots"][data-orphan="1"]');
-  if(!robots){
-    robots=document.createElement("meta");
-    robots.name="robots";
-    robots.dataset.orphan="1";
-    var head=document.getElementsByTagName("head")[0];
-    if(head)head.appendChild(robots);
-  }
-  robots.content="noindex";
-  if(rv&&!window.__orphanReported){
-    window.__orphanReported=window.__orphanReported||{};
-    if(!window.__orphanReported[rv.slug]){
-      window.__orphanReported[rv.slug]=true;
-      try{navigator.sendBeacon("/api/links/check",JSON.stringify({slug:rv.slug,kind:rv.kind,name:rv.name}));}catch(e){}
-    }
-  }
-  return '<div class="pad" style="padding-top:0"><div class="empty"><h2>Business not available</h2><p>This '+esc(rv&&rv.kind?rv.kind:"venue")+' is not available right now. Browse other businesses instead.</p><button class="btn full" data-act="backFromRestView">Browse businesses</button></div></div>';
-}
 
-function renderRestaurantAboutShell(rv){
-  var name=rv&&rv.name?rv.name:rv.slug;
-  return '<div class="pad" style="padding-top:0" id="venueAboutShell"><h2>'+esc(name)+'</h2><p class="venue-loading">Loading venue details…</p><div class="skeleton" style="margin:16px 0;height:48px;background:#e8e2d8;border-radius:8px"></div><div class="skeleton" style="margin:8px 0;height:24px;background:#e8e2d8;border-radius:4px;width:70%"></div><p class="venue-unavailable" style="margin-top:16px;color:#666;font-size:13px;display:none">Details temporarily unavailable. Try refreshing.</p></div>';
-}
+
+
+
+
+
+function renderHeader(){
+    const hdr=document.getElementById("hdr");
+    if(state.tab==="about" && state.aboutView==="gallery"){hdr.classList.add("hide");}
+    else{hdr.classList.remove("hide");}
+  }
 
 function renderRestaurantSubView(){
   const rv=state.restaurantView;
-  if(state.venueAboutOrphan)return page("venue-about",renderVenueNotFound(state.venueAboutOrphan));
-
-  /* Non-restaurant venues: resolve from the client-side directories, no
-     bridge lookup. Their About page reuses the venue-about screen. */
-  if(rv&&rv.kind==="catering"){
-    const api=cateringAPI();
-    const brand=api?(api.get(rv.brand||"")||api.get(rv.id||"")):null;
-    if(!brand){state.restaurantView=null;state.restPanel="catering";return page("restaurants-pager",renderRestaurantsPager());}
-    const active=cateringActiveBranch(brand);
-    const crumb='<div class="crumb"><button data-act="backFromRestView">Catering</button>'+
-                '<span class="sep">/</span><span class="cur">'+esc(brand.name)+'</span></div>';
-    return page("venue-about",'<div class="scroll">'+crumb+renderCateringAbout(brand,active)+'<div style="height:24px"></div></div>');
-  }
-  if(rv&&rv.kind==="bottle_store"){
-    const api=bottleAPI();
-    const brand=api?(api.get(rv.brand||"")||api.get(rv.id||"")):null;
-    if(!brand){state.restaurantView=null;state.restPanel="beverages";return page("restaurants-pager",renderRestaurantsPager());}
-    const active=bottleActiveBranch(brand);
-    const crumb='<div class="crumb"><button data-act="backFromRestView">Beverages</button>'+
-                '<span class="sep">/</span><span class="cur">'+esc(brand.name)+'</span></div>';
-    return page("venue-about",'<div class="scroll">'+crumb+renderBottleStoreAbout(brand,active)+'<div style="height:24px"></div></div>');
-  }
-
   const r=rv&&hasBridge()?EatoutsBridge.byId(rv.id):null;
   if(!r){
-    if(rv.view==="about") return page("venue-about",renderRestaurantAboutShell(rv));
     state.restaurantView=null;return page("restaurants-pager",renderRestaurants());
   }
   EatoutsBridge.setActive(r.id);
@@ -5683,8 +5690,8 @@ function renderRestaurantSubView(){
   let inner="";
   if(rv.view==="venue")  inner=renderRestaurantVenue(r);
   if(rv.view==="promos") inner=renderRestaurantPromos(r);
-  if(rv.view==="about")  inner=renderRestaurantAbout(r);
-  const id=rv.view==="venue"?"venue-book":rv.view==="promos"?"venue-promos":"venue-about";
+
+  const id=rv.view==="venue"?"venue-book":"venue-promos";
   return page(id,'<div class="scroll">'+crumb+inner+'<div style="height:24px"></div></div>');
 }
 
@@ -5774,13 +5781,10 @@ const SOCIAL_ICON={
   instagram:"iconIG", facebook:"iconFB", whatsapp:"iconWA", tiktok:"iconTT",
   twitter:"iconX", youtube:"iconYT", website:"iconWeb", call:"iconCall", gps:"iconGPS"
 };
-/* unavailable / no-destination glyph per platform, used by the off state */
 const SOCIAL_OFF_ICON={
   instagram:"iconIGOff", facebook:"iconFBOff", whatsapp:"iconWAOff", tiktok:"iconTTOff",
   twitter:"iconXOff", youtube:"iconYTOff", website:"iconWebOff", call:"iconCallOff", gps:"iconGPSOff"
 };
-/* canonical row: line one holds the first five (370px exactly), the rest
-   drop onto the second, centred line */
 const SOCIAL_GRID=[
   {platform:"instagram"},
   {platform:"facebook"},
@@ -5796,6 +5800,7 @@ const SOCIAL_LABEL={
   instagram:"Instagram", facebook:"Facebook", whatsapp:"WhatsApp", tiktok:"TikTok",
   twitter:"X (Twitter)", youtube:"YouTube", website:"Website", call:"Call", gps:"Location"
 };
+
 function socialHandle(v){
   return String(v||"").trim().replace(/^https?:\/\//i,"").replace(/^www\./i,"").replace(/^@/,"").replace(/\/+$/,"");
 }
@@ -5830,10 +5835,29 @@ function socialPlatformFromUrl(url){
   if(/(maps\.app\.goo\.gl|google\.[a-z.]+\/maps|goo\.gl\/maps)/.test(u)) return "gps";
   return "website";
 }
-/* socials[] is free-form in the DB: entries can be a plain URL string, a
-   {url,platform} record, or a {instagram:'handle',facebook:'…'} map keyed
-   by platform (what onboarding writes). Handle all three and drop anything
-   we cannot link to rather than rendering a dead icon. */
+function socialImg(platform,label,on){
+  const id=String(platform||"").toLowerCase().replace(/[^a-z]/g,"");
+  const table=on?SOCIAL_ICON:SOCIAL_OFF_ICON;
+  const key=(table[id]||SOCIAL_ICON[id]||SOCIAL_ICON.website)||"iconIG";
+  return '<img src="'+IMG[key]+'" alt="'+esc(label||SOCIAL_LABEL[id]||"Link")+'">';
+}
+/* one grid slot: live anchor when a destination exists, otherwise the
+   off-colour glyph, never a dead link */
+function socialSlot(platform,url,label){
+  const name=label||SOCIAL_LABEL[platform]||"Link";
+  if(url){
+    return '<a class="social-ico" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(name)+'">'+socialImg(platform,name,true)+'</a>';
+  }
+  return '<span class="social-ico off" role="img" aria-label="'+esc(name+" — contact unavailable")+'">'+socialImg(platform,name,false)+'</span>';
+}
+/* contact numbers live on the profile: prefer the primary one */
+function restCallHref(profile){
+  const list=(profile&&profile.contacts)||[];
+  const usable=list.filter(function(c){return c&&c.number&&c.active!==false;});
+  const pick=usable.filter(function(c){return c.primary;})[0]||usable[0];
+  if(!pick) return "";
+  return socialUrl("call",(pick.countryCode||"+267")+" "+pick.number);
+}
 function restSocialLinks(r){
   const out=[];
   const push=function(platform,value,label){
@@ -5862,31 +5886,7 @@ function restSocialLinks(r){
   });
   return out;
 }
-/* contact numbers live on the profile: prefer the primary one */
-function restCallHref(profile){
-  const list=(profile&&profile.contacts)||[];
-  const usable=list.filter(function(c){return c&&c.number&&c.active!==false;});
-  const pick=usable.filter(function(c){return c.primary;})[0]||usable[0];
-  if(!pick) return "";
-  return socialUrl("call",(pick.countryCode||"+267")+" "+pick.number);
-}
-function socialImg(platform,label,on){
-  const id=String(platform||"").toLowerCase().replace(/[^a-z]/g,"");
-  const table=on?SOCIAL_ICON:SOCIAL_OFF_ICON;
-  const key=(table[id]||SOCIAL_ICON[id]||SOCIAL_ICON.website)||"iconIG";
-  return '<img src="'+IMG[key]+'" alt="'+esc(label||SOCIAL_LABEL[id]||"Link")+'">';
-}
-/* one grid slot: live anchor when a destination exists, otherwise the
-   off-colour glyph, never a dead link */
-function socialSlot(platform,url,label){
-  const name=label||SOCIAL_LABEL[platform]||"Link";
-  if(url){
-    return '<a class="social-ico" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(name)+'">'+socialImg(platform,name,true)+'</a>';
-  }
-  return '<span class="social-ico off" role="img" aria-label="'+esc(name+" — contact unavailable")+'">'+socialImg(platform,name,false)+'</span>';
-}
-/* the About tab's fixed grid: the four channels EatOuts has no profile for
-   yet render their off glyph */
+/* About tab's own social row (shared help text). */
 function renderAboutSocialRow(){
   let row='<div class="social-row">';
   row+=socialSlot("instagram","https://www.instagram.com/theyellowgiraffebw/");
@@ -5901,177 +5901,6 @@ function renderAboutSocialRow(){
   row+=socialSlot("gps","https://maps.app.goo.gl/ftCWbv24eRgmd3uYA");
   row+='</div>';
   return row;
-}
-function renderRestSocialRow(r,profile){
-  const links=restSocialLinks(r);
-  const have={};
-  links.forEach(function(l){ if(!have[l.platform]) have[l.platform]=l.url; });  /* one slot per platform */
-  const call=restCallHref(profile);
-  if(call&&!have.call) have.call=call;
-  /* WhatsApp always applies, and guarantees the row is never empty */
-  if(!have.whatsapp){
-    have.whatsapp=waLink("*"+(r.name||"this restaurant")+"*\n\nHi! I found you on EatOuts and would like to ask about your menu, promos or booking a venue.",r);
-  }
-  let row='<div class="social-row">';
-  SOCIAL_GRID.forEach(function(slot){
-    row+=socialSlot(slot.platform,have[slot.platform]||"");
-  });
-  row+='</div>';
-  return row;
-}
-/* PAGE: venue-about — About */
-function renderRestaurantAbout(r){
-  const bundle=EatoutsBridge.bundleOf(r.id);
-  const p=(bundle&&bundle.profile)||{};
-  const owns=!!(bundle&&!bundle.isSharing);
-  const oh=p.operating_hours||{};
-  const loc=p.location||{};
-  const logo=restLogo(r);
-  const rbrand=brandKeyOf(r);
-  const rtown=String((r.location&&r.location.town)||"").trim();
-  const rarea=String((r.location&&r.location.area)||"").trim();
-  const rcat=(r.types&&r.types.length?r.types.join(" · "):"Restaurant");
-
-  let h='';
-  /* logo gets its own roomy slot between the crumb and the hero */
-  if(logo) h+='<div class="rabout-logo"><img src="'+esc(logo)+'" alt="'+esc(r.name)+'"></div>';
-  /* The shared content template is every venue's default profile, so its
-     name belongs to the flagship. Only trust the profile name when the
-     venue owns its content; otherwise show the venue's own name. */
-  h+='<div class="rabout-hero">';
-  h+='<h2>'+esc((owns&&p.name)||r.name)+'</h2>';
-  h+='<p>'+esc(rcat)+' · '+esc(EatoutsBridge.placeLabel(r)||"")+'</p></div>';
-
-  h+='<div class="pad" style="padding-top:16px;padding-bottom:0">'+renderRestSocialRow(r,p)+'</div>';
-
-  /* Menu accordion under social-row */
-  h+='<div class="venuemenu'+(state.venueMenuOpen?" open":"")+'" data-vmacc="menu">';
-  h+='<button class="vmrow" data-act="toggleVenueMenu" aria-expanded="'+(state.venueMenuOpen?"true":"false")+'">Options</button>';
-  h+='<div class="acc-wrap"><div class="acc-in"><div class="ropts brows">';
-  h+='<button class="line line-select'+(rtown?" is-set":"")+'" data-act="openRestLocPicker" data-brand="'+esc(rbrand)+'" data-axis="town" aria-haspopup="listbox"><span>'+esc(rtown||"Select Town / City")+'</span></button>';
-  h+='<button class="line line-select'+(rarea?" is-set":"")+'" data-act="openRestLocPicker" data-brand="'+esc(rbrand)+'" data-axis="area" aria-haspopup="listbox"><span>'+esc(rarea||"Select Neighbourhood")+'</span></button>';
-  h+='<button class="line line-action" data-act="openRestView" data-id="'+esc(r.id)+'" data-brand="'+esc(rbrand)+'" data-view="menu">Menu</button>';
-  h+='<button class="line line-action" data-act="openRestView" data-id="'+esc(r.id)+'" data-brand="'+esc(rbrand)+'" data-view="promos">Promos</button>';
-  h+='</div></div></div>';
-  h+='</div>';
-
-  h+='<div class="pad">';
-  h+='<div class="subh">Location</div>';
-  if(loc.street) h+='<div class="kv"><span class="k">Street</span><span class="v">'+esc(loc.street)+'</span></div>';
-  if(r.location.town) h+='<div class="kv"><span class="k">Town</span><span class="v">'+esc(r.location.town)+'</span></div>';
-  if(r.location.area) h+='<div class="kv"><span class="k">Area</span><span class="v">'+esc(r.location.area)+'</span></div>';
-  if(r.landmark) h+='<div class="kv"><span class="k">Landmark</span><span class="v">'+esc(r.landmark)+'</span></div>';
-
-  if(oh.weekday_early){
-    h+='<div class="subh" style="margin-top:20px">Operating Hours</div>';
-    h+='<div class="kv"><span class="k">'+(oh.weekday_early.days||[]).join(', ')+'</span><span class="v">'+esc(oh.weekday_early.open)+' – '+esc(oh.weekday_early.close)+'</span></div>';
-    if(oh.weekday_late) h+='<div class="kv"><span class="k">'+(oh.weekday_late.days||[]).join(', ')+'</span><span class="v">'+esc(oh.weekday_late.open)+' – '+esc(oh.weekday_late.close)+'</span></div>';
-    if(oh.weekend) h+='<div class="kv"><span class="k">'+(oh.weekend.days||[]).join(', ')+'</span><span class="v">'+esc(oh.weekend.open)+' – '+esc(oh.weekend.close)+'</span></div>';
-    if(oh.closed&&oh.closed.days&&oh.closed.days.length) h+='<div class="kv"><span class="k">'+oh.closed.days.join(', ')+'</span><span class="v">Closed</span></div>';
-  }
-  if(p.attributes&&p.attributes.ambience&&p.attributes.ambience.length){
-    h+='<div class="subh" style="margin-top:20px">Ambience</div><div class="tagwrap">'+
-       p.attributes.ambience.map(function(a){return '<span class="chip">'+esc(a)+'</span>';}).join("")+'</div>';
-  }
-  if(p.attributes&&p.attributes.amenities&&p.attributes.amenities.length){
-    h+='<div class="subh" style="margin-top:20px">Amenities</div><div class="tagwrap">'+
-       p.attributes.amenities.map(function(a){return '<span class="chip">'+esc(a)+'</span>';}).join("")+'</div>';
-  }
-  if(p.menu_tags&&p.menu_tags.length){
-    h+='<div class="subh" style="margin-top:20px">Menu Tags</div><div class="tagwrap">'+
-       p.menu_tags.map(function(t){return '<span class="chip g">'+esc(t)+'</span>';}).join("")+'</div>';
-  }
-  if(bundle&&bundle.isSharing){
-    h+='<div class="pad" style="padding-top:18px"><div class="ctr"><div class="lbl"><em style="margin:0">'+
-       'Showing the EatOuts standard menu. This venue has not published its own menu yet.</em></div></div></div>';
-  }
-  h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waRestAbout" data-id="'+esc(r.id)+'">Send via WhatsApp</button></div>';
-  /* Back sits under the WhatsApp button so the page can be left without
-     reaching for the crumb at the top */
-  h+='<div style="margin-top:10px"><button class="btn ghost full" data-act="backCats">Back to Menu</button></div>';
-  h+='</div>';
-  return h;
-}
-
-/* PAGE: venue-about — About */
-/* Shared About body for the non-restaurant directories (catering, bottle
-   stores). Same hero + Options accordion + Location layout as a restaurant
-   About, so every venue type reaches the same data-page="venue-about". */
-function venueAboutLocationRows(branch){
-  let h='';
-  if(branch&&branch.address) h+='<div class="kv"><span class="k">Address</span><span class="v">'+esc(branch.address)+'</span></div>';
-  if(branch&&branch.town) h+='<div class="kv"><span class="k">Town</span><span class="v">'+esc(branch.town)+'</span></div>';
-  if(branch&&branch.area) h+='<div class="kv"><span class="k">Area</span><span class="v">'+esc(branch.area)+'</span></div>';
-  if(branch&&branch.phones&&branch.phones.length) h+='<div class="kv"><span class="k">Phone</span><span class="v">'+esc(branch.phones.join(", "))+'</span></div>';
-  return h;
-}
-function venueAboutOptions(menuAct,locAct,brandSlug,branch,townLabel,areaLabel){
-  const townSel=String((branch&&branch.town)||"").trim();
-  const areaSel=String((branch&&branch.area)||"").trim();
-  let h='<div class="venuemenu'+(state.venueMenuOpen?" open":"")+'" data-vmacc="menu">';
-  h+='<button class="vmrow" data-act="toggleVenueMenu" aria-expanded="'+(state.venueMenuOpen?"true":"false")+'">Options</button>';
-  h+='<div class="acc-wrap"><div class="acc-in"><div class="ropts brows">';
-  h+='<button class="line line-select'+(townSel?" is-set":"")+'" data-act="'+locAct+'" data-brand="'+esc(brandSlug)+'" data-axis="town" aria-haspopup="listbox"><span>'+esc(townSel||townLabel)+'</span></button>';
-  h+='<button class="line line-select'+(areaSel?" is-set":"")+'" data-act="'+locAct+'" data-brand="'+esc(brandSlug)+'" data-axis="area" aria-haspopup="listbox"><span>'+esc(areaSel||areaLabel)+'</span></button>';
-  h+='<button class="line line-action" data-act="'+menuAct+'" data-brand="'+esc(brandSlug)+'">Menu</button>';
-  h+='</div></div></div>';
-  h+='</div>';
-  return h;
-}
-function renderCateringAbout(brand,active){
-  const logo=brand.logo||null;
-  const place=[(active&&active.area),(active&&active.town)].filter(Boolean).join(" · ");
-  let h='';
-  if(logo) h+='<div class="rabout-logo"><img src="'+esc(logo)+'" alt="'+esc(brand.name)+'"></div>';
-  h+='<div class="rabout-hero">';
-  h+='<h2>'+esc(brand.name)+'</h2>';
-  h+='<p>'+esc(brand.type||"Catering service")+(place?' · '+esc(place):'')+'</p></div>';
-
-  h+='<div class="pad" style="padding-top:16px;padding-bottom:0">'+venueAboutOptions("openCateringMenu","openCateringLocPicker",brand.slug,active,"Select Town / City","Select Neighbourhood")+'</div>';
-
-  h+='<div class="pad">';
-  h+='<div class="subh">Location</div>';
-  h+=venueAboutLocationRows(active)||'<div class="kv"><span class="k">Address</span><span class="v">Not on file</span></div>';
-  h+='<div class="subh" style="margin-top:20px">Details</div>';
-  h+='<div class="kv"><span class="k">Type</span><span class="v">'+esc(brand.type||"Catering service")+'</span></div>';
-  if(brand.locationCount>1) h+='<div class="kv"><span class="k">Branches</span><span class="v">'+esc(String(brand.locationCount))+'</span></div>';
-  if(active&&active.established) h+='<div class="kv"><span class="k">Established</span><span class="v">'+esc(String(active.established))+'</span></div>';
-  if(active&&active.yearsWithUs) h+='<div class="kv"><span class="k">Years with EatOuts</span><span class="v">'+esc(String(active.yearsWithUs))+'</span></div>';
-  h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waCateringAbout" data-brand="'+esc(brand.slug)+'">Send via WhatsApp</button></div>';
-  h+='<div style="margin-top:10px"><button class="btn ghost full" data-act="backFromRestView">Back to Catering</button></div>';
-  h+='</div>';
-  return h;
-}
-function renderBottleStoreAbout(brand,active){
-  const logo=brand.logo||null;
-  const place=[(active&&active.area),(active&&active.town)].filter(Boolean).join(" · ");
-  let h='';
-  if(logo) h+='<div class="rabout-logo"><img src="'+esc(logo)+'" alt="'+esc(brand.name)+'"></div>';
-  h+='<div class="rabout-hero">';
-  h+='<h2>'+esc(brand.name)+'</h2>';
-  h+='<p>'+esc(brand.isChain?"Liquor chain":"Bottle & liquor store")+(place?' · '+esc(place):'')+'</p></div>';
-
-  h+='<div class="pad" style="padding-top:16px;padding-bottom:0">'+venueAboutOptions("openBottleMenu","openBottleLocPicker",brand.slug,active,"Select Town / City","Select Neighbourhood")+'</div>';
-
-  h+='<div class="pad">';
-  h+='<div class="subh">Location</div>';
-  h+=venueAboutLocationRows(active)||'<div class="kv"><span class="k">Address</span><span class="v">Not on file</span></div>';
-  h+='<div class="subh" style="margin-top:20px">Details</div>';
-  h+='<div class="kv"><span class="k">Type</span><span class="v">'+esc(brand.isChain?"Liquor chain":"Bottle & liquor store")+'</span></div>';
-  if(brand.locationCount>1) h+='<div class="kv"><span class="k">Branches</span><span class="v">'+esc(String(brand.locationCount))+'</span></div>';
-  h+='<div style="margin-top:22px"><button class="btn wa full" data-act="waBottle" data-brand="'+esc(brand.slug)+'">Send via WhatsApp</button></div>';
-  h+='<div style="margin-top:10px"><button class="btn ghost full" data-act="backFromRestView">Back to Bottle Stores</button></div>';
-  h+='</div>';
-  return h;
-}
-
-/* ================================================================
-   RENDER: Shell
-   ================================================================ */
-function renderHeader(){
-  const hdr=document.getElementById("hdr");
-  if(state.tab==="about" && state.aboutView==="gallery"){hdr.classList.add("hide");}
-  else{hdr.classList.remove("hide");}
 }
 const NAV_TABS=[
   {id:"promos",icon:ICON.tag},
@@ -6307,7 +6136,7 @@ const PAGE_TITLES={
   "venue-menu-item":"Menu · Item",
   "venue-checkout":"Checkout",
   "venue-checkout-split":"Split the Bill",
-  "venue-about":"About",
+
   "venue-promos":"Promos",
   "venue-promo-detail":"Promo",
   "venue-book":"Book Venue",
@@ -6346,7 +6175,7 @@ function pageRef(){
     case "venue-checkout-split":
     case "venue-book":
     case "venue-promos":
-    case "venue-about":              return vid;
+
     case "venue-menu-item":          return vid+(state.menuCat?":"+state.menuCat:"");
     case "venue-promo-detail":       return vid+(rv&&rv.promoId?":"+rv.promoId:"");
     case "promos-detail":
@@ -6392,7 +6221,7 @@ function renderViewport(){
   const pageId=activePage||"";
   const pageTitle=PAGE_TITLES[pageId]||"";
   const pageIns=pageRef();
-  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'" data-page="'+esc(pageId)+'" data-page-title="'+esc(pageTitle)+'" data-page-ref="'+esc(pageIns)+'">'+screenHtml+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderCateringLocPicker()+renderRestNotice()+renderCardAlert()+renderPromoMonthPicker()+renderPromoWeekPicker();
+  vp.innerHTML='<div class="screen'+((viewChanged&&!panelFade)?" anim":"")+'" data-page="'+esc(pageId)+'" data-page-title="'+esc(pageTitle)+'" data-page-ref="'+esc(pageIns)+'">'+screenHtml+'</div>'+renderPreview()+renderRestLocPicker()+renderBottleLocPicker()+renderCateringLocPicker()+renderRestNotice()+renderCardAlert()+renderPromoMonthPicker()+renderPromoWeekPicker()+renderAboutPopup()+renderAboutPreview();
   if(document.body){ document.body.dataset.page=pageId; document.body.dataset.pageRef=pageIns; }
   if(doFade&&prevScreen){
     const old=prevScreen.cloneNode(true);
@@ -6453,8 +6282,7 @@ function renderScreen(){
         return page("venue-promo-detail",'<div class="scroll">'+renderRestaurantPromoDetail(r,state.restaurantView.promoId)+'<div style="height:24px"></div></div>');
       }
     }
-    if(state.venueAboutOrphan)return page("venue-about",renderVenueNotFound(state.venueAboutOrphan));
-    if(state.restaurantView)return renderRestaurantSubView();
+      if(state.restaurantView)return renderRestaurantSubView();
     loadBeverageData();
     return renderRestaurantsPager();
   }
@@ -7533,6 +7361,137 @@ function renderCardAlert(){
   return h;
 }
 
+/* ---------- ABOUT TAB POPUPS (guest explainer + profile options) ---------- */
+const ABOUT_GUEST_FEATURES=[
+  {id:"favourites",label:"Favourites",heading:"Everything you love, one tap away",copy:"Tap the heart on any dish, drink, promo or venue and it lands here — your personal shortlist of all the good stuff. Promos, restaurants, bottle stores and more, ready when you are."},
+  {id:"orders",label:"Orders",heading:"Your order history, sorted",copy:"Every order you've placed, neatly lined up with dates, totals and venues. Reorder a favourite in a tap, or look back at what hit the spot last time."},
+  {id:"summaries",label:"Summaries",heading:"Saved totals, ready when you are",copy:"Building a menu or planning a get-together? Save the summary here and come back anytime — pick up where you left off, or share it with whoever's splitting the bill."},
+  {id:"gallery",label:"Gallery",heading:"Your photos, all in one grid",copy:"Every EatOuts photo you've saved — dishes, venues, moments — gathered into a clean, scrollable grid. A little visual diary of your food adventures."}
+];
+const ABOUT_PALETTES=["#3b2a12,#8a5410","#2c1a10,#7a3a18","#1f2c1a,#3f7a2a","#2c1a24,#7a2c4a","#1a2434,#2c6288","#342a18,#9a761c","#241c2e,#62407e","#2c2014,#8a4a2a","#142c2e,#2c8a76","#2c2618,#767628","#341c1c,#96302c","#1c1c30,#40408a"];
+/* placeholder data for the parts with no customer store yet (Orders + Gallery) */
+const ABOUT_DEMO_ORDERS=[
+  {id:"o1",title:"Lunch at The Yellow Giraffe",date:"18 Oct 2026",emoji:"🍽"},
+  {id:"o2",title:"Friday Pizza Night",date:"12 Oct 2026",emoji:"🍕"},
+  {id:"o3",title:"Groceries from Tops at Spar",date:"05 Oct 2026",emoji:"🛒"}
+];
+const ABOUT_DEMO_GALLERY=(function(){var e=["🍕","🍔","🍣","🍝","🍰","🍺","🍷","🥂","🍜","🍩","🍦","🥗"];var a=[];for(var i=0;i<30;i++)a.push({id:"g"+i,emoji:e[i%e.length]});return a;})();
+
+function aboutHash(s){var h=0;var t=String(s||"");for(var i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return Math.abs(h);}
+function aboutTile(emoji,seed){var c=ABOUT_PALETTES[aboutHash(seed||emoji)%ABOUT_PALETTES.length];return '<div class="about-tile" style="background:linear-gradient(135deg,'+c+')">'+emoji+'</div>';}
+function aboutTypeEmoji(t){return {restaurant:"🍽",catering:"🍽",bottle_store:"🍷",promo:"🏷",beverage:"🥤",item:"🍽",menu:"🍽",gallery:"🖼",event:"🎵",venue:"🏟",supplier:"🤝"}[t]||"⭐";}
+function aboutUser(){return (window.EatoutsCustomer&&EatoutsCustomer.getUser&&EatoutsCustomer.getUser())||null;}
+function aboutFavList(){return (aboutUser()&&window.EatoutsCustomer&&EatoutsCustomer.favourites)?EatoutsCustomer.favourites.list():[];}
+function aboutSummaryList(){return (aboutUser()&&window.EatoutsCustomer&&EatoutsCustomer.summaries)?EatoutsCustomer.summaries.list():[];}
+function aboutUserPhoto(){var u=aboutUser();return state.profilePhoto||(u&&u.photoKey)||null;}
+function aboutFmtDate(v){try{var d=new Date(v);if(isNaN(d.getTime()))return "";return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});}catch(e){return "";}}
+function aboutFavImage(ref){return (typeof ref==="string"&&/\.(png|jpe?g|webp|gif|svg)$/i.test(ref))?ref:null;}
+
+function aboutBack(){
+  var v=state.about;
+  if(!v)return;
+  if(v==="guest-feature"){state.about="guest-main";state.aboutFeature=null;}
+  else if(v==="profile-options"){state.about=null;}
+  else if(v==="favourites"||v==="orders"||v==="summaries"||v==="gallery"){state.about="profile-options";}
+  else{state.about=null;}
+  render();
+}
+function renderAboutGuestMain(){
+  var h='<div class="card-alert-scrim pp" data-act="aboutClose"></div>';
+  h+='<div class="card-alert pp" role="alertdialog" aria-modal="true">';
+  h+='<img class="card-alert-logo" src="'+IMG.eatoutsLogo+'" alt="">';
+  h+='<div class="card-alert-options">';
+  ABOUT_GUEST_FEATURES.forEach(function(f){h+='<button class="card-opt" data-act="aboutFeature" data-id="'+f.id+'">'+esc(f.label)+'</button>';});
+  h+='</div>';
+  h+='<div class="card-alert-actions"><a class="dlg-btn primary" href="eatouts-login.html">Sign In</a><button class="dlg-btn" data-act="aboutClose">Not Now</button></div>';
+  h+='</div>';
+  return h;
+}
+function renderAboutGuestFeature(){
+  var f=ABOUT_GUEST_FEATURES.filter(function(x){return x.id===state.aboutFeature;})[0];
+  if(!f)return '';
+  var h='<div class="card-alert-scrim pp" data-act="aboutClose"></div>';
+  h+='<div class="card-alert pp" role="alertdialog" aria-modal="true">';
+  h+='<img class="card-alert-logo" src="'+IMG.eatoutsLogo+'" alt="">';
+  h+='<h3>'+esc(f.heading)+'</h3><p>'+esc(f.copy)+'</p>';
+  h+='<div class="card-alert-actions"><button class="dlg-btn" data-act="aboutBack">Back</button><a class="dlg-btn primary" href="eatouts-user-onboarding.html">Create Account</a></div>';
+  h+='</div>';
+  return h;
+}
+function aboutShell(title,body,opts){
+  var label=state.about==="profile-options"?"Back to About":"Back to Profile";
+  var h='<div class="card-alert-scrim pp" data-act="aboutClose"></div>';
+  h+='<div class="card-alert fpop pp" role="alertdialog" aria-modal="true">';
+  h+='<div class="fpop-head"><div class="fpop-title">'+esc(title)+'</div></div>';
+  h+='<div class="fpop-body"'+(opts&&opts.bodyStyle?' style="'+opts.bodyStyle+'"':'')+'>'+body+'</div>';
+  h+='<div class="fpop-footer"><button class="fpop-back-btn" data-act="aboutBack">'+esc(label)+'</button></div>';
+  h+='</div>';
+  return h;
+}
+function renderAboutProfileOptions(){
+  var u=aboutUser();var photo=aboutUserPhoto();
+  var body='<div class="about-head">';
+  body+='<span class="about-thumb" data-act="aboutAvatar">'+(photo?'<img src="'+esc(photo)+'" alt="">':'<img src="'+IMG.iconHeartOn+'" style="opacity:.35" alt="">')+'</span>';
+  body+='<div class="about-name">'+esc((u&&(u.name||u.username))||"My Profile")+'</div>';
+  body+='</div>';
+  body+='<button class="about-menu-row" data-act="aboutNav" data-view="favourites"><div><div class="about-menu-label">Favourites</div><div class="about-menu-meta">'+aboutFavList().length+' saved</div></div><span class="about-menu-arrow">›</span></button>';
+  body+='<button class="about-menu-row" data-act="aboutNav" data-view="orders"><div><div class="about-menu-label">Orders</div><div class="about-menu-meta">'+ABOUT_DEMO_ORDERS.length+' past orders</div></div><span class="about-menu-arrow">›</span></button>';
+  body+='<button class="about-menu-row" data-act="aboutNav" data-view="summaries"><div><div class="about-menu-label">Summaries</div><div class="about-menu-meta">'+aboutSummaryList().length+' saved</div></div><span class="about-menu-arrow">›</span></button>';
+  body+='<button class="about-menu-row" data-act="aboutNav" data-view="gallery"><div><div class="about-menu-label">Gallery</div><div class="about-menu-meta">'+ABOUT_DEMO_GALLERY.length+' photos</div></div><span class="about-menu-arrow">›</span></button>';
+  body+='<button class="about-signout" data-act="customerLogout">Sign out</button>';
+  return aboutShell("My Profile",body);
+}
+function renderAboutFavourites(){
+  var items=aboutFavList();var body='';
+  if(!items.length)body+='<div class="about-empty">Nothing saved yet.</div>';
+  items.forEach(function(f){
+    var img=aboutFavImage(f.imageRef);
+    var thumb=img?'<img src="'+esc(img)+'" alt="">':aboutTile(aboutTypeEmoji(f.type),f.id||f.refId||f.title);
+    body+='<div class="about-fav-row"><span class="about-fav-thumb">'+thumb+'</span><div class="about-fav-info"><div class="about-fav-name">'+esc(f.title||f.refId||"Saved")+'</div><div class="about-fav-meta">'+esc(f.subtitle||f.type||"Saved")+'</div></div></div>';
+  });
+  return aboutShell("Favourites",body);
+}
+function renderAboutOrders(){
+  var body='';
+  ABOUT_DEMO_ORDERS.forEach(function(o){body+='<div class="about-fav-row"><span class="about-fav-thumb">'+aboutTile(o.emoji,o.id)+'</span><div class="about-fav-info"><div class="about-fav-name">'+esc(o.title)+'</div><div class="about-fav-meta">'+esc(o.date)+'</div></div></div>';});
+  return aboutShell("Orders",body);
+}
+function renderAboutSummaries(){
+  var items=aboutSummaryList();var body='';
+  if(!items.length)body+='<div class="about-empty">No saved summaries yet.</div>';
+  items.forEach(function(s){
+    var title=s.venueName||s.title||"Saved summary";var meta=[];
+    var d=aboutFmtDate(s.created_at);if(d)meta.push(d);
+    if(s.itemCount)meta.push(s.itemCount+" item"+(s.itemCount>1?"s":""));
+    if(s.total!=null)meta.push("P"+Number(s.total).toFixed(2));
+    body+='<div class="about-fav-row"><span class="about-fav-thumb">'+aboutTile("🧾",s.id||title)+'</span><div class="about-fav-info"><div class="about-fav-name">'+esc(title)+'</div><div class="about-fav-meta">'+esc(meta.join(" · ")||"Saved")+'</div></div></div>';
+  });
+  return aboutShell("Summaries",body);
+}
+function renderAboutGallery(){
+  var body='<div class="about-gallery">';
+  ABOUT_DEMO_GALLERY.forEach(function(g){body+='<button class="about-gcell" data-act="aboutPreview" data-emoji="'+g.emoji+'" data-seed="'+g.id+'">'+aboutTile(g.emoji,g.id)+'</button>';});
+  body+='</div>';
+  return aboutShell("Gallery",body,{bodyStyle:"padding:8px"});
+}
+function renderAboutPopup(){
+  var v=state.about;
+  if(v==="guest-main")return renderAboutGuestMain();
+  if(v==="guest-feature")return renderAboutGuestFeature();
+  if(v==="profile-options")return renderAboutProfileOptions();
+  if(v==="favourites")return renderAboutFavourites();
+  if(v==="orders")return renderAboutOrders();
+  if(v==="summaries")return renderAboutSummaries();
+  if(v==="gallery")return renderAboutGallery();
+  return "";
+}
+function renderAboutPreview(){
+  var p=state.aboutPreview;
+  if(!p)return "";
+  var inner=p.kind==="avatar"?'<img src="'+esc(p.src)+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px">':aboutTile(p.emoji,p.seed);
+  return '<div class="about-rev" data-act="aboutClosePreview"><div class="about-rev-img">'+inner+'</div><button class="about-rev-close" data-act="aboutClosePreview">&times;</button></div>';
+}
+
 /* PAGE: venue-checkout — Checkout */
 function renderCheckout(){
   clearEmptyCart();
@@ -8293,39 +8252,22 @@ function customerFavCount(){var s=favStore();return (s&&s.state&&s.state.favouri
 function customerPhoto(){var u=window.EatoutsCustomer&&EatoutsCustomer.getUser();return state.profilePhoto||(u&&u.photoKey)||null;}
 function renderProfileCard(){
   const u=window.EatoutsCustomer?EatoutsCustomer.getUser():null;
-  const open=!!state.profileCardOpen;
   const photo=customerPhoto();
   let h='';
   h+='<div class="pcdivider"></div>';
   if(u){
-    h+='<div class="profilecard">'+
+    h+='<div class="profilecard" data-act="openAboutPopup" role="button" tabindex="0">'+
        '<span class="pc-thumb" data-act="openProfilePhoto">'+
        (photo?'<img src="'+esc(photo)+'" alt="">':'<img src="'+IMG.iconHeartOn+'" style="opacity:.35" alt="">')+'</span>'+
-       '<a class="pc-main" href="eatouts-profile.html"><strong>'+esc(u.name||u.username||"My Profile")+'</strong>'+
-       '<small>'+esc(u.username?("@"+u.username):"Customer account")+'</small></a>'+
+       '<span class="pc-main"><strong>'+esc(u.name||u.username||"My Profile")+'</strong>'+
+       '<small>'+esc(u.username?("@"+u.username):"Customer account")+'</small></span>'+
        '<span class="pc-fav"><img src="'+IMG.iconHeartOn+'" alt=""><span>'+customerFavCount()+'</span></span>'+
-       '<button class="pc-toggle" data-act="profileCardToggle" aria-expanded="'+(open?"true":"false")+'" aria-label="Account options">'+(open?"\u25b4":"\u25be")+'</button>'+
+       '<span class="pc-chev" aria-hidden="true">\u203a</span>'+
        '</div>';
   }else{
-    h+='<button class="profilecard guest" data-act="profileCardToggle" aria-haspopup="dialog">'+
+    h+='<button class="profilecard guest" data-act="openAboutPopup" aria-haspopup="dialog">'+
        '<span class="pc-main"><strong>Create Profile</strong></span>'+
        '</button>';
-  }
-  if(open&&u){
-    h+='<div class="pc-rows">';
-    if(u){
-      h+='<a class="pc-row" href="eatouts-profile.html">My Profile</a>'+
-         '<a class="pc-row" href="eatouts-orders.html">Order History</a>'+
-         '<a class="pc-row" href="eatouts-favourites.html">Favourites</a>'+
-         '<a class="pc-row" href="eatouts-summaries.html">Saved Summaries</a>'+
-         '<a class="pc-row" href="eatouts-events.html">Events</a>'+
-         '<a class="pc-row" href="eatouts-gallery.html">Gallery</a>'+
-         '<button class="pc-row" data-act="customerLogout">Sign out</button>';
-    }else{
-      h+='<a class="pc-row" href="eatouts-user-onboarding.html">Create an account</a>'+
-         '<a class="pc-row" href="eatouts-login.html">Sign in</a>';
-    }
-    h+='</div>';
   }
   if(state.profilePhotoOpen&&u){
     h+='<div class="pc-photo" data-act="closeProfilePhoto">'+
@@ -8523,7 +8465,6 @@ function resetSeoMeta(){
   var el=document.querySelector('meta[name="robots"][data-orphan="1"]');
   if(el)el.remove();
   document.title="EatOuts";
-  state.venueAboutOrphan=null;
 }
 
 function readVenueMeta(){
@@ -8534,28 +8475,7 @@ function readVenueMeta(){
 
 function openVenueFromSlug(meta){
   if(!meta||!meta.id)return false;
-  state.venueAboutOrphan=null;
-
-  if(meta.kind==="bottle_store"||meta.kind==="catering"){
-    var api=(meta.kind==="bottle_store")?bottleAPI():cateringAPI();
-    var found=api&&api.get(meta.slug);
-    if(!found){
-      state.venueAboutOrphan={id:meta.id,slug:meta.slug,kind:meta.kind,name:meta.name};
-      state.tab="restaurants";
-      state.restPanel=(meta.kind==="catering")?"catering":"beverages";
-      return true;
-    }
-  }
-
-  state.restaurantView={
-    id:meta.id,slug:meta.slug,brand:meta.slug,
-    view:"about",promoId:null,kind:meta.kind,name:meta.name
-  };
-  state.tab="restaurants";
-  state.restPanel=(meta.kind==="bottle_store")?"beverages":(meta.kind==="catering"?"catering":"food");
-  state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};
-  state.bevView=null;state.bevCheckout=false;state.bottleOpen=false;state.cateringOpen=false;
-  resetSeoMeta();
+  location.href='venue-about.html?link='+encodeURIComponent(meta.slug||meta.id);
   return true;
 }
 
@@ -8646,6 +8566,7 @@ document.addEventListener("click",function(e){
     state.promoFilterOpen=false;
     state.operatorView="about";
     state.preview=null;
+    state.about=null;state.aboutFeature=null;state.aboutPreview=null;state.cardAlert=null;
     if(state.tab==="promos"){state.promoView="feed";state.promoId=null;state.promoGalleryId=null;state.promoExpanded=null;}
     if(state.tab==="menu"){state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;}
     if(state.tab==="restaurants"){
@@ -8766,32 +8687,29 @@ document.addEventListener("click",function(e){
   }
 
   /* CUSTOMER PROFILE CARD (About tab) */
-  if(act==="profileCardToggle"){
-    var cu=window.EatoutsCustomer&&EatoutsCustomer.getUser();
-    if(cu){state.profileCardOpen=!state.profileCardOpen;state.cardAlert=null;render();return;}
-    state.profileCardOpen=false;
-    state.cardAlert={
-      logo:IMG.eatoutsLogo,
-      title:"Create your profile",
-      message:"Sign in or create an account to save and revisit these:",
-      options:[
-        {label:"Favourites",href:"eatouts-login.html"},
-        {label:"Orders",href:"eatouts-login.html"},
-        {label:"Events",href:"eatouts-login.html"},
-        {label:"Saved Summaries",href:"eatouts-login.html"},
-        {label:"Profile",href:"eatouts-login.html"},
-        {label:"Gallery",href:"eatouts-login.html"}
-      ],
-      actions:[
-        {label:"Create an account",href:"eatouts-user-onboarding.html",primary:true},
-        {label:"Sign in",href:"eatouts-login.html"}
-      ]
-    };
+  if(act==="openAboutPopup"){
+    var au=window.EatoutsCustomer&&EatoutsCustomer.getUser();
+    state.about=au?"profile-options":"guest-main";
+    state.aboutFeature=null;state.aboutPreview=null;state.cardAlert=null;
     render();return;
   }
+  if(act==="aboutClose"){state.about=null;state.aboutFeature=null;state.aboutPreview=null;render();return;}
+  if(act==="aboutBack"){aboutBack();return;}
+  if(act==="aboutFeature"){state.aboutFeature=id;state.about="guest-feature";render();return;}
+  if(act==="aboutNav"){
+    var nv=t.getAttribute("data-view");
+    if(nv){state.about=nv;state.aboutPreview=null;render();}
+    return;
+  }
+  if(act==="aboutAvatar"){state.profilePhotoOpen=true;render();return;}
+  if(act==="aboutPreview"){
+    state.aboutPreview={emoji:t.getAttribute("data-emoji")||"🖼",seed:t.getAttribute("data-seed")||""};
+    render();return;
+  }
+  if(act==="aboutClosePreview"){state.aboutPreview=null;render();return;}
   if(act==="openProfilePhoto"){state.profilePhotoOpen=true;render();return;}
   if(act==="closeProfilePhoto"){if(e.target&&e.target.tagName==="IMG")return;state.profilePhotoOpen=false;render();return;}
-  if(act==="customerLogout"){if(window.EatoutsCustomer)EatoutsCustomer.logout().then(function(){state.profileCardOpen=false;render();});return;}
+  if(act==="customerLogout"){if(window.EatoutsCustomer)EatoutsCustomer.logout().then(function(){state.profileCardOpen=false;state.about=null;state.aboutFeature=null;state.aboutPreview=null;render();});return;}
 
   /* PROMOS */
   if(act==="pickDay"){state.promoDay=parseInt(t.getAttribute("data-day"),10);state.promoExpanded=null;render();return;}
@@ -8862,18 +8780,14 @@ document.addEventListener("click",function(e){
     return;
   }
   /* Information icon on a bottle-store card: open that store's About page
-     (data-page="venue-about"), resolved from the bottle-store directory. */
+     (venue-about.html), resolved from the bottle-store directory. */
   if(act==="bottleStoreInfo"){
     const api=bottleAPI();
     const brand=api&&api.get(t.getAttribute("data-brand"));
     if(!brand)return;
     const active=bottleActiveBranch(brand);
-    state.cardAlert=null;
-    state.restPanel="beverages";
-    state.bottleOpen=null;
-    state.restLocPicker=null;state.bottleLocPicker=null;state.restNotice=null;
-    state.restaurantView={kind:"bottle_store",id:(active&&active.id)||brand.slug,brand:brand.slug,view:"about",promoId:null};
-    render();return;
+    location.href='venue-about.html?link='+encodeURIComponent((active&&active.slug)||brand.slug);
+    return;
   }
   if(act==="waPoetry"){
     const seats=state.poetrySeats||2;
@@ -9006,7 +8920,7 @@ document.addEventListener("click",function(e){
 if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMenuAccordions();return;}
   if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   /* Restaurant-Card name/tagline tap: open the venue information page. */
-  if(act==="openRestAbout"){const rid=id||(state.restaurantView&&state.restaurantView.id);if(!rid)return;const brand=(state.restaurantView&&state.restaurantView.brand)||state.restaurantOpen||rid;state.restaurantOpen=brand;state.restaurantView={id:rid,brand:brand,view:"about",promoId:null};state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(rid);render();return;}
+  if(act==="openRestAbout"){const rid=id||(state.restaurantView&&state.restaurantView.id);if(!rid)return;const brand=(state.restaurantView&&state.restaurantView.brand)||state.restaurantOpen||rid;location.href='venue-about.html?link='+encodeURIComponent(brand);return;}
   if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   if(act==="backFromRestView"){resetSeoMeta();state.restaurantView=null;state.restaurantOpen=null;state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;render();return;}
   /* Promos on an expanded restaurant row opens the Gallery tab scoped to
@@ -9050,7 +8964,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     const brand=t.getAttribute("data-brand")||(state.restLocPicker&&state.restLocPicker.brand)||"";
     if(brand&&id)state.restBranchOf[brand]=id;
     else if(brand)delete state.restBranchOf[brand];
-    if(id&&state.restaurantView&&state.restaurantView.view==="about"){state.restaurantView.id=id;if(brand)state.restaurantView.brand=brand;if(hasBridge())EatoutsBridge.setActive(id);}
+
     state.restLocPicker=null;render();return;
   }
   if(act==="backRestPromo"){if(state.restaurantView){state.restaurantView.view="promos";state.restaurantView.promoId=null;}render();return;}
@@ -9193,12 +9107,8 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     const brand=api?api.get(t.getAttribute("data-brand")||""):null;
     if(!brand)return;
     const active=cateringActiveBranch(brand);
-    state.cardAlert=null;
-    state.restPanel="catering";
-    state.cateringOpen=null;
-    state.restLocPicker=null;state.cateringLocPicker=null;state.restNotice=null;
-    state.restaurantView={kind:"catering",id:(active&&active.id)||brand.slug,brand:brand.slug,view:"about",promoId:null};
-    render();return;
+    location.href='venue-about.html?link='+encodeURIComponent((active&&active.slug)||brand.slug);
+    return;
   }
   if(act==="waCateringAbout"){
     const api=cateringAPI();
@@ -9492,7 +9402,9 @@ document.addEventListener("keydown",function(e){
     return;
   }
   if(e.key==="Escape"||e.keyCode===27){
-    if(state.promoMonthPicker){state.promoMonthPicker=false;render();}
+    if(state.aboutPreview){state.aboutPreview=null;render();}
+    else if(state.about){aboutBack();}
+    else if(state.promoMonthPicker){state.promoMonthPicker=false;render();}
     else if(state.promoWeekPicker){state.promoWeekPicker=false;state.promoWeekExpanded=null;render();}
     else if(state.preview){state.preview=null;render();}
     else if(state.restLocPicker){state.restLocPicker=null;render();}
