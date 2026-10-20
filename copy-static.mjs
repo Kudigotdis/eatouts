@@ -42,6 +42,11 @@ const FILES = [
   'eatouts-suppliers.html',
   'eatouts-about.html',
 
+  // Standalone customer surfaces reached from index.html
+  'venue-about.html',
+  'about-guest-popup.html',
+  'about-profile-options.html',
+
   // Delivery interfaces
   'customer-delivery.html',
   'driver-delivery.html',
