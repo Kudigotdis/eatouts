@@ -39,6 +39,7 @@ const BRAND_JS = path.join(ROOT, 'js', 'eatouts-brand.js');
 const RESTAURANTS_JSON = path.join(ROOT, 'assets', 'data', 'restaurant_listings', 'directory_runtime_data.json');
 const BOTTLE_JS = path.join(ROOT, 'assets', 'data', 'BottleLliquorStoresDatabase.js');
 const SUPPLIERS_JS = path.join(ROOT, 'assets', 'data', 'event_supplier_demo_catalogue.js');
+const CATERING_JS = path.join(ROOT, 'assets', 'data', 'CateringServicesDatabase.js');
 const OUT_JSON = path.join(ROOT, 'assets', 'data', 'link_registry.json');
 const OUT_SQL = path.join(ROOT, 'scripts', 'seeds', 'business_links.sql');
 
@@ -192,6 +193,16 @@ function main() {
     });
   }
 
+  /* ---- catering services (brand level, like the app's EatoutsCatering) ---- */
+  let catering = null;
+  try { catering = loadWindowGlobal(CATERING_JS, 'EATOUTS_CATERING'); } catch (e) {}
+  if (catering && Array.isArray(catering.brands)) {
+    catering.brands.forEach((b) => {
+      const town = (b.branches && b.branches[0] && b.branches[0].town) || '';
+      push('supplier', b.slug || b.brandKey, b.name, [town]);
+    });
+  }
+
   const bySlug = {};
   candidates.forEach((c) => { bySlug[c.slug] = c; });
 
@@ -227,7 +238,8 @@ function main() {
   const byType = candidates.reduce((m, c) => { m[c.type] = (m[c.type] || 0) + 1; return m; }, {});
   console.log('[link-registry] restaurants=' + restaurants.length +
     ' bottleBrands=' + ((bottle && bottle.brands) ? bottle.brands.length : 0) +
-    ' suppliers=' + (Array.isArray(suppliers) ? suppliers.length : 0));
+    ' suppliers=' + (Array.isArray(suppliers) ? suppliers.length : 0) +
+    ' caterers=' + ((catering && catering.brands) ? catering.brands.length : 0));
   console.log('[link-registry] wrote ' + candidates.length + ' links (' +
     JSON.stringify(byType) + ') -> ' + path.relative(ROOT, OUT_JSON));
 }

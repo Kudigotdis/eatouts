@@ -22,7 +22,30 @@
 
   /* Brand logos keyed by exact slug. */
   var LOGO_BY_SLUG = {
-    'mmantlo-goodies': 'assets/logo/Mmantlo_Goodies_logo.jpg'
+    'mmantlo-goodies': 'assets/logo/Mmantlo_Goodies_logo.jpg',
+    'moghul-catering': 'assets/logo/Moghul_Catering_Logo.jpg',
+    'kels-foods-pty-ltd': 'assets/logo/Kels_Caterers_Logo.jpg',
+    'boifys-catering-services': 'assets/logo/Boifys_Catering_Services_Logo.jpg',
+    'kalanga-private-chefs': 'assets/logo/Kalanga_Private_Chefs_Logo.jpg',
+    'shared-affair-catering': 'assets/logo/Shared_Affair_Catering_Logo.jpg',
+    'cafe-sunset': 'assets/logo/cafe_Sunset_Logo.jpg',
+    'jiki-jiki-pop-up-restaurant': 'assets/logo/Jiki-Jiki_Pop_Up_Restaurant_Logo.jpg',
+    'donut-heart': 'assets/logo/Donut_Heart_Logo.jpg',
+    'the-enticing-eatery': 'assets/logo/The_Enticing_Eatery_Logo.jpg',
+    'ginger-and-vanilla': 'assets/logo/Ginger_&_Vanilla_Logo.jpg',
+    'savory-chef': 'assets/logo/Savory_Chef_Logo.jpg',
+    'melkayd-catering': 'assets/logo/Melkayd_Catering_Logo.jpg',
+    'da-best-best-catering-services': 'assets/logo/Da_Best-Best-Catering_Services_Logo.jpg',
+    'melty-bites-daily-delights': 'assets/logo/Melty_Bites_Daily_Delights_Logo.jpg',
+    'food-cloud': 'assets/logo/Food_Cloud_Logo.jpg',
+    'comforts-foods-catering-services': 'assets/logo/Comforts_Foods_Catering_Services_Logo.jpg',
+    'sweetziehs-cakery-and-catering': 'assets/logo/SweetZiehs_Cakery_&_Catering_Logo.jpg',
+    'doubles-lounge-and-catering-services': 'assets/logo/Doubles_Lounge_&_Catering_Services_Logo.jpg',
+    'dripsins-burger-and-grill': 'assets/logo/Dripsins_Burger_&_Grill_Logo.jpg',
+    'lh-cuisine-and-events': 'assets/logo/LH_Cuisine&_Events_Logo.jpg',
+    'platter-house': 'assets/logo/Platter_House_Logo.jpg',
+    'no-bites-catering': 'assets/logo/No-Bites_Catering_Logo.jpg',
+    'the-studio-cafe': 'assets/logo/The_studio_cafe_logo.jpg'
   };
 
   function slugify(s) {
@@ -115,7 +138,26 @@
     { business_name: "Tuli All in Hire", type: "Catering Services", aliases: [], locations: [{ address: "", town_city: "Selebi-Phikwe", country: "Botswana", phone: null, established: null, years_with_us: null, verified: null, source: "List B" }] },
     { business_name: "Vala-Lisa Catering Company", type: "Catering Services", aliases: [], locations: [{ address: "", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: null, source: "List B" }] },
     { business_name: "Yebo Catering Services", type: "Catering Services", aliases: [], locations: [{ address: "", town_city: "Maun", country: "Botswana", phone: null, established: null, years_with_us: null, verified: null, source: "List B" }] },
-    { business_name: "Mmantlo Goodies", type: "Catering", aliases: [], locations: [{ address: "Maruapula, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: "+267 76 211 069", area: "Maruapula", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] }
+    { business_name: "Mmantlo Goodies", type: "Catering", aliases: [], locations: [{ address: "Maruapula, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: "+267 76 211 069", area: "Maruapula", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Boifys Catering Services", type: "Catering, Function & Event Catering", aliases: [], locations: [{ address: "Thamaga, Gaborone, Botswana", town_city: "Thamaga", country: "Botswana", phone: "+267 72 822 904", area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Kalanga Private Chefs", type: "Private Chefs, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Shared Affair Catering", type: "Catering, Events", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Cafe Sunset", type: "Cafe, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Jiki-Jiki Pop Up Restaurant", type: "Pop Up Restaurant, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Donut Heart", type: "Desserts, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "The Enticing Eatery", type: "Catering, Events", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Ginger & Vanilla", type: "Bakery, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Savory Chef", type: "Catering, Private Chefs", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Melkayd Catering", type: "Catering, Events", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Da Best-Best Catering Services", type: "Catering Services", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Melty Bites Daily Delights", type: "Catering, Daily Meals", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Food Cloud", type: "Catering, Cloud Kitchen", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Comforts Foods Catering Services", type: "Catering Services", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "SweetZiehs Cakery & Catering", type: "Cakery, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Doubles Lounge & Catering Services", type: "Lounge, Catering Services", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Dripsins Burger & Grill", type: "Burgers, Grill, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "LH Cuisine & Events", type: "Cuisine, Events, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
+    { business_name: "Platter House", type: "Platters, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] }
   ];
 
   function unique(used, base) {
