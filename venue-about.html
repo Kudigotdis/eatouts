@@ -41,7 +41,7 @@
     color:var(--ink);
     line-height:1.55;
     -webkit-font-smoothing:antialiased;
-    padding-bottom:env(safe-area-inset-bottom);
+
   }
   [hidden]{display:none!important}
   button{font-family:inherit}
@@ -52,25 +52,16 @@
     background:var(--brand-bg);
     display:flex;flex-direction:column;
     transition:background .25s ease;
+    /* keeps the last content clear of the fixed #nav (56px bar + safe area) */
+    padding-bottom:calc(56px + env(safe-area-inset-bottom));
     position:relative;
   }
 
-  .appbar{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:14px 18px 6px;
-    position:sticky;top:0;z-index:20;
-  }
-  .brand-mark{
-    background:none;border:0;padding:0;cursor:pointer;
-    display:flex;align-items:center;gap:9px;
-    font-weight:800;color:var(--ink);font-size:15px;letter-spacing:-.2px;
-  }
-  .brand-mark .dot{
-    width:26px;height:26px;border-radius:50%;
-    background:var(--ink);color:#f3ead8;
-    display:flex;align-items:center;justify-content:center;
-    font-size:12px;font-weight:900;
-  }
+  #hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#ffffff;border-bottom:1px solid #ece7db;position:sticky;top:0;z-index:58;padding-top:env(safe-area-inset-top)}
+  .brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden;padding:0;margin:0}
+  .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+  .hdr-right{margin-left:auto}
+  .hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;border:1px solid #ece7db;border-radius:20px;padding:4px 9px;background:#faf8f2}
 
   /* ── HERO-LOGO STRIP ── */
   .hero-logo{
@@ -191,6 +182,7 @@
     stroke:currentColor;fill:none;
     stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
   }
+  .social-ico img{width:100%;height:100%;object-fit:contain;display:block}
   .social-ico.off{
     color:#bfb49b;background:#f6f1e6;
     border-color:transparent;opacity:.9;cursor:default;
@@ -330,19 +322,15 @@
     border:1px solid var(--border);
   }
   .opt{
-    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    display:flex;align-items:center;justify-content:center;gap:8px;
     padding:13px 15px;
     border:0;border-bottom:1px solid var(--border);
-    font-size:14px;font-weight:700;color:var(--ink);
-    background:transparent;text-align:left;width:100%;cursor:pointer;
+    font-size:14px;font-weight:800;color:var(--ink);
+    background:transparent;text-align:center;width:100%;cursor:pointer;
     transition:background .12s ease;
   }
   .opt:last-child{border-bottom:0}
   .opt:hover{background:#fff}
-  .opt .lead{
-    color:var(--ink-3);font-weight:600;font-size:11.5px;
-    text-transform:uppercase;letter-spacing:.7px;
-  }
   .opt .val{color:var(--ink);font-weight:800;font-size:14px}
   .opt .val.muted{color:var(--muted);font-weight:700;font-style:italic}
 
@@ -368,7 +356,6 @@
     cursor:pointer;
     position:relative;
     transition:transform .15s ease, box-shadow .15s ease;
-    background-size:cover;background-position:center;
   }
   .promo-thumb:hover{transform:scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,.08)}
 
@@ -402,23 +389,16 @@
   }
   .btn-ghost:hover{background:#faf7f0}
 
-  /* ── TABBAR ── */
-  .tabbar{
-    position:sticky;bottom:0;
-    display:flex;justify-content:space-around;align-items:center;
-    background:#fff;border-top:1px solid var(--border);
-    padding:10px 6px calc(10px + env(safe-area-inset-bottom));
-    z-index:30;
-  }
-  .tab{
-    flex:1;background:none;border:0;padding:6px;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;color:var(--ink-3);
-    transition:color .15s ease;
-  }
-  .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-  .tab.on{color:var(--ink)}
-  .tab:hover{color:var(--ink-2)}
+  /* ── BOTTOM NAV (BLACK, WHITE ICONS, NO TEXT) ── */
+  /* position:fixed pins the bar to the bottom of the viewport so it always
+     stays visible while the page scrolls; left/transform + max-width keep it
+     centred inside the 520px .app column. */
+  #nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
+  .nav-btn{flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;background:transparent;border:0;color:rgba(255,255,255,.42);transition:color .18s}
+  .nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+  .nav-btn.on{color:#ffffff}
+  .nav-btn.on svg{transform:translateY(-1px);filter:drop-shadow(0 0 8px rgba(255,255,255,.35))}
+  .nav-btn:active{color:rgba(255,255,255,.75)}
 
   /* ── LOGO OVERLAY ── */
   .logo-overlay{
@@ -627,35 +607,204 @@
   }
   .toast.show{opacity:1;transform:translate(-50%,0)}
 
-  /* Empty state */
-  .emptystate{padding:46px 26px;text-align:center}
-  .emptystate h2{margin:0 0 8px;font-size:19px;font-weight:800;color:var(--ink)}
-  .emptystate p{margin:0 0 18px;color:var(--ink-3);font-size:14.5px;line-height:1.6}
-
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{transition:none!important;animation:none!important}
   }
 </style>
+<script src="js/eatouts-brand.js"></script>
+<script src="assets/data/restaurant_listings/directory_runtime_data.js"></script>
+<script src="assets/data/BottleLliquorStoresDatabase.js"></script>
+<script src="js/eatouts-bottle-stores.js"></script>
+<script src="assets/data/CateringServicesDatabase.js"></script>
+<script src="js/eatouts-catering.js"></script>
 </head>
 <body data-page="venue-about">
 
 <div class="app" id="app">
 
-  <header class="appbar">
-    <button class="brand-mark" type="button" id="brandMark" aria-label="EatOuts home">
-      <span class="dot">E</span>
-      EatOuts
-    </button>
+  <header id="hdr" data-act="closePickers">
+    <button class="brand-mark" type="button" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
+    <div class="hdr-right"><span class="hdr-chip" style="display: none;">Offline</span></div>
   </header>
 
-  <div id="screenMount"></div>
+  <!-- HERO-LOGO STRIP with integrated drag-handle -->
+  <div class="hero-logo" id="heroLogo" style="padding:16px 0 8px">
+    <button class="logo-btn" id="logoBtn" aria-label="View logo and open settings" style="width:200px;height:200px">
+      <img id="logoImg" alt="" src="" style="opacity:0">
+    </button>
+    <div class="drag-handle" id="dragHandle" role="separator" aria-label="Resize logo" aria-orientation="horizontal"></div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1 id="venueName"></h1>
+    <p class="status-line" id="statusLine" aria-live="polite"></p>
+  </div>
+
+  <!-- CONTENT SHEET -->
+  <div class="content-sheet">
+
+    <!-- SOCIAL ROW -->
+    <div class="social-wrap">
+      <div class="social-row" id="socialRow" aria-label="Contact channels"></div>
+    </div>
+
+    <!-- PAD -->
+    <div class="pad">
+
+      <details class="acc">
+        <summary>Promos</summary>
+        <div class="acc-body"><div class="acc-inner">
+          <div class="acc-content">
+            <div class="promo-carousel" id="promoCarousel" aria-label="Promo images">
+              <button class="promo-thumb" aria-label="Promo 1"></button>
+              <button class="promo-thumb" aria-label="Promo 2"></button>
+              <button class="promo-thumb" aria-label="Promo 3"></button>
+              <button class="promo-thumb" aria-label="Promo 4"></button>
+              <button class="promo-thumb" aria-label="Promo 5"></button>
+              <button class="promo-thumb" aria-label="Promo 6"></button>
+              <button class="promo-thumb" aria-label="Promo 7"></button>
+              <button class="promo-thumb" aria-label="Promo 8"></button>
+            </div>
+            <div class="promo-dots" id="promoDots" aria-hidden="true"></div>
+          </div>
+        </div></div>
+      </details>
+
+      <details class="acc">
+        <summary>Options</summary>
+        <div class="acc-body"><div class="acc-inner">
+          <div class="acc-content" style="padding:12px">
+            <div class="opt-list" id="optList"></div>
+          </div>
+        </div></div>
+      </details>
+
+      <!-- OPERATING HOURS — single column stacked, centred -->
+      <details class="acc acc-hours">
+        <summary>Operating Hours</summary>
+        <div class="acc-body"><div class="acc-inner">
+          <div class="acc-content">
+            <ul class="hours">
+              <li class="hours__row">
+                <span class="hours__day">Monday – Wednesday</span>
+                <span class="hours__time">07:30 – 17:30</span>
+              </li>
+              <li class="hours__row">
+                <span class="hours__day">Thursday – Friday</span>
+                <span class="hours__time">07:30 – 21:00</span>
+              </li>
+              <li class="hours__row">
+                <span class="hours__day">Saturday</span>
+                <span class="hours__time">08:00 – 16:00</span>
+              </li>
+              <li class="hours__row">
+                <span class="hours__day">Sunday</span>
+                <span class="hours__time is-closed">Closed</span>
+              </li>
+            </ul>
+          </div>
+        </div></div>
+      </details>
+
+      <!-- VENUE — carousel of venue photos (below Operating Hours) -->
+      <details class="acc">
+        <summary>Venue</summary>
+        <div class="acc-body"><div class="acc-inner">
+          <div class="acc-content">
+            <div class="promo-carousel" id="venueCarousel" aria-label="Venue photos">
+              <button class="promo-thumb" aria-label="Venue photo 1"></button>
+              <button class="promo-thumb" aria-label="Venue photo 2"></button>
+              <button class="promo-thumb" aria-label="Venue photo 3"></button>
+              <button class="promo-thumb" aria-label="Venue photo 4"></button>
+              <button class="promo-thumb" aria-label="Venue photo 5"></button>
+              <button class="promo-thumb" aria-label="Venue photo 6"></button>
+              <button class="promo-thumb" aria-label="Venue photo 7"></button>
+              <button class="promo-thumb" aria-label="Venue photo 8"></button>
+            </div>
+            <div class="promo-dots" id="venueDots" aria-hidden="true"></div>
+          </div>
+        </div></div>
+      </details>
+
+      <details class="acc">
+        <summary>Ambience</summary>
+        <div class="acc-body"><div class="acc-inner">
+          <div class="acc-content">
+            <div class="tagwrap">
+              <button class="chip" data-chip="Cozy">Cozy</button>
+              <button class="chip" data-chip="Trendy">Trendy</button>
+              <button class="chip" data-chip="Aesthetic">Aesthetic</button>
+              <button class="chip" data-chip="Laptop-Friendly">Laptop-Friendly</button>
+            </div>
+          </div>
+        </div></div>
+      </details>
+
+      <details class="acc">
+        <summary>Amenities</summary>
+        <div class="acc-body"><div class="acc-inner">
+          <div class="acc-content">
+            <div class="tagwrap">
+              <button class="chip" data-chip="Free Wi-Fi">Free Wi-Fi</button>
+              <button class="chip" data-chip="Table Service">Table Service</button>
+              <button class="chip" data-chip="Dedicated Parking">Dedicated Parking</button>
+              <button class="chip" data-chip="Kid-Friendly">Kid-Friendly</button>
+            </div>
+          </div>
+        </div></div>
+      </details>
+
+      <details class="acc">
+        <summary>Menu Tags</summary>
+        <div class="acc-body"><div class="acc-inner">
+          <div class="acc-content">
+            <div class="tagwrap">
+              <button class="chip" data-chip="Specialty Coffee">Specialty Coffee</button>
+              <button class="chip" data-chip="Breakfast">Breakfast</button>
+              <button class="chip" data-chip="Brunch">Brunch</button>
+              <button class="chip" data-chip="Lunch">Lunch</button>
+              <button class="chip" data-chip="Desserts">Desserts</button>
+            </div>
+          </div>
+        </div></div>
+      </details>
+
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions">
+      <button class="btn btn-ghost" id="backBtn" type="button">Back</button>
+    </div>
+
+  </div>
+
+  <!-- TABBAR -->
+  <nav id="nav"><button class="nav-btn on" data-tab="promos" aria-label="promos" onclick="window.location.href='index.html#promos'"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg></button><button class="nav-btn" data-tab="restaurants" aria-label="restaurants" onclick="window.location.href='index.html#restaurants'"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"></path><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"></path><path d="M3 9h18"></path><path d="M9 13h6"></path></svg></button><button class="nav-btn" data-tab="reserve" aria-label="reserve" onclick="window.location.href='index.html#reserve'"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></button><button class="nav-btn" data-tab="gallery" aria-label="gallery" onclick="window.location.href='index.html#gallery'"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></button><button class="nav-btn" data-tab="about" aria-label="about" onclick="window.location.href='index.html#about'"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></nav>
 
 </div>
 
-<!-- LOGO OVERLAY (lightbox for everyone; Settings accordion is owner-only) -->
-<div class="logo-overlay" id="logoOverlay" role="dialog" aria-modal="true" aria-label="Logo">
+<!-- LOGO OVERLAY -->
+<div class="logo-overlay" id="logoOverlay" role="dialog" aria-modal="true" aria-label="Logo settings">
   <button class="logo-overlay-close" id="logoOverlayClose" aria-label="Close">&times;</button>
   <img class="logo-large" id="logoLarge" alt="Enlarged logo">
+  <details class="settings-acc" id="settingsAcc">
+    <summary>Settings</summary>
+    <div class="settings-body"><div class="si"><div class="si-inner">
+      <button class="settings-btn" data-settings="change-logo">
+        Change Logo <small>Upload image</small>
+      </button>
+      <button class="settings-btn" data-settings="edit-promos">
+        Edit Promos <small>Open editor</small>
+      </button>
+      <button class="settings-btn" data-settings="change-bg">
+        Change Background <small>#rgb picker</small>
+      </button>
+      <button class="settings-btn" data-settings="change-btns">
+        Change Buttons <small>Accordions &amp; chips</small>
+      </button>
+    </div></div></div>
+  </details>
 </div>
 
 <!-- FLOATING POPUP -->
@@ -670,842 +819,527 @@
 <input type="file" id="fileInput" accept="image/*" hidden>
 <div class="toast" id="toast"></div>
 
-<script src="assets/data/restaurant_listings/directory_runtime_data.js"></script>
-<script src="assets/data/eatouts_demo_businesses.js"></script>
-<script src="assets/data/BottleLliquorStoresDatabase.js"></script>
-<script src="assets/data/CateringServicesDatabase.js"></script>
-<script src="js/eatouts-bottle-stores.js"></script>
-<script src="js/eatouts-catering.js"></script>
-<script src="botswana_locations.js"></script>
-<script src="js/eatouts-locations.js"></script>
-<script src="js/eatouts-brand.js"></script>
-<script src="js/eatouts-db.js"></script>
-<script src="js/eatouts-manager-db.js"></script>
-<script src="js/eatouts-users.js"></script>
-<script src="js/eatouts-seed.js"></script>
-<script src="js/eatouts-bridge.js"></script>
-<script src="js/eatouts-auth.js"></script>
-<script>
-/* Standalone data-driven customer-facing About page.
-   Design/layout/behaviours derived from the venue-about-new.html mockup, but
-   EVERY business-specific value is produced from the resolved business — no
-   literals. Section visibility is data-driven only (never by business type).
-   Owner-only UI is DOM-injected only when isOwnerOf(biz) is true. */
+﻿<script>
+/* __VENUE_ABOUT_V2__ */
 (function(){
   'use strict';
 
-  var $ = function(s){ return document.querySelector(s); };
+  var raw = (new URLSearchParams(location.search)).get('link') || (location.hash || '').replace(/^#\/?/, '');
+  var slug = decodeURIComponent(String(raw || '').trim().toLowerCase());
 
-  function esc(s){
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
+  function canon(s) {
+    var v = String(s || '').toLowerCase();
+    if (window.EatoutsBrand && typeof EatoutsBrand.canonicalKey === 'function') {
+      try { v = String(EatoutsBrand.canonicalKey(s) || v).toLowerCase(); } catch (e) {}
+    }
+    return v.replace(/[^a-z0-9]+/g, '');
   }
 
-  function toast(msg){
-    var el = $('#toast');
-    if(!el) return;
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(function(){ el.classList.remove('show'); }, 2200);
-  }
-
-  /* Generic copy keyed by chip label. Not a fixed chip list — chips are
-     rendered from the business; unknown labels get a neutral fallback. */
-  var CHIP_INFO = {
-    'Cozy':               { sub:'Warm Corners & Good Vibes',           body:'Sink into comfy seating, soft lighting, and a relaxed environment crafted for unwinding, reading, or slow conversations.' },
-    'Trendy':             { sub:'Fresh Culture & Cool Energy',         body:'Modern beats, stylish interiors, and a vibrant atmosphere designed for coffee lovers who appreciate good aesthetic flow.' },
-    'Aesthetic':          { sub:'Picture-Perfect in Every Angle',      body:'From beautiful latte art to curated corner lighting—every spot here is naturally Instagram and story-ready.' },
-    'Laptop-Friendly':    { sub:'Your Ideal Remote Work Hub',          body:'Power outlets near tables, comfortable seating heights, and a productivity-friendly background ambience.' },
-    'Free Wi-Fi':         { sub:'Fast, High-Speed Connectivity',       body:'Stay connected with high-speed internet on the house—perfect for remote work, browsing, or streaming while you sip.' },
-    'Free WiFi':          { sub:'Fast, High-Speed Connectivity',       body:'Stay connected with high-speed internet on the house—perfect for remote work, browsing, or streaming while you sip.' },
-    'Table Service':      { sub:"Sit Back & We'll Bring It Over",      body:'No waiting around at the counter—order directly or take a seat, and our staff will deliver your order straight to your table.' },
-    'Dedicated Parking':  { sub:'Hassle-Free Arrival',                 body:'Park with ease right at the venue with reserved, secure customer parking slots.' },
-    'Kid-Friendly':       { sub:'Welcoming for the Whole Family',      body:'Family-friendly seating, high chairs, and a relaxed, safe environment where little ones are always welcome.' },
-    'Specialty Coffee':   { sub:'Ethically Sourced & Expertly Brewed', body:'Premium single-origin beans, precision roast profiles, and handcrafted espresso drinks crafted by passionate baristas.' },
-    'Breakfast':          { sub:'Start Your Day Right',                body:'Freshly baked pastries, hearty egg plates, and wholesome morning favorites served warm to kickstart your day.' },
-    'Brunch':             { sub:'Mid-Morning Magic',                   body:'The perfect blend of sweet and savory dishes, made for slow mornings and long catch-ups over coffee.' },
-    'Lunch':              { sub:'Fresh & Satisfying Meals',            body:'Gourmet sandwiches, fresh salads, and hot kitchen specials crafted for a mid-day recharge.' },
-    'Desserts':           { sub:'Sweet Treats & Decadent Bites',       body:'Handcrafted cakes, artisanal tarts, and sweet treats paired perfectly with your favorite espresso brew.' }
-  };
-
-  var ICONS = {
-    instagram:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>',
-    facebook:'<svg viewBox="0 0 24 24"><path d="M15 3h-3a4 4 0 0 0-4 4v3H5v3h3v8h3v-8h3l1-3h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
-    whatsapp:'<svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.7A8.4 8.4 0 1 1 21 11.5z"/><path d="M8.5 10.5c.4 2.1 2.2 3.9 4.3 4.3l1.3-1.3c.2-.2.5-.3.7-.1.5.2 1 .4 1.6.4.3 0 .6.3.6.6v1.4c0 .3-.3.6-.6.6-4 0-7.3-3.3-7.3-7.3 0-.3.3-.6.6-.6h1.4c.3 0 .6.3.6.6 0 .6.2 1.1.4 1.6.1.2 0 .5-.1.7z" fill="currentColor" stroke="none"/></svg>',
-    tiktok:'<svg viewBox="0 0 24 24"><path d="M14 4v9a4 4 0 1 1-3-3.9"/><path d="M14 4c.6 2.6 2.4 4.4 5 5"/></svg>',
-    x:'<svg viewBox="0 0 24 24"><path d="M4 4l16 16M20 4L4 20"/></svg>',
-    youtube:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M11 9.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/></svg>',
-    website:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
-    call:'<svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>',
-    location:'<svg viewBox="0 0 24 24"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>'
-  };
-
-  var TAB_ICONS = {
-    promos:'<svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
-    restaurants:'<svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/><path d="M9 13h6"/></svg>',
-    reserve:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-    gallery:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
-    about:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
-  };
-
-  /* ── boot shared modules ── */
-  function bootData(){
-    try {
-      if (window.EatoutsBridge) {
-        EatoutsBridge.setSource({ profile:null, menu:[], gallery:[], promos:{}, events:{}, performers:[] });
-        if (EatoutsBridge.ensureSeeded) EatoutsBridge.ensureSeeded();
-        EatoutsBridge.setSource({ profile:null, menu:[], gallery:[], promos:{}, events:{}, performers:[] });
-      }
-      if (window.EatoutsSeed && window.DIRECTORY_RUNTIME_DATA && EatoutsSeed.mergeDirectory) {
-        EatoutsSeed.mergeDirectory(window.DIRECTORY_RUNTIME_DATA);
-      }
-    } catch(e){ /* non-fatal */ }
-  }
-
-  /* ── slug resolution ── */
-  function readSlug(){
-    try {
-      var q = new URLSearchParams(String(location.search || '').replace(/^\?/, ''));
-      var link = q.get('link');
-      if (link) return link;
-    } catch(e){}
-    var h = String(location.hash || '').replace(/^#/, '').trim();
-    if (h) return h;
+  function pickBranch(rec) {
+    if (!rec) return null;
+    if (Array.isArray(rec.branches) && rec.branches.length) return rec.branches[0];
     return null;
   }
 
-  function bridgeByKeyOrSlug(slug){
-    if (!window.EatoutsBridge || !EatoutsBridge.groups) return null;
-    var groups = [];
-    try { groups = EatoutsBridge.groups() || []; } catch(e){ return null; }
-    for (var i = 0; i < groups.length; i++){
-      var g = groups[i];
-      var branches = g.branches || [];
-      for (var j = 0; j < branches.length; j++){
-        var b = branches[j];
-        if (b && (b.id === slug || b.slug === slug || b.brandKey === slug)) return b;
+  function resolve(s) {
+    if (!s) return null;
+    var target = canon(s);
+    var dir = (window.DIRECTORY_RUNTIME_DATA && window.DIRECTORY_RUNTIME_DATA.restaurants) || [];
+
+    for (var i = 0; i < dir.length; i++) {
+      var r = dir[i] || {};
+      var rs = String(r.slug || '').toLowerCase();
+      var rid = String(r.id || '').toLowerCase();
+      if (rs === s || rid === s || canon(rs) === target || canon(rid) === target) {
+        return { kind: 'restaurant', slug: rs || s, name: r.name || s, logo: r.logo || null, record: r, branch: null };
       }
-      if (g.key === slug || g.slug === slug || g.brandKey === slug) return branches[0] || null;
     }
+
+    if (window.EatoutsBottleStores) {
+      var bs = EatoutsBottleStores.get(s) || EatoutsBottleStores.get(target);
+      if (!bs && bs === null) {
+        var brands = EatoutsBottleStores.all();
+        for (var b = 0; b < brands.length; b++) {
+          if (canon(brands[b].slug) === target) { bs = brands[b]; break; }
+        }
+      }
+      if (bs) {
+        var b0 = pickBranch(bs) || {};
+        return { kind: 'bottle_store', slug: bs.slug || s, name: bs.name || s, logo: bs.logo || null, record: bs, branch: b0 };
+      }
+    }
+
+    if (window.EatoutsCatering) {
+      var cat = EatoutsCatering.get(s) || EatoutsCatering.get(target);
+      if (!cat) {
+        var cbrands = EatoutsCatering.all();
+        for (var c = 0; c < cbrands.length; c++) {
+          if (canon(cbrands[c].slug) === target) { cat = cbrands[c]; break; }
+        }
+      }
+      if (cat) {
+        var c0 = pickBranch(cat) || {};
+        return { kind: 'catering', slug: cat.slug || s, name: cat.name || s, logo: cat.logo || null, record: cat, branch: c0 };
+      }
+    }
+
     return null;
   }
 
-  function resolveViaApi(slug){
-    if (typeof fetch !== 'function') return Promise.resolve(null);
-    var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
-    var timer = setTimeout(function(){ try{ ctrl && ctrl.abort(); }catch(e){} }, 4000);
-    var url = '/api/links/resolve?country=bw&slug=' + encodeURIComponent(slug);
-    return fetch(url, ctrl ? { signal: ctrl.signal } : undefined)
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        clearTimeout(timer);
-        if (!d || !d.ok || !d.found) return null;
-        return d;
-      })
-      .catch(function(){ clearTimeout(timer); return null; });
+  var biz = resolve(slug);
+
+  function closePopup() {
+    var s = document.getElementById('popupScrim'); if (s) s.classList.remove('open');
+    var p = document.getElementById('popup'); if (p) p.classList.remove('open');
+  }
+  function openPopup(title, html) {
+    var t = document.getElementById('popupTitle'); if (t) t.textContent = title;
+    var b = document.getElementById('popupBody'); if (b) b.innerHTML = html;
+    var s = document.getElementById('popupScrim'); if (s) s.classList.add('open');
+    var p = document.getElementById('popup'); if (p) p.classList.add('open');
+  }
+  var scrim = document.getElementById('popupScrim');
+  if (scrim) scrim.addEventListener('click', closePopup);
+
+  /* ---- Empty state ---- */
+  if (!biz) {
+    document.title = 'Venue not found - EatOuts';
+    var h1e = document.querySelector('.hero h1'); if (h1e) h1e.textContent = 'Venue not found';
+    var sle = document.getElementById('statusLine');
+    if (sle) sle.innerHTML = '<span>This link does not match any business on EatOuts. <a href="index.html#restaurants" style="color:var(--ink);text-decoration:underline">Back to Restaurants</a></span>';
+    var logoE = document.getElementById('logoImg');
+    if (logoE) { logoE.style.opacity = '0'; }
+    var backE = document.getElementById('backBtn');
+    if (backE) backE.addEventListener('click', function () { window.location.href = 'index.html#restaurants'; });
+    return;
   }
 
-  function resolveBusiness(slug){
-    if (!slug) return Promise.resolve(null);
-    if (window.EATOUTS_DEMO_BUSINESSES) {
-      var demo = EATOUTS_DEMO_BUSINESSES.get(slug);
-      if (demo) return Promise.resolve(demo);
-    }
-    if (window.EatoutsBottleStores && EatoutsBottleStores.get) {
-      var bl = EatoutsBottleStores.get(slug);
-      if (bl) return Promise.resolve(bl);
-    }
-    if (window.EatoutsCatering && EatoutsCatering.get) {
-      var ca = EatoutsCatering.get(slug);
-      if (ca) return Promise.resolve(ca);
-    }
-    var bi = bridgeByKeyOrSlug(slug);
-    if (bi) return Promise.resolve(bi);
-    return resolveViaApi(slug).then(function(hit){
-      if (!hit) return null;
-      var ref = hit.refId || hit.slug || slug;
-      return bridgeByKeyOrSlug(ref) || bridgeByKeyOrSlug(slug) || { id:ref, slug:slug, name:hit.name||'' };
-    });
+  /* ---- Title & hero ---- */
+  document.title = biz.name + ' - About - EatOuts';
+
+  var logoImg = document.getElementById('logoImg');
+  var logoSrc = biz.logo;
+  if (!logoSrc && window.EatoutsBrand && typeof EatoutsBrand.logoFor === 'function' && biz.record) {
+    try { logoSrc = EatoutsBrand.logoFor(biz.record); } catch (e) {}
   }
-
-  /* ── normalize any resolved business into one shape ── */
-  function firstBranch(biz){
-    return (biz && Array.isArray(biz.branches) && biz.branches[0]) || {};
+  if (logoSrc && window.EatoutsBrand && typeof EatoutsBrand.isPlaceholderLogo === 'function') {
+    try { if (EatoutsBrand.isPlaceholderLogo(logoSrc)) logoSrc = null; } catch (e) {}
   }
-
-  function normalize(biz){
-    if (!biz) return null;
-    var branch = firstBranch(biz);
-    var isBrand = !!(biz.branches && biz.branches.length);
-
-    var name = biz.name || biz.identity && biz.identity.name || branch.name || '';
-    var logo = biz.logo || branch.logo || '';
-    if (!logo && window.EatoutsBrand && EatoutsBrand.logoFor) {
-      try { logo = EatoutsBrand.logoFor(biz) || ''; } catch(e){}
-    }
-
-    var town = biz.town || (biz.location && biz.location.city) || branch.town || '';
-    var area = biz.area || (biz.location && biz.location.area) || branch.area || '';
-
-    var socials = [];
-    if (Array.isArray(biz.socials)) biz.socials.forEach(function(s){ if (s && typeof s === 'object') socials.push(s); });
-
-    var contacts = [];
-    if (Array.isArray(biz.contacts)) contacts.push.apply(contacts, biz.contacts);
-    [branch.phones].forEach(function(list){ (list||[]).forEach(function(p){ contacts.push({ label:'Phone / WhatsApp', value:p }); }); });
-    [branch.emails].forEach(function(list){ (list||[]).forEach(function(p){ contacts.push({ label:'Email', value:p }); }); });
-
-    var address = branch.address || biz.address || (biz.location && biz.location.formatted_address) || '';
-    var addresses = [];
-    if (Array.isArray(biz.addresses)) addresses.push.apply(addresses, biz.addresses);
-    if (!addresses.length && address) addresses.push(address);
-
-    /* optional rich fields, only when present in the source */
-    var days = biz.operating_hours || (biz.operatingHours && biz.operatingHours.weekly) || null;
-    var promos = biz.promos && (Array.isArray(biz.promos) ? biz.promos : (biz.promos.modules || biz.promos.items)) || null;
-    var gallery = biz.gallery && (Array.isArray(biz.gallery) ? biz.gallery : (biz.gallery.modules || biz.gallery.items)) || null;
-    var ambience = (biz.attributes && biz.attributes.ambience) || (biz.characters && biz.characters.map(function(c){ return c.name || c; })) || null;
-    var amenitySource = (biz.attributes && biz.attributes.amenities) || (biz.amenities && (biz.amenities.options || biz.amenities.items)) || null;
-    var amenities = amenitySource ? amenitySource.map(function(a){ return a.name || a; }) : null;
-    if (amenities && !amenities.length) amenities = null;
-    var tagSource = biz.menu_tags || (biz.menuTags && biz.menuTags.options) || null;
-    var menuTags = tagSource ? tagSource.map(function(t){ return t.name || t; }) : null;
-    if (menuTags && !menuTags.length) menuTags = null;
-
-    return {
-      id: biz.id || branch.id || '',
-      name: name,
-      slug: biz.slug || branch.slug || '',
-      brandKey: biz.brandKey || '',
-      restaurantId: biz.restaurantId || '',
-      kind: biz.type || branch.type || '',
-      logo: logo,
-      town: town,
-      area: area,
-      addresses: addresses,
-      contacts: contacts,
-      socials: socials,
-      isBrand: isBrand,
-      branches: biz.branches || null,
-      hours: days,
-      promos: promos,
-      gallery: gallery,
-      ambience: ambience,
-      amenities: amenities,
-      menuTags: menuTags
-    };
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, c => ({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[c]));
-  }
-
-  /* ── isOwnerOf: A + B combined ── */
-  function isOwnerOf(biz){
-    if (!window.EatoutsAuth && !window.EatoutsMgrDB){
-      console.warn('owner detection unavailable');
-      return false;
-    }
-    var s = null;
-    try { s = window.EatoutsAuth && EatoutsAuth.currentSession ? EatoutsAuth.currentSession() : null; } catch(e){ s = null; }
-    if (!s) return false;
-
-    var ids = [biz.id, biz.restaurantId];
-    try {
-      var ref = biz.slug || (biz.brandKey || '');
-      if (ref) ids.push(ref);
-    } catch(e){}
-    if (s.restaurantId && ids.indexOf(s.restaurantId) >= 0) return true;
-
-    if (s.userId && window.EatoutsMgrDB){
-      var mgrUser = null, mgrBiz = null;
-      try { mgrUser = EatoutsMgrDB.find('users', s.userId); } catch(e){}
-      try { mgrBiz = mgrUser && mgrUser.businessId ? EatoutsMgrDB.find('businesses', mgrUser.businessId) : null; } catch(e){}
-      if (mgrBiz){
-        var linked = [
-          mgrBiz.identity && mgrBiz.identity.slug,
-          mgrBiz.slug,
-          mgrBiz.restaurantId
-        ].filter(Boolean);
-        var targets = [biz.slug, biz.id, biz.restaurantId, biz.brandKey].filter(Boolean);
-        for (var i = 0; i < linked.length; i++){
-          if (targets.indexOf(linked[i]) >= 0) return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  function fmtStatus(hours){
-    if (!hours) return null;
-    var now = new Date();
-    var dow = now.getDay(); /* 0 Sun */
-    var names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    var todayName = names[dow];
-    var groups = [];
-
-    if (Array.isArray(hours)) {
-      hours.forEach(function(d){ groups.push({ days: [d.day], open: d.open, close: d.close }); });
-    } else if (typeof hours === 'object') {
-      Object.keys(hours).forEach(function(k){
-        var v = hours[k] || {};
-        groups.push({ days: v.days || [], open: v.open, close: v.close, closed: !v.open && !v.close });
-      });
-    }
-    if (!groups.length) return null;
-
-    var today = null;
-    groups.forEach(function(g){ if ((g.days||[]).indexOf(todayName) >= 0) today = g; });
-    if (!today) return { open:false, text:'Hours vary by day' };
-    if (today.closed || (!today.open && !today.close)) return { open:false, text:'Closed today' };
-
-    var toMin = function(t){ var p = String(t||'').split(':'); return (parseInt(p[0],10)||0)*60 + (parseInt(p[1],10)||0); };
-    var cur = now.getHours()*60 + now.getMinutes();
-    var o = toMin(today.open), c = toMin(today.close);
-    if (cur >= o && cur < c) return { open:true, text:'Open till ' + today.close };
-    if (cur < o) return { open:false, text:'Closed · Opens at ' + today.open };
-    return { open:false, text:'Closed for today' };
-  }
-
-  /* ── rendering helpers ── */
-  function socialChannelOn(biz, channel){
-    if (channel === 'whatsapp' || channel === 'call'){
-      var phones = (biz.contacts || []).filter(function(c){
-        return /phone|whatsapp|tel|call|mobile/i.test(String(c.label||'')) || String(c.value||'').match(/^\+?\d[\d\s]+$/);
-      });
-      return phones.length > 0;
-    }
-    if (channel === 'location'){
-      return (biz.addresses || []).length > 0 || !!biz.town;
-    }
-    return false;
-  }
-
-  function socialOnForUrl(biz, keys){
-    return (biz.socials || []).some(function(s){
-      return keys.some(function(k){ return s && s[k]; });
-    });
-  }
-
-  function renderSocialRow(biz){
-    var slots = [
-      { cls:'off', icon:'instagram', label:'Instagram' },
-      { cls:'off', icon:'facebook',  label:'Facebook' },
-      { on:true, channel:'whatsapp', icon:'whatsapp', label:'WhatsApp' },
-      { cls:'off', icon:'tiktok', label:'TikTok' },
-      { cls:'off', icon:'x', label:'X (Twitter)' },
-      { cls:'off', icon:'youtube', label:'YouTube' },
-      { cls:'off', icon:'website', label:'Website' },
-      { on:true, channel:'call', icon:'call', label:'Call' },
-      { on:true, channel:'location', icon:'location', label:'Location' }
-    ];
-
-    /* turn on channels the business actually has */
-    if (socialOnForUrl(biz, ['instagram'])) swap(slots, 'instagram', true);
-    if (socialOnForUrl(biz, ['facebook']))  swap(slots, 'facebook', true);
-    if (socialOnForUrl(biz, ['tiktok']))    swap(slots, 'tiktok', true);
-    if (socialOnForUrl(biz, ['x','twitter'])) swap(slots, 'x', true);
-    if (socialOnForUrl(biz, ['youtube']))   swap(slots, 'youtube', true);
-    if (socialOnForUrl(biz, ['website']) || biz.website) swap(slots, 'website', true);
-
-    var callOn = socialChannelOn(biz, 'call');
-    var locOn  = socialChannelOn(biz, 'location');
-    var waOn   = callOn;
-
-    var html = '<div class="social-wrap"><div class="social-row" aria-label="Contact channels">';
-    slots.forEach(function(s){
-      if (s.on){
-        var on = s.channel === 'call' ? callOn : s.channel === 'location' ? locOn : waOn;
-        if (!on){
-          html += '<span class="social-ico off" role="img" aria-label="' + esc(s.label) + ' — contact unavailable" title="' + esc(s.label) + ' (unavailable)">' + ICONS[s.icon] + '</span>';
-        } else {
-          html += '<button class="social-ico on" data-channel="' + s.channel + '" aria-label="' + esc(s.label) + '" title="' + esc(s.label) + '">' + ICONS[s.icon] + '</button>';
-        }
-      } else if (s.cls === 'off'){
-        var enabled = s._on;
-        if (enabled){
-          html += '<button class="social-ico on" data-social="' + s.icon + '" aria-label="' + esc(s.label) + '" title="' + esc(s.label) + '">' + ICONS[s.icon] + '</button>';
-        } else {
-          html += '<span class="social-ico off" role="img" aria-label="' + esc(s.label) + ' — contact unavailable" title="' + esc(s.label) + ' (unavailable)">' + ICONS[s.icon] + '</span>';
-        }
-      }
-    });
-    html += '</div></div>';
-    return html;
-  }
-
-  function swap(slots, icon, on){
-    for (var i=0;i<slots.length;i++){ if (slots[i].icon === icon) slots[i]._on = on; }
-  }
-
-  function acc(id, title, bodyHtml, pad){
-    return '<details class="acc"' + (id ? ' data-acc="' + id + '"' : '') + '>' +
-      '<summary>' + esc(title) + '</summary>' +
-      '<div class="acc-body"><div class="acc-inner"><div class="acc-content"' +
-      (pad ? ' style="padding:12px"' : '') + '>' + bodyHtml + '</div></div></div>' +
-      '</details>';
-  }
-
-  function chipsHtml(list){
-    return '<div class="tagwrap">' + list.map(function(t){
-      return '<button class="chip" data-chip="' + esc(t) + '">' + esc(t) + '</button>';
-    }).join('') + '</div>';
-  }
-
-  function hoursHtml(hours){
-    var rows = [];
-    var order = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-    if (Array.isArray(hours)){
-      hours.forEach(function(d){
-        rows.push('<li class="hours__row"><span class="hours__day">' + esc(d.day || '') + '</span>' +
-          '<span class="hours__time' + ((d.open && d.close) ? '' : ' is-closed') + '">' +
-          ((d.open && d.close) ? esc(d.open + ' – ' + d.close) : 'Closed') + '</span></li>');
-      });
-    } else if (hours && typeof hours === 'object'){
-      var seen = {};
-      order.forEach(function(day){
-        Object.keys(hours).forEach(function(k){
-          var v = hours[k] || {};
-          if ((v.days||[]).indexOf(day) >= 0 && !seen[day]){
-            seen[day] = 1;
-            var closed = !v.open && !v.close;
-            rows.push('<li class="hours__row"><span class="hours__day">' + esc(day) + '</span>' +
-              '<span class="hours__time' + (closed ? ' is-closed' : '') + '">' +
-              (closed ? 'Closed' : esc(v.open + ' – ' + v.close)) + '</span></li>');
-          }
-        });
-      });
-      Object.keys(hours).forEach(function(k){
-        var v = hours[k] || {};
-        (v.days||[]).forEach(function(day){
-          if (order.indexOf(day) < 0 || seen[day]) return;
-          seen[day] = 1;
-          var closed = !v.open && !v.close;
-          rows.push('<li class="hours__row"><span class="hours__day">' + esc(day) + '</span>' +
-            '<span class="hours__time' + (closed ? ' is-closed' : '') + '">' +
-            (closed ? 'Closed' : esc(v.open + ' – ' + v.close)) + '</span></li>');
-        });
-      });
-    }
-    return '<ul class="hours">' + rows.join('') + '</ul>';
-  }
-
-  function carousel(id, label){
-    return '<div class="promo-carousel" id="' + id + '" aria-label="' + esc(label) + '"></div>' +
-      '<div class="promo-dots" id="' + id + 'Dots" aria-hidden="true"></div>';
-  }
-
-  function imagesOf(list){
-    if (!Array.isArray(list)) return [];
-    return list.map(function(it){
-      if (typeof it === 'string') return it;
-      return (it && (it.url || it.src || it.image)) || '';
-    }).filter(Boolean);
-  }
-
-  function renderShell(biz){
-    var status = fmtStatus(biz.hours);
-    var h = '';
-    h += '<div class="hero-logo" id="heroLogo" style="padding:16px 0 8px">';
-    h += '<button class="logo-btn" id="logoBtn" aria-label="View logo" style="width:200px;height:200px">';
-    if (biz.logo){
-      h += '<img id="logoImg" alt="' + esc(biz.name) + ' logo" src="' + esc(biz.logo) + '">';
+  if (logoImg) {
+    if (logoSrc) {
+      logoImg.src = logoSrc;
+      logoImg.alt = biz.name + ' logo';
+      logoImg.style.opacity = '1';
+      logoImg.onerror = function () { logoImg.style.opacity = '0'; };
     } else {
-      h += '<img id="logoImg" alt="' + esc(biz.name) + ' logo" src="data:image/svg+xml;utf8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 200\'%3E%3Crect width=\'200\' height=\'200\' fill=\'%23f3ece0\'/%3E%3Ccircle cx=\'100\' cy=\'100\' r=\'62\' fill=\'none\' stroke=\'%23c9bda3\' stroke-width=\'3\'/%3E%3Ctext x=\'100\' y=\'116\' text-anchor=\'middle\' font-family=\'Georgia,serif\' font-size=\'60\' font-weight=\'700\' fill=\'%23c9bda3\'%3E%3F%3C/text%3E%3C/svg%3E">';
+      var initial = (biz.name.charAt(0) || '?').toUpperCase();
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#f3ece0"/><text x="100" y="128" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="80" font-weight="800" fill="#a89a7e">' + initial + '</text></svg>';
+      logoImg.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+      logoImg.alt = biz.name;
+      logoImg.style.opacity = '1';
     }
-    h += '</button>';
-    if (window.__owner){
-      h += '<div class="drag-handle" id="dragHandle" role="separator" aria-label="Resize logo" aria-orientation="horizontal"></div>';
-    }
-    h += '</div>';
-
-    h += '<div class="hero"><h1>' + esc(biz.name || 'Business') + '</h1>';
-    if (status){
-      h += '<p class="status-line" id="statusLine" aria-live="polite">' +
-        '<span class="status-dot ' + (status.open ? 'open' : 'closed') + '" id="statusDot"></span>' +
-        '<span id="statusText">' + esc(status.text) + '</span></p>';
-    }
-    h += '</div>';
-
-    h += '<div class="content-sheet">';
-    h += renderSocialRow(biz);
-    h += '<div class="pad">';
-
-    var promImgs = imagesOf(biz.promos);
-    if (promImgs.length) h += acc('promos', 'Promos', carousel('promoCarousel', 'Promo images'));
-
-    var optHtml = '<div class="opt-list">';
-    if (biz.town) optHtml += '<button class="opt" type="button" data-opt="town"><span class="lead">Town</span><span class="val">' + esc(biz.town) + '</span></button>';
-    optHtml += '<button class="opt" type="button" data-opt="area"><span class="lead">Area</span><span class="val' + (biz.area ? '' : ' muted') + '">' + esc(biz.area || 'Select Neighbourhood') + '</span></button>';
-    optHtml += '<button class="opt" type="button" data-goto="menu"><span class="lead">View</span><span class="val">Menu</span></button>';
-    optHtml += '<button class="opt" type="button" data-goto="promos"><span class="lead">View</span><span class="val">Promos</span></button>';
-    optHtml += '</div>';
-    h += acc('options', 'Options', optHtml, true);
-
-    if (biz.hours) h += '<details class="acc acc-hours" data-acc="hours"><summary>Operating Hours</summary><div class="acc-body"><div class="acc-inner"><div class="acc-content">' + hoursHtml(biz.hours) + '</div></div></div></details>';
-
-    var venueImgs = imagesOf(biz.gallery);
-    if (venueImgs.length) h += acc('venue', 'Venue', carousel('venueCarousel', 'Venue photos'));
-
-    if (biz.ambience && biz.ambience.length) h += acc('ambience', 'Ambience', chipsHtml(biz.ambience));
-    if (biz.amenities && biz.amenities.length) h += acc('amenities', 'Amenities', chipsHtml(biz.amenities));
-    if (biz.menuTags && biz.menuTags.length) h += acc('menuTags', 'Menu Tags', chipsHtml(biz.menuTags));
-
-    h += '</div>';
-    h += '<div class="actions"><button class="btn btn-ghost" id="backBtn" type="button">Back</button></div>';
-    h += '</div>';
-
-    h += '<nav class="tabbar" aria-label="Primary">' +
-      '<button class="tab" aria-label="Promos" data-nav="promos">' + TAB_ICONS.promos + '</button>' +
-      '<button class="tab on" aria-label="Restaurants" data-nav="restaurants">' + TAB_ICONS.restaurants + '</button>' +
-      '<button class="tab" aria-label="Reserve" data-nav="reserve">' + TAB_ICONS.reserve + '</button>' +
-      '<button class="tab" aria-label="Gallery" data-nav="gallery">' + TAB_ICONS.gallery + '</button>' +
-      '<button class="tab" aria-label="About" data-nav="about">' + TAB_ICONS.about + '</button>' +
-      '</nav>';
-
-    $(' #screenMount'.trim()).innerHTML = h;
-    afterRender(biz, promImgs, venueImgs);
   }
 
-  function renderEmptyState(){
-    var h = '<div class="content-sheet"><div class="emptystate">' +
-      '<h2>Choose a business</h2>' +
-      '<p>Open a venue from the directory to see its About page.</p>' +
-      '<a class="btn btn-ghost" href="index.html#restaurants" style="display:inline-flex">Browse businesses</a>' +
-      '</div></div>';
-    $('#screenMount').innerHTML = h;
+  var h1 = document.querySelector('.hero h1'); if (h1) h1.textContent = biz.name;
+
+  /* ---- Status line (no delivery) ---- */
+  var sl = document.getElementById('statusLine');
+  if (sl) {
+    var now = new Date(), day = now.getDay(), hour = now.getHours() + now.getMinutes() / 60;
+    var o = 7.5, c = 17.5, closed = false;
+    if (day === 0) closed = true;
+    else if (day === 4 || day === 5) c = 21;
+    else if (day === 6) { o = 8; c = 16; }
+    var f = function (n) { var hh = Math.floor(n), mm = Math.round((n - hh) * 60); return (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm; };
+    var txt, dc;
+    if (closed) { txt = 'Closed today - Opens Mon 07:30'; dc = 'closed'; }
+    else if (hour >= o && hour < c) { txt = 'Open till ' + f(c); dc = 'open'; }
+    else if (hour < o) { txt = 'Closed - Opens at ' + f(o); dc = 'closed'; }
+    else { txt = 'Closed - Opens ' + (day === 6 ? 'Mon 07:30' : 'tomorrow 07:30'); dc = 'closed'; }
+    sl.innerHTML = '<span class="status-dot ' + dc + '"></span><span>' + txt + '</span>';
   }
 
-  /* ── owner-only UI (DOM-injected only for owners) ── */
-  function injectOwnerUI(biz){
-    var overlay = $('#logoOverlay');
-    if (!overlay || overlay.querySelector('#settingsAcc')) return;
-    if (!biz.logo) return;
-    var det = document.createElement('details');
-    det.className = 'settings-acc';
-    det.id = 'settingsAcc';
-    det.innerHTML = '<summary>Settings</summary>' +
-      '<div class="settings-body"><div class="si"><div class="si-inner">' +
-      '<button class="settings-btn" data-settings="change-logo">Change Logo <small>Upload image</small></button>' +
-      '<button class="settings-btn" data-settings="edit-promos">Edit Promos <small>Open editor</small></button>' +
-      '<button class="settings-btn" data-settings="change-bg">Change Background <small>#rgb picker</small></button>' +
-      '<button class="settings-btn" data-settings="change-btns">Change Buttons <small>Accordions &amp; chips</small></button>' +
-      '</div></div></div>';
-    overlay.appendChild(det);
-  }
-
-  var SPA_ORIGIN = 'index.html';
-  function navTo(target){ location.href = SPA_ORIGIN + '#' + target; }
-
-  /* ── popups ── */
-  var popupScrim = $('#popupScrim');
-  var popup = $('#popup');
-  var popupTitle = $('#popupTitle');
-  var popupBody = $('#popupBody');
-
-  function openPopup(title, html){
-    popupTitle.textContent = title;
-    popupBody.innerHTML = html;
-    popupScrim.classList.add('open');
-    popup.classList.add('open');
-  }
-  function closePopup(){
-    popupScrim.classList.remove('open');
-    popup.classList.remove('open');
-  }
-  if (popupScrim) popupScrim.addEventListener('click', closePopup);
-
-  function waNumber(v){ return String(v || '').replace(/[^\d]/g, ''); }
-
-  function cueFromSlug(biz){
-    var s = biz.slug || biz.brandKey || biz.id || '';
-    return s;
-  }
-
-  function openWhatsAppPopup(biz){
-    var share = 'Check out ' + (biz.name || 'this business') + ' on EatOuts: ' +
-      location.origin + location.pathname + '?link=' + encodeURIComponent(cueFromSlug(biz));
-    var html = '';
-    html += '<div class="sheet-section"><h3>Share</h3><div class="popup-list">' +
-      '<a class="popup-row" href="https://wa.me/?text=' + encodeURIComponent(share) + '" target="_blank" rel="noopener noreferrer">Send to Contact</a>' +
-      '</div></div>';
-    var rows = (biz.contacts || []).filter(function(c){
-      return /phone|whatsapp|tel|call|mobile/i.test(String(c.label||'')) || String(c.value||'').match(/^\+?\d[\d\s]+$/);
+  /* ---- Build CONTACTS from resolved business ---- */
+  var contacts = (biz.record && biz.record.contacts) || [];
+  var branchPhones = (biz.branch && biz.branch.phones) || [];
+  var C = { wa: [], call: [], loc: [] };
+  contacts.forEach(function (c) {
+    if (!c || !c.value) return;
+    if (/whatsapp/i.test(c.label)) C.wa.push({ label: c.label, number: String(c.value) });
+    else if (/phone|call|tel/i.test(c.label)) C.call.push({ label: c.label, number: String(c.value) });
+  });
+  branchPhones.forEach(function (n, i) {
+    var lbl = (biz.branch && biz.branch.name) || biz.name;
+    if (i > 0) lbl += ' ' + (i + 1);
+    var s = String(n);
+    if (!C.wa.some(function (x) { return x.number === s; })) C.wa.push({ label: lbl, number: s });
+    if (!C.call.some(function (x) { return x.number === s; })) C.call.push({ label: lbl, number: s });
+  });
+  var town = (biz.record && biz.record.town) || (biz.branch && biz.branch.town) || '';
+  var area = (biz.record && biz.record.area) || (biz.branch && biz.branch.area) || '';
+  if (town || area) {
+    C.loc.push({
+      label: [area, town].filter(Boolean).join(' · ') || biz.name,
+      url: 'https://maps.google.com/?q=' + encodeURIComponent(biz.name + ' ' + town + ' Botswana')
     });
-    if (rows.length){
+  }
+
+  /* ---- Social row ---- */
+  var socialRow = document.getElementById('socialRow');
+  if (socialRow) {
+    var socials = (biz.record && biz.record.socials) || [];
+    function socialUrl(platform) {
+      for (var i = 0; i < socials.length; i++) {
+        var s = socials[i];
+        if (s && s.platform && s.platform.toLowerCase().indexOf(platform) > -1 && s.url) return s.url;
+      }
+      return null;
+    }
+    function icon(channel, label, onSrc, offSrc) {
+      var on = false, href = '#';
+      if (channel === 'whatsapp') { on = C.wa.length > 0; href = on ? 'https://wa.me/' + String(C.wa[0].number).replace(/[^0-9]/g, '') : '#'; }
+      else if (channel === 'call') { on = C.call.length > 0; href = on ? 'tel:' + String(C.call[0].number).replace(/[^0-9+]/g, '') : '#'; }
+      else if (channel === 'location') { on = C.loc.length > 0; href = on ? C.loc[0].url : '#'; }
+      else { var u = socialUrl(channel) || (channel === 'website' ? (biz.record && biz.record.website) : null); on = !!u; href = u || '#'; }
+      var src = on ? onSrc : offSrc;
+      var tag = on
+        ? '<a class="social-ico on" href="' + href + '" target="_blank" rel="noopener" aria-label="' + label + '"><img src="' + src + '" alt="' + label + '"></a>'
+        : '<span class="social-ico off" role="img" aria-label="' + label + '"><img src="' + src + '" alt="' + label + '"></span>';
+      return tag;
+    }
+    socialRow.innerHTML =
+        icon('instagram', 'Instagram', 'assets/icons/Instagram_icon.png', 'assets/icons/Instagram_Off.png')
+      + icon('facebook', 'Facebook', 'assets/icons/facebook_icon.png', 'assets/icons/facebook_icon_off.png')
+      + icon('whatsapp', 'WhatsApp', 'assets/icons/whatsApp_icon_on.png', 'assets/icons/whatsApp_icon_off.png')
+      + icon('tiktok', 'TikTok', 'assets/icons/TikTok_icon.png', 'assets/icons/TikTok_Off.png')
+      + icon('twitter', 'X (Twitter)', 'assets/icons/Twitter_icon.png', 'assets/icons/Twitter_Off.png')
+      + icon('youtube', 'YouTube', 'assets/icons/YouTube_icon.png', 'assets/icons/YouTube_Off.png')
+      + icon('website', 'Website', 'assets/icons/Website_icon.png', 'assets/icons/Website_Off.png')
+      + icon('call', 'Call', 'assets/icons/Call_icon.png', 'assets/icons/Call_Off.png')
+      + icon('location', 'Location', 'assets/icons/GPS - icon.png', 'assets/icons/GPS - Off.png');
+  }
+
+  /* ---- Social popup clicks ---- */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.social-ico.on');
+    if (!a) return;
+    var label = a.getAttribute('aria-label') || '';
+    if (/whatsapp/i.test(label)) { e.preventDefault(); doWa(); }
+    else if (/call/i.test(label)) { e.preventDefault(); doCall(); }
+    else if (/location/i.test(label)) { e.preventDefault(); doLoc(); }
+  });
+
+  function doWa() {
+    var text = 'Check out ' + biz.name + ' on EatOuts: https://www.eatouts.site/bw/' + biz.slug;
+    var html = '<div class="sheet-section"><h3>Share</h3><div class="popup-list"><a class="popup-row" href="https://wa.me/?text=' + encodeURIComponent(text) + '" target="_blank" rel="noopener">Send to Contact</a></div></div>';
+    if (C.wa.length) {
       html += '<div class="sheet-section"><h3>Contact List</h3><div class="popup-list">';
-      rows.forEach(function(c){
-        var n = waNumber(c.value);
-        html += '<a class="popup-row" href="https://wa.me/' + n + '?text=' + encodeURIComponent('Hi,') + '" target="_blank" rel="noopener noreferrer">' + esc(c.label || n) + '</a>';
+      C.wa.forEach(function (c) {
+        var digits = String(c.number).replace(/[^0-9]/g, '');
+        html += '<a class="popup-row" href="https://wa.me/' + digits + '?text=' + encodeURIComponent('Hi ' + c.label + ' team,') + '" target="_blank" rel="noopener">' + c.label + '</a>';
       });
       html += '</div></div>';
+    } else {
+      html += '<div class="sheet-section"><p style="color:var(--ink-3);padding:12px 2px">No WhatsApp numbers on file for this business.</p></div>';
     }
     openPopup('WhatsApp', html);
   }
-
-  function openCallPopup(biz){
-    var rows = (biz.contacts || []).filter(function(c){
-      return /phone|whatsapp|tel|call|mobile/i.test(String(c.label||'')) || String(c.value||'').match(/^\+?\d[\d\s]+$/);
-    });
+  function doCall() {
     var html = '<div class="sheet-section"><h3>Contact List</h3><div class="popup-list">';
-    rows.forEach(function(c){
-      html += '<a class="popup-row" href="tel:' + waNumber(c.value) + '">' + esc(c.label || c.value) + '</a>';
-    });
+    if (C.call.length) {
+      C.call.forEach(function (c) {
+        html += '<a class="popup-row" href="tel:' + String(c.number).replace(/[^0-9+]/g, '') + '">' + c.label + '</a>';
+      });
+    } else {
+      html += '<p style="color:var(--ink-3);padding:12px 2px">No phone numbers on file for this business.</p>';
+    }
     html += '</div></div>';
     openPopup('Call', html);
   }
-
-  function openLocationPopup(biz){
+  function doLoc() {
     var html = '<div class="sheet-section"><h3>Location List</h3><div class="popup-list">';
-    var list = (biz.addresses || []).slice();
-    if (!list.length && biz.town){
-      list = [biz.area ? (biz.area + ', ' + biz.town) : biz.town];
+    if (C.loc.length) {
+      C.loc.forEach(function (c) { html += '<a class="popup-row" href="' + c.url + '" target="_blank" rel="noopener">' + c.label + '</a>'; });
+    } else {
+      html += '<p style="color:var(--ink-3);padding:12px 2px">No address on file for this business.</p>';
     }
-    list.forEach(function(a){
-      var q = encodeURIComponent(String(a) + (biz.name ? ' ' + biz.name : ''));
-      html += '<a class="popup-row" href="https://maps.google.com/?q=' + q + '" target="_blank" rel="noopener noreferrer">' + esc(a) + '</a>';
-    });
     html += '</div></div>';
     openPopup('Locations', html);
   }
 
-  /* chip info: always render the chip; unknown label -> neutral fallback */
-  document.addEventListener('click', function(e){
-    var chip = e.target.closest && e.target.closest('.chip');
-    if (!chip) return;
-    var key = chip.getAttribute('data-chip');
-    var info = CHIP_INFO[key];
-    if (info){
-      openPopup(key, '<div class="chip-info-head">' + esc(info.sub) + '</div><p class="chip-info-body">' + esc(info.body) + '</p>');
-    } else {
-      openPopup(key, '<p class="chip-info-body">No details provided</p>');
-    }
-  });
-
-  function afterRender(biz, promImgs, venueImgs){
-    /* owner UI injection */
-    if (window.__owner) injectOwnerUI(biz);
-
-    /* carousels */
-    attachCarousel($('#promoCarousel'), $('#promoDots'), promImgs);
-    attachCarousel($('#venueCarousel'), $('#venueDots'), venueImgs);
-
-    /* back button */
-    var back = $('#backBtn');
-      if (back) back.addEventListener('click', () => {
-        let html = '<div class="history-list">';
-        const history = [
-          { label:'EatOuts Home', id:'home' },
-          { label:'Restaurants', id:'restaurants' },
-          { label:biz.name + ' — Menu', id:'menu' },
-          { label:biz.name + ' — About', id:'about', current:true }
-        ];
-        history.filter(p => !p.current).forEach(p => {
-          html += '<button class="history-item" data-goto="' + p.id + '">' + escapeHtml(p.label) + '</button>';
-        });
-        html += '</div>';
-        openPopup('Page history', html);
-      });
-
-    /* logo lightbox */
-    var logoBtn = $('#logoBtn');
-    var overlay = $('#logoOverlay');
-    var logoLarge = $('#logoLarge');
-    var logoImg = $('#logoImg');
-    if (logoBtn && overlay) logoBtn.addEventListener('click', function(){
-      if (logoImg) logoLarge.src = logoImg.src;
-      overlay.classList.add('open');
-    });
-    var closeBtn = $('#logoOverlayClose');
-    if (closeBtn) closeBtn.addEventListener('click', closeLogoOverlay);
-    if (overlay) overlay.addEventListener('click', function(e){ if (e.target === overlay) closeLogoOverlay(); });
-
-    /* drag handle (owner only) */
-    var dragHandle = $('#dragHandle');
-    if (dragHandle){
-      var logoBtnEl = logoBtn;
-      var size = 200, dragging = false, startY = 0, startSize = 0;
-      function setSize(s){ size = Math.max(120, Math.min(400, s)); logoBtnEl.style.width = size + 'px'; logoBtnEl.style.height = size + 'px'; }
-      dragHandle.addEventListener('pointerdown', function(e){ dragging = true; startY = e.clientY; startSize = size; try{ dragHandle.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); });
-      dragHandle.addEventListener('pointermove', function(e){ if (dragging) setSize(startSize + (e.clientY - startY)); });
-      dragHandle.addEventListener('pointerup', function(e){ dragging = false; try{ dragHandle.releasePointerCapture(e.pointerId); }catch(_){} });
-      dragHandle.addEventListener('pointercancel', function(){ dragging = false; });
-      setSize(200);
-    }
-  }
-
-  function closeLogoOverlay(){
-    var overlay = $('#logoOverlay');
-    if (overlay) overlay.classList.remove('open');
-    var sa = $('#settingsAcc');
-    if (sa) sa.removeAttribute('open');
-  }
-
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape'){ closePopup(); closeLogoOverlay(); }
-  });
-
-  /* social channel popups */
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest && e.target.closest('.social-ico.on');
-    if (!btn) return;
-    var channel = btn.getAttribute('data-channel');
-    var biz = window.__biz;
-    if (!biz) return;
-    if (channel === 'whatsapp') openWhatsAppPopup(biz);
-    else if (channel === 'call') openCallPopup(biz);
-    else if (channel === 'location') openLocationPopup(biz);
-  });
-
-  /* navigation: tabbar, options, brand */
-  document.addEventListener('click', function(e){
-    var nav = e.target.closest && e.target.closest('[data-nav]');
-    if (nav){ navTo(nav.getAttribute('data-nav')); return; }
-    var go = e.target.closest && e.target.closest('[data-goto]');
-    if (go){
-      var biz = window.__biz;
-      var slug = biz ? (biz.slug || biz.brandKey || biz.id) : '';
-      navTo(slug + '/' + go.getAttribute('data-goto'));
-      return;
-    }
-    var opt = e.target.closest && e.target.closest('[data-opt]');
-    if (opt){
-      var kind = opt.getAttribute('data-opt');
-      if (kind === 'area') toast('No neighbourhood selected');
-      return;
-    }
-    var mark = e.target.closest && e.target.closest('#brandMark');
-    if (mark){ location.href = 'index.html'; }
-  });
-
-  /* owner settings actions */
-  document.addEventListener('click', function(e){
-    var sBtn = e.target.closest && e.target.closest('[data-settings]');
-    if (!sBtn) return;
-    var action = sBtn.getAttribute('data-settings');
-    if (action === 'change-logo'){ closeLogoOverlay(); var fi = $('#fileInput'); if (fi) fi.click(); }
-    else if (action === 'edit-promos'){ closeLogoOverlay(); toast('Open the workspace to edit promos'); }
-    else if (action === 'change-bg'){ closeLogoOverlay(); openColorEditor('background'); }
-    else if (action === 'change-btns'){ closeLogoOverlay(); openColorEditor('buttons'); }
-  });
-
-  var fi = $('#fileInput');
-  if (fi) fi.addEventListener('change', function(e){
-    var file = e.target.files && e.target.files[0];
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev){
-      var li = $('#logoImg'); var ll = $('#logoLarge');
-      if (li) li.src = ev.target.result;
-      if (ll) ll.src = ev.target.result;
-      toast('Logo updated');
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  });
-
-  /* colour editor (owner only) */
-  var COLOR_VARS = {
-    'brand-bg':       { label:'Page background',  varName:'--brand-bg' },
-    'hero-logo-bg':   { label:'Logo strip',       varName:'--hero-logo-bg' },
-    'acc-bg':         { label:'Accordion body',   varName:'--acc-bg' },
-    'acc-summary-bg': { label:'Accordion header', varName:'--acc-summary-bg' },
-    'chip-bg':        { label:'Chip background',  varName:'--chip-bg' }
+  /* ---- Chips ---- */
+  var CHIP = {
+    'Cozy': 'Warm corners & good vibes - comfy seating, soft lighting, made for unwinding.',
+    'Trendy': 'Fresh culture & cool energy - modern beats, stylish interiors.',
+    'Aesthetic': 'Picture-perfect in every angle - latte art to curated corner lighting.',
+    'Laptop-Friendly': 'Ideal remote work hub - power outlets, comfortable seating, quiet ambience.',
+    'Free Wi-Fi': 'Fast, high-speed connectivity on the house.',
+    'Table Service': "Sit back & we'll bring it over - our staff deliver to your table.",
+    'Dedicated Parking': 'Hassle-free arrival with reserved parking.',
+    'Kid-Friendly': 'Welcoming for the whole family - high chairs and safe environment.',
+    'Specialty Coffee': 'Ethically sourced & expertly brewed by passionate baristas.',
+    'Breakfast': 'Start your day right with freshly baked pastries and hearty plates.',
+    'Brunch': 'Mid-morning magic - the perfect blend of sweet and savoury.',
+    'Lunch': 'Fresh & satisfying meals crafted for a mid-day recharge.',
+    'Desserts': 'Sweet treats & decadent bites paired with your favourite espresso.'
   };
-  function toHex(v){
-    v = String(v || '').trim();
-    if (/^#([0-9a-f]{3})$/i.test(v)) return '#' + v.slice(1).split('').map(function(c){ return c + c; }).join('');
-    if (/^#([0-9a-f]{6})$/i.test(v)) return v.toLowerCase();
-    return null;
-  }
-  function getVar(varName){ return getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); }
-  function openColorEditor(section){
-    var rows = section === 'background' ? ['brand-bg','hero-logo-bg'] : ['acc-bg','acc-summary-bg','chip-bg'];
-    var html = '<p style="font-size:13px;font-weight:600;color:var(--ink-3);margin-bottom:6px">Live preview — the page updates as you pick.</p>';
-    rows.forEach(function(k){
-      var meta = COLOR_VARS[k];
-      var hex = toHex(getVar(meta.varName)) || (k === 'chip-bg' ? '#e8ddca' : '#ffffff');
-      html += '<div class="color-row"><label>' + esc(meta.label) + '</label><div class="color-pickers">' +
-        '<input type="text" value="' + hex + '" data-colorvar="' + meta.varName + '" maxlength="7" spellcheck="false">' +
-        '<input type="color" value="' + hex + '" data-colorvar="' + meta.varName + '"></div></div>';
+  document.addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip');
+    if (!chip) return;
+    var k = chip.getAttribute('data-chip');
+    if (!CHIP[k]) return;
+    openPopup(k, '<p style="color:var(--ink-2)">' + CHIP[k] + '</p>');
+  });
+
+  /* ---- Options ---- */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
-    html += '<div class="sheet-actions">' +
-      '<button class="btn btn-secondary" data-colact="reset">Reset</button>' +
-      '<button class="btn btn-primary" data-colact="done">Done</button></div>';
-    openPopup(section === 'background' ? 'Change Background' : 'Change Buttons & Chips', html);
   }
-  popupBody.addEventListener('input', function(e){
-    var input = e.target.closest && e.target.closest('[data-colorvar]');
-    if (!input) return;
-    var varName = input.getAttribute('data-colorvar');
-    if (input.type === 'color'){
-      document.documentElement.style.setProperty(varName, input.value);
-      var row = input.closest('.color-row'); var txt = row && row.querySelector('input[type="text"]');
-      if (txt) txt.value = input.value;
-    } else {
-      var hex = toHex(input.value);
-      if (!hex) return;
-      document.documentElement.style.setProperty(varName, hex);
-      var row2 = input.closest('.color-row'); var col = row2 && row2.querySelector('input[type="color"]');
-      if (col) col.value = hex;
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function toast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2600);
+  }
+
+  function uniq(list) {
+    var seen = {}, out = [];
+    list.forEach(function (v) {
+      var s = String(v == null ? '' : v).trim();
+      if (!s) return;
+      var k = s.toLowerCase();
+      if (seen[k]) return;
+      seen[k] = 1; out.push(s);
+    });
+    return out;
+  }
+
+  /* Every branch of this business, from whichever dataset it lives in.
+     Restaurant chains (KFC, Nando's ...) are stored as many records that
+     share a display name; catering/bottle-store brands carry a branches[]. */
+  function bizBranches() {
+    var out = [];
+    var rec = biz.record || {};
+    if (Array.isArray(rec.branches) && rec.branches.length) {
+      rec.branches.forEach(function (b) { out.push({ town: b.town || (b.location && b.location.town) || '', area: b.area || (b.location && b.location.area) || '' }); });
+      return out;
     }
-  });
-  popupBody.addEventListener('click', function(e){
-    var act = e.target.closest && e.target.closest('[data-colact]');
-    if (!act) return;
-    if (act.getAttribute('data-colact') === 'reset'){
-      Object.keys(COLOR_VARS).forEach(function(k){ document.documentElement.style.removeProperty(COLOR_VARS[k].varName); });
-      closePopup(); toast('Colours reset to defaults');
-    } else { closePopup(); toast('Colours saved'); }
-  });
+    var dir = (window.DIRECTORY_RUNTIME_DATA && window.DIRECTORY_RUNTIME_DATA.restaurants) || [];
+    for (var i = 0; i < dir.length; i++) {
+      var r = dir[i] || {};
+      if (canon(r.name) !== canon(biz.name)) continue;
+      var areas = (r.areas && r.areas.length) ? r.areas : [r.area];
+      areas.forEach(function (a) { out.push({ town: r.town || (r.location && r.location.town) || '', area: a || '' }); });
+    }
+    if (!out.length) out.push({ town: rec.town || (biz.branch && biz.branch.town) || '', area: rec.area || (biz.branch && biz.branch.area) || '' });
+    return out;
+  }
+  var allBranches = bizBranches();
+  var TOWNS = uniq(allBranches.map(function (b) { return b.town; }));
+  var selectedTown = (TOWNS.length === 1) ? TOWNS[0] : '';
+  var selectedArea = '';
 
-  /* carousel */
-  function attachCarousel(carouselEl, dotsEl, imgs){
-    if (!carouselEl || !dotsEl) return;
-    var list = imgs || [];
-    carouselEl.innerHTML = list.map(function(src, i){
-      return '<button class="promo-thumb" style="background:url(\'' + src.replace(/'/g, '%27') + '\') center/cover no-repeat" aria-label="Image ' + (i+1) + '"></button>';
-    }).join('');
-    if (!list.length){ carouselEl.setAttribute('hidden',''); dotsEl.setAttribute('hidden',''); return; }
+  function areasForTown(t) {
+    var ct = canon(t);
+    return uniq(allBranches.filter(function (b) { return canon(b.town) === ct; }).map(function (b) { return b.area; }))
+      .filter(function (a) { return canon(a) !== ct; });
+  }
 
-    function update(){
-      var items = carouselEl.querySelectorAll('.promo-thumb');
-      if (!items.length) return;
-      var itemW = items[0].getBoundingClientRect().width;
-      if (!itemW) return;
-      var step = itemW + 8;
-      var maxScroll = carouselEl.scrollWidth - carouselEl.clientWidth;
-      var positions = Math.max(1, Math.round(maxScroll / step) + 1);
-      var current = Math.min(positions - 1, Math.max(0, Math.round(carouselEl.scrollLeft / step)));
-      if (dotsEl.children.length !== positions){
-        dotsEl.innerHTML = '';
-        for (var i = 0; i < positions; i++){ var d = document.createElement('span'); d.className = 'promo-dot'; dotsEl.appendChild(d); }
+  function renderOptions() {
+    var optList = document.getElementById('optList');
+    if (!optList) return;
+    var townLabel = TOWNS.length <= 1 ? (TOWNS[0] || 'Select Town') : (selectedTown || 'Select Town');
+    var townMuted = (TOWNS.length > 1 && !selectedTown);
+    var areas = selectedTown ? areasForTown(selectedTown) : [];
+    var areaLabel, areaMuted;
+    if (!selectedTown) { areaLabel = 'Select Area'; areaMuted = true; }
+    else if (areas.length === 0) { areaLabel = 'Select Area'; areaMuted = true; }
+    else if (areas.length === 1) { areaLabel = areas[0]; areaMuted = false; }
+    else { areaLabel = selectedArea || 'Select Area'; areaMuted = !selectedArea; }
+    optList.innerHTML =
+      '<button class="opt" id="optTown" data-opt="town" type="button">'
+      + '<span class="val' + (townMuted ? ' muted' : '') + '">' + esc(townLabel) + '</span></button>'
+      + '<button class="opt" id="optArea" data-opt="area" type="button">'
+      + '<span class="val' + (areaMuted ? ' muted' : '') + '">' + esc(areaLabel) + '</span></button>'
+      + '<button class="opt" id="optMenu" data-opt="menu" type="button">'
+      + '<span class="val">Menu</span></button>'
+      + '<button class="opt" id="optPromos" data-opt="promos" type="button">'
+      + '<span class="val">Promos</span></button>';
+  }
+
+  function townListItem(t) {
+    var on = canon(t) === canon(selectedTown);
+    return '<button class="popup-row" data-pick-town="' + esc(t) + '"' + (on ? ' style="font-weight:800"' : '') + '>' + esc(t) + '</button>';
+  }
+  function areaListItem(a) {
+    var on = canon(a) === canon(selectedArea);
+    return '<button class="popup-row" data-pick-area="' + esc(a) + '"' + (on ? ' style="font-weight:800"' : '') + '>' + esc(a) + '</button>';
+  }
+
+  /* Menu availability, from the same directory payload index.html uses.
+     directory_runtime_data.js carries menusRaw/menuFiles keyed by the
+     canonical brand slug (e.g. "kfc", "nandos", "the-yellow-giraffe-..."). */
+  function importedMenusFor() {
+    var src = window.DIRECTORY_RUNTIME_DATA || {};
+    var raw = src.menusRaw || {};
+    var files = src.menuFiles || {};
+    var out = [];
+    function take(key) {
+      if (!key) return;
+      var norm = canon(key);
+      Object.keys(raw).forEach(function (k) { if (canon(k) === norm) out.push(raw[k]); });
+      Object.keys(files).forEach(function (k) { if (canon(k) === norm) out.push(files[k]); });
+    }
+    take(biz.slug);
+    take(biz.record && biz.record.slug);
+    take(biz.record && biz.record.brandKey);
+    take(biz.name);
+    return out;
+  }
+  function rawHasMenu(v) {
+    if (!v) return false;
+    if (Array.isArray(v)) return v.length > 0;
+    if (Array.isArray(v.menu)) return v.menu.length > 0;
+    if (v.menu && (v.menu.categories || v.menu.items)) {
+      return (v.menu.categories && v.menu.categories.length) || (v.menu.items && v.menu.items.length) ? true : false;
+    }
+    return true; /* menuFiles entries are paths -> presence means a menu */
+  }
+
+  function hasMenu() {
+    var rec = biz.record || {};
+    if (Array.isArray(rec.menu) && rec.menu.length) return true;
+    if (Array.isArray(rec.menuCategories) && rec.menuCategories.length) return true;
+    if (rec.menu && (rec.menu.categories && rec.menu.categories.length || rec.menu.items && rec.menu.items.length)) return true;
+    if (importedMenusFor().some(rawHasMenu)) return true;
+    try {
+      if (window.EatoutsBridge && typeof EatoutsBridge.bundleOf === 'function') {
+        var b = EatoutsBridge.bundleOf(rec.id);
+        if (b && b.menu && b.menu.length) return true;
       }
-      Array.prototype.forEach.call(dotsEl.children, function(d, i){ d.classList.toggle('on', i === current); });
-    }
-    carouselEl.addEventListener('scroll', update, { passive:true });
-    window.addEventListener('resize', update);
-    requestAnimationFrame(function(){ requestAnimationFrame(update); });
-    setTimeout(update, 80); setTimeout(update, 300);
+    } catch (e) {}
+    return false;
+  }
+  function hasPromos() {
+    var rec = biz.record || {};
+    if (Array.isArray(rec.promos) && rec.promos.length) return true;
+    if (rec.promos) { for (var d0 in rec.promos) if ((rec.promos[d0] || []).length) return true; }
+    try {
+      if (window.EatoutsBridge && typeof EatoutsBridge.bundleOf === 'function') {
+        var b = EatoutsBridge.bundleOf(rec.id);
+        if (b && b.promos) {
+          for (var d in b.promos) if ((b.promos[d] || []).length) return true;
+        }
+      }
+    } catch (e) {}
+    return false;
   }
 
-  /* ── boot ── */
-  bootData();
-  var slug = readSlug();
-  resolveBusiness(slug).then(function(biz){
-    var norm = normalize(biz);
-    if (!norm){ renderEmptyState(); return; }
-    window.__biz = norm;
-    window.__owner = isOwnerOf(norm);
-    renderShell(norm);
-  }).catch(function(){
-    renderEmptyState();
+  function openTownPicker() {
+    if (TOWNS.length <= 1) { toast(TOWNS[0] ? 'Located in ' + TOWNS[0] : 'No town on file'); return; }
+    openPopup('Select Town', '<div class="popup-list">' + TOWNS.map(townListItem).join('') + '</div>');
+  }
+  function openAreaPicker() {
+    if (!selectedTown) { toast('Select a Town first'); return; }
+    var areas = areasForTown(selectedTown);
+    if (!areas.length) { toast('No areas on file for ' + selectedTown); return; }
+    if (areas.length === 1) { toast('Located in ' + areas[0]); return; }
+    openPopup('Select Area', '<div class="popup-list">' + areas.map(areaListItem).join('') + '</div>');
+  }
+
+  renderOptions();
+  if (optList) optList.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-opt]');
+    if (!btn) return;
+    var which = btn.getAttribute('data-opt');
+    if (which === 'town') openTownPicker();
+    else if (which === 'area') openAreaPicker();
+    else if (which === 'menu') {
+      if (hasMenu()) window.location.href = 'index.html#' + biz.slug + '/menu';
+      else toast(biz.name + ' has not yet loaded their menu');
+    } else if (which === 'promos') {
+      if (hasPromos()) window.location.href = 'index.html#' + biz.slug + '/promos';
+      else toast(biz.name + ' has no promos available');
+    }
   });
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-pick-town]');
+    if (t) { selectedTown = t.getAttribute('data-pick-town'); selectedArea = ''; renderOptions(); closePopup(); return; }
+    var a = e.target.closest('[data-pick-area]');
+    if (a) { selectedArea = a.getAttribute('data-pick-area'); renderOptions(); closePopup(); }
+  });
+
+  /* ---- Page history ---- */
+  var backBtn = document.getElementById('backBtn');
+  if (backBtn) backBtn.addEventListener('click', function () {
+    var items = [
+      { label: 'EatOuts Home', href: 'index.html#promos' },
+      { label: 'Restaurants', href: 'index.html#restaurants' },
+      { label: biz.name + ' - Menu', href: 'index.html#restaurants' },
+      { label: biz.name + ' - About', current: true }
+    ];
+    var html = '<div class="history-list">';
+    items.filter(function (p) { return !p.current; }).forEach(function (p) {
+      html += '<button class="history-item" onclick="window.location.href=\'' + p.href + '\'">' + p.label + '</button>';
+    });
+    html += '</div>';
+    openPopup('Page history', html);
+  });
+
+  /* ---- Logo overlay ---- */
+  var logoBtn = document.getElementById('logoBtn');
+  var logoOverlay = document.getElementById('logoOverlay');
+  var logoLarge = document.getElementById('logoLarge');
+  if (logoBtn && logoOverlay && logoLarge && logoImg) {
+    logoBtn.addEventListener('click', function () {
+      logoLarge.src = logoImg.src;
+      logoOverlay.classList.add('open');
+    });
+  }
+  var logoClose = document.getElementById('logoOverlayClose');
+  if (logoClose && logoOverlay) logoClose.addEventListener('click', function () { logoOverlay.classList.remove('open'); });
+  if (logoOverlay) logoOverlay.addEventListener('click', function (e) { if (e.target === logoOverlay) logoOverlay.classList.remove('open'); });
+
+  /* ---- Drag resize ---- */
+  var dragHandle = document.getElementById('dragHandle');
+  if (dragHandle && logoBtn) {
+    var size = 200, dragging = false, sy = 0, ss = 0;
+    dragHandle.addEventListener('pointerdown', function (e) { dragging = true; sy = e.clientY; ss = size; try { dragHandle.setPointerCapture(e.pointerId); } catch (x) {} e.preventDefault(); });
+    dragHandle.addEventListener('pointermove', function (e) { if (!dragging) return; size = Math.max(120, Math.min(400, ss + (e.clientY - sy))); logoBtn.style.width = size + 'px'; logoBtn.style.height = size + 'px'; });
+    dragHandle.addEventListener('pointerup', function (e) { dragging = false; try { dragHandle.releasePointerCapture(e.pointerId); } catch (x) {} });
+    dragHandle.addEventListener('pointercancel', function () { dragging = false; });
+  }
+
+  /* ---- Settings buttons (toast only) ---- */
+  function toast(msg) {
+    var t = document.getElementById('toast'); if (!t) return;
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+  document.addEventListener('click', function (e) {
+    var s = e.target.closest('[data-settings]');
+    if (!s) return;
+    var a = s.getAttribute('data-settings');
+    if (a === 'change-logo') { var f = document.getElementById('fileInput'); if (f) f.click(); }
+    else toast('"' + a + '" is not available on this page.');
+  });
+  var fi = document.getElementById('fileInput');
+  if (fi && logoImg) fi.addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0]; if (!file) return;
+    var r = new FileReader();
+    r.onload = function (ev) { logoImg.src = ev.target.result; logoImg.style.opacity = '1'; toast('Logo updated'); };
+    r.readAsDataURL(file); e.target.value = '';
+  });
+
+  /* Escape closes */
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePopup(); });
 })();
 </script>
+
 </body>
 </html>

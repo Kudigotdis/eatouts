@@ -9667,6 +9667,24 @@ bootEatoutsBridge();
 try{
   const hashTab=(window.location.hash||"").replace(/^#\/?/,"").toLowerCase();
   if(NAV_TABS.some(function(t){return t.id===hashTab;})) state.tab=hashTab;
+  /* Deep-link straight into a venue's Menu/Promos from a standalone page
+     (venue-about.html emits index.html#<slug>/menu or #<slug>/promos). */
+  const hashParts=hashTab.split("/");
+  if(hashParts.length>1&&(hashParts[1]==="menu"||hashParts[1]==="promos")&&hasBridge()){
+    const canonKey=function(s){const B=window.EatoutsBrand;return (B&&B.canonicalKey)?B.canonicalKey(s):String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"");};
+    const want=canonKey(hashParts[0]);
+    const list=(EatoutsBridge.all&&EatoutsBridge.all())||[];
+    const r=list.filter(function(x){return canonKey(x.slug)===want||canonKey(x.id)===want;})[0];
+    if(r){
+      const brand=(EatoutsBridge.brandKeyOf)?EatoutsBridge.brandKeyOf(r):(r.slug||r.id);
+      state.tab="restaurants";state.restPanel="food";
+      state.restaurantOpen=brand;
+      state.restaurantView={id:r.id,brand:brand,view:hashParts[1],promoId:null};
+      state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;
+      state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;
+      if(EatoutsBridge.setActive)EatoutsBridge.setActive(r.id);
+    }
+  }
   /* Deep-link straight back to a venue-provider list (e.g. from the event
      builder's "Back to Venues") by restoring the reserve breadcrumb. */
   const resEvent=(new URLSearchParams(window.location.search||"")).get("resEvent");

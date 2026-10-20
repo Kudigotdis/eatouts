@@ -25,6 +25,7 @@ const SUITES = [
   'popups.js',
   'about.js',
   'venue-about-menu.js',
+  'venue-about-options.js',
   'blog.js',
   'dashboard.js',
   'wa.js',
@@ -65,7 +66,9 @@ const SUITES = [
   'inventory.js',
   'venue-slug.js',
   'venue-slug-integration.js',
-  'business-profiles.js'
+  'catering-directory.js',
+  'business-profiles.js',
+  'business-promos.js'
 ];
 
 function pad(n, width) {
