@@ -1,4 +1,14 @@
-﻿# AGENTS.md - Golden Rules for EatOuts AI Agents
+## 0. THE GOLDEN RULE (READ THIS FIRST)
+
+Whenever you edit ANY data file that reaches the browser (e.g. `assets/data/CateringServicesDatabase.js`), you MUST do these 3 steps in order:
+
+1. **Bump the version query** in `index.html` (e.g. change `?v=20261021` to `?v=20261022`). This is the ONLY way to bypass the Cloudflare Pages 4-hour cache.
+2. **Run the parse check** first. For catering: `node -e "global.window={};require('./assets/data/CateringServicesDatabase.js');console.log('OK',window.EATOUTS_CATERING.totals.brands)"`. If it throws a SyntaxError, DO NOT COMMIT. Fix the file first.
+3. **Commit and push** to `main`.
+
+---
+
+# AGENTS.md - Golden Rules for EatOuts AI Agents
 
 Read this before touching any file. If unsure, stop and ask the operator.
 The operator is a NON-DEVELOPER. Follow Section 1 strictly.
@@ -28,7 +38,7 @@ the browser. Stop, find the LIVE file.
 
 ## 3. The encoding trap (broke a real deploy on 2026-10-20)
 
-Files contain the diacritic-stripping regex:  [\\u0300-\\u036f]
+Files contain the diacritic-stripping regex:  [\u0300-\u036f]
 
 If a tool rewrites the file while treating bytes as Latin-1 or double-encoding,
 the range becomes U+00CC U+20AC - U+00CD U+00AF (a Latin-1 re-encoding of the
@@ -57,7 +67,7 @@ Expected:  PARSE OK 115 (or current count).
 
 If it throws SyntaxError, DO NOT COMMIT. Common causes:
   1. Missing trailing comma at the end of a RAW entry ( `}] }` instead of `}] },` )
-  2. Mojibake in [\\u0300-\\u036f]   (see Section 3)
+  2. Mojibake in [\u0300-\u036f]   (see Section 3)
 
 ## 5. Adding a catering business
 
@@ -111,7 +121,7 @@ Symptom: catering page showed "No catering services found" locally; production s
 Root causes:
 - Commit 4bfa3c5 added 20 businesses + Desert Flames logo, but the file had a mojibake
   regex (Range out of order) -> SyntaxError -> nothing rendered.
-- Commit 990b0d3 repaired the regex to [\\u0300-\\u036f] and fixed a missing comma.
+- Commit 990b0d3 repaired the regex to [\u0300-\u036f] and fixed a missing comma.
 - Commit 63ba695 added the cache-busting ?v= query to index.html.
 
 Lesson: green deploy + working `git push` does NOT mean the file parses.
