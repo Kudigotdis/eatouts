@@ -53,7 +53,7 @@
     return String(s == null ? '' : s)
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[Ì€-Í¯]/g, '')
+      .replace(/[\u0300-\u036F]/g, '')
       .replace(/&/g, ' and ')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
@@ -158,7 +158,7 @@
     { business_name: "Doubles Lounge & Catering Services", type: "Lounge, Catering Services", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
     { business_name: "Dripsins Burger & Grill", type: "Burgers, Grill, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
     { business_name: "LH Cuisine & Events", type: "Cuisine, Events, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
-    { business_name: "Platter House", type: "Platters, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] }
+    { business_name: "Platter House", type: "Platters, Catering", aliases: [], locations: [{ address: "Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, area: "", established: null, years_with_us: null, verified: true, source: "EatOuts directory" }] },
     { business_name: "Lwapa Restaurant & Catering Services", type: "Setswana, Catering", aliases: [], locations: [{ address: "Extension 2 Borakanelo, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
     { business_name: "Sanitas Restaurant & Catering", type: "Cafe, Events Catering", aliases: [], locations: [{ address: "Content Farm, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
     { business_name: "The Courtyard Restaurant @botswanacraft", type: "African, Healthy, Events", aliases: [], locations: [{ address: "Extension 3 Village, Gaborone, Botswana", town_city: "Gaborone", country: "Botswana", phone: null, established: null, years_with_us: null, verified: false, source: "List C (2026)" }] },
