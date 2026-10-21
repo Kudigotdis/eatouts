@@ -322,6 +322,10 @@ function fakeDB(seed) {
       return null;
     }
 
+    if (s.startsWith('DELETE FROM favourites WHERE type = ? AND ref_id = ?')) {
+      return { changes: 0 };
+    }
+
     throw new Error('fakeDB: unhandled SQL -> ' + s);
   }
 

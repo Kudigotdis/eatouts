@@ -352,20 +352,85 @@
     };
   }
 
-  /* ---------- promos (moderation queue) ---------- */
+/* ---------- promos (business CRUD) ---------- */
 
-  /* Promos are never published directly: submitting queues them for admin
-     review in the same promo_submissions queue as customer event promos. */
+  /* Promos are published directly by the business operator. The moderation
+     queue path (promoSubmit / promoToSubmission) is kept for the legacy
+     "submit for admin review" flow and is still wired from the UI. */
   function promosRead(rid) {
-    return api('/customer/promo-submissions?restaurantId=' + encodeURIComponent(rid));
+    return api('/business/promos?restaurant=' + encodeURIComponent(rid));
   }
+  function promoCreate(rid, body) {
+    return api('/business/promos?restaurant=' + encodeURIComponent(rid), { method: 'POST', body: body });
+  }
+  function promoUpdate(rid, id, body) {
+    return api('/business/promos/' + encodeURIComponent(id) + '?restaurant=' + encodeURIComponent(rid), { method: 'PATCH', body: body });
+  }
+  function promoDelete(rid, id) {
+    return api('/business/promos/' + encodeURIComponent(id) + '?restaurant=' + encodeURIComponent(rid), { method: 'DELETE' });
+  }
+
+  /* local promo shape (promo-onboarding) <-> server row.
+     The server stores start/end as separate date + time TEXT columns, so
+     no epoch conversion is needed — the local shape already splits them. */
+  function promoToServer(p) {
+    p = p || {};
+    return {
+      title: p.title || 'Untitled promo',
+      image: p.image || null,
+      type: p.type || null,
+      description: p.description || null,
+      originalPrice: p.originalPrice != null ? Number(p.originalPrice) : null,
+      promoPrice: p.promoPrice != null ? Number(p.promoPrice) : null,
+      locationJson: p.location || null,
+      startDate: p.startDate || null,
+      startTime: p.startTime || null,
+      endDate: p.endDate || null,
+      endTime: p.endTime || null,
+      recurring: !!p.recurring,
+      daysJson: Array.isArray(p.days) ? p.days : null,
+      linkedMenuItemsJson: Array.isArray(p.linkedMenuItems) ? p.linkedMenuItems : null,
+      actionJson: p.action || null,
+      sponsor: p.sponsor || null,
+      terms: p.terms || null,
+      status: p.status || 'active'
+    };
+  }
+
+  function promoFromServer(s) {
+    s = s || {};
+    return {
+      id: s.id,
+      serverId: s.id,
+      title: s.title || '',
+      image: s.image || '',
+      type: s.type || '',
+      description: s.description || '',
+      originalPrice: s.originalPrice != null ? s.originalPrice : 0,
+      promoPrice: s.promoPrice != null ? s.promoPrice : 0,
+      location: s.locationJson || null,
+      startDate: s.startDate || '',
+      startTime: s.startTime || '',
+      endDate: s.endDate || '',
+      endTime: s.endTime || '',
+      recurring: !!s.recurring,
+      days: Array.isArray(s.daysJson) ? s.daysJson : [],
+      linkedMenuItems: Array.isArray(s.linkedMenuItemsJson) ? s.linkedMenuItemsJson : [],
+      action: s.actionJson || null,
+      sponsor: s.sponsor || '',
+      terms: s.terms || '',
+      status: s.status || 'active',
+      createdAt: s.createdAt || Date.now(),
+      updatedAt: s.updatedAt || null
+    };
+  }
+
+  /* local promo shape (promo-onboarding) -> queue submission body. */
   function promoSubmit(rid, body) {
     return api('/customer/promo-submissions', {
       method: 'POST', body: Object.assign({ restaurantId: rid }, body || {})
     });
   }
-
-  /* local promo shape (promo-onboarding) -> queue submission body. */
   function promoToSubmission(p, restaurant) {
     p = p || {}; restaurant = restaurant || {};
     var loc = p.location || {};
@@ -584,6 +649,11 @@ window.EatoutsBusinessApi = {
     eventToServer: eventToServer,
     eventFromServer: eventFromServer,
     promosRead: promosRead,
+    promoCreate: promoCreate,
+    promoUpdate: promoUpdate,
+    promoDelete: promoDelete,
+    promoToServer: promoToServer,
+    promoFromServer: promoFromServer,
     promoSubmit: promoSubmit,
     promoToSubmission: promoToSubmission,
     businessProfilesGet: businessProfilesGet,

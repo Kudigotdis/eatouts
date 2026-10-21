@@ -258,3 +258,37 @@ export function eventOut(r) {
     updated_at: r.updated_at
   };
 }
+
+export function promoOut(r) {
+  if (!r) return null;
+  return {
+    id: r.id,
+    restaurantId: r.restaurant_id,
+    title: r.title,
+    image: r.image || null,
+    type: r.type || null,
+    description: r.description || null,
+    originalPrice: r.original_price != null ? r.original_price : null,
+    promoPrice: r.promo_price != null ? r.promo_price : null,
+    locationJson: jsonOrNull(r.location_json),
+    startDate: r.start_date || null,
+    startTime: r.start_time || null,
+    endDate: r.end_date || null,
+    endTime: r.end_time || null,
+    recurring: !!r.recurring,
+    daysJson: jsonOrEmptyArray(r.days_json),
+    linkedMenuItemsJson: jsonOrEmptyArray(r.linked_menu_items_json),
+    actionJson: jsonOrNull(r.action_json),
+    sponsor: r.sponsor || null,
+    terms: r.terms || null,
+    status: r.status || 'active',
+    createdAt: r.created_at,
+    updatedAt: r.updated_at
+  };
+}
+
+/** Remove every customer favourite that points at a deleted business asset. */
+export async function purgeFavourites(db, type, refId) {
+  if (!db || !type || !refId) return;
+  await db.prepare('DELETE FROM favourites WHERE type = ? AND ref_id = ?').bind(String(type), String(refId)).run();
+}

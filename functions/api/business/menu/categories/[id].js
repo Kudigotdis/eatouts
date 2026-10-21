@@ -2,7 +2,7 @@
    PATCH  { name?, position? } -> update a category   (menu_manager+)
    DELETE                       -> delete + detach its items (menu_manager+) */
 import { json, readJson } from './../../../_shared.js';
-import { requireBusiness, categoryOut, str } from './../../../_business.js';
+import { requireBusiness, categoryOut, str, purgeFavourites } from './../../../_business.js';
 
 async function load(context) {
   var env = context.env;
@@ -31,6 +31,7 @@ export async function onRequestPatch(context) {
 export async function onRequestDelete(context) {
   var l = await load(context);
   if (l.error) return l.error;
+  await purgeFavourites(l.c.db, 'menu', l.row.id);
   await l.c.db.prepare('DELETE FROM menu_categories WHERE id = ?').bind(l.row.id).run();
   await l.c.db.prepare('UPDATE menu_items SET category_id = NULL WHERE category_id = ?').bind(l.row.id).run();
   return json({ ok: true });

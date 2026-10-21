@@ -131,20 +131,25 @@ function dbSave(d){EatoutsOwnerCompat.save(d);}
 function uid(p){return p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
-let DB=dbLoad();function save(){dbSave(DB);render();}
+let DB=dbLoad();function save(){dbSave(DB);render();
+  if(PROMO_SERVER&&SRID&&API){
+    const p=DB.promos.slice();
+    Promise.all(p.map(x=>API.promoUpdate(SRID,x.id,API.promoToServer(x)).catch(()=>{}))).catch(()=>{});
+  }
+}
 const money=v=>DB.settings.currencySymbol+(Number(v)||0).toFixed(2);
 
-/* ========== SERVER SYNC (D1 moderation queue) ==========
-   Business promos are never published directly. Saving a promo submits it to
-   the shared promo_submissions queue as status='pending'; an admin approves and
-   publishes it in the dashboard. Existing submission statuses are read back and
-   shown on each promo. */
+/* ========== SERVER SYNC (D1 business promos) ==========
+   Business promos are published directly through /api/business/promos.
+   The moderation-queue path (promoSubmit / promoToSubmission) is kept as a
+   secondary "submit for admin review" step. Server rows are mirrored into
+   the local store via promoFromServer so the existing CRUD UI keeps working. */
 const API=window.EatoutsBusinessApi;let SRID=(DB.settings||{}).serverRestaurantId||null,PROMO_SERVER=false;
 function currentRestaurant(){try{const d=EatoutsDB.load();const list=d.restaurants||[];return list.find(r=>r.id===DB.restaurant.id)||list[0]||{};}catch(e){return {};}}
 function resolveInput(){const cur=currentRestaurant();return {serverRestaurantId:SRID,id:DB.restaurant.id,slug:cur.slug,name:(DB.restaurant.identity||{}).name||cur.name};}
-function promoServerSync(){if(!API)return;API.resolve(resolveInput(),{create:false}).then(r=>{if(!r||!r.rid)return;SRID=r.rid;PROMO_SERVER=true;if(!(DB.settings||{}).serverRestaurantId){DB.settings=DB.settings||{};DB.settings.serverRestaurantId=r.rid;dbSave(DB);}return API.promosRead(SRID).then(res=>{if(!res.ok||!res.data)return;mergeReview(res.data);});}).catch(()=>{});}
-function mergeReview(data){const list=data.submissions||[];let changed=false;
-  list.forEach(s=>{const p=DB.promos.find(x=>x.id===s.eventRef||x.id===s.id);if(p&&p.reviewStatus!==s.status){p.reviewStatus=s.status;changed=true;}});
+function promoServerSync(){if(!API)return;API.resolve(resolveInput(),{create:false}).then(r=>{if(!r||!r.rid)return;SRID=r.rid;PROMO_SERVER=true;if(!(DB.settings||{}).serverRestaurantId){DB.settings=DB.settings||{};DB.settings.serverRestaurantId=r.rid;dbSave(DB);}return API.promosRead(SRID).then(res=>{if(!res.ok||!res.data||!Array.isArray(res.data.promos))return;mergeServerPromos(res.data.promos);});}).catch(()=>{});}
+function mergeServerPromos(list){let changed=false;
+  list.forEach(s=>{const p=DB.promos.find(x=>x.id===s.id);if(p){const m=API.promoFromServer(s);Object.keys(m).forEach(k=>{p[k]=m[k];});p.synced=true;changed=true;}else{DB.promos.push(Object.assign(API.promoFromServer(s),{synced:true}));changed=true;}});
   if(changed){dbSave(DB);render();}}
 function submitPromo(p){if(!PROMO_SERVER||!SRID||!API)return;try{Promise.resolve(API.promoSubmit(SRID,API.promoToSubmission(p,DB.restaurant))).then(r=>{if(r.ok){p.reviewStatus='pending';dbSave(DB);toast(r.data&&r.data.already?'Already submitted for review':'Submitted for review');render();}else if(r.data&&r.data.error){toast('Server: '+r.data.error);}}).catch(()=>{});}catch(e){}}
 function promoStatus(p){if(p.reviewStatus)return p.reviewStatus;return statusOf(p);}
@@ -349,8 +354,16 @@ function wireEditor(p){
   document.getElementById('btnCancel').onclick=()=>{VIEW={mode:'list',id:null};render();};
   document.getElementById('btnSavePromo').onclick=()=>{
     if(!p.title){toast('Title is required');return;}
-    VIEW={mode:'list',id:null};save();
-    if(PROMO_SERVER&&SRID&&API)submitPromo(p);else toast('Promo saved');
+    const serverBody=API?API.promoToServer(p):null;
+    const doSave=()=>{
+      VIEW={mode:'list',id:null};save();
+      if(PROMO_SERVER&&SRID&&API&&serverBody){
+        const apiCall=p.id&&p.synced?API.promoUpdate(SRID,p.id,serverBody):API.promoCreate(SRID,serverBody);
+        Promise.resolve(apiCall).then(r=>{if(r&&r.data&&r.data.promo){Object.assign(p,API.promoFromServer(r.data.promo));p.synced=true;dbSave(DB);}render();}).catch(()=>{render();});
+      }else{render();}
+      if(PROMO_SERVER&&SRID&&API)submitPromo(p);else toast('Promo saved');
+    };
+    doSave();
   };
 }
 
@@ -370,7 +383,10 @@ document.addEventListener('click',e=>{
   if(act==='edit'){VIEW={mode:'edit',id};render();return;}
   if(act==='dup'){const p=DB.promos.find(x=>x.id===id);if(!p)return;const c=JSON.parse(JSON.stringify(p));c.id=uid('promo');c.title+=' (copy)';c.createdAt=Date.now();DB.promos.push(c);save();return;}
   if(act==='pause'){const p=DB.promos.find(x=>x.id===id);if(!p)return;p.status=p.status==='paused'?'active':'paused';save();return;}
-  if(act==='del'){if(confirm('Remove this promo?')){DB.promos=DB.promos.filter(x=>x.id!==id);save();}return;}
+  if(act==='del'){if(confirm('Remove this promo?')){
+      DB.promos=DB.promos.filter(x=>x.id!==id);save();
+      if(PROMO_SERVER&&SRID&&API)Promise.resolve(API.promoDelete(SRID,id)).catch(()=>{});
+    }return;}
 });
 document.getElementById('btnNew').onclick=newPromo;
 document.getElementById('btnBack').onclick=()=>{if(VIEW.mode==='edit'){VIEW={mode:'list',id:null};render();}else history.back();};

@@ -2,7 +2,7 @@
    PATCH  { groupId?, imageKey?, label?, visible?, position? } -> update   (marketing_manager+)
    DELETE                                                       -> delete */
 import { json, readJson } from './../../../_shared.js';
-import { requireBusiness, galleryImageOut, str } from './../../../_business.js';
+import { requireBusiness, galleryImageOut, str, purgeFavourites } from './../../../_business.js';
 
 async function load(context) {
   var env = context.env;
@@ -39,6 +39,7 @@ export async function onRequestPatch(context) {
 export async function onRequestDelete(context) {
   var l = await load(context);
   if (l.error) return l.error;
+  await purgeFavourites(l.c.db, 'gallery', l.row.id);
   await l.c.db.prepare('DELETE FROM gallery_images WHERE id = ?').bind(l.row.id).run();
   return json({ ok: true });
 }

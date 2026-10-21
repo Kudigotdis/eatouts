@@ -92,16 +92,21 @@ setTimeout(() => {
   check('closed card shows the heart count', !!doc.querySelector('#viewport .profilecard .pc-fav'), !!doc.querySelector('#viewport .profilecard .pc-fav'));
   check('closed card has no rows', !doc.querySelector('#viewport .profilecard + .pc-rows'));
 
-  click(doc.querySelector('#viewport [data-act="profileCardToggle"]'));
-  check('toggling opens the profile card', ev('state.profileCardOpen') === true);
+  click(doc.querySelector('#viewport [data-act="openAboutPopup"]'));
+  check('tapping the profile card opens the options popup', ev('state.about') === 'profile-options');
   vp = doc.getElementById('viewport');
-  check('open card renders the row menu', !!doc.querySelector('#viewport .pc-rows'));
-  check('open card links to My Profile', !!doc.querySelector('#viewport .pc-rows a[href="eatouts-profile.html"]'));
-  check('open card links to Favourites', !!doc.querySelector('#viewport .pc-rows a[href="eatouts-favourites.html"]'));
-  check('open card offers Sign out', !!doc.querySelector('#viewport .pc-rows [data-act="customerLogout"]'));
-
-  click(doc.querySelector('#viewport [data-act="profileCardToggle"]'));
-  check('toggling closes the profile card', ev('state.profileCardOpen') === false);
+  const aboutPop = vp.querySelector('.card-alert.fpop.pp');
+  check('options popup renders', !!aboutPop);
+  const menuRows = aboutPop ? Array.from(aboutPop.querySelectorAll('.about-menu-row .about-menu-label')).map(n => n.textContent.trim()) : [];
+  check('options popup lists Favourites/Orders/Summaries/Gallery',
+    JSON.stringify(menuRows) === JSON.stringify(['Favourites', 'Orders', 'Summaries', 'Gallery']), menuRows.join(','));
+  check('options popup offers Sign out', !!aboutPop.querySelector('.about-signout[data-act="customerLogout"]'));
+  click(aboutPop.querySelector('[data-act="aboutNav"][data-view="favourites"]'));
+  check('Favourites screen opens', ev('state.about') === 'favourites' && !!vp.querySelector('.card-alert.fpop.pp .fpop-back-btn'));
+  click(vp.querySelector('.card-alert.fpop.pp [data-act="aboutBack"]'));
+  check('Back returns to the options popup', ev('state.about') === 'profile-options');
+  click(vp.querySelector('.card-alert.fpop.pp [data-act="aboutBack"]'));
+  check('Back from options closes the popup', ev('state.about') === null && !vp.querySelector('.card-alert.fpop.pp'));
 
   /* About EatOuts settings link lives before the Install row */
   const aboutLink = doc.querySelector('#viewport a.setrow[href="eatouts-about.html"]');

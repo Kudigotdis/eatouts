@@ -91,7 +91,7 @@ setTimeout(() => {
   check('website slot no longer renders as unavailable',
     !vp.querySelector('.social-row .social-ico.off[aria-label*="Website"]'));
 
-  /* guest profile card opens a centred sign-in popup (no accordion) */
+  /* guest profile card opens the About explainer popup */
   const guestCard = vp.querySelector('.profilecard.guest');
   check('guest profile card present', !!guestCard);
   check('guest card has no secondary text', !!guestCard && !guestCard.querySelector('small'));
@@ -99,29 +99,39 @@ setTimeout(() => {
   click(guestCard);
   check('guest card does not open an accordion',
     dom.window.eval('state.profileCardOpen') !== true && !vp.querySelector('.pc-rows'));
-  const guestAlert = vp.querySelector('.card-alert');
+  const guestAlert = vp.querySelector('.card-alert.pp');
   check('guest popup opens on tap', !!guestAlert);
   check('guest popup text is centred',
     !!guestAlert && dom.window.getComputedStyle(guestAlert).textAlign === 'center');
   check('guest popup leads with the EatOuts logo',
     !!guestAlert && !!guestAlert.querySelector('img.card-alert-logo[src*="EatOuts"]'));
   const opts = guestAlert ? Array.from(guestAlert.querySelectorAll('.card-alert-options .card-opt')) : [];
-  check('guest popup lists six options', opts.length === 6, 'count=' + opts.length);
+  check('guest popup lists four options', opts.length === 4, 'count=' + opts.length);
   check('guest options are the account features in order',
     JSON.stringify(opts.map(o => o.textContent.trim())) ===
-    JSON.stringify(['Favourites', 'Orders', 'Events', 'Saved Summaries', 'Profile', 'Gallery']),
+    JSON.stringify(['Favourites', 'Orders', 'Summaries', 'Gallery']),
     opts.map(o => o.textContent.trim()).join(','));
-  check('guest options all route to the login page',
-    opts.length === 6 && opts.every(o => o.getAttribute('href') === 'eatouts-login.html'));
   const guestCtas = guestAlert ? Array.from(guestAlert.querySelectorAll('.card-alert-actions .dlg-btn')) : [];
-  const createCta = guestCtas.filter(a => a.textContent.trim() === 'Create an account')[0];
-  const signinCta = guestCtas.filter(a => a.textContent.trim() === 'Sign in')[0];
-  check('guest popup offers Create an account (primary, onboarding)',
+  const signinCta = guestCtas.filter(a => a.textContent.trim() === 'Sign In')[0];
+  const notNowCta = guestCtas.filter(b => b.textContent.trim() === 'Not Now')[0];
+  check('guest popup offers Sign In (primary, login)',
+    !!signinCta && signinCta.classList.contains('primary') &&
+    signinCta.getAttribute('href') === 'eatouts-login.html');
+  check('guest popup offers Not Now',
+    !!notNowCta && notNowCta.getAttribute('data-act') === 'aboutClose');
+  /* a feature option opens its explainer with Create Account */
+  click(opts[0]);
+  const feature = vp.querySelector('.card-alert.pp');
+  check('guest feature explainer opens', !!feature && !!feature.querySelector('h3'));
+  const createCta = feature ? Array.from(feature.querySelectorAll('.card-alert-actions .dlg-btn'))
+    .filter(a => a.textContent.trim() === 'Create Account')[0] : null;
+  check('guest feature offers Create Account (primary, onboarding)',
     !!createCta && createCta.classList.contains('primary') &&
     createCta.getAttribute('href') === 'eatouts-user-onboarding.html');
-  check('guest popup offers Sign in (login)',
-    !!signinCta && signinCta.getAttribute('href') === 'eatouts-login.html');
-  click(guestAlert.querySelector('.card-alert-actions [data-act="dismissCardAlert"]'));
+  click(feature.querySelector('[data-act="aboutBack"]'));
+  check('guest feature Back returns to the options list',
+    !!vp.querySelector('.card-alert.pp .card-alert-options .card-opt'));
+  click(vp.querySelector('.card-alert.pp .card-alert-actions [data-act="aboutClose"]'));
   check('guest popup dismisses', !vp.querySelector('.card-alert'));
 
   check('no window errors', errors.length === 0, errors.join(' | '));

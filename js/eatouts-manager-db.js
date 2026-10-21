@@ -14,14 +14,16 @@
       {id:"u-bottle",firstName:"Demo",surname:"Bottle",whatsapp:"26770000003",type:"biz_owner",status:"active",roles:["biz_owner"],businessId:"biz-bottle"},
       {id:"u-caterer",firstName:"Demo",surname:"Caterer",whatsapp:"26770000004",type:"biz_owner",status:"active",roles:["biz_owner"],businessId:"biz-caterer"},
       {id:"u-lodge",firstName:"Demo",surname:"Lodge",whatsapp:"26770000005",type:"biz_owner",status:"active",roles:["biz_owner"],businessId:"biz-lodge"},
-      {id:"u-supplier",firstName:"Demo",surname:"Supplier",whatsapp:"26770000006",type:"supplier",status:"active",roles:["supplier"],businessId:"biz-supplier"}
+      {id:"u-supplier",firstName:"Demo",surname:"Supplier",whatsapp:"26770000006",type:"supplier",status:"active",roles:["supplier"],businessId:"biz-supplier"},
+      {id:"u-truck",firstName:"Demo",surname:"Truck",whatsapp:"26770000007",type:"biz_owner",status:"active",roles:["biz_owner"],businessId:"biz-truck"}
     ],
     businesses:[
-      {id:"biz-restaurant",name:"The Food Place",type:"restaurant",status:"verified",town:"Gaborone",area:"CBD",ownerId:"u-owner",subscription:"Growth"},
-      {id:"biz-bottle",name:"Demo Bottle Store",type:"bottle_store",status:"pending",town:"Gaborone",area:"Broadhurst",ownerId:"u-bottle",subscription:"Starter"},
-      {id:"biz-caterer",name:"Demo Caterers",type:"caterer",status:"verified",town:"Gaborone",area:"Block 8",ownerId:"u-caterer",subscription:"Growth"},
+      {id:"biz-restaurant",name:"The Food Place",type:"restaurant",status:"verified",town:"Gaborone",area:"CBD",ownerId:"u-owner",subscription:"Growth",restaurantId:"sanitas-restaurant"},
+      {id:"biz-bottle",name:"Demo Bottle Store",type:"bottle_store",status:"pending",town:"Gaborone",area:"Broadhurst",ownerId:"u-bottle",subscription:"Starter",restaurantId:"liquorama"},
+      {id:"biz-caterer",name:"Demo Caterers",type:"caterer",status:"verified",town:"Gaborone",area:"Block 8",ownerId:"u-caterer",subscription:"Growth",restaurantId:"mmantlo-goodies"},
       {id:"biz-lodge",name:"Demo Lodge",type:"lodge",status:"verified",town:"Francistown",area:"CBD",ownerId:"u-lodge",subscription:"Growth"},
-      {id:"biz-supplier",name:"Demo Event Supplies",type:"supplier",status:"verified",town:"Gaborone",area:"Tlokweng",ownerId:"u-supplier",subscription:"Starter"}
+      {id:"biz-supplier",name:"Demo Event Supplies",type:"supplier",status:"verified",town:"Gaborone",area:"Tlokweng",ownerId:"u-supplier",subscription:"Starter",restaurantId:"demo-event-supplier"},
+      {id:"biz-truck",name:"Demo Food Truck (DEMO)",type:"foodtruck",status:"pending",town:"Gaborone",area:"",ownerId:"u-truck",subscription:"Starter",restaurantId:"demo-food-truck"}
     ],
     staff:[
     ],

@@ -1,664 +1,923 @@
-<!doctype html>
+<!DOCTYPE html>
 <!-- PAGE: List your business -->
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="robots" content="noindex">
-<meta name="theme-color" content="#ffffff">
-<title>List your business · EatOuts</title>
-<link rel="stylesheet" href="assets/eatouts-manager.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>List your business on EatOuts</title>
 <style>
-  .sg-hero{font-size:24px;font-weight:900;letter-spacing:-.03em;margin:2px 0 6px}
-  .sg-sub{font-size:12.5px;color:#6f685d;line-height:1.5;margin:0 0 14px}
-  .sg-type{font-size:21px;font-weight:900;letter-spacing:-.02em;margin:18px 0 2px}
-  .sg-hint{margin:2px 0 12px;color:#6f685d}
-  .sg-note{font-size:11.5px;color:#6f685d;background:#faf8f2;border:1px solid #e6dfd2;border-radius:4px;padding:9px 11px;margin:12px 0;line-height:1.5}
-  .sg-results{display:flex;flex-direction:column;gap:9px;margin-top:12px}
-  .res{padding:12px 13px;border:1px solid #e6dfd2;background:#fff;border-radius:4px}
-  .res .t{font-weight:850;font-size:13.5px}
-  .res .m{font-size:11px;color:#6f685d;margin-top:3px;line-height:1.4}
-  .res .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:9px}
-  .chip{display:inline-block;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;background:#f0eee8;color:#7a7466}
-  .chip.live{background:#e3f5e9;color:#17834b}
-  .chip.pending_payment{background:#fdf3dc;color:#9a6a0a}
-  .chip.closed_lost,.chip.archived,.chip.rejected{background:#fbeaea;color:#b5483c}
-  .sg-links{display:flex;flex-direction:column;gap:9px;margin-top:14px}
-  .btn.btn-sm{width:auto;padding:7px 11px;font-size:11px}
-  .sg-actions{display:flex;gap:8px;margin-top:12px}
-  .sg-actions .btn{width:auto}
-  .fixed{background:#fffaf0;border:1px solid #f0e1b8;color:#7a6410;border-radius:4px;padding:9px 11px;font-size:11.5px;line-height:1.5;margin:12px 0}
-  .demo-card{border:1px solid #e6dfd2;border-radius:6px;overflow:hidden;background:#fff;margin:10px 0}
-  .demo-head{display:flex;gap:12px;align-items:center;padding:13px;background:#faf8f2}
-  .demo-logo{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid #e6dfd2;background:#efe9dc}
-  .demo-name{font-size:17px;font-weight:900}
-  .demo-meta{font-size:11px;color:#6f685d;margin-top:2px;line-height:1.4}
-  .demo-menu{width:100%;border-collapse:collapse;font-size:12px}
-  .demo-menu td{padding:8px 13px;border-top:1px solid #f0ece4}
-  .demo-menu .p{text-align:right;color:#6f685d;font-weight:700}
-  .demo-cat{font-size:9.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#9b917f;padding:10px 13px 4px}
-  .mt{margin-top:12px}
+  :root{
+    --brand-bg:       #f3ece0;
+    --white:          #ffffff;
+    --ink:            #191818;
+    --ink-2:          #3a352b;
+    --ink-3:          #7a7263;
+    --muted:          #a89a7e;
+    --border:         #ece5d5;
+    --border-strong:  #d5cab0;
+    --accent:         #4d6b3a;
+    --accent-soft:    rgba(77,107,58,.10);
+    --green:          #2e9e56;
+    --red:            #c0392b;
+    --amber:          #c98a2c;
+    --shadow-sm:      0 1px 2px rgba(60,45,20,.06);
+    --shadow-md:      0 4px 16px rgba(60,45,20,.10);
+    --shadow-popup:   0 24px 70px rgba(15,10,0,.28), 0 0 0 1px rgba(0,0,0,.04);
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:var(--brand-bg);
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  body.popup-open{overflow:hidden}
+  button,a.btn,input,select,textarea{font-family:inherit}
+  [hidden]{display:none!important}
+  h1,h2,h3,h4,p{margin:0}
+
+  /* ── APP SHELL ── */
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--brand-bg);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+
+  .appbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 18px 6px;
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:var(--brand-bg);
+  }
+  .brand-mark{
+    display:flex;align-items:center;gap:9px;
+    text-decoration:none;
+    font-weight:800;color:var(--ink);font-size:15px;letter-spacing:-.2px;
+  }
+  .brand-mark .dot{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--ink);color:#f3ead8;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:900;letter-spacing:-.5px;
+  }
+
+  /* ── CONTENT SHEET — 16px gaps on both sides, always ── */
+  .content-sheet{
+    background:var(--white);
+    border-radius:22px;
+    box-shadow:var(--shadow-md);
+    width:calc(100% - 32px);
+    margin:12px auto 24px;
+    padding:28px 20px 24px;
+  }
+
+  /* ── HERO — centred ── */
+  .sg-hero{
+    margin:0 0 12px;
+    font-size:25px;
+    line-height:1.2;
+    font-weight:800;
+    letter-spacing:-.4px;
+    color:var(--ink);
+    text-align:center;
+  }
+  .sg-hero::before{
+    content:"LIST YOUR BUSINESS";
+    display:block;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:1.2px;
+    color:var(--ink-3);
+    text-transform:uppercase;
+    margin-bottom:10px;
+    text-align:center;
+  }
+
+  .sg-sub{
+    margin:0 0 26px;
+    color:var(--ink-2);
+    font-size:15px;
+    line-height:1.6;
+    text-align:center;
+    max-width:380px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .sg-sub strong{
+    color:var(--ink);
+    font-weight:700;
+  }
+
+  /* ── BUSINESS-TYPE CARDS — larger, centred, no icons ── */
+  .choice-grid{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-bottom:20px;
+  }
+  .choice{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    padding:22px 20px;
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:16px;
+    text-decoration:none;
+    color:var(--ink);
+    box-shadow:var(--shadow-sm);
+    text-align:center;
+    align-items:center;
+    transition:transform .12s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .choice:hover{
+    transform:translateY(-1px);
+    box-shadow:var(--shadow-md);
+    border-color:var(--border-strong);
+  }
+  .choice:active{transform:translateY(0)}
+  .choice strong{
+    display:block;
+    font-size:19px;
+    font-weight:800;
+    color:var(--ink);
+    letter-spacing:-.2px;
+    line-height:1.3;
+  }
+  .choice small{
+    display:block;
+    font-size:15px;
+    color:var(--ink-3);
+    font-weight:500;
+    line-height:1.5;
+    max-width:320px;
+    margin:0 auto;
+  }
+
+  /* ── Notes / hints ── */
+  .fixed{
+    font-size:13px;
+    color:var(--ink-3);
+    line-height:1.55;
+    padding:14px 16px;
+    background:rgba(0,0,0,.025);
+    border:1px dashed var(--border);
+    border-radius:12px;
+    margin:16px 0;
+    text-align:center;
+  }
+  .fixed a{
+    color:var(--ink);
+    font-weight:700;
+    text-decoration:none;
+  }
+  .fixed a:hover{text-decoration:underline}
+
+  .sg-note{
+    font-size:13px;
+    color:var(--ink-3);
+    line-height:1.55;
+    padding:14px 16px;
+    background:rgba(0,0,0,.025);
+    border-radius:12px;
+    margin:16px 0;
+    text-align:center;
+  }
+  .sg-note a{
+    color:var(--ink);
+    font-weight:700;
+    text-decoration:none;
+  }
+  .sg-note a:hover{text-decoration:underline}
+
+  /* ── Link column ── */
+  .sg-links{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:16px;
+  }
+  .sg-links .btn{width:100%}
+
+  /* ── Buttons ── */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:13px 18px;
+    border-radius:12px;
+    font-size:14.5px;
+    font-weight:800;
+    letter-spacing:-.05px;
+    text-decoration:none;
+    text-align:center;
+    cursor:pointer;
+    border:1px solid var(--border-strong);
+    background:transparent;
+    color:var(--ink);
+    transition:transform .1s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:hover{background:rgba(0,0,0,.02)}
+  .btn:active{transform:scale(.985)}
+  .btn.primary{
+    background:var(--ink);
+    color:#fff;
+    border-color:var(--ink);
+  }
+  .btn.primary:hover{background:#000}
+
+  .btn-sm{
+    padding:9px 14px;
+    font-size:13px;
+    border-radius:10px;
+    margin-bottom:12px;
+  }
+
+  /* ── Section headings in inner stages ── */
+  .sg-type{
+    font-size:21px;
+    font-weight:800;
+    color:var(--ink);
+    letter-spacing:-.3px;
+    margin-bottom:8px;
+    line-height:1.3;
+    text-align:center;
+  }
+
+  .sg-hint{
+    display:block;
+    font-size:13.5px;
+    color:var(--ink-3);
+    line-height:1.55;
+    margin:0 0 16px;
+    text-align:center;
+  }
+  .sg-hint strong{
+    color:var(--ink-2);
+    font-weight:700;
+  }
+
+  /* ── Form fields ── */
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-bottom:14px;
+  }
+  .field > span:first-child{
+    font-size:11.5px;
+    font-weight:800;
+    color:var(--ink-3);
+    text-transform:uppercase;
+    letter-spacing:.7px;
+  }
+  .field input,
+  .field select,
+  .field textarea{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid var(--border-strong);
+    border-radius:10px;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--ink);
+    background:#faf7f0;
+    transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+    background:var(--white);
+    box-shadow:0 0 0 3px rgba(77,107,58,.14);
+  }
+  .field textarea{
+    min-height:90px;
+    resize:vertical;
+    line-height:1.5;
+  }
+  .field select{
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7263' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 14px center;
+    padding-right:40px;
+  }
+
+  /* ── Result rows ── */
+  .sg-results{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin:16px 0;
+  }
+  .res{
+    padding:14px 16px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    background:var(--white);
+    box-shadow:var(--shadow-sm);
+  }
+  .res .t{
+    font-size:15px;
+    font-weight:800;
+    color:var(--ink);
+    margin-bottom:3px;
+  }
+  .res .m{
+    font-size:12.5px;
+    color:var(--ink-3);
+    margin-bottom:10px;
+    line-height:1.45;
+  }
+  .res .row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    padding:4px 10px;
+    font-size:11.5px;
+    font-weight:700;
+    border-radius:999px;
+    background:rgba(0,0,0,.05);
+    color:var(--ink-3);
+    border:1px solid transparent;
+    letter-spacing:.2px;
+    white-space:nowrap;
+  }
+  .chip.live{background:rgba(46,158,86,.10);color:var(--green)}
+  .chip.archived{background:rgba(0,0,0,.05);color:var(--ink-3)}
+  .chip.rejected{background:rgba(192,57,43,.08);color:var(--red)}
+  .chip.pending_payment{background:rgba(201,138,44,.12);color:var(--amber)}
+  .chip.closed_lost{background:rgba(192,57,43,.06);color:var(--red)}
+
+  .sg-actions{display:flex;gap:8px;margin:0 0 14px}
+  .sg-actions .field{margin-bottom:0}
+  .sg-actions .btn{flex:1}
+
+  /* ── Demo card ── */
+  .demo-card{
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:var(--white);
+    box-shadow:var(--shadow-sm);
+    overflow:hidden;
+    margin-bottom:14px;
+  }
+  .demo-head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px;
+    border-bottom:1px solid var(--border);
+    background:#faf7f0;
+  }
+  .demo-logo{
+    width:48px;height:48px;
+    border-radius:10px;
+    object-fit:cover;
+    background:var(--white);
+    border:1px solid var(--border);
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:17px;
+    font-weight:900;
+    letter-spacing:-.5px;
+    color:var(--ink-3);
+  }
+  .demo-name{font-size:15px;font-weight:800;color:var(--ink)}
+  .demo-meta{font-size:12px;color:var(--ink-3);margin-top:2px}
+  .demo-cat{
+    padding:10px 14px 6px;
+    font-size:11px;
+    font-weight:800;
+    color:var(--ink-3);
+    text-transform:uppercase;
+    letter-spacing:.8px;
+  }
+  .demo-menu{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+  }
+  .demo-menu td{
+    padding:10px 14px;
+    border-top:1px solid var(--border);
+    color:var(--ink-2);
+    vertical-align:top;
+  }
+  .demo-menu td.p{
+    font-weight:800;
+    color:var(--ink);
+    text-align:right;
+    white-space:nowrap;
+    width:1%;
+  }
+
+  /* ── FLOATING POPUP (type info) ── */
+  .popup-scrim{
+    position:fixed;inset:0;z-index:90;
+    background:rgba(15,10,5,.42);
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+    opacity:0;pointer-events:none;
+    transition:opacity .22s ease;
+  }
+  .popup-scrim.open{opacity:1;pointer-events:auto}
+
+  .popup{
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%, -50%) scale(.94);
+    width:calc(100% - 40px);
+    max-width:460px;
+    max-height:82vh;
+    background:#fff;
+    border-radius:22px;
+    box-shadow:var(--shadow-popup);
+    z-index:95;
+    opacity:0;pointer-events:none;
+    transition:opacity .22s ease, transform .3s cubic-bezier(.34,1.4,.64,1);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .popup.open{
+    opacity:1;pointer-events:auto;
+    transform:translate(-50%, -50%) scale(1);
+  }
+  .popup-head{
+    padding:22px 22px 10px;
+    flex:0 0 auto;
+    text-align:center;
+  }
+  .popup-title{
+    margin:0;
+    font-size:22px;
+    font-weight:800;
+    color:var(--ink);
+    letter-spacing:-.3px;
+    line-height:1.25;
+  }
+  .popup-body{
+    padding:6px 22px 4px;
+    overflow-y:auto;
+    flex:1 1 auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .popup-foot{
+    padding:14px 20px calc(18px + env(safe-area-inset-bottom));
+    flex:0 0 auto;
+    border-top:1px solid var(--border);
+    display:flex;
+    gap:8px;
+    background:#fff;
+  }
+  .popup-foot .btn{
+    flex:1;
+  }
+
+  /* feature block inside popup */
+  .feature{
+    padding:16px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .feature:first-child{padding-top:8px}
+  .feature:last-child{border-bottom:0}
+  .feature-label{
+    font-size:11px;
+    font-weight:800;
+    color:var(--ink-3);
+    text-transform:uppercase;
+    letter-spacing:.8px;
+    margin-bottom:5px;
+  }
+  .feature-title{
+    font-size:15px;
+    font-weight:800;
+    color:var(--ink);
+    margin-bottom:6px;
+    line-height:1.35;
+    letter-spacing:-.1px;
+  }
+  .feature-desc{
+    font-size:14px;
+    color:var(--ink-2);
+    line-height:1.55;
+    margin:0;
+  }
+
+  /* small screens */
+  @media (max-width:380px){
+    .content-sheet{padding:24px 16px 22px}
+    .sg-hero{font-size:22px}
+    .choice strong{font-size:18px}
+    .choice small{font-size:14px}
+    .popup-title{font-size:20px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none!important;animation:none!important}
+  }
 </style>
 </head>
 <body data-page="eatouts-business-signup">
-<div class="login">
-  <div class="loginbox">
-    <header class="topbar loginbar">
-      <a class="brand" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts" style="height:30px;width:auto;display:block"></a>
-      <div class="hdr-right"><span class="hdr-chip">EatOuts</span></div>
-    </header>
-    <div class="crumb">List your business</div>
-    <div id="sg-app"></div>
+
+<div class="app">
+
+  <header class="appbar">
+    <a class="brand-mark" href="index.html#promos" aria-label="EatOuts home">
+      <span class="dot">E</span>
+      <span>EatOuts</span>
+    </a>
+  </header>
+
+  <div class="content-sheet">
+    <div id="sg-app">
+      <h1 class="sg-hero">Get your business on EatOuts.</h1>
+      <p class="sg-sub">List and manage your business so customers across Botswana can <strong>find you, browse what you offer and order from you</strong> in the EatOuts app.</p>
+      <div class="choice-grid">
+        <a class="choice" href="eatouts-business-signup.html?type=restaurant" data-type-info="restaurant">
+          <strong>Restaurant</strong>
+          <small>Menus, orders, tables and delivery.</small>
+        </a>
+        <a class="choice" href="eatouts-business-signup.html?type=caterer" data-type-info="caterer">
+          <strong>Caterer</strong>
+          <small>Per-head menus, quotes and event orders.</small>
+        </a>
+        <a class="choice" href="eatouts-business-signup.html?type=bakery" data-type-info="bakery">
+          <strong>Bakery</strong>
+          <small>Cakes, breads, pastries and custom orders.</small>
+        </a>
+        <a class="choice" href="eatouts-business-signup.html?type=liquor_store" data-type-info="liquor_store">
+          <strong>Liquor store</strong>
+          <small>Beverages, age-gated sales and delivery.</small>
+        </a>
+        <a class="choice" href="eatouts-business-signup.html?type=food_truck" data-type-info="food_truck">
+          <strong>Mobile Kitchen</strong>
+          <small>Weekly stops, live status and mobile ordering.</small>
+        </a>
+        <a class="choice" href="eatouts-business-signup.html?type=event_supplier" data-type-info="event_supplier">
+          <strong>Event supplier</strong>
+          <small>MC, decor, security, AV and entertainment.</small>
+        </a>
+      </div>
+      <div class="fixed">Curious what a finished listing looks like? <a href="#" data-a="demo">See a sample.</a></div>
+      <div class="sg-links">
+        <a class="btn" href="eatouts-login.html">Already registered? Sign in</a>
+        <a class="btn" href="ops-console.html#field">I am a field agent</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FLOATING TYPE-INFO POPUP ── -->
+<div class="popup-scrim" id="typePopupScrim"></div>
+<div class="popup" id="typePopup" role="dialog" aria-modal="true" aria-labelledby="typePopupTitle" aria-hidden="true">
+  <div class="popup-head">
+    <h2 class="popup-title" id="typePopupTitle"></h2>
+  </div>
+  <div class="popup-body" id="typePopupBody"></div>
+  <div class="popup-foot">
+    <button class="btn" id="typePopupClose" type="button">Close</button>
+    <button class="btn primary" id="typePopupCta" type="button">Get Started</button>
   </div>
 </div>
 
-<script src="js/eatouts-manager-db.js"></script>
-<script src="js/eatouts-roles.js"></script>
-<script src="js/eatouts-users.js"></script>
-<script src="js/eatouts-field.js"></script>
-<script src="js/eatouts-auth.js"></script>
-<script src="js/eatouts-slug.js"></script>
-<script src="js/eatouts-business-api.js"></script>
-<script src="js/eatouts-business-auth.js"></script>
 <script>
 (function () {
-  var F = window.EatoutsField;
-  var A = window.EatoutsAuth;
-  var app = document.getElementById('sg-app');
+  'use strict';
 
-  var TYPES = {
-    restaurant: { label: 'Restaurant', icon: '🍽', blurb: 'Menus, orders, tables and delivery.' },
-    liquor_store: { label: 'Liquor store', icon: '🍾', blurb: 'Beverages, age-gated sales and delivery.' },
-    event_supplier: { label: 'Event supplier', icon: '📦', blurb: 'MC, decor, security, AV and entertainment.' },
-    food_truck: { label: 'Food truck', icon: '🚚', blurb: 'Weekly route, live status and mobile ordering.' },
-    caterer: { label: 'Caterer', icon: '🍲', blurb: 'Per-head menus, quotes and event orders.' }
+  /* ─────────────────────────────────────────────
+     Type-info content — one entry per card.
+     Keys match data-type-info / ?type= values.
+     Order here mirrors the card grid:
+       restaurant, caterer, bakery,
+       liquor_store, food_truck, event_supplier
+     ───────────────────────────────────────────── */
+  var TYPE_INFO = {
+
+    restaurant: {
+      title: 'Restaurant',
+      cta: 'Get Started',
+      body:
+        '<div class="feature">' +
+          '<div class="feature-label">Your menu</div>' +
+          '<div class="feature-title">Photos, prices and categories</div>' +
+          '<p class="feature-desc">Build a menu customers can browse in the app — starters, mains, sides, drinks and specials, each with a photo and price. Mark items sold out in one tap when the kitchen runs out.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Orders</div>' +
+          '<div class="feature-title">Accept or decline, live</div>' +
+          '<p class="feature-desc">New orders arrive on your screen with a sound. Accept, set a prep time, or decline with a reason — the customer is told straight away.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Tables</div>' +
+          '<div class="feature-title">Bookings and walk-ins</div>' +
+          '<p class="feature-desc">Show your trading hours and let customers reserve a table by date, time and party size. You confirm or suggest a different slot.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Delivery</div>' +
+          '<div class="feature-title">Your own riders or collection</div>' +
+          '<p class="feature-desc">Set delivery zones, fees and minimum order value, or run collection only. Customers see exactly how long delivery will take.</p>' +
+        '</div>'
+    },
+
+    caterer: {
+      title: 'Caterer',
+      cta: 'Get Started',
+      body:
+        '<div class="feature">' +
+          '<div class="feature-label">Menus</div>' +
+          '<div class="feature-title">Per-head pricing and packages</div>' +
+          '<p class="feature-desc">Publish set packages and per-head menus with minimum guest counts, so customers can estimate cost before they enquire.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Quotes</div>' +
+          '<div class="feature-title">Tailored to the event</div>' +
+          '<p class="feature-desc">Receive the date, venue, guest count, dietary needs and budget, then send a quote that can be revised until accepted.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Scheduling</div>' +
+          '<div class="feature-title">Lead time and availability</div>' +
+          '<p class="feature-desc">Set how much notice you need for large events and block dates you cannot take on.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Payment</div>' +
+          '<div class="feature-title">Deposit, then balance on the day</div>' +
+          '<p class="feature-desc">Take a deposit to confirm the booking and keep track of the balance through to the event.</p>' +
+        '</div>'
+    },
+
+    bakery: {
+      title: 'Bakery',
+      cta: 'Get Started',
+      body:
+        '<div class="feature">' +
+          '<div class="feature-label">What you sell</div>' +
+          '<div class="feature-title">Cakes, breads, pastries and platters</div>' +
+          '<p class="feature-desc">Build a catalogue with photos, sizes, flavours and prices — from loaves and vetkoek to tiered celebration cakes and party platters. Mark items sold out when the day&#8217;s batch is gone.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Custom orders</div>' +
+          '<div class="feature-title">Take cake orders with a deposit</div>' +
+          '<p class="feature-desc">Customers request a date, size, flavour and message on the cake. You set the lead time — for example 48 hours for custom cakes — and take a deposit to confirm, with the balance settled on collection or delivery.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Lead times</div>' +
+          '<div class="feature-title">Same-day bread, booked-ahead cakes</div>' +
+          '<p class="feature-desc">Set a different cut-off per item, so walk-in bread and same-day cupcakes stay orderable while large or decorated orders require notice.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Pickup &amp; delivery</div>' +
+          '<div class="feature-title">Collection counter or local delivery</div>' +
+          '<p class="feature-desc">Show your address and trading hours for collection, or set delivery zones and fees around your area. Customers see exactly when their order will be ready.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Bulk &amp; wholesale</div>' +
+          '<div class="feature-title">Trays, offices and resellers</div>' +
+          '<p class="feature-desc">Accept larger orders for events, offices, schools and resellers, with per-tray pricing and a separate lead time.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Dietary info</div>' +
+          '<div class="feature-title">Allergen and dietary labels</div>' +
+          '<p class="feature-desc">Flag gluten-free, nut-free, eggless and halaal items on each product so customers can order with confidence.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Getting paid</div>' +
+          '<div class="feature-title">Cash, card or mobile money</div>' +
+          '<p class="feature-desc">Record how you take payment — cash on collection, card, or mobile money — and keep deposits and balances tracked on every order.</p>' +
+        '</div>'
+    },
+
+    liquor_store: {
+      title: 'Liquor store',
+      cta: 'Get Started',
+      body:
+        '<div class="feature">' +
+          '<div class="feature-label">Catalogue</div>' +
+          '<div class="feature-title">Beers, wines, spirits and mixers</div>' +
+          '<p class="feature-desc">List products by brand, size and pack, with prices and stock status. Group them into categories customers can scan quickly.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Age gating</div>' +
+          '<div class="feature-title">18+ checks at checkout and handover</div>' +
+          '<p class="feature-desc">Customers confirm they are over 18 before ordering, and ID is checked on delivery or collection. Restricted items stay clearly marked.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Delivery</div>' +
+          '<div class="feature-title">Local zones and cut-off times</div>' +
+          '<p class="feature-desc">Set the areas you deliver to, your fees and the latest time an order can come in, so nobody orders after you have closed.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Trading hours</div>' +
+          '<div class="feature-title">Open and closed, automatically</div>' +
+          '<p class="feature-desc">Your listing follows your trading hours, including Sundays and public holidays, and shows customers when you next open.</p>' +
+        '</div>'
+    },
+
+    food_truck: {
+      title: 'Mobile Kitchen',
+      cta: 'Get Started',
+      body:
+        '<div class="feature">' +
+          '<div class="feature-label">Weekly route</div>' +
+          '<div class="feature-title">Tell customers where you will be</div>' +
+          '<p class="feature-desc">Publish a weekly schedule of stops and times so regulars know where to find you on each day.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Live status</div>' +
+          '<div class="feature-title">Open, on the way or sold out</div>' +
+          '<p class="feature-desc">Switch your status in one tap — customers see whether you are serving now, delayed, or finished for the day.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Ordering</div>' +
+          '<div class="feature-title">Order ahead, collect at the window</div>' +
+          '<p class="feature-desc">Customers order and pay from their phone and collect at the serving window, cutting the queue at busy stops.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Menu</div>' +
+          '<div class="feature-title">A short menu that changes</div>' +
+          '<p class="feature-desc">Update items and prices quickly when the specials board changes or an item runs out mid-service.</p>' +
+        '</div>'
+    },
+
+    event_supplier: {
+      title: 'Event supplier',
+      cta: 'Get Started',
+      body:
+        '<div class="feature">' +
+          '<div class="feature-label">Services</div>' +
+          '<div class="feature-title">MC, decor, security, AV and entertainment</div>' +
+          '<p class="feature-desc">List each service you offer with photos of past work and a starting price, so customers know what you do before they enquire.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Enquiries</div>' +
+          '<div class="feature-title">Quotes for date, venue and budget</div>' +
+          '<p class="feature-desc">Customers send the event date, venue, guest count and budget. You reply with a quote and can adjust it until they accept.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Availability</div>' +
+          '<div class="feature-title">Block dates you are already booked</div>' +
+          '<p class="feature-desc">Keep a calendar so you are not double-booked, and let customers see which dates are still open.</p>' +
+        '</div>' +
+        '<div class="feature">' +
+          '<div class="feature-label">Deposits</div>' +
+          '<div class="feature-title">Secure the date with a deposit</div>' +
+          '<p class="feature-desc">Take a deposit to lock in the booking and track the balance up to the event day.</p>' +
+        '</div>'
+    }
   };
 
-  var S = {
-    type: null,
-    stage: 'type',
-    town: '',
-    area: '',
-    mode: 'claim',          /* 'claim' | 'register' */
-    targetId: null,         /* venue id to claim */
-    newCat: null,           /* type of business being registered */
-    claimedId: null,        /* venue id after a successful claim */
-    demoLoaded: false
-  };
-
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  }
-
-  function user() {
-    return A && A.isLoggedIn() ? A.getUser() : null;
-  }
-  function uid() {
-    var u = user(); return u ? u.id : null;
-  }
-  function isAgent() {
-    var u = user();
-    return !!u && !!window.EatoutsRoles && ['rep', 'admin', 'platform_admin'].some(function (r) { return EatoutsRoles.hasRole(u, r); });
-  }
-  function toast(m) {
-    try { if (window.EO && EO.toast) { EO.toast(m); return; } } catch (e) { /* fall through */ }
-    window.alert(m);
-  }
-  function href(p) { return location.pathname.split('/').pop() + p; }
-
-  function normWa(raw) {
-    var d = String(raw || '').replace(/\D/g, '');
-    if (d.indexOf('267') === 0 && d.length > 8) d = d.slice(3);
-    if (d.charAt(0) === '0') d = d.slice(1);
-    if (!/^[67]\d{7}$/.test(d)) return null;
-    return '267' + d;
-  }
-  function waLink(num) {
-    return 'https://wa.me/' + String(num || '').replace(/\D/g, '');
-  }
-  var SL = window.EatoutsSlug;
-  function slugOf(v) {
-    if (!SL) return '';
-    return SL.normalize((v && (v.custom_slug || v.name)) || '');
-  }
-  function linkTypeOf(t) {
-    if (t === 'liquor_store') return 'bottle_store';
-    if (t === 'event_supplier') return 'supplier';
-    return 'restaurant';
-  }
-  var checkTimer = null;
-  function checkLink(raw, refId, statusEl) {
-    if (!statusEl) return;
-    if (!SL) { statusEl.textContent = ''; return; }
-    var reason = SL.reason(raw);
-    if (reason) { statusEl.textContent = reason; return; }
-    var s = SL.normalize(raw);
-    if (typeof fetch !== 'function') { statusEl.textContent = '\u2713 ' + SL.url('bw', s); return; }
-    statusEl.textContent = 'Checking \u2026';
-    fetch('/api/links/check?country=bw&slug=' + encodeURIComponent(s) + '&refId=' + encodeURIComponent(refId || ''))
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (d && d.available) statusEl.textContent = '\u2713 ' + (d.reason || 'Available') + ' \u2014 ' + SL.url('bw', s);
-        else statusEl.textContent = '\u2717 ' + ((d && d.reason) || 'That link is not available.');
-      })
-      .catch(function () { statusEl.textContent = SL.url('bw', s); });
-  }
-  function statusChip(v) {
-    if (v.closed_outcome === 'closed_lost') return '<span class="chip closed_lost">Lost</span>';
-    if (v.status === 'live') return '<span class="chip live">On EatOuts</span>';
-    if (v.status === 'archived') return '<span class="chip archived">Archived</span>';
-    if (v.status === 'rejected') return '<span class="chip rejected">Rejected</span>';
-    if (v.status === 'pending_payment') return '<span class="chip pending_payment">Payment pending</span>';
-    if (v.status === 'onboarding') return '<span class="chip pending_payment">Onboarding</span>';
-    if (v.status === 'pending_verification') return '<span class="chip">Verifying</span>';
-    return '<span class="chip">Unclaimed</span>';
-  }
-  function mine(v) {
-    var u = uid();
-    return !!u && String(v.claimed_by_user_id || v.ownerUserId || v.ownerId || '') === String(u);
-  }
-  function claimable(v) {
-    return v.status === 'unclaimed';
-  }
-
-  /* ---- data lookups ---- */
-  function venuesOfType(t) {
-    return F.fieldVenues().filter(function (v) { return v.business_type === t; });
-  }
-  function townsOf(t) {
-    var seen = [];
-    venuesOfType(t).forEach(function (v) {
-      if (v.town && seen.indexOf(v.town) < 0) seen.push(v.town);
-    });
-    return seen.sort();
-  }
-  function areasOf(t, town) {
-    var seen = [];
-    venuesOfType(t).forEach(function (v) {
-      if (v.town === town && v.area && seen.indexOf(v.area) < 0) seen.push(v.area);
-    });
-    return seen.sort();
-  }
-  function resultsOf(t, town, area) {
-    return venuesOfType(t).filter(function (v) {
-      if (town && v.town !== town) return false;
-      if (area && v.area !== area) return false;
-      return true;
-    }).sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
-  }
-
-  /* ---- account creation ---- */
-  function createLocalAccount(name, whatsapp, username, password) {
-    var norm = normWa(whatsapp);
-    if (!norm) return Promise.resolve({ ok: false, error: 'Enter a valid Botswana phone like 71 234 567.' });
-    if (String(password || '').length < 8) {
-      return Promise.resolve({ ok: false, error: 'Password must be at least 8 characters.' });
-    }
-    var uname = String(username || '').trim().toLowerCase();
-    if (!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(uname)) {
-      return Promise.resolve({ ok: false, error: 'Username must be 3-30 characters (letters, numbers, . _ -).' });
-    }
-    if (window.EatoutsUsers.byWhatsapp(norm)) {
-      return Promise.resolve({ ok: false, error: 'That WhatsApp number already has an account.' });
-    }
-    var parts = String(name || '').trim().split(/\s+/);
-    var salt = A.randomSalt ? A.randomSalt() : String(Date.now());
-    return A.hashPassword(password, salt).then(function (hash) {
-      var u = window.EatoutsUsers.create({
-        firstName: parts.shift() || 'New',
-        surname: parts.join(' ') || '',
-        name: String(name || '').trim(),
-        username: uname,
-        whatsapp: norm,
-        salt: salt,
-        passwordHash: hash,
-        type: 'business_owner',
-        status: 'active',
-        roles: []
-      });
-      if (!u) return { ok: false, error: 'Could not create the account.' };
-      window.EatoutsMgrDB.upsert('users', Object.assign({}, u, { last_login_at: Date.now() }));
-      A.startSession(u);
-      return { ok: true, user: u };
-    });
-  }
-
-  /* Prefer a real server account (D1 user + KV session) so the server-gated
-     business endpoints work; fall back to a local account when the backend
-     is unavailable. Returns a promise. */
-  function createAccount(name, whatsapp, username, password) {
-    var BA = window.EatoutsBusinessAuth;
-    if (!BA || !BA.available()) return createLocalAccount(name, whatsapp, username, password);
-    return BA.signup({ name: name, whatsapp: whatsapp, username: username, password: password })
-      .then(function (r) {
-        if (r.ok) return r;
-        if (r.backend) return r;
-        return createLocalAccount(name, whatsapp, username, password);
-      })
-      .catch(function () { return createLocalAccount(name, whatsapp, username, password); });
-  }
-
-  /* ---- venue actions ---- */
-  function doClaim(id) {
-    var v = F.venueById(id);
-    var u = user();
-    if (!v) return { ok: false, error: 'Venue not found.' };
-    if (!u) return { ok: false, error: 'Sign in first.' };
-    var r = F.claim(v, u.id);
-    if (!r.ok) return r;
-    var b = F.bindOwner(r.venue, u.id, u.id);
-    if (!b.ok) return b;
-    S.claimedId = r.venue.id;
-    if (window.EatoutsBusinessApi && /^rest_/.test(String(v.id))) {
-      window.EatoutsBusinessApi.claim(v.id).then(function (cr) {
-        if (!cr.ok || !cr.data) return;
-        var venue = F.venueById(b.venue.id);
-        if (!venue) return;
-        if (cr.data.restaurantId) venue.serverRestaurantId = cr.data.restaurantId;
-        if (cr.data.membership) venue.serverMembershipId = cr.data.membership.id;
-        venue.serverClaimStatus = (cr.data.claim && cr.data.claim.status) || 'approved';
-        window.EatoutsMgrDB.upsert('businesses', venue);
-        if (cr.data.claim && cr.data.claim.status === 'pending') toast('Claim submitted for admin review.');
-      }).catch(function () {});
-    }
-    return { ok: true, venue: b.venue };
-  }
-  function doRegister(cat, name) {
-    var u = user();
-    if (!u) return { ok: false, error: 'Sign in first.' };
-    var v = F.normaliseVenue({ name: String(name || '').trim(), business_type: cat });
-    v.status = 'unclaimed';
-    v.branch_count = 1;
-    v.fee_amount = F.feeFor(v, false);
-    if (isAgent()) { v.pre_registered_by_rep_id = u.id; v.assigned_rep_id = u.id; }
-    v.first_contacted_at = F.now();
-    v.audit_log = [];
-    if (!v.whatsapp) v.whatsapp = '';
-    window.EatoutsMgrDB.upsert('businesses', v);
-    var r = F.claim(v, u.id, isAgent() ? u.id : null);
-    if (!r.ok) return r;
-    var b = F.bindOwner(r.venue, u.id, u.id);
-    S.claimedId = r.venue.id;
-
-    /* Also create a D1 business profile so the venue is reachable at /<slug>. */
-    (async function(){
-      try{
-        var slug = String(name || '').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'business';
-        await EatoutsBusinessApi.businessProfilesCreate({
-          userId: u.id,
-          slug: slug,
-          name: String(name || '').trim(),
-          status: 'draft',
-          types: [cat],
-          category: null,
-          location: {},
-          socials: {},
-          operatingHours: {},
-          character: [],
-          amenities: [],
-          menuTags: [],
-          capacity: [],
-          payments: [],
-          reservations: {},
-          setupFeePaid: 0,
-          plan: 'starter'
-        });
-      }catch(e){/* best-effort D1 profile creation */}
-    })();
-
-    return { ok: true, venue: b.venue };
-  }
-  function doSaveProfile(id, vals) {
-    var v = F.venueById(id);
-    if (!v) return { ok: false, error: 'Venue not found.' };
-    return F.updateProfile(v, vals, uid());
-  }
-
-  /* ---- demo bundle ---- */
-  function loadDemo(cb) {
-    if (window.EATOUTS_DEMO && window.EATOUTS_DEMO.businesses && window.EATOUTS_DEMO.menu) { S.demoLoaded = true; cb(); return; }
-    var left = 2;
-    function done() { if (--left === 0) { S.demoLoaded = true; cb(); } }
-    ['business.js', 'menu.js'].forEach(function (f) {
-      var s = document.createElement('script');
-      s.src = 'assets/data/demo/the-food-place/' + f;
-      s.onload = done;
-      s.onerror = done;
-      document.body.appendChild(s);
-    });
-  }
-
-  /* ---- renderers ---- */
-  function renderTypes() {
-    app.innerHTML =
-      '<h1 class="sg-hero">Get your business on EatOuts</h1>' +
-      '<p class="sg-sub">List and manage your business so customers across Botswana can <strong>find you, browse what you offer and order from you</strong> in the EatOuts app.</p>' +
-      '<div class="choice-grid">' +
-      Object.keys(TYPES).map(function (k) {
-        return '<a class="choice" href="' + href('eatouts-business-signup.html') + '?type=' + k + '">' +
-          '<strong>' + TYPES[k].icon + ' ' + TYPES[k].label + '</strong><small>' + TYPES[k].blurb + '</small></a>';
-      }).join('') +
-      '</div>' +
-      '<div class="fixed">Curious what a finished listing looks like? <a href="#" data-a="demo">See a sample \u2192</a></div>' +
-      '<div class="sg-links">' +
-      '<a class="btn" href="eatouts-login.html">Already registered? Sign in</a>' +
-      '<a class="btn" href="ops-console.html#field">I am a field agent</a>' +
-      '</div>';
-    bind();
-  }
-
-  function renderSearch() {
-    var t = S.type, T = TYPES[t];
-    var towns = townsOf(t);
-    var areas = towns && S.town ? areasOf(t, S.town) : [];
-    var list = resultsOf(t, S.town, S.area);
-
-    var sel = '<option value=""' + (S.town === '' ? ' selected' : '') + '>' + (towns.length ? 'All towns' : 'No towns yet') + '</option>' +
-      towns.map(function (x) { return '<option value="' + esc(x) + '"' + (x === S.town ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
-    var area = '<option value=""' + (S.area === '' ? ' selected' : '') + '>All areas</option>' +
-      areas.map(function (x) { return '<option value="' + esc(x) + '"' + (x === S.area ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
-
-    var rows;
-    if (!list.length) {
-      rows = '<div class="sg-note">Nothing matches yet for this area. Your business can be the first — register it below.</div>';
-    } else {
-      rows = '<div class="sg-results">' + list.map(function (v) {
-        var chips = statusChip(v);
-        var btn = '';
-        if (mine(v)) {
-          btn = '<a class="btn btn-sm primary" href="' + href('business-onboarding1.html') + '?biz=' + encodeURIComponent(v.id) + '">Continue editing</a>';
-        } else if (claimable(v)) {
-          btn = '<a class="btn btn-sm primary" data-a="claim" data-id="' + esc(v.id) + '">Claim it</a>';
-        } else if (v.whatsapp) {
-          btn = '<a class="btn btn-sm" target="_blank" rel="noopener" href="' + waLink(v.whatsapp) + '">Talk to EatOuts</a>';
-        } else {
-          btn = '<span class="chip">' + esc(v.status) + '</span>';
-        }
-        return '<div class="res"><div class="t">' + esc(v.name) + '</div>' +
-          '<div class="m">' + esc([v.area, v.town].filter(Boolean).join(', ') || T.label) + (v.whatsapp ? ' \u00b7 +' + esc(v.whatsapp).replace(/^267/, '') : '') + '</div>' +
-          '<div class="row"><span>' + chips + '</span>' + btn + '</div></div>';
-      }).join('') + '</div>';
-    }
-
-    app.innerHTML =
-      '<a class="btn btn-sm" data-a="back">&lsaquo; All types</a>' +
-      '<div class="sg-type">' + T.icon + ' ' + T.label + '</div>' +
-      '<p class="sg-hint">Find your business to <strong>claim it</strong>, or register a brand-new one.</p>' +
-      '<label class="field"><span>Town</span><select data-c="town">' + sel + '</select></label>' +
-      '<label class="field"><span>Area</span><select data-c="area"' + (S.town ? '' : ' disabled') + '>' + area + '</select></label>' +
-      rows +
-      '<div class="sg-links">' +
-      '<a class="btn primary" data-a="register">Register a new ' + T.label + '</a>' +
-      '<a href="#" data-a="demo" class="btn">See a sample listing</a>' +
-      '<a class="btn" href="ops-console.html#field">I am a field agent</a>' +
-      '</div>' +
-      '<div class="fixed">Claiming a listed business? A EatOuts field agent may already have started it. Claiming hands it to you; your listing stays hidden until it goes live.</div>';
-    bind();
-  }
-
-  function renderAccount() {
-    app.innerHTML =
-      '<a class="btn btn-sm" data-a="back">&lsaquo; Back</a>' +
-      '<div class="sg-type">' + (S.mode === 'register' ? 'Register your ' + TYPES[S.newCat].label : 'Claim your business') + '</div>' +
-      '<p class="sg-hint">Create your free EatOuts business account to continue.</p>' +
-      '<label class="field"><span>Your name</span><input id="acc-name" autocomplete="name" placeholder="e.g. Boitumelo Phiri"></label>' +
-      '<label class="field"><span>WhatsApp number</span><input id="acc-wa" inputmode="tel" autocomplete="tel" placeholder="e.g. 71 829 765"></label>' +
-      '<label class="field"><span>Username</span><input id="acc-username" autocapitalize="none" autocomplete="username" placeholder="e.g. kgalekitchen"></label>' +
-      '<label class="field"><span>Password</span><input id="acc-pass" type="password" autocomplete="new-password" placeholder="At least 8 characters"></label>' +
-      '<div class="sg-actions"><a class="btn" data-a="back">Back</a><a class="btn primary" data-a="acc-ok">Create account &amp; continue</a></div>' +
-      '<div class="sg-note">Signing in as an existing EatOuts member? <a href="eatouts-login.html">Sign in instead</a>.</div>';
-    bind();
-  }
-
-  function renderRegister() {
-    app.innerHTML =
-      '<a class="btn btn-sm" data-a="back">&lsaquo; Back</a>' +
-      '<div class="sg-type">' + TYPES[S.newCat].icon + ' Register a ' + TYPES[S.newCat].label + '</div>' +
-      '<p class="sg-hint">Tell us the business name to get started.</p>' +
-      '<label class="field"><span>Business name</span><input id="reg-name" placeholder="e.g. Kgale Kitchen"></label>' +
-      '<div class="sg-actions"><a class="btn" data-a="back">Back</a><a class="btn primary" data-a="reg-ok">Create listing</a></div>';
-    bind();
-  }
-
-  function renderProfile() {
-    var v = F.venueById(S.claimedId);
-    if (!v) { renderSearch(); return; }
-    var n = function (k, vv) { var s = vv == null ? '' : String(vv); return ' value="' + esc(s) + '"'; };
-    app.innerHTML =
-      '<div class="sg-type">Your business</div>' +
-      '<p class="sg-hint">Add the essentials people see before they order. You can keep editing later.</p>' +
-      '<div class="fixed">Your listing stays hidden to customers and only goes live after your EatOuts field agent records your setup fee.</div>' +
-      '<label class="field"><span>Country</span><input value="Botswana" disabled></label>' +
-      '<label class="field"><span>Business name</span><input id="p-name"' + n('name', v.name) + '></label>' +
-      '<label class="field"><span>Contact WhatsApp</span><input id="p-wa" inputmode="tel"' + n('wa', v.whatsapp) + '></label>' +
-      '<label class="field"><span>Order WhatsApp</span><input id="p-owa" inputmode="tel"' + n('owa', v.order_whatsapp || v.whatsapp) + '></label>' +
-      '<div class="sg-actions">' +
-      '<label class="field" style="flex:1"><span>Town</span><input id="p-town"' + n('town', v.town) + '></label>' +
-      '<label class="field" style="flex:1"><span>Area</span><input id="p-area"' + n('area', v.area) + '></label>' +
-      '</div>' +
-      '<label class="field"><span>Address (optional)</span><input id="p-addr"' + n('addr', v.address) + '></label>' +
-      '<label class="field"><span>Description</span><textarea id="p-desc" placeholder="What do you serve? What makes you special?">' + esc(v.description) + '</textarea></label>' +
-      '<label class="field"><span>Your EatOuts link</span>' +
-      '<span class="sg-hint" style="margin:0 0 6px">www.eatouts.online/bw/<strong id="p-link-slug">' + esc(slugOf(v)) + '</strong></span>' +
-      '<input id="p-link" value="' + esc(slugOf(v)) + '" placeholder="e.g. kgalekitchen" autocapitalize="none" autocomplete="off" spellcheck="false">' +
-      '<span class="sg-hint" id="p-link-status" style="margin:6px 0 0">Letters and numbers only \u2014 no spaces. This is the address you can share.</span>' +
-      '</label>' +
-      '<div class="sg-actions">' +
-      '<label class="field" style="flex:1"><span>Opening hours</span><input id="p-hours" placeholder="e.g. Mon–Sat 8:00–22:00"' + n('hours', v.working_hours) + '></label>' +
-      '<label class="field" style="flex:1"><span>Years in business</span><input id="p-years" inputmode="numeric"' + n('years', v.years_in_business) + '></label>' +
-      '</div>' +
-      '<div class="sg-actions"><a class="btn primary" data-a="profile-save">Save profile</a>' +
-      '<a class="btn" href="' + href('business-onboarding1.html') + '?biz=' + encodeURIComponent(v.id) + '">Menus &amp; photos &rarr;</a></div>' +
-'<div class="sg-links">' +
-      (isAgent() ? '<a class="btn" href="ops-console.html#field">Open my workspace</a>' : '') +
-      '<a class="btn" data-a="done">Done \u2014 I\u2019ll keep going later</a>' +
-      '</div>';
-    bind();
-  }
-
-  function renderDemo() {
-    app.innerHTML = '<div class="fixed">Sample only — this is a preview of a fully built listing. Your listing starts at the search step and grows with you.</div>';
-    var open = function () {
-      var biz = (window.EATOUTS_DEMO.businesses || [])[0] || {};
-      var menu = window.EATOUTS_DEMO.menu || { categories: [], items: [] };
-      var cats = menu.categories || [];
-      var items = (menu.items || []).slice(0, 8);
-      var catName = function (c) { for (var i = 0; i < cats.length; i++) if (cats[i].id === c) return cats[i].name; return ''; };
-      var rows = items.map(function (it) {
-        return '<tr><td><strong>' + esc(it.name) + '</strong><br><span style="font-size:10.5px;color:#6f685d">' + esc(catName(it.category)) + '</span></td>' +
-          '<td class="p">P' + (isFinite(it.price) ? Number(it.price).toFixed(2).replace(/\.00$/, '') : esc(it.price)) + '</td></tr>';
-      }).join('');
-      app.innerHTML =
-        '<a href="#" data-a="back" class="btn btn-sm">&lsaquo; Back</a>' +
-        '<div class="sg-type">Sample listing</div>' +
-        '<div class="demo-card">' +
+  /* Sample listing shown by the "See a sample" link. */
+  var DEMO = {
+    title: 'A sample EatOuts listing',
+    cta: null,
+    body:
+      '<div class="demo-card">' +
         '<div class="demo-head">' +
-        '<img class="demo-logo" src="' + esc(biz.logo || '') + '" alt="">' +
-        '<div><div class="demo-name">' + esc(biz.name || 'The Food Place') + '</div>' +
-        '<div class="demo-meta">' + esc([biz.area, biz.town, biz.address].filter(Boolean).join(' \u00b7 ') || 'Gaborone') + '</div></div>' +
+          '<div class="demo-logo" aria-hidden="true">SC</div>' +
+          '<div>' +
+            '<div class="demo-name">Sweet Crumb Bakery</div>' +
+            '<div class="demo-meta">Gaborone &middot; Bakery &middot; Open 06:00&#8211;18:00</div>' +
+          '</div>' +
         '</div>' +
-        '<div style="padding:0 13px 10px;font-size:12px;color:#4a443a">' + esc((biz.about || '').slice(0, 170)) + (biz.about && biz.about.length > 170 ? '\u2026' : '') + '</div>' +
-        '<div class="demo-cat">From the menu</div>' +
-        '<table class="demo-menu">' + rows + '</table>' +
-        '</div>' +
-        '<div class="fixed">#ref:demo-caveat# This is <strong>the same profile, menu and photos flow</strong> your listing gets \u2014 built step by step as you go.</div>' +
-        '<div class="sg-links"><a href="#" class="btn primary" data-a="back">Back to signing up</a></div>';
-      bind();
-    };
-    loadDemo(open);
-  }
+        '<div class="demo-cat">Popular this week</div>' +
+        '<table class="demo-menu">' +
+          '<tbody>' +
+            '<tr><td>Celebration cake &#8212; 20cm, vanilla &amp; caramel</td><td class="p">P320</td></tr>' +
+            '<tr><td>Farm loaf, sliced</td><td class="p">P28</td></tr>' +
+            '<tr><td>Dozen mini doughnuts</td><td class="p">P65</td></tr>' +
+            '<tr><td>Party platter &#8212; 24 assorted pastries</td><td class="p">P240</td></tr>' +
+          '</tbody>' +
+        '</table>' +
+      '</div>' +
+      '<div class="feature">' +
+        '<div class="feature-label">What customers see</div>' +
+        '<div class="feature-title">Your name, hours, menu and prices</div>' +
+        '<p class="feature-desc">Every listing shows who you are, when you are open, what you sell and what it costs — plus buttons to order, book or call.</p>' +
+      '</div>' +
+      '<div class="feature">' +
+        '<div class="feature-label">And on your side</div>' +
+        '<div class="feature-title">One screen to run the day</div>' +
+        '<p class="feature-desc">New orders, stock, sold-out items and your trading hours are all managed from the same place.</p>' +
+      '</div>'
+  };
 
-  function bind() {
-    app.querySelectorAll('[data-a]').forEach(function (el) {
-      el.addEventListener('click', function (ev) {
-        ev.preventDefault();
-        var a = el.getAttribute('data-a');
-        if (a === 'back') {
-          if (S.stage === 'demo') { S.stage = S.type ? 'search' : 'type'; render(); }
-          else if (S.stage === 'account') { S.stage = S.type ? 'search' : 'type'; render(); }
-          else if (S.stage === 'register') { S.stage = S.type ? 'search' : 'type'; render(); }
-          else if (S.stage === 'profile') { S.stage = 'search'; render(); }
-          else { S.stage = 'type'; S.type = null; render(); }
-          return;
-        }
-        if (a === 'demo') { S.stage = 'demo'; renderDemo(); return; }
-        if (a === 'claim') {
-          S.mode = 'claim'; S.targetId = el.getAttribute('data-id');
-          if (!user()) { S.stage = 'account'; renderAccount(); }
-          else proceedClaim();
-          return;
-        }
-        if (a === 'register') {
-          S.mode = 'register'; S.newCat = S.type;
-          if (!user()) { S.stage = 'account'; renderAccount(); }
-          else { S.stage = 'register'; renderRegister(); }
-          return;
-        }
-        if (a === 'acc-ok') {
-          var name = document.getElementById('acc-name').value;
-          var wa = document.getElementById('acc-wa').value;
-          var username = document.getElementById('acc-username').value;
-          var pass = document.getElementById('acc-pass').value;
-          el.textContent = 'Creating\u2026';
-          createAccount(name, wa, username, pass).then(function (r) {
-            if (!r || !r.ok) {
-              el.textContent = 'Create account & continue';
-              toast((r && r.error) || 'Could not create the account.');
-              return;
-            }
-            if (S.mode === 'register') { S.stage = 'register'; renderRegister(); }
-            else proceedClaim();
-          }).catch(function () {
-            el.textContent = 'Create account & continue';
-            toast('Network error. Try again.');
-          });
-          return;
-        }
-        if (a === 'reg-ok') {
-          var nm = document.getElementById('reg-name').value.trim();
-          if (!nm) { toast('Enter the business name.'); return; }
-          var r = doRegister(S.newCat, nm);
-          if (!r.ok) { toast(r.error); return; }
-          S.stage = 'profile'; renderProfile();
-          return;
-        }
-        if (a === 'profile-save') {
-          var id = S.claimedId;
-          var wa2 = document.getElementById('p-wa').value;
-          var owa = document.getElementById('p-owa').value;
-          var w1 = normWa(wa2), w2 = normWa(owa);
-          if (wa2.trim() && !w1) { toast('Contact WhatsApp must be a valid Botswana number.'); return; }
-          if (owa.trim() && !w2) { toast('Order WhatsApp must be a valid Botswana number.'); return; }
-          var linkInput = document.getElementById('p-link');
-          var slug = SL ? SL.normalize(linkInput ? linkInput.value : '') : '';
-          if (slug && (!SL || !SL.isValid(slug))) { toast(SL ? SL.reason(linkInput.value) : 'Choose a valid link name.'); return; }
-          var vv0 = F.venueById(id);
-          var r2 = doSaveProfile(id, {
-            name: document.getElementById('p-name').value.trim(),
-            whatsapp: w1 || document.getElementById('p-wa').value.trim(),
-            order_whatsapp: w2 || (owa.trim() ? owa.trim() : (w1 || '')),
-            town: document.getElementById('p-town').value.trim(),
-            area: document.getElementById('p-area').value.trim(),
-            address: document.getElementById('p-addr').value.trim(),
-            description: document.getElementById('p-desc').value.trim(),
-            working_hours: document.getElementById('p-hours').value.trim(),
-            years_in_business: document.getElementById('p-years').value.trim(),
-            custom_slug: slug || undefined
-          });
-          if (!r2.ok) { toast(r2.error); return; }
-          if (slug && typeof fetch === 'function') {
-            fetch('/api/business/link', {
-              method: 'POST', credentials: 'include',
-              headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({ country: 'bw', type: linkTypeOf(S.type), refId: id, slug: slug, name: (vv0 && vv0.name) || '' })
-            }).then(function (r) { return r.json(); }).then(function (d) {
-              if (d && d.ok && d.link) toast('Link saved — www.eatouts.online/bw/' + d.link.slug);
-              if (d && d.ok) {
-                var venue = F.venueById(id);
-                if (venue) {
-                  if (d.restaurantId) venue.serverRestaurantId = d.restaurantId;
-                  if (d.membership) venue.serverMembershipId = d.membership.id;
-                  if (d.claim) venue.serverClaimStatus = d.claim.status;
-                  window.EatoutsMgrDB.upsert('businesses', venue);
-                }
-              }
-            }).catch(function () {});
-          }
-          toast('Saved');
-          renderProfile();
-          return;
-        }
-        if (a === 'done') { location.href = 'index.html#promos'; return; }
-      });
-    });
-    app.querySelectorAll('[data-c]').forEach(function (el) {
-      el.addEventListener('change', function () {
-        var c = el.getAttribute('data-c');
-        if (c === 'town') { S.town = el.value; S.area = ''; }
-        if (c === 'area') S.area = el.value;
-        renderSearch();
-      });
-    });
-    var accName = document.getElementById('acc-name');
-    var accUser = document.getElementById('acc-username');
-    if (accName && accUser && window.EatoutsBusinessAuth) {
-      var userTouched = false;
-      accUser.addEventListener('input', function () { userTouched = true; });
-      accName.addEventListener('input', function () {
-        if (!userTouched) accUser.value = window.EatoutsBusinessAuth.usernameFor(accName.value);
-      });
+  /* ─────────────────────────────────────────────
+     Popup plumbing
+     ───────────────────────────────────────────── */
+  var scrim    = document.getElementById('typePopupScrim');
+  var popup    = document.getElementById('typePopup');
+  var titleEl  = document.getElementById('typePopupTitle');
+  var bodyEl   = document.getElementById('typePopupBody');
+  var ctaEl    = document.getElementById('typePopupCta');
+  var closeEl  = document.getElementById('typePopupClose');
+
+  var lastFocus = null;
+  var isOpen = false;
+
+  function openPopup(info, href) {
+    if (!info) return;
+    lastFocus = document.activeElement;
+
+    titleEl.textContent = info.title;
+    bodyEl.innerHTML = info.body;
+    bodyEl.scrollTop = 0;
+
+    if (href) {
+      ctaEl.hidden = false;
+      ctaEl.textContent = info.cta || 'Get Started';
+      ctaEl.setAttribute('data-href', href);
+    } else {
+      ctaEl.hidden = true;
+      ctaEl.removeAttribute('data-href');
     }
-    var linkEl = document.getElementById('p-link');
-    if (linkEl) {
-      var slugDisplay = document.getElementById('p-link-slug');
-      var status = document.getElementById('p-link-status');
-      var paint = function () {
-        var s = SL ? SL.normalize(linkEl.value) : linkEl.value;
-        if (slugDisplay) slugDisplay.textContent = s;
-      };
-      linkEl.addEventListener('input', function () {
-        paint();
-        clearTimeout(checkTimer);
-        checkTimer = setTimeout(function () { checkLink(linkEl.value, S.claimedId, status); }, 450);
-      });
-      paint();
+
+    scrim.classList.add('open');
+    popup.classList.add('open');
+    popup.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('popup-open');
+    isOpen = true;
+
+    closeEl.focus();
+  }
+
+  function closePopup() {
+    if (!isOpen) return;
+    scrim.classList.remove('open');
+    popup.classList.remove('open');
+    popup.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('popup-open');
+    isOpen = false;
+
+    if (lastFocus && typeof lastFocus.focus === 'function') {
+      lastFocus.focus();
     }
+    lastFocus = null;
   }
 
-  function proceedClaim() {
-    var r = doClaim(S.targetId);
-    if (!r.ok) { toast(r.error); S.stage = S.type ? 'search' : 'type'; render(); return; }
-    toast('Claimed \u2014 welcome!');
-    S.stage = 'profile'; renderProfile();
-  }
-
-  function render() {
-    if (S.stage === 'type') renderTypes();
-    else if (S.stage === 'search') renderSearch();
-    else if (S.stage === 'account') renderAccount();
-    else if (S.stage === 'register') renderRegister();
-    else if (S.stage === 'profile') renderProfile();
-    else renderTypes();
-  }
-
-  /* boot from query params */
-  var params = new URLSearchParams(location.search);
-  var t = params.get('type');
-  var claim = params.get('claim');
-  if (t && TYPES[t]) {
-    S.type = t; S.stage = 'search';
-  } else if (claim) {
-    S.mode = 'claim'; S.targetId = claim; S.stage = 'search';
-    if (S.type === null) {
-      var cv = F.venueById(claim);
-      if (cv && TYPES[cv.business_type]) S.type = cv.business_type;
+  /* Card click → open the info popup instead of navigating away. */
+  document.addEventListener('click', function (e) {
+    var card = e.target.closest('[data-type-info]');
+    if (card) {
+      e.preventDefault();
+      openPopup(TYPE_INFO[card.getAttribute('data-type-info')], card.getAttribute('href'));
+      return;
     }
-    if (S.type === null) { S.stage = 'type'; S.targetId = null; }
+
+    var demo = e.target.closest('[data-a="demo"]');
+    if (demo) {
+      e.preventDefault();
+      openPopup(DEMO, null);
+    }
+  });
+
+  closeEl.addEventListener('click', closePopup);
+  scrim.addEventListener('click', closePopup);
+
+  ctaEl.addEventListener('click', function () {
+    var href = ctaEl.getAttribute('data-href');
+    if (href) window.location.href = href;
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isOpen) closePopup();
+  });
+
+  /* Deep link: ?type=bakery opens the matching popup on load. */
+  var type = new URLSearchParams(window.location.search).get('type');
+  if (type && TYPE_INFO[type]) {
+    var match = document.querySelector('[data-type-info="' + type + '"]');
+    openPopup(TYPE_INFO[type], match ? match.getAttribute('href') : null);
   }
-  render();
 })();
 </script>
+
 </body>
 </html>

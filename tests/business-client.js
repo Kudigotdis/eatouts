@@ -407,8 +407,8 @@ setTimeout(async () => {
   console.log('\n-- promo endpoints --');
   w.fetch.calls = [];
   await API.promosRead('rest_x');
-  check('promosRead GET /customer/promo-submissions?restaurantId=rest_x',
-    w.fetch.calls[0].url === '/api/customer/promo-submissions?restaurantId=rest_x', w.fetch.calls[0].url);
+  check('promosRead GET /api/business/promos?restaurant=rest_x',
+    w.fetch.calls[0].url === '/api/business/promos?restaurant=rest_x', w.fetch.calls[0].url);
   w.fetch.calls = [];
   await API.promoSubmit('rest_x', { title: 'Special', eventRef: 'promo_1' });
   check('promoSubmit POST /customer/promo-submissions',

@@ -2,7 +2,7 @@
    PATCH  { title?, description?, figure?, imageKey?, admission?, startsAt?, endsAt?, published? } -> update   (marketing_manager+)
    DELETE                                                                                                      -> delete */
 import { json, readJson, now } from './../../_shared.js';
-import { requireBusiness, eventOut, str, jsonString, numOrNull } from './../../_business.js';
+import { requireBusiness, eventOut, str, jsonString, numOrNull, purgeFavourites } from './../../_business.js';
 
 async function load(context) {
   var env = context.env;
@@ -41,6 +41,7 @@ export async function onRequestPatch(context) {
 export async function onRequestDelete(context) {
   var l = await load(context);
   if (l.error) return l.error;
+  await purgeFavourites(l.c.db, 'event', l.row.id);
   await l.c.db.prepare('DELETE FROM events WHERE id = ?').bind(l.row.id).run();
   return json({ ok: true });
 }
