@@ -123,7 +123,7 @@
     });
   }
 
-  /* Map the onboarding model (business-onboarding1) to the
+  /* Map the onboarding model (the per-type onboarding forms) to the
      server profile fields. Only defined values are sent. */
   function profileFromModel(model) {
     var m = model || {};
@@ -486,69 +486,69 @@
   /* ---------- business profiles / contacts / services / users ---------- */
 
 function businessProfilesGet(businessId) {
-  return api('/api/business/profiles?business_id=' + encodeURIComponent(businessId));
+  return api('/business/profiles?business_id=' + encodeURIComponent(businessId));
 }
 
 function businessProfilesCreate(data) {
-  return api('/api/business/profiles', { method: 'POST', body: data });
+  return api('/business/profiles', { method: 'POST', body: data });
 }
 
 function businessProfilesPatch(businessId, data) {
-  return api('/api/business/profiles?business_id=' + encodeURIComponent(businessId), {
+  return api('/business/profiles?business_id=' + encodeURIComponent(businessId), {
     method: 'PATCH', body: data
   });
 }
 
 function businessProfilesDelete(businessId) {
-  return api('/api/business/profiles?business_id=' + encodeURIComponent(businessId), { method: 'DELETE' });
+  return api('/business/profiles?business_id=' + encodeURIComponent(businessId), { method: 'DELETE' });
 }
 
 function businessContactsGet(businessId) {
-  return api('/api/business/contacts?business_id=' + encodeURIComponent(businessId));
+  return api('/business/contacts?business_id=' + encodeURIComponent(businessId));
 }
 
 function businessContactsCreate(businessId, data) {
-  return api('/api/business/contacts', { method: 'POST', body: Object.assign({ business_id: businessId }, data || {}) });
+  return api('/business/contacts', { method: 'POST', body: Object.assign({ business_id: businessId }, data || {}) });
 }
 
 function businessContactsPatch(contactId, data) {
-  return api('/api/business/contacts?id=' + encodeURIComponent(contactId), { method: 'PATCH', body: data });
+  return api('/business/contacts?id=' + encodeURIComponent(contactId), { method: 'PATCH', body: data });
 }
 
 function businessContactsDelete(contactId) {
-  return api('/api/business/contacts?id=' + encodeURIComponent(contactId), { method: 'DELETE' });
+  return api('/business/contacts?id=' + encodeURIComponent(contactId), { method: 'DELETE' });
 }
 
 function businessServicesGet(businessId) {
-  return api('/api/business/services?business_id=' + encodeURIComponent(businessId));
+  return api('/business/services?business_id=' + encodeURIComponent(businessId));
 }
 
 function businessServicesCreate(businessId, data) {
-  return api('/api/business/services', { method: 'POST', body: Object.assign({ business_id: businessId }, data || {}) });
+  return api('/business/services', { method: 'POST', body: Object.assign({ business_id: businessId }, data || {}) });
 }
 
 function businessServicesPatch(serviceId, data) {
-  return api('/api/business/services?id=' + encodeURIComponent(serviceId), { method: 'PATCH', body: data });
+  return api('/business/services?id=' + encodeURIComponent(serviceId), { method: 'PATCH', body: data });
 }
 
 function businessServicesDelete(serviceId) {
-  return api('/api/business/services?id=' + encodeURIComponent(serviceId), { method: 'DELETE' });
+  return api('/business/services?id=' + encodeURIComponent(serviceId), { method: 'DELETE' });
 }
 
 function businessUsersGet(businessId) {
-  return api('/api/business/users?business_id=' + encodeURIComponent(businessId));
+  return api('/business/users?business_id=' + encodeURIComponent(businessId));
 }
 
 function businessUsersCreate(businessId, data) {
-  return api('/api/business/users', { method: 'POST', body: Object.assign({ business_id: businessId }, data || {}) });
+  return api('/business/users', { method: 'POST', body: Object.assign({ business_id: businessId }, data || {}) });
 }
 
 function businessUsersPatch(userId, data) {
-  return api('/api/business/users?id=' + encodeURIComponent(userId), { method: 'PATCH', body: data });
+  return api('/business/users?id=' + encodeURIComponent(userId), { method: 'PATCH', body: data });
 }
 
 function businessUsersDelete(userId) {
-  return api('/api/business/users?id=' + encodeURIComponent(userId), { method: 'DELETE' });
+  return api('/business/users?id=' + encodeURIComponent(userId), { method: 'DELETE' });
 }
 
 /* local onboarding model <-> server profile row */
@@ -571,6 +571,7 @@ function businessProfileToModel(model) {
   set('amenities', m.amenities || []);
   set('menuTags', m.menuTags || []);
   set('capacity', m.capacity || []);
+  set('hosting', m.hosting || {});
   set('payments', m.payments || []);
   set('reservations', m.reservations || {});
   set('setupFeePaid', m.setupFeePaid || 0);
@@ -598,6 +599,7 @@ function businessProfileFromServer(row) {
     amenities: JSON.parse(row.amenities_json || '[]'),
     menuTags: JSON.parse(row.menu_tags_json || '[]'),
     capacity: JSON.parse(row.capacity_json || '[]'),
+    hosting: JSON.parse(row.hosting_json || '{}'),
     payments: JSON.parse(row.payments_json || '[]'),
     reservations: JSON.parse(row.reservations_json || '{}'),
     setupFeePaid: !!row.setup_fee_paid,

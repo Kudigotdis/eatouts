@@ -11,14 +11,17 @@
      description one-line blurb shown under the picker
      modules     onboarding section keys available to that type
      roles       business roles selectable for that type
-   Plus the same role list on basket.roles[type]. */
+   Plus the same role list on basket.roles[type].
+
+   onboardingPage(type) returns the onboarding form for a business type,
+   so links never have to hard-code the file name. */
 (function () {
   const TYPES = {
     restaurant: {
       label: 'Restaurant',
       icon: '🍽',
       description: 'Dine-in, takeaway or delivery venue.',
-      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'character', 'amenities', 'menuTags', 'capacity', 'payments', 'reservations', 'reservationServices', 'staff', 'users', 'menu', 'beverage', 'promos', 'events', 'gallery', 'billing', 'review'],
+      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'character', 'amenities', 'menuTags', 'capacity', 'payments', 'reservations', 'hostingServices', 'staff', 'users', 'menu', 'beverage', 'promos', 'events', 'gallery', 'billing', 'review'],
       roles: ['biz_owner', 'biz_admin', 'manager', 'chef', 'cashier', 'server', 'bartender', 'delivery_driver']
     },
     bottlestore: {
@@ -32,14 +35,14 @@
       label: 'Caterer',
       icon: '🥘',
       description: 'Event catering and food service.',
-      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'capacity', 'payments', 'reservations', 'reservationServices', 'staff', 'users', 'menu', 'promos', 'events', 'gallery', 'billing', 'review'],
+      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'capacity', 'payments', 'reservations', 'hostingServices', 'staff', 'users', 'menu', 'promos', 'events', 'gallery', 'billing', 'review'],
       roles: ['biz_owner', 'biz_admin', 'manager', 'chef', 'event_coordinator', 'server']
     },
     lodge: {
       label: 'Lodge / Hotel',
       icon: '🏨',
       description: 'Rooms plus dining and events.',
-      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'character', 'amenities', 'capacity', 'payments', 'reservations', 'reservationServices', 'staff', 'users', 'menu', 'beverage', 'rooms', 'promos', 'events', 'gallery', 'billing', 'review'],
+      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'character', 'amenities', 'capacity', 'payments', 'reservations', 'hostingServices', 'staff', 'users', 'menu', 'beverage', 'rooms', 'promos', 'events', 'gallery', 'billing', 'review'],
       roles: ['biz_owner', 'biz_admin', 'manager', 'reception', 'housekeeping', 'chef']
     },
     bakery: {
@@ -110,11 +113,29 @@
     return TYPES[normalize(raw)] || TYPES.restaurant;
   }
 
+  /* Each business type finishes its setup on its own onboarding form.
+     Lodge has no onboarding form of its own yet, so it falls back to the
+     business signup page. */
+  const ONBOARDING_PAGES = {
+    restaurant: 'restaurant-onboarding.html',
+    bottlestore: 'bottle-store-onboarding.html',
+    caterer: 'caterer-onboarding.html',
+    bakery: 'bakery-onboarding.html',
+    foodtruck: 'mobile-kitchen-onboarding.html',
+    supplier: 'supplier-onboarding.html'
+  };
+
+  function onboardingPage(raw) {
+    return ONBOARDING_PAGES[normalize(raw)] || 'eatouts-business-signup.html';
+  }
+
   window.EatoutsBusinessTypes = {
     all: TYPES,
     keys: Object.keys(TYPES),
     get: get,
     normalize: normalize,
+    onboardingPages: ONBOARDING_PAGES,
+    onboardingPage: onboardingPage,
     roles: Object.keys(TYPES).reduce(function (m, k) { m[k] = TYPES[k].roles; return m; }, {})
   };
 })();

@@ -1,14 +1,1299 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#ffffff"><title>Customer onboarding · EatOuts</title><link rel="stylesheet" href="assets/eatouts-manager.css"></head><body>
-<div class="login"><div class="loginbox"><div class="loginlogo">EatOuts</div><div class="crumb">Customer onboarding</div><div class="onboard-steps"><i class="step on"></i><i class="step"></i><i class="step"></i></div>
-<h1>Create your customer account</h1><p>We use your WhatsApp number as your login credential. Date of birth is used for the 18+ age gate.</p>
-<form id="onboard">
-<div class="two"><label class="field"><span>First name</span><input name="firstName" required></label><label class="field"><span>Surname</span><input name="surname" required></label></div>
-<div class="two"><label class="field"><span>Date of birth</span><input name="dob" type="date" required></label><label class="field"><span>Gender</span><select name="gender"><option>Prefer not to say</option><option>Female</option><option>Male</option><option>Other</option></select></label></div>
-<div class="two"><label class="field"><span>Town / city</span><input name="town" placeholder="Gaborone" required></label><label class="field"><span>Area</span><input name="area" placeholder="CBD"></label></div>
-<label class="field"><span>WhatsApp number — login</span><input name="whatsapp" inputmode="tel" required></label>
-<label class="field"><span>Additional contact</span><input name="contact" inputmode="tel" placeholder="Optional"></label>
-<label class="field"><span>Email (optional)</span><input name="email" type="email"></label>
-<label class="check"><input type="checkbox" name="ageGate" required> I confirm I am 18 or older.</label>
-<button class="btn primary full" style="margin-top:10px">Create account</button></form></div></div><script src="js/eatouts-db.js"></script><script src="js/eatouts-roles.js"></script><script src="js/eatouts-users.js"></script><script src="js/eatouts-feedback.js"></script><script src="js/eatouts-blog.js"></script><script src="js/eatouts-auth.js"></script><script src="js/eatouts-manager.js"></script><script>
-document.querySelector("#onboard").addEventListener("submit",e=>{e.preventDefault();const f=new FormData(e.target),dob=f.get("dob");const age=new Date().getFullYear()-new Date(dob).getFullYear()-((new Date().getMonth()+1<new Date(dob).getMonth()+1||new Date().getDate()<new Date(dob).getDate())?1:0);if(age<18){alert("You must be 18 or older to use this account.");return}const u=EatoutsUsers.create({firstName:f.get("firstName"),surname:f.get("surname"),dob,gender:f.get("gender"),town:f.get("town"),area:f.get("area"),whatsapp:String(f.get("whatsapp")).replace(/\D/g,""),contacts:[f.get("contact")].filter(Boolean),email:f.get("email"),type:"customer",roles:["customer"]});localStorage.setItem(EatoutsAuth.SESSION,u.id);location.href="eatouts_profile.html"});
-</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171719">
+<title>Caterer Setup · EatOuts</title>
+<style>
+:root{--ink:#171719;--ink2:#35353B;--muted:#5E626B;--faint:#8A8F99;--paper:#F4F5F7;--card:#fff;--line:#E2E5EA;--line2:#F0F1F3;--orange:#FF5A1F;--orange2:#FF7A42;--orangeSoft:#FFF0E9;--orangeLine:#FFD4C2;--green:#178247;--greenSoft:#E7F6ED;--blue:#1769AA;--blueSoft:#E7F2FC;--red:#B91C1C;--shadow:0 5px 20px rgba(22,22,28,.055)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#E8EAEE;color:var(--ink);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(255,90,31,.24);outline-offset:2px}
+#app-shell{width:100%;max-width:520px;height:100dvh;min-height:560px;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 60px rgba(20,20,25,.12);position:relative}
+.topbar{flex:0 0 auto;background:#171719;color:#fff;padding:calc(12px + env(safe-area-inset-top)) 17px 13px}
+.topbar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.brand-mark{height:34px;width:34px;display:grid;place-items:center;background:var(--orange);color:#fff;font-weight:900;font-size:17px;border-radius:7px}
+.brand-title{font-size:16px;font-weight:850;letter-spacing:-.03em}
+.brand-subtitle{font-size:10px;color:#AEB1B8;letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
+.draft-pill{margin-left:auto;border:1px solid #44444A;background:#242428;color:#FF9A70;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:5px 8px;border-radius:3px}
+.progress-row{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:#B5B7BF;margin-bottom:6px}
+.progress-row strong{color:#FF9A70;font-weight:800}
+.progress-track{height:5px;background:#3B3B40;overflow:hidden;border-radius:2px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange2));width:0;transition:width .2s}
+.scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.intro{padding:22px 18px 32px;background:linear-gradient(150deg,#171719,#25252B);color:#fff;position:relative;overflow:hidden}
+.intro:after{content:"";position:absolute;width:220px;height:220px;right:-105px;top:-120px;border-radius:50%;background:radial-gradient(circle,rgba(255,90,31,.28),transparent 68%);pointer-events:none}
+.eyebrow{font-size:10px;color:#FF9A70;font-weight:850;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
+.intro h1{font-size:27px;letter-spacing:-.045em;line-height:1.1;margin:0 0 9px;max-width:16ch}
+.intro h1 span{color:#FF8B5A}
+.intro p{font-size:13.5px;line-height:1.6;color:#C8C9CF;margin:0;max-width:38ch}
+.content{padding:15px 12px 28px}
+.accordion-stack{display:flex;flex-direction:column;gap:9px}
+.acc{background:var(--card);border:1px solid var(--line);border-radius:5px;overflow:hidden;box-shadow:0 1px 2px rgba(20,20,25,.02);transition:opacity .22s,filter .22s,box-shadow .22s,border-color .22s}
+.acc.open{border-color:var(--orangeLine);box-shadow:0 4px 14px rgba(255,90,31,.08)}
+.accordion-stack.has-open .acc:not(.open){opacity:.15;filter:blur(1.6px)}
+.accordion-stack.has-open .acc.open{opacity:1;filter:none}
+.acc-head{display:flex;align-items:center;text-align:left;gap:10px;width:100%;border:0;background:#fff;padding:14px 13px;color:var(--ink)}
+.acc-head:active{background:#FAFAFB}
+.acc-num{width:28px;height:28px;flex:0 0 auto;border-radius:6px;background:#F0F1F4;color:var(--faint);font-size:11.5px;font-weight:850;display:grid;place-items:center;letter-spacing:-.01em;transition:background .2s,color .2s}
+.acc.open .acc-num{background:var(--orange);color:#fff}
+.acc-num.done{background:var(--greenSoft);color:var(--green)}
+.acc-title-wrap{flex:1;min-width:0}
+.acc-title{font-size:15px;font-weight:800;display:block;line-height:1.3}
+.acc-sub{font-size:11.5px;color:var(--muted);display:block;margin-top:3px;font-weight:450;line-height:1.4}
+.acc-state{width:9px;height:9px;border-radius:50%;background:#D6DAE0;flex:0 0 auto;margin-left:auto}
+.acc-state.progress{background:#FFB27A}
+.acc-state.complete{background:var(--green)}
+.acc-state.missing{background:var(--red)}
+.acc-body{border-top:1px solid var(--line2);padding:15px 13px 16px}
+.note{background:#F7F8FA;border:1px solid #EBEDF0;padding:10px 11px;color:var(--muted);font-size:12px;line-height:1.55;border-radius:4px;margin:0 0 14px}
+.note strong{color:var(--ink2)}
+.section-label{font-size:10.5px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:#6E727C;margin:18px 0 9px}
+.section-label:first-child{margin-top:0}
+.field{display:block;margin-bottom:13px;min-width:0}
+.field:last-child{margin-bottom:0}
+.field>span,.field>label{display:block;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.07em;color:#666A74;margin-bottom:6px}
+.field .hint{display:block;text-transform:none;letter-spacing:0;font-weight:450;font-size:11.5px;color:var(--faint);margin-top:5px}
+.input,.select,.textarea{width:100%;min-width:0;border:1px solid #DDE1E7;background:#fff;border-radius:4px;color:var(--ink);padding:11px;font-size:15px;outline:none}
+.input,.select{min-height:44px}
+.textarea{min-height:82px;resize:vertical;line-height:1.5}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,90,31,.09)}
+.input::placeholder,.textarea::placeholder{color:#B0B5BE}
+.select{padding-right:11px}
+.field-row{display:flex;flex-direction:column;gap:0}
+@media(min-width:420px){.field-row.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field-row.two .field{margin-bottom:13px}}
+.check-list{display:flex;flex-direction:column;gap:7px}
+.check-item{display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--line);background:#fff;border-radius:4px;min-height:44px}
+.check-item input{accent-color:var(--orange);width:17px;height:17px;flex:0 0 auto;margin:2px 0 0}
+.check-item span{font-size:13px;font-weight:650;line-height:1.4}
+.check-item small{display:block;font-size:11px;color:var(--muted);font-weight:450;margin-top:2px}
+.btn{border:1px solid transparent;border-radius:4px;min-height:42px;padding:10px 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:800;text-align:center;text-decoration:none;line-height:1.2}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-primary:hover{background:#E94E18}
+.btn-secondary{background:#fff;border-color:#DDE1E7;color:var(--ink2)}
+.btn-light{background:#FFF0E9;border-color:#FFD4C2;color:#C84513}
+.btn-small{min-height:32px;padding:7px 9px;font-size:11.5px}
+.btn-wide{width:100%}
+.btn-dashed{background:#fff;border:1.5px dashed #CDD2DA;color:var(--orange);width:100%;margin-top:7px}
+.btn-row{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+@media(min-width:420px){.btn-row{flex-direction:row}.btn-row>*{flex:1}}
+.record{border:1px solid var(--line);border-radius:4px;padding:11px;margin-bottom:9px;background:#fff}
+.record:last-child{margin-bottom:0}
+.record-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.record-title{font-size:13px;font-weight:850;flex:1;min-width:0;line-height:1.35}
+.record-subtitle{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px}
+.record-actions{display:flex;gap:5px}
+.remove-btn{border:1px solid #F1D7D7;color:#B91C1C;background:#fff;padding:5px 8px;border-radius:3px;font-size:10.5px;font-weight:800;cursor:pointer}
+.badge{display:inline-flex;align-items:center;border:1px solid #E2E5EA;border-radius:3px;padding:3px 6px;font-size:9.5px;font-weight:850;text-transform:uppercase;letter-spacing:.06em;color:#666B75;background:#F7F8F9}
+.badge.orange{background:var(--orangeSoft);border-color:var(--orangeLine);color:#C74514}
+.badge.green{background:var(--greenSoft);border-color:#C9E9D5;color:var(--green)}
+.divider{height:1px;background:var(--line2);margin:14px 0}
+.image-picker{display:flex;gap:11px;align-items:center;margin-bottom:14px}
+.image-preview{width:84px;height:84px;background:#F0F1F4;border:1px solid var(--line);border-radius:4px;overflow:hidden;display:grid;place-items:center;flex:0 0 84px}
+.image-preview img{width:100%;height:100%;object-fit:cover}
+.image-preview span{font-size:10.5px;font-weight:750;color:#9AA0A9;letter-spacing:.04em}
+.image-picker-copy{min-width:0;flex:1}
+.image-picker-copy .field{margin-bottom:7px}
+.file-label{display:inline-flex;align-items:center;justify-content:center;border:1px solid #DDE1E7;background:#fff;border-radius:4px;padding:7px 9px;font-size:11px;font-weight:800;cursor:pointer}
+.file-label input{display:none}
+.empty{background:#FAFBFC;border:1px dashed #D8DDE4;color:#858B95;padding:15px 12px;text-align:center;border-radius:4px;font-size:12px;line-height:1.5}
+.empty strong{display:block;color:#4E535D;font-size:12.5px;margin-bottom:3px}
+.inline-summary{background:#F7F8FA;border:1px solid #E9ECF0;border-radius:4px;padding:10px;font-size:11.5px;color:var(--muted);margin-top:9px}
+.inline-summary strong{color:var(--ink2)}
+.pick-list{display:flex;flex-direction:column;gap:8px}
+.pick{display:flex;align-items:center;gap:11px;padding:13px;border:1px solid var(--line);border-radius:5px;background:#fff;text-align:left;width:100%;color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s}
+.pick:hover{border-color:#C9CDD4}
+.pick.on{border-color:var(--orange);background:var(--orangeSoft)}
+.pick-ico{width:38px;height:38px;flex:0 0 auto;border-radius:5px;background:#F0F1F4;display:grid;place-items:center;font-size:19px}
+.pick.on .pick-ico{background:#fff}
+.pick-txt{flex:1;min-width:0}
+.pick-txt b{display:block;font-size:14px;font-weight:800;color:var(--ink);margin-bottom:2px;line-height:1.25}
+.pick-txt span{display:block;font-size:11.5px;color:var(--muted);line-height:1.35}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--orangeSoft);border:1px solid var(--orangeLine);color:#B5430F;border-radius:18px;padding:6px 12px;font-size:12.5px;font-weight:750;cursor:pointer;transition:background .12s,border-color .12s}
+.chip:hover{background:#FFE2D4}
+.chip.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.chip-add{display:flex;gap:7px;align-items:stretch}
+.chip-add .input,.chip-add .select{flex:1;min-width:0}
+.chip-add .btn{flex:0 0 auto;white-space:nowrap}
+.footer-actions{flex:0 0 auto;background:#fff;border-top:1px solid var(--line);padding:9px 12px calc(9px + env(safe-area-inset-bottom));display:flex;gap:8px}
+.footer-actions .btn{flex:1;min-height:44px}
+.status-toast{position:absolute;z-index:30;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#171719;color:#fff;padding:10px 14px;border-radius:4px;max-width:88%;font-size:11.5px;font-weight:750;box-shadow:var(--shadow);transition:opacity .2s,transform .2s;white-space:normal;text-align:center}
+.status-toast.show{opacity:1;transform:translate(-50%,0)}
+.modal-backdrop{position:fixed;inset:0;z-index:100;background:rgba(15,15,18,.62);display:flex;align-items:flex-end;justify-content:center;padding-top:22px}
+.modal{width:100%;max-width:520px;max-height:94dvh;background:#fff;border-radius:9px 9px 0 0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 -8px 35px rgba(0,0,0,.18)}
+.modal-header{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.modal-header h3{margin:0;font-size:16px;font-weight:850;flex:1}
+.modal-close{border:1px solid var(--line);background:#fff;border-radius:4px;height:33px;padding:0 12px;font-size:12px;font-weight:800;color:var(--ink2)}
+.modal-body{overflow:auto;padding:15px 16px;min-height:0}
+.modal-footer{padding:11px 16px calc(11px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#FAFBFC;display:flex;gap:8px}
+.modal-footer .btn{flex:1}
+.summary-block{border:1px solid var(--line);border-radius:4px;padding:12px;margin-bottom:9px}
+.summary-block h4{margin:0 0 5px;font-size:13.5px}
+.summary-block p{margin:0;color:var(--muted);font-size:12px}
+.hide{display:none!important}
+.mini-note{font-size:10.5px;color:var(--muted);line-height:1.45;margin:7px 0 0}
+.mini-stack{display:flex;flex-direction:column;gap:7px}
+.mini-acc{border:1px solid var(--line);border-radius:4px;background:#fff;overflow:hidden}
+.mini-acc.open{border-color:var(--orangeLine);box-shadow:0 2px 10px rgba(255,90,31,.07)}
+.mini-acc-head{display:flex;align-items:center;gap:8px;width:100%;border:0;background:#fff;padding:11px 12px;text-align:left;color:var(--ink);min-height:46px;cursor:pointer}
+.mini-acc-head:active{background:#FAFAFB}
+.mini-acc-head .t{flex:1;min-width:0;font-size:13.5px;font-weight:750;line-height:1.3}
+.mini-summary{font-size:11px;color:var(--muted);white-space:nowrap}
+.mini-acc-body{padding:12px;border-top:1px solid var(--line2)}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:9px}
+.gallery-tile{position:relative;aspect-ratio:1/1;border-radius:4px;overflow:hidden;border:1px solid var(--line);background:#F0F1F4}
+.gallery-tile img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-tile .tile-x{position:absolute;top:4px;right:4px;width:22px;height:22px;border:0;border-radius:50%;background:rgba(15,15,18,.7);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;padding:0;line-height:1;cursor:pointer}
+.offer-row{display:grid;grid-template-columns:1fr 80px 32px;gap:7px;align-items:center;margin-bottom:7px}
+.offer-row .input{padding:9px 10px;font-size:14px;min-height:38px}
+.offer-row .row-del{width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:4px;color:var(--faint);font-size:13px;display:grid;place-items:center;cursor:pointer}
+.offer-row .row-del:hover{background:#FEE2E2;color:var(--red);border-color:#FECACA}
+.point-row{display:grid;grid-template-columns:24px 1fr 32px;gap:8px;align-items:center;margin-bottom:7px}
+.point-row .bullet{width:24px;height:24px;border-radius:50%;background:var(--orangeSoft);color:var(--orange);font-size:11px;font-weight:800;display:grid;place-items:center}
+.point-row .input{padding:9px 10px;font-size:14px;min-height:38px}
+.point-row .row-del{width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:4px;color:var(--faint);font-size:13px;display:grid;place-items:center;cursor:pointer}
+.point-row .row-del:hover{background:#FEE2E2;color:var(--red);border-color:#FECACA}
+.price-preview{background:#171719;color:#fff;border-radius:5px;padding:12px 14px;margin-top:12px}
+.price-preview .lbl{font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px}
+.price-preview .val{font-size:20px;font-weight:850;letter-spacing:-.03em;color:#fff;line-height:1.15}
+.price-preview .val .unit{font-size:12px;font-weight:650;color:var(--orange2);margin-left:5px}
+@media(min-width:520px){body{padding:12px 0}#app-shell{height:calc(100dvh - 24px);border-radius:9px}.modal-backdrop{align-items:center;padding:20px}.modal{border-radius:9px;max-height:90dvh}}
+</style>
+</head>
+<body>
+<div id="app-shell">
+  <header class="topbar">
+    <div class="topbar-row">
+      <div class="brand-mark">E</div>
+      <div><div class="brand-title">EatOuts</div><div class="brand-subtitle">Caterer setup</div></div>
+      <span class="draft-pill" id="saveIndicator">Draft mode</span>
+    </div>
+    <div class="progress-row"><span>Setup completeness</span><strong id="progressText">0% complete</strong></div>
+    <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+  </header>
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <div class="eyebrow">Caterer onboarding</div>
+      <h1>Get your <span>catering</span> business on EatOuts.</h1>
+      <p>Register your catering business, list your menus and packages, and get discovered by event organisers, corporates and private clients. Drafts save in this browser when local storage is available.</p>
+    </section>
+    <main class="content">
+      <div id="moduleStack" class="accordion-stack"></div>
+    </main>
+  </div>
+  <footer class="footer-actions">
+    <button type="button" class="btn btn-secondary" data-action="save-draft">Save draft</button>
+    <button type="button" class="btn btn-primary" data-action="publish">Review &amp; publish</button>
+  </footer>
+  <div class="status-toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+<div class="modal-backdrop hide" id="modalBackdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modalTitle">Add</h3><button class="modal-close" type="button" data-action="close-modal">Close</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   DATA
+   ============================================================ */
+const TYPE_PROFILES = {
+  food: {
+    icon:'🍽', name:'Food caterer', note:'Buffet, plated, spit braai',
+    fields:[
+      {id:'serviceStyle',label:'Service style',type:'multi',options:['Full-service plated','Buffet','Family style','Live cooking','Food truck','Drop-off / platter delivery'],required:true},
+      {id:'cuisines',label:'Cuisines & menu styles',type:'multi',options:['Zimbabwean / Southern African','Pan-African','Braai / barbecue','Continental','Asian','Mediterranean','Middle Eastern','Desserts and pastries','Custom menu'],required:true},
+      {id:'portionSize',label:'Portion / serving information',type:'textarea',placeholder:'Describe portion sizes and how many guests each serving feeds.'},
+      {id:'minimumGuests',label:'Minimum guest count',type:'number',min:1,required:true},
+      {id:'maximumGuests',label:'Maximum guest count',type:'number',min:1},
+      {id:'dietaryAccommodations',label:'Dietary accommodations',type:'multi',options:['Vegetarian','Vegan','Gluten-free','Dairy-free','Nut-aware','Halal','Kosher','Low-sodium','Child-friendly','Other by request']},
+      {id:'kitchenSetup',label:'Kitchen / prep facilities needed',type:'multi',options:['No onsite prep','Prep table','Water access','Handwashing station','Refrigeration','Cooking fuel','Power supply','Waste area']},
+      {id:'staffingIncluded',label:'Staffing included',type:'select',options:['Chefs and servers','Chefs only','Servers only','No staff','Depends on package'],required:true}
+    ],
+    conditional:[
+      {when:{field:'serviceStyle',includes:'Food truck'},title:'Food truck setup',fields:[
+        {id:'vehicleDimensions',label:'Vehicle dimensions',type:'text',required:true,placeholder:'e.g. 6 m × 2.4 m'},
+        {id:'parkingFootprint',label:'Parking footprint & access',type:'text',required:true},
+        {id:'powerHookup',label:'Power hookup',type:'select',options:['None','Standard outlet','16A','32A','Generator','Specify in notes'],required:true},
+        {id:'fireClearance',label:'Fire safety clearance',type:'textarea',required:true,placeholder:'Extinguishers, clearance zone, gas storage.'}
+      ]},
+      {when:{field:'serviceStyle',includes:'Drop-off / platter delivery'},title:'Delivery order rules',fields:[
+        {id:'deliveryRadius',label:'Delivery radius (km)',type:'number',min:0,required:true},
+        {id:'minimumOrderValue',label:'Minimum order value (Pula)',type:'number',min:0},
+        {id:'packagingIncluded',label:'Packaging included?',type:'boolean',required:true}
+      ]},
+      {when:{field:'serviceStyle',includesAny:['Full-service plated','Buffet','Family style']},title:'Full-service logistics',fields:[
+        {id:'minimumServiceHours',label:'Minimum service hours',type:'number',min:1,required:true},
+        {id:'tablewareIncluded',label:'Plates, cutlery & glassware included?',type:'boolean',required:true},
+        {id:'serviceStaffRatio',label:'Service staff to guest ratio',type:'text',placeholder:'e.g. 1 waiter per 15 guests'}
+      ]}
+    ],
+    pricing:['per_person','per_item','per_platter','package','per_event','minimum_spend','quote'],
+    defaultPricing:'per_person'
+  },
+  equipment: {
+    icon:'🍴', name:'Equipment rental', note:'Tables, chairs, glassware',
+    fields:[
+      {id:'equipmentFamilies',label:'Equipment types stocked',type:'multi',options:['Tables','Chairs','Cutlery','Crockery','Glassware','Chafing dishes','Serving ware','Linen','Cooling / dispensing'],required:true},
+      {id:'availableQuantity',label:'Available quantity',type:'number',min:1,required:true},
+      {id:'unitCondition',label:'Condition',type:'select',options:['New','Excellent','Good','Mixed; disclose per item'],required:true},
+      {id:'setsAvailable',label:'Can customers hire matching sets?',type:'boolean',required:true},
+      {id:'breakagePolicy',label:'Loss / breakage policy',type:'textarea',required:true},
+      {id:'washingReturn',label:'Cleaning & return requirements',type:'textarea',required:true}
+    ],
+    conditional:[
+      {when:{field:'equipmentFamilies',includesAny:['Chafing dishes','Cooling / dispensing']},title:'Powered / heat equipment',fields:[
+        {id:'powerFuelDetails',label:'Power / fuel or heating requirements',type:'text',required:true}
+      ]}
+    ],
+    pricing:['per_item','per_day','per_event','per_set','package','quote'],
+    defaultPricing:'per_item'
+  },
+  bar: {
+    icon:'🍸', name:'Mobile bar service', note:'Bar setup, ice, mixers',
+    fields:[
+      {id:'barFormat',label:'Bar format',type:'multi',options:['Cash bar','Hosted / open bar','Consumption-based','Mocktail-only','Dry hire / equipment only'],required:true},
+      {id:'barSetup',label:'Bar setup',type:'multi',options:['Portable counter','Back bar','Refrigeration','Ice station','Glassware','Cocktail station','Menu / signage'],required:true},
+      {id:'beverageInclusions',label:'Beverages included',type:'multi',options:['Beer','Wine','Spirits','Cocktails','Mocktails','Soft drinks','Water','Customer supplies drinks'],required:true},
+      {id:'barStaff',label:'Staff included',type:'select',options:['Bartenders and barbacks','Bartenders only','No staff','Optional add-on'],required:true},
+      {id:'guestEstimate',label:'Guests served per bar point',type:'number',min:1}
+    ],
+    conditional:[
+      {when:{field:'barFormat',includes:'Hosted / open bar'},title:'Hosted bar controls',fields:[
+        {id:'spendCap',label:'Host spend cap / replenishment rule',type:'text',required:true},
+        {id:'approvedMenu',label:'Approved beverage list',type:'textarea',required:true}
+      ]}
+    ],
+    pricing:['package','per_person','per_hour','minimum_spend','per_event','quote'],
+    defaultPricing:'package'
+  },
+  wholesale: {
+    icon:'🍷', name:'Beverage wholesale', note:'Bulk beer, wine, spirits',
+    fields:[
+      {id:'productType',label:'Beverage category',type:'multi',options:['Beer','Cider','Wine','Spirits','Soft drinks','Water','Juice / mixer','Non-alcoholic','Ice'],required:true},
+      {id:'brandAndVariant',label:'Brand / product variant',type:'text',required:true},
+      {id:'packSize',label:'Pack size / volume',type:'text',required:true,placeholder:'e.g. 500 ml × 24'},
+      {id:'stockQuantity',label:'Available stock',type:'number',min:0,required:true},
+      {id:'minimumWholesaleOrder',label:'Minimum wholesale order',type:'text',required:true},
+      {id:'deliveryOrCollection',label:'Fulfilment',type:'multi',options:['Delivery','Collection','Both'],required:true}
+    ],
+    conditional:[
+      {when:{field:'productType',includesAny:['Beer','Cider','Wine','Spirits']},title:'Alcohol sale controls',fields:[
+        {id:'licensedSupply',label:'Appropriate licence / authorisation held?',type:'boolean',required:true},
+        {id:'ageVerification',label:'Age verification process',type:'textarea',required:true}
+      ]}
+    ],
+    pricing:['per_item','per_bottle','per_case','per_crate','tiered','minimum_spend','quote'],
+    defaultPricing:'per_case'
+  },
+  specialty: {
+    icon:'☕', name:'Specialty stations', note:'Coffee, cocktail, ice cream carts',
+    fields:[
+      {id:'stationType',label:'Station type',type:'multi',options:['Coffee','Tea','Cocktail / mocktail','Ice cream','Popcorn','Candy floss','Dessert','Juice','Smoothie'],required:true},
+      {id:'menuOptions',label:'Menu / flavour options',type:'textarea',required:true},
+      {id:'serviceStyle',label:'Service style',type:'select',options:['Unlimited station','Fixed servings per guest','Pay per serving','Hosted tab','Dry hire'],required:true},
+      {id:'stationFootprint',label:'Space / footprint required',type:'text',required:true},
+      {id:'throughput',label:'Approximate servings per hour',type:'number',min:1},
+      {id:'consumables',label:'Consumables included',type:'textarea',required:true}
+    ],
+    conditional:[
+      {when:{field:'stationType',includesAny:['Coffee','Smoothie','Juice','Ice cream']},title:'Cold storage / power needs',fields:[
+        {id:'utilityNeeds',label:'Power / refrigeration / water needs',type:'multi',options:['None','Power','Water','Refrigeration','Drainage'],required:true}
+      ]}
+    ],
+    pricing:['per_person','per_serving','per_hour','per_station','package','per_event','quote'],
+    defaultPricing:'per_station'
+  },
+  waitron: {
+    icon:'🤵', name:'Waitron agency', note:'Uniformed waiters',
+    fields:[
+      {id:'staffRoles',label:'Roles supplied',type:'multi',options:['Waitron','Food runner','Host / hostess','Buffet attendant','Service captain','Supervisor'],required:true},
+      {id:'staffCount',label:'Minimum / available staff count',type:'number',min:1,required:true},
+      {id:'minimumShift',label:'Minimum shift (hours)',type:'number',min:1,required:true},
+      {id:'uniformOptions',label:'Uniform options',type:'multi',options:['Black and white','Formal black','Brand uniform','Traditional attire','Client-provided','Other'],required:true},
+      {id:'supervision',label:'Supervisor included?',type:'boolean',required:true},
+      {id:'training',label:'Training / experience level',type:'select',options:['Entry level','Experienced','Fine dining','Banqueting specialist','Mixed teams'],required:true}
+    ],
+    conditional:[
+      {when:{field:'staffRoles',includes:'Service captain'},title:'Team leadership',fields:[
+        {id:'teamSizePerCaptain',label:'Typical team size per captain',type:'number',min:1,required:true}
+      ]}
+    ],
+    pricing:['per_staff_hour','per_staff_shift','per_day','package','quote'],
+    defaultPricing:'per_staff_shift'
+  },
+  bartender: {
+    icon:'🍹', name:'Bartender / mixology', note:'Skilled cocktail staff',
+    fields:[
+      {id:'bartenderStyle',label:'Specialty',type:'multi',options:['Classic cocktails','Craft mixology','Mocktails','Flair bartending','High-volume bar','Wine service','Beer service'],required:true},
+      {id:'menuDesign',label:'Can you design a custom drink menu?',type:'boolean',required:true},
+      {id:'ingredientsSource',label:'Who supplies alcohol & ingredients?',type:'select',options:['Client supplies everything','Supplier sources ingredients','Supplier sources all beverages','Depends on package'],required:true},
+      {id:'barTools',label:'Tools / equipment brought',type:'multi',options:['Shakers and tools','Portable bar tools only','Glassware','Ice tools','No equipment','Full station by request'],required:true},
+      {id:'bartenderCount',label:'Team size available',type:'number',min:1,required:true}
+    ],
+    conditional:[
+      {when:{field:'bartenderStyle',includes:'Flair bartending'},title:'Flair performance safety',fields:[
+        {id:'flairSpace',label:'Minimum clear performance area',type:'text',required:true},
+        {id:'venueRestrictions',label:'Open flame / breakable bottle restrictions',type:'textarea',required:true}
+      ]}
+    ],
+    pricing:['per_hour','per_staff_hour','per_event','package','quote'],
+    defaultPricing:'per_staff_hour'
+  },
+  scullery: {
+    icon:'🧽', name:'Scullery & cleaning', note:'Dishwash, trash, tidy-up',
+    fields:[
+      {id:'cleaningScope',label:'Service scope',type:'multi',options:['Dishwashing','Kitchen cleaning','Guest-area cleanup','Waste collection','Restroom cleaning','Full venue cleanup'],required:true},
+      {id:'teamSize',label:'Team size available',type:'number',min:1,required:true},
+      {id:'equipmentAndChemicals',label:'Equipment / chemicals provided',type:'select',options:['All supplied','Equipment only','Chemicals only','Client supplies','Agreed per booking'],required:true},
+      {id:'wasteHandling',label:'Waste removal included?',type:'boolean',required:true},
+      {id:'waterDrainage',label:'Water / drainage requirements',type:'textarea'}
+    ],
+    conditional:[
+      {when:{field:'cleaningScope',includes:'Restroom cleaning'},title:'Restroom cleaning plan',fields:[
+        {id:'restroomFrequency',label:'Inspection / cleaning frequency',type:'select',options:['Once before event','Hourly','Every 2 hours','On call','Post-event only'],required:true}
+      ]}
+    ],
+    pricing:['per_staff_hour','per_shift','per_area','per_event','package','quote'],
+    defaultPricing:'per_shift'
+  }
+};
+
+const PRICING_MODELS = {
+  per_person:{label:'Per guest',hint:'Price × confirmed guest count.'},
+  per_item:{label:'Per item',hint:'Price per item selected.'},
+  per_platter:{label:'Per platter',hint:'Price per platter, with serving size stated.'},
+  per_serving:{label:'Per serving',hint:'Price for each serving dispensed.'},
+  per_station:{label:'Per station',hint:'Price for each staffed or equipped station.'},
+  per_bottle:{label:'Per bottle',hint:'Price for each bottle.'},
+  per_case:{label:'Per case / carton',hint:'Price per case; state its contents.'},
+  per_crate:{label:'Per crate',hint:'Price per crate; state bottle / can count.'},
+  per_staff_hour:{label:'Per staff-hour',hint:'Price × staff member and hours.'},
+  per_staff_shift:{label:'Per staff shift',hint:'Price per staff member for a defined shift.'},
+  per_hour:{label:'Per hour',hint:'Price multiplied by booked hours.'},
+  per_shift:{label:'Per shift',hint:'Price for a defined work shift.'},
+  per_day:{label:'Per day',hint:'Daily hire or service rate.'},
+  per_event:{label:'Per event',hint:'One rate for the specified event scope.'},
+  per_set:{label:'Per set',hint:'One price for a defined matching set.'},
+  package:{label:'Package price',hint:'A bundle with specified inclusions and limits.'},
+  minimum_spend:{label:'Minimum spend',hint:'Booking proceeds only if the agreed minimum spend is met.'},
+  tiered:{label:'Tiered / quantity pricing',hint:'Different rates by quantity band.'},
+  quote:{label:'Custom quote',hint:'Review the scope and respond with a written quote.'}
+};
+
+const CURRENCIES = ['BWP','USD','ZAR','ZWG','EUR'];
+
+const PAYMENT_METHODS = ['Cash','Visa','Mastercard','American Express','Bank transfer','POS card terminal','BTC Smega','Mascom MyZaka','Orange Money','Other mobile wallet','Online payment link','Other'];
+
+const STAFF_ROLES = {
+  'Management':['General Manager','Restaurant Manager','Catering Manager','Event Coordinator','Shift Supervisor'],
+  'Kitchen':['Executive Chef','Head Chef','Sous Chef','Chef','Line Cook','Prep Cook','Pastry Chef','Baker','Kitchen Porter','Dishwasher'],
+  'Front of house':['Host','Waiter','Waitress','Head Waiter','Food Runner','Cashier','Barista','Bartender','Sommelier','Buffet Attendant','Service Captain'],
+  'Operations':['Procurement Officer','Stock Controller','Storekeeper','Cleaner','Maintenance Technician','Security Guard','Delivery Driver'],
+  'Administration':['HR Manager','Accountant','Payroll Officer','Marketing Manager','Social Media Manager']
+};
+
+const SERVICE_AREAS = ['Gaborone','Francistown','Maun','Molepolole','Serowe','Kanye','Mahalapye','Palapye','Lobatse','Selibe Phikwe','Nationwide'];
+
+const MODULES = [
+  {key:'business',num:1,title:'Business identity',sub:'Name, logo and description'},
+  {key:'type',num:2,title:'Catering type',sub:'The specific service you offer'},
+  {key:'typeFields',num:3,title:'Specialised details',sub:'Details specific to your catering type'},
+  {key:'contact',num:4,title:'Contact & location',sub:'How buyers reach you and where you deliver'},
+  {key:'offerings',num:5,title:'Menu & packages',sub:'Each with its own price'},
+  {key:'staff',num:6,title:'Staff',sub:'Your catering team'},
+  {key:'payments',num:7,title:'Payments',sub:'Accepted methods, deposits and terms'},
+  {key:'availability',num:8,title:'Availability & bookings',sub:'Lead time, response and cancellation'},
+  {key:'review',num:9,title:'Review & publish',sub:'Check everything, then submit'}
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const STORE_KEY = 'eatouts.caterer-onboarding.v1';
+
+function initialState(){
+  return {
+    version:1,
+    submitted:false,
+    uiOpen:'business',
+    type:'',
+    business:{logoUrl:'',name:'',legalName:'',description:''},
+    typeFields:{},
+    contact:{person:'',whatsapp:'',phone:'',email:'',website:'',city:'',serviceAreas:[]},
+    offerings:[],
+    staff:[],
+    payments:{methods:[],depositType:'none',depositValue:'',vatTreatment:'Tax included',minimumOrder:'',deliveryFee:''},
+    availability:{leadTimeDays:'',responseTime:'',sameDay:false,blackoutNotes:'',cancellation:''}
+  };
+}
+
+let state = initialState();
+try {
+  const raw = localStorage.getItem(STORE_KEY);
+  if (raw) {
+    const p = JSON.parse(raw);
+    if (p && p.version === 1) state = Object.assign(initialState(), p);
+  }
+} catch(e){ console.warn('Could not load draft', e); }
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $ = (s,r=document) => r.querySelector(s);
+const $$ = (s,r=document) => Array.from(r.querySelectorAll(s));
+const e = (v) => String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const uid = (p='id') => p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+const arr = (v) => Array.isArray(v) ? v : [];
+const nonEmpty = (v) => v != null && String(v).trim().length > 0;
+
+function getPath(obj, path){
+  const parts = path.split('.');
+  let v = obj;
+  for (const p of parts){ if (v == null) return ''; v = v[p]; }
+  return v == null ? '' : v;
+}
+function setPath(obj, path, value){
+  const parts = path.split('.');
+  let t = obj;
+  for (let i=0;i<parts.length-1;i++){
+    const k = parts[i];
+    if (t[k] == null) t[k] = /^\d+$/.test(parts[i+1]) ? [] : {};
+    t = t[k];
+  }
+  t[parts[parts.length-1]] = value;
+}
+function pathGet(path){ return getPath(state, path); }
+function pathSet(path, value){ setPath(state, path, value); }
+
+function safeImage(url){
+  const u = String(url||'').trim();
+  return (/^https?:\/\//i.test(u)||/^data:image\//i.test(u)) ? u : '';
+}
+
+let toastTimer = null;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+function saveState(show=false){
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    $('#saveIndicator').textContent = 'Saved locally';
+    $('#saveIndicator').style.color = '#B8E8C8';
+    if (show) toast('Draft saved on this device.');
+  } catch(err){
+    $('#saveIndicator').textContent = (err && err.name === 'QuotaExceededError') ? 'Storage full' : 'Draft mode';
+    if (show) toast('Could not save draft locally.');
+  }
+}
+
+/* ============================================================
+   FORM HELPERS
+   ============================================================ */
+function inputPath(path){ return 'data-bind="'+e(path)+'"'; }
+function field(label,path,type='text',opts={}){
+  let value = pathGet(path);
+  let extra = '';
+  if (opts.placeholder) extra += ' placeholder="'+e(opts.placeholder)+'"';
+  if (opts.min !== undefined) extra += ' min="'+e(opts.min)+'"';
+  if (opts.max !== undefined) extra += ' max="'+e(opts.max)+'"';
+  if (opts.step !== undefined) extra += ' step="'+e(opts.step)+'"';
+  if (opts.required) extra += ' required';
+  return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><input class="input" type="${e(type)}" ${inputPath(path)} value="${e(value)}"${extra}>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;
+}
+function textarea(label,path,opts={}){
+  return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><textarea class="textarea" ${inputPath(path)} placeholder="${e(opts.placeholder||'')}"${opts.required?' required':''}>${e(pathGet(path))}</textarea>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;
+}
+function selectField(label,path,options,opts={}){
+  const val = String(pathGet(path));
+  const os = options.map(o=>typeof o==='string'?{value:o,label:o}:o);
+  return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><select class="select" ${inputPath(path)}${opts.required?' required':''}><option value="">${e(opts.placeholder||'Select an option')}</option>${os.map(o=>`<option value="${e(o.value)}"${val===String(o.value)?' selected':''}>${e(o.label)}</option>`).join('')}</select>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;
+}
+function checkItem(label,path,opts={}){
+  const checked = !!pathGet(path);
+  return `<label class="check-item"><input type="checkbox" ${inputPath(path)} ${checked?'checked':''}><span>${e(label)}${opts.desc?`<small>${e(opts.desc)}</small>`:''}</span></label>`;
+}
+function choiceList(label,path,options){
+  const value = arr(pathGet(path));
+  return `<div class="field"><span>${e(label)}</span><div class="check-list">${options.map(opt=>`<label class="check-item"><input type="checkbox" data-choice="${e(path)}" data-choice-val="${e(opt)}" ${value.includes(opt)?'checked':''}><span>${e(opt)}</span></label>`).join('')}</div></div>`;
+}
+function sectionLabel(label){ return `<div class="section-label">${e(label)}</div>`; }
+function empty(title,desc){ return `<div class="empty"><strong>${e(title)}</strong>${e(desc)}</div>`; }
+function imagePreview(url, alt='Preview'){
+  const usable = safeImage(url);
+  return usable ? `<img src="${e(usable)}" alt="${e(alt)}">` : '<span>No image</span>';
+}
+function imagePicker(label,path,alt){
+  return `<div class="image-picker"><div class="image-preview" data-image-preview="${e(path)}">${imagePreview(pathGet(path),alt||label)}</div><div class="image-picker-copy"><div style="font-size:12.5px;font-weight:850;margin-bottom:7px">${e(label)}</div><label class="file-label">Choose image<input type="file" accept="image/*" data-upload="${e(path)}"></label><div class="mini-note">Or paste an image URL below.</div>${field('Image URL',path,'url',{placeholder:'https://...'})}</div></div>`;
+}
+
+/* ============================================================
+   COMPLETION
+   ============================================================ */
+function isBusinessComplete(){
+  return nonEmpty(state.business.name) && nonEmpty(state.business.description);
+}
+function isTypeComplete(){ return !!state.type; }
+function isTypeFieldsComplete(){
+  const profile = TYPE_PROFILES[state.type];
+  if (!profile) return false;
+  const required = profile.fields.filter(f=>f.required);
+  if (!required.length) return true;
+  return required.every(f=>nonEmpty(state.typeFields[f.id]));
+}
+function isContactComplete(){
+  return nonEmpty(state.contact.whatsapp) && nonEmpty(state.contact.city);
+}
+function isOfferingsComplete(){
+  return state.offerings.length > 0 && state.offerings.some(o=>nonEmpty(o.name) && (o.pricing.model === 'quote' || nonEmpty(String(o.pricing.basePrice))));
+}
+function isPaymentsComplete(){ return arr(state.payments.methods).length > 0; }
+function isAvailabilityComplete(){
+  return nonEmpty(state.availability.leadTimeDays) && nonEmpty(state.availability.responseTime);
+}
+
+function moduleDone(key){
+  if (key === 'business') return isBusinessComplete();
+  if (key === 'type') return isTypeComplete();
+  if (key === 'typeFields') return isTypeFieldsComplete();
+  if (key === 'contact') return isContactComplete();
+  if (key === 'offerings') return isOfferingsComplete();
+  if (key === 'staff') return state.staff.length > 0;
+  if (key === 'payments') return isPaymentsComplete();
+  if (key === 'availability') return isAvailabilityComplete();
+  if (key === 'review') return isBusinessComplete() && isTypeComplete() && isTypeFieldsComplete() && isContactComplete() && isOfferingsComplete() && isPaymentsComplete() && isAvailabilityComplete();
+  return false;
+}
+function moduleState(key){
+  const done = moduleDone(key);
+  if (done) return 'complete';
+  if (key === 'typeFields' && !state.type) return '';
+  if (key === 'business') return nonEmpty(state.business.name) ? 'progress' : '';
+  if (key === 'contact') return nonEmpty(state.contact.whatsapp) ? 'progress' : '';
+  if (key === 'offerings') return state.offerings.length ? 'progress' : '';
+  if (key === 'staff') return state.staff.length ? 'progress' : '';
+  if (key === 'payments') return arr(state.payments.methods).length ? 'progress' : '';
+  if (key === 'availability') return (nonEmpty(state.availability.leadTimeDays)||nonEmpty(state.availability.responseTime)) ? 'progress' : '';
+  if (key === 'type') return state.type ? 'complete' : '';
+  if (key === 'typeFields') return Object.keys(state.typeFields).length ? 'progress' : '';
+  return '';
+}
+function completedCount(){
+  const keys = ['business','type','typeFields','contact','offerings','staff','payments','availability'];
+  return keys.filter(k=>moduleDone(k)).length;
+}
+function updateProgress(){
+  const total = 8;
+  const pct = Math.round(completedCount()/total*100);
+  $('#progressText').textContent = pct + '% complete';
+  $('#progressFill').style.width = pct + '%';
+}
+
+/* ============================================================
+   RENDER: BUSINESS
+   ============================================================ */
+function renderBusiness(){
+  return `${imagePicker('Business logo','business.logoUrl','Business logo')}
+    ${field('Trading name','business.name','text',{placeholder:'e.g. Kalahari Catering Co.',required:true})}
+    ${field('Registered company name','business.legalName','text',{placeholder:'Legal entity name'})}
+    ${textarea('Short description','business.description',{placeholder:'Two or three lines about what you cater, who you serve and what makes you reliable.',required:true})}
+    <p class="note"><strong>Tip:</strong> This description appears on your public caterer profile, so keep it clear and specific about your cuisine and service.</p>`;
+}
+
+/* ============================================================
+   RENDER: TYPE
+   ============================================================ */
+function renderType(){
+  return `<p class="note">Pick the one type that best matches your main catering business. Your specialised questions and menu listings will be tailored for that type.</p>
+    <div class="pick-list">
+      ${Object.entries(TYPE_PROFILES).map(([id,p])=>`
+        <button type="button" class="pick ${state.type===id?'on':''}" data-type-pick="${e(id)}">
+          <span class="pick-ico">${p.icon}</span>
+          <span class="pick-txt"><b>${e(p.name)}</b><span>${e(p.note)}</span></span>
+        </button>
+      `).join('')}
+    </div>`;
+}
+
+/* ============================================================
+   RENDER: TYPE FIELDS
+   ============================================================ */
+function renderTypeField(f){
+  const val = state.typeFields[f.id];
+  if (f.type === 'multi'){
+    const selected = arr(val);
+    return `<div class="field"><span>${e(f.label)}${f.required?' *':''}</span><div class="chip-row">${(f.options||[]).map(o=>`<button type="button" class="chip ${selected.includes(o)?'on':''}" data-choice="typeFields.${e(f.id)}" data-choice-val="${e(o)}">${e(o)}</button>`).join('')}</div></div>`;
+  }
+  if (f.type === 'select'){
+    return selectField(f.label, 'typeFields.'+f.id, f.options||[], {required:f.required, placeholder:'Select…'});
+  }
+  if (f.type === 'boolean'){
+    return `<label class="check-item" style="margin-bottom:13px"><input type="checkbox" ${inputPath('typeFields.'+f.id)} ${val?'checked':''}><span>${e(f.label)}${f.required?' *':''}</span></label>`;
+  }
+  if (f.type === 'number'){
+    return field(f.label, 'typeFields.'+f.id, 'number', {placeholder:f.placeholder, min:f.min, required:f.required});
+  }
+  if (f.type === 'textarea'){
+    return textarea(f.label, 'typeFields.'+f.id, {placeholder:f.placeholder, required:f.required});
+  }
+  return field(f.label, 'typeFields.'+f.id, 'text', {placeholder:f.placeholder, required:f.required});
+}
+function shouldShowConditional(cond){
+  const when = cond.when || {};
+  const val = state.typeFields[when.field];
+  if (when.includes) return Array.isArray(val) && val.includes(when.includes);
+  if (when.includesAny) return Array.isArray(val) && when.includesAny.some(v=>val.includes(v));
+  if (when.equals !== undefined) return val === when.equals;
+  return false;
+}
+function renderTypeFields(){
+  const profile = TYPE_PROFILES[state.type];
+  if (!profile){
+    return `<p class="note">Choose a catering type in the previous step to see the specialised questions.</p>`;
+  }
+  const fieldsHTML = profile.fields.map(renderTypeField).join('');
+  const conditionalHTML = (profile.conditional||[]).map(cond=>{
+    if (!shouldShowConditional(cond)) return '';
+    return `${sectionLabel(cond.title)}${cond.fields.map(renderTypeField).join('')}`;
+  }).join('');
+  return `<p class="note">These questions are specific to <strong>${e(profile.name)}</strong>. They help buyers compare you accurately and filter by what matters.</p>${fieldsHTML}${conditionalHTML}`;
+}
+
+/* ============================================================
+   RENDER: CONTACT
+   ============================================================ */
+function renderContact(){
+  return `${field('Contact person','contact.person','text',{placeholder:'Full name'})}
+    ${field('WhatsApp','contact.whatsapp','tel',{placeholder:'+267 …',required:true})}
+    <div class="field-row two">
+      ${field('Phone','contact.phone','tel',{placeholder:'Optional'})}
+      ${field('Email','contact.email','email',{placeholder:'Optional'})}
+    </div>
+    ${field('Website','contact.website','url',{placeholder:'https://… (optional)'})}
+    ${field('City / town','contact.city','text',{placeholder:'e.g. Gaborone',required:true})}
+    ${sectionLabel('Service areas')}
+    <p class="mini-note">Tick every area you deliver or serve at. Buyers filter by area.</p>
+    ${choiceList('Service areas','contact.serviceAreas',SERVICE_AREAS)}`;
+}
+
+/* ============================================================
+   RENDER: OFFERINGS
+   ============================================================ */
+function priceLabel(p){
+  if (!p || !p.model || p.model === 'quote') return 'Price on request';
+  const m = PRICING_MODELS[p.model];
+  const unit = p.unit || (m ? m.label.toLowerCase() : '');
+  return (p.currency||'BWP') + ' ' + Number(p.basePrice||0).toFixed(2) + (unit ? ' · ' + unit : '');
+}
+function renderOfferings(){
+  if (!state.offerings.length){
+    return `${empty('No offerings yet','Add at least one menu item, package or service to publish your caterer profile.')}
+      <button type="button" class="btn btn-dashed" data-add-offering="1">+ Add an offering</button>`;
+  }
+  return `${state.offerings.map(o=>`
+    <article class="record" data-offering-id="${e(o.id)}" style="cursor:pointer">
+      <div class="record-top">
+        <div class="record-title">${e(o.name||'Untitled offering')}<div class="record-subtitle">${e(priceLabel(o.pricing))}</div></div>
+        <div class="record-actions"><button type="button" class="remove-btn" data-action="delete-offering" data-id="${e(o.id)}">Remove</button></div>
+      </div>
+      ${o.shortDescription?`<p class="mini-note" style="margin:0 0 6px">${e(o.shortDescription)}</p>`:''}
+    </article>
+  `).join('')}<button type="button" class="btn btn-dashed" data-add-offering="1">+ Add an offering</button>`;
+}
+
+/* ============================================================
+   RENDER: STAFF
+   ============================================================ */
+function renderStaff(){
+  if (!state.staff.length){
+    return `${empty('No staff added yet','Add the key people in your catering team so buyers know who runs the kitchen and service.')}
+      <button type="button" class="btn btn-dashed" data-add-staff="1">+ Add a staff member</button>`;
+  }
+  return `${state.staff.map(s=>`
+    <div class="record">
+      <div class="record-top">
+        <div class="record-title">${e((s.firstName+' '+s.surname).trim()||'Unnamed staff')}<div class="record-subtitle">${e(s.role)} · ${e(s.salaryFrequency||'Pay frequency not set')}</div></div>
+        <div class="record-actions"><button type="button" class="remove-btn" data-action="delete-staff" data-id="${e(s.id)}">Remove</button></div>
+      </div>
+      ${s.phone?`<div class="mini-note">${e(s.phone)}${s.email?' · '+e(s.email):''}</div>`:''}
+    </div>
+  `).join('')}<button type="button" class="btn btn-dashed" data-add-staff="1">+ Add a staff member</button>`;
+}
+
+/* ============================================================
+   RENDER: PAYMENTS
+   ============================================================ */
+function renderPayments(){
+  return `<p class="note">Select the payment methods you accept and set your deposit and VAT terms.</p>
+    ${choiceList('Accepted payment methods','payments.methods',PAYMENT_METHODS)}
+    ${sectionLabel('Deposit terms')}
+    ${selectField('Deposit type','payments.depositType',[{value:'none',label:'No deposit required'},{value:'percentage',label:'Percentage of order'},{value:'fixed',label:'Fixed deposit amount'}],{placeholder:'Choose deposit type'})}
+    ${state.payments.depositType !== 'none' && state.payments.depositType !== '' ? field(state.payments.depositType === 'percentage' ? 'Deposit percentage (%)' : 'Deposit amount (Pula)','payments.depositValue','number',{min:0,step:'0.01'}) : ''}
+    ${sectionLabel('Order minimums & fees')}
+    <div class="field-row two">
+      ${field('Minimum order value (Pula)','payments.minimumOrder','number',{min:0,step:'0.01'})}
+      ${field('Delivery fee (Pula)','payments.deliveryFee','number',{min:0,step:'0.01'})}
+    </div>
+    ${selectField('VAT / tax treatment','payments.vatTreatment',['Tax included','Tax added separately','Not VAT registered'])}`;
+}
+
+/* ============================================================
+   RENDER: AVAILABILITY
+   ============================================================ */
+function renderAvailability(){
+  return `<p class="note">Buyers filter by lead time and response, so accurate settings get you more relevant enquiries.</p>
+    ${field('Booking lead time (days)','availability.leadTimeDays','number',{min:0,placeholder:'e.g. 7',required:true})}
+    ${selectField('Typical quote response time','availability.responseTime',['Within 2 hours','Same day','Within 24 hours','Within 2 business days','Other'],{required:true})}
+    ${checkItem('Accept same-day bookings','availability.sameDay')}
+    ${textarea('Blackout dates / unavailability','availability.blackoutNotes',{placeholder:'e.g. Closed 15–25 December. No Sunday bookings.'})}
+    ${textarea('Cancellation policy','availability.cancellation',{placeholder:'Short summary of your cancellation terms.'})}`;
+}
+
+/* ============================================================
+   RENDER: REVIEW
+   ============================================================ */
+function renderReview(){
+  const rows = [
+    {key:'business',label:'Business identity'},
+    {key:'type',label:'Catering type'},
+    {key:'typeFields',label:'Specialised details'},
+    {key:'contact',label:'Contact & location'},
+    {key:'offerings',label:'Menu & packages'},
+    {key:'payments',label:'Payments'},
+    {key:'availability',label:'Availability & booking'}
+  ];
+  const allDone = moduleDone('review');
+  return `<p class="note">${allDone ? 'Everything required is filled in. Submit and our team will publish your caterer profile within 48 hours.' : 'Some required steps are still empty. Tap any incomplete step to finish, then come back here.'}</p>
+    <div class="check-list">${rows.map(r=>{
+      const done = moduleDone(r.key);
+      return `<button type="button" class="check-item" data-jump-to="${r.key}" style="cursor:pointer;width:100%;text-align:left">
+        <input type="checkbox" ${done?'checked':''} disabled>
+        <span>${e(r.label)}<small>${done?'Complete':'Not yet complete'}</small></span>
+      </button>`;
+    }).join('')}</div>
+    <div class="btn-row" style="margin-top:14px">
+      <button type="button" class="btn btn-primary btn-wide" data-action="submit-profile" ${allDone?'':'disabled style="opacity:.45;pointer-events:none"'}>Submit caterer profile</button>
+    </div>`;
+}
+
+/* ============================================================
+   RENDER: MODULES
+   ============================================================ */
+function renderModules(){
+  const stack = $('#moduleStack');
+  const anyOpen = !!state.uiOpen;
+  stack.className = 'accordion-stack' + (anyOpen?' has-open':'');
+  stack.innerHTML = MODULES.map(m=>{
+    const open = state.uiOpen === m.key;
+    const stateClass = moduleState(m.key);
+    const done = moduleDone(m.key);
+    let body = '';
+    if (m.key === 'business') body = renderBusiness();
+    else if (m.key === 'type') body = renderType();
+    else if (m.key === 'typeFields') body = renderTypeFields();
+    else if (m.key === 'contact') body = renderContact();
+    else if (m.key === 'offerings') body = renderOfferings();
+    else if (m.key === 'staff') body = renderStaff();
+    else if (m.key === 'payments') body = renderPayments();
+    else if (m.key === 'availability') body = renderAvailability();
+    else if (m.key === 'review') body = renderReview();
+    return `<section class="acc ${open?'open':''}" data-acc-key="${m.key}">
+      <button class="acc-head" type="button" data-toggle-acc="${m.key}" aria-expanded="${open}">
+        <span class="acc-num ${done?'done':''}">${m.num}</span>
+        <span class="acc-title-wrap">
+          <span class="acc-title">${e(m.title)}</span>
+          <span class="acc-sub">${e(m.sub)}</span>
+        </span>
+        <span class="acc-state ${stateClass}" aria-hidden="true"></span>
+      </button>
+      ${open?`<div class="acc-body">${body}</div>`:''}
+    </section>`;
+  }).join('');
+}
+function renderApp(preserve=true){
+  const sc = $('#scroll');
+  const top = preserve && sc ? sc.scrollTop : 0;
+  renderModules();
+  updateProgress();
+  if (sc) sc.scrollTop = top;
+}
+
+/* ============================================================
+   MODAL SYSTEM
+   ============================================================ */
+let modalSubmit = null;
+let lastFocus = null;
+let pendingGallery = [];
+let pendingModal = null;
+
+function showModal(title, body, submitLabel, submitFn){
+  lastFocus = document.activeElement;
+  $('#modalTitle').textContent = title;
+  $('#modalBody').innerHTML = body;
+  $('#modalFooter').innerHTML = `<button type="button" class="btn btn-secondary" data-action="close-modal">Cancel</button><button type="button" class="btn btn-primary" id="modalSubmit">${e(submitLabel||'Save')}</button>`;
+  $('#modalBackdrop').classList.remove('hide');
+  modalSubmit = submitFn;
+  $('#modalSubmit').onclick = ()=>{ if (typeof modalSubmit === 'function') modalSubmit(); };
+}
+function closeModal(){
+  $('#modalBackdrop').classList.add('hide');
+  $('#modalBody').innerHTML = '';
+  $('#modalFooter').innerHTML = '';
+  modalSubmit = null;
+  pendingModal = null;
+  pendingGallery = [];
+  if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+}
+
+/* ============================================================
+   OFFERING MODAL
+   ============================================================ */
+function openOfferingModal(existing){
+  const isNew = !existing;
+  const o = existing ? JSON.parse(JSON.stringify(existing)) : {
+    id: uid('off'),
+    name:'',
+    shortDescription:'',
+    description:'',
+    images:[],
+    included:[],
+    excluded:[],
+    extras:[],
+    pricing:{model:'', currency:'BWP', basePrice:'', unit:'', minQty:'', minSpend:'', notes:''},
+    deposit:{type:'none', value:''},
+    leadTime:''
+  };
+  if (!o.images) o.images = [];
+  if (!o.included) o.included = [];
+  if (!o.excluded) o.excluded = [];
+  if (!o.extras) o.extras = [];
+  if (!o.pricing) o.pricing = {model:'', currency:'BWP', basePrice:'', unit:'', minQty:'', minSpend:'', notes:''};
+  if (!o.deposit) o.deposit = {type:'none', value:''};
+
+  const profile = TYPE_PROFILES[state.type];
+  const availableModels = (profile && profile.pricing) || ['per_event','package','quote'];
+  const defaultModel = (profile && profile.defaultPricing) || 'package';
+  if (isNew && !o.pricing.model) o.pricing.model = defaultModel;
+
+  pendingGallery = o.images.slice();
+  pendingModal = o;
+
+  const modelOpts = availableModels.map(m=>{
+    const label = PRICING_MODELS[m] ? PRICING_MODELS[m].label : m;
+    return `<option value="${e(m)}" ${o.pricing.model===m?'selected':''}>${e(label)}</option>`;
+  }).join('');
+  const currencyOpts = CURRENCIES.map(c=>`<option value="${e(c)}" ${o.pricing.currency===c?'selected':''}>${e(c)}</option>`).join('');
+
+  const body = `
+    <div class="field"><span>Photos</span><div class="gallery-grid" id="offerGallery"></div><label class="file-label">+ Add photos<input type="file" accept="image/*" multiple id="offerImageInput"></label><p class="mini-note">Up to 6 photos. First photo is the cover.</p></div>
+    ${field('Offering name','tmp_off_name','text',{placeholder:'e.g. Premium Buffet — 50 guests',required:true})}
+    ${field('Short summary','tmp_off_short','text',{placeholder:'One line shown on listing cards'})}
+    ${textarea('Full description','tmp_off_desc',{placeholder:'Explain what is included, excluded and who this suits.'})}
+    ${sectionLabel('Pricing')}
+    <label class="field"><span>Pricing model</span><select class="select" id="offModel">${modelOpts}</select></label>
+    <div class="field-row two">
+      <label class="field"><span>Currency</span><select class="select" id="offCurrency">${currencyOpts}</select></label>
+      <label class="field"><span>Base price</span><input class="input" type="number" min="0" step="0.01" id="offPrice" placeholder="0.00" value="${e(o.pricing.basePrice)}"></label>
+    </div>
+    <div class="field-row two">
+      <label class="field"><span>Charge unit <span class="hint" style="display:inline;text-transform:none;font-weight:450;color:var(--faint);font-size:11px">(optional)</span></span><input class="input" type="text" id="offUnit" placeholder="e.g. per guest" value="${e(o.pricing.unit)}"></label>
+      <label class="field"><span>Minimum quantity</span><input class="input" type="number" min="0" id="offMinQty" placeholder="Optional" value="${e(o.pricing.minQty)}"></label>
+    </div>
+    <label class="field"><span>Pricing notes &amp; exclusions</span><textarea class="textarea" id="offNotes" placeholder="Deposit, travel fee, what is not included.">${e(o.pricing.notes)}</textarea></label>
+    ${sectionLabel('Included items')}<div id="incList"></div><button type="button" class="btn btn-dashed btn-small" id="addInc" style="margin-top:5px">+ Add included item</button>
+    ${sectionLabel('Excluded items')}<div id="excList"></div><button type="button" class="btn btn-dashed btn-small" id="addExc" style="margin-top:5px">+ Add exclusion</button>
+    ${sectionLabel('Optional extras (priced)')}<div id="extrasList"></div><button type="button" class="btn btn-dashed btn-small" id="addExtra" style="margin-top:5px">+ Add priced extra</button>
+    ${field('Minimum notice (days)','tmp_off_lead','number',{min:0,placeholder:'Optional'})}
+    <div class="price-preview"><div class="lbl">How buyers will see the price</div><div class="val" id="priceVal">—</div></div>
+  `;
+
+  showModal(isNew ? 'Add offering' : 'Edit offering', body, isNew ? 'Add offering' : 'Save offering', ()=>{
+    const name = $('#modalBody').querySelector('#tmp_off_name')?.value?.trim() || readValue('tmp_off_name') || $('#modalBody input[data-bind="tmp_off_name"]')?.value?.trim();
+    const nameInput = $('#modalBody').querySelector('[data-bind="tmp_off_name"]');
+    const shortInput = $('#modalBody').querySelector('[data-bind="tmp_off_short"]');
+    const descInput = $('#modalBody').querySelector('[data-bind="tmp_off_desc"]');
+    const leadInput = $('#modalBody').querySelector('[data-bind="tmp_off_lead"]');
+    const finalName = (nameInput?.value || '').trim();
+    if (!finalName){ toast('Give the offering a name.'); return; }
+    const model = $('#offModel').value;
+    const basePrice = $('#offPrice').value;
+    if (model !== 'quote' && basePrice === ''){ toast('Add a base price or choose Custom quote.'); return; }
+    const included = $$('#incList .point-row input').map(i=>i.value.trim()).filter(Boolean);
+    const excluded = $$('#excList .point-row input').map(i=>i.value.trim()).filter(Boolean);
+    const extras = $$('#extrasList .offer-row').map(r=>({
+      name:(r.querySelector('[data-extra-name]')?.value||'').trim(),
+      price:Number(r.querySelector('[data-extra-price]')?.value||0)
+    })).filter(x=>x.name);
+    const data = {
+      id:o.id,
+      name:finalName,
+      shortDescription:(shortInput?.value||'').trim(),
+      description:(descInput?.value||'').trim(),
+      images:pendingGallery.slice(),
+      included, excluded, extras,
+      pricing:{
+        model,
+        currency:$('#offCurrency').value,
+        basePrice:model==='quote' ? '' : Number(basePrice)||0,
+        unit:($('#offUnit').value||'').trim(),
+        minQty:($('#offMinQty').value||'').trim(),
+        minSpend:o.pricing.minSpend||'',
+        notes:($('#offNotes').value||'').trim()
+      },
+      deposit:o.deposit||{type:'none',value:''},
+      leadTime:(leadInput?.value||'').trim()
+    };
+    if (isNew) state.offerings.push(data);
+    else {
+      const idx = state.offerings.findIndex(x=>x.id===o.id);
+      if (idx > -1) state.offerings[idx] = data;
+    }
+    saveState();
+    closeModal();
+    renderApp(true);
+    toast(isNew ? 'Offering added.' : 'Offering saved.');
+  });
+
+  // Populate modal values — but the field helper uses pathGet which won't work here,
+  // so we bind via data-bind="tmp_off_..." and read from inputs directly.
+  setTimeout(()=>{
+    // Set initial values on the temp-path inputs
+    const map = {
+      'tmp_off_name': o.name,
+      'tmp_off_short': o.shortDescription,
+      'tmp_off_desc': o.description,
+      'tmp_off_lead': o.leadTime
+    };
+    Object.entries(map).forEach(([k,v])=>{
+      const el = $('#modalBody').querySelector('[data-bind="'+k+'"]');
+      if (el) el.value = v || '';
+    });
+    // Gallery
+    renderGallery();
+    // Repeatables
+    (o.included||[]).forEach(v=>pointRow($('#incList'), v));
+    (o.excluded||[]).forEach(v=>pointRow($('#excList'), v));
+    (o.extras||[]).forEach(x=>extraRow(x));
+    // Price preview
+    updatePricePreview();
+    // File input
+    const fi = $('#offerImageInput');
+    if (fi) fi.addEventListener('change', ev=>{
+      const files = Array.from(ev.target.files||[]);
+      const remaining = 6 - pendingGallery.length;
+      const take = files.slice(0, remaining);
+      let loaded = 0;
+      take.forEach(f=>{
+        compressImage(f, d=>{
+          pendingGallery.push(d);
+          loaded++;
+          if (loaded === take.length){ renderGallery(); updatePricePreview(); }
+        });
+      });
+      ev.target.value = '';
+    });
+    // Buttons
+    $('#addInc').onclick = ()=>pointRow($('#incList'),'');
+    $('#addExc').onclick = ()=>pointRow($('#excList'),'');
+    $('#addExtra').onclick = ()=>extraRow();
+    $('#offModel').addEventListener('change', updatePricePreview);
+    $('#offPrice').addEventListener('input', updatePricePreview);
+    $('#offUnit').addEventListener('input', updatePricePreview);
+    $('#offCurrency').addEventListener('change', updatePricePreview);
+  }, 30);
+
+  function renderGallery(){
+    const g = $('#offerGallery');
+    if (!g) return;
+    g.innerHTML = pendingGallery.map((src,i)=>`
+      <div class="gallery-tile">
+        <img src="${e(src)}" alt="">
+        <button type="button" class="tile-x" data-remove-img="${i}">✕</button>
+      </div>
+    `).join('');
+    g.querySelectorAll('[data-remove-img]').forEach(btn=>{
+      btn.onclick = ()=>{
+        pendingGallery.splice(Number(btn.dataset.removeImg),1);
+        renderGallery();
+      };
+    });
+  }
+  function pointRow(container, val){
+    if (!container) return;
+    const row = document.createElement('div');
+    row.className = 'point-row';
+    row.innerHTML = `<span class="bullet">•</span><input class="input" type="text" placeholder="Add a line" value="${e(val||'')}"><button type="button" class="row-del">✕</button>`;
+    row.querySelector('.row-del').onclick = ()=>row.remove();
+    container.appendChild(row);
+  }
+  function extraRow(val){
+    val = val || {name:'', price:''};
+    const container = $('#extrasList');
+    if (!container) return;
+    const row = document.createElement('div');
+    row.className = 'offer-row';
+    row.innerHTML = `<input class="input" type="text" data-extra-name placeholder="Extra name" value="${e(val.name)}"><input class="input" type="number" min="0" step="0.01" data-extra-price placeholder="P" value="${e(val.price)}"><button type="button" class="row-del">✕</button>`;
+    row.querySelector('.row-del').onclick = ()=>row.remove();
+    container.appendChild(row);
+  }
+  function updatePricePreview(){
+    const model = $('#offModel')?.value;
+    const price = $('#offPrice')?.value;
+    const unit = $('#offUnit')?.value;
+    const currency = $('#offCurrency')?.value;
+    const valEl = $('#priceVal');
+    if (!valEl) return;
+    if (model === 'quote'){
+      valEl.innerHTML = 'Price on request';
+    } else {
+      const label = PRICING_MODELS[model]?.label || '';
+      const unitText = unit || label.toLowerCase();
+      valEl.innerHTML = `${e(currency)} ${price ? Number(price).toFixed(2) : '0.00'}${unitText?`<span class="unit"> · ${e(unitText)}</span>`:''}`;
+    }
+  }
+}
+
+/* ============================================================
+   STAFF MODAL
+   ============================================================ */
+function openStaffModal(){
+  const roleOptions = Object.entries(STAFF_ROLES).flatMap(([g,rs])=>rs.map(r=>({value:r,label:g+' · '+r})));
+  const body = `
+    ${field('First name','tmp_staff_first','text',{placeholder:'First name',required:true})}
+    ${field('Surname','tmp_staff_last','text',{placeholder:'Surname',required:true})}
+    <label class="field"><span>Role *</span><select class="select" id="staffRole">${roleOptions.map(o=>`<option value="${e(o.value)}">${e(o.label)}</option>`).join('')}</select></label>
+    ${field('Mobile phone','tmp_staff_phone','tel',{placeholder:'+267 …',required:true})}
+    ${field('Email','tmp_staff_email','email',{placeholder:'Optional'})}
+    ${field('Salary (Pula)','tmp_staff_salary','number',{min:0,step:'0.01',placeholder:'Mandatory',required:true})}
+    <label class="field"><span>Salary frequency *</span><select class="select" id="staffFreq"><option value="Monthly">Monthly</option><option value="Weekly">Weekly</option><option value="Daily">Daily</option><option value="Hourly">Hourly</option></select></label>
+    <p class="note">Salary and contact details are only visible to authorised users once the profile is published.</p>
+  `;
+  showModal('Add staff member', body, 'Add staff member', ()=>{
+    const first = ($('#modalBody').querySelector('[data-bind="tmp_staff_first"]')?.value||'').trim();
+    const last = ($('#modalBody').querySelector('[data-bind="tmp_staff_last"]')?.value||'').trim();
+    const role = $('#staffRole').value;
+    const phone = ($('#modalBody').querySelector('[data-bind="tmp_staff_phone"]')?.value||'').trim();
+    const salary = $('#modalBody').querySelector('[data-bind="tmp_staff_salary"]')?.value;
+    const freq = $('#staffFreq').value;
+    if (!first || !last || !role || !phone || salary === ''){ toast('Complete name, role, phone and salary.'); return; }
+    state.staff.push({
+      id: uid('staff'),
+      firstName:first, surname:last, role, phone,
+      email: ($('#modalBody').querySelector('[data-bind="tmp_staff_email"]')?.value||'').trim(),
+      salaryAmount: Number(salary),
+      salaryFrequency: freq
+    });
+    saveState();
+    closeModal();
+    renderApp(true);
+    toast('Staff member added.');
+  });
+}
+
+/* ============================================================
+   IMAGE COMPRESSION
+   ============================================================ */
+function compressImage(file, cb){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const max = 900;
+      let w = img.width, h = img.height;
+      if (Math.max(w,h) > max){ const r = max/Math.max(w,h); w = Math.round(w*r); h = Math.round(h*r); }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      try { cb(canvas.toDataURL('image/webp',0.75)); }
+      catch(err){ cb(reader.result); }
+    };
+    img.onerror = ()=>cb(reader.result);
+    img.src = reader.result;
+  };
+  reader.onerror = ()=>toast('Could not read that image.');
+  reader.readAsDataURL(file);
+}
+
+/* ============================================================
+   SUBMIT / PUBLISH
+   ============================================================ */
+function handlePublish(){
+  state.uiOpen = 'review';
+  renderApp(true);
+  const review = $('[data-acc-key="review"]');
+  if (review) setTimeout(()=>review.scrollIntoView({behavior:'smooth',block:'start'}), 60);
+}
+function handleSubmitProfile(){
+  if (!moduleDone('review')){ toast('Complete the missing sections first.'); return; }
+  state.submitted = true;
+  saveState();
+  toast('Caterer profile submitted — we\'ll be in touch within 48 hours.');
+  renderApp(true);
+}
+
+/* ============================================================
+   EVENT HANDLING
+   ============================================================ */
+const appShell = $('#app-shell');
+
+appShell.addEventListener('click', ev=>{
+  const t = ev.target.closest('[data-toggle-acc]');
+  if (t){
+    const key = t.dataset.toggleAcc;
+    state.uiOpen = state.uiOpen === key ? '' : key;
+    renderApp(true);
+    return;
+  }
+  const pick = ev.target.closest('[data-type-pick]');
+  if (pick){
+    const newType = pick.dataset.typePick;
+    if (state.type && state.type !== newType){ state.typeFields = {}; }
+    state.type = newType;
+    saveState();
+    state.uiOpen = 'typeFields';
+    renderApp(true);
+    return;
+  }
+  const chip = ev.target.closest('[data-choice]');
+  if (chip){
+    const path = chip.dataset.choice;
+    const val = chip.dataset.choiceVal;
+    toggleChoice(path, val);
+    saveState();
+    renderApp(true);
+    return;
+  }
+  const addOff = ev.target.closest('[data-add-offering]');
+  if (addOff){ openOfferingModal(null); return; }
+  const delOff = ev.target.closest('[data-action="delete-offering"]');
+  if (delOff){
+    ev.stopPropagation();
+    const id = delOff.dataset.id;
+    if (confirm('Remove this offering?')){
+      state.offerings = state.offerings.filter(x=>x.id!==id);
+      saveState();
+      renderApp(true);
+      toast('Offering removed.');
+    }
+    return;
+  }
+  const offCard = ev.target.closest('[data-offering-id]');
+  if (offCard){
+    const id = offCard.dataset.offeringId;
+    const o = state.offerings.find(x=>x.id===id);
+    if (o) openOfferingModal(o);
+    return;
+  }
+  const addStaff = ev.target.closest('[data-add-staff]');
+  if (addStaff){ openStaffModal(); return; }
+  const delStaff = ev.target.closest('[data-action="delete-staff"]');
+  if (delStaff){
+    ev.stopPropagation();
+    const id = delStaff.dataset.id;
+    if (confirm('Remove this staff member?')){
+      state.staff = state.staff.filter(x=>x.id!==id);
+      saveState();
+      renderApp(true);
+      toast('Staff removed.');
+    }
+    return;
+  }
+  if (ev.target.closest('[data-action="save-draft"]')){ saveState(true); return; }
+  if (ev.target.closest('[data-action="publish"]')){ handlePublish(); return; }
+  if (ev.target.closest('[data-action="submit-profile"]')){ handleSubmitProfile(); return; }
+  const jump = ev.target.closest('[data-jump-to]');
+  if (jump){
+    state.uiOpen = jump.dataset.jumpTo;
+    renderApp(true);
+    return;
+  }
+  if (ev.target.closest('[data-action="close-modal"]')){ closeModal(); return; }
+});
+
+appShell.addEventListener('input', ev=>{
+  const t = ev.target;
+  if (!t.dataset || !t.dataset.bind) return;
+  if (t.matches('select')) return; // handled on change
+  if (t.type === 'checkbox') return; // handled on change
+  const path = t.dataset.bind;
+  if (path.startsWith('tmp_')) return; // temp paths in modal, read at save
+  let val = t.value;
+  setPath(state, path, val);
+  saveState();
+  updateProgress();
+});
+
+appShell.addEventListener('change', ev=>{
+  const t = ev.target;
+  if (!t.dataset) return;
+  if (t.matches('select') && t.dataset.bind){
+    const path = t.dataset.bind;
+    if (path.startsWith('tmp_')) return;
+    setPath(state, path, t.value);
+    saveState();
+    renderApp(true);
+    return;
+  }
+  if (t.type === 'checkbox' && t.dataset.bind){
+    const path = t.dataset.bind;
+    if (path.startsWith('tmp_')) return;
+    setPath(state, path, t.checked);
+    saveState();
+    renderApp(true);
+    return;
+  }
+  if (t.matches('input[type="file"][data-upload]')){
+    const file = t.files && t.files[0];
+    const path = t.dataset.upload;
+    if (!file || !path) return;
+    if (!file.type.startsWith('image/')){ toast('Choose an image file.'); return; }
+    compressImage(file, data=>{
+      setPath(state, path, data);
+      saveState();
+      renderApp(true);
+      toast('Image added.');
+    });
+  }
+});
+
+function toggleChoice(path, val){
+  const current = arr(pathGet(path)).slice();
+  const idx = current.indexOf(val);
+  if (idx > -1) current.splice(idx,1);
+  else current.push(val);
+  pathSet(path, current);
+}
+
+// Modal file inputs & modal backdrop
+$('#modalBackdrop').addEventListener('click', ev=>{
+  if (ev.target === $('#modalBackdrop')) closeModal();
+});
+document.addEventListener('keydown', ev=>{
+  if (ev.key === 'Escape' && !$('#modalBackdrop').classList.contains('hide')) closeModal();
+});
+
+// Handle payment deposit conditionally
+document.addEventListener('change', ev=>{
+  const t = ev.target;
+  if (t && t.dataset && t.dataset.bind === 'payments.depositType'){
+    renderApp(true);
+  }
+});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+if (!state.uiOpen) state.uiOpen = 'business';
+renderApp(false);
+saveState();
+})();
+</script>
+</body>
+</html>

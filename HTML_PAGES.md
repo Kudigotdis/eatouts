@@ -51,7 +51,7 @@ These limits apply to every page above.
 4. **Sign-in is "a front door, not security."** Everything is client-side `localStorage`; the session key can be written from devtools (`js/eatouts-auth.js:19-22`).
 5. **No server-side file storage / upload.** There is no upload endpoint. Images are entered as **URLs or emoji** through prompts; `intake.html` additionally offers an optional client-side **file picker** that compresses the chosen image with `js/eatouts-image-compressor.js` into an embedded `data:` URL (URL entry remains the fallback), and validates videos with `js/eatouts-video-validator.js` (host and paste a URL, since data URLs are too large for `localStorage`).
 6. **Owner edits fork a shared template.** Content is stored once and shared; the first edit forks it into the restaurant's own copy (`EatoutsDB.forkContent`, `js/eatouts-db.js:380-388`). This keeps the DB small (`< ~5 MB` quota).
-7. **No owner → live publish path.** The public directory in `index.html` is built from the static file `assets/data/restaurant_listings/directory_runtime_data.json`; owner edits only ever touch `localStorage`. The two are disconnected (this is the gap called out in `MARKETING_ONBOARDING_PLAN.md`).
+7. **Owner → live publish path now exists for the onboarding forms.** The six business onboarding pages (restaurant, mobile kitchen, bottle store, caterer, bakery, event supplier) share `js/eatouts-onboarding-bridge.js`: "Save & publish" writes the D1 `business_profiles` row (including the new `hosting_json` column, migration 0010) *and* the local customer directory row, then exports an `eatouts.venue.v1` submission that `scripts/merge_submissions.py` folds into `assets/data/restaurant_listings/directory_runtime_data.js` on the next build. The other operator pages still only touch `localStorage`.
 8. **Demo vs real session.** A real (non-demo) session locks the operator switcher to that restaurant; Demo mode keeps a `<select>` so all venues stay reachable (`js/eatouts-owner-compat.js:155-176`).
 
 ## index.html — customer app (8450 lines)
@@ -71,15 +71,22 @@ These limits apply to every page above.
 - Cannot display owner-side edits made in the dashboard — it reads the static directory JSON, not `localStorage` forks.
 - No server-side data; per-device only.
 
-## restaurant-onboarding.html — operator profile (798 lines, 15 sections)
+## restaurant-onboarding.html — operator profile (573 lines, brand + branches)
 
-**Purpose:** the master profile editor for a single restaurant.
+**Purpose:** the restaurant setup editor — brand identity on top, per-branch/outlet
+details underneath, with a real publish.
 
-**Can do** — 15 sections: Identity (name, description, logo/cover URLs, types), Location (town/area/plot/street/building/landmark, lat/lng, GPS button, Google Maps link), Contacts (CRUD, duplicate, reorder, primary/WhatsApp/active, purpose), Socials (7 platforms), Operating hours (weekly + custom schedules), Character, Amenities, Menu tags (cuisine/meal/dietary), Capacity, Payments, Reservations (enable, WhatsApp/call contacts, guest min/max, same-day/advance, cancellation notes), Reservation services (CRUD/dup/reorder), Service staff (CRUD/reorder), Users (roles + **hashed login credentials**), and **Delivery & Dispatch** (buttons to the restaurant and driver delivery boards). Plus a completeness meter and Save-draft / Publish / Preview actions.
+**Can do** — shared brand settings (name, description, logo/cover URLs, types,
+character, amenities, menu tags, payments, reservations, hosting, staff, users) plus
+an outlet manager for the branches. Location is a live typeahead over
+`botswana_locations.js` (district → town → area) plus a mall/shopping-centre lookup
+over `assets/data/botswana_shopping_malls_and_shopping_centres.js`. The **Hosting
+Services** section captures capacity spaces, the hostable event types (from
+`assets/data/event_types.js`) and the booking rules. Save & publish writes the D1
+profile, the customer directory row and an `eatouts.venue.v1` submission.
 
 **Cannot do**
 - No image upload or embedded map (URLs / external link only).
-- No real publish: Publish only validates name + town + one contact and sets `status='published'`; it does not propagate to the live site.
 - The Users roles are labels — no permission enforcement.
 
 ## menu-onboarding.html — menu editor (350 lines)
@@ -256,9 +263,10 @@ onboarding screens use the centred `.login` card with a platform logo header.
 | Page | Who | Purpose |
 |------|-----|---------|
 | `eatouts-login.html` | all | Universal WhatsApp + PIN sign-in, routes by role |
-| `eatouts-user-onboarding.html` | customer | Customer account creation (18+ gate) |
-| `eatouts-business-signup.html` | new business | Business-type chooser |
-| `bottle-store-onboarding.html` / `caterer-onboarding.html` / `lodge-onboarding.html` / `supplier-onboarding.html` | each type | Per-type business onboarding |
+| `eatouts-user-onboarding.html` | legacy links | Redirect shim → `eatouts_user_onboarding.html` |
+| `eatouts_user_onboarding.html` | customer | Customer account creation (18+ gate, live town/area, WhatsApp login, favourites) |
+| `eatouts-business-signup.html` | new business | Business-type chooser — each card opens that type's own form |
+| `restaurant-onboarding.html` / `mobile-kitchen-onboarding.html` / `bottle-store-onboarding.html` / `caterer-onboarding.html` / `bakery-onboarding.html` / `supplier-onboarding.html` / `lodge-onboarding.html` | each type | Per-type business onboarding (shared bridge: live town/area + place lookup, Hosting Services, publish to D1 + customer directory) |
 | `staff-manager.html` | biz owner/admin/manager | Staff CRUD, employment records, roles, attendance, tips, performance, payroll tabs |
 | `delivery-manager.html` | biz owner/admin | Zones, fees, capacity, drivers, windows |
 | `order-manager.html` | biz + staff | Live order queue |
@@ -291,12 +299,18 @@ and `EatoutsBlog.all()` over `EatoutsMgrDB` + legacy keys) and
 
 | Page | Who | Purpose |
 |------|-----|---------|
-| `business-onboarding1.html` | any owner, or admin-assisted | Unified per-type business setup (module rail, draft autosave, preview, Save & publish → `operator-dashboard1.html`); entry links normalized to `eatouts-business-signup.html` |
 | `operator-dashboard1.html` | linked business owner/admin | Role-gated business workspace (orders, staff, reports, settings tabs; business switcher); entry links normalized to `eatouts-login.html` |
 | `eatouts-staff-admin1.html` | platform staff roles | Restricted staff workspace (role-limited tabs, read-only feedback for unauth ops); links normalized to `eatouts-login.html` / `eatouts-admin-dashboard.html` / `feedback-manager.html` / `blog-creator-dashboard.html` |
 | `food-truck-schedule1.html` | food truck owner | Food truck location / service-day schedule management |
 
-All four read/write through the adapted `EatoutsDB` namespace (root `eatouts_db_v2`
+`business-onboarding1.html` was the fourth member of this family — the unified
+per-type setup form. It has been **retired**: the six business types now each have
+their own form (see the table above) and `eatouts-business-signup.html`,
+`operator-dashboard1.html` and `food-truck-schedule1.html` route to the right one via
+`EatoutsBusinessTypes.onboardingPage(type)`. `_redirects` answers the old URL with a
+301 to `eatouts-business-signup.html`.
+
+All of them read/write through the adapted `EatoutsDB` namespace (root `eatouts_db_v2`
 for `restaurants`, `EatoutsMgrDB` under `eatouts_manager_v1` for the rest; blog
 union includes legacy `eatouts_blog_posts_v1`) and record actions via
 `EatoutsAudit.log` (`js/eatouts-audit.js`, key `eatouts_audit_v1`).
@@ -309,12 +323,12 @@ Dropped on merge (the existing root page won): the package's stubs of
 
 ## Gaps vs MARKETING_ONBOARDING_PLAN.md
 
-The plan's paid, launch-ready model assumes an owner can get a venue onto the public site. The current build does not close that loop:
+The plan's paid, launch-ready model assumes an owner can get a venue onto the public site. The onboarding forms now close most of that loop:
 
-- **Export exists; automatic publish does not (plan task #1).** The dashboard now offers an **"Export this restaurant"** JSON download (`eatouts.venue.v1`), but nothing moves that file into `directory_runtime_data.json` automatically - the merge-and-deploy step is still manual (`scripts/merge_submissions.py` + `npm run build`).
+- **Export and publish both exist (plan task #1).** The dashboard offers an **"Export this restaurant"** JSON download (`eatouts.venue.v1`), and the onboarding pages' **Save & publish** writes the D1 business profile, the local customer directory row and an `eatouts.venue.v1` submission in one go. The submission is merged into `directory_runtime_data.json` / `.js` by `scripts/merge_submissions.py`, which `npm run build` now runs after the directory build so owner submissions survive it.
 - **Dashboard analytics are simulated** (`restaurant-dashboard.html:95-130`), so the plan's menu-view / WhatsApp-action metrics cannot be trusted until the customer app emits real events and the dashboard reads `EatoutsDB.summary()`.
 - **Billing is a label, not a charge.** The plan's **P300 one-time setup + P100 / P300 / P500 monthly** model has no invoicing, no gate, and no payment integration in the UI (the dashboard now reads the shared P100 / P300 / P500 prices and shows a setup-fee status badge sourced from `eatouts_ops_v1`).
-- **Publish has no gate.** `restaurant-onboarding.html` Publish only sets a status flag; the plan's rule "listing is published only after the P300 onboarding fee is confirmed" is not enforced anywhere.
+- **Publish has no fee gate.** The onboarding publish action requires an owner session but does not check that the P300 onboarding fee was paid; the plan's rule "listing is published only after the P300 onboarding fee is confirmed" is still not enforced anywhere.
 
 ## How to run
 

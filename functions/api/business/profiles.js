@@ -37,6 +37,7 @@ function profileOut(row, contacts, services, users) {
     capacity: JSON.parse(row.capacity_json || '[]'),
     payments: JSON.parse(row.payments_json || '[]'),
     reservations: JSON.parse(row.reservations_json || '{}'),
+    hosting: JSON.parse(row.hosting_json || '{}'),
     setupFeePaid: !!row.setup_fee_paid,
     plan: row.plan,
     createdAt: row.created_at,
@@ -112,8 +113,8 @@ export async function onRequestPost(context) {
   await c.db.prepare(
     'INSERT INTO business_profiles (id, user_id, slug, name, description, logo, cover_image, status, types_json, category, ' +
     'location_json, socials_json, operating_hours_json, character_json, amenities_json, menu_tags_json, capacity_json, ' +
-    'payments_json, reservations_json, setup_fee_paid, plan, created_at, updated_at) ' +
-    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    'payments_json, reservations_json, hosting_json, setup_fee_paid, plan, created_at, updated_at) ' +
+    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
   ).bind(
     id, c.userId, slug, name, str(b.description), str(b.logo), str(b.coverImage),
     pick(b, 'status', 'draft'),
@@ -122,7 +123,8 @@ export async function onRequestPost(context) {
     jsonString(pick(b, 'operatingHours', {})), jsonString(pick(b, 'character', [])),
     jsonString(pick(b, 'amenities', [])), jsonString(pick(b, 'menuTags', [])),
     jsonString(pick(b, 'capacity', [])), jsonString(pick(b, 'payments', [])),
-    jsonString(pick(b, 'reservations', {})), pick(b, 'setupFeePaid', 0) ? 1 : 0,
+    jsonString(pick(b, 'reservations', {})), jsonString(pick(b, 'hosting', {})),
+    pick(b, 'setupFeePaid', 0) ? 1 : 0,
     str(b.plan) || 'starter', ts, ts
   ).run();
 
@@ -155,7 +157,7 @@ export async function onRequestPatch(context) {
     'UPDATE business_profiles SET name = ?, description = ?, logo = ?, cover_image = ?, status = ?, ' +
     'types_json = ?, category = ?, location_json = ?, socials_json = ?, operating_hours_json = ?, ' +
     'character_json = ?, amenities_json = ?, menu_tags_json = ?, capacity_json = ?, payments_json = ?, ' +
-    'reservations_json = ?, setup_fee_paid = ?, plan = ?, updated_at = ? WHERE id = ?'
+    'reservations_json = ?, hosting_json = ?, setup_fee_paid = ?, plan = ?, updated_at = ? WHERE id = ?'
   ).bind(
     str(pick(b, 'name', row.name)) || row.name,
     str(pick(b, 'description', row.description)), str(pick(b, 'logo', row.logo)),
@@ -170,6 +172,7 @@ export async function onRequestPatch(context) {
     jsonString(pick(b, 'capacity', JSON.parse(row.capacity_json || '[]'))),
     jsonString(pick(b, 'payments', JSON.parse(row.payments_json || '[]'))),
     jsonString(pick(b, 'reservations', JSON.parse(row.reservations_json || '{}'))),
+    jsonString(pick(b, 'hosting', JSON.parse(row.hosting_json || '{}'))),
     pick(b, 'setupFeePaid', row.setup_fee_paid) ? 1 : 0,
     str(pick(b, 'plan', row.plan)), ts, businessId
   ).run();

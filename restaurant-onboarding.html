@@ -1,814 +1,574 @@
-<!DOCTYPE html>
+<!doctype html>
 <!-- PAGE: Restaurant Setup -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Restaurant Setup — Eatouts</title>
-<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
-<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171719">
+<title>Restaurant & Branch Setup · EatOuts</title>
 <style>
-:root{--black:#1a1a1a;--bg:#faf8f2;--card:#fff;--text:#1a1a1a;--muted:#a89a7e;--muted-2:#8a8170;--border:#ece7db;--ok:#17834b;--danger:#c43c3c;--radius:16px}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
-.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
-.brand{font-weight:900;font-size:16px;letter-spacing:-.02em;color:var(--black)}
-.brand span{color:#8a8170}
-.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.tabs{position:sticky;top:57px;z-index:49;background:#fff;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 8px}
+:root{--ink:#171719;--ink2:#35353B;--muted:#5E626B;--faint:#8A8F99;--paper:#F4F5F7;--card:#fff;--line:#E2E5EA;--line2:#F0F1F3;--orange:#FF5A1F;--orange2:#FF7A42;--orangeSoft:#FFF0E9;--orangeLine:#FFD4C2;--green:#178247;--greenSoft:#E7F6ED;--blue:#1769AA;--blueSoft:#E7F2FC;--red:#B91C1C;--shadow:0 5px 20px rgba(22,22,28,.055)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#E8EAEE;color:var(--ink);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(255,90,31,.24);outline-offset:2px}#shell{width:100%;max-width:520px;height:100dvh;min-height:560px;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 60px rgba(20,20,25,.12);position:relative}.topbar{flex:0 0 auto;background:#171719;color:#fff;padding:calc(12px + env(safe-area-inset-top)) 17px 13px}.topbar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}.brand-mark{height:34px;width:34px;display:grid;place-items:center;background:var(--orange);color:#fff;font-weight:900;font-size:17px;border-radius:7px}.brand-title{font-size:16px;font-weight:850;letter-spacing:-.03em}.brand-subtitle{font-size:10px;color:#AEB1B8;letter-spacing:.1em;text-transform:uppercase;margin-top:1px}.draft-pill{margin-left:auto;border:1px solid #44444A;background:#242428;color:#FF9A70;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:5px 8px;border-radius:3px}.progress-row{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:#B5B7BF;margin-bottom:6px}.progress-row strong{color:#FF9A70;font-weight:800}.progress-track{height:5px;background:#3B3B40;overflow:hidden;border-radius:2px}.progress-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange2));width:0;transition:width .2s}.scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}.intro{padding:22px 18px 32px;background:linear-gradient(150deg,#171719,#25252B);color:#fff;position:relative;overflow:hidden}.intro:after{content:"";position:absolute;width:220px;height:220px;right:-105px;top:-120px;border-radius:50%;background:radial-gradient(circle,rgba(255,90,31,.28),transparent 68%);pointer-events:none}.eyebrow{font-size:10px;color:#FF9A70;font-weight:850;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}.intro h1{font-size:27px;letter-spacing:-.045em;line-height:1.1;margin:0 0 9px;max-width:15ch}.intro h1 span{color:#FF8B5A}.intro p{font-size:13.5px;line-height:1.6;color:#C8C9CF;margin:0;max-width:38ch}.content{padding:15px 12px 28px}.group{margin-bottom:24px}.group-heading{display:flex;align-items:flex-start;gap:11px;margin:0 3px 12px}.group-number{background:var(--ink);color:#fff;min-width:33px;height:33px;display:grid;place-items:center;font-size:12px;font-weight:900;border-radius:4px}.group-heading h2{font-size:18px;margin:0;line-height:1.2;letter-spacing:-.025em}.group-heading p{font-size:12px;color:var(--muted);margin:4px 0 0;line-height:1.4}.group-kicker{display:block;color:var(--orange);font-size:9.5px;letter-spacing:.12em;font-weight:850;text-transform:uppercase;margin-bottom:3px}.accordion-stack{display:flex;flex-direction:column;gap:9px}.acc{background:var(--card);border:1px solid var(--line);border-radius:5px;overflow:hidden;box-shadow:0 1px 2px rgba(20,20,25,.02);transition:opacity .22s,filter .22s,box-shadow .22s,border-color .22s}.acc.open{border-color:var(--orangeLine);box-shadow:0 4px 14px rgba(255,90,31,.08)}.accordion-stack.has-open .acc:not(.open){opacity:.15;filter:blur(1.6px)}.accordion-stack.has-open .acc.open{opacity:1;filter:none}.acc-head{display:flex;align-items:center;text-align:left;gap:10px;width:100%;border:0;background:#fff;padding:14px 13px;color:var(--ink)}.acc-head:active{background:#FAFAFB}.acc-title-wrap{flex:1;min-width:0}.acc-title{font-size:15px;font-weight:800;display:block;line-height:1.3}.acc-sub{font-size:11.5px;color:var(--muted);display:block;margin-top:3px;font-weight:450;line-height:1.4}.acc-state{width:9px;height:9px;border-radius:50%;background:#D6DAE0;flex:0 0 auto;margin-left:auto}.acc-state.progress{background:#FFB27A}.acc-state.complete{background:var(--green)}.acc-state.missing{background:var(--red)}.acc-body{border-top:1px solid var(--line2);padding:15px 13px 16px}.note{background:#F7F8FA;border:1px solid #EBEDF0;padding:10px 11px;color:var(--muted);font-size:12px;line-height:1.55;border-radius:4px;margin:0 0 14px}.note strong{color:var(--ink2)}.section-label{font-size:10.5px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:#6E727C;margin:18px 0 9px}.section-label:first-child{margin-top:0}.field{display:block;margin-bottom:13px;min-width:0}.field:last-child{margin-bottom:0}.field>span,.field>label{display:block;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.07em;color:#666A74;margin-bottom:6px}.field .hint{display:block;text-transform:none;letter-spacing:0;font-weight:450;font-size:11.5px;color:var(--faint);margin-top:5px}.input,.select,.textarea{width:100%;min-width:0;border:1px solid #DDE1E7;background:#fff;border-radius:4px;color:var(--ink);padding:11px;font-size:15px;outline:none}.input,.select{min-height:44px}.textarea{min-height:82px;resize:vertical;line-height:1.5}.input:focus,.select:focus,.textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,90,31,.09)}.input::placeholder,.textarea::placeholder{color:#B0B5BE}.select{padding-right:11px}.stack{display:flex;flex-direction:column;gap:0}.field-row{display:flex;flex-direction:column;gap:0}.check-list{display:flex;flex-direction:column;gap:7px}.check-item{display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--line);background:#fff;border-radius:4px;min-height:44px}.check-item input{accent-color:var(--orange);width:17px;height:17px;flex:0 0 auto;margin:2px 0 0}.check-item span{font-size:13px;font-weight:650;line-height:1.4}.check-item small{display:block;font-size:11px;color:var(--muted);font-weight:450;margin-top:2px}.check-item.amenity{flex-direction:column;align-items:stretch;gap:8px;padding:11px}.check-line{display:flex;align-items:flex-start;gap:9px}.check-line input{accent-color:var(--orange);width:17px;height:17px;flex:0 0 auto;margin:2px 0 0}.check-line span{font-size:13px;font-weight:650;line-height:1.4}.amenity-detail{display:block}.amenity-detail .mini-label{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:5px}.amenity-detail .input{min-height:38px;padding:9px 10px;font-size:13px}.btn{border:1px solid transparent;border-radius:4px;min-height:42px;padding:10px 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:800;text-align:center;text-decoration:none;line-height:1.2}.btn-primary{background:var(--orange);color:#fff}.btn-primary:hover{background:#E94E18}.btn-secondary{background:#fff;border-color:#DDE1E7;color:var(--ink2)}.btn-light{background:#FFF0E9;border-color:#FFD4C2;color:#C84513}.btn-danger{background:#FFF4F4;border-color:#F5D4D4;color:var(--red)}.btn-small{min-height:32px;padding:7px 9px;font-size:11.5px}.btn-wide{width:100%}.btn-dashed{background:#fff;border:1.5px dashed #CDD2DA;color:var(--orange);width:100%;margin-top:7px}.btn-row{display:flex;flex-direction:column;gap:8px;margin-top:10px}.record{border:1px solid var(--line);border-radius:4px;padding:11px;margin-bottom:9px;background:#fff}.record:last-child{margin-bottom:0}.record-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}.record-title{font-size:13px;font-weight:850;flex:1;min-width:0;line-height:1.35}.record-subtitle{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px}.record-actions{display:flex;gap:5px}.remove-btn{border:1px solid #F1D7D7;color:#B91C1C;background:#fff;padding:5px 8px;border-radius:3px;font-size:10.5px;font-weight:800}.badge{display:inline-flex;align-items:center;border:1px solid #E2E5EA;border-radius:3px;padding:3px 6px;font-size:9.5px;font-weight:850;text-transform:uppercase;letter-spacing:.06em;color:#666B75;background:#F7F8F9}.badge.orange{background:var(--orangeSoft);border-color:var(--orangeLine);color:#C74514}.badge.green{background:var(--greenSoft);border-color:#C9E9D5;color:var(--green)}.divider{height:1px;background:var(--line2);margin:14px 0}.thumb{width:90px;height:90px;flex:0 0 90px;border-radius:4px;background:#ECEEF2;overflow:hidden;display:grid;place-items:center}.thumb img{width:100%;height:100%;object-fit:cover;display:block}.thumb-fallback{width:100%;height:100%;background:linear-gradient(145deg,#F2F3F5,#E3E6EA)}.branch-toolbar{background:#fff;border:1px solid var(--line);border-radius:5px;padding:12px;margin-bottom:11px}.branch-toolbar-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.branch-toolbar h3{margin:0;font-size:14.5px;font-weight:850}.branch-count{font-size:10.5px;color:var(--muted);font-weight:750}.view-toggle{display:flex;background:#F1F2F4;padding:3px;border-radius:4px;gap:3px}.view-toggle button{flex:1;border:0;background:transparent;padding:8px 10px;border-radius:3px;color:#666B75;font-weight:800;font-size:12px}.view-toggle button.active{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+/* Minimalist Grid Compact Layout for branch cards */
+.branch-list{display:flex;flex-direction:column;gap:8px}
+.branch-card{display:block;width:100%}
+.branch-card-main{display:flex;align-items:center;gap:1rem;width:100%;padding:1rem 1.25rem;border-radius:.75rem;border:1px solid #e2e8f0;background:#fff;text-align:left;color:var(--ink);min-width:0}
+.branch-card-main:hover{background:#f8fafc;border-color:#cbd5e1}
+.branch-card-main:focus-visible{outline-offset:3px}
+.branch-card.active .branch-card-main{border-color:var(--orange);box-shadow:0 0 0 2px rgba(255,90,31,.08)}
+.branch-card .thumb{width:2.5rem;height:2.5rem;flex:0 0 2.5rem;border-radius:.5rem;background:#f1f5f9;display:grid;place-items:center;overflow:hidden}
+.branch-card .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.branch-card-copy{display:flex;flex-direction:column;gap:.2rem;flex:1;min-width:0}
+.branch-card-name{font-size:.95rem;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.branch-card-address{font-size:.8125rem;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.branch-card-type{font-size:.75rem;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.rail-header{background:#fff;border:1px solid var(--line);border-radius:5px;padding:11px;margin-bottom:10px;touch-action:pan-y}.rail-nav{display:flex;align-items:center;gap:8px}.rail-nav .btn{width:88px;flex:0 0 88px}.rail-current{flex:1;min-width:0;text-align:center}.rail-current strong{font-size:13.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rail-current span{font-size:10.5px;color:var(--muted);display:block;margin-top:3px}
+.branch-editor-head{background:#19191D;color:#fff;border-radius:5px;padding:15px;margin-bottom:10px}.branch-editor-head .top{display:flex;align-items:flex-start;gap:11px}.branch-editor-head .thumb{width:62px;height:62px;flex-basis:62px;background:#303036;color:#fff}.branch-editor-head h3{margin:0;font-size:16px;font-weight:850;letter-spacing:-.025em;line-height:1.25}.branch-editor-head p{margin:5px 0 0;font-size:11.5px;color:#C5C6CC}.branch-editor-head .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.branch-editor-head .badge{background:#303036;border-color:#4C4C54;color:#E8E8EA}.branch-editor-head .badge.orange{background:#49291D;border-color:#74402C;color:#FFAE8B}.image-picker{display:flex;gap:11px;align-items:center;margin-bottom:14px}.image-preview{width:84px;height:84px;background:#F0F1F4;border:1px solid var(--line);border-radius:4px;overflow:hidden;display:grid;place-items:center;flex:0 0 84px}.image-preview img{width:100%;height:100%;object-fit:cover}.image-preview span{font-size:10.5px;font-weight:750;color:#9AA0A9;letter-spacing:.04em}.image-picker-copy{min-width:0;flex:1}.image-picker-copy .field{margin-bottom:7px}.file-label{display:inline-flex;align-items:center;justify-content:center;border:1px solid #DDE1E7;background:#fff;border-radius:4px;padding:7px 9px;font-size:11px;font-weight:800;cursor:pointer}.file-label input{display:none}.empty{background:#FAFBFC;border:1px dashed #D8DDE4;color:#858B95;padding:15px 12px;text-align:center;border-radius:4px;font-size:12px;line-height:1.5}.empty strong{display:block;color:#4E535D;font-size:12.5px;margin-bottom:3px}.inline-summary{background:#F7F8FA;border:1px solid #E9ECF0;border-radius:4px;padding:10px;font-size:11.5px;color:var(--muted);margin-top:9px}.inline-summary strong{color:var(--ink2)}.gallery-list{display:flex;flex-direction:column;gap:8px}.gallery-record{display:grid;grid-template-columns:66px 1fr;gap:9px;border:1px solid var(--line);padding:8px;border-radius:4px}.gallery-record .image-preview{width:66px;height:66px;flex-basis:66px}.footer-actions{flex:0 0 auto;background:#fff;border-top:1px solid var(--line);padding:9px 12px calc(9px + env(safe-area-inset-bottom));display:flex;gap:8px}.footer-actions .btn{flex:1;min-height:44px}.status-toast{position:absolute;z-index:30;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#171719;color:#fff;padding:10px 14px;border-radius:4px;max-width:88%;font-size:11.5px;font-weight:750;box-shadow:var(--shadow);transition:opacity .2s,transform .2s;white-space:normal;text-align:center}.status-toast.show{opacity:1;transform:translate(-50%,0)}.modal-backdrop{position:fixed;inset:0;z-index:100;background:rgba(15,15,18,.62);display:flex;align-items:flex-end;justify-content:center;padding-top:22px}.modal{width:100%;max-width:520px;max-height:94dvh;background:#fff;border-radius:9px 9px 0 0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 -8px 35px rgba(0,0,0,.18)}.modal-header{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}.modal-header h3{margin:0;font-size:16px;font-weight:850;flex:1}.modal-close{border:1px solid var(--line);background:#fff;border-radius:4px;height:33px;padding:0 12px;font-size:12px;font-weight:800;color:var(--ink2)}.modal-body{overflow:auto;padding:15px 16px;min-height:0}.modal-footer{padding:11px 16px calc(11px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#FAFBFC;display:flex;gap:8px}.modal-footer .btn{flex:1}.summary-block{border:1px solid var(--line);border-radius:4px;padding:12px;margin-bottom:9px}.summary-block h4{margin:0 0 5px;font-size:13.5px}.summary-block p{margin:0;color:var(--muted);font-size:12px}.hide{display:none!important}.danger-text{color:var(--red)}.footer-hint{text-align:center;color:#969BA4;font-size:9.5px;margin-top:4px}.mini-note{font-size:10.5px;color:var(--muted);line-height:1.45;margin:7px 0 0}.mini-stack{display:flex;flex-direction:column;gap:7px}.mini-acc{border:1px solid var(--line);border-radius:4px;background:#fff;overflow:hidden;transition:opacity .22s,filter .22s}.mini-acc.open{border-color:var(--orangeLine);box-shadow:0 2px 10px rgba(255,90,31,.07)}.mini-stack.has-open .mini-acc:not(.open){opacity:.18;filter:blur(1.2px)}.mini-acc-head{display:flex;align-items:center;gap:8px;width:100%;border:0;background:#fff;padding:11px 12px;text-align:left;color:var(--ink);min-height:46px}.mini-acc-head:active{background:#FAFAFB}.mini-acc-head .t{flex:1;min-width:0;font-size:13.5px;font-weight:750;line-height:1.3}.mini-summary{font-size:11px;color:var(--muted);white-space:nowrap}.mini-acc-body{padding:12px;border-top:1px solid var(--line2)}.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}.chip{display:inline-flex;align-items:center;gap:7px;background:var(--orangeSoft);border:1px solid var(--orangeLine);color:#B5430F;border-radius:18px;padding:5px 11px;font-size:12.5px;font-weight:750}.chip button{border:0;background:transparent;color:#B5430F;font-size:10.5px;font-weight:800;padding:0;line-height:1;text-decoration:underline}.chip-add{display:flex;gap:7px;align-items:stretch}.chip-add .input,.chip-add .select{flex:1;min-width:0}.chip-add .btn{flex:0 0 auto;white-space:nowrap}@media(min-width:520px){body{padding:12px 0}#shell{height:calc(100dvh - 24px);border-radius:9px}.modal-backdrop{align-items:center;padding:20px}.modal{border-radius:9px;max-height:90dvh}}@media(min-width:420px){.field-row.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field-row.two .field{margin-bottom:13px}.btn-row{flex-direction:row}.btn-row>*{flex:1}}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.hdr-chip{font-size:10px;color:#AEB1B8;letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
+.tabs{display:flex;gap:6px;padding:9px 17px;background:#171719;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:12px 14px;font-size:12.5px;font-weight:800;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
-.tab.active{color:var(--black);border-bottom-color:#1a1a1a}
-.app{max-width:1180px;margin:0 auto;padding-bottom:130px}
-.section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;overflow:hidden}
-.section-hdr{min-height:58px;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;gap:12px}
-.section-title{font-weight:800;font-size:14.5px;flex:1}
-.section-title small{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
-.chev{color:var(--muted);transition:transform .2s;flex:0 0 auto;font-size:11px}
-.section.open .chev{transform:rotate(180deg)}
-.section-body{padding:0 16px 18px;display:none}
-.section.open .section-body{display:block}
-.field{margin-bottom:14px}
-.field label{display:block;margin-bottom:7px;font-size:12.5px;font-weight:750;color:#3a3324}
-.field .hint{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500}
-input,textarea,select{width:100%;min-height:46px;border:1px solid var(--border);border-radius:12px;padding:11px 13px;background:#fff;color:var(--text);font:inherit;font-size:13.5px;outline:0}
-textarea{min-height:96px;resize:vertical}
-input:focus,textarea:focus,select:focus{border-color:#1a1a1a;box-shadow:0 0 0 3px rgba(26,26,26,.08)}
-.btn{min-height:44px;border:0;border-radius:12px;padding:0 16px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-.btn-primary{background:var(--black);color:#fff}
-.btn-gold{background:#1a1a1a;color:#fff}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:#3a3324}
-.btn-danger{background:#fbeaea;color:var(--danger)}
-.btn-sm{min-height:34px;padding:0 11px;font-size:11.5px;border-radius:9px}
-.btn-full{width:100%}
-.row{display:flex;gap:10px;flex-wrap:wrap}
-.chips{display:flex;gap:7px;flex-wrap:wrap}
-.chip{display:inline-flex;align-items:center;min-height:34px;padding:0 13px;border-radius:999px;background:#f0eee8;font-size:12px;font-weight:700;cursor:pointer;border:1px solid transparent;color:#5c5547}
-.chip.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.chip.add{background:#fff;border:1.5px dashed var(--border);color:var(--muted)}
-.record{border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:10px;background:#fff}
-.record-title{font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.record-meta{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.5}
-.record-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
-.empty{border:1.5px dashed var(--border);border-radius:14px;padding:22px 16px;text-align:center;color:var(--muted);font-size:13px}
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
-.badge.draft{background:#f0eee8;color:#7a7466}
-.badge.published{background:#e3f5e9;color:#17834b}
-.badge.primary{background:#eef4ff;color:#3a5cff}
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;box-shadow:0 8px 30px -8px rgba(0,0,0,.3)}
-.toast.on{opacity:1}
-.action-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:1180px;background:#fff;border-top:1px solid var(--border);border-left:1px solid var(--border);border-right:1px solid var(--border);border-radius:16px 16px 0 0;padding:12px 16px;display:flex;gap:10px;z-index:40;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
-.action-bar .btn{flex:1}
-.modal-scrim{position:fixed;inset:0;background:rgba(20,18,14,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center}
-@media(min-width:701px){.modal-scrim{align-items:center;padding:20px}}
-.modal{background:#fff;width:100%;max-width:520px;max-height:92vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
-@media(min-width:701px){.modal{border-radius:20px}}
-.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-.modal-hdr h3{margin:0;font-size:15px;font-weight:800;flex:1}
-.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
-.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;background:#fafaf7}
-.modal-foot .btn{flex:1}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:520px){.grid2{grid-template-columns:1fr}}
-.switch{display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;user-select:none}
-.switch input{display:none}
-.switch .track{width:44px;height:26px;background:#ddd;border-radius:999px;position:relative;transition:background .2s;flex:0 0 auto}
-.switch .track:after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
-.switch input:checked + .track{background:#1a1a1a}
-.switch input:checked + .track:after{transform:translateX(18px)}
-.switch .lbl{font-size:13px;font-weight:700;flex:1}
-.completeness{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;margin:12px;display:flex;align-items:center;gap:14px}
-.completeness .bar{flex:1;height:8px;background:#eee;border-radius:999px;overflow:hidden}
-.completeness .bar i{display:block;height:100%;background:#0d0d0d;border-radius:999px}
-.completeness .pct{font-weight:900;font-size:18px;color:#1a1a1a}
-.completeness .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
-.mini{font-size:11px;color:var(--muted);margin-top:4px}
-.mini b{color:#3a3324}
-.logo-preview{width:88px;height:88px;border-radius:14px;background:#fafaf7;border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;overflow:hidden;text-align:center;padding:6px}
-.logo-preview img{width:100%;height:100%;object-fit:contain}
-
-/* ===== APP SHELL PARITY ===== */
-#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
-@media(min-width:520px){#shell{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
-#shell .topbar{position:static;height:58px;padding:0 14px;padding-top:env(safe-area-inset-top)}
-#shell .brand{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;text-decoration:none}
-#shell .brand img{width:100%;height:100%;object-fit:contain;display:block}
-#shell .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-#shell .hdr-chip{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:4px 9px;background:#faf8f2;white-space:nowrap}
-#shell .tabs{position:static;flex:0 0 auto}
-#shell .app{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;max-width:none;width:100%;padding-bottom:24px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-#shell .action-bar{position:static;max-width:none;border-radius:0;border-left:0;border-right:0}
-.toast{bottom:84px}
-.modal{max-width:460px}
-@media(min-width:520px){.modal-scrim{align-items:center;padding:20px}.modal{border-radius:16px}}
+.tab{flex:0 0 auto;font-size:11px;font-weight:800;color:#AEB1B8;text-decoration:none;border:1px solid #3A3A40;border-radius:20px;padding:6px 11px;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+.tab:hover{color:#fff;border-color:#5A5A62}
+.tab.active{background:var(--orange);border-color:var(--orange);color:#fff}
 </style>
 </head>
 <body data-page="restaurant-onboarding">
-
 <div id="shell">
-<header class="topbar">
-  <a class="brand" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
-  <div class="hdr-right">
-    <span class="hdr-chip">Restaurant Setup</span>
-    <span id="statusBadge" class="badge draft">Draft</span>
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html#promos"><div class="brand-mark">E</div><div><div class="brand-title">EatOuts</div><div class="hdr-chip">Restaurant setup</div></div></a>
+      <span class="draft-pill" id="saveIndicator">Draft mode</span>
+    </div>
+    <div class="progress-row"><span>Setup completeness</span><strong id="progressText">0% complete</strong></div>
+    <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+  </header>
+  <nav class="tabs">
+    <a class="tab active" href="restaurant-onboarding.html">Restaurant</a>
+    <a class="tab" href="menu-onboarding.html">Menu</a>
+    <a class="tab" href="promo-onboarding.html">Promos</a>
+    <a class="tab" href="event-onboarding.html">Events</a>
+    <a class="tab" href="gallery-onboarding.html">Gallery</a>
+    <a class="tab" href="operator-dashboard1.html">Dashboard</a>
+  </nav>
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <div class="eyebrow">Business profile setup</div>
+      <h1>Build your <span>restaurant</span> profile.</h1>
+      <p>Set up the brand once, then manage every outlet, kitchen, warehouse or hospitality property from one place. Drafts save in this browser when local storage is available.</p>
+    </section>
+    <main class="content">
+      <section class="group" aria-labelledby="brandGroupTitle">
+        <div class="group-heading"><span class="group-number">01</span><div><span class="group-kicker">Shared across the business</span><h2 id="brandGroupTitle">Brand & shared settings</h2><p>Information that represents the company, not just one branch.</p></div></div>
+        <div id="brandAccordions" class="accordion-stack"></div>
+      </section>
+      <section class="group" aria-labelledby="branchGroupTitle">
+        <div class="group-heading"><span class="group-number">02</span><div><span class="group-kicker">Manage physical locations</span><h2 id="branchGroupTitle">Outlets & locations</h2><p>Each branch keeps its own address, services, hours, menus, staff and offers.</p></div></div>
+        <div class="branch-toolbar">
+          <div class="branch-toolbar-top"><h3>Branch manager</h3><span class="branch-count" id="branchCount">0 locations</span></div>
+          <div class="view-toggle" role="group" aria-label="Branch view">
+            <button type="button" data-action="set-view" data-view="listed" id="listedToggle">Listed</button>
+            <button type="button" data-action="set-view" data-view="rail" id="railToggle">Rail</button>
+          </div>
+        </div>
+        <div id="branchListView"></div>
+        <div id="branchRailView"></div>
+        <button class="btn btn-primary btn-wide" type="button" data-action="add-branch" style="margin-top:10px">Add Branch</button>
+        <p class="footer-hint">A headquarters can exist without a dining room. Turn on capabilities only when they apply.</p>
+      </section>
+    </main>
   </div>
-</header>
-<nav class="tabs">
-  <a class="tab active" href="restaurant-onboarding.html">Restaurant</a>
-  <a class="tab" href="menu-onboarding.html">Menu</a>
-  <a class="tab" href="promo-onboarding.html">Promos</a>
-  <a class="tab" href="event-onboarding.html">Events</a>
-  <a class="tab" href="gallery-onboarding.html">Gallery</a>
-  <a class="tab" href="restaurant-dashboard.html">Dashboard</a>
-</nav>
-
-<main id="app" class="app"></main>
-
-<div class="action-bar">
-  <button class="btn btn-ghost" id="btnDraft">Save Draft</button>
-  <button class="btn btn-primary" id="btnPreview">Preview</button>
-  <button class="btn btn-gold" id="btnPublish">Publish</button>
+  <footer class="footer-actions"><button type="button" class="btn btn-secondary" data-action="save-draft">Save draft</button><button type="button" class="btn btn-primary" data-action="preview">Preview setup</button></footer>
+  <div class="status-toast" id="toast" role="status" aria-live="polite"></div>
 </div>
+<div class="modal-backdrop hide" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modalTitle">Add</h3><button class="modal-close" type="button" data-action="close-modal">Close</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
 </div>
-<div id="toast" class="toast"></div>
-
-<script src="js/eatouts-db.js"></script>
-<script src="js/eatouts-auth.js"></script>
-<script src="js/eatouts-owner-compat.js"></script>
 <script src="js/eatouts-image-compressor.js"></script>
 <script src="js/eatouts-video-validator.js"></script>
 <script src="js/eatouts-upload.js"></script>
+<!-- Shared data + the onboarding bridge.
+     botswana_locations.js   -> live town / area search
+     shopping centres data  -> live mall / place search
+     event_types.js         -> the event taxonomy (was embedded in this file)
+     eatouts-onboarding-bridge.js -> typeahead, hosting helpers, backend publish -->
+<script src="botswana_locations.js"></script>
+<script src="js/eatouts-locations.js"></script>
+<script src="assets/data/botswana_shopping_malls_and_shopping_centres.js"></script>
+<script src="assets/data/event_types.js"></script>
+<script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-business-api.js"></script>
+<script src="js/eatouts-pricing-source.js"></script>
+<script src="js/eatouts-onboarding-bridge.js"></script>
 <script>
-/* Operator pages are only reachable through the About Us sign-in.
-   This runs before any page content paints. */
-if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
-else{EatoutsAuth.applyActive();}
-</script>
-<script>
-/* ========== SHARED CORE ========== */
-const DB_KEY=EatoutsDB.KEY;
-const EMPTY_DB={version:1,
-  restaurant:{id:'rest_001',
-    identity:{name:'',description:'',logo:'',coverImage:'',types:[],status:'draft'},
-    location:{city:'',area:'',plotNumber:'',streetName:'',streetNumber:'',building:'',landmark:'',latitude:null,longitude:null},
-    contacts:[],socials:[],
-    operatingHours:{title:'Operating Hours',weekly:[],customSchedules:[]},
-    character:{title:'Restaurant Character',options:[]},
-    amenities:{title:'Amenities',options:[]},
-    menuTags:{title:'Menu Tags',options:[]},
-    capacity:[],payments:[],
-    reservations:{enabled:true,whatsappContactId:null,callContactId:null,minimumGuests:2,maximumGuests:12,sameDay:true,advanceBooking:true,cancellationNotes:'',notes:''},
-    reservationServices:[],serviceStaff:[],users:[]},
-  menuCategories:[],menuItems:[],promos:[],events:[],performers:[],performances:[],galleryGroups:[],galleryImages:[],
-  settings:{currency:'BWP',currencySymbol:'P',countryCode:'BW'}};
-
-function dbLoad(){return EatoutsOwnerCompat.load();}
-function dbSave(db){EatoutsOwnerCompat.save(db);}
-function uid(p){return p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);}
-function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
-function move(arr,id,dir){const i=arr.findIndex(x=>x.id===id);if(i<0)return;const j=i+dir;if(j<0||j>=arr.length)return;const tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;arr.forEach((x,k)=>x.order=k+1);}
-
-let DB=dbLoad();
-function save(silent){dbSave(DB);saveToD1();if(!silent)toast('Saved');render();}
-
-async function saveToD1(){
-  try{
-    var session=EatoutsAuth.currentSession?EatoutsAuth.currentSession():null;
-    var userId=session&&session.userId;
-    if(!userId)return;
-    var model=EatoutsBusinessApi.businessProfileToModel(DB.restaurant);
-    model.userId=userId;
-    var result;
-    if(DB.restaurant.serverBusinessId){
-      result=await EatoutsBusinessApi.businessProfilesPatch(DB.restaurant.serverBusinessId,model);
-    }else{
-      result=await EatoutsBusinessApi.businessProfilesCreate(model);
-    }
-    if(result.ok&&result.data&&result.data.business){
-      DB.restaurant.serverBusinessId=result.data.business.businessId||result.data.business.id;
-      dbSave(DB);
-    }
-  }catch(e){/* D1 save failed - localStorage still works */}
-}
-
-/* ========== MODAL SYSTEM ========== */
-function openForm({title,fields,values,onSave,saveLabel}){
-  values=values||{};
-  const scrim=document.createElement('div');
-  scrim.className='modal-scrim';
-  scrim.innerHTML=`<div class="modal">
-    <div class="modal-hdr"><h3>${esc(title)}</h3><button class="btn btn-ghost btn-sm" data-close>Close</button></div>
-    <div class="modal-body">${fields.map(f=>renderField(f,values[f.key])).join('')}</div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" data-close>Cancel</button>
-      <button class="btn btn-gold" data-save>${esc(saveLabel||'Save')}</button>
-    </div></div>`;
-  document.body.appendChild(scrim);
-  scrim.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>scrim.remove());
-  scrim.querySelector('[data-save]').onclick=()=>{
-    const out={};
-    fields.forEach(f=>{
-      const el=scrim.querySelector(`[name="${f.key}"]`);if(!el)return;
-      if(f.type==='checkbox')out[f.key]=el.checked;
-      else if(f.type==='number')out[f.key]=el.value===''?null:Number(el.value);
-      else out[f.key]=el.value;
-    });
-    onSave(out);scrim.remove();
-  };
-  return scrim;
-}
-function renderField(f,v){
-  if(f.type==='textarea')return `<div class="field"><label>${esc(f.label)}</label><textarea name="${f.key}">${esc(v||'')}</textarea>${f.hint?`<div class="hint">${esc(f.hint)}</div>`:''}</div>`;
-  if(f.type==='select')return `<div class="field"><label>${esc(f.label)}</label><select name="${f.key}">${(f.options||[]).map(o=>{const val=typeof o==='string'?o:o.value;const lbl=typeof o==='string'?o:o.label;return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lbl)}</option>`;}).join('')}</select></div>`;
-  if(f.type==='checkbox')return `<label class="switch"><input type="checkbox" name="${f.key}"${v?' checked':''}><span class="track"></span><span class="lbl">${esc(f.label)}</span></label>`;
-  return `<div class="field"><label>${esc(f.label)}</label><input type="${f.type||'text'}" name="${f.key}" value="${esc(v||'')}" placeholder="${esc(f.placeholder||'')}">${f.hint?`<div class="hint">${esc(f.hint)}</div>`:''}</div>`;
-}
-
-/* ========== SECTION TOGGLES (persisted across renders) ========== */
-const OPEN={identity:1,location:1,contacts:1};
-function toggleSection(k){OPEN[k]=!OPEN[k];render();}
-
-/* ========== RENDER SECTIONS ========== */
-const R=()=>DB.restaurant;
-const money=v=>DB.settings.currencySymbol+(Number(v)||0).toFixed(2);
-
-function renderIdentity(){
-  const id=R().identity;
-  const TYPES=['Restaurant','Café','Fast Food','Takeaway','Bakery','Bar & Grill','Pub','Lounge','Bistro','Food Court','Coffee Shop','Steakhouse','Pizzeria','Family Restaurant','Fine Dining','Food Truck','Other'];
-  return `<div class="section ${OPEN.identity?'open':''}" data-sec="identity">
-    <div class="section-hdr" data-toggle="identity"><div class="section-title">01 · Restaurant Identity<small>Name, logo, cover, type</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      <div class="field"><label>Logo</label>
-        <div class="logo-preview" data-act="pickLogo">${id.logo?`<img src="${esc(id.logo)}" alt="">`:'+ Upload Logo'}</div>
-      </div>
-      <div class="field"><label>Cover Image</label>
-        <div class="logo-preview" data-act="pickCover" style="width:100%;height:120px">${id.coverImage?`<img src="${esc(id.coverImage)}" alt="" style="object-fit:cover">`:'+ Upload Cover'}</div>
-      </div>
-      <div class="field"><label>Restaurant Name *</label><input id="f_name" value="${esc(id.name)}" placeholder="e.g. The Yellow Giraffe Coffee Club"></div>
-      <div class="field"><label>Description</label><textarea id="f_desc" placeholder="A short description customers will read first.">${esc(id.description)}</textarea></div>
-      <div class="field"><label>Restaurant Type</label>
-        <div class="chips" id="typeChips">
-          ${TYPES.map(t=>`<span class="chip ${id.types.includes(t)?'active':''}" data-act="toggleType" data-val="${esc(t)}">${esc(t)}</span>`).join('')}
-          <span class="chip add" data-act="addType">+ Add custom type</span>
-        </div>
-      </div>
-      ${id.types.filter(t=>!TYPES.includes(t)).length?`
-        <div class="field"><label>Custom Types</label>
-          <div class="chips">${id.types.filter(t=>!TYPES.includes(t)).map(t=>`<span class="chip active" data-act="toggleType" data-val="${esc(t)}">${esc(t)} ✕</span>`).join('')}</div>
-        </div>`:''}
-    </div></div>`;
-}
-
-function renderLocation(){
-  const l=R().location;
-  return `<div class="section ${OPEN.location?'open':''}" data-sec="location">
-    <div class="section-hdr" data-toggle="location"><div class="section-title">02 · Location<small>Village / Town / City → Area</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      <div class="grid2">
-        <div class="field"><label>Village / Town / City *</label><input id="f_city" value="${esc(l.city)}" placeholder="Gaborone"></div>
-        <div class="field"><label>Area / Neighbourhood</label><input id="f_area" value="${esc(l.area)}" placeholder="CBD"></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Plot Number</label><input id="f_plot" value="${esc(l.plotNumber)}"></div>
-        <div class="field"><label>Street Name</label><input id="f_street" value="${esc(l.streetName)}"></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Street Number</label><input id="f_streetNo" value="${esc(l.streetNumber)}"></div>
-        <div class="field"><label>Building / Complex</label><input id="f_building" value="${esc(l.building)}"></div>
-      </div>
-      <div class="field"><label>Landmark</label><input id="f_landmark" value="${esc(l.landmark)}" placeholder="e.g. Opposite Airport Junction"></div>
-      <div class="grid2">
-        <div class="field"><label>Latitude</label><input id="f_lat" value="${l.latitude==null?'':l.latitude}"></div>
-        <div class="field"><label>Longitude</label><input id="f_lng" value="${l.longitude==null?'':l.longitude}"></div>
-      </div>
-      <div class="row">
-        <button class="btn btn-ghost btn-sm" data-act="useCurrent">Use Current Location</button>
-        <button class="btn btn-ghost btn-sm" data-act="previewMap">Preview Map</button>
-      </div>
-    </div></div>`;
-}
-
-function renderContacts(){
-  const cs=R().contacts;
-  const PURPOSES=['General enquiries','Orders','Reservations','Delivery','Catering','Events','Functions','Manager','Customer support','Other'];
-  return `<div class="section ${OPEN.contacts?'open':''}" data-sec="contacts">
-    <div class="section-hdr" data-toggle="contacts"><div class="section-title">03 · Contact Numbers<small>${cs.length} number${cs.length===1?'':'s'} · reused by promos, events, menus</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      ${cs.length?cs.map(c=>`
-        <div class="record">
-          <div class="record-title">${esc(c.title||'Number')}
-            ${c.primary?'<span class="badge primary">Primary</span>':''}
-            ${c.whatsapp?'<span class="badge published">WhatsApp</span>':''}
-            ${c.active===false?'<span class="badge draft">Inactive</span>':''}
-          </div>
-          <div class="record-meta">${esc(c.countryCode||'')} ${esc(c.number||'')}<br>Purpose: ${esc(c.purpose||'—')}</div>
-          <div class="record-actions">
-            <button class="btn btn-ghost btn-sm" data-act="editContact" data-id="${c.id}">Edit</button>
-            <button class="btn btn-ghost btn-sm" data-act="dupContact" data-id="${c.id}">Duplicate</button>
-            <button class="btn btn-ghost btn-sm" data-act="moveContact" data-id="${c.id}" data-dir="-1">↑</button>
-            <button class="btn btn-ghost btn-sm" data-act="moveContact" data-id="${c.id}" data-dir="1">↓</button>
-            <button class="btn btn-danger btn-sm" data-act="delContact" data-id="${c.id}">Remove</button>
-          </div>
-        </div>`).join(''):'<div class="empty">No contact numbers yet. Add at least one.</div>'}
-      <button class="btn btn-ghost btn-full" style="margin-top:10px" data-act="addContact">+ Add Contact Number</button>
-    </div></div>`;
-}
-
-function renderSocials(){
-  const s=R().socials[0]||{};
-  const PLATFORMS=['instagram','facebook','whatsapp','tiktok','youtube','twitter','website'];
-  return `<div class="section ${OPEN.socials?'open':''}" data-sec="socials">
-    <div class="section-hdr" data-toggle="socials"><div class="section-title">04 · Social Links</div><span class="chev">▾</span></div>
-    <div class="section-body">
-      ${PLATFORMS.map(p=>`<div class="field"><label>${p[0].toUpperCase()+p.slice(1)}</label><input data-social="${p}" value="${esc(s[p]||'')}"></div>`).join('')}
-    </div></div>`;
-}
-
-function renderHours(){
-  const h=R().operatingHours;
-  const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  return `<div class="section ${OPEN.hours?'open':''}" data-sec="hours">
-    <div class="section-hdr" data-toggle="hours"><div class="section-title">05 · Operating Hours<small>Standard weekly + custom schedules (Happy Hour, Brunch…)</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      <div class="field"><label>Section Title</label><input id="f_hours_title" value="${esc(h.title)}"></div>
-      ${DAYS.map(d=>{
-        const p=h.weekly.find(x=>x.day===d)||{day:d,open:'',close:'',closed:false};
-        return `<div class="grid2" style="grid-template-columns:90px 1fr 1fr;margin-bottom:8px">
-          <label class="mini" style="align-self:center"><b>${d.slice(0,3)}</b></label>
-          <input type="time" data-hr="${d}" data-k="open" value="${esc(p.open||'')}">
-          <input type="time" data-hr="${d}" data-k="close" value="${esc(p.close||'')}">
-        </div>`;
-      }).join('')}
-      <div class="row" style="margin-top:6px"><span class="mini">Tip: leave both empty to mark a day as <b>closed</b>.</span></div>
-
-      <div class="mini" style="margin:18px 0 8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em">Custom Schedules</div>
-      ${h.customSchedules.length?h.customSchedules.map(s=>`
-        <div class="record">
-          <div class="record-title">${esc(s.title||'Schedule')}</div>
-          <div class="record-meta">${esc(s.days||'')} · ${esc(s.start||'')}–${esc(s.end||'')}</div>
-          <div class="record-actions">
-            <button class="btn btn-ghost btn-sm" data-act="editSched" data-id="${s.id}">Edit</button>
-            <button class="btn btn-danger btn-sm" data-act="delSched" data-id="${s.id}">Remove</button>
-          </div>
-        </div>`).join(''):'<div class="empty">No custom schedules yet.</div>'}
-      <button class="btn btn-ghost btn-full" data-act="addSched">+ Add Operating Schedule</button>
-    </div></div>`;
-}
-
-function renderCharacter(){
-  const c=R().character;
-  const DEFAULTS=['Cozy','Trendy','Romantic','Family-friendly','Traditional','Modern','Rustic'];
-  return `<div class="section ${OPEN.character?'open':''}" data-sec="character">
-    <div class="section-hdr" data-toggle="character"><div class="section-title">06 · ${esc(c.title)}<small>Fully editable section title & options</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      <div class="field"><label>Section Title</label><input id="f_char_title" value="${esc(c.title)}" placeholder="e.g. What's Our Vibe?"></div>
-      <div class="chips">
-        ${[...DEFAULTS,...c.options.filter(o=>!DEFAULTS.includes(o.name))].map(n=>{
-          const existing=c.options.find(o=>o.name===n);
-          return `<span class="chip ${existing?'active':''}" data-act="toggleChar" data-val="${esc(n)}">${esc(n)}${existing?' ✕':''}</span>`;
-        }).join('')}
-        <span class="chip add" data-act="addChar">+ Add custom character</span>
-      </div>
-    </div></div>`;
-}
-
-function renderAmenities(){
-  const a=R().amenities;
-  const DEFAULTS=['Free Wi-Fi','Table service','Dedicated parking','Kids area','Outdoor seating','Indoor seating','Air conditioning','Charging points','Wheelchair accessible','Restrooms','Baby changing','Power backup','Smoking area','Non-smoking area','Pet friendly','Takeaway','Delivery','Catering','Private dining','Event space'];
-  return `<div class="section ${OPEN.amenities?'open':''}" data-sec="amenities">
-    <div class="section-hdr" data-toggle="amenities"><div class="section-title">07 · ${esc(a.title)}<small>${a.options.length} selected</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      <div class="field"><label>Section Title</label><input id="f_am_title" value="${esc(a.title)}" placeholder="e.g. What We Offer"></div>
-      <div class="chips">
-        ${[...DEFAULTS,...a.options.filter(o=>!DEFAULTS.includes(o.name))].map(n=>{
-          const on=a.options.find(o=>o.name===n);
-          return `<span class="chip ${on?'active':''}" data-act="toggleAmen" data-val="${esc(n)}">${esc(n)}${on&&!DEFAULTS.includes(n)?' ✕':''}</span>`;
-        }).join('')}
-        <span class="chip add" data-act="addAmen">+ Add custom amenity</span>
-      </div>
-    </div></div>`;
-}
-
-function renderMenuTags(){
-  const m=R().menuTags;
-  const GROUPS={
-    'Cuisine':['Setswana','Zimbabwean','African','South African','Indian','Chinese','Italian','American','Mexican','Mediterranean','Fusion'],
-    'Meal':['Breakfast','Brunch','Lunch','Dinner','Late Night','Dessert'],
-    'Dietary':['Vegetarian options','Vegan options','Halal','Gluten-free options','Dairy-free options']
-  };
-  return `<div class="section ${OPEN.menuTags?'open':''}" data-sec="menuTags">
-    <div class="section-hdr" data-toggle="menuTags"><div class="section-title">08 · ${esc(m.title)}<small>Cuisine · Meal · Dietary</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      <div class="field"><label>Section Title</label><input id="f_mt_title" value="${esc(m.title)}" placeholder="e.g. What We Serve"></div>
-      ${Object.keys(GROUPS).map(g=>`
-        <div class="mini" style="margin:12px 0 6px;font-weight:800;text-transform:uppercase;letter-spacing:.08em">${g}</div>
-        <div class="chips">
-          ${GROUPS[g].map(n=>{
-            const on=m.options.find(o=>o.name===n);
-            return `<span class="chip ${on?'active':''}" data-act="toggleMT" data-val="${esc(n)}">${esc(n)}</span>`;
-          }).join('')}
-        </div>`).join('')}
-      <div style="margin-top:10px"><span class="chip add" data-act="addMT">+ Add custom tag</span></div>
-    </div></div>`;
-}
-
-function renderCapacity(){
-  const c=R().capacity;
-  return `<div class="section ${OPEN.capacity?'open':''}" data-sec="capacity">
-    <div class="section-hdr" data-toggle="capacity"><div class="section-title">09 · Capacity<small>Indoor, outdoor, private room…</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      ${c.length?c.map(x=>`
-        <div class="record">
-          <div class="record-title">${esc(x.title)} — ${esc(x.value)}</div>
-          ${x.description?`<div class="record-meta">${esc(x.description)}</div>`:''}
-          <div class="record-actions">
-            <button class="btn btn-ghost btn-sm" data-act="editCap" data-id="${x.id}">Edit</button>
-            <button class="btn btn-danger btn-sm" data-act="delCap" data-id="${x.id}">Remove</button>
-          </div>
-        </div>`).join(''):'<div class="empty">No capacity entries yet.</div>'}
-      <button class="btn btn-ghost btn-full" data-act="addCap">+ Add Capacity</button>
-    </div></div>`;
-}
-
-function renderPayments(){
-  const p=R().payments;
-  const METHODS=['Cash','Visa','Mastercard','Orange Money','MyZaka','Bank Transfer'];
-  return `<div class="section ${OPEN.payments?'open':''}" data-sec="payments">
-    <div class="section-hdr" data-toggle="payments"><div class="section-title">10 · Payments</div><span class="chev">▾</span></div>
-    <div class="section-body">
-      <div class="chips">
-        ${METHODS.map(n=>`<span class="chip ${p.includes(n)?'active':''}" data-act="togglePay" data-val="${esc(n)}">${esc(n)}</span>`).join('')}
-      </div>
-    </div></div>`;
-}
-
-function renderReservations(){
-  const r=R().reservations;
-  const contacts=R().contacts;
-  return `<div class="section ${OPEN.reservations?'open':''}" data-sec="reservations">
-    <div class="section-hdr" data-toggle="reservations"><div class="section-title">11 · Reservations<small>Availability, WhatsApp, guest limits</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      <label class="switch"><input type="checkbox" id="f_res_on" ${r.enabled?'checked':''}><span class="track"></span><span class="lbl">Reservations available</span></label>
-      <div class="grid2">
-        <div class="field"><label>WhatsApp Number</label><select id="f_res_wa">${['<option value="">— choose contact —</option>',...contacts.map(c=>`<option value="${c.id}"${r.whatsappContactId===c.id?' selected':''}>${esc(c.title||c.number)}</option>`)].join('')}</select></div>
-        <div class="field"><label>Call Number</label><select id="f_res_call">${['<option value="">— choose contact —</option>',...contacts.map(c=>`<option value="${c.id}"${r.callContactId===c.id?' selected':''}>${esc(c.title||c.number)}</option>`)].join('')}</select></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Minimum Guests</label><input type="number" id="f_res_min" value="${r.minimumGuests}"></div>
-        <div class="field"><label>Maximum Guests</label><input type="number" id="f_res_max" value="${r.maximumGuests}"></div>
-      </div>
-      <label class="switch"><input type="checkbox" id="f_res_same" ${r.sameDay?'checked':''}><span class="track"></span><span class="lbl">Same-day reservations</span></label>
-      <label class="switch"><input type="checkbox" id="f_res_adv" ${r.advanceBooking?'checked':''}><span class="track"></span><span class="lbl">Advance booking required</span></label>
-      <div class="field"><label>Cancellation Notes</label><textarea id="f_res_cx">${esc(r.cancellationNotes)}</textarea></div>
-    </div></div>`;
-}
-
-function renderServices(){
-  const list=R().reservationServices;
-  return `<div class="section ${OPEN.services?'open':''}" data-sec="services">
-    <div class="section-hdr" data-toggle="services"><div class="section-title">12 · Reservation Services<small>${list.length} service${list.length===1?'':'s'}</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      ${list.length?list.map(s=>`
-        <div class="record">
-          <div class="record-title">${esc(s.name)}</div>
-          <div class="record-meta">${s.price?`${money(s.price)} · ${esc(s.pricingType||'')}`:'Custom quote'}${s.description?`<br>${esc(s.description)}`:''}</div>
-          <div class="record-actions">
-            <button class="btn btn-ghost btn-sm" data-act="editSvc" data-id="${s.id}">Edit</button>
-            <button class="btn btn-ghost btn-sm" data-act="dupSvc" data-id="${s.id}">Duplicate</button>
-            <button class="btn btn-ghost btn-sm" data-act="moveSvc" data-id="${s.id}" data-dir="-1">↑</button>
-            <button class="btn btn-ghost btn-sm" data-act="moveSvc" data-id="${s.id}" data-dir="1">↓</button>
-            <button class="btn btn-danger btn-sm" data-act="delSvc" data-id="${s.id}">Remove</button>
-          </div>
-        </div>`).join(''):'<div class="empty">No reservation services yet. Add waiter service, VIP booth, birthday setup…</div>'}
-      <button class="btn btn-ghost btn-full" data-act="addSvc">+ Add Service</button>
-    </div></div>`;
-}
-
-function renderStaff(){
-  const list=R().serviceStaff;
-  return `<div class="section ${OPEN.staff?'open':''}" data-sec="staff">
-    <div class="section-hdr" data-toggle="staff"><div class="section-title">13 · Service Staff<small>Waiters, hosts, chefs, MCs…</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      ${list.length?list.map(s=>`
-        <div class="record" style="display:flex;gap:12px;align-items:flex-start">
-          <div style="width:44px;height:44px;border-radius:50%;background:#f0eee8;display:flex;align-items:center;justify-content:center;font-weight:800;color:#8a8170;font-size:16px">${esc((s.firstName||'?')[0])}</div>
-          <div style="flex:1;min-width:0">
-            <div class="record-title">${esc((s.firstName||'')+' '+(s.surname||''))}</div>
-            <div class="record-meta">${esc(s.role||'')}${s.price?` · ${money(s.price)} ${esc(s.pricingType||'')}`:' · No additional charge'}</div>
-            <div class="record-actions">
-              <button class="btn btn-ghost btn-sm" data-act="editStaff" data-id="${s.id}">Edit</button>
-              <button class="btn btn-ghost btn-sm" data-act="moveStaff" data-id="${s.id}" data-dir="-1">↑</button>
-              <button class="btn btn-ghost btn-sm" data-act="moveStaff" data-id="${s.id}" data-dir="1">↓</button>
-              <button class="btn btn-danger btn-sm" data-act="delStaff" data-id="${s.id}">Remove</button>
-            </div>
-          </div>
-        </div>`).join(''):'<div class="empty">No staff yet.</div>'}
-      <button class="btn btn-ghost btn-full" data-act="addStaff">+ Add Staff</button>
-    </div></div>`;
-}
-
-function renderUsers(){
-  const list=R().users;
-  const ROLES=['Owner','Manager','Menu Manager','Marketing Manager'];
-  return `<div class="section ${OPEN.users?'open':''}" data-sec="users">
-    <div class="section-hdr" data-toggle="users"><div class="section-title">14 · Restaurant Users<small>Team roles & permissions</small></div><span class="chev">▾</span></div>
-    <div class="section-body">
-      ${list.length?list.map(u=>`
-        <div class="record">
-          <div class="record-title">${esc(u.name||u.email)}</div>
-          <div class="record-meta">${esc(u.role||'')} · ${esc(u.email||'')}</div>
-          <div class="record-actions">
-            <button class="btn btn-ghost btn-sm" data-act="editUser" data-id="${u.id}">Edit</button>
-            <button class="btn btn-danger btn-sm" data-act="delUser" data-id="${u.id}">Remove</button>
-          </div>
-        </div>`).join(''):'<div class="empty">No users yet.</div>'}
-      <button class="btn btn-ghost btn-full" data-act="addUser">+ Add User</button>
-    </div></div>`;
-}
-
-/* ========== COMPLETENESS ========== */
-function completeness(){
-  const r=R();let score=0,total=0;
-  const check=(cond)=>{total++;if(cond)score++;};
-  check(!!r.identity.name);
-  check(!!r.identity.description);
-  check(r.identity.types.length>0);
-  check(!!r.location.city);
-  check(!!r.location.area);
-  check(r.contacts.length>0);
-  check(r.socials[0]&&Object.keys(r.socials[0]).length>0);
-  check(r.operatingHours.weekly.some(x=>x.open&&x.close));
-  check(r.character.options.length>0);
-  check(r.amenities.options.length>0);
-  check(r.menuTags.options.length>0);
-  check(r.capacity.length>0);
-  check(r.payments.length>0);
-  check(r.reservations.enabled);
-  check(r.reservationServices.length>0);
-  check(r.serviceStaff.length>0);
-  const pct=Math.round(score/total*100);
-  return {pct};
-}
-
-function render(){
-  const c=completeness();
-  const id=R().identity;
-  document.getElementById('statusBadge').className='badge '+(id.status||'draft');
-  document.getElementById('statusBadge').textContent=(id.status||'draft');
-  document.getElementById('app').innerHTML=`
-    <div class="completeness">
-      <div class="pct">${c.pct}%</div>
-      <div style="flex:1">
-        <div class="lbl">Profile Completeness</div>
-        <div class="bar"><i style="width:${c.pct}%"></i></div>
-      </div>
-      <div class="mini">${id.name?esc(id.name):'Untitled restaurant'}</div>
-    </div>
-    <div class="section open" data-sec="delivery">
-      <div class="section-hdr"><div class="section-title">Delivery &amp; Dispatch<small>Restaurant and driver views of today&apos;s deliveries</small></div></div>
-      <div class="section-body">
-        <div style="display:flex;gap:8px">
-          <a class="btn btn-primary" href="restaurant-delivery.html" style="flex:1;min-width:0">Restaurant delivery</a>
-          <a class="btn btn-ghost" href="driver-delivery.html" style="flex:1;min-width:0">Driver delivery</a>
-        </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:8px;font-weight:500">Opens the delivery board. Role-based access to these views is planned for a later release.</div>
-      </div>
-    </div>
-    ${renderIdentity()}
-    ${renderLocation()}
-    ${renderContacts()}
-    ${renderSocials()}
-    ${renderHours()}
-    ${renderCharacter()}
-    ${renderAmenities()}
-    ${renderMenuTags()}
-    ${renderCapacity()}
-    ${renderPayments()}
-    ${renderReservations()}
-    ${renderServices()}
-    ${renderStaff()}
-    ${renderUsers()}
-  `;
-  // sync live text inputs → DB on change
-  bindLive();
-}
-
-function bindLive(){
-  const map={'f_name':['identity','name'],'f_desc':['identity','description'],
-    'f_city':['location','city'],'f_area':['location','area'],'f_plot':['location','plotNumber'],
-    'f_street':['location','streetName'],'f_streetNo':['location','streetNumber'],
-    'f_building':['location','building'],'f_landmark':['location','landmark'],
-    'f_lat':['location','latitude'],'f_lng':['location','longitude']};
-  Object.keys(map).forEach(id=>{
-    const el=document.getElementById(id);if(!el)return;
-    el.oninput=()=>{
-      const [g,k]=map[id];
-      if(g==='identity')R().identity[k]=el.value;
-      else R().location[k]=(k==='latitude'||k==='longitude')?(el.value===''?null:Number(el.value)):el.value;
-      dbSave(DB);
-    };
-  });
-  const bindTitle=(elId,pathKey)=>{const el=document.getElementById(elId);if(!el)return;el.oninput=()=>{if(pathKey==='hours')R().operatingHours.title=el.value;else if(pathKey==='char')R().character.title=el.value;else if(pathKey==='am')R().amenities.title=el.value;else if(pathKey==='mt')R().menuTags.title=el.value;dbSave(DB);};};
-  bindTitle('f_hours_title','hours');bindTitle('f_char_title','char');bindTitle('f_am_title','am');bindTitle('f_mt_title','mt');
-  document.querySelectorAll('[data-social]').forEach(el=>{
-    el.oninput=()=>{if(!R().socials[0])R().socials[0]={};R().socials[0][el.getAttribute('data-social')]=el.value;dbSave(DB);};
-  });
-  document.querySelectorAll('[data-hr]').forEach(el=>{
-    el.onchange=()=>{
-      const day=el.getAttribute('data-hr');const k=el.getAttribute('data-k');
-      let row=R().operatingHours.weekly.find(x=>x.day===day);
-      if(!row){row={day,open:'',close:''};R().operatingHours.weekly.push(row);}
-      row[k]=el.value;dbSave(DB);
-    };
-  });
-  ['f_res_on','f_res_same','f_res_adv'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.onchange=()=>{const m={'f_res_on':'enabled','f_res_same':'sameDay','f_res_adv':'advanceBooking'};R().reservations[m[id]]=el.checked;dbSave(DB);};});
-  const link=(id,k)=>{const el=document.getElementById(id);if(!el)return;el.onchange=()=>{R().reservations[k]=el.value||null;dbSave(DB);};};
-  link('f_res_wa','whatsappContactId');link('f_res_call','callContactId');
-  ['f_res_min','f_res_max'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.onchange=()=>{R().reservations[id==='f_res_min'?'minimumGuests':'maximumGuests']=Number(el.value)||0;dbSave(DB);};});
-  const cx=document.getElementById('f_res_cx');if(cx)cx.oninput=()=>{R().reservations.cancellationNotes=cx.value;dbSave(DB);};
-}
-
-/* ========== EVENT HANDLING ========== */
-document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-act],[data-toggle]');
-  if(!t)return;
-  if(t.hasAttribute('data-toggle')){toggleSection(t.getAttribute('data-toggle'));return;}
-  const act=t.getAttribute('data-act');const id=t.getAttribute('data-id');
-  const R_=R();
-  if(act==='toggleType'){const v=t.getAttribute('data-val');const i=R_.identity.types.indexOf(v);if(i>=0)R_.identity.types.splice(i,1);else R_.identity.types.push(v);save();return;}
-  if(act==='addType'){promptAdd('Add custom type',v=>{R_.identity.types.push(v);save();});return;}
-  if(act==='pickLogo'){promptUrl('Logo image URL',v=>{R_.identity.logo=v;save();});return;}
-  if(act==='pickCover'){promptUrl('Cover image URL',v=>{R_.identity.coverImage=v;save();});return;}
-  if(act==='useCurrent'){if(!navigator.geolocation){toast('Geolocation not available');return;}navigator.geolocation.getCurrentPosition(p=>{R_.location.latitude=+p.coords.latitude.toFixed(6);R_.location.longitude=+p.coords.longitude.toFixed(6);save();toast('Location set');},()=>toast('Permission denied'));return;}
-  if(act==='previewMap'){const l=R_.location;if(l.latitude==null){toast('Set GPS first');return;}window.open(`https://maps.google.com/?q=${l.latitude},${l.longitude}`,'_blank');return;}
-
-  /* CONTACTS */
-  if(act==='addContact'||act==='editContact'){
-    const c=act==='editContact'?R_.contacts.find(x=>x.id===id):{};
-    openForm({title:act==='editContact'?'Edit Contact':'Add Contact',values:c,fields:[
-      {key:'title',label:'Title',placeholder:'Reservations / Orders / Manager'},
-      {key:'countryCode',label:'Country Code',placeholder:'+267'},
-      {key:'number',label:'Number',placeholder:'71 234 567'},
-      {key:'purpose',label:'Purpose',type:'select',options:['General enquiries','Orders','Reservations','Delivery','Catering','Events','Functions','Manager','Customer support','Other']},
-      {key:'primary',label:'Primary number',type:'checkbox'},
-      {key:'whatsapp',label:'WhatsApp enabled',type:'checkbox'},
-      {key:'active',label:'Active',type:'checkbox'}
-    ],onSave:v=>{if(act==='editContact')Object.assign(c,v);else R_.contacts.push({id:uid('contact'),order:R_.contacts.length+1,active:true,...v});save();}});
-    return;
-  }
-  if(act==='dupContact'){const c=R_.contacts.find(x=>x.id===id);R_.contacts.push({...c,id:uid('contact'),primary:false});save();return;}
-  if(act==='delContact'){R_.contacts=R_.contacts.filter(x=>x.id!==id);save();return;}
-  if(act==='moveContact'){move(R_.contacts,id,parseInt(t.getAttribute('data-dir'),10));save();return;}
-
-  /* SCHEDULES */
-  if(act==='addSched'||act==='editSched'){
-    const s=act==='editSched'?R_.operatingHours.customSchedules.find(x=>x.id===id):{};
-    openForm({title:act==='editSched'?'Edit Schedule':'Add Operating Schedule',values:s,fields:[
-      {key:'title',label:'Title',placeholder:'Happy Hour Thursdays'},
-      {key:'days',label:'Days',placeholder:'Thursday, Friday'},
-      {key:'start',label:'Start time',type:'time'},
-      {key:'end',label:'End time',type:'time'}
-    ],onSave:v=>{if(act==='editSched')Object.assign(s,v);else R_.operatingHours.customSchedules.push({id:uid('sched'),...v});save();}});
-    return;
-  }
-  if(act==='delSched'){R_.operatingHours.customSchedules=R_.operatingHours.customSchedules.filter(x=>x.id!==id);save();return;}
-
-  /* CHARACTER */
-  if(act==='toggleChar'){const v=t.getAttribute('data-val');const i=R_.character.options.findIndex(o=>o.name===v);if(i>=0)R_.character.options.splice(i,1);else R_.character.options.push({id:uid('char'),name:v,order:R_.character.options.length+1});save();return;}
-  if(act==='addChar'){promptAdd('Add custom character',v=>{R_.character.options.push({id:uid('char'),name:v,order:R_.character.options.length+1});save();});return;}
-
-  /* AMENITIES */
-  if(act==='toggleAmen'){const v=t.getAttribute('data-val');const i=R_.amenities.options.findIndex(o=>o.name===v);if(i>=0)R_.amenities.options.splice(i,1);else R_.amenities.options.push({id:uid('amen'),name:v,order:R_.amenities.options.length+1});save();return;}
-  if(act==='addAmen'){promptAdd('Add custom amenity',v=>{R_.amenities.options.push({id:uid('amen'),name:v,order:R_.amenities.options.length+1});save();});return;}
-
-  /* MENU TAGS */
-  if(act==='toggleMT'){const v=t.getAttribute('data-val');const i=R_.menuTags.options.findIndex(o=>o.name===v);if(i>=0)R_.menuTags.options.splice(i,1);else R_.menuTags.options.push({id:uid('tag'),name:v,order:R_.menuTags.options.length+1});save();return;}
-  if(act==='addMT'){promptAdd('Add custom tag',v=>{R_.menuTags.options.push({id:uid('tag'),name:v,order:R_.menuTags.options.length+1});save();});return;}
-
-  /* CAPACITY */
-  if(act==='addCap'||act==='editCap'){
-    const c=act==='editCap'?R_.capacity.find(x=>x.id===id):{};
-    openForm({title:act==='editCap'?'Edit Capacity':'Add Capacity',values:c,fields:[
-      {key:'title',label:'Title',placeholder:'Indoor Seating'},
-      {key:'value',label:'Number',type:'number'},
-      {key:'description',label:'Description (optional)',type:'textarea'}
-    ],onSave:v=>{if(act==='editCap')Object.assign(c,v);else R_.capacity.push({id:uid('cap'),order:R_.capacity.length+1,...v});save();}});
-    return;
-  }
-  if(act==='delCap'){R_.capacity=R_.capacity.filter(x=>x.id!==id);save();return;}
-
-  /* PAYMENTS */
-  if(act==='togglePay'){const v=t.getAttribute('data-val');const i=R_.payments.indexOf(v);if(i>=0)R_.payments.splice(i,1);else R_.payments.push(v);save();return;}
-
-  /* SERVICES */
-  if(act==='addSvc'||act==='editSvc'){
-    const s=act==='editSvc'?R_.reservationServices.find(x=>x.id===id):{};
-    const contacts=R_.contacts;
-    openForm({title:act==='editSvc'?'Edit Service':'Add Reservation Service',values:s,fields:[
-      {key:'name',label:'Service name',placeholder:'Birthday Setup'},
-      {key:'description',label:'Description',type:'textarea'},
-      {key:'price',label:'Price',type:'number'},
-      {key:'pricingType',label:'Pricing type',type:'select',options:['Per person','Per table','Per hour','Per booking','Per item','Fixed price','Custom quote']},
-      {key:'whatsappContactId',label:'WhatsApp contact',type:'select',options:[{value:'',label:'— choose —'},...contacts.map(c=>({value:c.id,label:c.title||c.number}))]},
-      {key:'active',label:'Available',type:'checkbox'}
-    ],onSave:v=>{if(act==='editSvc')Object.assign(s,v);else R_.reservationServices.push({id:uid('svc'),order:R_.reservationServices.length+1,...v});save();}});
-    return;
-  }
-  if(act==='dupSvc'){const s=R_.reservationServices.find(x=>x.id===id);R_.reservationServices.push({...s,id:uid('svc'),order:R_.reservationServices.length+1});save();return;}
-  if(act==='delSvc'){R_.reservationServices=R_.reservationServices.filter(x=>x.id!==id);save();return;}
-  if(act==='moveSvc'){move(R_.reservationServices,id,parseInt(t.getAttribute('data-dir'),10));save();return;}
-
-  /* STAFF */
-  if(act==='addStaff'||act==='editStaff'){
-    const s=act==='editStaff'?R_.serviceStaff.find(x=>x.id===id):{};
-    openForm({title:act==='editStaff'?'Edit Staff':'Add Service Staff',values:s,fields:[
-      {key:'firstName',label:'First name'},
-      {key:'surname',label:'Surname'},
-      {key:'displayName',label:'Display name'},
-      {key:'role',label:'Role',type:'select',options:['Waiter','Waitress','Host','Bartender','Chef','Private chef','Sommelier','Event staff','Security','Photographer','Decorator','MC','Other']},
-      {key:'description',label:'Description',type:'textarea'},
-      {key:'price',label:'Price',type:'number'},
-      {key:'pricingType',label:'Pricing type',type:'select',options:['No additional charge','Per booking','Per hour','Per person','Per item']},
-      {key:'contact',label:'WhatsApp / contact'},
-      {key:'active',label:'Active',type:'checkbox'}
-    ],onSave:v=>{if(act==='editStaff')Object.assign(s,v);else R_.serviceStaff.push({id:uid('staff'),order:R_.serviceStaff.length+1,...v});save();}});
-    return;
-  }
-  if(act==='delStaff'){R_.serviceStaff=R_.serviceStaff.filter(x=>x.id!==id);save();return;}
-  if(act==='moveStaff'){move(R_.serviceStaff,id,parseInt(t.getAttribute('data-dir'),10));save();return;}
-
-  /* USERS */
-  if(act==='addUser'||act==='editUser'){
-    const u=act==='editUser'?R_.users.find(x=>x.id===id):{};
-    openForm({title:act==='editUser'?'Edit User':'Add User',values:u,fields:[
-      {key:'name',label:'Name'},
-      {key:'email',label:'Email',type:'email'},
-      {key:'role',label:'Role',type:'select',options:['Owner','Manager','Menu Manager','Marketing Manager']},
-      /* Credentials for the Operator sign-in. The password is hashed
-         with the account's salt and never stored as plaintext. */
-      {key:'whatsapp',label:'Login WhatsApp number',placeholder:'26771844129'},
-      {key:'password',label:'Login password',type:'password',placeholder:u.passwordHash?'•••••• (set)':'choose a password'}
-    ],onSave:v=>{
-      const pass=v.password||'';
-      delete v.password;
-      v.whatsapp=EatoutsAuth.normaliseWhatsapp(v.whatsapp||'');
-      const target=act==='editUser'?u:{id:uid('user'),...v};
-      Object.assign(target,v);
-      if(act!=='editUser')R_.users.push(target);
-      /* blank password = leave the existing hash alone */
-      if(!pass){save();toast('Saved');return;}
-      EatoutsAuth.hashPassword(pass,target.salt||(target.salt=EatoutsAuth.randomSalt())).then(h=>{
-        target.passwordHash=h;save();toast('Saved');
-      }).catch(()=>{
-        target.passwordHash=null;save();toast('Saved - password needs run-eatouts.bat');
-      });
-    }});
-    return;
-  }
-  if(act==='delUser'){R_.users=R_.users.filter(x=>x.id!==id);save();return;}
-});
-
-function promptAdd(title,cb){
-  openForm({title,fields:[{key:'value',label:'Name',placeholder:'e.g. Afrocentric'}],onSave:v=>{if(v.value&&v.value.trim())cb(v.value.trim());}});
-}
-function promptUrl(title,cb){
-  const scrim=openForm({title,fields:[{key:'url',label:'Image URL',placeholder:'https://… or assets/…'}],onSave:v=>{cb(v.url||'');}});
-  /* Post-process the freshly-opened modal: mark the URL input as an
-     upload target, append the Upload button next to it, and hand the
-     scrim to EatoutsUpload.decorate so the button is wired. Uploaded
-     images land in the input as data-URL strings, so the existing
-     save path (which reads el.value) delivers them to cb unchanged.
-     The field stays editable — a user can still paste a plain URL. */
-  const input=scrim.querySelector('[name="url"]');
-  if(input){
-    input.setAttribute('data-upload','');
-    const btn=document.createElement('button');
-    btn.type='button';
-    btn.className='btn btn-ghost btn-sm';
-    btn.setAttribute('data-upload-for','url');
-    btn.textContent='Upload';
-    if(input.parentNode)input.parentNode.appendChild(btn);
-  }
-  if(window.EatoutsUpload){try{EatoutsUpload.setUploadPrefix(EatoutsUpload.sessionPrefix('venues'));}catch(e){}EatoutsUpload.decorate(scrim);}
-  return scrim;
-}
-
-/* ========== ACTION BAR ========== */
-document.getElementById('btnDraft').onclick=()=>{R().identity.status='draft';save();toast('Saved as draft');};
-document.getElementById('btnPublish').onclick=()=>{
-  if(!R().identity.name){toast('Restaurant name is required');return;}
-  if(!R().location.city){toast('Village / Town / City is required');return;}
-  if(!R().contacts.length){toast('Add at least one contact number');return;}
-  R().identity.status='published';save();toast('Published');
+(function(){
+'use strict';
+const STORE_KEY='eatouts.restaurant-onboarding.v2';
+const LEGACY_KEY='eatouts.restaurant-onboarding.v1';
+const BRANCH_TYPES=[
+ {id:'headquarters',name:'Headquarters / administrative office',caps:['admin']},
+ {id:'dining-outlet',name:'Restaurant / dining outlet',caps:['servesFood','dineIn','takeaway','hostsEvents']},
+ {id:'quick-service',name:'Quick-service / takeaway outlet',caps:['servesFood','takeaway','delivery']},
+ {id:'ghost-kitchen',name:'Delivery-only / ghost kitchen',caps:['servesFood','takeaway','delivery','production']},
+ {id:'production-kitchen',name:'Central production kitchen / commissary',caps:['production','storage']},
+ {id:'catering-base',name:'Catering base',caps:['servesFood','production','hostsEvents']},
+ {id:'warehouse',name:'Warehouse / storage depot',caps:['storage']},
+ {id:'distribution',name:'Distribution / dispatch centre',caps:['storage','distribution']},
+ {id:'food-truck',name:'Food truck / mobile food unit',caps:['servesFood','takeaway','mobile']},
+ {id:'popup',name:'Pop-up / seasonal kiosk',caps:['servesFood','takeaway']},
+ {id:'hotel-lodge',name:'Hotel / lodge / guesthouse',caps:['servesFood','dineIn','hostsEvents','accommodation']},
+ {id:'function-venue',name:'Banquet / function venue',caps:['hostsEvents','servesFood','dineIn']}
+];
+const CAPABILITIES=[
+ {id:'admin',label:'Administrative office',desc:'Corporate operations; no dining features required.'},
+ {id:'servesFood',label:'Serve food and drinks',desc:'Enable food and beverage menu controls.'},
+ {id:'dineIn',label:'Provide dine-in seating',desc:'Enable venue spaces, guest amenities and dining enquiries.'},
+ {id:'takeaway',label:'Offer takeaway',desc:'Customers can collect food at this location.'},
+ {id:'delivery',label:'Offer delivery',desc:'Delivery orders or enquiries can be routed to this branch.'},
+ {id:'hostsEvents',label:'Host events and private functions',desc:'Enable event types, spaces, services, event contacts and event offers.'},
+ {id:'accommodation',label:'Offer overnight or short-stay accommodation',desc:'Enable room categories, duration-based rates and stay packages.'},
+ {id:'production',label:'Prepare food for other branches',desc:'Central production and prep workflows.'},
+ {id:'storage',label:'Store or distribute stock',desc:'Warehouse and dispatch profile details.'},
+ {id:'distribution',label:'Dispatch goods or supplies',desc:'Distribution and delivery coordination.'},
+ {id:'mobile',label:'Mobile / location changes over time',desc:'A mobile unit or temporary trading location.'}
+];
+const SOCIAL_PLATFORMS=['Website','Facebook','Instagram','X / Twitter','WhatsApp Channel','TikTok','Snapchat','Telegram','YouTube','LinkedIn','Threads','Pinterest','Custom'];
+const WEEKDAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const PREDEFINED_CATEGORIES=['Restaurant','Café','Coffee shop','Grill','Steakhouse','Fast food','Takeaway','Bakery','Bar','Lounge','Pub','Bistro','Fine dining','Buffet','Pizzeria','Sushi','Deli','Ice cream','Juice bar','Catering','Food truck','Hotel restaurant','Guesthouse','Lodge','Conference venue'];
+const AMENITY_GROUPS={
+ 'Dining & seating':['Indoor seating','Outdoor seating','Private dining','Bar area','Children’s area','High chairs','Table service','Counter service'],
+ 'Guest facilities':['Free Wi-Fi','Restrooms','Accessible facilities','Baby-changing facilities','Charging points','Air conditioning','Backup power','Water refill station'],
+ 'Transport & access':['Dedicated parking','Accessible parking','Pickup zone','Valet service','Public transport nearby'],
+ 'Safety & comfort':['Non-smoking area','Smoking area','Security','CCTV','First-aid kit','Fire-safety equipment'],
+ 'Service options':['Takeaway','Delivery','Catering','Drive-through','Pet friendly','Private bookings'],
+ 'Accommodation features':['Swimming pool','Laundry service','Room service','Gym / fitness area','Garden / outdoor grounds','Airport transfer','Housekeeping']
 };
-document.getElementById('btnPreview').onclick=()=>{
-  window.open('index.html','_blank');
+const MENU_TAGS=['Setswana','Zimbabwean','African','South African','Indian','Chinese','Italian','American','Mexican','Mediterranean','Fusion','Breakfast','Brunch','Lunch','Dinner','Late Night','Dessert','Vegetarian options','Vegan options','Halal','Gluten-free options','Dairy-free options'];
+const PAYMENT_METHODS=['Cash','Visa','Mastercard','American Express','Bank transfer','POS card terminal','BTC Smega','Mascom MyZaka','Orange Money','Other mobile wallet','Online payment link','Other'];
+const PROMO_TYPES=['Percentage discount','Fixed amount discount','Free item or upgrade','Set-price offer','Loyalty benefit','Cashback / wallet benefit','Seasonal campaign','Event partnership','Other'];
+const RATE_BASES=[
+ {id:'hour',label:'Per hour'}, {id:'duration',label:'Per custom duration'}, {id:'halfday',label:'Half-day'}, {id:'fullday',label:'Full day'}, {id:'night',label:'Per night'}, {id:'weekend',label:'Weekend package'}, {id:'week',label:'Per week'}, {id:'month',label:'Per month'}, {id:'stay',label:'Per stay / booking'}, {id:'quote',label:'Quote on request'}
+];
+const DURATION_UNITS=['minutes','hours','days','nights','weeks','months'];
+const CURRENCIES=['BWP (Pula)','ZAR (Rand)','USD','Other'];
+const STAFF_ROLES={
+ 'Management':['General Manager','Restaurant Manager','Assistant Manager','Branch Manager','Operations Manager','Shift Supervisor'],
+ 'Front of house':['Host','Waiter','Waitress','Head Waiter','Food Runner','Cashier','Barista','Bartender','Sommelier'],
+ 'Kitchen':['Executive Chef','Head Chef','Sous Chef','Chef','Line Cook','Prep Cook','Private Chef','Pastry Chef','Baker','Kitchen Porter','Dishwasher'],
+ 'Operations':['Procurement Officer','Stock Controller','Storekeeper','Cleaner','Maintenance Technician','Security Guard','Delivery Driver'],
+ 'Events & catering':['Events Manager','Catering Coordinator','Banquet Coordinator','Event Staff','MC','DJ','Photographer','Decorator'],
+ 'Accommodation':['Lodge Manager','Receptionist','Reservations Officer','Housekeeper','Room Attendant','Concierge','Porter','Groundskeeper'],
+ 'Administration':['HR Manager','Accountant','Payroll Officer','Marketing Manager','Social Media Manager','IT Administrator']
 };
+const USER_ROLES=['Owner','Co-Owner','Brand Administrator','Branch Manager','Investor','Board Member','Finance Manager','HR Manager','Menu Manager','Marketing Manager','Event Coordinator','Reservations Manager','Custom'];
+const PERMISSION_OPTIONS=[
+ {id:'viewBrand',label:'View brand profile'}, {id:'editBrand',label:'Edit brand profile'},
+ {id:'viewBranches',label:'View branches'}, {id:'editBranches',label:'Edit branch details'},
+ {id:'manageMenus',label:'Manage menus'}, {id:'managePayments',label:'Manage payments & promotions'},
+ {id:'manageEvents',label:'Manage hosting & room offers'}, {id:'viewStaff',label:'View staff profiles'},
+ {id:'manageStaff',label:'Manage staff'}, {id:'viewPayroll',label:'View salary / payroll details'},
+ {id:'manageUsers',label:'Manage users & permissions'}, {id:'publish',label:'Publish profile changes'}
+];
+const e=(v)=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const uid=(prefix='id')=>prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+const arr=(v)=>Array.isArray(v)?v:[];
+const yes=(v)=>v===true||v==='true';
+const str=(v)=>String(v==null?'':v);
+const unique=(xs)=>Array.from(new Set(xs));
+function blankContact(label='General enquiries'){return {id:uid('contact'),label,type:'Mobile',number:'',notes:''};}
+function blankSocial(){return {id:uid('social'),platform:'Website',label:'',url:'',notes:''};}
+function blankPhoto(){return {id:uid('photo'),label:'',url:'',notes:''};}
+function blankEvent(){return {id:uid('event'),eventTypeId:'',eventName:'',categoryName:'',availabilityDays:'',startTime:'',endTime:'',availabilityNotes:'',spaceId:'',minCapacity:'',maxCapacity:'',rules:'',pricingType:'Quote on request',price:'',currency:'BWP (Pula)',minimumSpend:'',deposit:'',advanceNotice:'',cancellationTerms:'',availableServices:[],photos:[],contactIds:[]};}
+function blankRate(){return {id:uid('rate'),basis:'night',amount:'',currency:'BWP (Pula)',durationValue:2,durationUnit:'hours',minimumUnits:1,notes:'',validFrom:'',validTo:''};}
+function blankRoom(){return {id:uid('room'),name:'',roomType:'Standard room',description:'',unitsAvailable:'',maxOccupancy:2,bedConfiguration:'',amenities:[],checkInTime:'14:00',checkOutTime:'10:00',minimumStay:1,cancellationTerms:'',rates:[blankRate()],photos:[],notes:''};}
+function blankBranch(name='',type='dining-outlet',caps){const t=BRANCH_TYPES.find(x=>x.id===type)||BRANCH_TYPES[1];return {id:uid('branch'),name,code:'',type,status:'draft',imageUrl:'',inheritBrandContacts:true,inheritBrandSocialLinks:true,capabilities:arr(caps||t.caps).slice(),location:{country:'Botswana',city:'',area:'',plotNumber:'',streetName:'',streetNumber:'',building:'',unitNumber:'',landmark:'',latitude:'',longitude:'',directions:''},contacts:[],socialLinks:[],hours:{weekly:WEEKDAYS.map(day=>({day,open:'',close:'',closed:false})),custom:[]},amenities:[],customAmenities:[],customAmenitiesText:'',amenityDetails:{},menuTags:[],foodMenu:[],beverageMenu:[],venueSpaces:[],venueDescription:'',venueGallery:[],hosting:{diningReservations:{enabled:true,contactIds:[],sameDay:true,advanceBooking:true,minimumGuests:1,maximumGuests:12,notes:'',cancellationTerms:''},events:[],roomCategories:[],stayPackages:[]},paymentPartnerships:[],paymentMethods:[],promotions:[],staffAssignments:[]};}
+function initialState(){return {version:2,status:'draft',activeBranchId:'branch_initial',branchView:'listed',uiOpen:{brand:'',branch:'',hoursDay:'',customHours:'',amenityGroup:''},brand:{identity:{name:'',legalName:'',description:'',logoUrl:'',coverUrl:'',categories:[],status:'draft'},registration:{country:'Botswana',registrationNumber:'',taxNumber:'',registeredAddress:'',legalNotes:''},contacts:[],socialLinks:[],users:[]},branches:[Object.assign(blankBranch('','dining-outlet'),{id:'branch_initial'})],staffDirectory:[]};}
+function migrateLegacy(old){const n=initialState();if(!old||typeof old!=='object')return n;const oi=old.identity||{};n.brand.identity=Object.assign(n.brand.identity,{name:oi.name||'',legalName:oi.legalName||'',description:oi.description||'',logoUrl:oi.logo||'',coverUrl:oi.cover||'',categories:String(oi.types||'').split(',').map(s=>s.trim()).filter(Boolean),status:oi.status||'draft'});const b=n.branches[0];b.name=oi.name||'';b.imageUrl=oi.cover||oi.logo||'';b.location=Object.assign(b.location,old.location||{});b.contacts=arr(old.contacts).map(c=>Object.assign(blankContact(),c,{id:c.id||uid('contact'),label:c.label||c.purpose||'General enquiries',number:c.number||c.phone||''}));const soc=old.socials||{};b.socialLinks=Object.keys(soc).filter(k=>soc[k]).map(k=>({id:uid('social'),platform:k==='twitter'?'X / Twitter':k.charAt(0).toUpperCase()+k.slice(1),label:'',url:soc[k],notes:''}));const hours=old.hours||{};if(arr(hours.weekly).length)b.hours.weekly=hours.weekly.map(h=>Object.assign({closed:false},h));b.hours.custom=arr(hours.custom);b.amenities=arr(old.amenities&&old.amenities.options?old.amenities.options:old.amenities);b.menuTags=arr(old.menuTags&&old.menuTags.options?old.menuTags.options:old.menuTags);b.venueSpaces=arr(old.capacity).map(c=>({id:uid('space'),name:c.name||c.label||'Dining area',type:c.type||'Dining area',seated:c.seated||c.capacity||'',standing:c.standing||'',description:c.description||'',features:c.features||'',photos:[]}));b.paymentMethods=arr(old.payments).map(x=>typeof x==='string'?x:(x.method||x.name||'' )).filter(Boolean);b.hosting.diningReservations=Object.assign(b.hosting.diningReservations,old.reservations||{});b.hosting.events=arr(old.services).map(s=>Object.assign(blankEvent(),s,{eventName:s.eventName||s.name||s.title||'',rules:s.rules||s.notes||''}));n.staffDirectory=arr(old.staff).map(s=>Object.assign({id:uid('staff'),firstName:'',surname:'',gender:'Male',role:'Custom',customRole:'',salaryAmount:'',salaryFrequency:'Monthly'},s,{id:s.id||uid('staff')}));b.staffAssignments=n.staffDirectory.map(s=>s.id);n.brand.users=arr(old.users).map(u=>Object.assign({id:uid('user'),name:'',role:'Custom',permissions:[],scope:'brand',branchIds:[]},u,{id:u.id||uid('user')}));return n;}
+let state=initialState();
+try{const existing=localStorage.getItem(STORE_KEY);if(existing){const parsed=JSON.parse(existing);if(parsed&&parsed.version===2)state=parsed;}else{const legacy=localStorage.getItem(LEGACY_KEY);if(legacy)state=migrateLegacy(JSON.parse(legacy));}}catch(err){console.warn('Could not read saved onboarding draft',err);}
+if(!Array.isArray(state.branches))state.branches=[];
+if(!state.branches.length)state.branches.push(blankBranch('','dining-outlet'));
+if(!state.activeBranchId||!state.branches.some(b=>b.id===state.activeBranchId))state.activeBranchId=state.branches[0].id;
+state.brand=state.brand||initialState().brand;state.staffDirectory=arr(state.staffDirectory);
+state.uiOpen=state.uiOpen||{};
+['brand','branch','hoursDay','customHours','amenityGroup'].forEach(k=>{if(typeof state.uiOpen[k]!=='string')state.uiOpen[k]='';});
+const $=(s,r=document)=>r.querySelector(s);const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+let toastTimer=null, modalSubmit=null, lastFocus=null, pendingStaffPhoto='';
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2400);}
+function saveState(show=false){try{localStorage.setItem(STORE_KEY,JSON.stringify(state));$('#saveIndicator').textContent='Saved locally';$('#saveIndicator').style.color='#B8E8C8';if(show)toast('Draft saved on this device.');return true;}catch(err){$('#saveIndicator').textContent=err&&err.name==='QuotaExceededError'?'Storage full':'Draft mode';if(show)toast(err&&err.name==='QuotaExceededError'?'Browser storage is full.':'Local browser storage is unavailable here.');return false;}}
+function activeBranch(){return state.branches.find(b=>b.id===state.activeBranchId)||state.branches[0];}
+function resolveRoot(path){const parts=path.split('.');let root;if(parts[0]==='brand')root=state.brand;else if(parts[0]==='branch')root=activeBranch();else if(parts[0]==='staffDirectory')root=state.staffDirectory;else if(parts[0]==='branches')root=state.branches;else{root=state;}return {root,parts:parts[0]==='brand'||parts[0]==='branch'||parts[0]==='staffDirectory'||parts[0]==='branches'?parts.slice(1):parts};}
+function pathGet(path){const o=resolveRoot(path);let v=o.root;for(const p of o.parts){if(v==null)return '';v=v[p];}return v==null?'':v;}
+function pathSet(path,value){const o=resolveRoot(path);let target=o.root;const ps=o.parts;for(let i=0;i<ps.length-1;i++){const k=ps[i];if(target[k]==null)target[k]=/^\d+$/.test(ps[i+1])?[]:{};target=target[k];}target[ps[ps.length-1]]=value;}
+function collectionGet(path){const v=pathGet(path);return Array.isArray(v)?v:null;}
+function inputPath(path){return 'data-bind="'+e(path)+'"';}
+function field(label,path,type='text',opts={}){let value=pathGet(path);let extra='';if(opts.placeholder)extra+=' placeholder="'+e(opts.placeholder)+'"';if(opts.min!==undefined)extra+=' min="'+e(opts.min)+'"';if(opts.max!==undefined)extra+=' max="'+e(opts.max)+'"';if(opts.step!==undefined)extra+=' step="'+e(opts.step)+'"';if(opts.required)extra+=' required';if(opts.autocomplete)extra+=' autocomplete="'+e(opts.autocomplete)+'"';if(opts.inputmode)extra+=' inputmode="'+e(opts.inputmode)+'"';return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><input class="input" type="${e(type)}" ${inputPath(path)} value="${e(value)}"${extra}${opts.number?' data-value-type="number"':''}>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;}
+function textarea(label,path,opts={}){return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><textarea class="textarea" ${inputPath(path)} placeholder="${e(opts.placeholder||'')}"${opts.required?' required':''}>${e(pathGet(path))}</textarea>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;}
+function selectField(label,path,options,opts={}){const val=String(pathGet(path));const os=options.map(o=>typeof o==='string'?{value:o,label:o}:o);return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><select class="select" ${inputPath(path)}${opts.required?' required':''}><option value="">${e(opts.placeholder||'Select an option')}</option>${os.map(o=>`<option value="${e(o.value)}"${val===String(o.value)?' selected':''}>${e(o.label)}</option>`).join('')}</select>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;}
+function checkItem(label,path,opts={}){const checked=!!pathGet(path);return `<label class="check-item"><input type="checkbox" ${inputPath(path)} ${checked?'checked':''}><span>${e(label)}${opts.desc?`<small>${e(opts.desc)}</small>`:''}</span></label>`;}
+function choiceList(label,path,options,descriptions={}){const value=arr(pathGet(path));return `<div class="field"><span>${e(label)}</span><div class="check-list">${options.map(opt=>{const v=typeof opt==='string'?opt:opt.id;const l=typeof opt==='string'?opt:opt.label;const d=(typeof opt==='string'?'':opt.desc)||descriptions[v]||'';return `<label class="check-item"><input type="checkbox" data-choice="${e(path)}" data-choice-value="${e(v)}" ${value.includes(v)?'checked':''}><span>${e(l)}${d?`<small>${e(d)}</small>`:''}</span></label>`;}).join('')}</div></div>`;}
+function acc(group,key,title,sub,body){const open=state.uiOpen[group]===key;const st=accState(group,key);return `<section class="acc ${open?'open':''}" data-acc-group="${e(group)}" data-acc-key="${e(key)}" tabindex="-1"><button class="acc-head" type="button" data-action="toggle-acc" data-group="${e(group)}" data-key="${e(key)}" aria-expanded="${open}"><span class="acc-title-wrap"><span class="acc-title">${e(title)}</span><span class="acc-sub">${e(sub)}</span></span><span class="acc-state ${st}" aria-hidden="true"></span></button>${open?`<div class="acc-body">${body}</div>`:''}</section>`;}
+function sectionLabel(label){return `<div class="section-label">${e(label)}</div>`;}
+function itemRemove(path,index){return `<button type="button" class="remove-btn" data-action="remove-item" data-collection="${e(path)}" data-index="${index}">Remove</button>`;}
+function addButton(action,label,extra=''){return `<button type="button" class="btn btn-dashed" data-action="${e(action)}" ${extra}>${e(label)}</button>`;}
+function empty(title,desc){return `<div class="empty"><strong>${e(title)}</strong>${e(desc)}</div>`;}
+function imagePreview(url,alt='Preview'){const usable=safeImage(url);return usable?`<img src="${e(usable)}" alt="${e(alt)}">`:'<span>No image</span>';}
+function safeImage(url){const u=String(url||'').trim();return (/^https?:\/\//i.test(u)||/^data:image\//i.test(u))?u:'';}
+function imagePicker(label,path,alt){return `<div class="image-picker"><div class="image-preview" data-image-preview="${e(path)}">${imagePreview(pathGet(path),alt||label)}</div><div class="image-picker-copy"><div style="font-size:12.5px;font-weight:850;margin-bottom:7px">${e(label)}</div><label class="file-label">Choose image<input type="file" accept="image/*" data-upload="${e(path)}"></label><div class="mini-note">Or paste an image URL below.</div>${field('Image URL',path,'url',{placeholder:'https://...'})}</div></div>`;}
+function recordHeader(title,sub,collection,index){return `<div class="record-top"><div class="record-title">${e(title)}${sub?`<div class="record-subtitle">${e(sub)}</div>`:''}</div>${collection?`<div class="record-actions">${itemRemove(collection,index)}</div>`:''}</div>`;}
+function focusAccordion(sel){requestAnimationFrame(()=>{const el=$(sel);if(!el)return;el.scrollIntoView({behavior:'smooth',block:'start'});try{el.focus({preventScroll:true});}catch(_){try{el.focus();}catch(__){}}});}
 
-/* ========== BOOT ========== */
-render();
+/* ---------- status computation ---------- */
+function accState(group,key){
+  const b=activeBranch();const br=state.brand;
+  if(group==='brand'){
+    switch(key){
+      case 'identity':{const i=br.identity;const cats=arr(i.categories);const some=i.name||i.legalName||i.description||i.logoUrl||i.coverUrl||cats.length;if(!some)return 'untouched';if(!i.name)return 'missing';return (i.name&&i.legalName&&i.description&&cats.length)?'complete':'progress';}
+      case 'registration':{const r=br.registration;const some=r.registrationNumber||r.taxNumber||r.registeredAddress||r.legalNotes;if(!some)return 'untouched';if(!r.registrationNumber)return 'missing';return r.registeredAddress?'complete':'progress';}
+      case 'contacts':{const cs=arr(br.contacts);if(!cs.length)return 'untouched';return cs.every(c=>c.value)?'complete':'progress';}
+      case 'socials':{const ss=arr(br.socialLinks);if(!ss.length)return 'untouched';return ss.every(s=>s.url)?'complete':'progress';}
+      case 'users':{const us=arr(br.users);if(!us.length)return 'untouched';return us.every(u=>u.name&&u.role)?'complete':'progress';}
+    }
+  }
+  if(group==='branch'){
+    switch(key){
+      case 'overview':{if(!b.name&&!b.code&&!b.imageUrl)return 'untouched';if(!b.name||!b.type)return 'missing';return 'complete';}
+      case 'location':{const l=b.location||{};if(!l.city&&!l.area&&!l.streetName)return 'untouched';if(!l.city)return 'missing';return (l.streetName||l.area)?'complete':'progress';}
+      case 'contacts':{if(b.inheritBrandContacts&&arr(state.brand.contacts).length)return 'complete';const cs=arr(b.contacts);if(!cs.length)return 'untouched';return cs.every(c=>c.number)?'complete':'progress';}
+      case 'socials':{if(b.inheritBrandSocialLinks&&arr(state.brand.socialLinks).length)return 'complete';const ss=arr(b.socialLinks);if(!ss.length)return 'untouched';return ss.every(s=>s.url)?'complete':'progress';}
+      case 'hours':{const w=arr(b.hours&&b.hours.weekly);const any=w.some(d=>d.open||d.close||d.closed);if(!any)return 'untouched';return w.every(d=>d.closed||(d.open&&d.close))?'complete':'progress';}
+      case 'amenities':{if(!arr(b.amenities).length&&!arr(b.customAmenities).length&&!String(b.customAmenitiesText||'').trim())return 'untouched';return 'complete';}
+      case 'food':{if(!arr(b.foodMenu).length&&!arr(b.beverageMenu).length&&!arr(b.menuTags).length)return 'untouched';if(!arr(b.menuTags).length)return 'progress';return 'complete';}
+      case 'venue':{if(!b.venueDescription&&!arr(b.venueSpaces).length&&!arr(b.venueGallery).length)return 'untouched';return (b.venueDescription&&arr(b.venueSpaces).length)?'complete':'progress';}
+      case 'hosting':{const ev=arr(b.hosting.events),rc=arr(b.hosting.roomCategories);const needEv=b.capabilities.includes('hostsEvents');const needRoom=b.capabilities.includes('accommodation');if(!ev.length&&!rc.length&&!b.hosting.diningReservations?.enabled)return 'untouched';if(needEv&&!ev.length)return 'missing';if(needRoom&&!rc.length)return 'missing';return 'complete';}
+      case 'partnerships':{const ps=arr(b.paymentPartnerships);if(!ps.length)return 'untouched';return ps.every(p=>p.provider)?'complete':'progress';}
+      case 'payments':{if(!arr(b.paymentMethods).length&&!arr(b.promotions).length)return 'untouched';return arr(b.paymentMethods).length?'complete':'progress';}
+      case 'staff':{if(!arr(b.staffAssignments).length)return 'untouched';return 'complete';}
+    }
+  }
+  return 'untouched';
+}
+
+/* ---------- categories ---------- */
+function categoriesEditor(){
+  const cats=arr(state.brand.identity.categories);
+  const remaining=PREDEFINED_CATEGORIES.filter(c=>!cats.includes(c));
+  return `<div class="field"><span>Restaurant / business categories</span>
+    ${cats.length?`<div class="chip-row">${cats.map((c,i)=>`<span class="chip">${e(c)}<button type="button" data-action="remove-category" data-index="${i}">Remove</button></span>`).join('')}</div>`:'<p class="mini-note">No categories added yet.</p>'}
+    <div class="chip-add"><select class="select" id="categoryPick"><option value="">Choose a common category to add</option>${remaining.map(o=>`<option value="${e(o)}">${e(o)}</option>`).join('')}</select></div>
+    <div class="chip-add" style="margin-top:7px"><input class="input" id="categoryCustom" type="text" placeholder="Or type a custom category"><button class="btn btn-secondary" type="button" data-action="add-custom-category">Add</button></div>
+    <small class="hint">Choose from the list or type your own and tap Add. Remove any chip to delete it.</small>
+  </div>`;
+}
+
+/* ---------- brand ---------- */
+function renderBrand(){const b=state.brand;let out='';
+ const identityBody=`${imagePicker('Brand logo','brand.identity.logoUrl','Brand logo')}${field('Brand cover image URL','brand.identity.coverUrl','url',{placeholder:'https://...'})}${field('Brand / trading name','brand.identity.name','text',{placeholder:'e.g. The Yellow Giraffe',required:true})}${field('Registered company name','brand.identity.legalName','text',{placeholder:'Legal entity name'})}${textarea('Brand description','brand.identity.description',{placeholder:'What should customers know about this restaurant brand?'})}${categoriesEditor()}`;
+ out+=acc('brand','identity','Restaurant Identity','The name, look and identity shared by every branch.',identityBody);
+ const regBody=`${selectField('Country of registration','brand.registration.country',['Botswana','Zimbabwe','South Africa','Namibia','Zambia','Other'])}${field('Company / registration number','brand.registration.registrationNumber','text',{placeholder:'Registration number'})}${field('Tax / VAT number','brand.registration.taxNumber','text',{placeholder:'Optional tax identifier'})}${textarea('Registered / corporate address','brand.registration.registeredAddress',{placeholder:'Legal registered address; this is separate from a physical branch record.'})}${textarea('Legal and company notes','brand.registration.legalNotes',{placeholder:'Additional business registration notes'})}<p class="note">A physical headquarters still belongs in Group 2 as a branch. This section records corporate identity and the legal address.</p>`;
+ out+=acc('brand','registration','Business & Brand Settings','Registration details and corporate information that does not belong to an outlet.',regBody);
+ const bc=arr(b.contacts);let contacts=bc.length?bc.map((c,i)=>`<div class="record">${recordHeader(c.label||'Brand contact',c.type||'', 'brand.contacts',i)}${field('Contact label',`brand.contacts.${i}.label`,'text',{placeholder:'Corporate enquiries'})}${selectField('Contact type',`brand.contacts.${i}.type`,['Mobile','Landline','WhatsApp','Email','Other'])}${field('Phone / email / contact detail',`brand.contacts.${i}.value`,'text',{placeholder:'Contact detail'})}${textarea('Notes',`brand.contacts.${i}.notes`,{placeholder:'When should this contact be used?'})}</div>`).join(''):empty('No shared contacts added','Add corporate contacts that branches can reuse.');
+ out+=acc('brand','contacts','Brand-wide Contacts','Shared corporate contacts that branches can inherit or override.',`${contacts}${addButton('add-brand-contact','Add brand contact')}`);
+ const bs=arr(b.socialLinks);let socials=bs.length?bs.map((s,i)=>`<div class="record">${recordHeader(s.label||s.platform||'Brand link','', 'brand.socialLinks',i)}${selectField('Platform',`brand.socialLinks.${i}.platform`,SOCIAL_PLATFORMS)}${field('Display label',`brand.socialLinks.${i}.label`,'text',{placeholder:'Official website'})}${field('Link URL',`brand.socialLinks.${i}.url`,'url',{placeholder:'https://...'})}${textarea('Notes',`brand.socialLinks.${i}.notes`,{placeholder:'Link purpose or instructions'})}</div>`).join(''):empty('No shared social links added','Add official brand channels for branches to inherit.');
+ out+=acc('brand','socials','Brand-wide Social Links','Official links for the whole brand, including website and social channels.',`${bs.length?'<p class="note">Branch-specific social links can be added separately. Shared links are defaults, not forced values.</p>':''}${socials}${addButton('add-brand-social','Add social link')}`);
+ const users=arr(b.users);let userHTML=users.length?users.map((u,i)=>`<div class="record">${recordHeader(u.name||'New restaurant user',u.role==='Custom'?(u.customRole||'Custom role'):(u.role||''),'brand.users',i)}${field('Full name / display name',`brand.users.${i}.name`,'text',{placeholder:'Name of authorised user'})}${field('Contact number or email',`brand.users.${i}.contact`,'text',{placeholder:'Contact details'})}${selectField('Relationship / user role',`brand.users.${i}.role`,USER_ROLES)}${u.role==='Custom'?field('Custom role title',`brand.users.${i}.customRole`,'text',{placeholder:'Enter custom role'}):''}${selectField('Access scope',`brand.users.${i}.scope`,[{value:'brand',label:'All brand and branch settings'},{value:'selected',label:'Selected branches only'}])}${u.scope==='selected'?choiceList('Branches this user can access',`brand.users.${i}.branchIds`,state.branches.map(br=>({id:br.id,label:br.name||'Untitled branch'}))):''}${choiceList('Permissions',`brand.users.${i}.permissions`,PERMISSION_OPTIONS)}<p class="mini-note">User interface visibility is not security enforcement. Connect these permissions to server-side access rules before using real staff or business data.</p></div>`).join(''):empty('No restaurant users assigned','Add owners, administrators, investors, board members or other authorised contacts.');
+ out+=acc('brand','users','Restaurant Users & Permissions','Authorised people, access scope and granular permissions for the business.',`${users}${addButton('add-user','Add restaurant user')}`);
+ const container=$('#brandAccordions');container.className='accordion-stack'+(state.uiOpen.brand?' has-open':'');container.innerHTML=out;
+}
+
+/* ---------- branch list / rail ---------- */
+function branchAddress(b){const l=b.location||{};return [l.building,l.unitNumber,l.streetNumber,l.streetName,l.area,l.city].filter(Boolean).join(', ')||'Address not added';}
+function contactsFor(b){const local=arr(b.contacts);if(!b.inheritBrandContacts)return local;const keys=new Set(local.map(c=>String(c.label||'').trim().toLowerCase()).filter(Boolean));const inherited=arr(state.brand.contacts).filter(c=>!keys.has(String(c.label||'').trim().toLowerCase()));return local.concat(inherited);}
+function socialsFor(b){const local=arr(b.socialLinks);if(!b.inheritBrandSocialLinks)return local;const localPlatforms=new Set(local.map(s=>String(s.platform||'').toLowerCase()));return local.concat(arr(state.brand.socialLinks).filter(s=>!localPlatforms.has(String(s.platform||'').toLowerCase())));}
+function inheritedContactsPreview(b){if(!b.inheritBrandContacts||!arr(state.brand.contacts).length)return '';const localKeys=new Set(arr(b.contacts).map(c=>String(c.label||'').trim().toLowerCase()));const inherited=arr(state.brand.contacts).filter(c=>!localKeys.has(String(c.label||'').trim().toLowerCase()));if(!inherited.length)return '';return `${sectionLabel('Inherited brand contacts')}<p class="mini-note">These shared contacts are available to this branch. Add a local contact with the same label to take precedence.</p>${inherited.map(c=>`<div class="inline-summary"><strong>${e(c.label||'Brand contact')}</strong><br>${e(c.type||'Contact')} · ${e(c.value||'No contact detail')}${c.notes?`<br>${e(c.notes)}`:''}</div>`).join('')}`;}
+function inheritedSocialsPreview(b){if(!b.inheritBrandSocialLinks||!arr(state.brand.socialLinks).length)return '';const localPlatforms=new Set(arr(b.socialLinks).map(s=>String(s.platform||'').toLowerCase()));const inherited=arr(state.brand.socialLinks).filter(s=>!localPlatforms.has(String(s.platform||'').toLowerCase()));if(!inherited.length)return '';return `${sectionLabel('Inherited brand links')}<p class="mini-note">A local link for the same platform overrides the inherited link in this branch profile.</p>${inherited.map(s=>`<div class="inline-summary"><strong>${e(s.label||s.platform||'Brand link')}</strong><br>${e(s.url||'No URL added')}${s.notes?`<br>${e(s.notes)}`:''}</div>`).join('')}`;}
+function branchTypeName(id){return (BRANCH_TYPES.find(t=>t.id===id)||{}).name||id||'Branch';}
+function thumbHTML(b,small=false){const url=safeImage(b.imageUrl);const cls=small?'rail-placeholder':'thumb';return `<div class="${cls}">${url?`<img src="${e(url)}" alt="${e(b.name||'Branch image')}">`:`<div class="thumb-fallback"></div>`}</div>`;}
+function renderBranchList(){const current=activeBranch();$('#branchCount').textContent=state.branches.length+' location'+(state.branches.length===1?'':'s');$('#listedToggle').classList.toggle('active',state.branchView==='listed');$('#railToggle').classList.toggle('active',state.branchView==='rail');$('#branchListView').classList.toggle('hide',state.branchView!=='listed');$('#branchRailView').classList.toggle('hide',state.branchView!=='rail');$('#branchListView').innerHTML=state.branches.length?`<div class="branch-list">${state.branches.map(b=>`<div class="branch-card ${b.id===current.id?'active':''}" role="group"><button type="button" class="branch-card-main" data-action="edit-branch" data-id="${e(b.id)}">${thumbHTML(b)}<span class="branch-card-copy"><span class="branch-card-name">${e(b.name||'New branch')}</span><span class="branch-card-address">${e(branchAddress(b))}</span><span class="branch-card-type">${e(branchTypeName(b.type))}</span></span></button></div>`).join('')}</div>`:empty('No branches yet','Add a headquarters, outlet, warehouse, kitchen or hospitality property.');}
+function renderRail(){const idx=state.branches.findIndex(b=>b.id===state.activeBranchId);const b=activeBranch();$('#branchRailView').innerHTML=`<div class="rail-header" id="railHeader"><div class="rail-nav"><button class="btn btn-secondary btn-small" type="button" data-action="branch-prev" ${idx<=0?'disabled':''}>Previous</button><div class="rail-current"><strong>${e(b.name||'New branch')}</strong><span>Branch ${Math.max(1,idx+1)} of ${state.branches.length} · Swipe to switch</span></div><button class="btn btn-secondary btn-small" type="button" data-action="branch-next" ${idx>=state.branches.length-1?'disabled':''}>Next</button></div></div><div id="branchEditor">${renderBranchEditor(b)}</div>`;}
+
+/* ---------- hours ---------- */
+function renderHours(b){
+  const weekly=arr(b.hours&&b.hours.weekly);
+  const custom=arr(b.hours.custom);
+  const openDay=state.uiOpen.hoursDay||'';
+  const openCustom=state.uiOpen.customHours||'';
+  const daysHTML=weekly.map((d,i)=>{
+    const key='d'+i;
+    const open=openDay===key;
+    const label=d.day||WEEKDAYS[i];
+    const st=d.closed?'complete':(d.open&&d.close?'complete':(d.open||d.close?'progress':'untouched'));
+    const summary=d.closed?'Closed':(d.open&&d.close?`${d.open} to ${d.close}`:'Not set');
+    return `<div class="mini-acc ${open?'open':''}" data-mini="hoursDay" data-mini-key="${key}" tabindex="-1">
+      <button type="button" class="mini-acc-head" data-action="toggle-hours-day" data-key="${key}">
+        <span class="t">${e(label)}</span>
+        <span class="mini-summary">${e(summary)}</span>
+        <span class="acc-state ${st}" aria-hidden="true"></span>
+      </button>
+      ${open?`<div class="mini-acc-body">
+        <label class="check-item" style="margin-bottom:10px"><input type="checkbox" data-bind="branch.hours.weekly.${i}.closed" ${d.closed?'checked':''}><span>Closed all day</span></label>
+        <div class="field-row two">
+          <label class="field"><span>Opening</span><input class="input" type="time" data-bind="branch.hours.weekly.${i}.open" value="${e(d.open||'')}"></label>
+          <label class="field"><span>Closing</span><input class="input" type="time" data-bind="branch.hours.weekly.${i}.close" value="${e(d.close||'')}"></label>
+        </div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+  const customHTML=custom.length?custom.map((h,i)=>{
+    const key='c'+i;
+    const open=openCustom===key;
+    const label=h.label||'Special schedule';
+    const summary=(h.startDate&&h.endDate)?`${h.startDate} to ${h.endDate}`:'Date range not set';
+    return `<div class="mini-acc ${open?'open':''}" data-mini="customHours" data-mini-key="${key}" tabindex="-1">
+      <button type="button" class="mini-acc-head" data-action="toggle-custom-hours" data-key="${key}">
+        <span class="t">${e(label)}</span>
+        <span class="mini-summary">${e(summary)}</span>
+        <span class="acc-state ${h.open||h.startDate?'progress':'untouched'}" aria-hidden="true"></span>
+      </button>
+      ${open?`<div class="mini-acc-body">
+        ${field('Label / reason',`branch.hours.custom.${i}.label`,'text',{placeholder:'Public holiday, festive hours, kitchen hours'})}
+        <div class="field-row two">${field('Start date',`branch.hours.custom.${i}.startDate`,'date')}${field('End date',`branch.hours.custom.${i}.endDate`,'date')}</div>
+        <div class="field-row two">${field('Opening time',`branch.hours.custom.${i}.open`,'time')}${field('Closing time',`branch.hours.custom.${i}.close`,'time')}</div>
+        ${textarea('Additional details',`branch.hours.custom.${i}.notes`,{placeholder:'Closed, reduced hours, kitchen closes earlier...'})}
+        ${itemRemove('branch.hours.custom',i)}
+      </div>`:''}
+    </div>`;
+  }).join(''):empty('No special schedules','Holiday and temporary hours can be added here.');
+  return `<p class="note">Use the weekly schedule for ordinary hours. Add custom date ranges for holidays, temporary changes or event-only hours.</p>${sectionLabel('Weekly hours')}<div class="mini-stack${openDay?' has-open':''}">${daysHTML}</div>${sectionLabel('Custom hours & exceptions')}${custom.length?`<div class="mini-stack${openCustom?' has-open':''}">${customHTML}</div>`:customHTML}${addButton('add-custom-hours','Add special schedule')}`;
+}
+
+/* ---------- amenities ---------- */
+function renderAmenities(b){
+  const groups=Object.entries(AMENITY_GROUPS);
+  const openGroup=state.uiOpen.amenityGroup||'';
+  const selected=arr(b.amenities);
+  const details=b.amenityDetails||{};
+  const stack=groups.map(([group,opts])=>{
+    const open=openGroup===group;
+    const anySel=opts.some(o=>selected.includes(o));
+    const checks=`<div class="check-list">${opts.map(name=>{
+      const on=selected.includes(name);
+      return `<div class="check-item amenity">
+        <label class="check-line"><input type="checkbox" data-choice="branch.amenities" data-choice-value="${e(name)}" ${on?'checked':''}><span>${e(name)}</span></label>
+        ${on?`<label class="amenity-detail"><span class="mini-label">Details / conditions</span><input class="input" type="text" data-bind="branch.amenityDetails.${e(name)}" value="${e(details[name]||'')}" placeholder="Add rules, availability or conditions for ${e(name)}"></label>`:''}
+      </div>`;
+    }).join('')}</div>`;
+    return `<div class="mini-acc ${open?'open':''}" data-mini="amenity" data-mini-key="${e(group)}" tabindex="-1">
+      <button type="button" class="mini-acc-head" data-action="toggle-amenity-group" data-key="${e(group)}">
+        <span class="t">${e(group)}</span>
+        <span class="mini-summary">${opts.filter(o=>selected.includes(o)).length} selected</span>
+        <span class="acc-state ${anySel?'complete':'untouched'}" aria-hidden="true"></span>
+      </button>
+      ${open?`<div class="mini-acc-body">${checks}</div>`:''}
+    </div>`;
+  }).join('');
+  return `<p class="note">Tap a category to open it. Select an amenity, then add any details, rules or conditions specific to this branch.</p><div class="mini-stack${openGroup?' has-open':''}">${stack}</div><div class="divider"></div>${sectionLabel('Custom amenities')}${field('Custom amenities (comma-separated)','branch.customAmenitiesText','text',{placeholder:'E.g. private tasting room, EV charging'})}<p class="mini-note">Custom amenities are stored as text and can be split into separate tags when the profile is published.</p>`;
+}
+
+/* ---------- partnerships ---------- */
+function renderPartnerships(b){
+  const ps=arr(b.paymentPartnerships);
+  const records=ps.length?ps.map((p,i)=>`<div class="record">${recordHeader(p.provider||'Payment partnership',p.promotionName||'','branch.paymentPartnerships',i)}${field('Bank / provider name',`branch.paymentPartnerships.${i}.provider`,'text',{placeholder:'e.g. Stanbic Bank'})}${field('Partnership name',`branch.paymentPartnerships.${i}.promotionName`,'text',{placeholder:'e.g. Blue Weekends'})}${textarea('Partnership overview',`branch.paymentPartnerships.${i}.notes`,{placeholder:'Describe the commercial partnership and its general conditions.'})}${field('Reference / campaign URL',`branch.paymentPartnerships.${i}.url`,'url',{placeholder:'https://...'})}</div>`).join(''):empty('No payment partnerships added','Record bank, card and wallet partnerships for this branch.');
+  return `<p class="note">Each branch can have its own bank, card or mobile-wallet partnerships. Exact offers and eligible payment methods are configured in the Payments section.</p>${records}${addButton('add-partnership','Add payment partnership')}`;
+}
+
+/* ---------- branch editor ---------- */
+function renderBranchEditor(b){if(!b)return empty('No active branch','Add a branch to start configuring its details.');let body='';
+ const ov=`${imagePicker('Branch thumbnail','branch.imageUrl','Branch thumbnail')}${field('Outlet / location name','branch.name','text',{placeholder:'e.g. Airport Junction',required:true})}${field('Internal branch code','branch.code','text',{placeholder:'e.g. GAB-002'})}${selectField('Primary branch type','branch.type',BRANCH_TYPES.map(t=>({value:t.id,label:t.name})),{required:true})}${selectField('Branch status','branch.status',[{value:'draft',label:'Draft'},{value:'active',label:'Active'},{value:'temporarily-closed',label:'Temporarily closed'},{value:'permanently-closed',label:'Permanently closed'}])}<p class="note">Choose one primary type, then enable every capability that applies. A hotel might serve food, host events and offer accommodation from this same location.</p>${choiceList('Location capabilities','branch.capabilities',CAPABILITIES)}`;
+ body+=acc('branch','overview','Branch Overview','Name, branch type, status, thumbnail and operational capabilities.',ov);
+ body+=acc('branch','location','Location','Address, map details and directions for this physical site.',`${selectField('Country','branch.location.country',['Botswana','Zimbabwe','South Africa','Namibia','Zambia','Other'])}${field('City / town','branch.location.city','text',{placeholder:'Start typing a town',hint:'Live search across Botswana towns'})}${field('Area / suburb','branch.location.area','text',{placeholder:'Start typing an area',hint:'Live search across Botswana areas'})}${field('Plot / stand number','branch.location.plotNumber','text',{placeholder:'Plot number'})}${field('Street number','branch.location.streetNumber','text',{placeholder:'Street number'})}${field('Street name','branch.location.streetName','text',{placeholder:'Street name'})}${field('Place (mall / shopping centre)','branch.location.building','text',{placeholder:'Start typing a mall or shopping centre',hint:'Live search of Botswana malls and shopping centres'})}${field('Shop / unit number','branch.location.unitNumber','text',{placeholder:'Shop number or unit'})}${field('Nearby landmark','branch.location.landmark','text',{placeholder:'Opposite / near'})}${field('Latitude','branch.location.latitude','number',{step:'any',placeholder:'Optional GPS coordinate'})}${field('Longitude','branch.location.longitude','number',{step:'any',placeholder:'Optional GPS coordinate'})}${textarea('Directions and access notes','branch.location.directions',{placeholder:'Entrance, parking level, delivery access or directions'})}`);
+ const cs=arr(b.contacts);const cont=cs.length?cs.map((c,i)=>`<div class="record">${recordHeader(c.label||'New contact',c.number||'Contact details not added','branch.contacts',i)}${field('Contact label / purpose',`branch.contacts.${i}.label`,'text',{placeholder:'Reservations, General enquiries, Events...'})}${selectField('Contact type',`branch.contacts.${i}.type`,['Mobile','Landline','WhatsApp','Email','Other'])}${field('Number / email / contact detail',`branch.contacts.${i}.number`,'text',{placeholder:'+267 ... or email'})}${textarea('Notes',`branch.contacts.${i}.notes`,{placeholder:'Best times to contact or what this number handles'})}</div>`).join(''):empty('No branch contacts','Add the main phone number, WhatsApp, reservations, management or event contacts.');
+ body+=acc('branch','contacts','Contact Numbers','Branch-specific contacts plus shared brand contacts available to this location.',`${checkItem('Inherit shared brand contacts','branch.inheritBrandContacts')}${inheritedContactsPreview(b)}${sectionLabel('Contacts for this branch')}${cont}${addButton('add-contact','Add contact number')}`);
+ const sl=arr(b.socialLinks);const socials=sl.length?sl.map((s,i)=>`<div class="record">${recordHeader(s.label||s.platform||'New social link',s.url||'URL not added','branch.socialLinks',i)}${selectField('Platform',`branch.socialLinks.${i}.platform`,SOCIAL_PLATFORMS)}${field('Display label',`branch.socialLinks.${i}.label`,'text',{placeholder:'e.g. Airport Junction Instagram'})}${field('Link URL',`branch.socialLinks.${i}.url`,'url',{placeholder:'https://...'})}${textarea('Notes',`branch.socialLinks.${i}.notes`,{placeholder:'Notes about this branch-specific channel'})}</div>`).join(''):empty('No branch social links','Add or override any brand-wide website or social channel.');
+ body+=acc('branch','socials','Social Links','Add, edit or remove links; each one has a platform, label, URL and notes.',`${checkItem('Inherit shared brand social links','branch.inheritBrandSocialLinks')}${inheritedSocialsPreview(b)}${sl.length?'<p class="note">A branch-specific link takes precedence over the shared link on the same platform.</p>':''}${socials}${addButton('add-social','Add social link')}`);
+ body+=acc('branch','hours','Operating Hours','Weekly opening and closing times plus custom hours and exceptions.',renderHours(b));
+ body+=acc('branch','amenities','Amenities','Facilities and services customers can expect at this location.',renderAmenities(b));
+ const menuHTML=`<p class="note">Use these lists for a lightweight preview and branch-level draft. The dedicated menu editors open with this branch ID.</p>${sectionLabel('Food menu')}${arr(b.foodMenu).length?arr(b.foodMenu).map((m,i)=>`<div class="record">${recordHeader(m.name||'Untitled food item',m.price!==''?'Price: '+e(m.price):'Price not added','branch.foodMenu',i)}${field('Item name',`branch.foodMenu.${i}.name`,'text',{placeholder:'e.g. Grilled chicken'})}${field('Price (Pula)',`branch.foodMenu.${i}.price`,'number',{min:0,step:'0.01',placeholder:'0.00'})}${textarea('Short description / menu notes',`branch.foodMenu.${i}.description`,{placeholder:'Ingredients, portion, dietary notes, availability'})}</div>`).join(''):empty('No food menu preview items','Items added here can be previewed while the full menu is managed separately.')}${addButton('add-food-item','Add food preview item')}<a class="btn btn-secondary btn-wide" style="margin-top:8px" href="${e(withBranchId('food-menu.html',b.id))}" target="_blank" rel="noopener">Open Food Menu Manager</a><div class="divider"></div>${sectionLabel('Beverage menu')}${arr(b.beverageMenu).length?arr(b.beverageMenu).map((m,i)=>`<div class="record">${recordHeader(m.name||'Untitled beverage',m.price!==''?'Price: '+e(m.price):'Price not added','branch.beverageMenu',i)}${field('Beverage name',`branch.beverageMenu.${i}.name`,'text',{placeholder:'e.g. Fresh lemonade'})}${field('Price (Pula)',`branch.beverageMenu.${i}.price`,'number',{min:0,step:'0.01',placeholder:'0.00'})}${textarea('Description / serving notes',`branch.beverageMenu.${i}.description`,{placeholder:'Size, ingredients, serving notes or availability'})}</div>`).join(''):empty('No beverage menu preview items','Add preview items or open the dedicated beverage menu editor.')}${addButton('add-beverage-item','Add beverage preview item')}<a class="btn btn-secondary btn-wide" style="margin-top:8px" href="${e(withBranchId('beverage-menu.html',b.id))}" target="_blank" rel="noopener">Open Beverage Menu Manager</a>${sectionLabel('Menu tags')}${choiceList('Cuisine, meal periods and dietary tags','branch.menuTags',MENU_TAGS)}`;
+ if(b.capabilities.includes('servesFood')||b.capabilities.includes('dineIn')||b.capabilities.includes('takeaway'))body+=acc('branch','food','Food & Drink','Menu editor links, local preview items and branch-specific menu tags.',menuHTML);
+ const venueHTML=`<p class="note">Describe the property as a whole, add a venue gallery, then create a named record for each distinct area. Event offerings can be linked to a specific space instead of using one capacity number for the entire property.</p>${textarea('Overall venue description','branch.venueDescription',{placeholder:'Describe the dining environment, atmosphere, layout and guest experience.'})}${galleryEditor('branch.venueGallery')}<div class="divider"></div>${sectionLabel('Venue spaces and capacity')}${arr(b.venueSpaces).length?arr(b.venueSpaces).map((s,i)=>`<div class="record">${recordHeader(s.name||'Venue space',s.type||'Space details','branch.venueSpaces',i)}${field('Space name',`branch.venueSpaces.${i}.name`,'text',{placeholder:'Main dining room, patio, function hall'})}${selectField('Space type',`branch.venueSpaces.${i}.type`,['Main dining room','Private dining room','Outdoor patio','Bar / lounge','Function hall','Meeting room','Poolside area','Garden','Other'])}<div class="field-row two">${field('Seated capacity',`branch.venueSpaces.${i}.seated`,'number',{min:0,step:1,placeholder:'0'})}${field('Standing capacity',`branch.venueSpaces.${i}.standing`,'number',{min:0,step:1,placeholder:'0'})}</div>${textarea('Space description',`branch.venueSpaces.${i}.description`,{placeholder:'Layout, atmosphere and suitable uses'})}${field('Features / setup options',`branch.venueSpaces.${i}.features`,'text',{placeholder:'Projector, dance floor, private entrance...'})}${galleryEditor(`branch.venueSpaces.${i}.photos`)}</div>`).join(''):empty('No venue spaces added','Add the dining room, patio, bar, private room or function hall.')} ${addButton('add-venue-space','Add venue space')}`;
+ if(b.capabilities.includes('dineIn')||b.capabilities.includes('hostsEvents')||b.capabilities.includes('accommodation'))body+=acc('branch','venue','Venue Details','Spaces, capacity, descriptions and venue gallery.',venueHTML);
+ if(b.capabilities.includes('hostsEvents')||b.capabilities.includes('accommodation')||b.capabilities.includes('dineIn')||b.capabilities.includes('servesFood'))body+=acc('branch','hosting','Hosting Services','Dining enquiries, event hosting and optional accommodation offers.',renderHosting(b));
+ body+=acc('branch','partnerships','Payment Partnerships','Bank, card and wallet partnerships specific to this branch.',renderPartnerships(b));
+ const payHTML=`<p class="note">Accepted payment methods describe what customers can use. Promotions describe the discounts, benefits, dates and terms attached to a bank, card or wallet partnership.</p>${sectionLabel('Accepted payment methods')}${choiceList('Select accepted methods','branch.paymentMethods',PAYMENT_METHODS)}${sectionLabel('Branch-specific payment promotions')}${arr(b.promotions).length?arr(b.promotions).map((p,i)=>`<div class="record">${recordHeader(p.name||'Payment promotion',p.provider||'Provider not added','branch.promotions',i)}${field('Bank / wallet / payment provider',`branch.promotions.${i}.provider`,'text',{placeholder:'e.g. Stanbic Bank, BTC Smega'})}${field('Promotion name',`branch.promotions.${i}.name`,'text',{placeholder:'e.g. Monday dining discount'})}${selectField('Promotion type',`branch.promotions.${i}.type`,PROMO_TYPES)}<div class="field-row two">${field('Discount / benefit value',`branch.promotions.${i}.value`,'number',{min:0,step:'0.01',placeholder:'e.g. 20'})}${selectField('Value unit',`branch.promotions.${i}.valueType`,['% discount','Pula amount','Free item','Benefit description'])}</div><div class="field-row two">${field('Start date',`branch.promotions.${i}.startDate`,'date')}${field('End date',`branch.promotions.${i}.endDate`,'date')}</div>${field('Recurring days or schedule',`branch.promotions.${i}.schedule`,'text',{placeholder:'Every Monday, weekends, seasonal dates'})}${field('Eligible card / wallet types',`branch.promotions.${i}.eligibleTypes`,'text',{placeholder:'Stanbic Visa credit and debit cards'})}<div class="field-row two">${field('Minimum spend (Pula)',`branch.promotions.${i}.minimumSpend`,'number',{min:0,step:'0.01',placeholder:'Optional'})}${field('Maximum discount (Pula)',`branch.promotions.${i}.maximumDiscount`,'number',{min:0,step:'0.01',placeholder:'Optional'})}</div>${textarea('Terms, redemption and exclusions',`branch.promotions.${i}.terms`,{placeholder:'Valid at this location only, excluded items, how the customer redeems the offer'})}${field('Promotion URL / reference',`branch.promotions.${i}.url`,'url',{placeholder:'Optional campaign link'})}</div>`).join(''):empty('No branch promotions added','Promotions can be recurring, seasonal, festival-based or limited to selected payment methods.')}${addButton('add-promotion','Add payment promotion')}`;
+ body+=acc('branch','payments','Payments','Accepted payment methods and detailed bank / mobile-money offers.',payHTML);
+ const staff=b.staffAssignments.map(id=>state.staffDirectory.find(s=>s.id===id)).filter(Boolean);let staffHTML=`<p class="note">A staff profile lives once in the staff directory. Add the same person to multiple branches without creating duplicate personal records. Salary is mandatory when creating a new staff profile.</p>`;staffHTML+=staff.length?staff.map(s=>{const i=state.staffDirectory.findIndex(x=>x.id===s.id);return `<div class="record"><div class="record-top"><div class="record-title">${e((s.firstName+' '+s.surname).trim()||'Staff member') }<div class="record-subtitle">${e(s.role==='Custom'?(s.customRole||'Custom role'):(s.role||'Role not set'))} · ${e(s.salaryFrequency||'Pay frequency not set')}</div></div><div class="record-actions">${itemRemove('branch.staffAssignments',b.staffAssignments.indexOf(s.id))}</div></div>${imagePicker('Profile photo',`staffDirectory.${i}.photoUrl`,((s.firstName||'')+' '+(s.surname||'')).trim()||'Staff photo')}${field('First name',`staffDirectory.${i}.firstName`,'text',{placeholder:'First name'})}${field('Surname',`staffDirectory.${i}.surname`,'text',{placeholder:'Surname'})}${selectField('Gender',`staffDirectory.${i}.gender`,['Male','Female'])}${field('Date of birth',`staffDirectory.${i}.dateOfBirth`,'date')}${field('ID number',`staffDirectory.${i}.idNumber`,'text',{placeholder:'Store securely; restrict access'})}${field('Mobile phone',`staffDirectory.${i}.phone`,'tel',{placeholder:'Mobile number'})}${field('WhatsApp number',`staffDirectory.${i}.whatsapp`,'tel',{placeholder:'WhatsApp, if different'})}${field('Landline',`staffDirectory.${i}.landline`,'tel',{placeholder:'Landline, if applicable'})}${field('Email',`staffDirectory.${i}.email`,'email',{placeholder:'Email address'})}${selectField('Role',`staffDirectory.${i}.role`,[...Object.entries(STAFF_ROLES).flatMap(([g,rs])=>rs.map(r=>({value:r,label:g+' · '+r}))),{value:'Custom',label:'Custom'}])}${s.role==='Custom'?field('Custom role title',`staffDirectory.${i}.customRole`,'text',{placeholder:'Enter role'}):''}${textarea('Role description',`staffDirectory.${i}.roleDescription`,{placeholder:'What is this role responsible for?'})}${textarea('Responsibilities',`staffDirectory.${i}.responsibilities`,{placeholder:'Core duties and responsibilities'})}${field('Salary amount (Pula)',`staffDirectory.${i}.salaryAmount`,'number',{min:0,step:'0.01',placeholder:'Mandatory for staff onboarding'})}${selectField('Salary frequency',`staffDirectory.${i}.salaryFrequency`,['Hourly','Daily','Weekly','Bi-weekly','Monthly'])}<div class="field-row two">${field('Employment start date',`staffDirectory.${i}.startDate`,'date')}${selectField('Employment type',`staffDirectory.${i}.employmentType`,['Permanent','Fixed-term','Casual','Part-time','Contractor','Seasonal'])}</div>${field('Direct supervisor',`staffDirectory.${i}.supervisor`,'text',{placeholder:'Supervisor name'})}${field('Emergency contact',`staffDirectory.${i}.emergencyContact`,'text',{placeholder:'Name and number'})}${field('Qualifications / certificates',`staffDirectory.${i}.qualifications`,'text',{placeholder:'Food safety, first aid, licences...'})}<p class="mini-note">Salary, ID and emergency-contact information should only be visible to authorised users in the production app.</p></div>`;}).join(''):empty('No staff assigned to this branch','Add a new staff profile or assign someone already in the staff directory.');
+ const available=state.staffDirectory.filter(s=>!b.staffAssignments.includes(s.id));if(available.length)staffHTML+=`<label class="field"><span>Assign an existing staff profile</span><select class="select" data-action="assign-existing-staff"><option value="">Select staff member</option>${available.map(s=>`<option value="${e(s.id)}">${e((s.firstName+' '+s.surname).trim()||'Unnamed staff')} · ${e(s.role==='Custom'?s.customRole:s.role)}</option>`).join('')}</select></label>`;
+ staffHTML+=`<button class="btn btn-primary btn-wide" type="button" data-action="add-staff" style="margin-top:8px">Add new staff member</button>`;
+ body+=acc('branch','staff','Service Staff','Staff directory, hard-coded role choices, employment details and mandatory salary frequency.',staffHTML);
+ return `<div class="branch-editor-head"><div class="top">${thumbHTML(b)}<div style="flex:1;min-width:0"><h3>${e(b.name||'New branch')}</h3><p>${e(branchAddress(b))}</p><div class="meta"><span class="badge orange">${e(branchTypeName(b.type))}</span><span class="badge">${e(b.status||'draft')}</span><span class="badge">${b.capabilities.length} capabilities</span></div></div></div></div><div class="accordion-stack${state.uiOpen.branch?' has-open':''}">${body}</div>`;}
+function withBranchId(url,id){let u=String(url||'').trim()||'#';if(u==='#')return u;return u+(u.includes('?')?'&':'?')+'branchId='+encodeURIComponent(id);}
+function galleryEditor(path){const list=arr(pathGet(path));return `${sectionLabel('Gallery')}${list.length?`<div class="gallery-list">${list.map((p,i)=>`<div class="gallery-record"><div class="image-preview" data-image-preview="${e(path+'.'+i+'.url')}">${imagePreview(p.url,p.label||'Gallery photo')}</div><div>${recordHeader(p.label||'Gallery photo','',path,i)}${field('Photo label',`${path}.${i}.label`,'text',{placeholder:'e.g. Function room setup'})}${field('Image URL',`${path}.${i}.url`,'url',{placeholder:'https://...'})}<label class="file-label">Upload image<input type="file" accept="image/*" data-upload="${e(path+'.'+i+'.url')}"></label>${textarea('Image notes',`${path}.${i}.notes`,{placeholder:'What should this photo show?'})}</div></div>`).join('')}</div>`:empty('No gallery photos','Add a labelled image and notes for context.')}${addButton('add-photo','Add gallery photo',`data-path="${e(path)}"`)}`;}
+function renderEventTypeOptions(selected){const tree=window.EATOUTS_EVENT_TAXONOMY||{};let out='<option value="">Select event type</option>';Object.values(tree).forEach(cat=>(cat.subCategories||[]).forEach(sub=>{const opts=(sub.events||[]).map(ev=>`<option value="${e(ev.id)}" ${ev.id===selected?'selected':''}>${e(ev.name)}</option>`).join('');if(opts)out+=`<optgroup label="${e(cat.name+' · '+sub.name)}">${opts}</optgroup>`;}));return out;}
+function renderHosting(b){let out='';const cap=window.EOHosting?EOHosting.summarize(arr(b.venueSpaces).map(s=>({seated:s.seated,standing:s.standing}))):null;if(cap&&(cap.seated||cap.standing)){out+=`<div class="inline-summary"><strong>Venue capacity:</strong> ${e(cap.seated||0)} seated \u00b7 ${e(cap.standing||0)} standing \u00b7 up to ${e(cap.maxGuests||0)} guests</div>`;}if(b.capabilities.includes('dineIn')||b.capabilities.includes('servesFood')){const d=b.hosting.diningReservations||{};out+=`${sectionLabel('Dining reservations & guest requests')}<div class="record"><p class="note">This is a direct enquiry setup, not a full live table-inventory engine. Keep table requests separate from event hosting and room enquiries.</p>${checkItem('Accept dining reservation enquiries','branch.hosting.diningReservations.enabled')}${field('Minimum guests','branch.hosting.diningReservations.minimumGuests','number',{min:1,step:1})}${field('Maximum guests','branch.hosting.diningReservations.maximumGuests','number',{min:1,step:1})}${checkItem('Accept same-day requests','branch.hosting.diningReservations.sameDay')}${checkItem('Accept advance bookings','branch.hosting.diningReservations.advanceBooking')}${field('Preferred reservation contact','branch.hosting.diningReservations.primaryContactId','text',{placeholder:'Contact ID or add reservation contact below'})}${textarea('Reservation notes / cancellation terms','branch.hosting.diningReservations.notes',{placeholder:'Notice required, large-party requests, cancellation policy'})}${arr(d.contactIds).map((id,i)=>selectField('Reservation contact '+(i+1),`branch.hosting.diningReservations.contactIds.${i}`,contactsFor(b).map(c=>({value:c.id,label:(c.label||'Contact')+' — '+(c.number||c.value||'no number')})),{placeholder:'Select branch contact'})).join('')}${addButton('add-dining-contact','Add reservation contact')}</div>`;}
+ if(b.capabilities.includes('hostsEvents')){out+=`${sectionLabel('Event Hosting & Private Functions')}<p class="note">Event types come from the shared <strong>event_types.js</strong> taxonomy. Select a type, then configure capacity, availability, rules, services, photos, pricing and contact routing for that type.</p>`;out+=arr(b.hosting.events).length?arr(b.hosting.events).map((ev,i)=>`<div class="record"><div class="record-top"><div class="record-title">${e(ev.eventName||'Event offering') }<div class="record-subtitle">${e(ev.categoryName||'Choose an event type')}</div></div><div class="record-actions">${itemRemove('branch.hosting.events',i)}</div></div><label class="field"><span>Event category & type</span><select class="select" data-event-type-select="${i}">${renderEventTypeOptions(ev.eventTypeId)}</select></label>${field('Offering display name (optional)',`branch.hosting.events.${i}.displayName`,'text',{placeholder:ev.eventName||'Custom offering name'})}${field('Days available','branch.hosting.events.'+i+'.availabilityDays','text',{placeholder:'Friday, Saturday, public holidays'})}<div class="field-row two">${field('Available from',`branch.hosting.events.${i}.startTime`,'time')}${field('Available until',`branch.hosting.events.${i}.endTime`,'time')}</div>${textarea('Availability notes',`branch.hosting.events.${i}.availabilityNotes`,{placeholder:'Seasonal dates, advance notice, minimum event duration'})}${selectField('Suitable venue space',`branch.hosting.events.${i}.spaceId`,[{value:'',label:'Any suitable space'},...b.venueSpaces.map(s=>({value:s.id,label:s.name||s.type||'Venue space'}))])}<div class="field-row two">${field('Minimum guests',`branch.hosting.events.${i}.minCapacity`,'number',{min:0,step:1})}${field('Maximum guests',`branch.hosting.events.${i}.maxCapacity`,'number',{min:0,step:1})}</div>${textarea('Venue rules',`branch.hosting.events.${i}.rules`,{placeholder:'Noise limits, outside food, decorations, alcohol rules, setup and cleanup...'})}${sectionLabel('Price and booking terms')}${selectField('Pricing type',`branch.hosting.events.${i}.pricingType`,['Quote on request','Fixed venue fee','Per person','Minimum spend','Package price','Hourly hire'])}<div class="field-row two">${field('Price / starting amount',`branch.hosting.events.${i}.price`,'number',{min:0,step:'0.01'})}${selectField('Currency',`branch.hosting.events.${i}.currency`,CURRENCIES)}</div><div class="field-row two">${field('Minimum spend (optional)',`branch.hosting.events.${i}.minimumSpend`,'number',{min:0,step:'0.01'})}${field('Deposit amount (optional)',`branch.hosting.events.${i}.deposit`,'number',{min:0,step:'0.01'})}</div>${field('Advance notice required',`branch.hosting.events.${i}.advanceNotice`,'text',{placeholder:'e.g. 7 days'})}${textarea('Cancellation / booking terms',`branch.hosting.events.${i}.cancellationTerms`,{placeholder:'Deposit policy, cancellation window, overtime...'})}${sectionLabel('Available services')}${arr(ev.availableServices).length?arr(ev.availableServices).map((s,j)=>`<div class="record">${recordHeader(s.name||'Event service',s.category||'Service','branch.hosting.events.'+i+'.availableServices',j)}${selectField('Service category',`branch.hosting.events.${i}.availableServices.${j}.category`,['Staffing','Security','Furniture','Food & drink','Audio-visual','Decor & entertainment','Safety & facilities','Transport','Accommodation','Other'])}${field('Service / item name',`branch.hosting.events.${i}.availableServices.${j}.name`,'text',{placeholder:'e.g. 2 security guards, 80 chairs, microphone'})}${selectField('Availability / pricing',`branch.hosting.events.${i}.availableServices.${j}.availability`,['Included','Extra charge','Third-party supplier','On request'])}${field('Extra charge (optional)',`branch.hosting.events.${i}.availableServices.${j}.price`,'number',{min:0,step:'0.01'})}${textarea('Service notes',`branch.hosting.events.${i}.availableServices.${j}.notes`,{placeholder:'Quantity, conditions, supplier or staffing details'})}</div>`).join(''):empty('No additional services configured','Add staff, security, furniture, catering, AV equipment or other event services.')}${addButton('add-event-service','Add available service',`data-index="${i}"`)}${sectionLabel('Photo gallery')}${galleryEditor(`branch.hosting.events.${i}.photos`)}${sectionLabel('Hosting contacts')}${arr(ev.contactIds).length?arr(ev.contactIds).map((id,j)=>`<div class="record">${recordHeader('Event contact '+(j+1),'Linked to branch contact directory','branch.hosting.events.'+i+'.contactIds',j)}${selectField('Contact',`branch.hosting.events.${i}.contactIds.${j}`,contactsFor(b).map(c=>({value:c.id,label:(c.label||'Contact')+' — '+(c.number||c.value||'no number')})),{placeholder:'Choose branch contact'})}</div>`).join(''):empty('No event contacts linked','Add a branch contact here, then select it for the event.')}${addButton('add-event-contact','Add a contact for this event',`data-index="${i}"`)}</div>`).join(''):empty('No event types selected','Add only the events this venue can genuinely host.');out+=addButton('add-event','Add event offering');}
+ if(b.capabilities.includes('accommodation')){out+=`${sectionLabel('Accommodation & Stay Offers')}<p class="note">Add room categories and one or more pricing options per category. Prices can be hourly, for a chosen duration, per night, weekend, week, month, per stay, or quote on request. This describes the offer; it does not promise live availability.</p>`;out+=arr(b.hosting.roomCategories).length?arr(b.hosting.roomCategories).map((r,i)=>`<div class="record">${recordHeader(r.name||'Room category',r.roomType||'Accommodation','branch.hosting.roomCategories',i)}${imagePicker('Room category cover',`branch.hosting.roomCategories.${i}.coverUrl`,r.name||'Room photo')}${field('Room category name',`branch.hosting.roomCategories.${i}.name`,'text',{placeholder:'e.g. Executive Suite',required:true})}${selectField('Room type',`branch.hosting.roomCategories.${i}.roomType`,['Standard room','Deluxe room','Executive suite','Family room','Cottage','Chalet','Villa','Dormitory / shared room','Serviced apartment','Other'])}${textarea('Description',`branch.hosting.roomCategories.${i}.description`,{placeholder:'Room features and what makes this category distinct'})}<div class="field-row two">${field('Units in this category',`branch.hosting.roomCategories.${i}.unitsAvailable`,'number',{min:0,step:1,placeholder:'e.g. 8'})}${field('Maximum guests per unit',`branch.hosting.roomCategories.${i}.maxOccupancy`,'number',{min:1,step:1,placeholder:'2'})}</div>${field('Bed configuration',`branch.hosting.roomCategories.${i}.bedConfiguration`,'text',{placeholder:'1 king bed, twin beds, family layout...'})}${field('Room amenities (comma-separated)',`branch.hosting.roomCategories.${i}.amenitiesText`,'text',{placeholder:'Wi-Fi, ensuite, air conditioning, balcony...'})}<div class="field-row two">${field('Check-in from',`branch.hosting.roomCategories.${i}.checkInTime`,'time')}${field('Check-out by',`branch.hosting.roomCategories.${i}.checkOutTime`,'time')}</div>${field('Minimum stay (nights)',`branch.hosting.roomCategories.${i}.minimumStay`,'number',{min:1,step:1})}${textarea('Cancellation / room conditions',`branch.hosting.roomCategories.${i}.cancellationTerms`,{placeholder:'Deposit, cancellation window, children or extra guest policy'})}${sectionLabel('Pricing options')}${arr(r.rates).length?arr(r.rates).map((rate,j)=>`<div class="record">${recordHeader(rate.basis==='quote'?'Quote on request':(RATE_BASES.find(x=>x.id===rate.basis)||{}).label||'Room rate',rate.amount!==''?e(rate.currency||'BWP (Pula)')+' '+e(rate.amount):'No amount entered','branch.hosting.roomCategories.'+i+'.rates',j)}${selectField('Charge basis',`branch.hosting.roomCategories.${i}.rates.${j}.basis`,RATE_BASES.map(x=>({value:x.id,label:x.label})))}${rate.basis==='duration'?`<div class="field-row two">${field('Duration amount',`branch.hosting.roomCategories.${i}.rates.${j}.durationValue`,'number',{min:1,step:1,placeholder:'e.g. 3'})}${selectField('Duration unit',`branch.hosting.roomCategories.${i}.rates.${j}.durationUnit`,DURATION_UNITS)}</div>`:''}${rate.basis==='weekend'?field('Weekend definition / duration',`branch.hosting.roomCategories.${i}.rates.${j}.durationValue`,'text',{placeholder:'e.g. Friday 14:00 to Sunday 10:00'}):''}<div class="field-row two">${field('Price amount',`branch.hosting.roomCategories.${i}.rates.${j}.amount`,'number',{min:0,step:'0.01',placeholder:rate.basis==='quote'?'Optional':'Enter price'})}${selectField('Currency',`branch.hosting.roomCategories.${i}.rates.${j}.currency`,CURRENCIES)}</div>${field('Minimum billable units',`branch.hosting.roomCategories.${i}.rates.${j}.minimumUnits`,'number',{min:1,step:1,placeholder:'e.g. 2 hours'})}<div class="field-row two">${field('Valid from (optional)',`branch.hosting.roomCategories.${i}.rates.${j}.validFrom`,'date')}${field('Valid until (optional)',`branch.hosting.roomCategories.${i}.rates.${j}.validTo`,'date')}</div>${textarea('Rate notes and conditions',`branch.hosting.roomCategories.${i}.rates.${j}.notes`,{placeholder:'Peak rates, included meals, late checkout, public-holiday price...'})}<div class="inline-summary" data-rate-summary="branch.hosting.roomCategories.${i}.rates.${j}"><strong>Rate preview:</strong> ${e(rateSummary(rate))}</div></div>`).join(''):empty('No rate added','Add an hourly rate, a night rate, a weekend package, or any combination.')}${addButton('add-room-rate','Add another pricing option',`data-index="${i}"`)}${sectionLabel('Room gallery')}${galleryEditor(`branch.hosting.roomCategories.${i}.photos`)}${field('Additional room notes',`branch.hosting.roomCategories.${i}.notes`,'text',{placeholder:'Details for enquiries'})}</div>`).join(''):empty('No room categories added','Add a room type such as Standard Room, Executive Suite or Cottage.');out+=addButton('add-room','Add room category');out+=`${sectionLabel('Stay & Dine Packages')}`;out+=arr(b.hosting.stayPackages).length?arr(b.hosting.stayPackages).map((p,i)=>`<div class="record">${recordHeader(p.name||'Stay package',p.price!==''?(p.currency||'BWP (Pula)')+' '+p.price:'Price not set','branch.hosting.stayPackages',i)}${field('Package name',`branch.hosting.stayPackages.${i}.name`,'text',{placeholder:'e.g. Weekend stay with dinner for two'})}${textarea('Package description',`branch.hosting.stayPackages.${i}.description`,{placeholder:'What is included in the stay and dining offer?'})}${selectField('Package duration / price basis',`branch.hosting.stayPackages.${i}.basis`,RATE_BASES.map(x=>({value:x.id,label:x.label})))}<div class="field-row two">${field('Package price',`branch.hosting.stayPackages.${i}.price`,'number',{min:0,step:'0.01'})}${selectField('Currency',`branch.hosting.stayPackages.${i}.currency`,CURRENCIES)}</div>${field('Duration / validity',`branch.hosting.stayPackages.${i}.duration`,'text',{placeholder:'e.g. 2 nights; Friday–Sunday'})}${field('Food and drink included',`branch.hosting.stayPackages.${i}.includedDining`,'text',{placeholder:'Breakfast for two, dinner, tasting... '})}${selectField('Related room category',`branch.hosting.stayPackages.${i}.roomCategoryId`,[{value:'',label:'Any eligible room'},...b.hosting.roomCategories.map(x=>({value:x.id,label:x.name||'Room category'}))])}${textarea('Terms / booking notes',`branch.hosting.stayPackages.${i}.notes`,{placeholder:'Enquiry-only, blackout dates, deposit or other conditions'})}</div>`).join(''):empty('No stay packages added','Optional room offers can be bundled with meals or experiences.');out+=addButton('add-stay-package','Add stay-and-dine package');}
+ return out;}
+function rateSummary(r){if(r.basis==='quote')return 'Price provided on request';const amount=r.amount!==''?`${r.currency||'BWP (Pula)'} ${r.amount}`:'price not yet entered';const base=(RATE_BASES.find(x=>x.id===r.basis)||{}).label||'Rate';if(r.basis==='duration')return `${amount} per ${r.durationValue||1} ${r.durationUnit||'hours'}`;if(r.basis==='weekend'&&r.durationValue)return `${amount} · ${r.durationValue}`;return `${amount} · ${base.toLowerCase()}`;}
+
+/* ---------- progress / render ---------- */
+function updateProgress(){const brand=state.brand.identity;const branch=activeBranch();const checks=[!!brand.name,!!brand.legalName,!!brand.description,!!brand.logoUrl,arr(brand.categories).length>0,!!state.brand.registration.registrationNumber,arr(state.brand.contacts).length>0,arr(state.brand.users).length>0,state.branches.length>0,!!branch.name,!!branch.location.city,!!branch.location.area,arr(branch.contacts).length>0,arr(branch.hours.weekly).some(h=>h.open&&h.close),branch.capabilities.includes('servesFood')?(arr(branch.foodMenu).length>0||arr(branch.menuTags).length>0):true,branch.capabilities.includes('hostsEvents')?arr(branch.hosting.events).length>0:true,branch.capabilities.includes('accommodation')?arr(branch.hosting.roomCategories).length>0:true,arr(branch.paymentMethods).length>0,arr(branch.staffAssignments).length>0];const pct=Math.round(checks.filter(Boolean).length/checks.length*100);$('#progressText').textContent=pct+'% complete';$('#progressFill').style.width=pct+'%';}
+function renderApp(preserve=true){const sc=$('#scroll');const top=preserve&&sc?sc.scrollTop:0;renderBrand();renderBranchList();renderRail();updateProgress();if(sc)sc.scrollTop=top;}
+function setChoice(path,val,checked){let v=arr(pathGet(path)).slice();if(checked&&!v.includes(val))v.push(val);if(!checked)v=v.filter(x=>x!==val);pathSet(path,v);saveState();updateProgress();}
+function refreshLiveLabels(){const b=activeBranch();$$('[data-live="branch.name"]').forEach(n=>n.textContent=b.name||'New branch');$$('[data-live="brand.identity.name"]').forEach(n=>n.textContent=state.brand.identity.name||'Restaurant brand');$$('[data-rate-summary]').forEach(n=>{const rate=pathGet(n.dataset.rateSummary);n.innerHTML='<strong>Rate preview:</strong> '+e(rateSummary(rate||{}));});$$('.acc[data-acc-group]').forEach(sec=>{const g=sec.dataset.accGroup,k=sec.dataset.accKey;if(!g||!k)return;const st=accState(g,k);const dot=sec.querySelector(':scope > .acc-head > .acc-state');if(dot)dot.className='acc-state '+st;});updateProgress();}
+function addArray(path,item,group,key){let a=collectionGet(path);if(!a){pathSet(path,[]);a=collectionGet(path);}a.push(item);if(group&&key)state.uiOpen[group]=key;saveState();renderApp(true);}
+function removeArrayItem(path,index,group,key){const a=collectionGet(path);if(!a||index<0||index>=a.length)return;a.splice(index,1);if(group&&key)state.uiOpen[group]=key;saveState();renderApp(true);toast('Item removed');}
+function showModal(title,body,submitLabel,submitFn){lastFocus=document.activeElement;$('#modalTitle').textContent=title;$('#modalBody').innerHTML=body;$('#modalFooter').innerHTML=`<button type="button" class="btn btn-secondary" data-action="close-modal">Cancel</button><button type="button" class="btn btn-primary" id="modalSubmit">${e(submitLabel||'Add')}</button>`;$('#modalBackdrop').classList.remove('hide');modalSubmit=submitFn;$('#modalSubmit').onclick=()=>{if(typeof modalSubmit==='function')modalSubmit();};}
+function closeModal(){ $('#modalBackdrop').classList.add('hide');$('#modalBody').innerHTML='';$('#modalFooter').innerHTML='';modalSubmit=null;pendingStaffPhoto='';if(lastFocus&&typeof lastFocus.focus==='function')lastFocus.focus();}
+function modalField(id,label,type='text',opts={}){return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><input class="input" id="${e(id)}" type="${e(type)}" ${opts.required?'required':''} ${opts.min!==undefined?'min="'+e(opts.min)+'"':''} ${opts.step!==undefined?'step="'+e(opts.step)+'"':''} placeholder="${e(opts.placeholder||'')}"></label>`;}
+function modalSelect(id,label,options,required=true){return `<label class="field"><span>${e(label)}${required?' *':''}</span><select id="${e(id)}" class="select" ${required?'required':''}><option value="">Select an option</option>${options.map(o=>typeof o==='string'?`<option value="${e(o)}">${e(o)}</option>`:`<option value="${e(o.value)}">${e(o.label)}</option>`).join('')}</select></label>`;}
+function addBranchModal(){showModal('Add a branch',`${modalField('newBranchName','Branch / location name','text',{placeholder:'e.g. Airport Junction'})}${modalField('newBranchCode','Internal branch code','text',{placeholder:'Optional reference'})}${modalSelect('newBranchType','Primary branch type',BRANCH_TYPES.map(t=>({value:t.id,label:t.name}))) }<p class="note">After creation, you can edit the address, capabilities, contacts, hours, menus, payments and services.</p>`,'Create branch',()=>{const name=$('#newBranchName').value.trim(),type=$('#newBranchType').value,code=$('#newBranchCode').value.trim();if(!name){toast('Enter a branch name.');$('#newBranchName').focus();return;}if(!type){toast('Choose a branch type.');return;}const br=blankBranch(name,type);br.code=code;state.branches.push(br);state.activeBranchId=br.id;state.branchView='rail';state.uiOpen.branch='';state.uiOpen.hoursDay='';state.uiOpen.customHours='';state.uiOpen.amenityGroup='';saveState();closeModal();renderApp(true);toast('Branch created.');});}
+function addStaffModal(){const roles=[...Object.entries(STAFF_ROLES).flatMap(([g,rs])=>rs.map(r=>({value:r,label:g+' · '+r}))),{value:'Custom',label:'Custom'}];pendingStaffPhoto='';showModal('Add staff member',`<div class="image-picker"><div class="image-preview" id="staffPhotoPreview"><span>No image</span></div><div class="image-picker-copy"><div style="font-size:12.5px;font-weight:850;margin-bottom:7px">Profile photo</div><label class="file-label">Choose image<input type="file" accept="image/*" id="staffPhoto"></label><div class="mini-note">Optional. A clear headshot works best.</div></div></div>${modalField('staffFirstName','First name','text',{required:true})}${modalField('staffSurname','Surname','text',{required:true})}${modalSelect('staffGender','Gender',['Male','Female'])}${modalField('staffDOB','Date of birth','date')}${modalField('staffID','ID number','text',{placeholder:'ID number'})}${modalField('staffPhone','Mobile phone','tel',{required:true,placeholder:'+267 ...'})}${modalField('staffWhatsApp','WhatsApp number','tel',{placeholder:'Optional if different'})}${modalField('staffLandline','Landline','tel',{placeholder:'Optional'})}${modalField('staffEmail','Email','email',{placeholder:'Optional'})}${modalSelect('staffRole','Role',roles)}${modalField('staffCustomRole','Custom role title','text',{placeholder:'Only if Role is Custom'})}${modalField('staffSalary','Salary amount (Pula)','number',{required:true,min:0,step:'0.01',placeholder:'e.g. 4500'})}${modalSelect('staffPayFrequency','Salary frequency',['Hourly','Daily','Weekly','Bi-weekly','Monthly'])}${modalField('staffStart','Employment start date','date')}${modalSelect('staffEmployment','Employment type',['Permanent','Fixed-term','Casual','Part-time','Contractor','Seasonal'],false)}${modalField('staffSupervisor','Direct supervisor','text',{placeholder:'Optional'})}${modalField('staffEmergency','Emergency contact','text',{placeholder:'Name and phone'})}<label class="field"><span>Role description</span><textarea id="staffRoleDesc" class="textarea" placeholder="Describe the purpose of this role."></textarea></label><label class="field"><span>Responsibilities</span><textarea id="staffResponsibilities" class="textarea" placeholder="Core duties and responsibilities."></textarea></label>${modalField('staffQualifications','Qualifications / certificates','text',{placeholder:'Food safety, first aid, licences...'})}<p class="note">Salary amount and pay frequency are required for a new staff member. Sensitive data should be protected by role-based server permissions in production.</p>`,'Add staff member',()=>{const name=$('#staffFirstName').value.trim(),surname=$('#staffSurname').value.trim(),role=$('#staffRole').value,salary=$('#staffSalary').value,frequency=$('#staffPayFrequency').value,phone=$('#staffPhone').value.trim();if(!name||!surname||!role||salary===''||Number(salary)<0||!frequency||!phone){toast('Complete name, role, contact and required salary details.');return;}if(role==='Custom'&&!$('#staffCustomRole').value.trim()){toast('Enter the custom role title.');return;}const s={id:uid('staff'),firstName:name,surname,gender:$('#staffGender').value||'Male',dateOfBirth:$('#staffDOB').value,idNumber:$('#staffID').value,phone,whatsapp:$('#staffWhatsApp').value,landline:$('#staffLandline').value,email:$('#staffEmail').value,role,customRole:$('#staffCustomRole').value.trim(),salaryAmount:Number(salary),salaryFrequency:frequency,startDate:$('#staffStart').value,employmentType:$('#staffEmployment').value,supervisor:$('#staffSupervisor').value,emergencyContact:$('#staffEmergency').value,roleDescription:$('#staffRoleDesc').value,responsibilities:$('#staffResponsibilities').value,qualifications:$('#staffQualifications').value,photoUrl:pendingStaffPhoto||''};state.staffDirectory.push(s);activeBranch().staffAssignments.push(s.id);state.uiOpen.branch='staff';saveState();closeModal();renderApp(true);toast('Staff member added to this branch.');});setTimeout(()=>{const inp=$('#staffPhoto');if(inp)inp.addEventListener('change',ev=>{const f=ev.target.files&&ev.target.files[0];if(!f)return;if(!f.type.startsWith('image/')){toast('Choose an image file.');return;}compressImage(f,d=>{pendingStaffPhoto=d;const p=$('#staffPhotoPreview');if(p)p.innerHTML=`<img src="${d}" alt="Profile photo">`;});});},0);}
+function addUserModal(){const staffOpts=state.staffDirectory.map(s=>({value:s.id,label:(s.firstName+' '+s.surname).trim()+' · '+(s.role==='Custom'?s.customRole:s.role)}));showModal('Add restaurant user',`${modalSelect('userSource','Choose a contact source',[{value:'staff',label:'Existing staff profile'},{value:'new',label:'New contact / external stakeholder'}])}<div id="userStaffWrap">${modalSelect('userStaffId','Staff profile',staffOpts,false)}</div><div id="userNewWrap" class="hide">${modalField('userName','Full name','text')}${modalField('userContact','Mobile / email','text',{placeholder:'Contact detail'})}</div>${modalSelect('userRole','Access role',USER_ROLES)}<div id="userCustomWrap" class="hide">${modalField('userCustomRole','Custom role title','text')}</div>${modalSelect('userScope','Access scope',[{value:'brand',label:'Entire brand'},{value:'selected',label:'Selected branches only'}])}<div id="userBranchesWrap" class="hide"><div class="section-label">Allowed branches</div><div class="check-list">${state.branches.map(b=>`<label class="check-item"><input type="checkbox" name="userBranch" value="${e(b.id)}"><span>${e(b.name||'Untitled branch')}</span></label>`).join('')}</div></div><div class="section-label">Permissions</div><div class="check-list">${PERMISSION_OPTIONS.map(p=>`<label class="check-item"><input type="checkbox" name="userPermission" value="${e(p.id)}"><span>${e(p.label)}</span></label>`).join('')}</div>`, 'Add authorised user',()=>{const source=$('#userSource').value,role=$('#userRole').value,scope=$('#userScope').value;let name='',contact='',staffId=null;if(source==='staff'){staffId=$('#userStaffId').value;const s=state.staffDirectory.find(x=>x.id===staffId);if(!s){toast('Select a staff profile.');return;}name=(s.firstName+' '+s.surname).trim();contact=s.phone||s.email||'';}else{name=$('#userName').value.trim();contact=$('#userContact').value.trim();if(!name){toast('Enter the contact name.');return;}}if(!role){toast('Choose an access role.');return;}if(role==='Custom'&&!$('#userCustomRole').value.trim()){toast('Enter the custom role title.');return;}const branchIds=$$('input[name="userBranch"]:checked',$('#modalBody')).map(n=>n.value);if(scope==='selected'&&!branchIds.length){toast('Select at least one branch.');return;}const permissions=$$('input[name="userPermission"]:checked',$('#modalBody')).map(n=>n.value);state.brand.users.push({id:uid('user'),source,staffId,name,contact,role,customRole:$('#userCustomRole').value.trim(),scope,branchIds:scope==='brand'?state.branches.map(b=>b.id):branchIds,permissions});state.uiOpen.brand='users';saveState();closeModal();renderApp(true);toast('Restaurant user added.');});const sync=()=>{const source=$('#userSource').value,role=$('#userRole').value,scope=$('#userScope').value;$('#userStaffWrap').classList.toggle('hide',source!=='staff');$('#userNewWrap').classList.toggle('hide',source!=='new');$('#userCustomWrap').classList.toggle('hide',role!=='Custom');$('#userBranchesWrap').classList.toggle('hide',scope!=='selected');};setTimeout(()=>{['userSource','userRole','userScope'].forEach(id=>$('#'+id)?.addEventListener('change',sync));sync();},0);}
+function addCustomHours(){addArray('branch.hours.custom',{id:uid('hours'),label:'Special hours',startDate:'',endDate:'',open:'',close:'',notes:''},'branch','hours');}
+function handleAction(el){const a=el.dataset.action;switch(a){
+ case 'toggle-acc':{const g=el.dataset.group,k=el.dataset.key;state.uiOpen[g]=state.uiOpen[g]===k?'':k;saveState();renderApp(true);if(state.uiOpen[g]===k)focusAccordion(`.acc[data-acc-group="${g}"][data-acc-key="${k}"]`);break;}
+ case 'set-view':state.branchView=el.dataset.view;renderApp(true);saveState();break;
+ case 'add-branch':addBranchModal();break;
+ case 'edit-branch':state.activeBranchId=el.dataset.id;state.branchView='rail';state.uiOpen.branch='';state.uiOpen.hoursDay='';state.uiOpen.customHours='';state.uiOpen.amenityGroup='';renderApp(true);saveState();break;
+ case 'select-rail-branch':state.activeBranchId=el.dataset.id;state.uiOpen.branch='';state.uiOpen.hoursDay='';state.uiOpen.customHours='';state.uiOpen.amenityGroup='';renderApp(true);saveState();break;
+ case 'branch-prev':moveBranch(-1);break;case 'branch-next':moveBranch(1);break;
+ case 'add-brand-contact':addArray('brand.contacts',blankContact('Corporate enquiries'),'brand','contacts');break;
+ case 'add-brand-social':addArray('brand.socialLinks',blankSocial(),'brand','socials');break;
+ case 'add-user':addUserModal();break;
+ case 'add-contact':addArray('branch.contacts',blankContact(),'branch','contacts');break;
+ case 'add-social':addArray('branch.socialLinks',blankSocial(),'branch','socials');break;
+ case 'add-custom-hours':addCustomHours();break;
+ case 'add-food-item':addArray('branch.foodMenu',{id:uid('food'),name:'',price:'',description:''},'branch','food');break;
+ case 'add-beverage-item':addArray('branch.beverageMenu',{id:uid('beverage'),name:'',price:'',description:''},'branch','food');break;
+ case 'add-venue-space':addArray('branch.venueSpaces',{id:uid('space'),name:'',type:'Main dining room',seated:'',standing:'',description:'',features:'',photos:[]},'branch','venue');break;
+ case 'add-event':addArray('branch.hosting.events',blankEvent(),'branch','hosting');break;
+ case 'add-event-service':{const i=Number(el.dataset.index);const ev=activeBranch().hosting.events[i];if(ev){ev.availableServices=arr(ev.availableServices);ev.availableServices.push({id:uid('service'),category:'Staffing',name:'',availability:'On request',price:'',notes:''});saveState();renderApp(true);}break;}
+ case 'add-event-contact':{const i=Number(el.dataset.index);const b=activeBranch();const c=blankContact('Event contact');c.notes='Added from Hosting Services';b.contacts.push(c);b.hosting.events[i].contactIds=arr(b.hosting.events[i].contactIds);b.hosting.events[i].contactIds.push(c.id);state.uiOpen.branch='hosting';saveState();renderApp(true);toast('Contact added to this branch and linked to the event.');break;}
+ case 'add-dining-contact':{const c=blankContact('Dining reservations');activeBranch().contacts.push(c);activeBranch().hosting.diningReservations.contactIds=arr(activeBranch().hosting.diningReservations.contactIds);activeBranch().hosting.diningReservations.contactIds.push(c.id);state.uiOpen.branch='hosting';saveState();renderApp(true);toast('Reservation contact added to the branch.');break;}
+ case 'add-room':{const r=blankRoom();addArray('branch.hosting.roomCategories',r,'branch','hosting');break;}
+ case 'add-room-rate':{const i=Number(el.dataset.index);const r=activeBranch().hosting.roomCategories[i];if(r){r.rates=arr(r.rates);r.rates.push(blankRate());saveState();renderApp(true);}break;}
+ case 'add-stay-package':addArray('branch.hosting.stayPackages',{id:uid('package'),name:'',description:'',basis:'weekend',price:'',currency:'BWP (Pula)',duration:'',includedDining:'',roomCategoryId:'',notes:''},'branch','hosting');break;
+ case 'add-promotion':addArray('branch.promotions',{id:uid('promo'),provider:'',name:'',type:'Percentage discount',value:'',valueType:'% discount',startDate:'',endDate:'',schedule:'',eligibleTypes:'',minimumSpend:'',maximumDiscount:'',terms:'',url:''},'branch','payments');break;
+ case 'add-partnership':addArray('branch.paymentPartnerships',{id:uid('partnership'),provider:'',promotionName:'',notes:'',url:''},'branch','partnerships');break;
+ case 'add-staff':addStaffModal();break;
+ case 'remove-item':removeArrayItem(el.dataset.collection,Number(el.dataset.index),inferGroup(el.dataset.collection),inferKey(el.dataset.collection));break;
+ case 'add-photo':addArray(el.dataset.path,blankPhoto(),'branch',inferKey(el.dataset.path));break;
+ case 'toggle-hours-day':{const k=el.dataset.key;state.uiOpen.hoursDay=state.uiOpen.hoursDay===k?'':k;saveState();renderApp(true);if(state.uiOpen.hoursDay)focusAccordion(`.mini-acc[data-mini="hoursDay"][data-mini-key="${k}"]`);break;}
+ case 'toggle-custom-hours':{const k=el.dataset.key;state.uiOpen.customHours=state.uiOpen.customHours===k?'':k;saveState();renderApp(true);if(state.uiOpen.customHours)focusAccordion(`.mini-acc[data-mini="customHours"][data-mini-key="${k}"]`);break;}
+ case 'toggle-amenity-group':{const k=el.dataset.key;state.uiOpen.amenityGroup=state.uiOpen.amenityGroup===k?'':k;saveState();renderApp(true);if(state.uiOpen.amenityGroup)focusAccordion(`.mini-acc[data-mini="amenity"][data-mini-key="${k}"]`);break;}
+ case 'remove-category':{const i=Number(el.dataset.index);const cats=arr(state.brand.identity.categories);if(i>=0&&i<cats.length){cats.splice(i,1);state.brand.identity.categories=cats;saveState();renderApp(true);}break;}
+ case 'add-custom-category':{const inp=$('#categoryCustom');if(!inp)break;const v=inp.value.trim();if(!v){toast('Type a category first.');break;}const cats=arr(state.brand.identity.categories);if(!cats.includes(v))cats.push(v);state.brand.identity.categories=cats;saveState();renderApp(true);toast('Category added.');break;}
+ case 'save-draft':saveState(true);break;
+ case 'preview':showPreview();break;
+ case 'close-modal':closeModal();break;
+ }}
+function inferGroup(path){return path.startsWith('brand.')?'brand':'branch';}
+function inferKey(path){if(path.includes('contacts'))return 'contacts';if(path.includes('social'))return 'socials';if(path.includes('hours'))return 'hours';if(path.includes('foodMenu')||path.includes('beverageMenu'))return 'food';if(path.includes('venueSpaces')||path.includes('venueGallery'))return 'venue';if(path.includes('hosting'))return 'hosting';if(path.includes('paymentPartnerships'))return 'partnerships';if(path.includes('promotions'))return 'payments';if(path.includes('users'))return 'users';if(path.includes('identity'))return 'identity';return '';}
+function moveBranch(delta){let i=state.branches.findIndex(b=>b.id===state.activeBranchId);i=Math.max(0,Math.min(state.branches.length-1,i+delta));state.activeBranchId=state.branches[i].id;state.uiOpen.branch='';state.uiOpen.hoursDay='';state.uiOpen.customHours='';state.uiOpen.amenityGroup='';renderApp(true);saveState();}
+function showPreview(){const brand=state.brand.identity;const rows=state.branches.map(b=>`<div class="summary-block"><h4>${e(b.name||'Untitled branch')} <span class="badge orange">${e(branchTypeName(b.type))}</span></h4><p>${e(branchAddress(b))}</p><p style="margin-top:5px">Capabilities: ${e(b.capabilities.map(c=>(CAPABILITIES.find(x=>x.id===c)||{}).label||c).join(', ')||'None selected')}</p><p style="margin-top:5px">Contacts: ${b.contacts.length} · Menu items: ${b.foodMenu.length+b.beverageMenu.length} · Events: ${b.hosting.events.length} · Room types: ${b.hosting.roomCategories.length} · Staff assignments: ${b.staffAssignments.length}</p></div>`).join('');showModal('Setup preview',`<div class="summary-block"><h4>${e(brand.name||'Restaurant brand not named')}</h4><p>${e(brand.legalName||'No registered business name added')}</p><p style="margin-top:5px">${e(brand.description||'No brand description added')}</p></div><div class="section-label">Branches (${state.branches.length})</div>${rows}<p class="note"><strong>Local preview only.</strong> This self-contained file stores draft data in your browser. Connect the production API and server-side permission checks before publishing live profiles or storing sensitive staff information.</p>`,'Close preview',()=>closeModal());}
+function handleInput(el){const path=el.dataset.bind;if(!path)return;let val;if(el.type==='checkbox')val=el.checked;else if(el.dataset.valueType==='number')val=el.value===''?'':Number(el.value);else val=el.value;pathSet(path,val);if(path==='branch.customAmenitiesText'){activeBranch().customAmenities=val.split(',').map(s=>s.trim()).filter(Boolean);}if(path.startsWith('branch.hosting.roomCategories.')&&path.endsWith('.amenitiesText')){const i=Number(path.split('.')[3]);if(activeBranch().hosting.roomCategories[i])activeBranch().hosting.roomCategories[i].amenities=val.split(',').map(s=>s.trim()).filter(Boolean);}saveState();refreshLiveLabels();const img=$(`[data-image-preview="${CSS.escape(path)}"]`);if(img&&el.type!=='file')img.innerHTML=imagePreview(val,'Image preview');}
+function handleChange(el){if(el.dataset.choice){setChoice(el.dataset.choice,el.dataset.choiceValue,el.checked);if(el.dataset.choice==='branch.capabilities'||el.dataset.choice==='branch.amenities'){renderApp(true);}return;}if(el.dataset.bind){handleInput(el);const p=el.dataset.bind;if(p==='branch.type'){const b=activeBranch(),type=BRANCH_TYPES.find(t=>t.id===b.type);if(type)b.capabilities=type.caps.slice();renderApp(true);}else if(['branch.inheritBrandContacts','branch.inheritBrandSocialLinks'].includes(p))renderApp(true);else if(p.endsWith('.role'))renderApp(true);else if(p.includes('.rates.')&&p.endsWith('.basis'))renderApp(true);else if(p.includes('.scope'))renderApp(true);else if(p.startsWith('branch.hosting.roomCategories.')&&p.endsWith('.roomType'))renderApp(true);else if(el.matches('select')&&p.includes('contactIds'))saveState();}}
+function compressImage(file,callback){const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const max=1000;let w=img.width,h=img.height;if(Math.max(w,h)>max){const ratio=max/Math.max(w,h);w=Math.round(w*ratio);h=Math.round(h*ratio);}const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,w,h);try{callback(canvas.toDataURL('image/webp',.76));}catch(err){callback(reader.result);}};img.onerror=()=>callback(reader.result);img.src=reader.result;};reader.onerror=()=>toast('Could not read that image.');reader.readAsDataURL(file);}
+function handleUpload(el){const file=el.files&&el.files[0],path=el.dataset.upload;if(!file||!path)return;if(!file.type.startsWith('image/')){toast('Choose an image file.');return;}compressImage(file,data=>{pathSet(path,data);saveState();renderApp(true);toast('Image added to the local draft.');});}
+function handleEventTypeSelect(el){const i=Number(el.dataset.eventTypeSelect),ev=activeBranch().hosting.events[i];if(!ev)return;ev.eventTypeId=el.value;const found=window.EATOUTS_EVENT_TYPES&&window.EATOUTS_EVENT_TYPES.getEventById(el.value);ev.eventName=found?found.name:'';ev.categoryName=found?found.categoryName:'';saveState();renderApp(true);}
+$('#shell').addEventListener('click',ev=>{const t=ev.target.closest('[data-action]');if(t){ev.preventDefault();handleAction(t);}});
+$('#shell').addEventListener('input',ev=>{const t=ev.target;if(t.matches('[data-bind]')&&t.type!=='checkbox'&&!t.matches('select'))handleInput(t);});
+$('#shell').addEventListener('change',ev=>{const t=ev.target;if(t.id==='categoryPick'){const v=t.value.trim();if(v){const cats=arr(state.brand.identity.categories);if(!cats.includes(v))cats.push(v);state.brand.identity.categories=cats;saveState();renderApp(true);}return;}if(t.matches('[data-upload]'))handleUpload(t);else if(t.matches('[data-event-type-select]'))handleEventTypeSelect(t);else if(t.matches('[data-action="assign-existing-staff"]')){const id=t.value;if(id&&!activeBranch().staffAssignments.includes(id)){activeBranch().staffAssignments.push(id);state.uiOpen.branch='staff';saveState();renderApp(true);toast('Staff assigned to this branch.');}}else if(t.matches('[data-bind], [data-choice]'))handleChange(t);});
+$('#modalBackdrop').addEventListener('click',ev=>{const t=ev.target.closest('[data-action]');if(t)handleAction(t);if(ev.target===$('#modalBackdrop'))closeModal();});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!$('#modalBackdrop').classList.contains('hide'))closeModal();});
+let touchX=null,touchY=null;$('#branchRailView').addEventListener('touchstart',ev=>{if(!ev.target.closest('#railHeader'))return;touchX=ev.touches[0].clientX;touchY=ev.touches[0].clientY;},{passive:true});$('#branchRailView').addEventListener('touchend',ev=>{if(touchX===null)return;const dx=ev.changedTouches[0].clientX-touchX,dy=ev.changedTouches[0].clientY-touchY;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.25)moveBranch(dx<0?1:-1);touchX=null;touchY=null;},{passive:true});
+function normalizeState(){
+ state.brand.identity.categories=arr(state.brand.identity.categories);
+ if(!state.brand.identity.categories.length&&state.brand.identity.categoriesText){state.brand.identity.categories=String(state.brand.identity.categoriesText).split(',').map(s=>s.trim()).filter(Boolean);}
+ state.branches.forEach(b=>{
+  b.capabilities=arr(b.capabilities);b.contacts=arr(b.contacts);b.socialLinks=arr(b.socialLinks);b.amenities=arr(b.amenities);b.menuTags=arr(b.menuTags);b.foodMenu=arr(b.foodMenu);b.beverageMenu=arr(b.beverageMenu);b.venueSpaces=arr(b.venueSpaces);b.venueGallery=arr(b.venueGallery);b.paymentMethods=arr(b.paymentMethods);b.promotions=arr(b.promotions);b.paymentPartnerships=arr(b.paymentPartnerships);b.staffAssignments=arr(b.staffAssignments);b.customAmenities=arr(b.customAmenities);b.amenityDetails=(b.amenityDetails&&typeof b.amenityDetails==='object')?b.amenityDetails:{};if(typeof b.customAmenitiesText!=='string')b.customAmenitiesText=b.customAmenities.join(', ');b.hours=b.hours||{weekly:WEEKDAYS.map(day=>({day,open:'',close:'',closed:false})),custom:[]};b.hours.weekly=arr(b.hours.weekly);b.hours.custom=arr(b.hours.custom);b.hosting=b.hosting||{};b.hosting.events=arr(b.hosting.events);b.hosting.roomCategories=arr(b.hosting.roomCategories);b.hosting.stayPackages=arr(b.hosting.stayPackages);b.hosting.diningReservations=b.hosting.diningReservations||{enabled:true,contactIds:[]};b.venueSpaces.forEach(s=>s.photos=arr(s.photos));b.hosting.events.forEach(ev=>{ev.photos=arr(ev.photos);ev.availableServices=arr(ev.availableServices);ev.contactIds=arr(ev.contactIds);});b.hosting.roomCategories.forEach(r=>{r.rates=arr(r.rates);r.photos=arr(r.photos);});
+ });
+ state.brand.contacts=arr(state.brand.contacts);state.brand.socialLinks=arr(state.brand.socialLinks);state.brand.users=arr(state.brand.users);state.staffDirectory=arr(state.staffDirectory);
+}
+normalizeState();
+state.uiOpen={brand:'',branch:'',hoursDay:'',customHours:'',amenityGroup:''};
+renderApp(false);saveState();
+
+/* ---------- onboarding bridge: live places, hosting, publish ---------- */
+window.EOOnboardPage={
+ key:'restaurant',
+ type:'restaurant',
+ typeLabel:'Restaurant',
+ getState:function(){return state;},
+ pathGet:pathGet,
+ pathSet:pathSet,
+ save:saveState,
+ render:function(){renderApp(true);},
+ activeBranch:activeBranch,
+ validateForPublish:function(){
+  const brand=state.brand.identity;
+  if(!String(brand.name||'').trim())return 'Add your business name before publishing.';
+  if(!state.branches.length)return 'Add at least one location before publishing.';
+  const b=activeBranch();
+  if(!b||!String(b.location&&b.location.city||'').trim())return 'Add the city or town of your location.';
+  return '';
+ },
+ buildProfile:function(){
+  const brand=state.brand.identity;
+  const b=activeBranch()||state.branches[0]||{};
+  const loc=b.location||{};
+  const place=loc.place||{};
+  const brandContacts=arr(state.brand.contacts);
+  const branchContacts=arr(b.contacts);
+  const contacts=b.inheritBrandContacts===false?brandContacts.concat(branchContacts):brandContacts;
+  const brandSocials=arr(state.brand.socialLinks);
+  const branchSocials=arr(b.socialLinks);
+  const socialLinks=b.inheritBrandSocialLinks===false?brandSocials.concat(branchSocials):brandSocials;
+  const socialMap={};
+  socialLinks.forEach(s=>{const k=String(s.platform||'').toLowerCase().replace(/[^a-z]/g,'');if(k&&s.url&&!socialMap[k])socialMap[k]=s.url;});
+  const spaces=arr(b.venueSpaces).map((s,i)=>({id:s.id||('space_'+i),title:s.name||s.type||'Venue space',value:String(s.seated||'')+(s.standing?(' / '+s.standing+' standing'):''),description:s.description||'',order:i}));
+  const events=arr(b.hosting&&b.hosting.events);
+  const dr=(b.hosting&&b.hosting.diningReservations)||{};
+  const offerings=arr(b.hosting&&b.hosting.stayPackages).map((p,i)=>({id:p.id||('pkg_'+i),name:p.name||'',details:p.description||''}));
+  return {
+   name:brand.name||b.name||'',
+   description:brand.description||b.venueDescription||'',
+   logo:brand.logoUrl||b.imageUrl||'',
+   coverImage:brand.coverUrl||'',
+   status:'published',
+   types:arr(brand.categories),
+   category:b.type||'',
+   location:{
+    country:loc.country||'Botswana',
+    district:loc.district||'',
+    districtName:loc.districtName||'',
+    town:loc.city||'',
+    area:loc.area||'',
+    plotNumber:loc.plotNumber||'',
+    streetName:loc.streetName||'',
+    streetNumber:loc.streetNumber||'',
+    building:loc.building||'',
+    place:place,
+    unitNumber:loc.unitNumber||'',
+    landmark:loc.landmark||'',
+    lat:loc.latitude||'',
+    lng:loc.longitude||'',
+    directions:loc.directions||''
+   },
+   contacts:contacts.map(c=>({label:c.label||c.type||'Contact',number:c.number||'',purpose:c.label||'',primary:false,whatsapp:String(c.type||'').toLowerCase().indexOf('whatsapp')>-1,active:true})),
+   socials:socialMap,
+   operatingHours:{weekly:arr(b.hours&&b.hours.weekly),custom:arr(b.hours&&b.hours.custom)},
+   character:[],
+   amenities:arr(b.amenities).map((a,i)=>({id:(a&&a.id)||('am_'+i),name:typeof a==='string'?a:((a&&a.name)||''),order:i})),
+   menuTags:arr(b.menuTags).map((t,i)=>({id:(t&&t.id)||('tag_'+i),name:typeof t==='string'?t:((t&&t.name)||''),order:i})),
+   capacity:spaces,
+   payments:arr(b.paymentMethods),
+   reservations:{enabled:!!dr.enabled,minimumGuests:dr.minimumGuests||'',maximumGuests:dr.maximumGuests||'',sameDay:!!dr.sameDay,advanceBooking:!!dr.advanceBooking,cancellationNotes:dr.cancellationTerms||dr.notes||''},
+   hosting:{
+    spaces:spaces,
+    eventTypes:events.map(ev=>({id:ev.id,typeId:ev.eventTypeId||'',name:ev.displayName||ev.eventName||'',category:ev.categoryName||'',minCapacity:ev.minCapacity||'',maxCapacity:ev.maxCapacity||'',pricingType:ev.pricingType||'',price:ev.price||'',currency:ev.currency||''})),
+    offerings:offerings,
+    rules:{minimumGuests:dr.minimumGuests||'',maximumGuests:dr.maximumGuests||'',sameDay:!!dr.sameDay,advanceBooking:!!dr.advanceBooking,cancellationNotes:dr.cancellationTerms||dr.notes||''}
+   }
+  };
+ }
+};
+if(window.EOOnboard)window.EOOnboard.register(window.EOOnboardPage);
+})();
 </script>
 </body>
 </html>

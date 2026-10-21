@@ -313,6 +313,9 @@
     transform:translateY(-1px);
   }
   .chip:active{transform:translateY(0)}
+  /* Hosting chips are read-only labels, not buttons. */
+  .tagwrap .chip.static{cursor:default;pointer-events:none}
+  .tagwrap .chip.static:hover{background:var(--chip-bg);border-color:var(--chip-border);transform:none}
 
   /* ── OPTIONS LIST ── */
   .opt-list{
@@ -756,6 +759,16 @@
         </div></div>
       </details>
 
+      <details class="acc" id="hostingAcc" style="display:none">
+        <summary>Hosting</summary>
+        <div class="acc-body"><div class="acc-inner">
+          <div class="acc-content">
+            <div class="tagwrap" id="hostingChips"></div>
+            <ul class="hours" id="hostingSpaces" style="margin-top:12px"></ul>
+          </div>
+        </div></div>
+      </details>
+
       <details class="acc">
         <summary>Menu Tags</summary>
         <div class="acc-body"><div class="acc-inner">
@@ -1003,10 +1016,18 @@
   });
   var town = (biz.record && biz.record.town) || (biz.branch && biz.branch.town) || '';
   var area = (biz.record && biz.record.area) || (biz.branch && biz.branch.area) || '';
+  var place = (biz.record && biz.record.place) || '';
   if (town || area) {
     C.loc.push({
       label: [area, town].filter(Boolean).join(' · ') || biz.name,
       url: 'https://maps.google.com/?q=' + encodeURIComponent(biz.name + ' ' + town + ' Botswana')
+    });
+  }
+  /* The mall / shopping centre the venue sits in, when the owner picked one. */
+  if (place) {
+    C.loc.push({
+      label: place,
+      url: 'https://maps.google.com/?q=' + encodeURIComponent(place + ' ' + town + ' Botswana')
     });
   }
 
@@ -1293,7 +1314,68 @@
     openPopup('Select Area', '<div class="popup-list">' + areas.map(areaListItem).join('') + '</div>');
   }
 
+  /* ---- Hosting (spaces, hostable event types, booking rules) ---- */
+  function renderHosting() {
+    var acc = document.getElementById('hostingAcc');
+    if (!acc) return;
+    var rec = biz.record || {};
+    var h = rec.hosting || {};
+    var spaces = Array.isArray(h.spaces) ? h.spaces : [];
+    var types = Array.isArray(h.eventTypes) ? h.eventTypes : [];
+    var rules = h.rules || {};
+    var chips = [], rows = [];
+
+    types.forEach(function (t) {
+      var name = t.name || t.eventName || '';
+      if (name) chips.push(name);
+    });
+
+    function pushSpace(title, value) {
+      title = title || 'Space';
+      if (!title && !value) return;
+      rows.push({ label: title, value: value || '' });
+    }
+
+    if (spaces.length) {
+      spaces.forEach(function (s) {
+        var value = s.value || s.description || '';
+        if (s.seated || s.standing) {
+          value = [s.seated ? s.seated + ' seated' : '', s.standing ? s.standing + ' standing' : '']
+            .filter(Boolean).join(' · ');
+        }
+        pushSpace(s.title || s.name || 'Space', value);
+      });
+    } else {
+      /* Older records keep the capacity list on its own. */
+      (Array.isArray(rec.capacity) ? rec.capacity : []).forEach(function (c) {
+        pushSpace(c.title || c.name || 'Capacity', c.value || c.description || '');
+      });
+    }
+
+    var min = rules.minimumGuests, max = rules.maximumGuests;
+    if (min && max) chips.push('Guests ' + min + '–' + max);
+    else if (min) chips.push('From ' + min + ' guests');
+    else if (max) chips.push('Up to ' + max + ' guests');
+
+    if (!chips.length && !rows.length) { acc.style.display = 'none'; return; }
+    acc.style.display = '';
+
+    var cw = document.getElementById('hostingChips');
+    cw.innerHTML = chips.length
+      ? chips.map(function (c) { return '<span class="chip static">' + esc(c) + '</span>'; }).join('')
+      : '';
+
+    var sl = document.getElementById('hostingSpaces');
+    sl.innerHTML = rows.length
+      ? rows.map(function (r) {
+          return '<li class="hours__row"><span class="hours__day">' + esc(r.label) + '</span>' +
+            '<span class="hours__time">' + esc(r.value || '—') + '</span></li>';
+        }).join('')
+      : '';
+  }
+
   renderOptions();
+  renderHosting();
   if (optList) optList.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-opt]');
     if (!btn) return;

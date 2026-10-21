@@ -1,0 +1,1132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171719">
+<title>Event Supplier Setup · EatOuts</title>
+<style>
+:root{--ink:#171719;--ink2:#35353B;--muted:#5E626B;--faint:#8A8F99;--paper:#F4F5F7;--card:#fff;--line:#E2E5EA;--line2:#F0F1F3;--orange:#FF5A1F;--orange2:#FF7A42;--orangeSoft:#FFF0E9;--orangeLine:#FFD4C2;--green:#178247;--greenSoft:#E7F6ED;--blue:#1769AA;--blueSoft:#E7F2FC;--red:#B91C1C;--shadow:0 5px 20px rgba(22,22,28,.055)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#E8EAEE;color:var(--ink);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(255,90,31,.24);outline-offset:2px}#app-shell{width:100%;max-width:520px;height:100dvh;min-height:560px;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 60px rgba(20,20,25,.12);position:relative}.topbar{flex:0 0 auto;background:#171719;color:#fff;padding:calc(12px + env(safe-area-inset-top)) 17px 13px}.topbar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}.brand-mark{height:34px;width:34px;display:grid;place-items:center;background:var(--orange);color:#fff;font-weight:900;font-size:17px;border-radius:7px}.brand-title{font-size:16px;font-weight:850;letter-spacing:-.03em}.brand-subtitle{font-size:10px;color:#AEB1B8;letter-spacing:.1em;text-transform:uppercase;margin-top:1px}.draft-pill{margin-left:auto;border:1px solid #44444A;background:#242428;color:#FF9A70;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:5px 8px;border-radius:3px}.progress-row{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:#B5B7BF;margin-bottom:6px}.progress-row strong{color:#FF9A70;font-weight:800}.progress-track{height:5px;background:#3B3B40;overflow:hidden;border-radius:2px}.progress-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange2));width:0;transition:width .2s}.scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}.intro{padding:22px 18px 32px;background:linear-gradient(150deg,#171719,#25252B);color:#fff;position:relative;overflow:hidden}.intro:after{content:"";position:absolute;width:220px;height:220px;right:-105px;top:-120px;border-radius:50%;background:radial-gradient(circle,rgba(255,90,31,.28),transparent 68%);pointer-events:none}.eyebrow{font-size:10px;color:#FF9A70;font-weight:850;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}.intro h1{font-size:27px;letter-spacing:-.045em;line-height:1.1;margin:0 0 9px;max-width:15ch}.intro h1 span{color:#FF8B5A}.intro p{font-size:13.5px;line-height:1.6;color:#C8C9CF;margin:0;max-width:38ch}.content{padding:15px 12px 28px}.group{margin-bottom:24px}.group-heading{display:flex;align-items:flex-start;gap:11px;margin:0 3px 12px}.group-number{background:var(--ink);color:#fff;min-width:33px;height:33px;display:grid;place-items:center;font-size:12px;font-weight:900;border-radius:4px}.group-heading h2{font-size:18px;margin:0;line-height:1.2;letter-spacing:-.025em}.group-heading p{font-size:12px;color:var(--muted);margin:4px 0 0;line-height:1.4}.group-kicker{display:block;color:var(--orange);font-size:9.5px;letter-spacing:.12em;font-weight:850;text-transform:uppercase;margin-bottom:3px}.accordion-stack{display:flex;flex-direction:column;gap:9px}.acc{background:var(--card);border:1px solid var(--line);border-radius:5px;overflow:hidden;box-shadow:0 1px 2px rgba(20,20,25,.02);transition:opacity .22s,filter .22s,box-shadow .22s,border-color .22s}.acc.open{border-color:var(--orangeLine);box-shadow:0 4px 14px rgba(255,90,31,.08)}.accordion-stack.has-open .acc:not(.open){opacity:.15;filter:blur(1.6px)}.accordion-stack.has-open .acc.open{opacity:1;filter:none}.acc-head{display:flex;align-items:center;text-align:left;gap:10px;width:100%;border:0;background:#fff;padding:14px 13px;color:var(--ink)}.acc-head:active{background:#FAFAFB}.acc-title-wrap{flex:1;min-width:0}.acc-title{font-size:15px;font-weight:800;display:block;line-height:1.3}.acc-sub{font-size:11.5px;color:var(--muted);display:block;margin-top:3px;font-weight:450;line-height:1.4}.acc-state{width:9px;height:9px;border-radius:50%;background:#D6DAE0;flex:0 0 auto;margin-left:auto}.acc-state.progress{background:#FFB27A}.acc-state.complete{background:var(--green)}.acc-state.missing{background:var(--red)}.acc-body{border-top:1px solid var(--line2);padding:15px 13px 16px}.note{background:#F7F8FA;border:1px solid #EBEDF0;padding:10px 11px;color:var(--muted);font-size:12px;line-height:1.55;border-radius:4px;margin:0 0 14px}.note strong{color:var(--ink2)}.section-label{font-size:10.5px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:#6E727C;margin:18px 0 9px}.section-label:first-child{margin-top:0}.field{display:block;margin-bottom:13px;min-width:0}.field:last-child{margin-bottom:0}.field>span,.field>label{display:block;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.07em;color:#666A74;margin-bottom:6px}.field .hint{display:block;text-transform:none;letter-spacing:0;font-weight:450;font-size:11.5px;color:var(--faint);margin-top:5px}.input,.select,.textarea{width:100%;min-width:0;border:1px solid #DDE1E7;background:#fff;border-radius:4px;color:var(--ink);padding:11px;font-size:15px;outline:none}.input,.select{min-height:44px}.textarea{min-height:82px;resize:vertical;line-height:1.5}.input:focus,.select:focus,.textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,90,31,.09)}.input::placeholder,.textarea::placeholder{color:#B0B5BE}.select{padding-right:11px}.check-list{display:flex;flex-direction:column;gap:7px}.check-item{display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--line);background:#fff;border-radius:4px;min-height:44px}.check-item input{accent-color:var(--orange);width:17px;height:17px;flex:0 0 auto;margin:2px 0 0}.check-item span{font-size:13px;font-weight:650;line-height:1.4}.check-item small{display:block;font-size:11px;color:var(--muted);font-weight:450;margin-top:2px}.btn{border:1px solid transparent;border-radius:4px;min-height:42px;padding:10px 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:800;text-align:center;text-decoration:none;line-height:1.2}.btn-primary{background:var(--orange);color:#fff}.btn-primary:hover{background:#E94E18}.btn-secondary{background:#fff;border-color:#DDE1E7;color:var(--ink2)}.btn-light{background:#FFF0E9;border-color:#FFD4C2;color:#C84513}.btn-danger{background:#FFF4F4;border-color:#F5D4D4;color:var(--red)}.btn-small{min-height:32px;padding:7px 9px;font-size:11.5px}.btn-wide{width:100%}.btn-dashed{background:#fff;border:1.5px dashed #CDD2DA;color:var(--orange);width:100%;margin-top:7px}.field-row{display:flex;flex-direction:column;gap:0}.record{border:1px solid var(--line);border-radius:4px;padding:11px;margin-bottom:9px;background:#fff}.record:last-child{margin-bottom:0}.record-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}.record-title{font-size:13px;font-weight:850;flex:1;min-width:0;line-height:1.35}.record-subtitle{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px}.record-actions{display:flex;gap:5px}.remove-btn{border:1px solid #F1D7D7;color:#B91C1C;background:#fff;padding:5px 8px;border-radius:3px;font-size:10.5px;font-weight:800}.badge{display:inline-flex;align-items:center;border:1px solid #E2E5EA;border-radius:3px;padding:3px 6px;font-size:9.5px;font-weight:850;text-transform:uppercase;letter-spacing:.06em;color:#666B75;background:#F7F8F9}.badge.orange{background:var(--orangeSoft);border-color:var(--orangeLine);color:#C74514}.badge.green{background:var(--greenSoft);border-color:#C9E9D5;color:var(--green)}.divider{height:1px;background:var(--line2);margin:14px 0}.thumb{width:90px;height:90px;flex:0 0 90px;border-radius:4px;background:#ECEEF2;overflow:hidden;display:grid;place-items:center}.thumb img{width:100%;height:100%;object-fit:cover;display:block}.thumb-fallback{width:100%;height:100%;background:linear-gradient(145deg,#F2F3F5,#E3E6EA)}.branch-toolbar{background:#fff;border:1px solid var(--line);border-radius:5px;padding:12px;margin-bottom:11px}.branch-toolbar-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.branch-toolbar h3{margin:0;font-size:14.5px;font-weight:850}.branch-count{font-size:10.5px;color:var(--muted);font-weight:750}.view-toggle{display:flex;background:#F1F2F4;padding:3px;border-radius:4px;gap:3px}.view-toggle button{flex:1;border:0;background:transparent;padding:8px 10px;border-radius:3px;color:#666B75;font-weight:800;font-size:12px}.view-toggle button.active{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}.branch-list{display:flex;flex-direction:column;gap:8px}.branch-card{display:block;width:100%}.branch-card-main{display:flex;align-items:center;gap:1rem;width:100%;padding:1rem 1.25rem;border-radius:.75rem;border:1px solid #e2e8f0;background:#fff;text-align:left;color:var(--ink);min-width:0}.branch-card-main:hover{background:#f8fafc;border-color:#cbd5e1}.branch-card.active .branch-card-main{border-color:var(--orange);box-shadow:0 0 0 2px rgba(255,90,31,.08)}.branch-card .thumb{width:2.5rem;height:2.5rem;flex:0 0 2.5rem;border-radius:.5rem;background:#f1f5f9;display:grid;place-items:center;overflow:hidden}.branch-card .thumb img{width:100%;height:100%;object-fit:cover;display:block}.branch-card-copy{display:flex;flex-direction:column;gap:.2rem;flex:1;min-width:0}.branch-card-name{font-size:.95rem;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.branch-card-address{font-size:.8125rem;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.branch-card-type{font-size:.75rem;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:.04em}.rail-header{background:#fff;border:1px solid var(--line);border-radius:5px;padding:11px;margin-bottom:10px;touch-action:pan-y}.rail-nav{display:flex;align-items:center;gap:8px}.rail-nav .btn{width:88px;flex:0 0 88px}.rail-current{flex:1;min-width:0;text-align:center}.rail-current strong{font-size:13.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rail-current span{font-size:10.5px;color:var(--muted);display:block;margin-top:3px}.branch-editor-head{background:#19191D;color:#fff;border-radius:5px;padding:15px;margin-bottom:10px}.branch-editor-head .top{display:flex;align-items:flex-start;gap:11px}.branch-editor-head .thumb{width:62px;height:62px;flex-basis:62px;background:#303036;color:#fff}.branch-editor-head h3{margin:0;font-size:16px;font-weight:850;letter-spacing:-.025em;line-height:1.25}.branch-editor-head p{margin:5px 0 0;font-size:11.5px;color:#C5C6CC}.branch-editor-head .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.branch-editor-head .badge{background:#303036;border-color:#4C4C54;color:#E8E8EA}.branch-editor-head .badge.orange{background:#49291D;border-color:#74402C;color:#FFAE8B}.image-picker{display:flex;gap:11px;align-items:center;margin-bottom:14px}.image-preview{width:84px;height:84px;background:#F0F1F4;border:1px solid var(--line);border-radius:4px;overflow:hidden;display:grid;place-items:center;flex:0 0 84px}.image-preview img{width:100%;height:100%;object-fit:cover}.image-preview span{font-size:10.5px;font-weight:750;color:#9AA0A9;letter-spacing:.04em}.image-picker-copy{min-width:0;flex:1}.image-picker-copy .field{margin-bottom:7px}.file-label{display:inline-flex;align-items:center;justify-content:center;border:1px solid #DDE1E7;background:#fff;border-radius:4px;padding:7px 9px;font-size:11px;font-weight:800;cursor:pointer}.file-label input{display:none}.empty{background:#FAFBFC;border:1px dashed #D8DDE4;color:#858B95;padding:15px 12px;text-align:center;border-radius:4px;font-size:12px;line-height:1.5}.empty strong{display:block;color:#4E535D;font-size:12.5px;margin-bottom:3px}.inline-summary{background:#F7F8FA;border:1px solid #E9ECF0;border-radius:4px;padding:10px;font-size:11.5px;color:var(--muted);margin-top:9px}.inline-summary strong{color:var(--ink2)}.gallery-list{display:flex;flex-direction:column;gap:8px}.gallery-record{display:grid;grid-template-columns:66px 1fr;gap:9px;border:1px solid var(--line);padding:8px;border-radius:4px}.gallery-record .image-preview{width:66px;height:66px;flex-basis:66px}.footer-actions{flex:0 0 auto;background:#fff;border-top:1px solid var(--line);padding:9px 12px calc(9px + env(safe-area-inset-bottom));display:flex;gap:8px}.footer-actions .btn{flex:1;min-height:44px}.status-toast{position:absolute;z-index:30;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#171719;color:#fff;padding:10px 14px;border-radius:4px;max-width:88%;font-size:11.5px;font-weight:750;box-shadow:var(--shadow);transition:opacity .2s,transform .2s;white-space:normal;text-align:center}.status-toast.show{opacity:1;transform:translate(-50%,0)}.modal-backdrop{position:fixed;inset:0;z-index:100;background:rgba(15,15,18,.62);display:flex;align-items:flex-end;justify-content:center;padding-top:22px}.modal{width:100%;max-width:520px;max-height:94dvh;background:#fff;border-radius:9px 9px 0 0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 -8px 35px rgba(0,0,0,.18)}.modal-header{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}.modal-header h3{margin:0;font-size:16px;font-weight:850;flex:1}.modal-close{border:1px solid var(--line);background:#fff;border-radius:4px;height:33px;padding:0 12px;font-size:12px;font-weight:800;color:var(--ink2)}.modal-body{overflow:auto;padding:15px 16px;min-height:0}.modal-footer{padding:11px 16px calc(11px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#FAFBFC;display:flex;gap:8px}.modal-footer .btn{flex:1}.summary-block{border:1px solid var(--line);border-radius:4px;padding:12px;margin-bottom:9px}.summary-block h4{margin:0 0 5px;font-size:13.5px}.summary-block p{margin:0;color:var(--muted);font-size:12px}.hide{display:none!important}.danger-text{color:var(--red)}.footer-hint{text-align:center;color:#969BA4;font-size:9.5px;margin-top:4px}.mini-note{font-size:10.5px;color:var(--muted);line-height:1.45;margin:7px 0 0}.mini-stack{display:flex;flex-direction:column;gap:7px}.mini-acc{border:1px solid var(--line);border-radius:4px;background:#fff;overflow:hidden;transition:opacity .22s,filter .22s}.mini-acc.open{border-color:var(--orangeLine);box-shadow:0 2px 10px rgba(255,90,31,.07)}.mini-stack.has-open .mini-acc:not(.open){opacity:.18;filter:blur(1.2px)}.mini-acc-head{display:flex;align-items:center;gap:8px;width:100%;border:0;background:#fff;padding:11px 12px;text-align:left;color:var(--ink);min-height:46px}.mini-acc-head:active{background:#FAFAFB}.mini-acc-head .t{flex:1;min-width:0;font-size:13.5px;font-weight:750;line-height:1.3}.mini-summary{font-size:11px;color:var(--muted);white-space:nowrap}.mini-acc-body{padding:12px;border-top:1px solid var(--line2)}.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}.chip{display:inline-flex;align-items:center;gap:7px;background:var(--orangeSoft);border:1px solid var(--orangeLine);color:#B5430F;border-radius:18px;padding:5px 11px;font-size:12.5px;font-weight:750}.chip button{border:0;background:transparent;color:#B5430F;font-size:10.5px;font-weight:800;padding:0;line-height:1;text-decoration:underline}.chip-add{display:flex;gap:7px;align-items:stretch}.chip-add .input,.chip-add .select{flex:1;min-width:0}.chip-add .btn{flex:0 0 auto;white-space:nowrap}.inv-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px}.inv-row .input{padding:9px 10px;font-size:13px;min-height:38px}.inv-label{font-size:10px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}.preview-total{background:var(--ink);color:#fff;border-radius:4px;padding:12px;margin-top:10px}.preview-total .row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;color:#C8C9CF}.preview-total .row.total{font-size:15px;color:#fff;font-weight:850;margin-top:8px;padding-top:8px;border-top:1px solid #3B3B40;margin-bottom:0}.preview-total .row span:last-child{color:#FFAE8B;font-weight:750}.preview-total .row.total span:last-child{color:var(--orange2)}@media(min-width:520px){body{padding:12px 0}#app-shell{height:calc(100dvh - 24px);border-radius:9px}.modal-backdrop{align-items:center;padding:20px}.modal{border-radius:9px;max-height:90dvh}}@media(min-width:420px){.field-row.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field-row.two .field{margin-bottom:13px}.btn-row{flex-direction:row}.btn-row>*{flex:1}}
+</style>
+</head>
+<body>
+<div id="app-shell">
+  <header class="topbar">
+    <div class="topbar-row">
+      <div class="brand-mark">E</div>
+      <div><div class="brand-title">EatOuts</div><div class="brand-subtitle">Event supplier setup</div></div>
+      <span class="draft-pill" id="saveIndicator">Draft mode</span>
+    </div>
+    <div class="progress-row"><span>Setup completeness</span><strong id="progressText">0% complete</strong></div>
+    <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+  </header>
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <div class="eyebrow">Event supplier onboarding</div>
+      <h1>Build your <span>supplier</span> profile.</h1>
+      <p>Set up the brand once, then manage every showroom, warehouse, depot, office or workshop from one place. Drafts save in this browser when local storage is available.</p>
+    </section>
+    <main class="content">
+      <section class="group" aria-labelledby="brandGroupTitle">
+        <div class="group-heading"><span class="group-number">01</span><div><span class="group-kicker">Shared across the business</span><h2 id="brandGroupTitle">Brand & shared settings</h2><p>Supplier type, fulfilment model, delivery zones, insurance and permissions.</p></div></div>
+        <div id="brandAccordions" class="accordion-stack"></div>
+      </section>
+      <section class="group" aria-labelledby="branchGroupTitle">
+        <div class="group-heading"><span class="group-number">02</span><div><span class="group-kicker">Manage physical locations</span><h2 id="branchGroupTitle">Branches & operations</h2><p>Each showroom, warehouse or depot keeps its own inventory, crew, zones and bookings.</p></div></div>
+        <div class="branch-toolbar">
+          <div class="branch-toolbar-top"><h3>Branch manager</h3><span class="branch-count" id="branchCount">0 locations</span></div>
+          <div class="view-toggle" role="group" aria-label="Branch view">
+            <button type="button" data-action="set-view" data-view="listed" id="listedToggle">Listed</button>
+            <button type="button" data-action="set-view" data-view="rail" id="railToggle">Rail</button>
+          </div>
+        </div>
+        <div id="branchListView"></div>
+        <div id="branchRailView"></div>
+        <button class="btn btn-primary btn-wide" type="button" data-action="add-branch" style="margin-top:10px">Add Branch</button>
+        <p class="footer-hint">A showroom can exist without storage. Enable capabilities only when they apply.</p>
+      </section>
+    </main>
+  </div>
+  <footer class="footer-actions"><button type="button" class="btn btn-secondary" data-action="save-draft">Save draft</button><button type="button" class="btn btn-primary" data-action="preview">Preview setup</button></footer>
+  <div class="status-toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+<div class="modal-backdrop hide" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modalTitle">Add</h3><button class="modal-close" type="button" data-action="close-modal">Close</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+<script>
+(function(){
+'use strict';
+const STORE_KEY='eatouts.event-supplier-onboarding.v1';
+const SUPPLIER_CATEGORIES=['Equipment rental','Furniture rental','AV/lighting','Decor','Florist','Party supplies','Event production','Event services','Photography','Entertainment','Marquee/tent hire','Tableware hire','Event staffing'];
+const SUPPLIER_TYPES=[{value:'rental-only',label:'Rental only'},{value:'service',label:'Service only'},{value:'both',label:'Both rental and service'}];
+const BRANCH_TYPES=[
+ {id:'showroom',name:'Showroom',caps:['inventoryRental','decorService','avService','floristry','crewService']},
+ {id:'warehouse',name:'Warehouse',caps:['inventoryRental','storage','distribution','crewService','deliverySetup']},
+ {id:'depot',name:'Depot',caps:['storage','distribution','deliverySetup']},
+ {id:'office',name:'Office',caps:['eventProduction','crewService']},
+ {id:'workshop',name:'Workshop',caps:['decorService','eventProduction','inventoryRental']}
+];
+const CAPABILITIES=[
+ {id:'inventoryRental',label:'Inventory rental',desc:'Rent out equipment, furniture, tents or tableware.'},
+ {id:'decorService',label:'Decor service',desc:'Provide styling and decor services.'},
+ {id:'avService',label:'AV & lighting service',desc:'Provide audio-visual and lighting.'},
+ {id:'floristry',label:'Floristry',desc:'Provide floral arrangements and installations.'},
+ {id:'crewService',label:'Crew services',desc:'Supply setup crew, waiters, MCs, DJs or technicians.'},
+ {id:'deliverySetup',label:'Delivery & setup',desc:'Deliver and set up at event locations.'},
+ {id:'eventProduction',label:'Event production',desc:'Full event production services.'},
+ {id:'storage',label:'Storage',desc:'Warehouse storage and stock holding.'},
+ {id:'distribution',label:'Distribution',desc:'Distribute stock and goods between locations.'}
+];
+const INVENTORY_CATEGORIES=['Furniture','Tableware','Tents & structures','Lighting','Audio','Visual','Florals & décor','Catering equipment','Entertainment','Staffing'];
+const INVENTORY_SUBCATEGORIES={
+ 'Furniture':['Tables','Chairs','Lounges','Bars','Cocktail tables'],
+ 'Tableware':['China','Glassware','Cutlery','Linens'],
+ 'Tents & structures':['Marquees','Gazebos','Staging'],
+ 'Lighting':['Uplighting','Festoon','Stage lights','Chandeliers'],
+ 'Audio':['Speakers','Mics','Mixers','DJ gear'],
+ 'Visual':['Projectors','Screens','LED walls'],
+ 'Florals & décor':['Arrangements','Arches','Centrepieces','Drapery'],
+ 'Catering equipment':['Chafers','Glassware','Serving'],
+ 'Entertainment':['DJ','Band','Performers','Photo booth'],
+ 'Staffing':['Waiters','Security','MCs']
+};
+const RENTAL_PERIODS=[{value:'hourly',label:'Hourly'},{value:'half-day',label:'Half-day'},{value:'full-day',label:'Full-day'},{value:'weekend',label:'Weekend'},{value:'week',label:'Week'},{value:'month',label:'Month'}];
+const MIN_RENTAL_PERIODS=[{value:'hourly',label:'1 hour'},{value:'half-day',label:'Half day'},{value:'full-day',label:'Full day'},{value:'weekend',label:'Weekend'}];
+const CREW_ROLES=['Installer','AV technician','Florist','Decorator','Waiter','MC','DJ','Security','Setup crew lead','Rigger'];
+const PAYMENT_METHODS=['Cash','Visa','Mastercard','American Express','Bank transfer','POS card terminal','BTC Smega','Mascom MyZaka','Orange Money','Other mobile wallet','Online payment link','Invoice / PO for corporate clients','Other'];
+const PROMO_TYPES=['Percentage discount','Fixed amount discount','Free item or upgrade','Set-price offer','Loyalty benefit','Cashback / wallet benefit','Seasonal campaign','Event partnership','Other'];
+const SOCIAL_PLATFORMS=['Website','Facebook','Instagram','X / Twitter','WhatsApp Channel','TikTok','Snapchat','Telegram','YouTube','LinkedIn','Threads','Pinterest','Custom'];
+const WEEKDAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const STAFF_ROLES={
+ 'Sales & front of house':['Sales Consultant','Showroom Manager','Event Coordinator','Account Manager'],
+ 'Operations':['Inventory Manager','Warehouse Supervisor','Delivery Coordinator','Delivery Driver','Setup Crew','Setup Crew Lead','Dispatch Officer'],
+ 'Creative':['Florist','Decorator','AV Technician','Lighting Designer','Carpenter','Seamstress'],
+ 'Administration':['General Manager','Operations Manager','Finance Manager','HR Manager','Marketing Manager','Accountant','Custom']
+};
+const USER_ROLES=['Owner','Co-Owner','Brand Administrator','Branch Manager','Inventory Manager','Delivery Coordinator','Setup Crew Lead','Finance Manager','Marketing Manager','Event Coordinator','Sales Consultant','Custom'];
+const PERMISSION_OPTIONS=[
+ {id:'viewBrand',label:'View brand profile'},{id:'editBrand',label:'Edit brand profile'},
+ {id:'viewBranches',label:'View branches'},{id:'editBranches',label:'Edit branch details'},
+ {id:'manageInventory',label:'Manage inventory & rental pricing'},
+ {id:'managePayments',label:'Manage payments & promotions'},
+ {id:'manageBookings',label:'Manage quotes, bookings & packages'},
+ {id:'viewStaff',label:'View staff profiles'},
+ {id:'manageStaff',label:'Manage staff'},
+ {id:'viewPayroll',label:'View salary / payroll details'},
+ {id:'manageUsers',label:'Manage users & permissions'},
+ {id:'publish',label:'Publish profile changes'}
+];
+const SHOWROOM_AMENITIES=['Sample wall','Fabric swatches','Lighting demo','Consultation desk','Sample catalogue','Cake tasting area','Presentation screen','Refreshments'];
+const WAREHOUSE_AMENITIES=['Racking','Loading bay','Forklift','Climate control','Security system','CCTV','Insurance cover','Fire suppression'];
+const DELIVERY_AMENITIES=['Trucks','Van','Loading crew','Delivery tracking','GPS tracking','Late-night delivery','Weekend delivery'];
+const COMPLIANCE_AMENITIES=['Insurance certificate','Safety certificate','Damage waiver','Public liability cover','Vehicle insurance','Staff background checks','Operating licence'];
+const AMENITY_GROUPS={'Showroom':SHOWROOM_AMENITIES,'Warehouse':WAREHOUSE_AMENITIES,'Delivery':DELIVERY_AMENITIES,'Compliance':COMPLIANCE_AMENITIES};
+
+const e=(v)=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const uid=(p='id')=>p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+const arr=(v)=>Array.isArray(v)?v:[];
+const str=(v)=>String(v==null?'':v);
+const nonEmpty=(v)=>v!=null&&String(v).trim().length>0;
+const safeImage=(u)=>{const s=String(u||'').trim();return(/^https?:\/\//i.test(s)||/^data:image\//i.test(s))?s:'';};
+const money=(v)=>'P'+(Number(v)||0).toFixed(2);
+
+function blankContact(label='General enquiries'){return{id:uid('contact'),label,type:'Mobile',number:'',notes:''};}
+function blankSocial(){return{id:uid('social'),platform:'Website',label:'',url:'',notes:''};}
+function blankPhoto(){return{id:uid('photo'),label:'',url:'',notes:''};}
+function blankZone(){return{id:uid('zone'),name:'',radius:'',fee:'',setupFee:'',breakdownFee:'',afterHoursSurcharge:'',minimumOrder:'',nextDayCutoff:'',notes:''};}
+function blankCrew(){return{id:uid('crew'),role:'Installer',hourlyRate:'',dayRate:'',minimumHours:'4',travelFee:'',notes:''};}
+function blankPartner(){return{id:uid('partner'),provider:'',category:'',commission:'',contact:'',notes:''};}
+function blankPolicy(){return{id:uid('policy'),type:'Public liability',provider:'',policyNumber:'',coverAmount:'',expiry:'',notes:''};}
+function blankInventoryItem(){return{id:uid('item'),name:'',category:'Furniture',subCategory:'',description:'',images:[],qtyOwned:'',qtyAvailable:'',rentalPeriods:{hourly:'',halfDay:'',fullDay:'',weekend:'',week:'',month:''},minimumRentalPeriod:'half-day',rentalPrice:'',replacementValue:'',damageDeposit:'',deliveryFee:'',setupFee:'',damageWaiverPct:'',depositPct:'',dimensions:'',weight:'',powerRequirements:'',setupRequired:false,deliveryRequired:true,colourVariants:'',addOns:'',availability:{leadTimeDays:2,blockedDates:'',peakSurcharge:''}};}
+function blankQuote(){return{id:uid('quote'),customerName:'',customerContact:'',items:[],zoneId:'',deliveryFee:'',setupFee:'',crewHours:'',crewRate:'',damageWaiverPct:'',notes:'',status:'draft'};}
+function blankPackage(){return{id:uid('package'),name:'',description:'',items:[],totalPrice:'',savings:'',gallery:[]};}
+function blankBranch(name='',type='showroom'){
+ const t=BRANCH_TYPES.find(x=>x.id===type)||BRANCH_TYPES[0];
+ return{
+  id:uid('branch'),name,code:'',type,status:'draft',imageUrl:'',
+  inheritBrandContacts:true,inheritBrandSocialLinks:true,
+  capabilities:arr(t.caps).slice(),
+  location:{country:'Botswana',city:'',area:'',plotNumber:'',streetName:'',building:'',landmark:'',lat:'',lng:'',directions:''},
+  deliveryZones:[],
+  crewServices:[],
+  partnerships:[],
+  showroom:{address:'',openingHours:'',appointmentRequired:true,tourBooking:true,sampleCatalogue:false,consultationFee:''},
+  hours:{showroom:WEEKDAYS.map(d=>({day:d,open:'',close:'',closed:false})),warehouse:WEEKDAYS.map(d=>({day:d,open:'',close:'',closed:false})),delivery:WEEKDAYS.map(d=>({day:d,open:'',close:'',closed:false}))},
+  amenities:{showroom:[],warehouse:[],delivery:[],compliance:[]},
+  inventory:[],
+  quotes:[],
+  packages:[],
+  gallery:[],
+  booking:{autoQuote:false,confirmOnPayment:false,corporateInvoice:false,notes:''},
+  contacts:[],
+  socialLinks:[],
+  paymentPartnerships:[],
+  paymentMethods:[],
+  promotions:[],
+  staffAssignments:[]
+ };
+}
+function initialState(){
+ return{
+  version:1,status:'draft',activeBranchId:'branch_initial',branchView:'listed',
+  uiOpen:{brand:'',branch:'',hoursSection:'',amenityGroup:''},
+  brand:{
+   identity:{name:'',legalName:'',description:'',logoUrl:'',coverUrl:'',categories:[],status:'draft'},
+   registration:{country:'Botswana',registrationNumber:'',taxNumber:'',registeredAddress:'',legalNotes:''},
+   fulfilment:{supplierType:'both',deliveryIncluded:true,pickupAvailable:true,setupIncluded:false,breakdownIncluded:false,notes:''},
+   deliveryZones:[],
+   insurance:[],
+   contacts:[],socialLinks:[],users:[]
+  },
+  branches:[Object.assign(blankBranch('','showroom'),{id:'branch_initial'})],
+  staffDirectory:[]
+ };
+}
+
+let state=initialState();
+try{const raw=localStorage.getItem(STORE_KEY);if(raw){const p=JSON.parse(raw);if(p&&p.version===1)state=p;}}catch(err){console.warn('Could not read saved draft',err);}
+if(!Array.isArray(state.branches))state.branches=[];
+if(!state.branches.length)state.branches.push(blankBranch('','showroom'));
+if(!state.activeBranchId||!state.branches.some(b=>b.id===state.activeBranchId))state.activeBranchId=state.branches[0].id;
+state.brand=state.brand||initialState().brand;
+state.staffDirectory=arr(state.staffDirectory);
+state.uiOpen=state.uiOpen||{};
+['brand','branch','hoursSection','amenityGroup'].forEach(k=>{if(typeof state.uiOpen[k]!=='string')state.uiOpen[k]='';});
+
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+let toastTimer=null,modalSubmit=null,lastFocus=null,pendingStaffPhoto='',pendingItemImages=[];
+
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2400);}
+function saveState(show=false){try{localStorage.setItem(STORE_KEY,JSON.stringify(state));$('#saveIndicator').textContent='Saved locally';$('#saveIndicator').style.color='#B8E8C8';if(show)toast('Draft saved on this device.');return true;}catch(err){$('#saveIndicator').textContent=(err&&err.name==='QuotaExceededError')?'Storage full':'Draft mode';if(show)toast('Local browser storage is unavailable here.');return false;}}
+function activeBranch(){return state.branches.find(b=>b.id===state.activeBranchId)||state.branches[0];}
+
+function resolveRoot(path){
+ const parts=path.split('.');
+ let root;
+ if(parts[0]==='brand')root=state.brand;
+ else if(parts[0]==='branch')root=activeBranch();
+ else if(parts[0]==='staffDirectory')root=state.staffDirectory;
+ else if(parts[0]==='branches')root=state.branches;
+ else root=state;
+ const leading=['brand','branch','staffDirectory','branches'];
+ return{root,parts:leading.includes(parts[0])?parts.slice(1):parts};
+}
+function pathGet(path){const o=resolveRoot(path);let v=o.root;for(const p of o.parts){if(v==null)return '';v=v[p];}return v==null?'':v;}
+function pathSet(path,value){const o=resolveRoot(path);let target=o.root;const ps=o.parts;for(let i=0;i<ps.length-1;i++){const k=ps[i];if(target[k]==null)target[k]=/^\d+$/.test(ps[i+1])?[]:{};target=target[k];}target[ps[ps.length-1]]=value;}
+function collectionGet(path){const v=pathGet(path);return Array.isArray(v)?v:null;}
+
+function inputPath(path){return 'data-bind="'+e(path)+'"';}
+function field(label,path,type='text',opts={}){
+ const value=pathGet(path);let extra='';
+ if(opts.placeholder)extra+=' placeholder="'+e(opts.placeholder)+'"';
+ if(opts.min!==undefined)extra+=' min="'+e(opts.min)+'"';
+ if(opts.max!==undefined)extra+=' max="'+e(opts.max)+'"';
+ if(opts.step!==undefined)extra+=' step="'+e(opts.step)+'"';
+ if(opts.required)extra+=' required';
+ return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><input class="input" type="${e(type)}" ${inputPath(path)} value="${e(value)}"${extra}>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;
+}
+function textarea(label,path,opts={}){
+ return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><textarea class="textarea" ${inputPath(path)} placeholder="${e(opts.placeholder||'')}"${opts.required?' required':''}>${e(pathGet(path))}</textarea>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;
+}
+function selectField(label,path,options,opts={}){
+ const val=String(pathGet(path));
+ const os=options.map(o=>typeof o==='string'?{value:o,label:o}:o);
+ return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><select class="select" ${inputPath(path)}${opts.required?' required':''}><option value="">${e(opts.placeholder||'Select an option')}</option>${os.map(o=>`<option value="${e(o.value)}"${val===String(o.value)?' selected':''}>${e(o.label)}</option>`).join('')}</select>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;
+}
+function checkItem(label,path,opts={}){
+ const checked=!!pathGet(path);
+ return `<label class="check-item"><input type="checkbox" ${inputPath(path)} ${checked?'checked':''}><span>${e(label)}${opts.desc?`<small>${e(opts.desc)}</small>`:''}</span></label>`;
+}
+function choiceList(label,path,options,descriptions={}){
+ const value=arr(pathGet(path));
+ return `<div class="field"><span>${e(label)}</span><div class="check-list">${options.map(opt=>{
+  const v=typeof opt==='string'?opt:opt.id;
+  const l=typeof opt==='string'?opt:opt.label;
+  const d=(typeof opt==='string'?'':opt.desc)||descriptions[v]||'';
+  return `<label class="check-item"><input type="checkbox" data-choice="${e(path)}" data-choice-value="${e(v)}" ${value.includes(v)?'checked':''}><span>${e(l)}${d?`<small>${e(d)}</small>`:''}</span></label>`;
+ }).join('')}</div></div>`;
+}
+function acc(group,key,title,sub,body){
+ const open=state.uiOpen[group]===key;
+ const st=accState(group,key);
+ return `<section class="acc ${open?'open':''}" data-acc-group="${e(group)}" data-acc-key="${e(key)}" tabindex="-1"><button class="acc-head" type="button" data-action="toggle-acc" data-group="${e(group)}" data-key="${e(key)}" aria-expanded="${open}"><span class="acc-title-wrap"><span class="acc-title">${e(title)}</span><span class="acc-sub">${e(sub)}</span></span><span class="acc-state ${st}" aria-hidden="true"></span></button>${open?`<div class="acc-body">${body}</div>`:''}</section>`;
+}
+function sectionLabel(label){return `<div class="section-label">${e(label)}</div>`;}
+function itemRemove(path,index){return `<button type="button" class="remove-btn" data-action="remove-item" data-collection="${e(path)}" data-index="${index}">Remove</button>`;}
+function addButton(action,label,extra=''){return `<button type="button" class="btn btn-dashed" data-action="${e(action)}" ${extra}>${e(label)}</button>`;}
+function empty(title,desc){return `<div class="empty"><strong>${e(title)}</strong>${e(desc)}</div>`;}
+function imagePreview(url,alt='Preview'){const usable=safeImage(url);return usable?`<img src="${e(usable)}" alt="${e(alt)}">`:'<span>No image</span>';}
+function imagePicker(label,path,alt){
+ return `<div class="image-picker"><div class="image-preview" data-image-preview="${e(path)}">${imagePreview(pathGet(path),alt||label)}</div><div class="image-picker-copy"><div style="font-size:12.5px;font-weight:850;margin-bottom:7px">${e(label)}</div><label class="file-label">Choose image<input type="file" accept="image/*" data-upload="${e(path)}"></label><div class="mini-note">Or paste an image URL below.</div>${field('Image URL',path,'url',{placeholder:'https://...'})}</div></div>`;
+}
+function recordHeader(title,sub,collection,index){
+ return `<div class="record-top"><div class="record-title">${e(title)}${sub?`<div class="record-subtitle">${e(sub)}</div>`:''}</div>${collection?`<div class="record-actions">${itemRemove(collection,index)}</div>`:''}</div>`;
+}
+function focusAccordion(sel){
+ requestAnimationFrame(()=>{
+  const el=$(sel);if(!el)return;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+  try{el.focus({preventScroll:true});}catch(_){try{el.focus();}catch(__){}}
+ });
+}
+function galleryEditor(path){
+ const list=arr(pathGet(path));
+ return `${sectionLabel('Gallery')}${list.length?`<div class="gallery-list">${list.map((p,i)=>`<div class="gallery-record"><div class="image-preview" data-image-preview="${e(path+'.'+i+'.url')}">${imagePreview(p.url,p.label||'Photo')}</div><div>${recordHeader(p.label||'Gallery photo','',path,i)}${field('Photo label',`${path}.${i}.label`,'text',{placeholder:'e.g. Showroom display'})}${field('Image URL',`${path}.${i}.url`,'url',{placeholder:'https://...'})}<label class="file-label">Upload image<input type="file" accept="image/*" data-upload="${e(path+'.'+i+'.url')}"></label>${textarea('Image notes',`${path}.${i}.notes`,{placeholder:'What does this photo show?'})}</div></div>`).join('')}</div>`:empty('No gallery photos','Add a labelled image and notes for context.')}${addButton('add-photo','Add gallery photo',`data-path="${e(path)}"`)}`;
+}
+
+/* ---------- status computation ---------- */
+function accState(group,key){
+ const b=activeBranch();const br=state.brand;
+ if(group==='brand'){
+  switch(key){
+   case'identity':{const i=br.identity;const cats=arr(i.categories);const some=i.name||i.legalName||i.description||i.logoUrl||i.coverUrl||cats.length;if(!some)return'untouched';if(!i.name)return'missing';return(i.name&&i.legalName&&i.description&&cats.length)?'complete':'progress';}
+   case'registration':{const r=br.registration;const some=r.registrationNumber||r.taxNumber||r.registeredAddress||r.legalNotes;if(!some)return'untouched';if(!r.registrationNumber)return'missing';return r.registeredAddress?'complete':'progress';}
+   case'fulfilment':{const f=br.fulfilment;if(!f.supplierType)return'untouched';return f.supplierType?'complete':'progress';}
+   case'zones':{const zs=arr(br.deliveryZones);if(!zs.length)return'untouched';return zs.every(z=>z.name&&z.fee)?'complete':'progress';}
+   case'insurance':{const ps=arr(br.insurance);if(!ps.length)return'untouched';return ps.every(p=>p.provider&&p.policyNumber)?'complete':'progress';}
+   case'contacts':{const cs=arr(br.contacts);if(!cs.length)return'untouched';return cs.every(c=>c.number)?'complete':'progress';}
+   case'socials':{const ss=arr(br.socialLinks);if(!ss.length)return'untouched';return ss.every(s=>s.url)?'complete':'progress';}
+   case'users':{const us=arr(br.users);if(!us.length)return'untouched';return us.every(u=>u.name&&u.role)?'complete':'progress';}
+  }
+ }
+ if(group==='branch'){
+  switch(key){
+   case'overview':{if(!b.name&&!b.code&&!b.imageUrl)return'untouched';if(!b.name||!b.type)return'missing';return'complete';}
+   case'location':{const l=b.location||{};if(!l.city&&!l.area&&!l.streetName)return'untouched';if(!l.city)return'missing';return(l.streetName||l.area)?'complete':'progress';}
+   case'zones':{const zs=arr(b.deliveryZones);if(!zs.length)return'untouched';return zs.every(z=>z.name&&z.fee)?'complete':'progress';}
+   case'crew':{const cs=arr(b.crewServices);if(!cs.length)return'untouched';return cs.every(c=>c.role&&(c.hourlyRate||c.dayRate))?'complete':'progress';}
+   case'partnerships':{const ps=arr(b.partnerships);if(!ps.length)return'untouched';return ps.every(p=>p.provider&&p.category)?'complete':'progress';}
+   case'showroom':{const s=b.showroom||{};if(!s.address&&!s.openingHours&&!s.consultationFee)return'untouched';return s.address?'complete':'progress';}
+   case'hours':{const h=b.hours||{};const any=['showroom','warehouse','delivery'].some(k=>arr(h[k]).some(d=>d.open||d.close||d.closed));if(!any)return'untouched';return'complete';}
+   case'amenities':{const a=b.amenities||{};const total=arr(a.showroom).length+arr(a.warehouse).length+arr(a.delivery).length+arr(a.compliance).length;if(!total)return'untouched';return'complete';}
+   case'inventory':{const items=arr(b.inventory);if(!items.length)return'untouched';return items.every(m=>m.name&&(m.rentalPrice||m.rentalPeriods?.fullDay||m.rentalPeriods?.halfDay))?'complete':'progress';}
+   case'pricing':{const items=arr(b.inventory);if(!items.length)return'untouched';return items.every(m=>m.minimumRentalPeriod)?'complete':'progress';}
+   case'availability':{const items=arr(b.inventory);if(!items.length)return'untouched';return'complete';}
+   case'quotes':{if(!arr(b.quotes).length)return'untouched';return'complete';}
+   case'packages':{if(!arr(b.packages).length)return'untouched';return arr(b.packages).every(p=>p.name&&p.totalPrice)?'complete':'progress';}
+   case'gallery':{return arr(b.gallery).length?'complete':'untouched';}
+   case'booking':{const bk=b.booking||{};if(!bk.notes&&!bk.autoQuote&&!bk.corporateInvoice)return'untouched';return'complete';}
+   case'contacts':{if(b.inheritBrandContacts&&arr(state.brand.contacts).length)return'complete';const cs=arr(b.contacts);if(!cs.length)return'untouched';return cs.every(c=>c.number)?'complete':'progress';}
+   case'socials':{if(b.inheritBrandSocialLinks&&arr(state.brand.socialLinks).length)return'complete';const ss=arr(b.socialLinks);if(!ss.length)return'untouched';return ss.every(s=>s.url)?'complete':'progress';}
+   case'partnershipsPayment':{const ps=arr(b.paymentPartnerships);if(!ps.length)return'untouched';return ps.every(p=>p.provider)?'complete':'progress';}
+   case'payments':{if(!arr(b.paymentMethods).length&&!arr(b.promotions).length)return'untouched';return arr(b.paymentMethods).length?'complete':'progress';}
+   case'staff':{return arr(b.staffAssignments).length?'complete':'untouched';}
+  }
+ }
+ return'untouched';
+}
+
+/* ---------- categories editor ---------- */
+function categoriesEditor(){
+ const cats=arr(state.brand.identity.categories);
+ const remaining=SUPPLIER_CATEGORIES.filter(c=>!cats.includes(c));
+ return `<div class="field"><span>Supplier categories</span>
+  ${cats.length?`<div class="chip-row">${cats.map((c,i)=>`<span class="chip">${e(c)}<button type="button" data-action="remove-category" data-index="${i}">Remove</button></span>`).join('')}</div>`:'<p class="mini-note">No categories added yet.</p>'}
+  <div class="chip-add"><select class="select" id="categoryPick"><option value="">Choose a common category</option>${remaining.map(o=>`<option value="${e(o)}">${e(o)}</option>`).join('')}</select></div>
+  <div class="chip-add" style="margin-top:7px"><input class="input" id="categoryCustom" type="text" placeholder="Or type a custom category"><button class="btn btn-secondary" type="button" data-action="add-custom-category">Add</button></div>
+  <small class="hint">Choose from the list or type your own. Remove any chip to delete it.</small>
+ </div>`;
+}
+
+/* ---------- brand render ---------- */
+function renderBrand(){
+ const b=state.brand;let out='';
+ const identityBody=`${imagePicker('Brand logo','brand.identity.logoUrl','Brand logo')}${field('Brand cover image URL','brand.identity.coverUrl','url',{placeholder:'https://...'})}${field('Brand / trading name','brand.identity.name','text',{placeholder:'e.g. Sahara Events',required:true})}${field('Registered company name','brand.identity.legalName','text',{placeholder:'Legal entity name'})}${textarea('Brand description','brand.identity.description',{placeholder:'What does your event supply business offer?'})}${categoriesEditor()}`;
+ out+=acc('brand','identity','Supplier Identity','The name, look and categories shared by every branch.',identityBody);
+ const regBody=`${selectField('Country of registration','brand.registration.country',['Botswana','Zimbabwe','South Africa','Namibia','Zambia','Other'])}${field('Company / registration number','brand.registration.registrationNumber','text',{placeholder:'Registration number'})}${field('Tax / VAT number','brand.registration.taxNumber','text',{placeholder:'Optional tax identifier'})}${textarea('Registered / corporate address','brand.registration.registeredAddress',{placeholder:'Legal registered address; this is separate from any showroom or warehouse.'})}${textarea('Legal and company notes','brand.registration.legalNotes',{placeholder:'Additional business registration notes'})}`;
+ out+=acc('brand','registration','Business & Brand Settings','Registration details and corporate information that does not belong to a specific branch.',regBody);
+ const f=b.fulfilment;
+ const fulfilmentBody=`${sectionLabel('Supplier type')}${choiceList('What do you supply?','brand.fulfilment.supplierType',SUPPLIER_TYPES)}${sectionLabel('Fulfilment model')}${checkItem('Delivery included','brand.fulfilment.deliveryIncluded')}${checkItem('Customer pickup available','brand.fulfilment.pickupAvailable')}${checkItem('Setup included in base price','brand.fulfilment.setupIncluded')}${checkItem('Breakdown included in base price','brand.fulfilment.breakdownIncluded')}${textarea('Fulfilment notes','brand.fulfilment.notes',{placeholder:'Default delivery, setup, pickup and breakdown terms shared by branches.'})}`;
+ out+=acc('brand','fulfilment','Supplier Type & Fulfilment','Rental vs service vs both; delivery vs pickup; setup vs breakdown.',fulfilmentBody);
+ const zones=arr(b.deliveryZones);
+ const zonesBody=`<p class="note">Define delivery and setup zones shared by branches. Each zone has a radius, fee and terms. Branches can override or extend these defaults.</p>${zones.length?zones.map((z,i)=>`<div class="record">${recordHeader(z.name||'New zone',z.radius?z.radius+' km radius':'Radius not set','brand.deliveryZones',i)}${field('Zone name',`brand.deliveryZones.${i}.name`,'text',{placeholder:'e.g. Gaborone CBD'})}${field('Radius (km)',`brand.deliveryZones.${i}.radius`,'number',{min:0,step:'0.1'})}${field('Delivery / service fee (Pula)',`brand.deliveryZones.${i}.fee`,'number',{min:0,step:'0.01'})}<div class="field-row two">${field('Setup fee (Pula)',`brand.deliveryZones.${i}.setupFee`,'number',{min:0,step:'0.01'})}${field('Breakdown fee (Pula)',`brand.deliveryZones.${i}.breakdownFee`,'number',{min:0,step:'0.01'})}</div><div class="field-row two">${field('After-hours surcharge (Pula)',`brand.deliveryZones.${i}.afterHoursSurcharge`,'number',{min:0,step:'0.01'})}${field('Minimum order value (Pula)',`brand.deliveryZones.${i}.minimumOrder`,'number',{min:0,step:'0.01'})}</div>${field('Next-day order cutoff','brand.deliveryZones.'+i+'.nextDayCutoff','text',{placeholder:'e.g. 14:00'})}${textarea('Notes',`brand.deliveryZones.${i}.notes`,{placeholder:'Restrictions or special instructions for this zone.'})}</div>`).join(''):empty('No delivery zones added','Add zones with fees and terms shared across the business.')}${addButton('add-brand-zone','Add delivery zone')}`;
+ out+=acc('brand','zones','Delivery & Setup Zones','Zones, radius, fees, setup / breakdown charges and minimum order — shared defaults.',zonesBody);
+ const policies=arr(b.insurance);
+ const insuranceBody=`<p class="note">Capture policy numbers, cover amounts and expiry dates. These are shared across the business; branches can add their own specific policies.</p>${policies.length?policies.map((p,i)=>`<div class="record">${recordHeader(p.type||'New policy',p.provider||'','brand.insurance',i)}${selectField('Policy type',`brand.insurance.${i}.type`,['Public liability','Professional indemnity','Equipment insurance','Vehicle insurance','Event cancellation','Workers compensation','Other'])}${field('Provider / insurer',`brand.insurance.${i}.provider`,'text')}${field('Policy number',`brand.insurance.${i}.policyNumber`,'text')}${field('Cover amount (Pula)',`brand.insurance.${i}.coverAmount`,'number',{min:0,step:'0.01'})}${field('Expiry','brand.insurance.'+i+'.expiry','date')}${textarea('Notes',`brand.insurance.${i}.notes`,{placeholder:'Scope, exclusions, contact'})}</div>`).join(''):empty('No insurance policies added','Add the liability and cover policies that apply to the business.')}${addButton('add-brand-policy','Add insurance policy')}`;
+ out+=acc('brand','insurance','Insurance & Liability','Policies, cover amounts and expiry shared by the business.',insuranceBody);
+ const bc=arr(b.contacts);
+ const contactsBody=(bc.length?bc.map((c,i)=>`<div class="record">${recordHeader(c.label||'Brand contact',c.type||'','brand.contacts',i)}${field('Contact label',`brand.contacts.${i}.label`,'text',{placeholder:'Corporate enquiries'})}${selectField('Contact type',`brand.contacts.${i}.type`,['Mobile','Landline','WhatsApp','Email','Other'])}${field('Phone / email / contact detail',`brand.contacts.${i}.number`,'text',{placeholder:'Contact detail'})}${textarea('Notes',`brand.contacts.${i}.notes`,{placeholder:'When should this contact be used?'})}</div>`).join(''):empty('No shared contacts added','Add corporate contacts that branches can reuse.'))+addButton('add-brand-contact','Add brand contact');
+ out+=acc('brand','contacts','Brand-wide Contacts','Shared corporate contacts that branches can inherit or override.',contactsBody);
+ const bs=arr(b.socialLinks);
+ const socialsBody=(bs.length?bs.map((s,i)=>`<div class="record">${recordHeader(s.label||s.platform||'Brand link','','brand.socialLinks',i)}${selectField('Platform',`brand.socialLinks.${i}.platform`,SOCIAL_PLATFORMS)}${field('Display label',`brand.socialLinks.${i}.label`,'text',{placeholder:'Official website'})}${field('Link URL',`brand.socialLinks.${i}.url`,'url',{placeholder:'https://...'})}${textarea('Notes',`brand.socialLinks.${i}.notes`,{placeholder:'Link purpose or instructions'})}</div>`).join(''):empty('No shared social links added','Add official brand channels for branches to inherit.'))+addButton('add-brand-social','Add social link');
+ out+=acc('brand','socials','Brand-wide Social Links','Official links for the whole brand, including website and social channels.',socialsBody);
+ const users=arr(b.users);
+ const userBody=(users.length?users.map((u,i)=>`<div class="record">${recordHeader(u.name||'New restaurant user',u.role==='Custom'?(u.customRole||'Custom role'):(u.role||''),'brand.users',i)}${field('Full name / display name',`brand.users.${i}.name`,'text',{placeholder:'Name of authorised user'})}${field('Contact number or email',`brand.users.${i}.contact`,'text',{placeholder:'Contact details'})}${selectField('Relationship / user role',`brand.users.${i}.role`,USER_ROLES)}${u.role==='Custom'?field('Custom role title',`brand.users.${i}.customRole`,'text',{placeholder:'Enter custom role'}):''}${selectField('Access scope',`brand.users.${i}.scope`,[{value:'brand',label:'All brand and branch settings'},{value:'selected',label:'Selected branches only'}])}${u.scope==='selected'?choiceList('Branches this user can access',`brand.users.${i}.branchIds`,state.branches.map(br=>({id:br.id,label:br.name||'Untitled branch'}))):''}${choiceList('Permissions',`brand.users.${i}.permissions`,PERMISSION_OPTIONS)}<p class="mini-note">User interface visibility is not security enforcement. Connect these permissions to server-side access rules before using real staff or business data.</p></div>`).join(''):empty('No users assigned','Add owners, administrators, inventory managers, delivery coordinators or setup crew leads.'))+addButton('add-user','Add restaurant user');
+ out+=acc('brand','users','Users & Permissions','Authorised people, access scope and permissions for the business.',userBody);
+ const container=$('#brandAccordions');
+ container.className='accordion-stack'+(state.uiOpen.brand?' has-open':'');
+ container.innerHTML=out;
+}
+
+/* ---------- branch helpers ---------- */
+function branchAddress(b){const l=b.location||{};return[l.building,l.streetNumber,l.streetName,l.area,l.city].filter(Boolean).join(', ')||'Address not added';}
+function branchTypeName(id){return(BRANCH_TYPES.find(t=>t.id===id)||{}).name||id||'Branch';}
+function contactsFor(b){const local=arr(b.contacts);if(!b.inheritBrandContacts)return local;const keys=new Set(local.map(c=>String(c.label||'').trim().toLowerCase()).filter(Boolean));return local.concat(arr(state.brand.contacts).filter(c=>!keys.has(String(c.label||'').trim().toLowerCase())));}
+function socialsFor(b){const local=arr(b.socialLinks);if(!b.inheritBrandSocialLinks)return local;const localPlatforms=new Set(local.map(s=>String(s.platform||'').toLowerCase()));return local.concat(arr(state.brand.socialLinks).filter(s=>!localPlatforms.has(String(s.platform||'').toLowerCase())));}
+function inheritedContactsPreview(b){if(!b.inheritBrandContacts||!arr(state.brand.contacts).length)return'';const localKeys=new Set(arr(b.contacts).map(c=>String(c.label||'').trim().toLowerCase()));const inherited=arr(state.brand.contacts).filter(c=>!localKeys.has(String(c.label||'').trim().toLowerCase()));if(!inherited.length)return'';return `${sectionLabel('Inherited brand contacts')}<p class="mini-note">Shared contacts available to this branch. A local contact with the same label overrides.</p>${inherited.map(c=>`<div class="inline-summary"><strong>${e(c.label||'Brand contact')}</strong><br>${e(c.type||'Contact')} · ${e(c.number||'No contact detail')}${c.notes?`<br>${e(c.notes)}`:''}</div>`).join('')}`;}
+function inheritedSocialsPreview(b){if(!b.inheritBrandSocialLinks||!arr(state.brand.socialLinks).length)return'';const localPlatforms=new Set(arr(b.socialLinks).map(s=>String(s.platform||'').toLowerCase()));const inherited=arr(state.brand.socialLinks).filter(s=>!localPlatforms.has(String(s.platform||'').toLowerCase()));if(!inherited.length)return'';return `${sectionLabel('Inherited brand links')}<p class="mini-note">A local link for the same platform overrides the inherited link.</p>${inherited.map(s=>`<div class="inline-summary"><strong>${e(s.label||s.platform||'Brand link')}</strong><br>${e(s.url||'No URL added')}${s.notes?`<br>${e(s.notes)}`:''}</div>`).join('')}`;}
+function thumbHTML(b){const url=safeImage(b.imageUrl);return `<div class="thumb">${url?`<img src="${e(url)}" alt="${e(b.name||'Branch image')}">`:'<div class="thumb-fallback"></div>'}</div>`;}
+
+/* ---------- branch list & rail ---------- */
+function renderBranchList(){
+ const current=activeBranch();
+ $('#branchCount').textContent=state.branches.length+' location'+(state.branches.length===1?'':'s');
+ $('#listedToggle').classList.toggle('active',state.branchView==='listed');
+ $('#railToggle').classList.toggle('active',state.branchView==='rail');
+ $('#branchListView').classList.toggle('hide',state.branchView!=='listed');
+ $('#branchRailView').classList.toggle('hide',state.branchView!=='rail');
+ $('#branchListView').innerHTML=state.branches.length?`<div class="branch-list">${state.branches.map(b=>`<div class="branch-card ${b.id===current.id?'active':''}" role="group"><button type="button" class="branch-card-main" data-action="edit-branch" data-id="${e(b.id)}">${thumbHTML(b)}<span class="branch-card-copy"><span class="branch-card-name">${e(b.name||'New branch')}</span><span class="branch-card-address">${e(branchAddress(b))}</span><span class="branch-card-type">${e(branchTypeName(b.type))}</span></span></button></div>`).join('')}</div>`:empty('No branches yet','Add a showroom, warehouse, depot, office or workshop.');
+}
+function renderRail(){
+ const idx=state.branches.findIndex(b=>b.id===state.activeBranchId);
+ const b=activeBranch();
+ $('#branchRailView').innerHTML=`<div class="rail-header" id="railHeader"><div class="rail-nav"><button class="btn btn-secondary btn-small" type="button" data-action="branch-prev" ${idx<=0?'disabled':''}>Previous</button><div class="rail-current"><strong>${e(b.name||'New branch')}</strong><span>Branch ${Math.max(1,idx+1)} of ${state.branches.length} · Swipe to switch</span></div><button class="btn btn-secondary btn-small" type="button" data-action="branch-next" ${idx>=state.branches.length-1?'disabled':''}>Next</button></div></div><div id="branchEditor">${renderBranchEditor(b)}</div>`;
+}
+
+/* ---------- hours ---------- */
+function renderHoursSection(label,key,b){
+ const weekly=arr(b.hours&&b.hours[key]);
+ const openKey=state.uiOpen.hoursSection||'';
+ const days=weekly.map((d,i)=>{
+  const k=key+'-'+i;
+  const open=openKey===k;
+  const dayLabel=d.day||WEEKDAYS[i];
+  const summary=d.closed?'Closed':(d.open&&d.close?`${d.open} to ${d.close}`:'Not set');
+  return `<div class="mini-acc ${open?'open':''}" data-mini="hours" data-mini-key="${k}" tabindex="-1"><button type="button" class="mini-acc-head" data-action="toggle-hours" data-key="${k}"><span class="t">${e(dayLabel)}</span><span class="mini-summary">${e(summary)}</span><span class="acc-state ${d.closed?'complete':(d.open&&d.close?'complete':(d.open||d.close?'progress':'untouched'))}" aria-hidden="true"></span></button>${open?`<div class="mini-acc-body"><label class="check-item" style="margin-bottom:10px"><input type="checkbox" data-bind="branch.hours.${key}.${i}.closed" ${d.closed?'checked':''}><span>Closed all day</span></label><div class="field-row two"><label class="field"><span>Opening</span><input class="input" type="time" data-bind="branch.hours.${key}.${i}.open" value="${e(d.open||'')}"></label><label class="field"><span>Closing</span><input class="input" type="time" data-bind="branch.hours.${key}.${i}.close" value="${e(d.close||'')}"></label></div></div>`:''}</div>`;
+ }).join('');
+ return `<div class="mini-stack${openKey.startsWith(key)?' has-open':''}">${days}</div>`;
+}
+function renderHours(b){
+ return `<p class="note">Set opening and closing times per activity: showroom visits, warehouse pickups and delivery windows.</p>${sectionLabel('Showroom hours')}${renderHoursSection('Showroom','showroom',b)}${sectionLabel('Warehouse hours')}${renderHoursSection('Warehouse','warehouse',b)}${sectionLabel('Delivery windows')}${renderHoursSection('Delivery','delivery',b)}`;
+}
+
+/* ---------- amenities ---------- */
+function renderAmenities(b){
+ const openGroup=state.uiOpen.amenityGroup||'';
+ const stack=Object.entries(AMENITY_GROUPS).map(([group,opts])=>{
+  const key=group.toLowerCase();
+  const open=openGroup===group;
+  const selected=arr(b.amenities[key]);
+  return `<div class="mini-acc ${open?'open':''}" data-mini="amenity" data-mini-key="${e(group)}" tabindex="-1"><button type="button" class="mini-acc-head" data-action="toggle-amenity-group" data-key="${e(group)}"><span class="t">${e(group)}</span><span class="mini-summary">${selected.length} selected</span><span class="acc-state ${selected.length?'complete':'untouched'}" aria-hidden="true"></span></button>${open?`<div class="mini-acc-body"><div class="check-list">${opts.map(name=>`<label class="check-item"><input type="checkbox" data-choice="branch.amenities.${key}" data-choice-value="${e(name)}" ${selected.includes(name)?'checked':''}><span>${e(name)}</span></label>`).join('')}</div></div>`:''}</div>`;
+ }).join('');
+ return `<p class="note">Group facilities by area. Showroom, warehouse, delivery and compliance amenities are distinct checklists.</p><div class="mini-stack${openGroup?' has-open':''}">${stack}</div>`;
+}
+
+/* ---------- inventory item summary ---------- */
+function itemSummary(m){
+ const per=[];
+ if(m.rentalPeriods?.hourly)per.push('Hourly: '+m.rentalPeriods.hourly);
+ if(m.rentalPeriods?.halfDay)per.push('Half-day: '+m.rentalPeriods.halfDay);
+ if(m.rentalPeriods?.fullDay)per.push('Full-day: '+m.rentalPeriods.fullDay);
+ if(m.rentalPeriods?.weekend)per.push('Weekend: '+m.rentalPeriods.weekend);
+ if(m.rentalPeriods?.week)per.push('Week: '+m.rentalPeriods.week);
+ if(m.rentalPeriods?.month)per.push('Month: '+m.rentalPeriods.month);
+ return per.length?per.join(' · '):(m.rentalPrice?'Base: '+m.rentalPrice:'No pricing');
+}
+
+/* ---------- sub-sections ---------- */
+function renderLocations(b){
+ return `${selectField('Country','branch.location.country',['Botswana','Zimbabwe','South Africa','Namibia','Zambia','Other'])}${field('City / town','branch.location.city','text',{placeholder:'Gaborone'})}${field('Area / suburb','branch.location.area','text',{placeholder:'Broadhurst'})}${field('Plot / stand number','branch.location.plotNumber','text')}${field('Street name','branch.location.streetName','text')}${field('Building / complex','branch.location.building','text',{placeholder:'Showroom or warehouse name'})}${field('Landmark','branch.location.landmark','text')}<div class="field-row two">${field('Latitude','branch.location.lat','number',{step:'any'})}${field('Longitude','branch.location.lng','number',{step:'any'})}</div>${textarea('Directions and access notes','branch.location.directions',{placeholder:'Entrance, loading bay, parking, delivery access'})}<p class="note">The role (showroom vs warehouse vs office) is set in Branch Overview. Add access notes for delivery trucks and loading equipment here.</p>`;
+}
+function renderBranchZones(b){
+ const zs=arr(b.deliveryZones);
+ return `<p class="note">Override brand zones or add branch-specific delivery and setup zones. Each zone has fees for delivery, setup, breakdown, after-hours service and minimum order.</p>${zs.length?zs.map((z,i)=>`<div class="record">${recordHeader(z.name||'New zone',z.radius?z.radius+' km radius':'Radius not set','branch.deliveryZones',i)}${field('Zone name',`branch.deliveryZones.${i}.name`,'text',{placeholder:'e.g. CBD / Airport / Residential estate'})}${field('Radius (km)',`branch.deliveryZones.${i}.radius`,'number',{min:0,step:'0.1'})}${field('Delivery / service fee (Pula)',`branch.deliveryZones.${i}.fee`,'number',{min:0,step:'0.01'})}<div class="field-row two">${field('Setup fee (Pula)',`branch.deliveryZones.${i}.setupFee`,'number',{min:0,step:'0.01'})}${field('Breakdown fee (Pula)',`branch.deliveryZones.${i}.breakdownFee`,'number',{min:0,step:'0.01'})}</div><div class="field-row two">${field('After-hours surcharge (Pula)',`branch.deliveryZones.${i}.afterHoursSurcharge`,'number',{min:0,step:'0.01'})}${field('Minimum order value (Pula)',`branch.deliveryZones.${i}.minimumOrder`,'number',{min:0,step:'0.01'})}</div>${field('Next-day order cutoff','branch.deliveryZones.'+i+'.nextDayCutoff','text',{placeholder:'e.g. 14:00'})}${textarea('Notes',`branch.deliveryZones.${i}.notes`,{placeholder:'Any restrictions or instructions for this branch zone.'})}</div>`).join(''):empty('No branch zones added','Add zones for this branch or copy from the brand defaults.')}${addButton('add-branch-zone','Add delivery zone')}`;
+}
+function renderCrew(b){
+ const cs=arr(b.crewServices);
+ return `<p class="note">Define crew roles you supply, their rates, minimum hours and travel fees. These records drive quote and booking calculations.</p>${cs.length?cs.map((c,i)=>`<div class="record">${recordHeader(c.role||'New crew service',c.hourlyRate?'P'+c.hourlyRate+'/hour':(c.dayRate?'P'+c.dayRate+'/day':''),'branch.crewServices',i)}${selectField('Crew role',`branch.crewServices.${i}.role`,CREW_ROLES)}${field('Hourly rate (Pula)',`branch.crewServices.${i}.hourlyRate`,'number',{min:0,step:'0.01'})}${field('Day rate (Pula)',`branch.crewServices.${i}.dayRate`,'number',{min:0,step:'0.01'})}${field('Minimum hours',`branch.crewServices.${i}.minimumHours`,'number',{min:0,step:1,placeholder:'e.g. 4'})}${field('Travel / call-out fee (Pula)',`branch.crewServices.${i}.travelFee`,'number',{min:0,step:'0.01'})}${textarea('Notes',`branch.crewServices.${i}.notes`,{placeholder:'Setup hours, overtime, responsibilities'})}</div>`).join(''):empty('No crew services added','Add installers, AV technicians, florists, decorators, waiters, MCs, DJs or other crew you supply.')}${addButton('add-crew','Add crew service')}`;
+}
+function renderPartnerships(b){
+ const ps=arr(b.partnerships);
+ return `<p class="note">Third-party suppliers you resell — tents, lighting, florals, entertainment. Record the provider, category, commission and contact.</p>${ps.length?ps.map((p,i)=>`<div class="record">${recordHeader(p.provider||'New partnership',p.category||'','branch.partnerships',i)}${field('Provider name',`branch.partnerships.${i}.provider`,'text',{placeholder:'e.g. SkyTents Ltd'})}${selectField('Category',`branch.partnerships.${i}.category`,['Tents & structures','Lighting','Florals','Entertainment','AV','Furniture','Catering equipment','Staffing','Other'])}${field('Commission / margin',`branch.partnerships.${i}.commission`,'text',{placeholder:'e.g. 15% or fixed markup'})}${field('Contact',`branch.partnerships.${i}.contact`,'text',{placeholder:'Name and phone / email'})}${textarea('Notes',`branch.partnerships.${i}.notes`,{placeholder:'Delivery terms, replacement policy, exclusivity'})}</div>`).join(''):empty('No supplier partnerships','Add third-party suppliers you resell.')}${addButton('add-partnership','Add supplier partnership')}`;
+}
+function renderShowroom(b){
+ const s=b.showroom||{};
+ return `<p class="note">Showroom and appointment settings. Showroom-specific hours are set in Service Hours. Add showroom-only amenities in Amenities.</p>${field('Showroom address','branch.showroom.address','text',{placeholder:'Physical showroom address'})}${textarea('Opening hours notes','branch.showroom.openingHours',{placeholder:'e.g. Weekdays 9–17, Saturdays by appointment'})}${checkItem('Appointment required','branch.showroom.appointmentRequired')}${checkItem('Showroom tours bookable','branch.showroom.tourBooking')}${checkItem('Sample catalogue available','branch.showroom.sampleCatalogue')}${field('Consultation fee (Pula)','branch.showroom.consultationFee','number',{min:0,step:'0.01',placeholder:'Optional'})}${textarea('Additional showroom notes','branch.showroom.notes',{placeholder:'Directions, parking, what to expect during a visit'})}`;
+}
+function renderInventory(b){
+ const items=arr(b.inventory);
+ return `<p class="note">Every rental item has its own quantity, rental periods, pricing and availability. Add-ons and pricing are configured when you open an item.</p>${items.length?`<div class="gallery-list">${items.map((m,i)=>`<div class="gallery-record"><div class="image-preview" style="width:66px;height:66px;flex-basis:66px">${imagePreview((m.images||[])[0]||'',m.name)}</div><div><div class="record-top"><div class="record-title">${e(m.name||'Untitled item')}<div class="record-subtitle">${e(m.category||'')}${m.subCategory?' · '+e(m.subCategory):''} · ${e(m.qtyAvailable||0)} available</div></div><div class="record-actions"><button class="btn btn-secondary btn-small" type="button" data-action="edit-item" data-index="${i}">Edit</button>${itemRemove('branch.inventory',i)}</div></div><div class="mini-note">${e(itemSummary(m))}</div></div></div>`).join('')}</div>`:empty('No inventory added','Add your furniture, tableware, tents, lighting, audio, visual, décor, equipment, entertainment or staffing items.')}<button class="btn btn-primary btn-wide" type="button" data-action="add-item" style="margin-top:10px">+ Add inventory item</button>`;
+}
+function renderRentalPricing(b){
+ const items=arr(b.inventory);
+ if(!items.length)return empty('No inventory yet','Add items in the Inventory Catalogue to configure their pricing.');
+ return `<p class="note">Each item can have hourly, half-day, full-day, weekend, week and month pricing. Minimum rental period, delivery / setup fees, damage waiver and deposit are stored per item.</p>${items.map((m,i)=>`<div class="record">${recordHeader(m.name||'Untitled item',m.category||'',null,null)}${field('Hourly rate (Pula)',`branch.inventory.${i}.rentalPeriods.hourly`,'number',{min:0,step:'0.01'})}${field('Half-day rate (Pula)',`branch.inventory.${i}.rentalPeriods.halfDay`,'number',{min:0,step:'0.01'})}${field('Full-day rate (Pula)',`branch.inventory.${i}.rentalPeriods.fullDay`,'number',{min:0,step:'0.01'})}${field('Weekend rate (Pula)',`branch.inventory.${i}.rentalPeriods.weekend`,'number',{min:0,step:'0.01'})}${field('Week rate (Pula)',`branch.inventory.${i}.rentalPeriods.week`,'number',{min:0,step:'0.01'})}${field('Month rate (Pula)',`branch.inventory.${i}.rentalPeriods.month`,'number',{min:0,step:'0.01'})}${selectField('Minimum rental period',`branch.inventory.${i}.minimumRentalPeriod`,MIN_RENTAL_PERIODS)}<div class="field-row two">${field('Delivery fee (Pula)',`branch.inventory.${i}.deliveryFee`,'number',{min:0,step:'0.01'})}${field('Setup fee (Pula)',`branch.inventory.${i}.setupFee`,'number',{min:0,step:'0.01'})}</div><div class="field-row two">${field('Damage waiver %',`branch.inventory.${i}.damageWaiverPct`,'number',{min:0,max:100,step:'0.1'})}${field('Deposit %',`branch.inventory.${i}.depositPct`,'number',{min:0,max:100,step:'0.1'})}</div></div>`).join('')}`;
+}
+function renderAvailability(b){
+ const items=arr(b.inventory);
+ if(!items.length)return empty('No inventory yet','Add items first to configure their availability.');
+ return `<p class="note">Set booking lead time, blocked dates and peak-season surcharges per item. The quote builder will honour these.</p>${items.map((m,i)=>`<div class="record">${recordHeader(m.name||'Untitled item',m.category||'',null,null)}${field('Booking lead time (days)',`branch.inventory.${i}.availability.leadTimeDays`,'number',{min:0,step:1})}${textarea('Blocked dates',`branch.inventory.${i}.availability.blockedDates`,{placeholder:'e.g. 2025-12-20 to 2026-01-05'})}${field('Peak-season surcharge (Pula)',`branch.inventory.${i}.availability.peakSurcharge`,'number',{min:0,step:'0.01'})}</div>`).join('')}`;
+}
+function renderPackages(b){
+ const ps=arr(b.packages);
+ return `<p class="note">Pre-built packages (e.g. "50-guest wedding furniture pack" or "Corporate AV pack") can be quoted and booked with one tap.</p>${ps.length?ps.map((p,i)=>`<div class="record">${recordHeader(p.name||'New package',p.totalPrice?'P'+p.totalPrice:'','branch.packages',i)}${field('Package name',`branch.packages.${i}.name`,'text',{placeholder:'e.g. 50-guest wedding furniture pack'})}${textarea('Description',`branch.packages.${i}.description`,{placeholder:'What the package includes and who it suits'})}${sectionLabel('Included items')}${arr(p.items).length?arr(p.items).map((li,j)=>`<div class="record">${recordHeader(li.itemName||'Line item','',`branch.packages.${i}.items`,j)}${field('Item name',`branch.packages.${i}.items.${j}.itemName`,'text')}${field('Quantity',`branch.packages.${i}.items.${j}.qty`,'number',{min:1,step:1})}</div>`).join(''):'<p class="mini-note">No items yet.</p>'}${addButton('add-package-item','Add item to package',`data-index="${i}"`)}<div class="field-row two">${field('Total price (Pula)',`branch.packages.${i}.totalPrice`,'number',{min:0,step:'0.01'})}${field('Savings (Pula)',`branch.packages.${i}.savings`,'number',{min:0,step:'0.01'})}</div>${galleryEditor(`branch.packages.${i}.gallery`)}</div>`).join(''):empty('No packages yet','Add a pre-built bundle customers can book in one action.')}${addButton('add-package','Add package')}`;
+}
+function renderQuoteBuilder(b){
+ const qs=arr(b.quotes);
+ return `<p class="note">Build a quote from inventory items, quantities and rental periods. Delivery, setup, crew and damage waiver are added automatically. Convert a quote to a booking with one tap.</p>${qs.length?qs.map((q,i)=>{const totals=computeQuote(b,q);return `<div class="record">${recordHeader(q.customerName||'New quote',q.status==='booked'?'Booked':(q.status==='sent'?'Sent':'Draft'),'branch.quotes',i)}${field('Customer name',`branch.quotes.${i}.customerName`,'text')}${field('Customer contact',`branch.quotes.${i}.customerContact`,'text',{placeholder:'Phone or email'})}<div class="inline-summary"><strong>Total:</strong> ${e(money(totals.total))} · ${arr(q.items).length} item(s)</div><div class="field-row two" style="margin-top:8px"><button class="btn btn-secondary btn-small" type="button" data-action="edit-quote" data-index="${i}">Edit quote</button><button class="btn btn-primary btn-small" type="button" data-action="convert-quote" data-index="${i}" ${q.status==='booked'?'disabled':''}>Convert to booking</button></div></div>`;}).join(''):empty('No quotes yet','Add a quote to start calculating totals.')}<button class="btn btn-primary btn-wide" type="button" data-action="add-quote" style="margin-top:10px">+ Build new quote</button>`;
+}
+function renderBookingManagement(b){
+ const bk=b.booking||{};
+ return `<p class="note">Booking and quote management settings that apply to this branch.</p>${checkItem('Auto-generate a quote when enquiry submitted','branch.booking.autoQuote')}${checkItem('Confirm booking only after deposit received','branch.booking.confirmOnPayment')}${checkItem('Accept invoice / PO for corporate clients','branch.booking.corporateInvoice')}${textarea('Booking terms and notes','branch.booking.notes',{placeholder:'Deposit terms, damage waiver policy, cancellation terms, breakage deposit'})}`;
+}
+function renderContacts(b){
+ const cs=arr(b.contacts);
+ const cont=cs.length?cs.map((c,i)=>`<div class="record">${recordHeader(c.label||'New contact',c.number||'Contact details not added','branch.contacts',i)}${field('Contact label / purpose',`branch.contacts.${i}.label`,'text',{placeholder:'Bookings, Deliveries, General enquiries...'})}${selectField('Contact type',`branch.contacts.${i}.type`,['Mobile','Landline','WhatsApp','Email','Other'])}${field('Number / email / contact detail',`branch.contacts.${i}.number`,'text',{placeholder:'+267 ... or email'})}${textarea('Notes',`branch.contacts.${i}.notes`,{placeholder:'Best times to contact or what this number handles'})}</div>`).join(''):empty('No branch contacts','Add the main phone, WhatsApp, bookings or management contacts.');
+ return `${checkItem('Inherit shared brand contacts','branch.inheritBrandContacts')}${inheritedContactsPreview(b)}${sectionLabel('Contacts for this branch')}${cont}${addButton('add-contact','Add contact number')}`;
+}
+function renderSocials(b){
+ const sl=arr(b.socialLinks);
+ const socials=sl.length?sl.map((s,i)=>`<div class="record">${recordHeader(s.label||s.platform||'New link',s.url||'URL not added','branch.socialLinks',i)}${selectField('Platform',`branch.socialLinks.${i}.platform`,SOCIAL_PLATFORMS)}${field('Display label',`branch.socialLinks.${i}.label`,'text',{placeholder:'e.g. Showroom Instagram'})}${field('Link URL',`branch.socialLinks.${i}.url`,'url',{placeholder:'https://...'})}${textarea('Notes',`branch.socialLinks.${i}.notes`,{placeholder:'Notes about this branch-specific channel'})}</div>`).join(''):empty('No branch social links','Add or override any brand-wide website or social channel.');
+ return `${checkItem('Inherit shared brand social links','branch.inheritBrandSocialLinks')}${inheritedSocialsPreview(b)}${sl.length?'<p class="note">A branch-specific link takes precedence over the shared link on the same platform.</p>':''}${socials}${addButton('add-social','Add social link')}`;
+}
+function renderPartnershipsPayment(b){
+ const ps=arr(b.paymentPartnerships);
+ return `<p class="note">Bank, card and wallet partnerships specific to this branch. Exact offers are set in Payments.</p>${ps.length?ps.map((p,i)=>`<div class="record">${recordHeader(p.provider||'Partnership',p.promotionName||'','branch.paymentPartnerships',i)}${field('Bank / provider name',`branch.paymentPartnerships.${i}.provider`,'text',{placeholder:'e.g. Stanbic Bank'})}${field('Partnership name',`branch.paymentPartnerships.${i}.promotionName`,'text')}${textarea('Partnership overview',`branch.paymentPartnerships.${i}.notes`)}${field('Reference / campaign URL',`branch.paymentPartnerships.${i}.url`,'url')}</div>`).join(''):empty('No payment partnerships','Add bank, card or wallet partnerships.')}${addButton('add-partnership-payment','Add payment partnership')}`;
+}
+function renderPayments(b){
+ return `<p class="note">Accepted payment methods, deposit rules, damage waiver, refundable breakage deposit and corporate invoice / PO options.</p>${sectionLabel('Accepted payment methods')}${choiceList('Select accepted methods','branch.paymentMethods',PAYMENT_METHODS)}${sectionLabel('Deposit and waiver rules')}${checkItem('Require damage waiver on rentals','branch.booking.requireDamageWaiver')}${checkItem('Hold refundable breakage deposit','branch.booking.holdBreakageDeposit')}${checkItem('Accept invoice / PO for corporate clients','branch.booking.corporateInvoice')}${sectionLabel('Branch-specific promotions')}${arr(b.promotions).length?arr(b.promotions).map((p,i)=>`<div class="record">${recordHeader(p.name||'Promotion',p.provider||'','branch.promotions',i)}${field('Provider',`branch.promotions.${i}.provider`,'text')}${field('Promotion name',`branch.promotions.${i}.name`,'text')}${selectField('Promotion type',`branch.promotions.${i}.type`,PROMO_TYPES)}<div class="field-row two">${field('Value',`branch.promotions.${i}.value`,'number',{min:0,step:'0.01'})}${field('Value unit',`branch.promotions.${i}.valueType`,'text',{placeholder:'% or amount'})}</div><div class="field-row two">${field('Start date',`branch.promotions.${i}.startDate`,'date')}${field('End date',`branch.promotions.${i}.endDate`,'date')}</div>${textarea('Terms and exclusions',`branch.promotions.${i}.terms`)}</div>`).join(''):empty('No promotions added','Add a promotion tied to a bank, card or wallet.')}${addButton('add-promotion','Add payment promotion')}`;
+}
+function renderStaff(b){
+ const staff=b.staffAssignments.map(id=>state.staffDirectory.find(s=>s.id===id)).filter(Boolean);
+ let html=`<p class="note">A staff profile lives once in the staff directory. Add the same person to multiple branches without creating duplicate personal records. Salary is mandatory when creating a new staff profile.</p>`;
+ html+=staff.length?staff.map(s=>{const i=state.staffDirectory.findIndex(x=>x.id===s.id);return `<div class="record"><div class="record-top"><div class="record-title">${e((s.firstName+' '+s.surname).trim()||'Staff member')}<div class="record-subtitle">${e(s.role==='Custom'?(s.customRole||'Custom role'):(s.role||'Role not set'))} · ${e(s.salaryFrequency||'Pay frequency not set')}</div></div><div class="record-actions">${itemRemove('branch.staffAssignments',b.staffAssignments.indexOf(s.id))}</div></div>${imagePicker('Profile photo',`staffDirectory.${i}.photoUrl`,((s.firstName||'')+' '+(s.surname||'')).trim()||'Staff photo')}${field('First name',`staffDirectory.${i}.firstName`,'text')}${field('Surname',`staffDirectory.${i}.surname`,'text')}${selectField('Gender',`staffDirectory.${i}.gender`,['Male','Female'])}${field('Mobile phone',`staffDirectory.${i}.phone`,'tel')}${field('Email',`staffDirectory.${i}.email`,'email')}${selectField('Role',`staffDirectory.${i}.role`,[...Object.entries(STAFF_ROLES).flatMap(([g,rs])=>rs.map(r=>({value:r,label:g+' · '+r}))),{value:'Custom',label:'Custom'}])}${s.role==='Custom'?field('Custom role title',`staffDirectory.${i}.customRole`,'text'):''}${field('Salary amount (Pula)',`staffDirectory.${i}.salaryAmount`,'number',{min:0,step:'0.01'})}${selectField('Salary frequency',`staffDirectory.${i}.salaryFrequency`,['Hourly','Daily','Weekly','Bi-weekly','Monthly'])}${field('Employment start date',`staffDirectory.${i}.startDate`,'date')}${textarea('Role description',`staffDirectory.${i}.roleDescription`,{placeholder:'Key responsibilities'})}<p class="mini-note">Salary, ID and emergency contact should only be visible to authorised users in production.</p></div>`;}).join(''):empty('No staff assigned to this branch','Add a new staff profile or assign someone already in the staff directory.');
+ const available=state.staffDirectory.filter(s=>!b.staffAssignments.includes(s.id));
+ if(available.length)html+=`<label class="field"><span>Assign an existing staff profile</span><select class="select" data-action="assign-existing-staff"><option value="">Select staff member</option>${available.map(s=>`<option value="${e(s.id)}">${e((s.firstName+' '+s.surname).trim()||'Unnamed staff')} · ${e(s.role==='Custom'?s.customRole:s.role)}</option>`).join('')}</select></label>`;
+ html+=`<button class="btn btn-primary btn-wide" type="button" data-action="add-staff" style="margin-top:8px">Add new staff member</button>`;
+ return html;
+}
+
+/* ---------- branch editor ---------- */
+function renderBranchEditor(b){
+ if(!b)return empty('No active branch','Add a branch to start configuring it.');
+ let body='';
+ const ov=`${imagePicker('Branch thumbnail','branch.imageUrl','Branch thumbnail')}${field('Branch name','branch.name','text',{placeholder:'e.g. Gaborone Showroom',required:true})}${field('Internal branch code','branch.code','text',{placeholder:'e.g. GAB-SHW-01'})}${selectField('Branch type','branch.type',BRANCH_TYPES.map(t=>({value:t.id,label:t.name})),{required:true})}${selectField('Branch status','branch.status',[{value:'draft',label:'Draft'},{value:'active',label:'Active'},{value:'temporarily-closed',label:'Temporarily closed'},{value:'permanently-closed',label:'Permanently closed'}])}<p class="note">Choose one primary branch type, then enable every capability that applies. Showroom vs warehouse vs office determines which operations are relevant.</p>${choiceList('Branch capabilities','branch.capabilities',CAPABILITIES)}`;
+ body+=acc('branch','overview','Branch Overview','Name, branch type, status, thumbnail and operational capabilities.',ov);
+ body+=acc('branch','location','Location','Address, map details and access notes for this physical site.',renderLocations(b));
+ body+=acc('branch','zones','Delivery & Setup Zones','Zones, radius, fees, setup / breakdown charges and minimum order.',renderBranchZones(b));
+ body+=acc('branch','crew','Crew Services','Crew types, hourly / day rates, minimum hours and travel fees.',renderCrew(b));
+ body+=acc('branch','partnerships','Supplier Partnerships','Third-party suppliers you resell with commission and contact.',renderPartnerships(b));
+ body+=acc('branch','showroom','Showroom & Appointment Booking','Showroom address, appointment settings and consultation fee.',renderShowroom(b));
+ body+=acc('branch','hours','Service Hours','Showroom hours, warehouse hours and delivery windows.',renderHours(b));
+ body+=acc('branch','amenities','Amenities','Showroom, warehouse, delivery and compliance amenities.',renderAmenities(b));
+ body+=acc('branch','inventory','Inventory Catalogue','Furniture, tableware, tents, lighting, audio, décor and more.',renderInventory(b));
+ body+=acc('branch','pricing','Rental Periods & Pricing','Per-item hourly / half-day / full-day / weekend / week / month pricing.',renderRentalPricing(b));
+ body+=acc('branch','availability','Availability & Booking Calendar','Booking lead time, blocked dates, peak-season surcharge.',renderAvailability(b));
+ body+=acc('branch','quotes','Quote Builder','Add items, quantities, delivery, setup, crew and waiver — auto total.',renderQuoteBuilder(b));
+ body+=acc('branch','packages','Package Deals','Pre-built bundles with included items, total price and savings.',renderPackages(b));
+ body+=acc('branch','gallery','Showroom Gallery','Photos of the showroom and inventory displays.',`<p class="note">Use this gallery to showcase the showroom, samples and displays.</p>${galleryEditor('branch.gallery')}`);
+ body+=acc('branch','booking','Booking & Quote Management','Auto-quote, deposit confirmation, invoice / PO options.',renderBookingManagement(b));
+ body+=acc('branch','contacts','Branch Contacts','Branch-specific contacts plus shared brand contacts.',renderContacts(b));
+ body+=acc('branch','socials','Branch Social Links','Branch-specific website and social channels.',renderSocials(b));
+ body+=acc('branch','partnershipsPayment','Payment Partnerships','Bank, card and wallet partnerships for this branch.',renderPartnershipsPayment(b));
+ body+=acc('branch','payments','Payments & Promotions','Accepted methods, deposit rules, damage waiver and promotions.',renderPayments(b));
+ body+=acc('branch','staff','Service Staff','Sales, inventory, warehouse, delivery and crew assignments.',renderStaff(b));
+ return `<div class="branch-editor-head"><div class="top">${thumbHTML(b)}<div style="flex:1;min-width:0"><h3>${e(b.name||'New branch')}</h3><p>${e(branchAddress(b))}</p><div class="meta"><span class="badge orange">${e(branchTypeName(b.type))}</span><span class="badge">${e(b.status||'draft')}</span><span class="badge">${b.capabilities.length} capabilities</span></div></div></div></div><div class="accordion-stack${state.uiOpen.branch?' has-open':''}">${body}</div>`;
+}
+
+/* ---------- quote calculation ---------- */
+function computeQuote(b,q){
+ let itemsTotal=0;
+ arr(q.items).forEach(li=>{
+  const item=arr(b.inventory).find(i=>i.id===li.itemId);
+  if(!item)return;
+  const price=item.rentalPeriods&&item.rentalPeriods[li.period]?Number(item.rentalPeriods[li.period]):0;
+  itemsTotal+=price*Number(li.qty||0);
+ });
+ const deliveryFee=Number(q.deliveryFee||0);
+ const setupFee=Number(q.setupFee||0);
+ const crewTotal=Number(q.crewHours||0)*Number(q.crewRate||0);
+ const subtotal=itemsTotal+deliveryFee+setupFee+crewTotal;
+ const waiver=subtotal*(Number(q.damageWaiverPct||0)/100);
+ const total=subtotal+waiver;
+ return{itemsTotal,deliveryFee,setupFee,crewTotal,subtotal,waiver,total};
+}
+
+/* ---------- progress ---------- */
+function updateProgress(){
+ const brand=state.brand.identity;const branch=activeBranch();
+ const checks=[
+  !!brand.name,!!brand.legalName,!!brand.description,!!brand.logoUrl,
+  arr(brand.categories).length>0,
+  !!state.brand.registration.registrationNumber,
+  !!state.brand.fulfilment.supplierType,
+  arr(state.brand.deliveryZones).length>0,
+  arr(state.brand.insurance).length>0,
+  arr(state.brand.contacts).length>0,
+  arr(state.brand.users).length>0,
+  state.branches.length>0,
+  !!branch.name,!!branch.type,!!branch.location.city,
+  arr(branch.deliveryZones).length>0,
+  arr(branch.crewServices).length>0,
+  arr(branch.inventory).length>0,
+  arr(branch.gallery).length>0,
+  arr(branch.paymentMethods).length>0,
+  arr(branch.staffAssignments).length>0
+ ];
+ const pct=Math.round(checks.filter(Boolean).length/checks.length*100);
+ $('#progressText').textContent=pct+'% complete';
+ $('#progressFill').style.width=pct+'%';
+}
+function renderApp(preserve=true){
+ const sc=$('#scroll');
+ const top=preserve&&sc?sc.scrollTop:0;
+ renderBrand();
+ renderBranchList();
+ renderRail();
+ updateProgress();
+ if(sc)sc.scrollTop=top;
+}
+
+function setChoice(path,val,checked){
+ let v=arr(pathGet(path)).slice();
+ if(checked&&!v.includes(val))v.push(val);
+ if(!checked)v=v.filter(x=>x!==val);
+ pathSet(path,v);saveState();updateProgress();
+}
+function refreshLiveLabels(){
+ const b=activeBranch();
+ $$('[data-live="branch.name"]').forEach(n=>n.textContent=b.name||'New branch');
+ $$('[data-live="brand.identity.name"]').forEach(n=>n.textContent=state.brand.identity.name||'Event supplier');
+ $$('.acc[data-acc-group]').forEach(sec=>{
+  const g=sec.dataset.accGroup,k=sec.dataset.accKey;
+  if(!g||!k)return;
+  const st=accState(g,k);
+  const dot=sec.querySelector(':scope > .acc-head > .acc-state');
+  if(dot)dot.className='acc-state '+st;
+ });
+ updateProgress();
+}
+function addArray(path,item,group,key){
+ let a=collectionGet(path);
+ if(!a){pathSet(path,[]);a=collectionGet(path);}
+ a.push(item);
+ if(group&&key)state.uiOpen[group]=key;
+ saveState();renderApp(true);
+}
+function removeArrayItem(path,index,group,key){
+ const a=collectionGet(path);
+ if(!a||index<0||index>=a.length)return;
+ a.splice(index,1);
+ if(group&&key)state.uiOpen[group]=key;
+ saveState();renderApp(true);toast('Item removed');
+}
+
+/* ---------- modals ---------- */
+function showModal(title,body,submitLabel,submitFn){
+ lastFocus=document.activeElement;
+ $('#modalTitle').textContent=title;
+ $('#modalBody').innerHTML=body;
+ $('#modalFooter').innerHTML=`<button type="button" class="btn btn-secondary" data-action="close-modal">Cancel</button><button type="button" class="btn btn-primary" id="modalSubmit">${e(submitLabel||'Add')}</button>`;
+ $('#modalBackdrop').classList.remove('hide');
+ modalSubmit=submitFn;
+ $('#modalSubmit').onclick=()=>{if(typeof modalSubmit==='function')modalSubmit();};
+}
+function closeModal(){
+ $('#modalBackdrop').classList.add('hide');
+ $('#modalBody').innerHTML='';
+ $('#modalFooter').innerHTML='';
+ modalSubmit=null;pendingStaffPhoto='';pendingItemImages=[];
+ if(lastFocus&&typeof lastFocus.focus==='function')lastFocus.focus();
+}
+function modalField(id,label,type='text',opts={}){
+ return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><input class="input" id="${e(id)}" type="${e(type)}" ${opts.required?'required':''} ${opts.min!==undefined?'min="'+e(opts.min)+'"':''} ${opts.step!==undefined?'step="'+e(opts.step)+'"':''} placeholder="${e(opts.placeholder||'')}"></label>`;
+}
+function modalSelect(id,label,options,required=true){
+ return `<label class="field"><span>${e(label)}${required?' *':''}</span><select id="${e(id)}" class="select" ${required?'required':''}><option value="">Select an option</option>${options.map(o=>typeof o==='string'?`<option value="${e(o)}">${e(o)}</option>`:`<option value="${e(o.value)}">${e(o.label)}</option>`).join('')}</select></label>`;
+}
+
+function addBranchModal(){
+ showModal('Add a branch',
+  `${modalField('newBranchName','Branch name','text',{placeholder:'e.g. Gaborone Showroom'})}${modalField('newBranchCode','Internal branch code','text',{placeholder:'Optional reference'})}${modalSelect('newBranchType','Branch type',BRANCH_TYPES.map(t=>({value:t.id,label:t.name})))}<p class="note">After creation you can edit the address, capabilities, zones, crew, inventory and payments.</p>`,
+  'Create branch',
+  ()=>{
+   const name=$('#newBranchName').value.trim();
+   const type=$('#newBranchType').value;
+   const code=$('#newBranchCode').value.trim();
+   if(!name){toast('Enter a branch name.');$('#newBranchName').focus();return;}
+   if(!type){toast('Choose a branch type.');return;}
+   const br=blankBranch(name,type);br.code=code;
+   state.branches.push(br);state.activeBranchId=br.id;state.branchView='rail';
+   state.uiOpen.branch='';state.uiOpen.hoursSection='';state.uiOpen.amenityGroup='';
+   saveState();closeModal();renderApp(true);toast('Branch created.');
+  });
+}
+
+function addStaffModal(){
+ const roles=[...Object.entries(STAFF_ROLES).flatMap(([g,rs])=>rs.map(r=>({value:r,label:g+' · '+r}))),{value:'Custom',label:'Custom'}];
+ pendingStaffPhoto='';
+ showModal('Add staff member',
+  `<div class="image-picker"><div class="image-preview" id="staffPhotoPreview"><span>No image</span></div><div class="image-picker-copy"><div style="font-size:12.5px;font-weight:850;margin-bottom:7px">Profile photo</div><label class="file-label">Choose image<input type="file" accept="image/*" id="staffPhoto"></label><div class="mini-note">Optional. A clear headshot works best.</div></div></div>${modalField('staffFirstName','First name','text',{required:true})}${modalField('staffSurname','Surname','text',{required:true})}${modalSelect('staffGender','Gender',['Male','Female'])}${modalField('staffPhone','Mobile phone','tel',{required:true})}${modalField('staffEmail','Email','email')}${modalSelect('staffRole','Role',roles)}${modalField('staffCustomRole','Custom role title','text')}${modalField('staffSalary','Salary amount (Pula)','number',{required:true,min:0,step:'0.01'})}${modalSelect('staffPayFrequency','Salary frequency',['Hourly','Daily','Weekly','Bi-weekly','Monthly'])}${modalField('staffStart','Employment start date','date')}<p class="note">Salary amount and pay frequency are required for a new staff member. Sensitive data should be protected by role-based server permissions in production.</p>`,
+  'Add staff member',
+  ()=>{
+   const name=$('#staffFirstName').value.trim();
+   const surname=$('#staffSurname').value.trim();
+   const role=$('#staffRole').value;
+   const salary=$('#staffSalary').value;
+   const frequency=$('#staffPayFrequency').value;
+   const phone=$('#staffPhone').value.trim();
+   if(!name||!surname||!role||salary===''||!frequency||!phone){toast('Complete name, role, contact and required salary details.');return;}
+   const s={id:uid('staff'),firstName:name,surname,gender:$('#staffGender').value||'Male',phone,email:$('#staffEmail').value,role,customRole:$('#staffCustomRole').value.trim(),salaryAmount:Number(salary),salaryFrequency:frequency,startDate:$('#staffStart').value,photoUrl:pendingStaffPhoto||''};
+   state.staffDirectory.push(s);
+   activeBranch().staffAssignments.push(s.id);
+   state.uiOpen.branch='staff';
+   saveState();closeModal();renderApp(true);toast('Staff member added to this branch.');
+  });
+ setTimeout(()=>{
+  const inp=$('#staffPhoto');
+  if(inp)inp.addEventListener('change',ev=>{
+   const f=ev.target.files&&ev.target.files[0];
+   if(!f)return;
+   if(!f.type.startsWith('image/')){toast('Choose an image file.');return;}
+   compressImage(f,d=>{pendingStaffPhoto=d;const p=$('#staffPhotoPreview');if(p)p.innerHTML=`<img src="${d}" alt="Profile photo">`;});
+  });
+ },0);
+}
+
+function addUserModal(){
+ const staffOpts=state.staffDirectory.map(s=>({value:s.id,label:(s.firstName+' '+s.surname).trim()+' · '+(s.role==='Custom'?s.customRole:s.role)}));
+ showModal('Add restaurant user',
+  `${modalSelect('userSource','Choose a contact source',[{value:'staff',label:'Existing staff profile'},{value:'new',label:'New contact / external stakeholder'}])}<div id="userStaffWrap">${modalSelect('userStaffId','Staff profile',staffOpts,false)}</div><div id="userNewWrap" class="hide">${modalField('userName','Full name','text')}${modalField('userContact','Mobile / email','text')}</div>${modalSelect('userRole','Access role',USER_ROLES)}<div id="userCustomWrap" class="hide">${modalField('userCustomRole','Custom role title','text')}</div>${modalSelect('userScope','Access scope',[{value:'brand',label:'Entire brand'},{value:'selected',label:'Selected branches only'}])}<div id="userBranchesWrap" class="hide"><div class="section-label">Allowed branches</div><div class="check-list">${state.branches.map(b=>`<label class="check-item"><input type="checkbox" name="userBranch" value="${e(b.id)}"><span>${e(b.name||'Untitled branch')}</span></label>`).join('')}</div></div><div class="section-label">Permissions</div><div class="check-list">${PERMISSION_OPTIONS.map(p=>`<label class="check-item"><input type="checkbox" name="userPermission" value="${e(p.id)}"><span>${e(p.label)}</span></label>`).join('')}</div>`,
+  'Add authorised user',
+  ()=>{
+   const source=$('#userSource').value;const role=$('#userRole').value;const scope=$('#userScope').value;
+   let name='',contact='',staffId=null;
+   if(source==='staff'){staffId=$('#userStaffId').value;const s=state.staffDirectory.find(x=>x.id===staffId);if(!s){toast('Select a staff profile.');return;}name=(s.firstName+' '+s.surname).trim();contact=s.phone||s.email||'';}
+   else{name=$('#userName').value.trim();contact=$('#userContact').value.trim();if(!name){toast('Enter the contact name.');return;}}
+   if(!role){toast('Choose an access role.');return;}
+   const branchIds=$$('input[name="userBranch"]:checked',$('#modalBody')).map(n=>n.value);
+   if(scope==='selected'&&!branchIds.length){toast('Select at least one branch.');return;}
+   const permissions=$$('input[name="userPermission"]:checked',$('#modalBody')).map(n=>n.value);
+   state.brand.users.push({id:uid('user'),source,staffId,name,contact,role,customRole:$('#userCustomRole').value.trim(),scope,branchIds:scope==='brand'?state.branches.map(b=>b.id):branchIds,permissions});
+   state.uiOpen.brand='users';
+   saveState();closeModal();renderApp(true);toast('User added.');
+  });
+ const sync=()=>{
+  const source=$('#userSource').value;const role=$('#userRole').value;const scope=$('#userScope').value;
+  $('#userStaffWrap').classList.toggle('hide',source!=='staff');
+  $('#userNewWrap').classList.toggle('hide',source!=='new');
+  $('#userCustomWrap').classList.toggle('hide',role!=='Custom');
+  $('#userBranchesWrap').classList.toggle('hide',scope!=='selected');
+ };
+ setTimeout(()=>{['userSource','userRole','userScope'].forEach(id=>$('#'+id)?.addEventListener('change',sync));sync();},0);
+}
+
+function inventoryItemModal(idx){
+ const b=activeBranch();
+ const isNew=idx===null;
+ const m=isNew?blankInventoryItem():JSON.parse(JSON.stringify(arr(b.inventory)[idx]));
+ pendingItemImages=arr(m.images).slice();
+ const subcats=INVENTORY_SUBCATEGORIES[m.category]||[];
+ const body=`
+  <div class="image-picker"><div class="image-preview" id="itemImgPreview">${m.images&&m.images[0]?`<img src="${e(m.images[0])}" alt="">`:'<span>No image</span>'}</div><div class="image-picker-copy"><div style="font-size:12.5px;font-weight:850;margin-bottom:7px">Main image</div><label class="file-label">Choose image<input type="file" accept="image/*" id="itemImg"></label><div class="mini-note">Optional. Product photo works best.</div></div></div>
+  ${modalField('invName','Item name','text',{required:true,placeholder:'e.g. White folding chair'})}
+  <label class="field"><span>Category</span><select class="select" id="invCategory">${INVENTORY_CATEGORIES.map(c=>`<option value="${e(c)}" ${m.category===c?'selected':''}>${e(c)}</option>`).join('')}</select></label>
+  <label class="field"><span>Sub-category</span><select class="select" id="invSubCategory"><option value="">Select…</option>${subcats.map(c=>`<option value="${e(c)}" ${m.subCategory===c?'selected':''}>${e(c)}</option>`).join('')}</select></label>
+  <label class="field"><span>Description</span><textarea class="textarea" id="invDesc" placeholder="Describe the item, its condition and what is included.">${e(m.description)}</textarea></label>
+  <div class="field-row two">${modalField('invQtyOwned','Quantity owned','number',{min:0,step:1})}${modalField('invQtyAvail','Quantity available','number',{min:0,step:1})}</div>
+  ${sectionLabel('Rental pricing per period')}
+  <div class="inv-row"><div><div class="inv-label">Hourly</div><input class="input" type="number" min="0" step="0.01" id="invHourly" value="${e(m.rentalPeriods.hourly)}"></div><div><div class="inv-label">Half-day</div><input class="input" type="number" min="0" step="0.01" id="invHalfDay" value="${e(m.rentalPeriods.halfDay)}"></div><div><div class="inv-label">Full-day</div><input class="input" type="number" min="0" step="0.01" id="invFullDay" value="${e(m.rentalPeriods.fullDay)}"></div></div>
+  <div class="inv-row"><div><div class="inv-label">Weekend</div><input class="input" type="number" min="0" step="0.01" id="invWeekend" value="${e(m.rentalPeriods.weekend)}"></div><div><div class="inv-label">Week</div><input class="input" type="number" min="0" step="0.01" id="invWeek" value="${e(m.rentalPeriods.week)}"></div><div><div class="inv-label">Month</div><input class="input" type="number" min="0" step="0.01" id="invMonth" value="${e(m.rentalPeriods.month)}"></div></div>
+  <label class="field"><span>Minimum rental period</span><select class="select" id="invMinPeriod">${MIN_RENTAL_PERIODS.map(o=>`<option value="${e(o.value)}" ${m.minimumRentalPeriod===o.value?'selected':''}>${e(o.label)}</option>`).join('')}</select></label>
+  <div class="field-row two">${modalField('invBasePrice','Base rental price (Pula)','number',{min:0,step:'0.01'})}${modalField('invReplacement','Replacement value (Pula)','number',{min:0,step:'0.01'})}</div>
+  <div class="field-row two">${modalField('invDamageDeposit','Damage deposit (Pula)','number',{min:0,step:'0.01'})}${modalField('invDeliveryFee','Delivery fee (Pula)','number',{min:0,step:'0.01'})}</div>
+  <div class="field-row two">${modalField('invSetupFee','Setup fee (Pula)','number',{min:0,step:'0.01'})}${modalField('invWaiverPct','Damage waiver %','number',{min:0,max:100,step:'0.1'})}</div>
+  ${modalField('invDepositPct','Deposit %','number',{min:0,max:100,step:'0.1'})}
+  ${sectionLabel('Physical details')}
+  ${modalField('invDimensions','Dimensions (L × W × H)','text',{placeholder:'e.g. 90 × 90 × 75 cm'})}
+  <div class="field-row two">${modalField('invWeight','Weight (kg)','number',{min:0,step:'0.01'})}${modalField('invPower','Power requirements','text',{placeholder:'e.g. 220V / 16A'})}</div>
+  <label class="field"><span>Colour variants</span><input class="input" type="text" id="invColours" value="${e(m.colourVariants)}" placeholder="e.g. White, black, gold"></label>
+  <label class="field"><span>Add-ons</span><textarea class="textarea" id="invAddOns" placeholder="e.g. cushion, cover, transport bag">${e(m.addOns)}</textarea></label>
+  ${sectionLabel('Requirements')}
+  <div class="check-list">
+    <label class="check-item"><input type="checkbox" id="invSetupRequired" ${m.setupRequired?'checked':''}><span>Setup required (setup crew needed)</span></label>
+    <label class="check-item"><input type="checkbox" id="invDeliveryRequired" ${m.deliveryRequired?'checked':''}><span>Delivery required (cannot be picked up by customer)</span></label>
+  </div>
+  ${sectionLabel('Availability')}
+  <div class="field-row two">${modalField('invLeadTime','Booking lead time (days)','number',{min:0,step:1})}${modalField('invPeakSurcharge','Peak-season surcharge (Pula)','number',{min:0,step:'0.01'})}</div>
+  <label class="field"><span>Blocked dates</span><textarea class="textarea" id="invBlocked" placeholder="e.g. 2025-12-20 to 2026-01-05">${e(m.availability.blockedDates)}</textarea></label>
+  <button class="btn btn-secondary btn-wide" type="button" id="invAddImg" style="margin-top:8px">Add another image</button>
+  <div id="invImgsList" class="mini-stack" style="margin-top:8px"></div>
+ `;
+ showModal(isNew?'Add inventory item':'Edit inventory item',body,isNew?'Add item':'Save item',()=>{
+  const name=$('#invName').value.trim();
+  if(!name){toast('Enter an item name.');$('#invName').focus();return;}
+  const item={...m,id:m.id||uid('item'),name,
+   category:$('#invCategory').value,subCategory:$('#invSubCategory').value,description:$('#invDesc').value,
+   images:pendingItemImages.slice(),
+   qtyOwned:$('#invQtyOwned').value,qtyAvailable:$('#invQtyAvail').value,
+   rentalPeriods:{hourly:$('#invHourly').value,halfDay:$('#invHalfDay').value,fullDay:$('#invFullDay').value,weekend:$('#invWeekend').value,week:$('#invWeek').value,month:$('#invMonth').value},
+   minimumRentalPeriod:$('#invMinPeriod').value,
+   rentalPrice:$('#invBasePrice').value,replacementValue:$('#invReplacement').value,damageDeposit:$('#invDamageDeposit').value,
+   deliveryFee:$('#invDeliveryFee').value,setupFee:$('#invSetupFee').value,damageWaiverPct:$('#invWaiverPct').value,depositPct:$('#invDepositPct').value,
+   dimensions:$('#invDimensions').value,weight:$('#invWeight').value,powerRequirements:$('#invPower').value,
+   setupRequired:$('#invSetupRequired').checked,deliveryRequired:$('#invDeliveryRequired').checked,
+   colourVariants:$('#invColours').value,addOns:$('#invAddOns').value,
+   availability:{leadTimeDays:$('#invLeadTime').value,blockedDates:$('#invBlocked').value,peakSurcharge:$('#invPeakSurge').value||$('#invPeakSurge')?.value||$('#invPeakSurgeValue')?.value||$('#invBlocked').value&&''}
+  };
+  // fix peak surcharge reference
+  item.availability.peakSurcharge=$('#invPeakSurcharge')?.value||'';
+  if(isNew)b.inventory.push(item);
+  else b.inventory[idx]=item;
+  state.uiOpen.branch='inventory';
+  saveState();closeModal();renderApp(true);toast(isNew?'Item added.':'Item saved.');
+ });
+ // Category change updates subcategory options
+ setTimeout(()=>{
+  const catSel=$('#invCategory'),subSel=$('#invSubCategory');
+  catSel.addEventListener('change',()=>{
+   const opts=INVENTORY_SUBCATEGORIES[catSel.value]||[];
+   subSel.innerHTML='<option value="">Select…</option>'+opts.map(c=>`<option value="${e(c)}">${e(c)}</option>`).join('');
+  });
+  const imgInp=$('#itemImg');
+  imgInp.addEventListener('change',ev=>{
+   const f=ev.target.files&&ev.target.files[0];if(!f)return;
+   if(!f.type.startsWith('image/')){toast('Choose an image file.');return;}
+   compressImage(f,d=>{
+    pendingItemImages[0]=d;
+    const p=$('#itemImgPreview');if(p)p.innerHTML=`<img src="${d}" alt="">`;
+   });
+  });
+  const addBtn=$('#invAddImg');
+  const list=$('#invImgsList');
+  const renderImgs=()=>{
+   list.innerHTML=pendingItemImages.map((src,i)=>i===0?'':`<div class="inline-summary"><img src="${e(src)}" style="max-width:100%;border-radius:4px;margin-bottom:6px"><button class="remove-btn" type="button" data-remove-img="${i}">Remove image</button></div>`).join('');
+   $$('[data-remove-img]',list).forEach(btn=>btn.onclick=()=>{pendingItemImages.splice(Number(btn.dataset.removeImg),1);renderImgs();});
+  };
+  renderImgs();
+  addBtn.addEventListener('click',()=>{
+   const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+   inp.onchange=()=>{const f=inp.files&&inp.files[0];if(!f)return;compressImage(f,d=>{pendingItemImages.push(d);renderImgs();});};
+   inp.click();
+  });
+ },0);
+}
+
+function quoteModal(idx){
+ const b=activeBranch();
+ const isNew=idx===null;
+ const q=isNew?blankQuote():JSON.parse(JSON.stringify(arr(b.quotes)[idx]));
+ const inventory=arr(b.inventory);
+ const zones=arr(b.deliveryZones).length?arr(b.deliveryZones):arr(state.brand.deliveryZones);
+ function lineRow(li){
+  return `<div class="record" data-line>
+   <label class="field"><span>Item</span><select class="select" data-line-item>${inventory.map(m=>`<option value="${e(m.id)}" ${li.itemId===m.id?'selected':''}>${e(m.name||'Untitled')} · ${e(m.category||'')}</option>`).join('')}</select></label>
+   <div class="field-row two">
+    <label class="field"><span>Quantity</span><input class="input" type="number" min="1" step="1" data-line-qty value="${e(li.qty||1)}"></label>
+    <label class="field"><span>Period</span><select class="select" data-line-period>${RENTAL_PERIODS.map(p=>`<option value="${e(p.value)}" ${li.period===p.value?'selected':''}>${e(p.label)}</option>`).join('')}</select></label>
+   </div>
+   <button type="button" class="remove-btn" data-line-remove>Remove line</button>
+  </div>`;
+ }
+ const body=`
+  ${modalField('qCustomer','Customer name','text',{placeholder:'Name of person or business'})}
+  ${modalField('qContact','Customer contact','text',{placeholder:'Phone or email'})}
+  ${sectionLabel('Line items')}
+  <div id="qLines"></div>
+  <button class="btn btn-secondary btn-wide" type="button" id="qAddLine" style="margin-top:6px">+ Add line item</button>
+  ${sectionLabel('Delivery & setup')}
+  <label class="field"><span>Zone</span><select class="select" id="qZone"><option value="">No zone</option>${zones.map(z=>`<option value="${e(z.id)}" ${q.zoneId===z.id?'selected':''}>${e(z.name||'Zone')} ${z.fee?'· P'+e(z.fee):''}</option>`).join('')}</select></label>
+  <div class="field-row two">${modalField('qDeliveryFee','Delivery fee override (Pula)','number',{min:0,step:'0.01'})}${modalField('qSetupFee','Setup fee override (Pula)','number',{min:0,step:'0.01'})}</div>
+  ${sectionLabel('Crew & damage waiver')}
+  <div class="field-row two">${modalField('qCrewHours','Crew hours','number',{min:0,step:'0.5'})}${modalField('qCrewRate','Crew rate (Pula/hour)','number',{min:0,step:'0.01'})}</div>
+  ${modalField('qWaiver','Damage waiver %','number',{min:0,max:100,step:'0.1'})}
+  <label class="field"><span>Notes / terms</span><textarea class="textarea" id="qNotes" placeholder="Delivery terms, cancellation policy, deposit requirement">${e(q.notes)}</textarea></label>
+  <div class="preview-total" id="qPreview"></div>
+ `;
+ showModal(isNew?'Build new quote':'Edit quote',body,isNew?'Save quote':'Save changes',()=>{
+  const customerName=$('#qCustomer').value.trim();
+  if(!customerName){toast('Enter the customer name.');$('#qCustomer').focus();return;}
+  const lines=[];
+  $$('#qLines [data-line]').forEach(row=>{
+   const itemId=row.querySelector('[data-line-item]').value;
+   const qty=Number(row.querySelector('[data-line-qty]').value||0);
+   const period=row.querySelector('[data-line-period]').value;
+   if(itemId&&qty>0)lines.push({itemId,qty,period});
+  });
+  if(!lines.length){toast('Add at least one item.');return;}
+  const zid=$('#qZone').value;
+  const zone=zones.find(z=>z.id===zid);
+  const newQ={
+   ...q,id:q.id||uid('quote'),
+   customerName,customerContact:$('#qContact').value,
+   items:lines,
+   zoneId:zid,
+   deliveryFee:$('#qDeliveryFee').value||(zone?zone.fee:''),
+   setupFee:$('#qSetupFee').value||(zone?zone.setupFee:''),
+   crewHours:$('#qCrewHours').value,crewRate:$('#qCrewRate').value,
+   damageWaiverPct:$('#qWaiver').value,
+   notes:$('#qNotes').value,
+   status:q.status||'draft'
+  };
+  if(isNew)b.quotes.push(newQ);
+  else b.quotes[idx]=newQ;
+  state.uiOpen.branch='quotes';
+  saveState();closeModal();renderApp(true);toast(isNew?'Quote created.':'Quote updated.');
+ });
+ const lines=$('#qLines');
+ const addLine=(li)=>{lines.insertAdjacentHTML('beforeend',lineRow(li||{itemId:inventory[0]?.id||'',qty:1,period:'full-day'}));bindLines();updatePreview();};
+ const bindLines=()=>{
+  $$('#qLines [data-line]').forEach(row=>{
+   row.querySelector('[data-line-remove]').onclick=()=>{row.remove();updatePreview();};
+   row.querySelectorAll('[data-line-item],[data-line-qty],[data-line-period]').forEach(el=>el.addEventListener('input',updatePreview));
+  });
+ };
+ const updatePreview=()=>{
+  const preview=$('#qPreview');if(!preview)return;
+  const tempQ={items:[]};
+  $$('#qLines [data-line]').forEach(row=>{
+   const itemId=row.querySelector('[data-line-item]').value;
+   const qty=Number(row.querySelector('[data-line-qty]').value||0);
+   const period=row.querySelector('[data-line-period]').value;
+   if(itemId&&qty>0)tempQ.items.push({itemId,qty,period});
+  });
+  const zid=$('#qZone')?.value;const zone=zones.find(z=>z.id===zid);
+  tempQ.deliveryFee=$('#qDeliveryFee')?.value||(zone?zone.fee:0);
+  tempQ.setupFee=$('#qSetupFee')?.value||(zone?zone.setupFee:0);
+  tempQ.crewHours=$('#qCrewHours')?.value||0;
+  tempQ.crewRate=$('#qCrewRate')?.value||0;
+  tempQ.damageWaiverPct=$('#qWaiver')?.value||0;
+  const t=computeQuote(b,tempQ);
+  preview.innerHTML=`<div class="row"><span>Items</span><span>${e(money(t.itemsTotal))}</span></div><div class="row"><span>Delivery</span><span>${e(money(t.deliveryFee))}</span></div><div class="row"><span>Setup</span><span>${e(money(t.setupFee))}</span></div><div class="row"><span>Crew</span><span>${e(money(t.crewTotal))}</span></div><div class="row"><span>Damage waiver</span><span>${e(money(t.waiver))}</span></div><div class="row total"><span>Total</span><span>${e(money(t.total))}</span></div>`;
+ };
+ setTimeout(()=>{
+  if(q.items&&q.items.length)q.items.forEach(li=>addLine(li));
+  else addLine();
+  $('#qAddLine').onclick=()=>addLine();
+  ['qDeliveryFee','qSetupFee','qCrewHours','qCrewRate','qWaiver','qZone'].forEach(id=>{
+   const el=$('#'+id);if(el)el.addEventListener('input',updatePreview);if(el&&el.tagName==='SELECT')el.addEventListener('change',updatePreview);
+  });
+  updatePreview();
+ },0);
+}
+
+function packageModal(idx){
+ const b=activeBranch();
+ const isNew=idx===null;
+ const p=isNew?blankPackage():JSON.parse(JSON.stringify(arr(b.packages)[idx]));
+ const inventory=arr(b.inventory);
+ const itemRow=(li)=>`<div class="record" data-pkg-line><label class="field"><span>Item</span><select class="select" data-pkg-item>${inventory.map(m=>`<option value="${e(m.id)}" ${li.itemId===m.id?'selected':''}>${e(m.name||'Untitled')}</option>`).join('')}</select></label><div class="field-row two"><label class="field"><span>Item name</span><input class="input" type="text" data-pkg-name value="${e(li.itemName||'')}" placeholder="Display name"></label><label class="field"><span>Quantity</span><input class="input" type="number" min="1" step="1" data-pkg-qty value="${e(li.qty||1)}"></label></div><button type="button" class="remove-btn" data-pkg-remove>Remove line</button></div>`;
+ const body=`
+  ${modalField('pkgName','Package name','text',{required:true,placeholder:'e.g. 50-guest wedding furniture pack'})}
+  <label class="field"><span>Description</span><textarea class="textarea" id="pkgDesc" placeholder="What the package includes and who it suits">${e(p.description)}</textarea></label>
+  ${sectionLabel('Included items')}
+  <div id="pkgLines"></div>
+  <button class="btn btn-secondary btn-wide" type="button" id="pkgAddLine" style="margin-top:6px">+ Add item to package</button>
+  <div class="field-row two">${modalField('pkgTotal','Total price (Pula)','number',{min:0,step:'0.01'})}${modalField('pkgSavings','Savings (Pula)','number',{min:0,step:'0.01'})}</div>
+ `;
+ showModal(isNew?'Add package':'Edit package',body,isNew?'Add package':'Save changes',()=>{
+  const name=$('#pkgName').value.trim();
+  if(!name){toast('Enter a package name.');$('#pkgName').focus();return;}
+  const items=[];
+  $$('#pkgLines [data-pkg-line]').forEach(row=>{
+   const itemId=row.querySelector('[data-pkg-item]').value;
+   const itemName=row.querySelector('[data-pkg-name]').value.trim();
+   const qty=Number(row.querySelector('[data-pkg-qty]').value||0);
+   if(itemId&&qty>0)items.push({itemId,itemName,qty});
+  });
+  const newP={...p,id:p.id||uid('package'),name,description:$('#pkgDesc').value,items,totalPrice:$('#pkgTotal').value,savings:$('#pkgSavings').value};
+  if(isNew)b.packages.push(newP);
+  else b.packages[idx]=newP;
+  state.uiOpen.branch='packages';
+  saveState();closeModal();renderApp(true);toast(isNew?'Package added.':'Package saved.');
+ });
+ const lines=$('#pkgLines');
+ const addLine=(li)=>{lines.insertAdjacentHTML('beforeend',itemRow(li||{itemId:inventory[0]?.id||'',itemName:'',qty:1}));bind();};
+ const bind=()=>{
+  $$('#pkgLines [data-pkg-line]').forEach(row=>{row.querySelector('[data-pkg-remove]').onclick=()=>row.remove();});
+ };
+ setTimeout(()=>{
+  if(p.items&&p.items.length)p.items.forEach(li=>addLine(li));
+  else addLine();
+  $('#pkgAddLine').onclick=()=>addLine();
+ },0);
+}
+
+/* ---------- action handling ---------- */
+function inferGroup(path){return path.startsWith('brand.')?'brand':'branch';}
+function inferKey(path){
+ if(path.includes('contacts'))return'contacts';
+ if(path.includes('social'))return'socials';
+ if(path.includes('hours'))return'hours';
+ if(path.includes('inventory'))return'inventory';
+ if(path.includes('packages'))return'packages';
+ if(path.includes('quotes'))return'quotes';
+ if(path.includes('partnerships'))return'partnershipsPayment';
+ if(path.includes('promotions'))return'payments';
+ if(path.includes('users'))return'users';
+ if(path.includes('deliveryZones'))return'zones';
+ if(path.includes('crewServices'))return'crew';
+ if(path.includes('gallery'))return'gallery';
+ return'';
+}
+function moveBranch(delta){
+ let i=state.branches.findIndex(b=>b.id===state.activeBranchId);
+ i=Math.max(0,Math.min(state.branches.length-1,i+delta));
+ state.activeBranchId=state.branches[i].id;
+ state.uiOpen.branch='';state.uiOpen.hoursSection='';state.uiOpen.amenityGroup='';
+ renderApp(true);saveState();
+}
+function showPreview(){
+ const brand=state.brand.identity;
+ const rows=state.branches.map(b=>`<div class="summary-block"><h4>${e(b.name||'Untitled branch')} <span class="badge orange">${e(branchTypeName(b.type))}</span></h4><p>${e(branchAddress(b))}</p><p style="margin-top:5px">Capabilities: ${e(b.capabilities.map(c=>(CAPABILITIES.find(x=>x.id===c)||{}).label||c).join(', ')||'None selected')}</p><p style="margin-top:5px">Inventory: ${b.inventory.length} · Quotes: ${b.quotes.length} · Packages: ${b.packages.length} · Staff: ${b.staffAssignments.length}</p></div>`).join('');
+ showModal('Setup preview',
+  `<div class="summary-block"><h4>${e(brand.name||'Supplier name not set')}</h4><p>${e(brand.legalName||'No registered business name added')}</p><p style="margin-top:5px">${e(brand.description||'No brand description added')}</p><p style="margin-top:5px">Supplier type: ${e((SUPPLIER_TYPES.find(t=>t.value===state.brand.fulfilment.supplierType)||{}).label||'not set')}</p></div><div class="section-label">Branches (${state.branches.length})</div>${rows}<p class="note"><strong>Local preview only.</strong> This self-contained file stores draft data in your browser. Connect the production API and server-side permission checks before publishing live profiles or storing sensitive staff information.</p>`,
+  'Close preview',
+  ()=>closeModal());
+}
+function handleAction(el){
+ const a=el.dataset.action;
+ switch(a){
+  case'toggle-acc':{const g=el.dataset.group,k=el.dataset.key;state.uiOpen[g]=state.uiOpen[g]===k?'':k;saveState();renderApp(true);if(state.uiOpen[g]===k)focusAccordion(`.acc[data-acc-group="${g}"][data-acc-key="${k}"]`);break;}
+  case'set-view':state.branchView=el.dataset.view;saveState();renderApp(true);break;
+  case'add-branch':addBranchModal();break;
+  case'edit-branch':state.activeBranchId=el.dataset.id;state.branchView='rail';state.uiOpen.branch='';state.uiOpen.hoursSection='';state.uiOpen.amenityGroup='';saveState();renderApp(true);break;
+  case'branch-prev':moveBranch(-1);break;
+  case'branch-next':moveBranch(1);break;
+  case'add-brand-contact':addArray('brand.contacts',blankContact('Corporate enquiries'),'brand','contacts');break;
+  case'add-brand-social':addArray('brand.socialLinks',blankSocial(),'brand','socials');break;
+  case'add-brand-zone':addArray('brand.deliveryZones',blankZone(),'brand','zones');break;
+  case'add-brand-policy':addArray('brand.insurance',blankPolicy(),'brand','insurance');break;
+  case'add-user':addUserModal();break;
+  case'add-contact':addArray('branch.contacts',blankContact(),'branch','contacts');break;
+  case'add-social':addArray('branch.socialLinks',blankSocial(),'branch','socials');break;
+  case'add-branch-zone':addArray('branch.deliveryZones',blankZone(),'branch','zones');break;
+  case'add-crew':addArray('branch.crewServices',blankCrew(),'branch','crew');break;
+  case'add-partnership':addArray('branch.partnerships',blankPartner(),'branch','partnerships');break;
+  case'add-partnership-payment':addArray('branch.paymentPartnerships',{id:uid('p'),provider:'',promotionName:'',notes:'',url:''},'branch','partnershipsPayment');break;
+  case'add-package-item':{const i=Number(el.dataset.index);const p=arr(activeBranch().packages)[i];if(p){p.items=arr(p.items);p.items.push({itemId:'',itemName:'',qty:1});saveState();renderApp(true);}break;}
+  case'add-package':packageModal(null);break;
+  case'add-quote':quoteModal(null);break;
+  case'edit-quote':quoteModal(Number(el.dataset.index));break;
+  case'convert-quote':{const i=Number(el.dataset.index);const q=arr(activeBranch().quotes)[i];if(q){q.status='booked';saveState();renderApp(true);toast('Quote converted to booking.');}break;}
+  case'add-item':inventoryItemModal(null);break;
+  case'edit-item':inventoryItemModal(Number(el.dataset.index));break;
+  case'add-staff':addStaffModal();break;
+  case'remove-item':removeArrayItem(el.dataset.collection,Number(el.dataset.index),inferGroup(el.dataset.collection),inferKey(el.dataset.collection));break;
+  case'add-photo':addArray(el.dataset.path,blankPhoto(),'branch',inferKey(el.dataset.path));break;
+  case'add-promotion':addArray('branch.promotions',{id:uid('promo'),provider:'',name:'',type:'Percentage discount',value:'',valueType:'%',startDate:'',endDate:'',terms:''},'branch','payments');break;
+  case'toggle-hours':{const k=el.dataset.key;state.uiOpen.hoursSection=state.uiOpen.hoursSection===k?'':k;saveState();renderApp(true);if(state.uiOpen.hoursSection)focusAccordion(`.mini-acc[data-mini="hours"][data-mini-key="${k}"]`);break;}
+  case'toggle-amenity-group':{const k=el.dataset.key;state.uiOpen.amenityGroup=state.uiOpen.amenityGroup===k?'':k;saveState();renderApp(true);if(state.uiOpen.amenityGroup)focusAccordion(`.mini-acc[data-mini="amenity"][data-mini-key="${k}"]`);break;}
+  case'remove-category':{const i=Number(el.dataset.index);const cats=arr(state.brand.identity.categories);if(i>=0&&i<cats.length){cats.splice(i,1);state.brand.identity.categories=cats;saveState();renderApp(true);}break;}
+  case'add-custom-category':{const inp=$('#categoryCustom');if(!inp)break;const v=inp.value.trim();if(!v){toast('Type a category first.');break;}const cats=arr(state.brand.identity.categories);if(!cats.includes(v))cats.push(v);state.brand.identity.categories=cats;saveState();renderApp(true);toast('Category added.');break;}
+  case'save-draft':saveState(true);break;
+  case'preview':showPreview();break;
+  case'close-modal':closeModal();break;
+ }
+}
+
+function handleInput(el){
+ const path=el.dataset.bind;
+ if(!path)return;
+ let val;
+ if(el.type==='checkbox')val=el.checked;
+ else if(el.dataset.valueType==='number')val=el.value===''?'':Number(el.value);
+ else val=el.value;
+ pathSet(path,val);
+ saveState();
+ refreshLiveLabels();
+ const img=$(`[data-image-preview="${CSS.escape(path)}"]`);
+ if(img&&el.type!=='file')img.innerHTML=imagePreview(val,'Image preview');
+}
+function handleChange(el){
+ if(el.dataset.choice){
+  setChoice(el.dataset.choice,el.dataset.choiceValue,el.checked);
+  if(el.dataset.choice==='branch.capabilities'||el.dataset.choice.startsWith('branch.amenities'))renderApp(true);
+  return;
+ }
+ if(el.dataset.bind){
+  handleInput(el);
+  const p=el.dataset.bind;
+  if(p==='branch.type'){
+   const b=activeBranch();const type=BRANCH_TYPES.find(t=>t.id===b.type);
+   if(type)b.capabilities=type.caps.slice();
+   renderApp(true);
+  } else if(['branch.inheritBrandContacts','branch.inheritBrandSocialLinks'].includes(p))renderApp(true);
+  else if(p.endsWith('.role'))renderApp(true);
+ }
+}
+
+function compressImage(file,callback){
+ const reader=new FileReader();
+ reader.onload=()=>{
+  const img=new Image();
+  img.onload=()=>{
+   const max=1000;let w=img.width,h=img.height;
+   if(Math.max(w,h)>max){const ratio=max/Math.max(w,h);w=Math.round(w*ratio);h=Math.round(h*ratio);}
+   const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+   const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,w,h);
+   try{callback(canvas.toDataURL('image/webp',0.76));}catch(err){callback(reader.result);}
+  };
+  img.onerror=()=>callback(reader.result);
+  img.src=reader.result;
+ };
+ reader.onerror=()=>toast('Could not read that image.');
+ reader.readAsDataURL(file);
+}
+function handleUpload(el){
+ const file=el.files&&el.files[0];const path=el.dataset.upload;
+ if(!file||!path)return;
+ if(!file.type.startsWith('image/')){toast('Choose an image file.');return;}
+ compressImage(file,data=>{pathSet(path,data);saveState();renderApp(true);toast('Image added to the local draft.');});
+}
+
+/* ---------- event wiring ---------- */
+$('#app-shell').addEventListener('click',ev=>{const t=ev.target.closest('[data-action]');if(t){ev.preventDefault();handleAction(t);}});
+$('#app-shell').addEventListener('input',ev=>{const t=ev.target;if(t.matches('[data-bind]')&&t.type!=='checkbox'&&!t.matches('select'))handleInput(t);});
+$('#app-shell').addEventListener('change',ev=>{
+ const t=ev.target;
+ if(t.id==='categoryPick'){const v=t.value.trim();if(v){const cats=arr(state.brand.identity.categories);if(!cats.includes(v))cats.push(v);state.brand.identity.categories=cats;saveState();renderApp(true);}return;}
+ if(t.matches('[data-upload]'))handleUpload(t);
+ else if(t.matches('[data-action="assign-existing-staff"]')){const id=t.value;if(id&&!activeBranch().staffAssignments.includes(id)){activeBranch().staffAssignments.push(id);state.uiOpen.branch='staff';saveState();renderApp(true);toast('Staff assigned to this branch.');}}
+ else if(t.matches('[data-bind], [data-choice]'))handleChange(t);
+});
+$('#modalBackdrop').addEventListener('click',ev=>{const t=ev.target.closest('[data-action]');if(t)handleAction(t);if(ev.target===$('#modalBackdrop'))closeModal();});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!$('#modalBackdrop').classList.contains('hide'))closeModal();});
+let touchX=null,touchY=null;
+$('#branchRailView').addEventListener('touchstart',ev=>{if(!ev.target.closest('#railHeader'))return;touchX=ev.touches[0].clientX;touchY=ev.touches[0].clientY;},{passive:true});
+$('#branchRailView').addEventListener('touchend',ev=>{if(touchX===null)return;const dx=ev.changedTouches[0].clientX-touchX,dy=ev.changedTouches[0].clientY-touchY;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.25)moveBranch(dx<0?1:-1);touchX=null;touchY=null;},{passive:true});
+
+function normalizeState(){
+ state.brand.identity.categories=arr(state.brand.identity.categories);
+ state.brand.deliveryZones=arr(state.brand.deliveryZones);
+ state.brand.insurance=arr(state.brand.insurance);
+ state.brand.contacts=arr(state.brand.contacts);
+ state.brand.socialLinks=arr(state.brand.socialLinks);
+ state.brand.users=arr(state.brand.users);
+ state.staffDirectory=arr(state.staffDirectory);
+ state.branches.forEach(b=>{
+  b.capabilities=arr(b.capabilities);b.contacts=arr(b.contacts);b.socialLinks=arr(b.socialLinks);
+  b.deliveryZones=arr(b.deliveryZones);b.crewServices=arr(b.crewServices);b.partnerships=arr(b.partnerships);
+  b.inventory=arr(b.inventory);b.quotes=arr(b.quotes);b.packages=arr(b.packages);b.gallery=arr(b.gallery);
+  b.paymentPartnerships=arr(b.paymentPartnerships);b.paymentMethods=arr(b.paymentMethods);
+  b.promotions=arr(b.promotions);b.staffAssignments=arr(b.staffAssignments);
+  b.amenities=b.amenities||{showroom:[],warehouse:[],delivery:[],compliance:[]};
+  ['showroom','warehouse','delivery','compliance'].forEach(k=>b.amenities[k]=arr(b.amenities[k]));
+  b.hours=b.hours||{showroom:WEEKDAYS.map(d=>({day:d,open:'',close:'',closed:false})),warehouse:WEEKDAYS.map(d=>({day:d,open:'',close:'',closed:false})),delivery:WEEKDAYS.map(d=>({day:d,open:'',close:'',closed:false}))};
+  ['showroom','warehouse','delivery'].forEach(k=>{b.hours[k]=arr(b.hours[k]);if(!b.hours[k].length)b.hours[k]=WEEKDAYS.map(d=>({day:d,open:'',close:'',closed:false}));});
+  b.showroom=b.showroom||{address:'',openingHours:'',appointmentRequired:true,tourBooking:true,sampleCatalogue:false,consultationFee:'',notes:''};
+  b.booking=b.booking||{autoQuote:false,confirmOnPayment:false,corporateInvoice:false,requireDamageWaiver:false,holdBreakageDeposit:false,notes:''};
+  b.inventory.forEach(m=>{
+   m.images=arr(m.images);
+   m.rentalPeriods=m.rentalPeriods||{hourly:'',halfDay:'',fullDay:'',weekend:'',week:'',month:''};
+   m.availability=m.availability||{leadTimeDays:2,blockedDates:'',peakSurcharge:''};
+  });
+  b.packages.forEach(p=>{p.items=arr(p.items);p.gallery=arr(p.gallery);});
+  b.quotes.forEach(q=>{q.items=arr(q.items);});
+ });
+}
+normalizeState();
+state.uiOpen={brand:'',branch:'',hoursSection:'',amenityGroup:''};
+renderApp(false);
+saveState();
+})();
+</script>
+</body>
+</html>

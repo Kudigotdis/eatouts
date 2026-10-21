@@ -5,11 +5,27 @@
 
   var TYPES = {
     restaurant: { label: 'Restaurant', blurb: 'Menus, orders, tables and delivery.' },
-    liquor_store: { label: 'Liquor store', blurb: 'Beverages, age-gated sales and delivery.' },
-    event_supplier: { label: 'Event supplier', blurb: 'MC, decor, security, AV and entertainment.' },
-    food_truck: { label: 'Food truck', blurb: 'Weekly route, live status and mobile ordering.' },
-    caterer: { label: 'Caterer', blurb: 'Per-head menus, quotes and event orders.' }
+    caterer: { label: 'Caterer', blurb: 'Per-head menus, quotes and event orders.' },
+    bakery: { label: 'Bakery', blurb: 'Cakes, breads, pastries and custom orders.' },
+    liquor_store: { label: 'Liquor Store', blurb: 'Beverages, age-gated sales and delivery.' },
+    food_truck: { label: 'Mobile Kitchen', blurb: 'Weekly route, live status and mobile ordering.' },
+    event_supplier: { label: 'Event Supplier', blurb: 'MC, decor, security, AV and entertainment.' }
   };
+
+  /* Each business type finishes its setup on its own onboarding form. */
+  var ONBOARDING = {
+    restaurant: 'restaurant-onboarding.html',
+    caterer: 'caterer-onboarding.html',
+    bakery: 'bakery-onboarding.html',
+    liquor_store: 'bottle-store-onboarding.html',
+    food_truck: 'mobile-kitchen-onboarding.html',
+    event_supplier: 'supplier-onboarding.html'
+  };
+
+  function onboardingHref(v) {
+    var page = ONBOARDING[v && v.business_type] || 'eatouts-business-signup.html';
+    return page + '?biz=' + encodeURIComponent((v && v.id) || '');
+  }
 
   /* Feature copy shown inside the floating popup for each type. */
   var FEATURES = {
@@ -39,6 +55,11 @@
       { label: 'Per-Head Menus', title: 'Transparent Guest Pricing', desc: 'Build customizable set menus with automated cost-per-guest calculations for weddings, corporate lunches, and private dinners.' },
       { label: 'Quotes', title: 'Instant Custom Proposals', desc: 'Send tailored quotes directly to clients based on guest count, diet requests, and service staff requirements.' },
       { label: 'Event Orders', title: 'Large-Scale Catering Logistics', desc: 'Manage bulk food prep, delivery timelines, on-site setup options, and multi-course event itineraries in one place.' }
+    ],
+    bakery: [
+      { label: 'Catalogue', title: 'Cakes, Breads, Pastries and Platters', desc: 'Build a catalogue with photos, sizes, flavours and prices — from loaves and vetkoek to tiered celebration cakes and party platters. Mark items sold out when the day\u2019s batch is gone.' },
+      { label: 'Custom Orders', title: 'Take Cake Orders with a Deposit', desc: 'Customers request a date, size, flavour and message on the cake. You set the lead time and take a deposit to confirm, with the balance settled on collection or delivery.' },
+      { label: 'Lead Times', title: 'Same-Day Bread, Booked-Ahead Cakes', desc: 'Set a different cut-off per item, so walk-in bread and same-day cupcakes stay orderable while large or decorated orders require notice.' }
     ]
   };
 
@@ -370,7 +391,7 @@
         var chips = statusChip(v);
         var btn = '';
         if (mine(v)) {
-          btn = '<a class="btn btn-sm primary" href="business-onboarding1.html?biz=' + encodeURIComponent(v.id) + '">Continue editing</a>';
+          btn = '<a class="btn btn-sm primary" href="' + esc(onboardingHref(v)) + '">Continue editing</a>';
         } else if (claimable(v)) {
           btn = '<a class="btn btn-sm primary" data-a="claim" data-id="' + esc(v.id) + '">Claim it</a>';
         } else if (v.whatsapp) {
@@ -452,7 +473,7 @@
         '<label class="field" style="flex:1"><span>Years in business</span><input id="p-years" inputmode="numeric"' + n('years', v.years_in_business) + '></label>' +
       '</div>' +
       '<div class="sg-actions"><a class="btn primary" data-a="profile-save">Save profile</a>' +
-        '<a class="btn" href="business-onboarding1.html?biz=' + encodeURIComponent(v.id) + '">Menus &amp; photos</a></div>' +
+        '<a class="btn" href="' + esc(onboardingHref(v)) + '">Menus &amp; photos</a></div>' +
       '<div class="sg-links">' +
         (isAgent() ? '<a class="btn" href="ops-console.html#field">Open my workspace</a>' : '') +
         '<a class="btn" data-a="done">Done \u2014 I\u2019ll keep going later</a>' +

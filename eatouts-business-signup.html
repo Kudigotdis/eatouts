@@ -488,6 +488,11 @@
     overflow-y:auto;
     flex:1 1 auto;
     -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  .popup-body::-webkit-scrollbar{
+    display:none;
   }
   .popup-foot{
     padding:14px 20px calc(18px + env(safe-area-inset-bottom));
@@ -574,7 +579,7 @@
           <small>Cakes, breads, pastries and custom orders.</small>
         </a>
         <a class="choice" href="eatouts-business-signup.html?type=liquor_store" data-type-info="liquor_store">
-          <strong>Liquor store</strong>
+          <strong>Liquor Store</strong>
           <small>Beverages, age-gated sales and delivery.</small>
         </a>
         <a class="choice" href="eatouts-business-signup.html?type=food_truck" data-type-info="food_truck">
@@ -582,7 +587,7 @@
           <small>Weekly stops, live status and mobile ordering.</small>
         </a>
         <a class="choice" href="eatouts-business-signup.html?type=event_supplier" data-type-info="event_supplier">
-          <strong>Event supplier</strong>
+          <strong>Event Supplier</strong>
           <small>MC, decor, security, AV and entertainment.</small>
         </a>
       </div>
@@ -716,7 +721,7 @@
     },
 
     liquor_store: {
-      title: 'Liquor store',
+      title: 'Liquor Store',
       cta: 'Get Started',
       body:
         '<div class="feature">' +
@@ -768,7 +773,7 @@
     },
 
     event_supplier: {
-      title: 'Event supplier',
+      title: 'Event Supplier',
       cta: 'Get Started',
       body:
         '<div class="feature">' +
@@ -830,6 +835,25 @@
   };
 
   /* ─────────────────────────────────────────────
+     Where each business type finishes its setup.
+     The popup CTA sends people to the right
+     onboarding form — never back to this page.
+     ───────────────────────────────────────────── */
+  var TYPE_ONBOARDING = {
+    restaurant:    'restaurant-onboarding.html',
+    caterer:       'caterer-onboarding.html',
+    bakery:        'bakery-onboarding.html',
+    liquor_store:  'bottle-store-onboarding.html',
+    food_truck:    'mobile-kitchen-onboarding.html',
+    event_supplier:'supplier-onboarding.html'
+  };
+
+  function onboardingHref(typeKey) {
+    var page = TYPE_ONBOARDING[typeKey];
+    return page || 'eatouts-business-signup.html';
+  }
+
+  /* ─────────────────────────────────────────────
      Popup plumbing
      ───────────────────────────────────────────── */
   var scrim    = document.getElementById('typePopupScrim');
@@ -887,7 +911,8 @@
     var card = e.target.closest('[data-type-info]');
     if (card) {
       e.preventDefault();
-      openPopup(TYPE_INFO[card.getAttribute('data-type-info')], card.getAttribute('href'));
+      var key = card.getAttribute('data-type-info');
+      openPopup(TYPE_INFO[key], onboardingHref(key));
       return;
     }
 
@@ -913,8 +938,7 @@
   /* Deep link: ?type=bakery opens the matching popup on load. */
   var type = new URLSearchParams(window.location.search).get('type');
   if (type && TYPE_INFO[type]) {
-    var match = document.querySelector('[data-type-info="' + type + '"]');
-    openPopup(TYPE_INFO[type], match ? match.getAttribute('href') : null);
+    openPopup(TYPE_INFO[type], onboardingHref(type));
   }
 })();
 </script>

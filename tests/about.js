@@ -49,10 +49,10 @@ setTimeout(() => {
 
   const typeLinks = vp.querySelectorAll('a[href^="eatouts-business-signup.html?type="]');
   check('list-business CTA present', typeLinks.length > 0, 'count=' + typeLinks.length);
-  check('five business-type links present', typeLinks.length === 5, 'count=' + typeLinks.length);
+  check('six business-type links present', typeLinks.length === 6, 'count=' + typeLinks.length);
   const typeSlugs = Array.from(typeLinks).map(a => (a.getAttribute('href') || '').split('type=')[1]).sort();
-  check('type links are the five canonical slugs',
-    JSON.stringify(typeSlugs) === JSON.stringify(['caterer', 'event_supplier', 'food_truck', 'liquor_store', 'restaurant']),
+  check('type links are the six canonical slugs',
+    JSON.stringify(typeSlugs) === JSON.stringify(['bakery', 'caterer', 'event_supplier', 'food_truck', 'liquor_store', 'restaurant']),
     typeSlugs.join(','));
   check('CTA offers List As "Restaurant"',
     Array.from(typeLinks).some(a => /list as .*restaurant/i.test(a.textContent)));
@@ -74,8 +74,8 @@ setTimeout(() => {
     'expected the Need Design anchor to immediately follow <details.setacc>');
   const bizPanel = listBizDetails && listBizDetails.querySelector('.acc-in');
   const bizLinks = bizPanel ? Array.from(bizPanel.querySelectorAll('a[href^="eatouts-business-signup.html?type="]')) : [];
-  check('List Business panel holds only the 5 List As links',
-    !!bizPanel && bizLinks.length === 5 && !bizPanel.querySelector('a[href="designer-services.html"]'),
+  check('List Business panel holds only the 6 List As links',
+    !!bizPanel && bizLinks.length === 6 && !bizPanel.querySelector('a[href="designer-services.html"]'),
     'count=' + bizLinks.length);
 
   const oldShare = vp.querySelector('a.btn.share');
@@ -127,7 +127,7 @@ setTimeout(() => {
     .filter(a => a.textContent.trim() === 'Create Account')[0] : null;
   check('guest feature offers Create Account (primary, onboarding)',
     !!createCta && createCta.classList.contains('primary') &&
-    createCta.getAttribute('href') === 'eatouts-user-onboarding.html');
+    createCta.getAttribute('href') === 'eatouts_user_onboarding.html');
   click(feature.querySelector('[data-act="aboutBack"]'));
   check('guest feature Back returns to the options list',
     !!vp.querySelector('.card-alert.pp .card-alert-options .card-opt'));

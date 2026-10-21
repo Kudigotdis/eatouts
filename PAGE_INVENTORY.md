@@ -32,109 +32,116 @@ only reads; it never rewrites this file. It warns on line drift.
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 1 | `index.html` | **Main SPA** — mobile-first customer app with 5 tabs. Contains ~30 sub-screens (see Part 2). | Site root via `run-eatouts.bat` | `PAGE: EatOuts (customer SPA)` | 9250 |
+| 1 | `index.html` | **Main SPA** — mobile-first customer app with 5 tabs. Contains ~30 sub-screens (see Part 2). | Site root via `run-eatouts.bat` | `PAGE: EatOuts (customer SPA)` | 9,967 |
 | 2 | `get-started.html` | Marketing landing for operators explaining the offer and linking into intake/pricing. | Direct / marketing links | `PAGE: Get Started — EatOuts for Restaurants` | 185 |
 | 3 | `pricing.html` | Public pricing page with plan tiers. | Marketing links; get-started.html | `PAGE: Partner Pricing` | 243 |
-| 4 | `one-pager.html` | Static sales one-pager for prospects. | Direct link | `PAGE: EatOuts — Pitch One-Pager` | 157 |
+| 4 | `one-pager.html` | Static sales one-pager for prospects. | Direct link | `PAGE: EatOuts — Pitch One-Pager` | 650 |
 | 5 | `partner-terms.html` | Static partner/merchant terms. | Direct link | `PAGE: Merchant Terms` | 188 |
 | 6 | `404.html` | Custom not-found page with rotating Mophutsi quotes. | Served automatically | `PAGE: 404 — Page Not Here` | 232 |
-| 7 | `eatouts-blog.html` | Blog feed with per-post pages + on-device authoring. | Direct / home links | `PAGE: Blog` | 493 |
-| 8 | `eatouts-suppliers.html` | Supplier directory + self-onboarding and sign-in. | Direct link | `PAGE: Suppliers` | 1795 |
+| 7 | `eatouts-blog.html` | Blog feed with per-post pages + on-device authoring. | Direct / home links | `PAGE: Blog` | 491 |
+| 8 | `eatouts-suppliers.html` | Supplier directory + self-onboarding and sign-in. | Direct link | `PAGE: Suppliers` | 1,780 |
 | 9 | `eatouts_feedback.html` | Multi-step feedback form → WhatsApp to support. | About → Settings → Feedback | `PAGE: Send feedback` | 834 |
 | 10 | `eatouts-about.html` | Public About EatOuts page (standalone). | About → Settings → About EatOuts | `PAGE: About` | 92 |
-| 11 | `eatouts-checkout-summary.html` | Post-checkout order summary. | Direct link | `PAGE: Checkout summary` | 23 |
-| 12 | `intake.html` | Business intake / lead form. | Direct / marketing links | `PAGE: Concierge Intake` | 1155 |
+| 11 | `eatouts-checkout-summary.html` | Post-checkout order summary. | Direct link | `PAGE: Checkout summary` | 388 |
+| 12 | `intake.html` | Business intake / lead form. | Direct / marketing links | `PAGE: Concierge Intake` | 1,195 |
 | 13 | `invoice.html` | Invoice page. | Direct link | `PAGE: Invoice` | 395 |
 
 ## B. Customer Account & Auth
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 15 | `eatouts-login.html` | Universal WhatsApp + PIN sign-in; routes by role. | Direct; also About → Operator Sign in | `PAGE: Login` | 44 |
-| 16 | `eatouts-user-onboarding.html` | Customer account creation with an 18+ gate. | login → create account | `PAGE: Customer onboarding` | 130 |
-| 17 | `eatouts-profile.html` | User profile page. | Profile card → My Profile | `PAGE: My profile` | 19 |
-| 18 | `eatouts-orders.html` | Order history. | Profile card → Order History | `PAGE: My orders` | 37 |
-| 19 | `eatouts-favourites.html` | Saved favourites. | Profile card → Favourites | `PAGE: Favourites` | 213 |
-| 20 | `eatouts-summaries.html` | Saved summaries. | Profile card → Saved Summaries | `PAGE: Saved summaries` | 23 |
-| 21 | `eatouts-events.html` | Events page (standalone). | Profile card → Events | `PAGE: Events` | 25 |
-| 22 | `eatouts-gallery.html` | Gallery page (standalone). | Profile card → Gallery | `PAGE: Gallery` | 17 |
-| 23 | `eatouts-notifications.html` | Notifications page. | Direct / app links | `PAGE: Notifications` | 3 |
-| 24 | `eatouts-addresses.html` | Saved addresses. | Profile card → Addresses | `PAGE: Addresses` | 54 |
-| 25 | `eatouts-settings.html` | App settings page. | Direct / app links | `PAGE: Platform settings` | 3 |
+| 14 | `eatouts-login.html` | Universal WhatsApp + PIN sign-in; routes by role. | Direct; also About → Operator Sign in | `PAGE: Login` | 44 |
+| 15 | `eatouts-user-onboarding.html` | Redirect shim — the customer account page now lives at `eatouts_user_onboarding.html`. | old links / bookmarks | `PAGE: Customer onboarding redirect` | 30 |
+| 16 | `eatouts-profile.html` | User profile page. | Profile card → My Profile | `PAGE: My profile` | 1,217 |
+| 17 | `eatouts-orders.html` | Order history. | Profile card → Order History | `PAGE: My orders` | 967 |
+| 18 | `eatouts-favourites.html` | Saved favourites. | Profile card → Favourites | `PAGE: Favourites` | 1,278 |
+| 19 | `eatouts-summaries.html` | Saved summaries. | Profile card → Saved Summaries | `PAGE: Saved summaries` | 756 |
+| 20 | `eatouts-events.html` | Events page (standalone). | Profile card → Events | `PAGE: Events` | 402 |
+| 21 | `eatouts-gallery.html` | Gallery page (standalone). | Profile card → Gallery | `PAGE: Gallery` | 17 |
+| 22 | `eatouts-notifications.html` | Notifications page. | Direct / app links | `PAGE: Notifications` | 941 |
+| 23 | `eatouts-addresses.html` | Saved addresses. | Profile card → Addresses | `PAGE: Addresses` | 707 |
+| 24 | `eatouts-settings.html` | App settings page. | Direct / app links | `PAGE: Platform settings` | 1,006 |
 
 ## C. Business Onboarding / Signup
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 26 | `eatouts-business-signup.html` | Business-type chooser for new businesses. | login / marketing links | `PAGE: List your business` | 565 |
-| 27 | `business-onboarding1.html` | Unified per-type business setup (module rail, draft autosave, preview, publish). | business-signup / per-type wrappers | `PAGE: Business onboarding` | 95 |
-| 28 | `restaurant-onboarding.html` | Master profile editor for a single restaurant (15 sections). | Operator back-office → Restaurant tab | `PAGE: Restaurant Setup` | 793 |
-| 29 | `bottle-store-onboarding.html` | Redirect wrapper into unified onboarding (bottle store). | business-signup | `PAGE: Bottle store onboarding` | 3 |
-| 30 | `caterer-onboarding.html` | Redirect wrapper into unified onboarding (caterer). | business-signup | `PAGE: Caterer onboarding` | 3 |
-| 31 | `lodge-onboarding.html` | Redirect wrapper into unified onboarding (lodge). | business-signup | `PAGE: Lodge onboarding` | 3 |
-| 32 | `supplier-onboarding.html` | Redirect wrapper into unified onboarding (supplier). | business-signup | `PAGE: Supplier onboarding` | 3 |
-| 33 | `event-onboarding.html` | Manage events and the performer roster. | Operator back-office → Events tab | `PAGE: Events & Performers` | 470 |
-| 34 | `menu-onboarding.html` | Build menu categories, items and variants. | Operator back-office → Menu tab | `PAGE: Menu Management` | 412 |
-| 35 | `promo-onboarding.html` | Create and manage promotions. | Operator back-office → Promos tab | `PAGE: Promotions` | 359 |
-| 36 | `gallery-onboarding.html` | Manage gallery groups and images. | Operator back-office → Gallery tab | `PAGE: Gallery` | 243 |
-| 37 | `food-truck-schedule1.html` | Food-truck location and service-day schedule. | Operator login | `PAGE: Food truck schedule` | 38 |
+| 25 | `eatouts-business-signup.html` | Business-type chooser for new businesses — each card opens that type’s own onboarding form. | login / marketing links | `PAGE: List your business` | 947 |
+| 26 | `restaurant-onboarding.html` | Restaurant setup — brand, outlets, venue spaces, menu, promotions and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Restaurant; operator dashboard | `PAGE: Restaurant Setup` | 573 |
+| 27 | `bottle-store-onboarding.html` | Bottle & liquor store setup — brand, outlets, stock, tastings and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Bottle store; operator dashboard | `PAGE: Bottle store onboarding` | 1,629 |
+| 28 | `caterer-onboarding.html` | Caterer setup — brand, outlets, menus, service coverage and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Caterer; operator dashboard | `PAGE: Caterer onboarding` | 1,902 |
+| 29 | `lodge-onboarding.html` | Lodge setup — property, rooms, amenities, rates and booking rules. | business-signup → Lodge; operator dashboard | `PAGE: Lodge onboarding` | 1,093 |
+| 30 | `supplier-onboarding.html` | Event supplier setup — the shared service catalogue, contact and coverage details and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Event supplier; operator dashboard | `PAGE: Supplier onboarding` | 1,233 |
+| 31 | `event-onboarding.html` | Manage events and the performer roster. | Operator back-office → Events tab | `PAGE: Events & Performers` | 1,409 |
+| 32 | `menu-onboarding.html` | Build menu categories, items and variants. | Operator back-office → Menu tab | `PAGE: Menu Management` | 433 |
+| 33 | `promo-onboarding.html` | Create and manage promotions. | Operator back-office → Promos tab | `PAGE: Promotions` | 398 |
+| 34 | `gallery-onboarding.html` | Manage gallery groups and images. | Operator back-office → Gallery tab | `PAGE: Gallery` | 267 |
+| 35 | `food-truck-schedule1.html` | Food-truck location and service-day schedule. | Operator login | `PAGE: Food truck schedule` | 38 |
 
 ## D. Delivery Flows
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 38 | `customer-delivery.html` | Customer delivery tracking / status. | After placing an order | `PAGE: Delivery` | 1021 |
-| 39 | `restaurant-delivery.html` | Restaurant delivery management page. | Operator back-office → Delivery | `PAGE: Restaurant Delivery` | 702 |
-| 40 | `driver-delivery.html` | Driver delivery interface. | Driver login | `PAGE: Driver Delivery` | 503 |
+| 36 | `customer-delivery.html` | Customer delivery tracking / status. | After placing an order | `PAGE: Delivery` | 1,021 |
+| 37 | `restaurant-delivery.html` | Restaurant delivery management page. | Operator back-office → Delivery | `PAGE: Restaurant Delivery` | 702 |
+| 38 | `driver-delivery.html` | Driver delivery interface. | Driver login | `PAGE: Driver Delivery` | 503 |
 
 ## E. Business Back-Office
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 41 | `restaurant-dashboard.html` | Owner dashboard: status, completeness, analytics, billing, reports. | Operator back-office → Dashboard tab | `PAGE: Dashboard` | 485 |
-| 42 | `operator-dashboard1.html` | Role-gated business workspace with a business switcher. | login → after publishing | `PAGE: Business workspace` | 105 |
-| 43 | `order-manager.html` | Live order queue with status management + audit. | Operator back-office → Orders | `PAGE: Order manager` | 3 |
-| 44 | `reservation-manager.html` | Table bookings, guests and deposits. | Operator back-office → Reservations | `PAGE: Reservation manager` | 3 |
-| 45 | `booking-manager.html` | Supplier/lodge booking requests with calendar. | Operator back-office → Bookings | `PAGE: Booking manager` | 3 |
-| 46 | `delivery-manager.html` | Delivery zones, fees, capacity, drivers, windows. | Operator back-office → Delivery | `PAGE: Delivery manager` | 3 |
-| 47 | `staff-manager.html` | Staff CRUD, employment records, roles. | Operator back-office → Staff | `PAGE: Staff manager` | 41 |
-| 48 | `room-manager.html` | Room/lodge unit management. | Operator back-office → Rooms | `PAGE: Room manager` | 3 |
-| 49 | `quote-manager.html` | Quote / estimate management. | Operator back-office → Quotes | `PAGE: Quote manager` | 3 |
-| 50 | `billing-manager.html` | Billing and payments. | Operator back-office → Billing | `PAGE: Billing manager` | 5 |
-| 51 | `feedback-manager.html` | Business feedback management. | Operator back-office → Feedback | `PAGE: Feedback manager` | 4 |
-| 52 | `analytics-manager.html` | Analytics manager (staging). | Operator back-office → Analytics | `PAGE: Analytics manager` | 3 |
+| 39 | `restaurant-dashboard.html` | Owner dashboard: status, completeness, analytics, billing, reports. | Operator back-office → Dashboard tab | `PAGE: Dashboard` | 485 |
+| 40 | `operator-dashboard1.html` | Role-gated business workspace with a business switcher. | login → after publishing | `PAGE: Business workspace` | 105 |
+| 41 | `order-manager.html` | Live order queue with status management + audit. | Operator back-office → Orders | `PAGE: Order manager` | 3 |
+| 42 | `reservation-manager.html` | Table bookings, guests and deposits. | Operator back-office → Reservations | `PAGE: Reservation manager` | 3 |
+| 43 | `booking-manager.html` | Supplier/lodge booking requests with calendar. | Operator back-office → Bookings | `PAGE: Booking manager` | 3 |
+| 44 | `delivery-manager.html` | Delivery zones, fees, capacity, drivers, windows. | Operator back-office → Delivery | `PAGE: Delivery manager` | 824 |
+| 45 | `staff-manager.html` | Staff CRUD, employment records, roles. | Operator back-office → Staff | `PAGE: Staff manager` | 43 |
+| 46 | `room-manager.html` | Room/lodge unit management. | Operator back-office → Rooms | `PAGE: Room manager` | 3 |
+| 47 | `quote-manager.html` | Quote / estimate management. | Operator back-office → Quotes | `PAGE: Quote manager` | 3 |
+| 48 | `billing-manager.html` | Billing and payments. | Operator back-office → Billing | `PAGE: Billing manager` | 5 |
+| 49 | `feedback-manager.html` | Business feedback management. | Operator back-office → Feedback | `PAGE: Feedback manager` | 4 |
+| 50 | `analytics-manager.html` | Analytics manager (staging). | Operator back-office → Analytics | `PAGE: Analytics manager` | 3 |
 
 ## F. Platform Admin
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 53 | `eatouts-admin-dashboard.html` | Platform admin dashboard — analytics, business explorer, alert mgr, roles, seed data. | admin login | `PAGE: EatOuts admin dashboard` | 122 |
-| 54 | `eatouts-users-manager.html` | User management (platform). | admin dashboard | `PAGE: Users manager` | 7 |
-| 55 | `eatouts-verification-queue.html` | Verification queue for listings. | admin dashboard | `PAGE: Verification queue` | 3 |
-| 56 | `eatouts-platform-analytics.html` | Platform-wide analytics. | admin dashboard | `PAGE: Platform analytics` | 3 |
-| 57 | `eatouts-staff-admin1.html` | Restricted platform-staff workspace with role-limited tabs. | admin login | `PAGE: EatOuts staff workspace` | 56 |
-| 58 | `blog-creator-dashboard.html` | Blog writer/publisher workspace. | admin login | `PAGE: Blog creator dashboard` | 3 |
-| 59 | `ops-console.html` | Operations console (field agent tracking, venue mgmt). | admin login | `PAGE: Ops Console` | 1160 |
-| 60 | `brand-kit-admin.html` | Brand kit / designer job admin. | admin login | `PAGE: Brand Jobs — EatOuts Admin` | 724 |
+| 51 | `eatouts-admin-dashboard.html` | Platform admin dashboard — analytics, business explorer, alert mgr, roles, seed data. | admin login | `PAGE: EatOuts admin dashboard` | 1,012 |
+| 52 | `eatouts-users-manager.html` | User management (platform). | admin dashboard | `PAGE: Users manager` | 957 |
+| 53 | `eatouts-verification-queue.html` | Verification queue for listings. | admin dashboard | `PAGE: Verification queue` | 713 |
+| 54 | `eatouts-platform-analytics.html` | Platform-wide analytics. | admin dashboard | `PAGE: Platform analytics` | 809 |
+| 55 | `eatouts-staff-admin1.html` | Restricted platform-staff workspace with role-limited tabs. | admin login | `PAGE: EatOuts staff workspace` | 1,506 |
+| 56 | `blog-creator-dashboard.html` | Blog writer/publisher workspace. | admin login | `PAGE: Blog creator dashboard` | 700 |
+| 57 | `ops-console.html` | Operations console (field agent tracking, venue mgmt). | admin login | `PAGE: Ops Console` | 1,160 |
+| 58 | `brand-kit-admin.html` | Brand kit / designer job admin. | admin login | `PAGE: Brand Jobs — EatOuts Admin` | 724 |
 
 ## G. Designer Services
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 61 | `designer-services.html` | Public marketplace for design services. | About → Settings → Need Design | `PAGE: Design Services` | 746 |
-| 62 | `designer-dashboard.html` | Designer workspace — jobs, payouts, availability. | designer login | `PAGE: Designer Workspace` | 323 |
+| 59 | `designer-services.html` | Public marketplace for design services. | About → Settings → Need Design | `PAGE: Design Services` | 746 |
+| 60 | `designer-dashboard.html` | Designer workspace — jobs, payouts, availability. | designer login | `PAGE: Designer Workspace` | 323 |
 
 ## H. Developer Tools
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 63 | `seed-demo.html` | Seed demo data tool. | Direct link | `PAGE: Seed & Verify` | 441 |
-| 64 | `eatout_event_builder.html` | Event builder tool for testing. | Direct link | `PAGE: EatOuts — Event Planner` | 4202 |
-| 65 | `eatouts-disputes.html` | Disputes page. | admin dashboard / app links | `PAGE: Disputes` | 3 |
-| 66 | `about-guest-popup.html` | Standalone demo of the Create Profile (guest) popup on the About tab. | About tab | `PAGE: About Guest Popup` | 162 |
-| 67 | `about-profile-options.html` | Standalone demo of the logged-in profile-options popup. | About tab | `PAGE: About Profile Options` | 473 |
-| 68 | `venue-about.html` | Data-driven standalone venue About page — resolves a business from the directory/demo registry/bottle/catering/bridge/API and renders its About surface from that business alone; unresolvable slugs show a "Choose a business" empty state. | Direct / shared links; `index.html#<slug>` | `PAGE: venue-about` | 1495 |
+| 61 | `seed-demo.html` | Seed demo data tool. | Direct link | `PAGE: Seed & Verify` | 441 |
+| 62 | `eatout_event_builder.html` | Event builder tool for testing. | Direct link | `PAGE: EatOuts — Event Planner` | 4,202 |
+| 63 | `eatouts-disputes.html` | Disputes page. | admin dashboard / app links | `PAGE: Disputes` | 432 |
+| 64 | `about-guest-popup.html` | Standalone demo of the Create Profile (guest) popup on the About tab. | About tab | `PAGE: About Guest Popup` | 162 |
+| 65 | `about-profile-options.html` | Standalone demo of the logged-in profile-options popup. | About tab | `PAGE: About Profile Options` | 473 |
+| 66 | `venue-about.html` | Data-driven standalone venue About page — resolves a business from the directory/demo registry/bottle/catering/bridge/API and renders its About surface from that business alone; unresolvable slugs show a "Choose a business" empty state. | Direct / shared links; `index.html#<slug>` | `PAGE: venue-about` | 1,460 |
 
+
+## I. Onboarding Redesign Additions (2026-10)
+
+| # | File | What it is | How you reach it | Page marker | ~Lines |
+|---|------|-----------|------------------|-------------|--------|
+| 67 | `bakery-onboarding.html` | Bakery setup — brand, outlets, products, café/seating and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Bakery; operator dashboard | `PAGE: Bakery onboarding` | 1,701 |
+| 68 | `mobile-kitchen-onboarding.html` | Mobile kitchen setup — units, service locations, grab-and-go menu, throughput and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Mobile Kitchen; operator dashboard | `PAGE: Mobile kitchen onboarding` | 1,184 |
+| 69 | `eatouts_user_onboarding.html` | Customer account creation — 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks. | login → create account; About guest popup | `PAGE: Customer onboarding` | 270 |
 ---
 
 # Part 2 — Screens Within index.html (SPA)

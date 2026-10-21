@@ -69,7 +69,8 @@ const SUITES = [
   'catering-directory.js',
   'bakery-directory.js',
   'business-profiles.js',
-  'business-promos.js'
+  'business-promos.js',
+  'onboarding-bridge.js'
 ];
 
 function pad(n, width) {

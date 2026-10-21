@@ -92,6 +92,41 @@ const h1 = adoc.querySelector('.hero h1');
 check('venue-about hero shows the bakery name', !!h1 && h1.textContent.indexOf('Bakeology') > -1, h1 && h1.textContent);
 check('venue-about document title set', adoc.title.indexOf('Bakeology') > -1, adoc.title);
 
+// 9. swipe-between-panels machinery: thumb pixel-sync + settle-then-commit
+check('thumb follows via setBevToggleThumb', ev('typeof setBevToggleThumb') === 'function');
+check('swipe commit is deferred (commitRestPanelFromScroll)', ev('typeof commitRestPanelFromScroll') === 'function');
+check('settle timer variable exists', ev('typeof bevSettleTimer !== "undefined"'));
+let syncThrew = false;
+try { ev('(function(){state.tab="restaurants";state.restPanel="food";render();syncBeveragesPanel();commitRestPanelFromScroll();})()'); } catch (e) { syncThrew = true; }
+check('sync/commit paths never throw (no-layout guard)', !syncThrew);
+check('commit with no scroll keeps the panel', ev('state.restPanel') === 'food', ev('state.restPanel'));
+check('thumb element carries no dead marker class', !doc.querySelector('.bev-toggle-thumb.ai-custom-slider'));
+check('thumb has will-change for GPU slide', /will-change:\s*transform/.test(ev('(function(){var s=[].slice.call(document.styleSheets).map(function(x){try{return [].slice.call(x.cssRules).map(function(r){return r.cssText;}).join("");}catch(e){return "";}}).join("");return s;})()') || ''));
+
+// 10. rich accordion content (matches the catering pattern)
+const accRow = doc.querySelector('.bevpage[data-page="bakeries"] .ritem') || firstRow;
+const accHtml = accRow.querySelector('.acc-wrap').innerHTML;
+check('row shows town + area select lines', (accHtml.match(/line line-select/g) || []).length === 2, (accHtml.match(/line line-select/g) || []).length + ' found');
+check('row shows Menu + Promos action lines', (accHtml.match(/line line-action/g) || []).length === 2, (accHtml.match(/line line-action/g) || []).length + ' found');
+check('town/area lines are display-only (no data-act)', !accRow.querySelector('.line-select[data-act]'));
+check('Menu and Promos are disabled notice buttons', accRow.querySelectorAll('.line-action.is-disabled[data-act="showRestNotice"]').length === 2);
+check('card-ico-row has favourite + WhatsApp + info', (accHtml.match(/ico-btn/g) || []).length >= 3 && accHtml.indexOf('data-act="toggleFav"') > -1 && accHtml.indexOf('data-act="openBakeryAbout"') > -1);
+
+// 11. WhatsApp activates only when the record has a real phone
+const withPhone = ev('bakeryOptions(bakeryBrands().filter(function(x){return x.slug==="bakery-3";})[0])');
+check('bakery with a phone gets a live WhatsApp button', withPhone.indexOf('data-act="waBakery"') > -1);
+const noPhone = ev('bakeryOptions(bakeryBrands().filter(function(x){return x.slug==="bakery-1";})[0])');
+check('bakery without a phone keeps disabled WhatsApp', noPhone.indexOf('ico-btn is-disabled') > -1 && noPhone.indexOf('waBakery') === -1);
+
+// 12. thumb never double-counts the container padding
+let thumbThrew = false;
+try { ev('setBevToggleThumb(document.querySelector(".bev-toggle"),3)'); } catch (e) { thumbThrew = true; }
+check('thumb guard: no layout => pure-CSS fallback, no inline translate', !thumbThrew && !doc.querySelector('.bev-toggle-thumb').style.transform);
+
+// 13. leaving a tab / switching panels collapses every ritem
+check('closeAllRitemAccordions clears restaurant/catering/bakery open state',
+  ev('(function(){state.restaurantOpen="r1";state.cateringOpen="c1";state.bakeryOpen="bakery-1";closeAllRitemAccordions();return state.restaurantOpen===null&&state.cateringOpen===null&&state.bakeryOpen===null;})()'));
+
 console.log('');
 console.log(pass + ' passed, ' + fail + ' failed');
 /* jsdom cannot navigate to another document — gotoVenueAbout deliberately

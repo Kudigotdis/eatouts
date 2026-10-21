@@ -24,6 +24,8 @@ const FILES = [
   'seed-demo.html',
   'restaurant-dashboard.html',
   'restaurant-onboarding.html',
+  'mobile-kitchen-onboarding.html',
+  'bakery-onboarding.html',
   'promo-onboarding.html',
   'menu-onboarding.html',
   'gallery-onboarding.html',
@@ -63,6 +65,7 @@ const FILES = [
   // Auth / onboarding
   'eatouts-login.html',
   'eatouts-user-onboarding.html',
+  'eatouts_user_onboarding.html',
   'eatouts-business-signup.html',
   'bottle-store-onboarding.html',
   'caterer-onboarding.html',
@@ -81,7 +84,6 @@ const FILES = [
   'booking-manager.html',
 
   // Spec workspaces (business / staff / food truck)
-  'business-onboarding1.html',
   'operator-dashboard1.html',
   'eatouts-staff-admin1.html',
   'food-truck-schedule1.html',

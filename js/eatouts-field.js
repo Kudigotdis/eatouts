@@ -378,7 +378,7 @@
   }
 
   /* Bind a manager/business-owner user as the venue owner so the owner can
-     open the business editors (e.g. business-onboarding1.html?biz=<id>). */
+     open the business editors (e.g. mobile-kitchen-onboarding.html?biz=<id>). */
   function bindOwner(venue, userId, actorId) {
     if (!userId) return { ok: false, error: 'Missing owner user id' };
     var next = Object.assign({}, venue);

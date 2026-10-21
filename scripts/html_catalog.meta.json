@@ -33,15 +33,15 @@
     },
     {
       "title": "Operator back-office (restaurant owners)",
-      "body": "From `index.html` â†’ About Us â†’ Operator Sign in (or demo login) the operator lands on `restaurant-dashboard.html`. The eight onboarding pages share one tab bar (Restaurant Â· Menu Â· Promos Â· Events Â· Gallery Â· Dashboard): `restaurant-onboarding.html`, `menu-onboarding.html`, `promo-onboarding.html`, `event-onboarding.html`, `gallery-onboarding.html`, `restaurant-dashboard.html`. Publish only flags status; there is no server-side publish path."
+      "body": "From `index.html` → About Us → Operator Sign in (or demo login) the operator lands on `restaurant-dashboard.html`. The eight onboarding pages share one tab bar (Restaurant · Menu · Promos · Events · Gallery · Dashboard): `restaurant-onboarding.html`, `menu-onboarding.html`, `promo-onboarding.html`, `event-onboarding.html`, `gallery-onboarding.html`, `restaurant-dashboard.html`. The onboarding forms now publish for real — see \"Onboarding & publish\"."
     },
     {
       "title": "Universal sign-in â†’ role shells (staged package)",
-      "body": "`eatouts-login.html` is the universal WhatsApp + PIN sign-in and routes by role: customer â†’ `eatouts-profile/orders/favourites/addresses`, operator â†’ `operator-dashboard1.html` (or the `*-manager.html` surfaces), admin â†’ `eatouts-admin-dashboard.html`. `eatouts-business-signup.html` â†’ per-type onboarding (`business-onboarding1.html` and the redirect wrappers). Auth screens use the centred `.login` card; signed-in screens render a role-based shell via `EO.shell`."
+      "body": "`eatouts-login.html` is the universal WhatsApp + PIN sign-in and routes by role: customer → `eatouts-profile/orders/favourites/addresses`, operator → `operator-dashboard1.html` (or the `*-manager.html` surfaces), admin → `eatouts-admin-dashboard.html`. `eatouts-business-signup.html` → the per-type onboarding form for that business type. Auth screens use the centred `.login` card; signed-in screens render a role-based shell via `EO.shell`."
     },
     {
       "title": "Onboarding & publish",
-      "body": "`eatouts-business-signup.html` (or `bottle-store`/`caterer`/`lodge`/`supplier`-`onboarding.html` wrappers) feed `business-onboarding1.html`, which autosaves a draft, previews, and saves/publishes into `operator-dashboard1.html`. Specs are role-gated business workspaces; `eatouts-staff-admin1.html` and `food-truck-schedule1.html` are the other recovered `*1` surfaces."
+      "body": "`eatouts-business-signup.html` sends each business type to its own form: `restaurant-onboarding.html`, `mobile-kitchen-onboarding.html`, `bottle-store-onboarding.html`, `caterer-onboarding.html`, `bakery-onboarding.html`, `supplier-onboarding.html` (lodge still uses `lodge-onboarding.html`). Every one of them shares `js/eatouts-onboarding-bridge.js`: live town/area lookup from `botswana_locations.js`, mall/shopping-centre lookup from `assets/data/botswana_shopping_malls_and_shopping_centres.js`, a Hosting Services section (capacity spaces + hostable event types from `assets/data/event_types.js` + booking rules) and a \"Save & publish\" action that writes the D1 business profile and the local customer directory, then exports an `eatouts.venue.v1` submission for the build-time merge. `operator-dashboard1.html`, `eatouts-staff-admin1.html` and `food-truck-schedule1.html` are the recovered `*1` workspaces."
     },
     {
       "title": "Delivery flows",
@@ -165,13 +165,13 @@
       "id": 10,
       "file": "restaurant-onboarding.html",
       "group": "operator-onboarding",
-      "purpose": "Master profile editor for a single restaurant (15 sections).",
+      "purpose": "Restaurant setup: brand identity, branches/outlets, venue spaces, menu, promotions and the Hosting Services block.",
       "audience": "Restaurant owner",
-      "entry": "index.html â†’ About Us â†’ Operator Sign in, then the Restaurant tab.",
-      "interactions": "Edit identity/location/contacts/socials/hours/amenities/capacity/payments/reservations/staff/users/delivery; save draft, publish, preview; completeness meter.",
+      "entry": "eatouts-business-signup.html → Restaurant; the operator dashboard.",
+      "interactions": "Branch and venue-space forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.",
       "auth": true,
       "status": "FULL",
-      "notes": "Publish only flags status; no live publish path. Logo/cover uploads now POST to /api/upload (Supabase) with a data-URL fallback."
+      "notes": "Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory). Logo/cover uploads POST to /api/upload (Supabase) with a data-URL fallback."
     },
     {
       "id": 11,
@@ -249,88 +249,76 @@
       "id": 17,
       "file": "eatouts-user-onboarding.html",
       "group": "manager-admin",
-      "purpose": "Customer account creation with an 18+ gate.",
-      "audience": "Customers",
-      "entry": "eatouts-login.html â†’ create account.",
-      "interactions": "Complete the sign-up form with the age gate.",
+      "purpose": "Redirect shim — the customer account page now lives at eatouts_user_onboarding.html.",
+      "audience": "Legacy links only",
+      "entry": "Old bookmarks and links.",
+      "interactions": "Meta refresh + location.replace to eatouts_user_onboarding.html.",
       "auth": false,
-      "status": "FULL",
-      "notes": "1 informational alert."
+      "status": "REDIRECT",
+      "notes": "_redirects also answers /eatouts-user-onboarding.html with a 301."
     },
     {
       "id": 18,
       "file": "eatouts-business-signup.html",
       "group": "manager-admin",
-      "purpose": "Business-type chooser for new businesses.",
+      "purpose": "Business-type chooser for new businesses; each card opens that type’s own onboarding form.",
       "audience": "New business",
       "entry": "eatouts-login.html / marketing links.",
-      "interactions": "Pick a business type; routes into the matching onboarding.",
+      "interactions": "Pick a business type, create the owner account, then land on the matching onboarding form (restaurant, mobile kitchen, bottle store, caterer, bakery, event supplier).",
       "auth": false,
       "status": "FULL",
-      "notes": "Owners can claim a custom /bw/<slug> link (/api/links/check, /api/business/link); loads js/eatouts-slug.js. Claiming a real listing now also calls /api/business/claim (owner membership, or a pending claim for review) and caches the D1 restaurant id on the venue record. Account creation now establishes a real server session via js/eatouts-business-auth.js (/api/auth/signup type=business + /api/auth/verify), collecting a username + password (min 8) and mirroring the D1 user locally, with a local-account fallback offline."
+      "notes": "Owners can claim a custom /bw/<slug> link (/api/links/check, /api/business/link); claiming a real listing also calls /api/business/claim. Account creation establishes a server session via js/eatouts-business-auth.js (/api/auth/signup type=business + /api/auth/verify), with a local-account fallback offline."
     },
     {
       "id": 19,
       "file": "bottle-store-onboarding.html",
       "group": "manager-admin",
-      "purpose": "Redirect wrapper into the unified business onboarding (bottle store).",
+      "purpose": "Bottle & liquor store setup: brand and outlets, stock, tastings, delivery and the Hosting Services block.",
       "audience": "Bottle-store owner",
-      "entry": "eatouts-business-signup.html.",
-      "interactions": "Redirects to business-onboarding1.html with the type preselected.",
+      "entry": "eatouts-business-signup.html → Bottle store; the operator dashboard.",
+      "interactions": "Stock and tasting forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.",
       "auth": false,
       "status": "FULL",
-      "notes": "Wrapper."
+      "notes": "Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory)."
     },
     {
       "id": 20,
       "file": "caterer-onboarding.html",
       "group": "manager-admin",
-      "purpose": "Redirect wrapper into the unified business onboarding (caterer).",
+      "purpose": "Caterer setup: brand and outlets, menus, service coverage and delivery areas, plus the Hosting Services block.",
       "audience": "Caterer owner",
-      "entry": "eatouts-business-signup.html.",
-      "interactions": "Redirects to business-onboarding1.html with the type preselected.",
+      "entry": "eatouts-business-signup.html → Caterer; the operator dashboard.",
+      "interactions": "Menu and coverage forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.",
       "auth": false,
       "status": "FULL",
-      "notes": "Wrapper."
+      "notes": "Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory). The embedded event taxonomy was replaced by assets/data/event_types.js."
     },
     {
       "id": 21,
       "file": "lodge-onboarding.html",
       "group": "manager-admin",
-      "purpose": "Redirect wrapper into the unified business onboarding (lodge).",
+      "purpose": "Lodge setup: property details, rooms, amenities, rates and booking rules.",
       "audience": "Lodge owner",
-      "entry": "eatouts-business-signup.html.",
-      "interactions": "Redirects to business-onboarding1.html with the type preselected.",
+      "entry": "eatouts-business-signup.html → Lodge; the operator dashboard.",
+      "interactions": "Room and rate forms, draft autosave under eatouts.lodge-onboarding.v2.",
       "auth": false,
       "status": "FULL",
-      "notes": "Wrapper."
+      "notes": "Standalone lodge flow — deliberately not wired into the shared onboarding bridge yet."
     },
     {
       "id": 22,
       "file": "supplier-onboarding.html",
       "group": "manager-admin",
-      "purpose": "Redirect wrapper into the unified business onboarding (supplier).",
+      "purpose": "Event supplier setup: the catalogue of services this supplier offers, contact and coverage details, and the Hosting Services block.",
       "audience": "Supplier owner",
-      "entry": "eatouts-business-signup.html.",
-      "interactions": "Redirects to business-onboarding1.html with the type preselected.",
+      "entry": "eatouts-business-signup.html → Event supplier; the operator dashboard.",
+      "interactions": "Per-service forms from the shared supplier catalogue, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.",
       "auth": false,
       "status": "FULL",
-      "notes": "Wrapper."
+      "notes": "Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory). Supersedes the older 2 474-line supplier page."
     },
     {
       "id": 23,
-      "file": "business-onboarding1.html",
-      "group": "manager-admin",
-      "purpose": "Unified per-type business setup (module rail, draft autosave, preview, save & publish).",
-      "audience": "Any owner, or admin-assisted",
-      "entry": "eatouts-business-signup.html / per-type wrappers.",
-      "interactions": "Step through modules, autosave a draft, open the rendered preview, then Save & publish â†’ operator-dashboard1.html.",
-      "auth": true,
-      "status": "FULL",
-      "notes": "Preview overlay wired in D21; 1 remaining alert. Save & publish now resolves/creates the D1 business and PATCHes the live profile via /api/business/profile (js/eatouts-business-api.js) before redirecting."
-    },
-    {
-      "id": 24,
       "file": "operator-dashboard1.html",
       "group": "manager-admin",
       "purpose": "Role-gated business workspace (orders, staff, reports, settings tabs) with a business switcher.",
@@ -342,7 +330,7 @@
       "notes": "Order detail drawer wired in D21."
     },
     {
-      "id": 25,
+      "id": 24,
       "file": "eatouts-staff-admin1.html",
       "group": "manager-admin",
       "purpose": "Restricted platform-staff workspace with role-limited tabs.",
@@ -354,7 +342,7 @@
       "notes": "Recovered *1 surface."
     },
     {
-      "id": 26,
+      "id": 25,
       "file": "food-truck-schedule1.html",
       "group": "manager-admin",
       "purpose": "Food-truck location and service-day schedule management.",
@@ -366,7 +354,7 @@
       "notes": "Recovered *1 surface."
     },
     {
-      "id": 27,
+      "id": 26,
       "file": "staff-manager.html",
       "group": "manager-admin",
       "purpose": "Staff CRUD, employment records and roles.",
@@ -378,7 +366,7 @@
       "notes": "Hardened D20. Team records now sync to D1 memberships (/api/business/staff) with an EatOuts sign-in role selector; identity fields are pulled back and merged on load."
     },
     {
-      "id": 28,
+      "id": 27,
       "file": "delivery-manager.html",
       "group": "manager-admin",
       "purpose": "Delivery zones, fees, capacity, drivers and windows.",
@@ -390,7 +378,7 @@
       "notes": "Zones escaped via EO.esc."
     },
     {
-      "id": 29,
+      "id": 28,
       "file": "order-manager.html",
       "group": "manager-admin",
       "purpose": "Live business order queue.",
@@ -402,7 +390,7 @@
       "notes": "Hardened D20."
     },
     {
-      "id": 30,
+      "id": 29,
       "file": "reservation-manager.html",
       "group": "manager-admin",
       "purpose": "Table bookings, guests and deposits.",
@@ -414,7 +402,7 @@
       "notes": "Hardened D20."
     },
     {
-      "id": 31,
+      "id": 30,
       "file": "room-manager.html",
       "group": "manager-admin",
       "purpose": "Lodge rooms, rates and housekeeping.",
@@ -426,7 +414,7 @@
       "notes": "Hardened D20."
     },
     {
-      "id": 32,
+      "id": 31,
       "file": "billing-manager.html",
       "group": "manager-admin",
       "purpose": "Subscription tiers and invoice history.",
@@ -438,7 +426,7 @@
       "notes": "Data-driven pricing (P300 setup, P100/P300/P500) since D20."
     },
     {
-      "id": 33,
+      "id": 32,
       "file": "analytics-manager.html",
       "group": "manager-admin",
       "purpose": "Order/delivery analytics as read-only aggregates.",
@@ -450,7 +438,7 @@
       "notes": "Intentionally read-only and non-paginated (bounded, numeric-only)."
     },
     {
-      "id": 34,
+      "id": 33,
       "file": "quote-manager.html",
       "group": "manager-admin",
       "purpose": "Caterer/supplier quote builder.",
@@ -462,7 +450,7 @@
       "notes": "Hardened D20."
     },
     {
-      "id": 35,
+      "id": 34,
       "file": "booking-manager.html",
       "group": "manager-admin",
       "purpose": "Supplier/lodge booking requests.",
@@ -474,7 +462,7 @@
       "notes": ""
     },
     {
-      "id": 36,
+      "id": 35,
       "file": "eatouts-admin-dashboard.html",
       "group": "manager-admin",
       "purpose": "Platform control centre: admin links, the promo-submissions queue and the business-links (/bw/<slug>) admin.",
@@ -486,7 +474,7 @@
       "notes": "Promo-submissions actions hit /api/admin/promo-submissions; business links hit /api/admin/links. The queue now mixes customer event promos and business promos (source=business, restaurantId shown as a pill)."
     },
     {
-      "id": 37,
+      "id": 36,
       "file": "eatouts-users-manager.html",
       "group": "manager-admin",
       "purpose": "Users and role management.",
@@ -498,7 +486,7 @@
       "notes": "Hardened D15."
     },
     {
-      "id": 38,
+      "id": 37,
       "file": "feedback-manager.html",
       "group": "manager-admin",
       "purpose": "Feedback ticket queue.",
@@ -510,7 +498,7 @@
       "notes": "Hardened D15."
     },
     {
-      "id": 39,
+      "id": 38,
       "file": "blog-creator-dashboard.html",
       "group": "manager-admin",
       "purpose": "Blog writer/publisher using EatoutsBlogAdmin.",
@@ -522,7 +510,7 @@
       "notes": ""
     },
     {
-      "id": 40,
+      "id": 39,
       "file": "eatouts-verification-queue.html",
       "group": "manager-admin",
       "purpose": "Business verification queue.",
@@ -534,7 +522,7 @@
       "notes": ""
     },
     {
-      "id": 41,
+      "id": 40,
       "file": "eatouts-disputes.html",
       "group": "manager-admin",
       "purpose": "Issues, refunds and escalations.",
@@ -546,7 +534,7 @@
       "notes": ""
     },
     {
-      "id": 42,
+      "id": 41,
       "file": "eatouts-platform-analytics.html",
       "group": "manager-admin",
       "purpose": "Cross-platform analytics.",
@@ -558,7 +546,7 @@
       "notes": ""
     },
     {
-      "id": 43,
+      "id": 42,
       "file": "eatouts-notifications.html",
       "group": "manager-admin",
       "purpose": "Segment notifications.",
@@ -570,7 +558,7 @@
       "notes": "Delivery backend deferred."
     },
     {
-      "id": 44,
+      "id": 43,
       "file": "eatouts-settings.html",
       "group": "manager-admin",
       "purpose": "Platform configuration.",
@@ -582,7 +570,7 @@
       "notes": "Renders admin-only values (esc n/a, low risk)."
     },
     {
-      "id": 45,
+      "id": 44,
       "file": "eatouts-favourites.html",
       "group": "manager-admin",
       "purpose": "Customer saved favourites.",
@@ -594,7 +582,7 @@
       "notes": "Wired to the store in D20 (was static)."
     },
     {
-      "id": 46,
+      "id": 45,
       "file": "eatouts-orders.html",
       "group": "manager-admin",
       "purpose": "Customer order history.",
@@ -606,7 +594,7 @@
       "notes": "Wired in D20; shows real orders via the D18 bridge."
     },
     {
-      "id": 47,
+      "id": 46,
       "file": "eatouts-profile.html",
       "group": "manager-admin",
       "purpose": "Customer profile.",
@@ -618,7 +606,7 @@
       "notes": ""
     },
     {
-      "id": 48,
+      "id": 47,
       "file": "eatouts-addresses.html",
       "group": "manager-admin",
       "purpose": "Customer delivery addresses.",
@@ -630,7 +618,7 @@
       "notes": "Hardened D15."
     },
     {
-      "id": 49,
+      "id": 48,
       "file": "customer-delivery.html",
       "group": "delivery",
       "purpose": "Customer post-checkout delivery flow; collects delivery details and persists the completed order.",
@@ -642,7 +630,7 @@
       "notes": "Order bridge (persistCompletedOrder/resolveBusinessId) added D18."
     },
     {
-      "id": 50,
+      "id": 49,
       "file": "restaurant-delivery.html",
       "group": "delivery",
       "purpose": "Restaurant dispatch board (demo): incoming requests, rounds, kitchen prep, routes and settings.",
@@ -654,7 +642,7 @@
       "notes": "No role gating yet (deferred)."
     },
     {
-      "id": 51,
+      "id": 50,
       "file": "driver-delivery.html",
       "group": "delivery",
       "purpose": "Rider board (demo): duty status, rounds, active stop checklist, problems and completed log.",
@@ -666,7 +654,7 @@
       "notes": "Built from the same snapshot; blank street fields render empty."
     },
     {
-      "id": 52,
+      "id": 51,
       "file": "intake.html",
       "group": "internal-ops",
       "purpose": "Guided operator/concierge intake capture of a restaurant record.",
@@ -678,7 +666,7 @@
       "notes": "No server upload; export feeds the manual merge."
     },
     {
-      "id": 53,
+      "id": 52,
       "file": "invoice.html",
       "group": "internal-ops",
       "purpose": "Operator/ops invoice generation.",
@@ -690,7 +678,7 @@
       "notes": ""
     },
     {
-      "id": 54,
+      "id": 53,
       "file": "ops-console.html",
       "group": "internal-ops",
       "purpose": "Internal ops tracker: venues, submissions, MRR/activity.",
@@ -702,7 +690,7 @@
       "notes": ""
     },
     {
-      "id": 55,
+      "id": 54,
       "file": "seed-demo.html",
       "group": "dev-harness",
       "purpose": "Developer harness that seeds the roster and runs data-layer verification assertions.",
@@ -714,7 +702,7 @@
       "notes": "Only meaningful when served over the local server."
     },
     {
-      "id": 56,
+      "id": 55,
       "file": "eatout_event_builder.html",
       "group": "dev-harness",
       "purpose": "Legacy experimental event builder.",
@@ -726,7 +714,7 @@
       "notes": "Superseded by event-onboarding.html."
     },
     {
-      "id": 57,
+      "id": 56,
       "file": "brand-kit-admin.html",
       "group": "manager-admin",
       "purpose": "Admin workspace for design jobs, designers, payouts and services",
@@ -738,7 +726,7 @@
       "notes": "Connects to EatoutsBrandKit and EatoutsAuth"
     },
     {
-      "id": 58,
+      "id": 57,
       "file": "designer-dashboard.html",
       "group": "manager-admin",
       "purpose": "Designer private workspace",
@@ -750,7 +738,7 @@
       "notes": "Uses EatoutsBrandKit"
     },
     {
-      "id": 59,
+      "id": 58,
       "file": "designer-services.html",
       "group": "public-customer",
       "purpose": "Public marketplace for design services",
@@ -762,7 +750,7 @@
       "notes": "Uses EatoutsBrandKit"
     },
     {
-      "id": 60,
+      "id": 59,
       "file": "eatouts-summaries.html",
       "group": "manager-admin",
       "purpose": "Customer saved summaries.",
@@ -774,7 +762,7 @@
       "notes": "Reads the EatoutsCustomer store."
     },
     {
-      "id": 61,
+      "id": 60,
       "file": "eatouts-events.html",
       "group": "manager-admin",
       "purpose": "Customer saved events.",
@@ -786,7 +774,7 @@
       "notes": "Reads the EatoutsCustomer store."
     },
     {
-      "id": 62,
+      "id": 61,
       "file": "eatouts-gallery.html",
       "group": "manager-admin",
       "purpose": "Customer saved gallery photos.",
@@ -798,7 +786,7 @@
       "notes": "Reads the EatoutsCustomer store."
     },
     {
-      "id": 63,
+      "id": 62,
       "file": "eatouts-checkout-summary.html",
       "group": "manager-admin",
       "purpose": "Checkout summary snapshot.",
@@ -810,7 +798,7 @@
       "notes": "Reads the EatoutsCustomer store."
     },
     {
-      "id": 64,
+      "id": 63,
       "file": "eatouts-about.html",
       "group": "public-customer",
       "purpose": "Public About EatOuts page.",
@@ -822,7 +810,7 @@
       "notes": "Standalone page split out of the About tab."
     },
     {
-      "id": 65,
+      "id": 64,
       "file": "about-guest-popup.html",
       "group": "public-customer",
       "purpose": "Standalone demo of the Create Profile popup on the About tab.",
@@ -834,7 +822,7 @@
       "notes": "Added as part of Pop‑Up States Plan."
     },
     {
-      "id": 66,
+      "id": 65,
       "file": "about-profile-options.html",
       "group": "public-customer",
       "purpose": "Standalone demo of the logged‑in profile‑options popup.",
@@ -846,7 +834,7 @@
       "notes": "Added as part of Pop‑Up States Plan."
     },
     {
-      "id": 67,
+      "id": 66,
       "file": "venue-about.html",
       "group": "public-customer",
       "purpose": "Data-driven standalone venue About page: renders ANY resolved business's About surface (logo, hero, status, social row, Options, Operating Hours, Venue, Promos, Ambience, Amenities, Menu Tags) from the resolved business alone — no hardcoded venue values, section visibility driven only by present data.",
@@ -856,9 +844,53 @@
       "auth": false,
       "status": "FULL",
       "notes": "Design/layout/behaviours derive from the preserved mockup (byte-identical to _trash/venue-about-demo.html), but every business value comes from the resolved business. No flagship fallback and no slug substitution. Owner detection is window.EatoutsAuth.currentSession() (restaurantId match) plus a manager-DB owner lookup. The page-scoped demo registry (assets/data/eatouts_demo_businesses.js) is loaded ONLY here and never merged into the customer DB, so index.html's browse list stays clean. Slug read order: ?link= → #hash; when neither resolves to a business the page redirects to index.html#restaurants instead of rendering an empty state."
+    },
+    {
+      "id": 67,
+      "file": "bakery-onboarding.html",
+      "group": "operator-onboarding",
+      "purpose": "Bakery setup: brand identity, outlets, product range, café/seating capability and the Hosting Services block.",
+      "audience": "Bakery owner",
+      "entry": "eatouts-business-signup.html → Bakery; the operator dashboard.",
+      "interactions": "Product and capability forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.",
+      "auth": false,
+      "status": "FULL",
+      "notes": "Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory)."
+    },
+    {
+      "id": 68,
+      "file": "mobile-kitchen-onboarding.html",
+      "group": "operator-onboarding",
+      "purpose": "Mobile kitchen setup: units, service locations, grab-and-go menu, throughput and the Hosting Services block.",
+      "audience": "Mobile-kitchen owner",
+      "entry": "eatouts-business-signup.html → Mobile Kitchen; the operator dashboard.",
+      "interactions": "Unit and menu forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.",
+      "auth": false,
+      "status": "FULL",
+      "notes": "Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory)."
+    },
+    {
+      "id": 69,
+      "file": "eatouts_user_onboarding.html",
+      "group": "operator-onboarding",
+      "purpose": "Customer account creation: name, 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks.",
+      "audience": "Redesign draft",
+      "entry": "eatouts-login.html “Create an account”; the About Us guest popup; index.html.",
+      "interactions": "Live town/area typeahead over botswana_locations.js, POST /api/auth/signup, WhatsApp click-to-chat confirmation, POST /api/auth/verify, then pick up to 5 restaurants and 1 bottle store.",
+      "auth": false,
+      "status": "FULL",
+      "notes": "Rebuilt from the old caterer copy. The draft (minus passwords) survives a refresh under eatouts.user-onboarding.v1. eatouts-user-onboarding.html now redirects here."
     }
   ],
   "changelog": [
+    {
+      "date": "2026-10-21",
+      "note": "Onboarding pages now publish for real. The six business forms (restaurant, mobile kitchen, bottle store, caterer, bakery, event supplier) share js/eatouts-onboarding-bridge.js: live town/area lookup from botswana_locations.js, mall/shopping-centre lookup from assets/data/botswana_shopping_malls_and_shopping_centres.js, a Hosting Services section (capacity spaces + hostable event types from assets/data/event_types.js + booking rules) and a Save & publish action that writes the D1 business profile (business_profiles.hosting_json, new migration 0010) and the local customer directory, then exports an eatouts.venue.v1 submission for the build-time merge. business-onboarding1.html was retired — every link now points at the matching per-type form (assets/data/business_types.js gained EatoutsBusinessTypes.onboardingPage). eatouts_user_onboarding.html was rebuilt as the real customer account page (18+ gate, live town/area, /api/auth/signup + /api/auth/verify, favourites) and eatouts-user-onboarding.html is now a redirect. scripts/merge_submissions.py carries place/capacity/hosting into the runtime directory and rewrites directory_runtime_data.js; npm run build now merges the owner submissions after the directory build so they survive."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Brought the 2026-10 onboarding redesign pages up to the test contracts without touching the tests. Restored the `<!-- PAGE: X -->` banner and matching `<body data-page>` slug on all six: restaurant-, bottle-store-, caterer-, bakery-, mobile-kitchen-onboarding and eatouts_user_onboarding. restaurant-onboarding.html joined the app-shell standard: #app-shell renamed to #shell, brand mark wrapped in a home link to index.html#promos, hdr-chip page label, and the merchant tab strip (Restaurant active) — no appnav; it also now loads the upload libs (eatouts-image-compressor, eatouts-video-validator, eatouts-upload) ahead of its inline scripts, mirroring menu-onboarding. PAGE_INVENTORY.md gained section I (rows 69-71 for bakery/mobile-kitchen/user redesigns) and refreshed stale rows 28-30 (they are full editors now, not 3-line redirect wrappers). Catalog: added bakery-onboarding, mobile-kitchen-onboarding and eatouts_user_onboarding as ids 68-70 (operator-onboarding), and refreshed the stale 'Redirect wrapper' purposes on ids 10/19/20. npm test 52/52; npm run catalog 70 pages."
+    },
     {
       "date": "2026-10-20",
       "note": "Venue About is now a true out-of-SPA hand-off. Every 'view a business' tap in index.html (openRestAbout from the card/info icon, bottleStoreInfo, openCateringAbout, and the boot-time openVenueFromSlug used by shared/SEO deep links) routes through a single gotoVenueAbout(target) → venue-about.html?link=<slug>, so a tap on KFC opens KFC's About page and Nando's opens Nando's. The inline data-page=\"venue-about\" screen, its js/eatouts-venue-about.js renderer, state.venueAboutOrphan, and the orphan/catering/bottle/about branches of renderRestaurantSubView were removed. venue-about.html drops the 'Choose a business' empty state: a missing or unresolvable slug now redirects to index.html#restaurants. Its Menu/Promos options emit index.html#<slug>/menu|promos, which index.html boot parses back into the venue-menu / venue-promos screens. Deleted the root venue-about-new.html mockup and the js/eatouts-venue-about.js renderer. Updated tests/venue-about-menu.js (asserts the out-of-SPA target carries the chosen venue), venue-about-options.js (hash round-trip), beverages.js, bottle-stores.js and venue-slug-integration.js (boot hand-off target)."

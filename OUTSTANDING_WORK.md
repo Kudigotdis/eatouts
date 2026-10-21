@@ -167,7 +167,7 @@ endpoints `/api/business/mine` (list/create), `/api/business/profile` (read/upda
 `/api/business/staff` (+`/:id`), `/api/business/menu` + `/menu/categories` + `/menu/items`
 (+`/:id`), plus `/api/business/claim` (new). The client module `js/eatouts-business-api.js`
 wraps them (dual-mode fetch, localStorage fallback) and is wired into `staff-manager.html`,
-`menu-onboarding.html`, `business-onboarding1.html` and `eatouts-business-signup.html`. Covered
+`menu-onboarding.html`, the six per-type onboarding forms and `eatouts-business-signup.html`. Covered
 by `tests/api-business.js` (server) + `tests/business-client.js` (client). **C9 landed** (public
 `/api/venues/:id` canonical read + `js/eatouts-content.js` hydration; `tests/api-venues.js`,
 `tests/content.js`).
@@ -193,11 +193,17 @@ by `tests/api-business.js` (server) + `tests/business-client.js` (client). **C9 
    `event-onboarding.html` set a `venues/<id>` prefix from the local session before decorating.
    Uploads reach Supabase now that business owners get a real server session (`js/eatouts-business-auth.js`
    + type-aware `/api/auth/*`); the data-URL fallback keeps unauth/offline flows working.
-- [x] **C5. Business onboarding persistence.** `business-onboarding1.html`'s Save & publish now
-  resolves/creates the D1 business and PATCHes the live profile via `/api/business/profile`
-  (`js/eatouts-business-api.js`) before redirecting (localStorage still a fallback). The slug
-  claim in `eatouts-business-signup.html` now also calls `/api/business/claim`, granting an owner
-  membership (or filing a pending claim for review) and caching the D1 restaurant id.
+- [x] **C5. Business onboarding persistence.** The six per-type onboarding forms (restaurant,
+  mobile kitchen, bottle store, caterer, bakery, event supplier) share
+  `js/eatouts-onboarding-bridge.js`: Save & publish resolves/creates the D1 business, PATCHes the
+  live profile via `/api/business/profiles` (including the new `hosting_json` column, migration
+  0010), creates/updates the D1 `restaurants` venue row, writes the local customer directory row
+  and exports an `eatouts.venue.v1` submission that `scripts/merge_submissions.py` folds into the
+  runtime directory on the next build. The unified `business-onboarding1.html` was retired — the
+  signup popup and the operator dashboard now route each type to its own form through
+  `EatoutsBusinessTypes.onboardingPage()`. The slug claim in `eatouts-business-signup.html` also
+  calls `/api/business/claim`, granting an owner membership (or filing a pending claim for review)
+  and caching the D1 restaurant id.
 - [x] **C6. Gallery endpoints.** Read/write `gallery_groups` + `gallery_images`
   (`0001_init.sql`) via `/api/business/gallery` (+ `/groups`, `/groups/:id`, `/images`,
   `/images/:id`; `marketing_manager+`, group delete cascades its images), wired to

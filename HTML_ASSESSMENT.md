@@ -36,13 +36,13 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 |------|----------|------|--------------|--------|------|------------------------|-------|
 | 404.html | visitors | no | — | FULL (static) | 3.5K/69 | — | 0 |
 | analytics-manager.html | biz owner/admin | guard | EatoutsMgrDB `eatouts_manager_v1` | PARTIAL | 1.8K/2 | esc — / pager — / confirm — / audit — | 0 |
+| bakery-onboarding.html | bakery owner | auth | `eatouts.bakery-onboarding.v1` + root `eatouts_db_v2` | FULL | 127K/1701 | esc ✔ / audit — | 0 |
 | billing-manager.html | biz owner | guard | EatoutsMgrDB | FULL | 2.2K/2 | esc ✔ / audit ✔ | 0 |
 | blog-creator-dashboard.html | platform author | guard | EatoutsMgrDB + blog stores | FULL | 2.2K/2 | esc ✔ / pager — / audit — | 0 |
 | booking-manager.html | supplier/lodge | guard | EatoutsMgrDB | FULL | 1.5K/2 | esc ✔ / pager — / audit — | 0 |
-| bottle-store-onboarding.html | bottlestore owner | n/a | EATOUTS adapter (redirects) | FULL (wrapper) | 0.7K/2 | — | 0 |
+| bottle-store-onboarding.html | bottle store owner | auth | `eatouts.bottle-store-onboarding.v1` + root `eatouts_db_v2` | FULL | 117K/1629 | esc ✔ / audit — | 0 |
 | brand-kit-admin.html | platform admin/ops | guard | `eatouts_designers_v1` + `eatouts_services_v1` / `eatouts_jobs_v1` / `eatouts_audit_log_v1` | FULL | 66K/723 | — | 0 |
-| business-onboarding1.html | owner/admin | guard | EatoutsMgrDB + `eatouts_ops_v1` + root v2 | FULL | 47K/84 | esc ✔ / audit ✔ | 1 |
-| caterer-onboarding.html | caterer owner | n/a | redirect wrapper | FULL (wrapper) | 0.7K/2 | — | 0 |
+| caterer-onboarding.html | caterer owner | auth | `eatouts.caterer-onboarding.v1` + root `eatouts_db_v2` | FULL | 137K/1902 | esc ✔ / audit — | 0 |
 | customer-delivery.html | customers | no | `eatouts_order_v1`, read `eatouts_active_session_v2` | FULL | 53K/954 | esc ✔ / audit — | 0 |
 | delivery-manager.html | biz owner/admin | guard | EatoutsMgrDB | FULL | 2.7K/2 | esc ✔ / pager — / audit — | 0 |
 | designer-dashboard.html | designers | no (local picker) | `eatouts_designer_session_v1` + brand-kit stores | FULL | 18K/322 | — | 0 |
@@ -64,10 +64,11 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | eatouts-settings.html | platform admin | guard | EatoutsMgrDB `settings` | FULL | 2.3K/2 | esc — / audit ✔ | 0 |
 | eatouts-staff-admin1.html | platform staff | guard | EatoutsMgrDB + legacy keys | FULL | 19K/55 | esc ✔ / audit ✔ | 0 |
 | eatouts-suppliers.html | suppliers/customers | no (local label) | `eatouts_suppliers_*` | FULL | 88K/1674 | esc ✔ | 0 |
-| eatouts-user-onboarding.html | customers | n/a | EatoutsMgrDB | FULL | 3.2K/14 | — | 1 |
+| eatouts-user-onboarding.html | legacy links | n/a | — | REDIRECT (shim) | 1K/30 | esc — / audit — | 0 |
 | eatouts-users-manager.html | platform admin/ops | guard | EatoutsMgrDB | FULL | 3.2K/6 | esc ✔ / pager ✔ / confirm ✔ / audit ✔ | 0 |
 | eatouts-verification-queue.html | platform ops | guard | EatoutsMgrDB | FULL | 1.9K/2 | esc ✔ / audit — | 0 |
 | eatouts_feedback.html | customers/visitors | no | `eatouts_feedback_queue_v1` | FULL | 40K/833 | esc ✔ | 0 |
+| eatouts_user_onboarding.html | customers | n/a | `eatouts.user-onboarding.v1` | FULL | 17K/270 | esc ✔ / audit — | 1 |
 | event-onboarding.html | restaurant owner | auth | root `eatouts_db_v2` | FULL | 27K/416 | esc ✔ / audit — | 0 |
 | feedback-manager.html | platform admin/support | guard | EatoutsMgrDB + adapter | FULL | 2.8K/3 | esc ✔ / pager ✔ / audit ✔ | 0 |
 | food-truck-schedule1.html | food truck owner | guard | adapter + EatoutsMgrDB | FULL | 19K/37 | esc ✔ / audit ✔ | 0 |
@@ -76,8 +77,9 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | index.html | customers | no | root `eatouts_db_v2` + `eatouts_order_v1` | FULL | 410K/8450 | esc ✔ | 5 (validation) |
 | intake.html | operator/concierge | auth | `eatouts_ops_v1` + `eatouts_intake_draft_v1` | FULL | 69K/1154 | esc ✔ | 0 |
 | invoice.html | operator/ops | auth | `eatouts_ops_v1` | FULL | 21K/394 | esc ✔ | 0 |
-| lodge-onboarding.html | lodge owner | n/a | redirect wrapper | FULL (wrapper) | 0.6K/2 | — | 0 |
+| lodge-onboarding.html | lodge owner | n/a | `eatouts.lodge-onboarding.v2` + root `eatouts_db_v2` | FULL | 32K/1093 | esc ✔ / audit — | 0 |
 | menu-onboarding.html | restaurant owner | auth | root `eatouts_db_v2` | FULL | 23K/371 | esc ✔ | 0 |
+| mobile-kitchen-onboarding.html | mobile kitchen owner | auth | `eatouts.mobile-kitchen-onboarding.v1` + root `eatouts_db_v2` | FULL | 113K/1184 | esc ✔ / audit — | 0 |
 | one-pager.html | sales/prospects | no | — (static) | FULL | 8.4K/156 | — | 0 |
 | operator-dashboard1.html | linked biz owner/admin | guard | adapter + `eatouts_order_v1` + `eatouts_ops_v1` + `eatouts_delivery_orders_v1` | FULL | 40K/81 | esc ✔ / audit ✔ | 0 |
 | ops-console.html | internal ops | auth | `eatouts_ops_v1` | FULL | 22K/405 | esc ✔ | 0 |
@@ -89,11 +91,11 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | reservation-manager.html | biz owner/admin | guard | EatoutsMgrDB | FULL | 2.4K/2 | esc ✔ / audit ✔ | 0 |
 | restaurant-dashboard.html | restaurant owner | auth | root `eatouts_db_v2` + `eatouts_ops_v1` | FULL | 24K/403 | esc ✔ / audit — | 0 |
 | restaurant-delivery.html | restaurant dispatch | no (demo) | `eatouts_delivery_orders_v1` | STUB/DEMO | 42K/701 | esc ✔ | 0 |
-| restaurant-onboarding.html | restaurant owner | auth | root `eatouts_db_v2` | FULL | 51K/792 | esc ✔ | 0 |
+| restaurant-onboarding.html | restaurant owner | auth | `eatouts.restaurant-onboarding.v2` + root `eatouts_db_v2` | FULL | 125K/573 | esc ✔ / audit — | 0 |
 | room-manager.html | lodge owners | guard | EatoutsMgrDB | FULL | 2.3K/2 | esc ✔ / audit ✔ | 0 |
 | seed-demo.html | developer harness | no | `eatouts_db_v2` | STUB/DEMO | 22K/440 | esc ✔ | 0 |
 | staff-manager.html | biz owner/admin/manager | guard | EatoutsMgrDB | FULL | 5.1K/5 | esc ✔ / confirm ✔ / audit ✔ | 0 |
-| supplier-onboarding.html | supplier owner | n/a | redirect wrapper | FULL (wrapper) | 0.7K/2 | — | 0 |
+| supplier-onboarding.html | event supplier owner | auth | `eatouts.event-supplier-onboarding.v1` + root `eatouts_db_v2` | FULL | 129K/1233 | esc ✔ / audit — | 0 |
 
 > Note on scroll markers: many "—" entries are cosmetic (read-mostly pages). The
 > ones that matter for safety are the write paths listed in §4. The single
@@ -186,16 +188,22 @@ Ordered by the four cross-cutting problems, then by page.
   list with totals. Status changes already log `order.status.changed` with
   before/after (D20).
 
-### 3.7 `business-onboarding1.html` — preview is an alert
+### 3.7 Business onboarding pages — publish now reaches the backend
 
-- **Works:** full module-based onboarding with draft autosave, validation,
-  publish → `operator-dashboard1.html`.
-- **Missing:** the Preview action shows an `alert()` instead of a rendered
-  preview of the business.
-- **Resolved (D21):** the Preview action opens a rendered overlay (`showPreview`)
-  showing identity/tagline/description, location, primary contact, hours,
-  socials, a saved-content summary and the live publish checklist, with a
-  "Review & publish" jump.
+- **Works:** every business type has its own setup form — `restaurant-onboarding.html`,
+  `mobile-kitchen-onboarding.html`, `bottle-store-onboarding.html`, `caterer-onboarding.html`,
+  `bakery-onboarding.html`, `supplier-onboarding.html` (lodge keeps `lodge-onboarding.html`).
+  `eatouts-business-signup.html` routes each type to its form; `operator-dashboard1.html` and
+  `food-truck-schedule1.html` link to the form for the business they are showing.
+- **Shared bridge:** `js/eatouts-onboarding-bridge.js` adds live town/area lookup
+  (`botswana_locations.js`), mall/shopping-centre lookup, the Hosting Services section
+  (capacity spaces + hostable event types from `assets/data/event_types.js` + booking rules)
+  and the Save & publish action.
+- **Publish:** writes the D1 `business_profiles` row (including the new `hosting_json` column,
+  migration 0010) and the local customer directory row, then exports an `eatouts.venue.v1`
+  submission that `scripts/merge_submissions.py` folds into the runtime directory.
+- **Retired:** `business-onboarding1.html` (the unified form) was deleted; every link now points
+  at the per-type form. `_redirects` answers the old URL with a 301.
 
 ### 3.8 `billing-manager.html` — hardcoded, off-model pricing
 

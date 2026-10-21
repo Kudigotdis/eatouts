@@ -283,7 +283,7 @@ img{display:block;max-width:100%}
 /* ---------- RESTAURANTS PANEL (swipe inside the Restaurants tab) ---------- */
 /* Three-button strip above the pager: tap to jump, or swipe the pages. */
 .bev-toggle{position:relative;display:flex;align-items:center;flex:0 0 auto;min-height:2.25em;margin:0 0 8px;padding:5px;border-radius:0;background-color:#e7eff9;border:0;overflow:hidden}
-.bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc((100% - 10px)/4);height:calc(100% - 10px);border-radius:3px;background:#fff;transition:transform .4s ease}
+.bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc((100% - 10px)/4);height:calc(100% - 10px);border-radius:3px;background:#fff;transition:transform .4s ease;will-change:transform}
 .bev-toggle.catering .bev-toggle-thumb{transform:translateX(100%)}
 .bev-toggle.bakery .bev-toggle-thumb{transform:translateX(200%)}
 .bev-toggle.bev .bev-toggle-thumb{transform:translateX(300%)}
@@ -5135,7 +5135,7 @@ function renderRestaurantsPager(){
   let h='';
   if(!hideToggle){
     h+='<div class="bev-toggle '+restPanelClass(panel)+'" role="tablist">';
-    h+='<span class="bev-toggle-thumb ai-custom-slider" aria-hidden="true"></span>';
+    h+='<span class="bev-toggle-thumb" aria-hidden="true"></span>';
     ['food','catering','bakery','beverages'].forEach(function(p){
       const on=(p===panel);
       const label=p==='food'?'Restaurants':(p==='catering'?'Catering':(p==='bakery'?'Bakery':'Beverages'));
@@ -5170,20 +5170,65 @@ function restPanelFromScroll(pager){
   const i=Math.max(0,Math.min(REST_PANELS.length-1,Math.round(at)));
   return REST_PANELS[i];
 }
+/* Slide the highlight thumb under the active tab. Width and position are
+   measured from the painted button rects rather than derived from
+   percentage math, so fractional widths, browser zoom and display-DPR
+   scaling cannot drift the thumb off the tab it belongs to. `ratio` is
+   scrollLeft/pageWidth: fractional while the user drags the pager,
+   an exact integer once a page has settled. */
+function setBevToggleThumb(bar,ratio){
+  if(!bar||!bar.classList||!bar.classList.contains('bev-toggle'))return;
+  const thumb=bar.querySelector('.bev-toggle-thumb');
+  const btns=bar.querySelectorAll('.bev-toggle-btn');
+  if(!thumb||!btns.length)return;
+  try{
+    const barRect=bar.getBoundingClientRect();
+    const first=btns[0].getBoundingClientRect();
+    /* No layout (jsdom, hidden screen) — the pure-CSS fallback stays. */
+    if(!first.width||!barRect.width)return;
+    /* The thumb's authored base offset (CSS left:5px) already sits on the
+       first button's edge — subtract it, otherwise the container padding
+       is counted twice and the thumb lands flush against the far edge. */
+    const base=(window.getComputedStyle?parseFloat(getComputedStyle(thumb).left)||0:0);
+    const n=Math.min(btns.length,REST_PANELS.length);
+    const r=Math.max(0,Math.min(n-1,ratio||0));
+    /* Settled positions read the real painted button rects; a mid-drag
+       fractional ratio interpolates between its two neighbouring tabs. */
+    const i0=Math.floor(r),i1=Math.min(n-1,i0+1),f=r-i0;
+    const x0=btns[i0].getBoundingClientRect().left-barRect.left-base;
+    const x1=btns[i1].getBoundingClientRect().left-barRect.left-base;
+    thumb.style.width=first.width+'px';
+    thumb.style.transform='translateX('+(x0+f*(x1-x0))+'px)';
+  }catch(e){}
+}
+/* The pager scrolled. Follow the swipe with the thumb immediately, but
+   only COMMIT the panel once the gesture settles — switching mid-drag
+   re-renders the whole viewport under the finger and kills the swipe.
+   'scrollend' commits as soon as the snap animation ends where the
+   browser supports it; everywhere else a short silence timer does. */
+let bevSettleTimer=null;
+function commitRestPanelFromScroll(){
+  if(bevSettleTimer){clearTimeout(bevSettleTimer);bevSettleTimer=null;}
+  const pager=document.getElementById('bev-pager');
+  if(!pager)return;
+  const panel=restPanelFromScroll(pager);
+  if(panel===state.restPanel)return;
+  /* route through the existing crossfade; do NOT clear view state
+     if the user was mid-scroll inside a sub-view (bottle menu, category) */
+  if(state.bevView||state.bevCheckout){
+    state.restPanel=panel;
+    renderControlBar();
+  }else{
+    switchRestPanel(panel);
+  }
+}
 function syncBeveragesPanel(){
   const pager=document.getElementById('bev-pager');
   if(!pager) return;
-  const panel=restPanelFromScroll(pager);
-  if(panel!==state.restPanel){
-    /* route through the existing crossfade; do NOT clear view state
-       if the user was mid-scroll inside a sub-view (bottle menu, category) */
-    if(state.bevView||state.bevCheckout){
-      state.restPanel=panel;
-      renderControlBar();
-    }else{
-      switchRestPanel(panel);
-    }
-  }
+  const pageW=pager.clientWidth||1;
+  setBevToggleThumb(pager.previousElementSibling,pageW>0?pager.scrollLeft/pageW:0);
+  if(bevSettleTimer)clearTimeout(bevSettleTimer);
+  bevSettleTimer=setTimeout(commitRestPanelFromScroll,140);
   const shellEl=document.getElementById('shell');
   if(shellEl) shellEl.classList.toggle('bev-panel', state.tab==='restaurants' && state.restPanel==='beverages' && !state.restaurantView && !state.bevView && !state.bevCheckout);
   const bar=pager.previousElementSibling;
@@ -5206,6 +5251,18 @@ function scrollToRestPanelPage(){
     el.scrollTo({left:Math.max(0,i)*el.clientWidth, behavior:'auto'});
   }catch(e){}
 }
+/* Window resized (orientation change, scrollbar appearing, browser zoom):
+   re-measure the thumb against the buttons' new painted widths. */
+let bevThumbResizeTimer=null;
+window.addEventListener('resize',function(){
+  if(bevThumbResizeTimer) clearTimeout(bevThumbResizeTimer);
+  bevThumbResizeTimer=setTimeout(function(){
+    bevThumbResizeTimer=null;
+    const pager=document.getElementById('bev-pager');
+    if(!pager) return;
+    setBevToggleThumb(pager.previousElementSibling,REST_PANELS.indexOf(state.restPanel));
+  },150);
+},{passive:true});
 /* Restaurants <-> Catering <-> Beverages panel switch: crossfade instead of
    the harsh full-viewport re-render flash. View Transitions when available,
    a cloned overlay fade otherwise. */
@@ -5216,6 +5273,7 @@ function switchRestPanel(panel){
   const doChange=function(){
     panelFade=true;
     state.restPanel=panel;
+    closeAllRitemAccordions();
     state.bevView=null;
     state.bevCheckout=false;
     render();
@@ -5409,14 +5467,25 @@ function bakeryItem(b){
   return h;
 }
 function bakeryOptions(b){
-  /* WhatsApp disabled on purpose: contact details arrive in a later update. */
-  const waBtn='<button class="ico-btn is-disabled" data-act="showRestNotice" data-notice="'+esc("WhatsApp details for "+b.name+" are coming soon.")+'" aria-disabled="true" aria-label="WhatsApp (coming soon)" title="WhatsApp (coming soon)"><img src="'+IMG.iconWA+'" alt=""></button>';
-  const infoBtn='<button class="ico-btn" data-act="openBakeryAbout" data-id="'+esc(b.slug)+'" aria-label="Store details for '+esc(b.name)+'" title="Store details"><img class="ico-info-img" src="'+IMG.iconInfo+'" alt=""></button>';
-  const contactLine=b.phone?esc(b.phone):'<span style="color:#aab1bb">Contact details coming soon</span>';
+  /* Single-location records: town/area are display-only (bakeries have no
+     branch picker), Menu and Promos have no data yet so they notice instead.
+     WhatsApp lights up only once a real contact number lands in the
+     database — until then it stays the disabled "coming soon" button. */
+  const town=String(b.town||"").trim();
+  const area=String(b.area||"").trim();
+  const townLine='<button type="button" class="line line-select'+(town?" is-set":" is-disabled")+'" aria-haspopup="false"'+(town?"":' aria-disabled="true"')+'><span>'+esc(town||"Select Town")+'</span></button>';
+  const areaLine='<button type="button" class="line line-select'+(area?" is-set":" is-disabled")+'" aria-haspopup="false"'+(area?"":' aria-disabled="true"')+'><span>'+esc(area||"Select Area")+'</span></button>';
+  const menuBtn='<button class="line line-action is-disabled" data-act="showRestNotice" data-notice="'+esc("Menu coming soon for this bakery.")+'" aria-disabled="true">Menu</button>';
+  const promosBtn='<button class="line line-action is-disabled" data-act="showRestNotice" data-notice="'+esc("No promos available at this location right now.")+'" aria-disabled="true">Promos</button>';
   const addr=b.address?'<div class="baddr">'+esc(b.address)+'</div>':'';
+  const favBtn=favButton("bakery",b.slug,{title:b.name,subtitle:[b.area,b.town].filter(Boolean).join(", "),venueId:b.slug,imageRef:"assets/logo/logo_placement_image.png"},"Save");
+  const waBtn=b.phone
+    ?'<button class="ico-btn" data-act="waBakery" data-id="'+esc(b.slug)+'" aria-label="WhatsApp '+esc(b.name)+'" title="WhatsApp"><img src="'+IMG.iconWA+'" alt=""></button>'
+    :'<button class="ico-btn is-disabled" data-act="showRestNotice" data-notice="'+esc("WhatsApp details for "+b.name+" are coming soon.")+'" aria-disabled="true" aria-label="WhatsApp (coming soon)" title="WhatsApp (coming soon)"><img src="'+IMG.iconWA+'" alt=""></button>';
+  const infoBtn='<button class="ico-btn" data-act="openBakeryAbout" data-id="'+esc(b.slug)+'" aria-label="Store details for '+esc(b.name)+'" title="Store details"><img class="ico-info-img" src="'+IMG.iconInfo+'" alt=""></button>';
   return '<div class="ropts brows">'+
-    '<div class="line" style="cursor:default">'+contactLine+'</div>'+
-    '<div class="card-ico-row">'+waBtn+infoBtn+'</div>'+
+    townLine+areaLine+menuBtn+promosBtn+
+    '<div class="card-ico-row">'+favBtn+waBtn+infoBtn+'</div>'+
     '</div>'+addr;
 }
 function syncBakeryAccordions(){
@@ -5428,6 +5497,17 @@ function syncBakeryAccordions(){
     const b=el.querySelector('.rrow[data-act="toggleBakery"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
+}
+/* Leaving a tab or switching directory panels collapses every open
+   accordion, so no ritem stays stretched from a previous visit. */
+function closeAllRitemAccordions(){
+  state.restaurantOpen=null;
+  state.cateringOpen=null;
+  state.bakeryOpen=null;
+  state.restNotice=null;
+  syncRestAccordions();
+  syncCateringAccordions();
+  syncBakeryAccordions();
 }
 
 /* One brand row plus its always-present, collapsed options panel. Each row
@@ -6331,7 +6411,10 @@ function renderViewport(){
   const pagerEl=document.getElementById("bev-pager");
   if(pagerEl){
     pagerEl.addEventListener("scroll",syncBeveragesPanel,{passive:true});
+    if("onscrollend" in window) pagerEl.addEventListener("scrollend",commitRestPanelFromScroll);
     scrollToRestPanelPage();
+    /* paint the thumb on the settled tab, measured from the real buttons */
+    setBevToggleThumb(pagerEl.previousElementSibling,REST_PANELS.indexOf(state.restPanel));
   }
   if(state.galleryView==="photo") scrollPhotoTo();
   scrollPromoPickerToActive();
@@ -7494,7 +7577,7 @@ function renderAboutGuestFeature(){
   h+='<div class="card-alert pp" role="alertdialog" aria-modal="true">';
   h+='<img class="card-alert-logo" src="'+IMG.eatoutsLogo+'" alt="">';
   h+='<h3>'+esc(f.heading)+'</h3><p>'+esc(f.copy)+'</p>';
-  h+='<div class="card-alert-actions"><button class="dlg-btn" data-act="aboutBack">Back</button><a class="dlg-btn primary" href="eatouts-user-onboarding.html">Create Account</a></div>';
+  h+='<div class="card-alert-actions"><button class="dlg-btn" data-act="aboutBack">Back</button><a class="dlg-btn primary" href="eatouts_user_onboarding.html">Create Account</a></div>';
   h+='</div>';
   return h;
 }
@@ -8405,10 +8488,11 @@ function renderAbout(){
         '<summary class="setrow">List Business</summary>'+
         '<div class="acc-wrap"><div class="acc-in">'+
           '<a class="setrow" href="eatouts-business-signup.html?type=restaurant">List As &ldquo;Restaurant&rdquo;</a>'+
-          '<a class="setrow" href="eatouts-business-signup.html?type=liquor_store">List As &ldquo;Liquor Store&rdquo;</a>'+
-          '<a class="setrow" href="eatouts-business-signup.html?type=event_supplier">List As &ldquo;Event Supplier&rdquo;</a>'+
-          '<a class="setrow" href="eatouts-business-signup.html?type=food_truck">List As &ldquo;Food Truck&rdquo;</a>'+
           '<a class="setrow" href="eatouts-business-signup.html?type=caterer">List As &ldquo;Caterer&rdquo;</a>'+
+          '<a class="setrow" href="eatouts-business-signup.html?type=bakery">List As &ldquo;Bakery&rdquo;</a>'+
+          '<a class="setrow" href="eatouts-business-signup.html?type=liquor_store">List As &ldquo;Liquor Store&rdquo;</a>'+
+          '<a class="setrow" href="eatouts-business-signup.html?type=food_truck">List As &ldquo;Mobile Kitchen&rdquo;</a>'+
+          '<a class="setrow" href="eatouts-business-signup.html?type=event_supplier">List As &ldquo;Event Supplier&rdquo;</a>'+
           '</div></div>'+
       '</details>'+
       '<a class="setrow" href="designer-services.html">Need Design</a>'+
@@ -8640,6 +8724,7 @@ document.addEventListener("click",function(e){
       renderControlBar();return;
     }
     state.tab=nextTab;
+    closeAllRitemAccordions();
     state.restPanel='food';
     state.bevView=null;
     state.bevCheckout=false;
@@ -9206,6 +9291,17 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
   /* BAKERY DIRECTORY */
   if(act==="toggleBakery"){state.bakeryOpen=(state.bakeryOpen===id)?null:id;state.restNotice=null;syncBakeryAccordions();return;}
   if(act==="openBakeryAbout"){gotoVenueAbout(id);return;}
+  if(act==="waBakery"){
+    const b=bakeryBrands().filter(function(x){return x.slug===id;})[0];
+    if(!b||!b.phone)return;
+    const raw=String(b.phone).replace(/\D/g,"");
+    const num=raw.indexOf("267")===0?raw:((raw.length===8&&/^[67]/.test(raw))?("267"+raw):raw);
+    const r={whatsapp:num};
+    const where=[b.address,b.area,b.town].filter(Boolean).join(", ");
+    const msg="*BAKERY ENQUIRY*\n"+b.name+(where?("\n"+where):"")+"\n\nHi, I'd like to ask about your products, pricing and availability.";
+    window.location.href=waLink(msg,r);
+    return;
+  }
   if(act==="openBottleTownFilter"){state.bottleTownFilter=!state.bottleTownFilter;state.bottleAreaFilter=false;state.bevTypePicker=false;renderControlBar();return;}
   if(act==="closeBottleTownFilter"){state.bottleTownFilter=false;renderControlBar();return;}
   if(act==="pickBottleTown"){state.bottleTown=t.getAttribute("data-town")||"All";state.bottleArea="All";state.bottleTownFilter=false;render();return;}

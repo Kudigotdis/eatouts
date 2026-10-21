@@ -62,6 +62,11 @@ setTimeout(() => {
     amenities: [{ id: 'a1', name: 'WiFi', order: 1 }],
     menuTags: [{ id: 't1', name: 'Burgers', order: 1 }],
     capacity: [{ id: 'cap1', title: 'Seats', value: 50, description: '', order: 1 }],
+    hosting: {
+      spaces: [{ id: 'sp1', title: 'Garden', value: '40 seated', description: 'shaded' }],
+      eventTypes: [{ id: 'et1', typeId: 'birthday', name: 'Birthday Party', category: 'Celebrations' }],
+      rules: { minimumGuests: 10, maximumGuests: 120 }
+    },
     payments: ['Cash', 'Visa'],
     reservations: { enabled: true, whatsappContactId: null, callContactId: null, minimumGuests: 2, maximumGuests: 12, sameDay: true, advanceBooking: true, cancellationNotes: '' },
     setupFeePaid: 0,
@@ -74,6 +79,10 @@ setTimeout(() => {
   check('toModel preserves category', toServer.category === 'Casual Dining');
   check('toModel preserves location', toServer.location && toServer.location.town === 'Gaborone');
   check('toModel preserves socials', toServer.socials && toServer.socials.instagram === '@test');
+  check('toModel preserves hosting', !!toServer.hosting && toServer.hosting.spaces.length === 1);
+  check('toModel preserves the hosting event types',
+    Array.isArray(toServer.hosting.eventTypes) && toServer.hosting.eventTypes[0].name === 'Birthday Party');
+  check('toModel preserves the hosting rules', toServer.hosting.rules.maximumGuests === 120);
 
   const serverRow = {
     id: 'biz_123',
@@ -93,6 +102,11 @@ setTimeout(() => {
     amenities_json: JSON.stringify([{ id: 'a1', name: 'WiFi', order: 1 }]),
     menu_tags_json: JSON.stringify([{ id: 't1', name: 'Burgers', order: 1 }]),
     capacity_json: JSON.stringify([{ id: 'cap1', title: 'Seats', value: 50, description: '', order: 1 }]),
+    hosting_json: JSON.stringify({
+      spaces: [{ id: 'sp1', title: 'Garden', value: '40 seated' }],
+      eventTypes: [{ id: 'et1', typeId: 'birthday', name: 'Birthday Party' }],
+      rules: { minimumGuests: 10, maximumGuests: 120 }
+    }),
     payments_json: JSON.stringify(['Cash', 'Visa']),
     reservations_json: JSON.stringify({ enabled: true, minimumGuests: 2, maximumGuests: 12 }),
     setup_fee_paid: 0,
@@ -107,6 +121,14 @@ setTimeout(() => {
   check('fromServer preserves slug', fromServer.slug === 'test-kitchen');
   check('fromServer preserves types', Array.isArray(fromServer.types) && fromServer.types[0] === 'Restaurant');
   check('fromServer preserves location', fromServer.location && fromServer.location.town === 'Gaborone');
+  check('fromServer preserves hosting', !!fromServer.hosting && fromServer.hosting.spaces.length === 1);
+  check('fromServer preserves the hosting rules', fromServer.hosting.rules.minimumGuests === 10);
+  check('fromServer tolerates a missing hosting column', (function () {
+    var row = Object.assign({}, serverRow);
+    delete row.hosting_json;
+    return api.businessProfileFromServer(row).hosting &&
+      Object.keys(api.businessProfileFromServer(row).hosting).length === 0;
+  })());
 
   /* ---------- bridge methods exist ---------- */
   const methods = [
@@ -162,6 +184,19 @@ setTimeout(() => {
 
     const users = await api.businessUsersGet('biz_123');
     check('get users via bridge returns ok', users.ok === true);
+
+    /* ---------- the D1 handler contract ---------- */
+    const handler = fs.readFileSync(path.join(APP_DIR, 'functions', 'api', 'business', 'profiles.js'), 'utf8');
+    check('the D1 handler stores hosting_json', handler.indexOf('hosting_json') >= 0);
+    check('the D1 handler reads hosting_json', /hosting_json\s*=\s*\?/.test(handler) || handler.indexOf('row.hosting_json') >= 0);
+    check('the D1 handler returns hosting', /hosting/.test(handler));
+
+    const migration = path.join(APP_DIR, 'migrations', '0010_business_onboarding_hosting.sql');
+    check('migration 0010 exists', fs.existsSync(migration));
+    if (fs.existsSync(migration)) {
+      const sql = fs.readFileSync(migration, 'utf8');
+      check('migration 0010 adds hosting_json', /ADD COLUMN hosting_json/i.test(sql));
+    }
 
     console.log('');
     console.log(fails ? (fails + ' FAILED') : ('all ' + checks + ' business profile checks passed'));

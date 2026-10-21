@@ -3,7 +3,7 @@
 > **Auto-generated — do not edit by hand.** Edit `scripts/html_catalog.meta.json`,
 > then run `npm run catalog` (regenerates this file) and `npm test` (guards parity).
 >
-> Generated: 2026-10-20 · Source scan of the project-root `*.html` files.
+> Generated: 2026-10-21 · Source scan of the project-root `*.html` files.
 
 The numbered, always-current index of every page in the project root: what it is
 for, who uses it, how you reach and operate it, and where it stores data. It is
@@ -25,25 +25,25 @@ and `HTML_PAGES.md` the longer capability narrative.
 
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
-| Public & customer surfaces | 14 | 862 KB | 17205 |
-| Restaurant operator back-office | 6 | 206 KB | 3806 |
-| Manager / auth / platform admin (staged package) | 39 | 1018 KB | 22799 |
+| Public & customer surfaces | 14 | 878 KB | 17503 |
+| Restaurant operator back-office | 9 | 536 KB | 6723 |
+| Manager / auth / platform admin (staged package) | 38 | 1145 KB | 22773 |
 | Delivery flows | 3 | 129 KB | 2226 |
-| Internal ops & billing | 3 | 154 KB | 2750 |
+| Internal ops & billing | 3 | 153 KB | 2750 |
 | Developer harness | 2 | 224 KB | 4643 |
-| **Total** | **67** | **2590 KB** | **53429** |
+| **Total** | **69** | **3063 KB** | **56618** |
 
-Status: 62 FULL · 1 PARTIAL · 4 STUB/DEMO.
+Status: 63 FULL · 1 REDIRECT · 1 PARTIAL · 4 STUB/DEMO.
 
 > Run the app through **`run-eatouts.bat`** (serves the root over `http://127.0.0.1`).
 > Opening a page via `file://` isolates `localStorage` per page and breaks
-> `crypto.subtle` sign-in. Relevant to the 67 catalogued surfaces below.
+> `crypto.subtle` sign-in. Relevant to the 69 catalogued surfaces below.
 
 ## 2. Master index
 
 | # | File | Group | Purpose | How you reach it | Auth | Store keys | Size |
 |---|------|-------|---------|------------------|------|-----------|------|
-| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 491 KB / 9787 lines |
+| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 502 KB / 9967 lines |
 | 2 | `get-started.html` | public-customer | Marketing landing that explains the operator offer and links into the intake and pricing flows. | Direct / marketing links. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 185 lines |
 | 3 | `pricing.html` | public-customer | Public pricing page; reads and can persist the shared plan prices. | Marketing links; get-started.html. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 243 lines |
 | 4 | `one-pager.html` | public-customer | Static sales one-pager for prospects. | Direct link. | - | — | 17 KB / 650 lines |
@@ -52,64 +52,66 @@ Status: 62 FULL · 1 PARTIAL · 4 STUB/DEMO.
 | 7 | `eatouts-blog.html` | public-customer | Public blog feed with per-post pages and an on-device authoring tool with version history. | Direct / home links. | - | `EatoutsDB`→`eatouts_db_v2` | 27 KB / 491 lines |
 | 8 | `eatouts-suppliers.html` | public-customer | Supplier directory plus on-device supplier self-onboarding and sign-in. | Direct link. | - | `eatouts_supplier_draft_v1` `eatouts_supplier_session_v1` `eatouts_suppliers_v1` | 93 KB / 1780 lines |
 | 9 | `eatouts_feedback.html` | public-customer | Multi-step feedback form that queues submissions and composes a WhatsApp message to support. | About tab â†’ Settings accordion â†’ Feedback row. | - | `eatouts_feedback_queue_v1` | 40 KB / 834 lines |
-| 10 | `restaurant-onboarding.html` | operator-onboarding | Master profile editor for a single restaurant (15 sections). | index.html â†’ About Us â†’ Operator Sign in, then the Restaurant tab. | yes | `EatoutsDB`→`eatouts_db_v2` | 52 KB / 814 lines |
+| 10 | `restaurant-onboarding.html` | operator-onboarding | Restaurant setup: brand identity, branches/outlets, venue spaces, menu, promotions and the Hosting Services block. | eatouts-business-signup.html → Restaurant; the operator dashboard. | yes | — | 125 KB / 574 lines |
 | 11 | `menu-onboarding.html` | operator-onboarding | Build menu categories, items and variants. | Operator back-office â†’ Menu tab. | yes | `EatoutsDB`→`eatouts_db_v2` | 28 KB / 433 lines |
 | 12 | `promo-onboarding.html` | operator-onboarding | Create and manage promotions. | Operator back-office â†’ Promos tab. | yes | `EatoutsDB`→`eatouts_db_v2` | 26 KB / 398 lines |
 | 13 | `event-onboarding.html` | operator-onboarding | Manage events and the performer roster. | Operator back-office â†’ Events tab. | yes | `EatoutsDB`→`eatouts_db_v2` | 52 KB / 1409 lines |
 | 14 | `gallery-onboarding.html` | operator-onboarding | Manage gallery groups and images. | Operator back-office â†’ Gallery tab. | yes | `EatoutsDB`→`eatouts_db_v2` | 18 KB / 267 lines |
 | 15 | `restaurant-dashboard.html` | operator-onboarding | Owner dashboard: status, completeness, simulated analytics, billing and downloadable/printable reports. | Operator back-office â†’ Dashboard tab. | yes | `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 30 KB / 485 lines |
 | 16 | `eatouts-login.html` | manager-admin | Universal WhatsApp + PIN sign-in; routes the user by role. | Direct link; also index.html â†’ About â†’ Operator Sign in â†’ Universal sign-in. | - | — | 5 KB / 44 lines |
-| 17 | `eatouts-user-onboarding.html` | manager-admin | Customer account creation with an 18+ gate. | eatouts-login.html â†’ create account. | - | — | 12 KB / 140 lines |
-| 18 | `eatouts-business-signup.html` | manager-admin | Business-type chooser for new businesses. | eatouts-login.html / marketing links. | - | — | 16 KB / 613 lines |
-| 19 | `bottle-store-onboarding.html` | manager-admin | Redirect wrapper into the unified business onboarding (bottle store). | eatouts-business-signup.html. | - | `EatoutsMgrDB`→`eatouts_manager_v1` | 58 KB / 1382 lines |
-| 20 | `caterer-onboarding.html` | manager-admin | Redirect wrapper into the unified business onboarding (caterer). | eatouts-business-signup.html. | - | `EatoutsMgrDB`→`eatouts_manager_v1` | 45 KB / 1055 lines |
-| 21 | `lodge-onboarding.html` | manager-admin | Redirect wrapper into the unified business onboarding (lodge). | eatouts-business-signup.html. | - | — | 32 KB / 1093 lines |
-| 22 | `supplier-onboarding.html` | manager-admin | Redirect wrapper into the unified business onboarding (supplier). | eatouts-business-signup.html. | - | — | 106 KB / 2474 lines |
-| 23 | `business-onboarding1.html` | manager-admin | Unified per-type business setup (module rail, draft autosave, preview, save & publish). | eatouts-business-signup.html / per-type wrappers. | yes | `eatouts_business_drafts_v1` `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 52 KB / 106 lines |
-| 24 | `operator-dashboard1.html` | manager-admin | Role-gated business workspace (orders, staff, reports, settings tabs) with a business switcher. | eatouts-login.html after publishing. | yes | `eatouts_active_business_v2` `eatouts_delivery_orders_v1` `eatouts_ops_v1` `eatouts_order_v1_history` `EatoutsDB`→`eatouts_db_v2` | 44 KB / 105 lines |
-| 25 | `eatouts-staff-admin1.html` | manager-admin | Restricted platform-staff workspace with role-limited tabs. | eatouts-login.html / eatouts-admin-dashboard.html. | yes | `eatouts_analytics_events_v1` `eatouts_blog_posts_v1` `eatouts_delivery_orders_v1` `eatouts_feedback_queue_v1` `eatouts_feedback_v2` `eatouts_ops_v1` `eatouts_order_v1_history` `EatoutsDB`→`eatouts_db_v2` | 54 KB / 1506 lines |
-| 26 | `food-truck-schedule1.html` | manager-admin | Food-truck location and service-day schedule management. | eatouts-login.html. | yes | `EatoutsDB`→`eatouts_db_v2` | 19 KB / 38 lines |
-| 27 | `staff-manager.html` | manager-admin | Staff CRUD, employment records and roles. | eatouts-login.html â†’ operator/admin shell â†’ Staff. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 18 KB / 43 lines |
-| 28 | `delivery-manager.html` | manager-admin | Delivery zones, fees, capacity, drivers and windows. | eatouts-login.html â†’ business shell â†’ Delivery. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 33 KB / 824 lines |
-| 29 | `order-manager.html` | manager-admin | Live business order queue. | eatouts-login.html â†’ business shell â†’ Orders. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 3 lines |
-| 30 | `reservation-manager.html` | manager-admin | Table bookings, guests and deposits. | eatouts-login.html â†’ business shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 3 lines |
-| 31 | `room-manager.html` | manager-admin | Lodge rooms, rates and housekeeping. | eatouts-login.html â†’ lodge shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 3 lines |
-| 32 | `billing-manager.html` | manager-admin | Subscription tiers and invoice history. | eatouts-login.html â†’ business shell â†’ Billing. | yes | `eatouts_db_v2` `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 5 lines |
-| 33 | `analytics-manager.html` | manager-admin | Order/delivery analytics as read-only aggregates. | eatouts-login.html â†’ business shell â†’ Analytics. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 2 KB / 3 lines |
-| 34 | `quote-manager.html` | manager-admin | Caterer/supplier quote builder. | eatouts-login.html â†’ business shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 3 lines |
-| 35 | `booking-manager.html` | manager-admin | Supplier/lodge booking requests. | eatouts-login.html â†’ business shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 2 KB / 3 lines |
-| 36 | `eatouts-admin-dashboard.html` | manager-admin | Platform control centre: admin links, the promo-submissions queue and the business-links (/bw/<slug>) admin. | eatouts-login.html (admin role). | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 42 KB / 1012 lines |
-| 37 | `eatouts-users-manager.html` | manager-admin | Users and role management. | eatouts-login.html â†’ admin shell â†’ Users. | yes | — | 29 KB / 957 lines |
-| 38 | `feedback-manager.html` | manager-admin | Feedback ticket queue. | eatouts-login.html â†’ admin shell â†’ Feedback. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 4 lines |
-| 39 | `blog-creator-dashboard.html` | manager-admin | Blog writer/publisher using EatoutsBlogAdmin. | eatouts-login.html â†’ admin shell â†’ Blog. | yes | — | 29 KB / 700 lines |
-| 40 | `eatouts-verification-queue.html` | manager-admin | Business verification queue. | eatouts-login.html â†’ admin shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 21 KB / 713 lines |
-| 41 | `eatouts-disputes.html` | manager-admin | Issues, refunds and escalations. | eatouts-login.html â†’ admin shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 20 KB / 432 lines |
-| 42 | `eatouts-platform-analytics.html` | manager-admin | Cross-platform analytics. | eatouts-login.html â†’ admin shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 24 KB / 809 lines |
-| 43 | `eatouts-notifications.html` | manager-admin | Segment notifications. | eatouts-login.html â†’ admin shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 27 KB / 941 lines |
-| 44 | `eatouts-settings.html` | manager-admin | Platform configuration. | eatouts-login.html â†’ admin shell â†’ Settings. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 31 KB / 1006 lines |
-| 45 | `eatouts-favourites.html` | manager-admin | Customer saved favourites. | eatouts-login.html â†’ customer shell â†’ Saved. | yes | `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 37 KB / 1278 lines |
-| 46 | `eatouts-orders.html` | manager-admin | Customer order history. | eatouts-login.html â†’ customer shell â†’ Orders. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 29 KB / 967 lines |
-| 47 | `eatouts-profile.html` | manager-admin | Customer profile. | eatouts-login.html â†’ customer shell â†’ Profile. | yes | — | 39 KB / 1217 lines |
-| 48 | `eatouts-addresses.html` | manager-admin | Customer delivery addresses. | eatouts-login.html â†’ customer shell â†’ Addresses. | yes | — | 29 KB / 707 lines |
-| 49 | `customer-delivery.html` | delivery | Customer post-checkout delivery flow; collects delivery details and persists the completed order. | Reached after checkout in the customer app (reads the eatouts_order_v1 draft). | - | `eatouts_active_session_v2` `eatouts_auth_session_v1` `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 56 KB / 1021 lines |
-| 50 | `restaurant-delivery.html` | delivery | Restaurant dispatch board (demo): incoming requests, rounds, kitchen prep, routes and settings. | restaurant-onboarding.html Delivery & Dispatch buttons. | - | `eatouts_delivery_orders_v1` | 42 KB / 702 lines |
-| 51 | `driver-delivery.html` | delivery | Rider board (demo): duty status, rounds, active stop checklist, problems and completed log. | restaurant-onboarding.html Delivery & Dispatch buttons. | - | — | 31 KB / 503 lines |
-| 52 | `intake.html` | internal-ops | Guided operator/concierge intake capture of a restaurant record. | get-started.html / operator links; auth-gated. | yes | `eatouts_intake_draft_v1` `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 72 KB / 1195 lines |
-| 53 | `invoice.html` | internal-ops | Operator/ops invoice generation. | Ops links; auth-gated. | yes | `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 21 KB / 395 lines |
-| 54 | `ops-console.html` | internal-ops | Internal ops tracker: venues, submissions, MRR/activity. | Ops links; auth-gated. | yes | `eatouts_ops_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 61 KB / 1160 lines |
-| 55 | `seed-demo.html` | dev-harness | Developer harness that seeds the roster and runs data-layer verification assertions. | run-eatouts.bat â†’ open seed-demo.html. | - | `eatouts_db_v2` `EatoutsDB`→`eatouts_db_v2` | 22 KB / 441 lines |
-| 56 | `eatout_event_builder.html` | dev-harness | Legacy experimental event builder. | Direct link. | - | — | 202 KB / 4202 lines |
-| 57 | `brand-kit-admin.html` | manager-admin | Admin workspace for design jobs, designers, payouts and services | From eatouts-admin-dashboard.html → Brand & Design card (or direct link) | yes | `eatouts_audit_log_v1` `eatouts_auth_session_v1` `eatouts_brand_jobs_v1` `eatouts_db_v2` `eatouts_designers_v1` `eatouts_jobs_v1` `eatouts_services_v1` `eatouts_users_v1` `EatoutsDB`→`eatouts_db_v2` | 66 KB / 724 lines |
-| 58 | `designer-dashboard.html` | manager-admin | Designer private workspace | From designer-services.html → Open your workspace (prototype designer sign-in) | yes | `eatouts_designer_session_v1` | 18 KB / 323 lines |
-| 59 | `designer-services.html` | public-customer | Public marketplace for design services | From index.html About → Settings → Need Design | - | — | 38 KB / 746 lines |
-| 60 | `eatouts-summaries.html` | manager-admin | Customer saved summaries. | eatouts-login.html → customer shell → Saved Summaries. | yes | — | 23 KB / 756 lines |
-| 61 | `eatouts-events.html` | manager-admin | Customer saved events. | eatouts-login.html → customer shell → Events. | yes | — | 18 KB / 402 lines |
-| 62 | `eatouts-gallery.html` | manager-admin | Customer saved gallery photos. | eatouts-login.html → customer shell → Gallery. | yes | — | 2 KB / 17 lines |
-| 63 | `eatouts-checkout-summary.html` | manager-admin | Checkout summary snapshot. | Reached from checkout flows. | yes | — | 18 KB / 388 lines |
-| 64 | `eatouts-about.html` | public-customer | Public About EatOuts page. | From index.html About → Settings → About EatOuts. | - | — | 5 KB / 92 lines |
-| 65 | `about-guest-popup.html` | public-customer | Standalone demo of the Create Profile popup on the About tab. | Open from About tab | - | — | 11 KB / 162 lines |
-| 66 | `about-profile-options.html` | public-customer | Standalone demo of the logged‑in profile‑options popup. | Open from About tab | - | — | 35 KB / 473 lines |
-| 67 | `venue-about.html` | public-customer | Data-driven standalone venue About page: renders ANY resolved business's About surface (logo, hero, status, social row, Options, Operating Hours, Venue, Promos, Ambience, Amenities, Menu Tags) from the resolved business alone — no hardcoded venue values, section visibility driven only by present data. | Open directly; pick a business with ?link=<slug> (e.g. venue-about.html?link=nandos) or #<slug> (e.g. venue-about.html#nandos). No slug or an unresolvable slug hands straight back to the directory (location.replace('index.html#restaurants')) — there is no placeholder screen. | - | — | 55 KB / 1342 lines |
+| 17 | `eatouts-user-onboarding.html` | manager-admin | Redirect shim — the customer account page now lives at eatouts_user_onboarding.html. | Old bookmarks and links. | - | — | 1 KB / 30 lines |
+| 18 | `eatouts-business-signup.html` | manager-admin | Business-type chooser for new businesses; each card opens that type’s own onboarding form. | eatouts-login.html / marketing links. | - | — | 31 KB / 947 lines |
+| 19 | `bottle-store-onboarding.html` | manager-admin | Bottle & liquor store setup: brand and outlets, stock, tastings, delivery and the Hosting Services block. | eatouts-business-signup.html → Bottle store; the operator dashboard. | - | — | 117 KB / 1630 lines |
+| 20 | `caterer-onboarding.html` | manager-admin | Caterer setup: brand and outlets, menus, service coverage and delivery areas, plus the Hosting Services block. | eatouts-business-signup.html → Caterer; the operator dashboard. | - | — | 137 KB / 1903 lines |
+| 21 | `lodge-onboarding.html` | manager-admin | Lodge setup: property details, rooms, amenities, rates and booking rules. | eatouts-business-signup.html → Lodge; the operator dashboard. | - | — | 32 KB / 1093 lines |
+| 22 | `supplier-onboarding.html` | manager-admin | Event supplier setup: the catalogue of services this supplier offers, contact and coverage details, and the Hosting Services block. | eatouts-business-signup.html → Event supplier; the operator dashboard. | - | — | 130 KB / 1234 lines |
+| 23 | `operator-dashboard1.html` | manager-admin | Role-gated business workspace (orders, staff, reports, settings tabs) with a business switcher. | eatouts-login.html after publishing. | yes | `eatouts_active_business_v2` `eatouts_delivery_orders_v1` `eatouts_ops_v1` `eatouts_order_v1_history` `EatoutsDB`→`eatouts_db_v2` | 44 KB / 105 lines |
+| 24 | `eatouts-staff-admin1.html` | manager-admin | Restricted platform-staff workspace with role-limited tabs. | eatouts-login.html / eatouts-admin-dashboard.html. | yes | `eatouts_analytics_events_v1` `eatouts_blog_posts_v1` `eatouts_delivery_orders_v1` `eatouts_feedback_queue_v1` `eatouts_feedback_v2` `eatouts_ops_v1` `eatouts_order_v1_history` `EatoutsDB`→`eatouts_db_v2` | 54 KB / 1506 lines |
+| 25 | `food-truck-schedule1.html` | manager-admin | Food-truck location and service-day schedule management. | eatouts-login.html. | yes | `EatoutsDB`→`eatouts_db_v2` | 19 KB / 38 lines |
+| 26 | `staff-manager.html` | manager-admin | Staff CRUD, employment records and roles. | eatouts-login.html â†’ operator/admin shell â†’ Staff. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 18 KB / 43 lines |
+| 27 | `delivery-manager.html` | manager-admin | Delivery zones, fees, capacity, drivers and windows. | eatouts-login.html â†’ business shell â†’ Delivery. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 33 KB / 824 lines |
+| 28 | `order-manager.html` | manager-admin | Live business order queue. | eatouts-login.html â†’ business shell â†’ Orders. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 3 lines |
+| 29 | `reservation-manager.html` | manager-admin | Table bookings, guests and deposits. | eatouts-login.html â†’ business shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 3 lines |
+| 30 | `room-manager.html` | manager-admin | Lodge rooms, rates and housekeeping. | eatouts-login.html â†’ lodge shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 3 lines |
+| 31 | `billing-manager.html` | manager-admin | Subscription tiers and invoice history. | eatouts-login.html â†’ business shell â†’ Billing. | yes | `eatouts_db_v2` `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 5 lines |
+| 32 | `analytics-manager.html` | manager-admin | Order/delivery analytics as read-only aggregates. | eatouts-login.html â†’ business shell â†’ Analytics. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 2 KB / 3 lines |
+| 33 | `quote-manager.html` | manager-admin | Caterer/supplier quote builder. | eatouts-login.html â†’ business shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 3 lines |
+| 34 | `booking-manager.html` | manager-admin | Supplier/lodge booking requests. | eatouts-login.html â†’ business shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 2 KB / 3 lines |
+| 35 | `eatouts-admin-dashboard.html` | manager-admin | Platform control centre: admin links, the promo-submissions queue and the business-links (/bw/<slug>) admin. | eatouts-login.html (admin role). | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 42 KB / 1012 lines |
+| 36 | `eatouts-users-manager.html` | manager-admin | Users and role management. | eatouts-login.html â†’ admin shell â†’ Users. | yes | — | 29 KB / 957 lines |
+| 37 | `feedback-manager.html` | manager-admin | Feedback ticket queue. | eatouts-login.html â†’ admin shell â†’ Feedback. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 3 KB / 4 lines |
+| 38 | `blog-creator-dashboard.html` | manager-admin | Blog writer/publisher using EatoutsBlogAdmin. | eatouts-login.html â†’ admin shell â†’ Blog. | yes | — | 29 KB / 700 lines |
+| 39 | `eatouts-verification-queue.html` | manager-admin | Business verification queue. | eatouts-login.html â†’ admin shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 21 KB / 713 lines |
+| 40 | `eatouts-disputes.html` | manager-admin | Issues, refunds and escalations. | eatouts-login.html â†’ admin shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 20 KB / 432 lines |
+| 41 | `eatouts-platform-analytics.html` | manager-admin | Cross-platform analytics. | eatouts-login.html â†’ admin shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 24 KB / 809 lines |
+| 42 | `eatouts-notifications.html` | manager-admin | Segment notifications. | eatouts-login.html â†’ admin shell. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 27 KB / 941 lines |
+| 43 | `eatouts-settings.html` | manager-admin | Platform configuration. | eatouts-login.html â†’ admin shell â†’ Settings. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 31 KB / 1006 lines |
+| 44 | `eatouts-favourites.html` | manager-admin | Customer saved favourites. | eatouts-login.html â†’ customer shell â†’ Saved. | yes | `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 37 KB / 1278 lines |
+| 45 | `eatouts-orders.html` | manager-admin | Customer order history. | eatouts-login.html â†’ customer shell â†’ Orders. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 29 KB / 967 lines |
+| 46 | `eatouts-profile.html` | manager-admin | Customer profile. | eatouts-login.html â†’ customer shell â†’ Profile. | yes | — | 39 KB / 1217 lines |
+| 47 | `eatouts-addresses.html` | manager-admin | Customer delivery addresses. | eatouts-login.html â†’ customer shell â†’ Addresses. | yes | — | 29 KB / 707 lines |
+| 48 | `customer-delivery.html` | delivery | Customer post-checkout delivery flow; collects delivery details and persists the completed order. | Reached after checkout in the customer app (reads the eatouts_order_v1 draft). | - | `eatouts_active_session_v2` `eatouts_auth_session_v1` `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 56 KB / 1021 lines |
+| 49 | `restaurant-delivery.html` | delivery | Restaurant dispatch board (demo): incoming requests, rounds, kitchen prep, routes and settings. | restaurant-onboarding.html Delivery & Dispatch buttons. | - | `eatouts_delivery_orders_v1` | 42 KB / 702 lines |
+| 50 | `driver-delivery.html` | delivery | Rider board (demo): duty status, rounds, active stop checklist, problems and completed log. | restaurant-onboarding.html Delivery & Dispatch buttons. | - | — | 31 KB / 503 lines |
+| 51 | `intake.html` | internal-ops | Guided operator/concierge intake capture of a restaurant record. | get-started.html / operator links; auth-gated. | yes | `eatouts_intake_draft_v1` `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 72 KB / 1195 lines |
+| 52 | `invoice.html` | internal-ops | Operator/ops invoice generation. | Ops links; auth-gated. | yes | `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 20 KB / 395 lines |
+| 53 | `ops-console.html` | internal-ops | Internal ops tracker: venues, submissions, MRR/activity. | Ops links; auth-gated. | yes | `eatouts_ops_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 61 KB / 1160 lines |
+| 54 | `seed-demo.html` | dev-harness | Developer harness that seeds the roster and runs data-layer verification assertions. | run-eatouts.bat â†’ open seed-demo.html. | - | `eatouts_db_v2` `EatoutsDB`→`eatouts_db_v2` | 22 KB / 441 lines |
+| 55 | `eatout_event_builder.html` | dev-harness | Legacy experimental event builder. | Direct link. | - | — | 202 KB / 4202 lines |
+| 56 | `brand-kit-admin.html` | manager-admin | Admin workspace for design jobs, designers, payouts and services | From eatouts-admin-dashboard.html → Brand & Design card (or direct link) | yes | `eatouts_audit_log_v1` `eatouts_auth_session_v1` `eatouts_brand_jobs_v1` `eatouts_db_v2` `eatouts_designers_v1` `eatouts_jobs_v1` `eatouts_services_v1` `eatouts_users_v1` `EatoutsDB`→`eatouts_db_v2` | 66 KB / 724 lines |
+| 57 | `designer-dashboard.html` | manager-admin | Designer private workspace | From designer-services.html → Open your workspace (prototype designer sign-in) | yes | `eatouts_designer_session_v1` | 18 KB / 323 lines |
+| 58 | `designer-services.html` | public-customer | Public marketplace for design services | From index.html About → Settings → Need Design | - | — | 38 KB / 746 lines |
+| 59 | `eatouts-summaries.html` | manager-admin | Customer saved summaries. | eatouts-login.html → customer shell → Saved Summaries. | yes | — | 23 KB / 756 lines |
+| 60 | `eatouts-events.html` | manager-admin | Customer saved events. | eatouts-login.html → customer shell → Events. | yes | — | 18 KB / 402 lines |
+| 61 | `eatouts-gallery.html` | manager-admin | Customer saved gallery photos. | eatouts-login.html → customer shell → Gallery. | yes | — | 2 KB / 17 lines |
+| 62 | `eatouts-checkout-summary.html` | manager-admin | Checkout summary snapshot. | Reached from checkout flows. | yes | — | 18 KB / 388 lines |
+| 63 | `eatouts-about.html` | public-customer | Public About EatOuts page. | From index.html About → Settings → About EatOuts. | - | — | 5 KB / 92 lines |
+| 64 | `about-guest-popup.html` | public-customer | Standalone demo of the Create Profile popup on the About tab. | Open from About tab | - | — | 11 KB / 162 lines |
+| 65 | `about-profile-options.html` | public-customer | Standalone demo of the logged‑in profile‑options popup. | Open from About tab | - | — | 35 KB / 473 lines |
+| 66 | `venue-about.html` | public-customer | Data-driven standalone venue About page: renders ANY resolved business's About surface (logo, hero, status, social row, Options, Operating Hours, Venue, Promos, Ambience, Amenities, Menu Tags) from the resolved business alone — no hardcoded venue values, section visibility driven only by present data. | Open directly; pick a business with ?link=<slug> (e.g. venue-about.html?link=nandos) or #<slug> (e.g. venue-about.html#nandos). No slug or an unresolvable slug hands straight back to the directory (location.replace('index.html#restaurants')) — there is no placeholder screen. | - | — | 60 KB / 1460 lines |
+| 67 | `bakery-onboarding.html` | operator-onboarding | Bakery setup: brand identity, outlets, product range, café/seating capability and the Hosting Services block. | eatouts-business-signup.html → Bakery; the operator dashboard. | - | — | 127 KB / 1702 lines |
+| 68 | `mobile-kitchen-onboarding.html` | operator-onboarding | Mobile kitchen setup: units, service locations, grab-and-go menu, throughput and the Hosting Services block. | eatouts-business-signup.html → Mobile Kitchen; the operator dashboard. | - | — | 113 KB / 1185 lines |
+| 69 | `eatouts_user_onboarding.html` | operator-onboarding | Customer account creation: name, 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks. | eatouts-login.html “Create an account”; the About Us guest popup; index.html. | - | — | 17 KB / 270 lines |
 
 ## 3. Navigation map
 
@@ -119,15 +121,15 @@ Status: 62 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
 ### Operator back-office (restaurant owners)
 
-From `index.html` â†’ About Us â†’ Operator Sign in (or demo login) the operator lands on `restaurant-dashboard.html`. The eight onboarding pages share one tab bar (Restaurant Â· Menu Â· Promos Â· Events Â· Gallery Â· Dashboard): `restaurant-onboarding.html`, `menu-onboarding.html`, `promo-onboarding.html`, `event-onboarding.html`, `gallery-onboarding.html`, `restaurant-dashboard.html`. Publish only flags status; there is no server-side publish path.
+From `index.html` → About Us → Operator Sign in (or demo login) the operator lands on `restaurant-dashboard.html`. The eight onboarding pages share one tab bar (Restaurant · Menu · Promos · Events · Gallery · Dashboard): `restaurant-onboarding.html`, `menu-onboarding.html`, `promo-onboarding.html`, `event-onboarding.html`, `gallery-onboarding.html`, `restaurant-dashboard.html`. The onboarding forms now publish for real — see "Onboarding & publish".
 
 ### Universal sign-in â†’ role shells (staged package)
 
-`eatouts-login.html` is the universal WhatsApp + PIN sign-in and routes by role: customer â†’ `eatouts-profile/orders/favourites/addresses`, operator â†’ `operator-dashboard1.html` (or the `*-manager.html` surfaces), admin â†’ `eatouts-admin-dashboard.html`. `eatouts-business-signup.html` â†’ per-type onboarding (`business-onboarding1.html` and the redirect wrappers). Auth screens use the centred `.login` card; signed-in screens render a role-based shell via `EO.shell`.
+`eatouts-login.html` is the universal WhatsApp + PIN sign-in and routes by role: customer → `eatouts-profile/orders/favourites/addresses`, operator → `operator-dashboard1.html` (or the `*-manager.html` surfaces), admin → `eatouts-admin-dashboard.html`. `eatouts-business-signup.html` → the per-type onboarding form for that business type. Auth screens use the centred `.login` card; signed-in screens render a role-based shell via `EO.shell`.
 
 ### Onboarding & publish
 
-`eatouts-business-signup.html` (or `bottle-store`/`caterer`/`lodge`/`supplier`-`onboarding.html` wrappers) feed `business-onboarding1.html`, which autosaves a draft, previews, and saves/publishes into `operator-dashboard1.html`. Specs are role-gated business workspaces; `eatouts-staff-admin1.html` and `food-truck-schedule1.html` are the other recovered `*1` surfaces.
+`eatouts-business-signup.html` sends each business type to its own form: `restaurant-onboarding.html`, `mobile-kitchen-onboarding.html`, `bottle-store-onboarding.html`, `caterer-onboarding.html`, `bakery-onboarding.html`, `supplier-onboarding.html` (lodge still uses `lodge-onboarding.html`). Every one of them shares `js/eatouts-onboarding-bridge.js`: live town/area lookup from `botswana_locations.js`, mall/shopping-centre lookup from `assets/data/botswana_shopping_malls_and_shopping_centres.js`, a Hosting Services section (capacity spaces + hostable event types from `assets/data/event_types.js` + booking rules) and a "Save & publish" action that writes the D1 business profile and the local customer directory, then exports an `eatouts.venue.v1` submission for the build-time merge. `operator-dashboard1.html`, `eatouts-staff-admin1.html` and `food-truck-schedule1.html` are the recovered `*1` workspaces.
 
 ### Delivery flows
 
@@ -150,8 +152,8 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 8
-- **Size:** 491 KB / 9787 lines (503104 bytes)
-- **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `assets/data/CateringServicesDatabase.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-catering.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-content.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`
+- **Size:** 502 KB / 9967 lines (513568 bytes)
+- **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `assets/data/CateringServicesDatabase.js?v=20261021`, `assets/data/bakery_services_database.js?v=20261021`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-catering.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-content.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`
 - **Notes:** Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only. On venue open the app hydrates that venue's canonical D1 content via window.EatoutsContent (js/eatouts-content.js), merging profile/menu/gallery/promos/events into the local store before re-rendering; an unreachable backend leaves the imported-directory path untouched.
 
 #### #2 `get-started.html`
@@ -258,7 +260,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** —
 - **Notes:** No attachments; screenshot is a pasted web URL.
 
-#### #59 `designer-services.html`
+#### #58 `designer-services.html`
 
 - **Purpose:** Public marketplace for design services
 - **Audience:** Businesses/customers
@@ -271,7 +273,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-services-seed.js`, `js/eatouts-designers-seed.js`, `js/eatouts-brand-kit.js`
 - **Notes:** Uses EatoutsBrandKit
 
-#### #64 `eatouts-about.html`
+#### #63 `eatouts-about.html`
 
 - **Purpose:** Public About EatOuts page.
 - **Audience:** Everyone
@@ -284,7 +286,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** —
 - **Notes:** Standalone page split out of the About tab.
 
-#### #65 `about-guest-popup.html`
+#### #64 `about-guest-popup.html`
 
 - **Purpose:** Standalone demo of the Create Profile popup on the About tab.
 - **Audience:** Everyone
@@ -297,7 +299,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** —
 - **Notes:** Added as part of Pop‑Up States Plan.
 
-#### #66 `about-profile-options.html`
+#### #65 `about-profile-options.html`
 
 - **Purpose:** Standalone demo of the logged‑in profile‑options popup.
 - **Audience:** Everyone
@@ -310,7 +312,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** —
 - **Notes:** Added as part of Pop‑Up States Plan.
 
-#### #67 `venue-about.html`
+#### #66 `venue-about.html`
 
 - **Purpose:** Data-driven standalone venue About page: renders ANY resolved business's About surface (logo, hero, status, social row, Options, Operating Hours, Venue, Promos, Ambience, Amenities, Menu Tags) from the resolved business alone — no hardcoded venue values, section visibility driven only by present data.
 - **Audience:** Customers (+ shared links)
@@ -319,24 +321,24 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 55 KB / 1342 lines (56042 bytes)
-- **Loads:** `js/eatouts-brand.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/BottleLliquorStoresDatabase.js`, `js/eatouts-bottle-stores.js`, `assets/data/CateringServicesDatabase.js`, `js/eatouts-catering.js`
+- **Size:** 60 KB / 1460 lines (60998 bytes)
+- **Loads:** `js/eatouts-brand.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/BottleLliquorStoresDatabase.js`, `js/eatouts-bottle-stores.js`, `assets/data/CateringServicesDatabase.js`, `assets/data/bakery_services_database.js?v=20261021`, `js/eatouts-catering.js`
 - **Notes:** Design/layout/behaviours derive from the preserved mockup (byte-identical to _trash/venue-about-demo.html), but every business value comes from the resolved business. No flagship fallback and no slug substitution. Owner detection is window.EatoutsAuth.currentSession() (restaurantId match) plus a manager-DB owner lookup. The page-scoped demo registry (assets/data/eatouts_demo_businesses.js) is loaded ONLY here and never merged into the customer DB, so index.html's browse list stays clean. Slug read order: ?link= → #hash; when neither resolves to a business the page redirects to index.html#restaurants instead of rendering an empty state.
 
 ### Restaurant operator back-office
 
 #### #10 `restaurant-onboarding.html`
 
-- **Purpose:** Master profile editor for a single restaurant (15 sections).
+- **Purpose:** Restaurant setup: brand identity, branches/outlets, venue spaces, menu, promotions and the Hosting Services block.
 - **Audience:** Restaurant owner
-- **Reach it:** index.html â†’ About Us â†’ Operator Sign in, then the Restaurant tab.
-- **How you use it:** Edit identity/location/contacts/socials/hours/amenities/capacity/payments/reservations/staff/users/delivery; save draft, publish, preview; completeness meter.
+- **Reach it:** eatouts-business-signup.html → Restaurant; the operator dashboard.
+- **How you use it:** Branch and venue-space forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.
 - **Auth:** gated · **Status:** FULL
-- **Store:** `EatoutsDB`→`eatouts_db_v2`
-- **Markers:** shell - · auth yes · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 52 KB / 814 lines (52956 bytes)
-- **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-owner-compat.js`, `js/eatouts-image-compressor.js`, `js/eatouts-video-validator.js`, `js/eatouts-upload.js`, `js/eatouts-business-api.js`
-- **Notes:** Publish only flags status; no live publish path. Logo/cover uploads now POST to /api/upload (Supabase) with a data-URL fallback.
+- **Store:** —
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
+- **Size:** 125 KB / 574 lines (127660 bytes)
+- **Loads:** `js/eatouts-image-compressor.js`, `js/eatouts-video-validator.js`, `js/eatouts-upload.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`
+- **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory). Logo/cover uploads POST to /api/upload (Supabase) with a data-URL fallback.
 
 #### #11 `menu-onboarding.html`
 
@@ -347,7 +349,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** gated · **Status:** FULL
 - **Store:** `EatoutsDB`→`eatouts_db_v2`
 - **Markers:** shell - · auth yes · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 28 KB / 433 lines (28333 bytes)
+- **Size:** 28 KB / 433 lines (28318 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-owner-compat.js`, `js/eatouts-image-compressor.js`, `js/eatouts-video-validator.js`, `js/eatouts-upload.js`, `js/eatouts-business-api.js`
 - **Notes:** Modifier editor wired in D21. Reconciles the menu with /api/business/menu (js/eatouts-business-api.js), pushing local-only categories/items and merging server rows; local storage remains the offline fallback. Item images upload to /api/upload (Supabase) with a data-URL fallback.
 
@@ -360,7 +362,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** gated · **Status:** FULL
 - **Store:** `EatoutsDB`→`eatouts_db_v2`
 - **Markers:** shell - · auth yes · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 26 KB / 398 lines (26302 bytes)
+- **Size:** 26 KB / 398 lines (26287 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-owner-compat.js`, `js/eatouts-image-compressor.js`, `js/eatouts-video-validator.js`, `js/eatouts-upload.js`, `js/eatouts-business-api.js`
 - **Notes:** Recurring is a stored day list, not a scheduler. Promo images upload to /api/upload (Supabase) with a data-URL fallback. Saving a promo queues it for admin review via POST /api/customer/promo-submissions (source=business, marketing_manager+) and reads back review status; promos are never published directly.
 
@@ -373,7 +375,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** gated · **Status:** FULL
 - **Store:** `EatoutsDB`→`eatouts_db_v2`
 - **Markers:** shell - · auth yes · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 52 KB / 1409 lines (53138 bytes)
+- **Size:** 52 KB / 1409 lines (53123 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-owner-compat.js`, `js/eatouts-image-compressor.js`, `js/eatouts-video-validator.js`, `js/eatouts-upload.js`, `js/eatouts-business-api.js`
 - **Notes:** Syncs to /api/business/events (marketing_manager+) in server mode, mirroring rows into the local store via EatoutsBusinessApi.eventToServer/eventFromServer; extended fields ride in the server `figure` JSON blob. Service linker wired in D21; attendee/RSVP submit flow still deferred. Event images upload to /api/upload (Supabase) with a data-URL fallback.
 
@@ -386,7 +388,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** gated · **Status:** FULL
 - **Store:** `EatoutsDB`→`eatouts_db_v2`
 - **Markers:** shell - · auth yes · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 18 KB / 267 lines (18478 bytes)
+- **Size:** 18 KB / 267 lines (18463 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-owner-compat.js`, `js/eatouts-image-compressor.js`, `js/eatouts-video-validator.js`, `js/eatouts-upload.js`, `js/eatouts-business-api.js`
 - **Notes:** Syncs to /api/business/gallery (groups + images, marketing_manager+) in server mode, mirroring rows into the local store via EatoutsBusinessApi.groupToServer/imageToServer; images upload to /api/upload (Supabase) with a data-URL fallback; a pasted URL still works.
 
@@ -402,6 +404,45 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Size:** 30 KB / 485 lines (30339 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-owner-compat.js`
 - **Notes:** Analytics remain simulated (pseudo-random from content counts). Reports added in D22.
+
+#### #67 `bakery-onboarding.html`
+
+- **Purpose:** Bakery setup: brand identity, outlets, product range, café/seating capability and the Hosting Services block.
+- **Audience:** Bakery owner
+- **Reach it:** eatouts-business-signup.html → Bakery; the operator dashboard.
+- **How you use it:** Product and capability forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.
+- **Auth:** open · **Status:** FULL
+- **Store:** —
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
+- **Size:** 127 KB / 1702 lines (129705 bytes)
+- **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`
+- **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory).
+
+#### #68 `mobile-kitchen-onboarding.html`
+
+- **Purpose:** Mobile kitchen setup: units, service locations, grab-and-go menu, throughput and the Hosting Services block.
+- **Audience:** Mobile-kitchen owner
+- **Reach it:** eatouts-business-signup.html → Mobile Kitchen; the operator dashboard.
+- **How you use it:** Unit and menu forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.
+- **Auth:** open · **Status:** FULL
+- **Store:** —
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
+- **Size:** 113 KB / 1185 lines (115795 bytes)
+- **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`
+- **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory).
+
+#### #69 `eatouts_user_onboarding.html`
+
+- **Purpose:** Customer account creation: name, 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks.
+- **Audience:** Redesign draft
+- **Reach it:** eatouts-login.html “Create an account”; the About Us guest popup; index.html.
+- **How you use it:** Live town/area typeahead over botswana_locations.js, POST /api/auth/signup, WhatsApp click-to-chat confirmation, POST /api/auth/verify, then pick up to 5 restaurants and 1 bottle store.
+- **Auth:** open · **Status:** FULL
+- **Store:** —
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 1
+- **Size:** 17 KB / 270 lines (17309 bytes)
+- **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-manager-db.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`, `assets/data/restaurant_listings/eatouts_restaurant_picks.js`, `assets/data/BottleLliquorStoresDatabase.js`, `js/eatouts-bottle-stores.js`, `assets/eatouts-manager.css`
+- **Notes:** Rebuilt from the old caterer copy. The draft (minus passwords) survives a refresh under eatouts.user-onboarding.v1. eatouts-user-onboarding.html now redirects here.
 
 ### Manager / auth / platform admin (staged package)
 
@@ -420,96 +461,83 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 
 #### #17 `eatouts-user-onboarding.html`
 
-- **Purpose:** Customer account creation with an 18+ gate.
-- **Audience:** Customers
-- **Reach it:** eatouts-login.html â†’ create account.
-- **How you use it:** Complete the sign-up form with the age gate.
-- **Auth:** open · **Status:** FULL
+- **Purpose:** Redirect shim — the customer account page now lives at eatouts_user_onboarding.html.
+- **Audience:** Legacy links only
+- **Reach it:** Old bookmarks and links.
+- **How you use it:** Meta refresh + location.replace to eatouts_user_onboarding.html.
+- **Auth:** open · **Status:** REDIRECT
 - **Store:** —
-- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 2
-- **Size:** 12 KB / 140 lines (12568 bytes)
-- **Loads:** `js/eatouts-manager-db.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`, `assets/data/restaurant_listings/eatouts_restaurant_picks.js`, `assets/data/BottleLliquorStoresDatabase.js`, `js/eatouts-bottle-stores.js`, `assets/eatouts-manager.css`
-- **Notes:** 1 informational alert.
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
+- **Size:** 1 KB / 30 lines (1136 bytes)
+- **Loads:** —
+- **Notes:** _redirects also answers /eatouts-user-onboarding.html with a 301.
 
 #### #18 `eatouts-business-signup.html`
 
-- **Purpose:** Business-type chooser for new businesses.
+- **Purpose:** Business-type chooser for new businesses; each card opens that type’s own onboarding form.
 - **Audience:** New business
 - **Reach it:** eatouts-login.html / marketing links.
-- **How you use it:** Pick a business type; routes into the matching onboarding.
+- **How you use it:** Pick a business type, create the owner account, then land on the matching onboarding form (restaurant, mobile kitchen, bottle store, caterer, bakery, event supplier).
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 16 KB / 613 lines (16482 bytes)
-- **Loads:** `js/eatouts-manager-db.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-field.js`, `js/eatouts-auth.js`, `js/eatouts-slug.js`, `js/eatouts-business-api.js`, `js/eatouts-business-auth.js`, `js/eatouts-business-signup.js`
-- **Notes:** Owners can claim a custom /bw/<slug> link (/api/links/check, /api/business/link); loads js/eatouts-slug.js. Claiming a real listing now also calls /api/business/claim (owner membership, or a pending claim for review) and caches the D1 restaurant id on the venue record. Account creation now establishes a real server session via js/eatouts-business-auth.js (/api/auth/signup type=business + /api/auth/verify), collecting a username + password (min 8) and mirroring the D1 user locally, with a local-account fallback offline.
+- **Size:** 31 KB / 947 lines (31983 bytes)
+- **Loads:** —
+- **Notes:** Owners can claim a custom /bw/<slug> link (/api/links/check, /api/business/link); claiming a real listing also calls /api/business/claim. Account creation establishes a server session via js/eatouts-business-auth.js (/api/auth/signup type=business + /api/auth/verify), with a local-account fallback offline.
 
 #### #19 `bottle-store-onboarding.html`
 
-- **Purpose:** Redirect wrapper into the unified business onboarding (bottle store).
+- **Purpose:** Bottle & liquor store setup: brand and outlets, stock, tastings, delivery and the Hosting Services block.
 - **Audience:** Bottle-store owner
-- **Reach it:** eatouts-business-signup.html.
-- **How you use it:** Redirects to business-onboarding1.html with the type preselected.
+- **Reach it:** eatouts-business-signup.html → Bottle store; the operator dashboard.
+- **How you use it:** Stock and tasting forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.
 - **Auth:** open · **Status:** FULL
-- **Store:** `EatoutsMgrDB`→`eatouts_manager_v1`
-- **Markers:** shell - · auth yes · esc - · pager - · confirm yes · audit yes · alerts 0
-- **Size:** 58 KB / 1382 lines (59408 bytes)
-- **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-audit.js`, `js/eatouts-customer.js`, `js/eatouts-manager.js`
-- **Notes:** Wrapper.
+- **Store:** —
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
+- **Size:** 117 KB / 1630 lines (120016 bytes)
+- **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`
+- **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory).
 
 #### #20 `caterer-onboarding.html`
 
-- **Purpose:** Redirect wrapper into the unified business onboarding (caterer).
+- **Purpose:** Caterer setup: brand and outlets, menus, service coverage and delivery areas, plus the Hosting Services block.
 - **Audience:** Caterer owner
-- **Reach it:** eatouts-business-signup.html.
-- **How you use it:** Redirects to business-onboarding1.html with the type preselected.
+- **Reach it:** eatouts-business-signup.html → Caterer; the operator dashboard.
+- **How you use it:** Menu and coverage forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.
 - **Auth:** open · **Status:** FULL
-- **Store:** `EatoutsMgrDB`→`eatouts_manager_v1`
-- **Markers:** shell - · auth yes · esc - · pager - · confirm yes · audit yes · alerts 0
-- **Size:** 45 KB / 1055 lines (45635 bytes)
-- **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-audit.js`, `js/eatouts-customer.js`, `js/eatouts-manager.js`
-- **Notes:** Wrapper.
+- **Store:** —
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
+- **Size:** 137 KB / 1903 lines (140503 bytes)
+- **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`
+- **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory). The embedded event taxonomy was replaced by assets/data/event_types.js.
 
 #### #21 `lodge-onboarding.html`
 
-- **Purpose:** Redirect wrapper into the unified business onboarding (lodge).
+- **Purpose:** Lodge setup: property details, rooms, amenities, rates and booking rules.
 - **Audience:** Lodge owner
-- **Reach it:** eatouts-business-signup.html.
-- **How you use it:** Redirects to business-onboarding1.html with the type preselected.
+- **Reach it:** eatouts-business-signup.html → Lodge; the operator dashboard.
+- **How you use it:** Room and rate forms, draft autosave under eatouts.lodge-onboarding.v2.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
 - **Size:** 32 KB / 1093 lines (33178 bytes)
 - **Loads:** —
-- **Notes:** Wrapper.
+- **Notes:** Standalone lodge flow — deliberately not wired into the shared onboarding bridge yet.
 
 #### #22 `supplier-onboarding.html`
 
-- **Purpose:** Redirect wrapper into the unified business onboarding (supplier).
+- **Purpose:** Event supplier setup: the catalogue of services this supplier offers, contact and coverage details, and the Hosting Services block.
 - **Audience:** Supplier owner
-- **Reach it:** eatouts-business-signup.html.
-- **How you use it:** Redirects to business-onboarding1.html with the type preselected.
+- **Reach it:** eatouts-business-signup.html → Event supplier; the operator dashboard.
+- **How you use it:** Per-service forms from the shared supplier catalogue, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 106 KB / 2474 lines (108535 bytes)
-- **Loads:** `js/supplier_onboarding_catalog.js`
-- **Notes:** Wrapper.
+- **Size:** 130 KB / 1234 lines (132629 bytes)
+- **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`
+- **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory). Supersedes the older 2 474-line supplier page.
 
-#### #23 `business-onboarding1.html`
-
-- **Purpose:** Unified per-type business setup (module rail, draft autosave, preview, save & publish).
-- **Audience:** Any owner, or admin-assisted
-- **Reach it:** eatouts-business-signup.html / per-type wrappers.
-- **How you use it:** Step through modules, autosave a draft, open the rendered preview, then Save & publish â†’ operator-dashboard1.html.
-- **Auth:** gated · **Status:** FULL
-- **Store:** `eatouts_business_drafts_v1` `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2`
-- **Markers:** shell - · auth yes · esc yes · pager - · confirm - · audit yes · alerts 0
-- **Size:** 52 KB / 106 lines (52784 bytes)
-- **Loads:** `js/eatouts-db.js`, `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog.js`, `js/eatouts-data.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `js/eatouts-analytics.js`, `js/eatouts-business-api.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/business_types.js`, `assets/eatouts-manager.css`
-- **Notes:** Preview overlay wired in D21; 1 remaining alert. Save & publish now resolves/creates the D1 business and PATCHes the live profile via /api/business/profile (js/eatouts-business-api.js) before redirecting.
-
-#### #24 `operator-dashboard1.html`
+#### #23 `operator-dashboard1.html`
 
 - **Purpose:** Role-gated business workspace (orders, staff, reports, settings tabs) with a business switcher.
 - **Audience:** Linked business owner/admin
@@ -518,11 +546,11 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** gated · **Status:** FULL
 - **Store:** `eatouts_active_business_v2` `eatouts_delivery_orders_v1` `eatouts_ops_v1` `eatouts_order_v1_history` `EatoutsDB`→`eatouts_db_v2`
 - **Markers:** shell - · auth yes · esc yes · pager - · confirm - · audit yes · alerts 0
-- **Size:** 44 KB / 105 lines (44594 bytes)
+- **Size:** 44 KB / 105 lines (44570 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog.js`, `js/eatouts-data.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `js/eatouts-analytics.js`, `assets/data/business_types.js`, `assets/eatouts-manager.css`
 - **Notes:** Order detail drawer wired in D21.
 
-#### #25 `eatouts-staff-admin1.html`
+#### #24 `eatouts-staff-admin1.html`
 
 - **Purpose:** Restricted platform-staff workspace with role-limited tabs.
 - **Audience:** Platform staff roles
@@ -535,7 +563,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog.js`, `js/eatouts-data.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `js/eatouts-analytics.js`
 - **Notes:** Recovered *1 surface.
 
-#### #26 `food-truck-schedule1.html`
+#### #25 `food-truck-schedule1.html`
 
 - **Purpose:** Food-truck location and service-day schedule management.
 - **Audience:** Food-truck owner
@@ -544,11 +572,11 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** gated · **Status:** FULL
 - **Store:** `EatoutsDB`→`eatouts_db_v2`
 - **Markers:** shell - · auth yes · esc yes · pager - · confirm - · audit yes · alerts 0
-- **Size:** 19 KB / 38 lines (19082 bytes)
+- **Size:** 19 KB / 38 lines (19095 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog.js`, `js/eatouts-data.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `js/eatouts-analytics.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/business_types.js`, `assets/eatouts-manager.css`
 - **Notes:** Recovered *1 surface.
 
-#### #27 `staff-manager.html`
+#### #26 `staff-manager.html`
 
 - **Purpose:** Staff CRUD, employment records and roles.
 - **Audience:** Biz owner/admin/manager
@@ -561,7 +589,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `js/eatouts-business-api.js`, `assets/eatouts-manager.css`
 - **Notes:** Hardened D20. Team records now sync to D1 memberships (/api/business/staff) with an EatOuts sign-in role selector; identity fields are pulled back and merged on load.
 
-#### #28 `delivery-manager.html`
+#### #27 `delivery-manager.html`
 
 - **Purpose:** Delivery zones, fees, capacity, drivers and windows.
 - **Audience:** Biz owner/admin
@@ -574,7 +602,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`
 - **Notes:** Zones escaped via EO.esc.
 
-#### #29 `order-manager.html`
+#### #28 `order-manager.html`
 
 - **Purpose:** Live business order queue.
 - **Audience:** Biz + staff
@@ -587,7 +615,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `assets/eatouts-manager.css`
 - **Notes:** Hardened D20.
 
-#### #30 `reservation-manager.html`
+#### #29 `reservation-manager.html`
 
 - **Purpose:** Table bookings, guests and deposits.
 - **Audience:** Biz owner/admin
@@ -600,7 +628,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `assets/eatouts-manager.css`
 - **Notes:** Hardened D20.
 
-#### #31 `room-manager.html`
+#### #30 `room-manager.html`
 
 - **Purpose:** Lodge rooms, rates and housekeeping.
 - **Audience:** Lodge owners
@@ -613,7 +641,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `assets/eatouts-manager.css`
 - **Notes:** Hardened D20.
 
-#### #32 `billing-manager.html`
+#### #31 `billing-manager.html`
 
 - **Purpose:** Subscription tiers and invoice history.
 - **Audience:** Biz owner
@@ -626,7 +654,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `assets/eatouts-manager.css`
 - **Notes:** Data-driven pricing (P300 setup, P100/P300/P500) since D20.
 
-#### #33 `analytics-manager.html`
+#### #32 `analytics-manager.html`
 
 - **Purpose:** Order/delivery analytics as read-only aggregates.
 - **Audience:** Biz owner/admin
@@ -639,7 +667,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-analytics.js`, `js/eatouts-manager.js`, `assets/eatouts-manager.css`
 - **Notes:** Intentionally read-only and non-paginated (bounded, numeric-only).
 
-#### #34 `quote-manager.html`
+#### #33 `quote-manager.html`
 
 - **Purpose:** Caterer/supplier quote builder.
 - **Audience:** Caterer/supplier
@@ -652,7 +680,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `assets/eatouts-manager.css`
 - **Notes:** Hardened D20.
 
-#### #35 `booking-manager.html`
+#### #34 `booking-manager.html`
 
 - **Purpose:** Supplier/lodge booking requests.
 - **Audience:** Supplier/lodge
@@ -664,7 +692,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Size:** 2 KB / 3 lines (1712 bytes)
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `assets/eatouts-manager.css`
 
-#### #36 `eatouts-admin-dashboard.html`
+#### #35 `eatouts-admin-dashboard.html`
 
 - **Purpose:** Platform control centre: admin links, the promo-submissions queue and the business-links (/bw/<slug>) admin.
 - **Audience:** Platform admin
@@ -677,7 +705,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-analytics.js`, `js/eatouts-manager.js`
 - **Notes:** Promo-submissions actions hit /api/admin/promo-submissions; business links hit /api/admin/links. The queue now mixes customer event promos and business promos (source=business, restaurantId shown as a pill).
 
-#### #37 `eatouts-users-manager.html`
+#### #36 `eatouts-users-manager.html`
 
 - **Purpose:** Users and role management.
 - **Audience:** Platform admin/ops
@@ -690,7 +718,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`
 - **Notes:** Hardened D15.
 
-#### #38 `feedback-manager.html`
+#### #37 `feedback-manager.html`
 
 - **Purpose:** Feedback ticket queue.
 - **Audience:** Platform admin/support
@@ -703,7 +731,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-data.js`, `js/eatouts-audit.js`, `js/eatouts-manager.js`, `assets/eatouts-manager.css`
 - **Notes:** Hardened D15.
 
-#### #39 `blog-creator-dashboard.html`
+#### #38 `blog-creator-dashboard.html`
 
 - **Purpose:** Blog writer/publisher using EatoutsBlogAdmin.
 - **Audience:** Platform author
@@ -715,7 +743,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Size:** 29 KB / 700 lines (29633 bytes)
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`
 
-#### #40 `eatouts-verification-queue.html`
+#### #39 `eatouts-verification-queue.html`
 
 - **Purpose:** Business verification queue.
 - **Audience:** Platform ops
@@ -727,7 +755,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Size:** 21 KB / 713 lines (21272 bytes)
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`
 
-#### #41 `eatouts-disputes.html`
+#### #40 `eatouts-disputes.html`
 
 - **Purpose:** Issues, refunds and escalations.
 - **Audience:** Platform admin/ops
@@ -739,7 +767,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Size:** 20 KB / 432 lines (20041 bytes)
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`
 
-#### #42 `eatouts-platform-analytics.html`
+#### #41 `eatouts-platform-analytics.html`
 
 - **Purpose:** Cross-platform analytics.
 - **Audience:** Platform admin/analyst
@@ -751,7 +779,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Size:** 24 KB / 809 lines (24710 bytes)
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-analytics.js`, `js/eatouts-manager.js`
 
-#### #43 `eatouts-notifications.html`
+#### #42 `eatouts-notifications.html`
 
 - **Purpose:** Segment notifications.
 - **Audience:** Platform admin
@@ -764,7 +792,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`
 - **Notes:** Delivery backend deferred.
 
-#### #44 `eatouts-settings.html`
+#### #43 `eatouts-settings.html`
 
 - **Purpose:** Platform configuration.
 - **Audience:** Platform admin
@@ -777,7 +805,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`
 - **Notes:** Renders admin-only values (esc n/a, low risk).
 
-#### #45 `eatouts-favourites.html`
+#### #44 `eatouts-favourites.html`
 
 - **Purpose:** Customer saved favourites.
 - **Audience:** Customers
@@ -790,7 +818,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`
 - **Notes:** Wired to the store in D20 (was static).
 
-#### #46 `eatouts-orders.html`
+#### #45 `eatouts-orders.html`
 
 - **Purpose:** Customer order history.
 - **Audience:** Customers
@@ -803,7 +831,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-audit.js`, `js/eatouts-customer.js`
 - **Notes:** Wired in D20; shows real orders via the D18 bridge.
 
-#### #47 `eatouts-profile.html`
+#### #46 `eatouts-profile.html`
 
 - **Purpose:** Customer profile.
 - **Audience:** Customers
@@ -815,7 +843,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Size:** 39 KB / 1217 lines (40242 bytes)
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`
 
-#### #48 `eatouts-addresses.html`
+#### #47 `eatouts-addresses.html`
 
 - **Purpose:** Customer delivery addresses.
 - **Audience:** Customers
@@ -828,7 +856,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-audit.js`, `js/eatouts-customer.js`, `js/eatouts-manager.js`
 - **Notes:** Hardened D15.
 
-#### #57 `brand-kit-admin.html`
+#### #56 `brand-kit-admin.html`
 
 - **Purpose:** Admin workspace for design jobs, designers, payouts and services
 - **Audience:** Platform admin/ops
@@ -841,7 +869,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-services-seed.js`, `js/eatouts-designers-seed.js`, `js/eatouts-brand-kit.js`
 - **Notes:** Connects to EatoutsBrandKit and EatoutsAuth
 
-#### #58 `designer-dashboard.html`
+#### #57 `designer-dashboard.html`
 
 - **Purpose:** Designer private workspace
 - **Audience:** Designers
@@ -854,7 +882,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-services-seed.js`, `js/eatouts-designers-seed.js`, `js/eatouts-brand-kit.js`
 - **Notes:** Uses EatoutsBrandKit
 
-#### #60 `eatouts-summaries.html`
+#### #59 `eatouts-summaries.html`
 
 - **Purpose:** Customer saved summaries.
 - **Audience:** Customers
@@ -867,7 +895,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`
 - **Notes:** Reads the EatoutsCustomer store.
 
-#### #61 `eatouts-events.html`
+#### #60 `eatouts-events.html`
 
 - **Purpose:** Customer saved events.
 - **Audience:** Customers
@@ -880,7 +908,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`
 - **Notes:** Reads the EatoutsCustomer store.
 
-#### #62 `eatouts-gallery.html`
+#### #61 `eatouts-gallery.html`
 
 - **Purpose:** Customer saved gallery photos.
 - **Audience:** Customers
@@ -893,7 +921,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`, `assets/eatouts-manager.css`
 - **Notes:** Reads the EatoutsCustomer store.
 
-#### #63 `eatouts-checkout-summary.html`
+#### #62 `eatouts-checkout-summary.html`
 
 - **Purpose:** Checkout summary snapshot.
 - **Audience:** Customers
@@ -908,7 +936,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 
 ### Delivery flows
 
-#### #49 `customer-delivery.html`
+#### #48 `customer-delivery.html`
 
 - **Purpose:** Customer post-checkout delivery flow; collects delivery details and persists the completed order.
 - **Audience:** Customers
@@ -921,7 +949,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `assets/data/delivery_zones.js`
 - **Notes:** Order bridge (persistCompletedOrder/resolveBusinessId) added D18.
 
-#### #50 `restaurant-delivery.html`
+#### #49 `restaurant-delivery.html`
 
 - **Purpose:** Restaurant dispatch board (demo): incoming requests, rounds, kitchen prep, routes and settings.
 - **Audience:** Restaurant dispatch (demo)
@@ -934,7 +962,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `assets/data/deliveries/the_food_place_50_scheduled_deliveries.js`
 - **Notes:** No role gating yet (deferred).
 
-#### #51 `driver-delivery.html`
+#### #50 `driver-delivery.html`
 
 - **Purpose:** Rider board (demo): duty status, rounds, active stop checklist, problems and completed log.
 - **Audience:** Delivery rider (demo)
@@ -949,7 +977,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 
 ### Internal ops & billing
 
-#### #52 `intake.html`
+#### #51 `intake.html`
 
 - **Purpose:** Guided operator/concierge intake capture of a restaurant record.
 - **Audience:** Operator / concierge
@@ -958,11 +986,11 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** gated · **Status:** FULL
 - **Store:** `eatouts_intake_draft_v1` `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2`
 - **Markers:** shell - · auth yes · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 72 KB / 1195 lines (73617 bytes)
+- **Size:** 72 KB / 1195 lines (73602 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-owner-compat.js`, `js/eatouts-image-compressor.js`, `js/eatouts-video-validator.js`, `js/eatouts-brand.js`, `js/eatouts-locations.js`, `js/eatouts-business-api.js`, `botswana_locations.js`
 - **Notes:** No server upload; export feeds the manual merge.
 
-#### #53 `invoice.html`
+#### #52 `invoice.html`
 
 - **Purpose:** Operator/ops invoice generation.
 - **Audience:** Operator / ops
@@ -971,10 +999,10 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** gated · **Status:** FULL
 - **Store:** `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2`
 - **Markers:** shell - · auth yes · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 21 KB / 395 lines (20992 bytes)
+- **Size:** 20 KB / 395 lines (20977 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-brand.js`
 
-#### #54 `ops-console.html`
+#### #53 `ops-console.html`
 
 - **Purpose:** Internal ops tracker: venues, submissions, MRR/activity.
 - **Audience:** Internal ops
@@ -983,12 +1011,12 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** gated · **Status:** FULL
 - **Store:** `eatouts_ops_v1` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 61 KB / 1160 lines (62443 bytes)
+- **Size:** 61 KB / 1160 lines (62428 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-manager-db.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-field.js`, `js/eatouts-auth.js`, `js/eatouts-brand.js`
 
 ### Developer harness
 
-#### #55 `seed-demo.html`
+#### #54 `seed-demo.html`
 
 - **Purpose:** Developer harness that seeds the roster and runs data-layer verification assertions.
 - **Audience:** Developer
@@ -997,11 +1025,11 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** STUB/DEMO
 - **Store:** `eatouts_db_v2` `EatoutsDB`→`eatouts_db_v2`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 22 KB / 441 lines (22974 bytes)
+- **Size:** 22 KB / 441 lines (22959 bytes)
 - **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-db.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`
 - **Notes:** Only meaningful when served over the local server.
 
-#### #56 `eatout_event_builder.html`
+#### #55 `eatout_event_builder.html`
 
 - **Purpose:** Legacy experimental event builder.
 - **Audience:** Staff / experimental
@@ -1016,6 +1044,8 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 
 ## 5. Change log
 
+- **2026-10-21** — Onboarding pages now publish for real. The six business forms (restaurant, mobile kitchen, bottle store, caterer, bakery, event supplier) share js/eatouts-onboarding-bridge.js: live town/area lookup from botswana_locations.js, mall/shopping-centre lookup from assets/data/botswana_shopping_malls_and_shopping_centres.js, a Hosting Services section (capacity spaces + hostable event types from assets/data/event_types.js + booking rules) and a Save & publish action that writes the D1 business profile (business_profiles.hosting_json, new migration 0010) and the local customer directory, then exports an eatouts.venue.v1 submission for the build-time merge. business-onboarding1.html was retired — every link now points at the matching per-type form (assets/data/business_types.js gained EatoutsBusinessTypes.onboardingPage). eatouts_user_onboarding.html was rebuilt as the real customer account page (18+ gate, live town/area, /api/auth/signup + /api/auth/verify, favourites) and eatouts-user-onboarding.html is now a redirect. scripts/merge_submissions.py carries place/capacity/hosting into the runtime directory and rewrites directory_runtime_data.js; npm run build now merges the owner submissions after the directory build so they survive.
+- **2026-10-21** — Brought the 2026-10 onboarding redesign pages up to the test contracts without touching the tests. Restored the `<!-- PAGE: X -->` banner and matching `<body data-page>` slug on all six: restaurant-, bottle-store-, caterer-, bakery-, mobile-kitchen-onboarding and eatouts_user_onboarding. restaurant-onboarding.html joined the app-shell standard: #app-shell renamed to #shell, brand mark wrapped in a home link to index.html#promos, hdr-chip page label, and the merchant tab strip (Restaurant active) — no appnav; it also now loads the upload libs (eatouts-image-compressor, eatouts-video-validator, eatouts-upload) ahead of its inline scripts, mirroring menu-onboarding. PAGE_INVENTORY.md gained section I (rows 69-71 for bakery/mobile-kitchen/user redesigns) and refreshed stale rows 28-30 (they are full editors now, not 3-line redirect wrappers). Catalog: added bakery-onboarding, mobile-kitchen-onboarding and eatouts_user_onboarding as ids 68-70 (operator-onboarding), and refreshed the stale 'Redirect wrapper' purposes on ids 10/19/20. npm test 52/52; npm run catalog 70 pages.
 - **2026-10-20** — Venue About is now a true out-of-SPA hand-off. Every 'view a business' tap in index.html (openRestAbout from the card/info icon, bottleStoreInfo, openCateringAbout, and the boot-time openVenueFromSlug used by shared/SEO deep links) routes through a single gotoVenueAbout(target) → venue-about.html?link=<slug>, so a tap on KFC opens KFC's About page and Nando's opens Nando's. The inline data-page="venue-about" screen, its js/eatouts-venue-about.js renderer, state.venueAboutOrphan, and the orphan/catering/bottle/about branches of renderRestaurantSubView were removed. venue-about.html drops the 'Choose a business' empty state: a missing or unresolvable slug now redirects to index.html#restaurants. Its Menu/Promos options emit index.html#<slug>/menu|promos, which index.html boot parses back into the venue-menu / venue-promos screens. Deleted the root venue-about-new.html mockup and the js/eatouts-venue-about.js renderer. Updated tests/venue-about-menu.js (asserts the out-of-SPA target carries the chosen venue), venue-about-options.js (hash round-trip), beverages.js, bottle-stores.js and venue-slug-integration.js (boot hand-off target).
 - **2026-10-20** — venue-about.html Options accordion: replaced the four generic class="opt" rows (Town/Area/View/View) with four identifiable, centre-aligned buttons (#optTown / #optArea / #optMenu / #optPromos, data-opt). Town opens a floating 'Select Town' popup (single town shown inline) built from every branch of the business (catering/bottle-store branches[] plus same-named restaurant-directory records, so chains like KFC/Nando's list all towns); Area opens a floating 'Select Area' popup filtered to the chosen town, gated behind a 'Select a Town first' toast when none is set. Menu/Promos navigate to index.html#<slug>/menu|promos, or toast '<name> has not yet loaded their menu' / 'has no promos available'. Menu availability read from directory_runtime_data menusRaw/menuFiles by canonical brand slug (the same source index.html uses). index.html boot now resolves #<slug>/menu|promos to the venue-menu / venue-promos screens. Added tests/venue-about-options.js (registered in run-all). npm test 51/51; npm run catalog 68 pages.
 - **2026-10-19** — venue-about.html reworked again into a single data-driven page (the earlier EatoutsVenueAbout approach was dropped): every value now comes from the resolved business, section visibility is data-only (never type-based), and there is no flagship fallback. Resolution: page-scoped demo registry → EatoutsBottleStores → EatoutsCatering → EatoutsBridge groups → /api/links/resolve (4s abort). Owner-only Settings accordion/colour editor/drag handle are DOM-injected only when isOwnerOf(biz) (session restaurantId match, else manager-DB owner link). Loads the bottle/catering directories; the demo registry (assets/data/eatouts_demo_businesses.js, two demo rows) is loaded only here and kept out of the customer DB, so index.html's browse list is unaffected. Manager-db seed gains restaurantId on the demo businesses + a biz-truck/u-truck owner. Verified headlessly for restaurant/caterer/bottle/supplier/truck, owner and non-owner, plus empty-state and SPA-isolation checks. npm test 49/49; npm run catalog 68 pages.

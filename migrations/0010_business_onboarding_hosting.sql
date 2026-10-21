@@ -1,0 +1,24 @@
+-- ====================================================================
+-- ONBOARDING HOSTING SERVICES
+-- ====================================================================
+-- The per-type onboarding forms (restaurant, mobile kitchen, bottle
+-- store, caterer, bakery, event supplier) publish a "Hosting Services"
+-- block: venue capacity plus the event types the business can host.
+-- It replaces what used to be called "Reservation Services".
+--
+-- hosting_json holds:
+--   {
+--     spaces:      [{ id, name, seated, standing, notes }],
+--     eventTypes:  [{ id, name, category, subCategory }],
+--     offerings:   [{ id, name, details }],
+--     rules:       { minimumGuests, maximumGuests, sameDay,
+--                     advanceBooking, cancellationNotes }
+--   }
+--
+-- The mall / shopping-centre the business sits in is carried inside
+-- location_json under "place" (a free-form JSON column), so it needs
+-- no schema change:
+--   location.place = { id, businessName, address, town, contacts }
+-- ====================================================================
+
+ALTER TABLE business_profiles ADD COLUMN hosting_json TEXT;

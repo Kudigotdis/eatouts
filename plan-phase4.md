@@ -2,7 +2,7 @@
 
 ## Current State
 - Phase 4 G1-G3: quota/invoices backend, invoices endpoint, migrations complete.
-- UI: fee disclosure in promo-onboarding.html and business-onboarding1.html; invoices card+script in eatouts-admin-dashboard.html.
+- UI: fee disclosure in promo-onboarding.html and, for onboarding, the shared publish bar in `js/eatouts-onboarding-bridge.js` (the retired `business-onboarding1.html` billing module moved there); invoices card+script in eatouts-admin-dashboard.html.
 - Sampled tests green.
 
 ## Open Items

@@ -2,1053 +2,1912 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#141418">
-<title>Caterer onboarding · EatOuts</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171719">
+<title>Caterer & Branch Setup · EatOuts</title>
 <style>
-  *,*::before,*::after{box-sizing:border-box}
-  :root{
-    --ink:#0F0F12;--ink-2:#2A2A30;--paper:#F4F5F7;--card:#FFF;
-    --line:#E6E8EC;--line-2:#F0F1F4;
-    --orange:#FF5A1F;--orange-2:#FF7A42;--orange-soft:#FFEDE4;--orange-line:#FFD5C2;
-    --green:#16A34A;--green-soft:#E7F7EE;
-    --red:#DC2626;--red-soft:#FEE2E2;
-    --amber:#B45309;--amber-soft:#FEF3C7;
-    --blue:#0284C7;--blue-soft:#E0F2FE;
-    --muted:#6B7280;--faint:#9AA1AC;
-  }
-  html,body{height:100%}
-  body{margin:0;background:#E9EBEF;color:var(--ink);
-    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
-    -webkit-tap-highlight-color:transparent;overscroll-behavior:none;
-    display:flex;justify-content:center;}
-  button,input,select,textarea{font-family:inherit}
-  button{cursor:pointer}
-  #shell{width:100%;max-width:460px;height:100vh;height:100dvh;
-    background:var(--paper);display:flex;flex-direction:column;
-    overflow:hidden;position:relative;box-shadow:0 0 70px rgba(20,20,25,.16);}
-
-  /* ============ TOPBAR ============ */
-  .topbar{flex:0 0 auto;background:#141418;
-    padding:calc(13px + env(safe-area-inset-top)) 18px 14px;
-    position:relative;z-index:10;}
-  .topbar-row{display:flex;align-items:center;gap:10px;padding-bottom:13px;}
-  .brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none;}
-  .brand .mark{width:28px;height:28px;flex:0 0 auto;border-radius:8px;
-    background:linear-gradient(145deg,var(--orange-2),var(--orange));
-    color:#fff;display:grid;place-items:center;
-    font-size:14px;font-weight:900;letter-spacing:-.03em;
-    box-shadow:0 2px 10px rgba(255,90,31,.35);}
-  .brand .word{color:#fff;font-size:15px;font-weight:800;letter-spacing:-.02em;}
-  .hdr-chip{margin-left:auto;font-size:10px;font-weight:800;
-    letter-spacing:.12em;text-transform:uppercase;color:var(--orange-2);
-    border:1px solid rgba(255,122,66,.32);background:rgba(255,90,31,.1);
-    border-radius:999px;padding:5px 11px;white-space:nowrap;}
-  .progress{padding-bottom:2px}
-  .progress-top{display:flex;align-items:baseline;justify-content:space-between;
-    gap:10px;margin-bottom:8px;}
-  .progress-label{font-size:11px;font-weight:800;letter-spacing:.14em;
-    text-transform:uppercase;color:rgba(255,255,255,.5);}
-  .progress-count{font-size:11.5px;font-weight:800;color:var(--orange-2);}
-  .progress-track{height:5px;border-radius:99px;background:rgba(255,255,255,.13);
-    overflow:hidden;}
-  .progress-fill{height:100%;width:0%;border-radius:99px;
-    background:linear-gradient(90deg,var(--orange),var(--orange-2));
-    transition:width .35s cubic-bezier(.4,0,.2,1);}
-
-  /* ============ SCROLL ============ */
-  .scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;
-    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
-    scrollbar-width:none;}
-  .scroll::-webkit-scrollbar{display:none}
-
-  /* ============ INTRO ============ */
-  .intro{background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
-    padding:4px 22px 46px;position:relative;overflow:hidden;text-align:center;}
-  .intro::after{content:"";position:absolute;top:-80px;right:-80px;
-    width:230px;height:230px;border-radius:50%;
-    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);
-    pointer-events:none;}
-  .intro h1{position:relative;margin:0 auto 12px;font-size:26px;
-    line-height:1.15;font-weight:800;letter-spacing:-.03em;color:#fff;
-    max-width:15ch;}
-  .intro h1 em{font-style:normal;color:var(--orange-2)}
-  .intro p{position:relative;margin:0 auto;font-size:14px;line-height:1.6;
-    color:rgba(255,255,255,.6);max-width:32ch;}
-
-  /* ============ SHEET ============ */
-  .sheet{position:relative;z-index:1;margin-top:-26px;background:var(--paper);
-    border-radius:26px 26px 0 0;padding:20px 14px 30px;min-height:60vh;}
-
-  /* ============ META CARD ============ */
-  .meta-card{background:var(--card);border:1px solid var(--line);
-    border-radius:16px;padding:15px 16px;margin-bottom:12px;
-    box-shadow:0 1px 2px rgba(20,20,25,.03);}
-  .meta-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
-  .meta-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;
-    background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft);}
-  .meta-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
-  .meta-dot.warn{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
-  .meta-dot.red{background:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
-  .meta-text{font-size:13.5px;color:var(--ink-2);line-height:1.4;
-    min-width:0;flex:1 1 auto;}
-  .meta-text b{color:var(--ink);font-weight:750}
-  .meta-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
-    padding-top:11px;border-top:1px solid var(--line-2);}
-  .stat{text-align:center}
-  .stat b{display:block;font-size:19px;font-weight:850;
-    letter-spacing:-.03em;color:var(--ink);line-height:1.1;
-    font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;
-    text-overflow:ellipsis;}
-  .stat span{display:block;margin-top:3px;font-size:9.5px;font-weight:800;
-    letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
-
-  /* ============ ACCORDION STACK ============ */
-  .stack{display:flex;flex-direction:column;gap:10px}
-  .acc{background:var(--card);border:1px solid var(--line);border-radius:16px;
-    overflow:hidden;transition:border-color .2s ease,box-shadow .2s ease;}
-  .acc.open{border-color:var(--orange-line);
-    box-shadow:0 4px 18px -6px rgba(255,90,31,.22);}
-  .acc.has-items .acc-sub{color:var(--green);font-weight:650}
-  .acc-head{width:100%;display:flex;align-items:center;gap:12px;
-    padding:13px 15px;background:transparent;border:0;text-align:left;
-    -webkit-tap-highlight-color:transparent;transition:background .15s;}
-  .acc-head:active{background:#FAFBFC}
-  .sec-thumb{width:48px;height:48px;flex:0 0 auto;border-radius:11px;
-    background:var(--orange-soft);color:var(--orange);
-    display:grid;place-items:center;font-size:17px;font-weight:850;
-    letter-spacing:-.02em;position:relative;}
-  .sec-thumb.plain{background:#F0F1F4;color:var(--faint);}
-  .sec-thumb .count{position:absolute;bottom:3px;right:3px;
-    background:rgba(15,15,18,.72);color:#fff;font-size:9px;font-weight:800;
-    padding:1.5px 5px;border-radius:4px;line-height:1;}
-  .acc-title{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;}
-  .acc-title b{font-size:15px;font-weight:750;letter-spacing:-.015em;
-    color:var(--ink);line-height:1.25;white-space:nowrap;overflow:hidden;
-    text-overflow:ellipsis;}
-  .acc-sub{font-size:11.5px;color:var(--faint);line-height:1.3;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:550;}
-  .vis-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;
-    background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft);}
-  .vis-dot.green{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
-  .vis-dot.off{background:#D3D7DE;box-shadow:none}
-  .acc-body{display:grid;grid-template-rows:0fr;
-    transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1);}
-  .acc.open .acc-body{grid-template-rows:1fr}
-  .acc-inner{overflow:hidden;min-height:0}
-  .module{padding:2px 15px 18px}
-
-  /* ============ 90px THUMBNAILS ============ */
-  .thumb-90{width:90px;height:90px;flex:0 0 auto;border-radius:14px;
-    background:linear-gradient(145deg,#FFF3EC,#FFE2D2);color:var(--orange);
-    display:grid;place-items:center;font-size:34px;font-weight:850;
-    letter-spacing:-.03em;overflow:hidden;position:relative;}
-  .thumb-90.empty{background:#FAFBFC;border:1.5px dashed #D3D7DE;color:var(--faint);
-    font-size:26px;}
-  .thumb-90 img{width:100%;height:100%;object-fit:cover;display:block}
-  .thumb-90 .badge{position:absolute;bottom:5px;right:5px;
-    background:rgba(15,15,18,.72);color:#fff;font-size:9px;font-weight:800;
-    padding:2px 6px;border-radius:5px;line-height:1;letter-spacing:.06em;}
-
-  .thumb-row{display:flex;gap:12px;padding:12px;background:#FAFBFC;
-    border:1px solid var(--line-2);border-radius:12px;margin-bottom:8px;
-    align-items:flex-start;}
-  .thumb-row:last-child{margin-bottom:0}
-  .thumb-body{flex:1 1 auto;min-width:0;
-    display:flex;flex-direction:column;gap:4px;}
-  .thumb-title{font-size:14px;font-weight:750;letter-spacing:-.01em;
-    color:var(--ink);line-height:1.3;word-break:break-word;}
-  .thumb-sub{font-size:11.5px;color:var(--faint);font-weight:550;
-    line-height:1.4;word-break:break-word;}
-  .thumb-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;
-    align-items:center;}
-
-  /* ============ CHIPS ============ */
-  .chip-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
-  .chip{height:34px;padding:0 13px;border-radius:999px;
-    border:1px solid var(--line);background:#fff;color:var(--ink-2);
-    font-size:12px;font-weight:700;display:inline-flex;align-items:center;
-    -webkit-tap-highlight-color:transparent;
-    transition:background .15s,border-color .15s,color .15s;}
-  .chip:active{background:#F4F5F7}
-  .chip.on{background:var(--orange-soft);border-color:var(--orange-line);
-    color:var(--orange);font-weight:800;}
-
-  /* ============ MINI BUTTONS ============ */
-  .mini-btn{height:32px;padding:0 12px;border-radius:9px;
-    border:1px solid var(--line);background:#fff;color:var(--ink-2);
-    font-size:11.5px;font-weight:750;display:inline-flex;
-    align-items:center;justify-content:center;
-    -webkit-tap-highlight-color:transparent;
-    transition:background .15s,border-color .15s,color .15s;}
-  .mini-btn:active{background:#F4F5F7}
-  .mini-btn.danger{color:var(--red);border-color:#FECACA;background:#FEF2F2;}
-  .mini-btn.danger:active{background:var(--red-soft)}
-
-  .pill{display:inline-flex;align-items:center;gap:5px;height:32px;
-    padding:0 12px;border-radius:999px;font-size:10px;font-weight:800;
-    letter-spacing:.09em;text-transform:uppercase;white-space:nowrap;
-    background:#F0F1F4;color:var(--faint);}
-  .pill.on{background:var(--green-soft);color:var(--green)}
-  .pill.off{background:#F0F1F4;color:var(--faint)}
-  .pill.brand{background:var(--orange-soft);color:var(--orange)}
-
-  .add-addr-btn{display:flex;align-items:center;justify-content:center;
-    width:100%;height:44px;border-radius:11px;
-    border:1.5px dashed #D3D7DE;background:#fff;color:var(--orange);
-    font-size:13.5px;font-weight:750;margin-top:10px;
-    -webkit-tap-highlight-color:transparent;
-    transition:background .15s,border-color .15s;}
-  .add-addr-btn:active{background:var(--orange-soft);border-color:var(--orange-line)}
-
-  /* ============ FORM FIELDS ============ */
-  .field{margin-bottom:14px}
-  .field:last-child{margin-bottom:0}
-  .field > label{display:block;font-size:11.5px;font-weight:800;
-    letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
-    margin-bottom:7px;}
-  .field input,
-  .field select,
-  .field textarea{
-    width:100%;border:1px solid var(--line);border-radius:11px;
-    background:#fff;color:var(--ink);font-size:15px;line-height:1.4;
-    padding:13px;outline:none;
-    transition:border-color .15s,box-shadow .15s;
-    -webkit-appearance:none;appearance:none;font-family:inherit;}
-  .field textarea{min-height:96px;resize:vertical}
-  .field input:focus,
-  .field select:focus,
-  .field textarea:focus{border-color:var(--orange);
-    box-shadow:0 0 0 3px rgba(255,90,31,.13);}
-  .field input::placeholder,
-  .field textarea::placeholder{color:#B7BDC6}
-
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  @media(max-width:400px){.grid2{grid-template-columns:1fr}}
-
-  .form-actions{display:flex;gap:9px;margin-top:16px;}
-  .form-actions .btn{flex:1;height:52px;border-radius:13px;
-    font-size:15px;font-weight:750;letter-spacing:-.01em;border:0;
-    display:inline-flex;align-items:center;justify-content:center;
-    -webkit-tap-highlight-color:transparent;
-    transition:transform .1s ease,background .15s;}
-  .form-actions .btn:active{transform:scale(.98)}
-  .btn-save{background:linear-gradient(145deg,var(--orange-2),var(--orange));
-    color:#fff;box-shadow:0 6px 18px -6px rgba(255,90,31,.5);}
-  .btn-save:active{background:var(--orange)}
-  .btn-cancel{background:#F4F5F7;border:1px solid var(--line)!important;
-    color:var(--ink-2);}
-  .btn-cancel:active{background:#EBEDF0}
-
-  /* ============ REVIEW ============ */
-  .review-row{display:flex;align-items:flex-start;gap:10px;
-    padding:11px 0;border-bottom:1px solid var(--line-2);}
-  .review-row:last-child{border-bottom:0}
-  .review-key{font-size:11.5px;font-weight:800;letter-spacing:.09em;
-    text-transform:uppercase;color:var(--faint);min-width:96px;
-    flex:0 0 auto;padding-top:2px;}
-  .review-val{font-size:13.5px;color:var(--ink-2);line-height:1.45;
-    min-width:0;flex:1 1 auto;word-break:break-word;}
-  .review-val b{color:var(--ink);font-weight:750}
-
-  /* ============ EMPTY ============ */
-  .empty-note{font-size:12.5px;color:var(--faint);text-align:center;
-    padding:22px 16px;border:1.5px dashed #DCE0E6;border-radius:11px;
-    background:#FAFBFC;line-height:1.55;}
-  .empty-note b{color:var(--ink-2);font-weight:750}
-
-  /* ============ TOAST ============ */
-  .toast{position:fixed;left:50%;z-index:200;
-    bottom:calc(28px + env(safe-area-inset-bottom));
-    transform:translate(-50%,10px);background:var(--ink);color:#fff;
-    font-size:13.5px;font-weight:650;padding:12px 18px;border-radius:999px;
-    max-width:88vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    opacity:0;pointer-events:none;
-    transition:opacity .2s ease,transform .2s ease;}
-  .toast.show{opacity:1;transform:translate(-50%,0)}
-
-  .hidden-file{position:absolute;width:1px;height:1px;opacity:0;
-    pointer-events:none;overflow:hidden;}
+:root{--ink:#171719;--ink2:#35353B;--muted:#5E626B;--faint:#8A8F99;--paper:#F4F5F7;--card:#fff;--line:#E2E5EA;--line2:#F0F1F3;--orange:#FF5A1F;--orange2:#FF7A42;--orangeSoft:#FFF0E9;--orangeLine:#FFD4C2;--green:#178247;--greenSoft:#E7F6ED;--blue:#1769AA;--blueSoft:#E7F2FC;--red:#B91C1C;--shadow:0 5px 20px rgba(22,22,28,.055)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#E8EAEE;color:var(--ink);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(255,90,31,.24);outline-offset:2px}#app-shell{width:100%;max-width:520px;height:100dvh;min-height:560px;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 60px rgba(20,20,25,.12);position:relative}.topbar{flex:0 0 auto;background:#171719;color:#fff;padding:calc(12px + env(safe-area-inset-top)) 17px 13px}.topbar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}.brand-mark{height:34px;width:34px;display:grid;place-items:center;background:var(--orange);color:#fff;font-weight:900;font-size:17px;border-radius:7px}.brand-title{font-size:16px;font-weight:850;letter-spacing:-.03em}.brand-subtitle{font-size:10px;color:#AEB1B8;letter-spacing:.1em;text-transform:uppercase;margin-top:1px}.draft-pill{margin-left:auto;border:1px solid #44444A;background:#242428;color:#FF9A70;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:5px 8px;border-radius:3px}.progress-row{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:#B5B7BF;margin-bottom:6px}.progress-row strong{color:#FF9A70;font-weight:800}.progress-track{height:5px;background:#3B3B40;overflow:hidden;border-radius:2px}.progress-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange2));width:0;transition:width .2s}.scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}.intro{padding:22px 18px 32px;background:linear-gradient(150deg,#171719,#25252B);color:#fff;position:relative;overflow:hidden}.intro:after{content:"";position:absolute;width:220px;height:220px;right:-105px;top:-120px;border-radius:50%;background:radial-gradient(circle,rgba(255,90,31,.28),transparent 68%);pointer-events:none}.eyebrow{font-size:10px;color:#FF9A70;font-weight:850;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}.intro h1{font-size:27px;letter-spacing:-.045em;line-height:1.1;margin:0 0 9px;max-width:15ch}.intro h1 span{color:#FF8B5A}.intro p{font-size:13.5px;line-height:1.6;color:#C8C9CF;margin:0;max-width:38ch}.content{padding:15px 12px 28px}.group{margin-bottom:24px}.group-heading{display:flex;align-items:flex-start;gap:11px;margin:0 3px 12px}.group-number{background:var(--ink);color:#fff;min-width:33px;height:33px;display:grid;place-items:center;font-size:12px;font-weight:900;border-radius:4px}.group-heading h2{font-size:18px;margin:0;line-height:1.2;letter-spacing:-.025em}.group-heading p{font-size:12px;color:var(--muted);margin:4px 0 0;line-height:1.4}.group-kicker{display:block;color:var(--orange);font-size:9.5px;letter-spacing:.12em;font-weight:850;text-transform:uppercase;margin-bottom:3px}.accordion-stack{display:flex;flex-direction:column;gap:9px}.acc{background:var(--card);border:1px solid var(--line);border-radius:5px;overflow:hidden;box-shadow:0 1px 2px rgba(20,20,25,.02);transition:opacity .22s,filter .22s,box-shadow .22s,border-color .22s}.acc.open{border-color:var(--orangeLine);box-shadow:0 4px 14px rgba(255,90,31,.08)}.accordion-stack.has-open .acc:not(.open){opacity:.15;filter:blur(1.6px)}.accordion-stack.has-open .acc.open{opacity:1;filter:none}.acc-head{display:flex;align-items:center;text-align:left;gap:10px;width:100%;border:0;background:#fff;padding:14px 13px;color:var(--ink)}.acc-head:active{background:#FAFAFB}.acc-title-wrap{flex:1;min-width:0}.acc-title{font-size:15px;font-weight:800;display:block;line-height:1.3}.acc-sub{font-size:11.5px;color:var(--muted);display:block;margin-top:3px;font-weight:450;line-height:1.4}.acc-state{width:9px;height:9px;border-radius:50%;background:#D6DAE0;flex:0 0 auto;margin-left:auto}.acc-state.progress{background:#FFB27A}.acc-state.complete{background:var(--green)}.acc-state.missing{background:var(--red)}.acc-body{border-top:1px solid var(--line2);padding:15px 13px 16px}.note{background:#F7F8FA;border:1px solid #EBEDF0;padding:10px 11px;color:var(--muted);font-size:12px;line-height:1.55;border-radius:4px;margin:0 0 14px}.note strong{color:var(--ink2)}.section-label{font-size:10.5px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:#6E727C;margin:18px 0 9px}.section-label:first-child{margin-top:0}.field{display:block;margin-bottom:13px;min-width:0}.field:last-child{margin-bottom:0}.field>span,.field>label{display:block;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.07em;color:#666A74;margin-bottom:6px}.field .hint{display:block;text-transform:none;letter-spacing:0;font-weight:450;font-size:11.5px;color:var(--faint);margin-top:5px}.input,.select,.textarea{width:100%;min-width:0;border:1px solid #DDE1E7;background:#fff;border-radius:4px;color:var(--ink);padding:11px;font-size:15px;outline:none}.input,.select{min-height:44px}.textarea{min-height:82px;resize:vertical;line-height:1.5}.input:focus,.select:focus,.textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,90,31,.09)}.input::placeholder,.textarea::placeholder{color:#B0B5BE}.select{padding-right:11px}.stack{display:flex;flex-direction:column;gap:0}.field-row{display:flex;flex-direction:column;gap:0}.check-list{display:flex;flex-direction:column;gap:7px}.check-item{display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--line);background:#fff;border-radius:4px;min-height:44px}.check-item input{accent-color:var(--orange);width:17px;height:17px;flex:0 0 auto;margin:2px 0 0}.check-item span{font-size:13px;font-weight:650;line-height:1.4}.check-item small{display:block;font-size:11px;color:var(--muted);font-weight:450;margin-top:2px}.check-item.amenity{flex-direction:column;align-items:stretch;gap:8px;padding:11px}.check-line{display:flex;align-items:flex-start;gap:9px}.check-line input{accent-color:var(--orange);width:17px;height:17px;flex:0 0 auto;margin:2px 0 0}.check-line span{font-size:13px;font-weight:650;line-height:1.4}.amenity-detail{display:block}.amenity-detail .mini-label{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:5px}.amenity-detail .input{min-height:38px;padding:9px 10px;font-size:13px}.btn{border:1px solid transparent;border-radius:4px;min-height:42px;padding:10px 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:800;text-align:center;text-decoration:none;line-height:1.2}.btn-primary{background:var(--orange);color:#fff}.btn-primary:hover{background:#E94E18}.btn-secondary{background:#fff;border-color:#DDE1E7;color:var(--ink2)}.btn-light{background:#FFF0E9;border-color:#FFD4C2;color:#C84513}.btn-danger{background:#FFF4F4;border-color:#F5D4D4;color:var(--red)}.btn-small{min-height:32px;padding:7px 9px;font-size:11.5px}.btn-wide{width:100%}.btn-dashed{background:#fff;border:1.5px dashed #CDD2DA;color:var(--orange);width:100%;margin-top:7px}.btn-row{display:flex;flex-direction:column;gap:8px;margin-top:10px}.record{border:1px solid var(--line);border-radius:4px;padding:11px;margin-bottom:9px;background:#fff}.record:last-child{margin-bottom:0}.record-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}.record-title{font-size:13px;font-weight:850;flex:1;min-width:0;line-height:1.35}.record-subtitle{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px}.record-actions{display:flex;gap:5px}.remove-btn{border:1px solid #F1D7D7;color:#B91C1C;background:#fff;padding:5px 8px;border-radius:3px;font-size:10.5px;font-weight:800}.badge{display:inline-flex;align-items:center;border:1px solid #E2E5EA;border-radius:3px;padding:3px 6px;font-size:9.5px;font-weight:850;text-transform:uppercase;letter-spacing:.06em;color:#666B75;background:#F7F8F9}.badge.orange{background:var(--orangeSoft);border-color:var(--orangeLine);color:#C74514}.badge.green{background:var(--greenSoft);border-color:#C9E9D5;color:var(--green)}.divider{height:1px;background:var(--line2);margin:14px 0}.thumb{width:90px;height:90px;flex:0 0 90px;border-radius:4px;background:#ECEEF2;overflow:hidden;display:grid;place-items:center}.thumb img{width:100%;height:100%;object-fit:cover;display:block}.thumb-fallback{width:100%;height:100%;background:linear-gradient(145deg,#F2F3F5,#E3E6EA)}.branch-toolbar{background:#fff;border:1px solid var(--line);border-radius:5px;padding:12px;margin-bottom:11px}.branch-toolbar-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.branch-toolbar h3{margin:0;font-size:14.5px;font-weight:850}.branch-count{font-size:10.5px;color:var(--muted);font-weight:750}.view-toggle{display:flex;background:#F1F2F4;padding:3px;border-radius:4px;gap:3px}.view-toggle button{flex:1;border:0;background:transparent;padding:8px 10px;border-radius:3px;color:#666B75;font-weight:800;font-size:12px}.view-toggle button.active{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.branch-list{display:flex;flex-direction:column;gap:8px}
+.branch-card{display:block;width:100%}
+.branch-card-main{display:flex;align-items:center;gap:1rem;width:100%;padding:1rem 1.25rem;border-radius:.75rem;border:1px solid #e2e8f0;background:#fff;text-align:left;color:var(--ink);min-width:0}
+.branch-card-main:hover{background:#f8fafc;border-color:#cbd5e1}
+.branch-card.active .branch-card-main{border-color:var(--orange);box-shadow:0 0 0 2px rgba(255,90,31,.08)}
+.branch-card .thumb{width:2.5rem;height:2.5rem;flex:0 0 2.5rem;border-radius:.5rem;background:#f1f5f9;display:grid;place-items:center;overflow:hidden}
+.branch-card .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.branch-card-copy{display:flex;flex-direction:column;gap:.2rem;flex:1;min-width:0}
+.branch-card-name{font-size:.95rem;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.branch-card-address{font-size:.8125rem;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.branch-card-type{font-size:.75rem;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.rail-header{background:#fff;border:1px solid var(--line);border-radius:5px;padding:11px;margin-bottom:10px;touch-action:pan-y}.rail-nav{display:flex;align-items:center;gap:8px}.rail-nav .btn{width:88px;flex:0 0 88px}.rail-current{flex:1;min-width:0;text-align:center}.rail-current strong{font-size:13.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rail-current span{font-size:10.5px;color:var(--muted);display:block;margin-top:3px}
+.branch-editor-head{background:#19191D;color:#fff;border-radius:5px;padding:15px;margin-bottom:10px}.branch-editor-head .top{display:flex;align-items:flex-start;gap:11px}.branch-editor-head .thumb{width:62px;height:62px;flex-basis:62px;background:#303036;color:#fff}.branch-editor-head h3{margin:0;font-size:16px;font-weight:850;letter-spacing:-.025em;line-height:1.25}.branch-editor-head p{margin:5px 0 0;font-size:11.5px;color:#C5C6CC}.branch-editor-head .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.branch-editor-head .badge{background:#303036;border-color:#4C4C54;color:#E8E8EA}.branch-editor-head .badge.orange{background:#49291D;border-color:#74402C;color:#FFAE8B}.image-picker{display:flex;gap:11px;align-items:center;margin-bottom:14px}.image-preview{width:84px;height:84px;background:#F0F1F4;border:1px solid var(--line);border-radius:4px;overflow:hidden;display:grid;place-items:center;flex:0 0 84px}.image-preview img{width:100%;height:100%;object-fit:cover}.image-preview span{font-size:10.5px;font-weight:750;color:#9AA0A9;letter-spacing:.04em}.image-picker-copy{min-width:0;flex:1}.image-picker-copy .field{margin-bottom:7px}.file-label{display:inline-flex;align-items:center;justify-content:center;border:1px solid #DDE1E7;background:#fff;border-radius:4px;padding:7px 9px;font-size:11px;font-weight:800;cursor:pointer}.file-label input{display:none}.empty{background:#FAFBFC;border:1px dashed #D8DDE4;color:#858B95;padding:15px 12px;text-align:center;border-radius:4px;font-size:12px;line-height:1.5}.empty strong{display:block;color:#4E535D;font-size:12.5px;margin-bottom:3px}.inline-summary{background:#F7F8FA;border:1px solid #E9ECF0;border-radius:4px;padding:10px;font-size:11.5px;color:var(--muted);margin-top:9px}.inline-summary strong{color:var(--ink2)}.gallery-list{display:flex;flex-direction:column;gap:8px}.gallery-record{display:grid;grid-template-columns:66px 1fr;gap:9px;border:1px solid var(--line);padding:8px;border-radius:4px}.gallery-record .image-preview{width:66px;height:66px;flex-basis:66px}.footer-actions{flex:0 0 auto;background:#fff;border-top:1px solid var(--line);padding:9px 12px calc(9px + env(safe-area-inset-bottom));display:flex;gap:8px}.footer-actions .btn{flex:1;min-height:44px}.status-toast{position:absolute;z-index:30;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#171719;color:#fff;padding:10px 14px;border-radius:4px;max-width:88%;font-size:11.5px;font-weight:750;box-shadow:var(--shadow);transition:opacity .2s,transform .2s;white-space:normal;text-align:center}.status-toast.show{opacity:1;transform:translate(-50%,0)}.modal-backdrop{position:fixed;inset:0;z-index:100;background:rgba(15,15,18,.62);display:flex;align-items:flex-end;justify-content:center;padding-top:22px}.modal{width:100%;max-width:520px;max-height:94dvh;background:#fff;border-radius:9px 9px 0 0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 -8px 35px rgba(0,0,0,.18)}.modal-header{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}.modal-header h3{margin:0;font-size:16px;font-weight:850;flex:1}.modal-close{border:1px solid var(--line);background:#fff;border-radius:4px;height:33px;padding:0 12px;font-size:12px;font-weight:800;color:var(--ink2)}.modal-body{overflow:auto;padding:15px 16px;min-height:0}.modal-footer{padding:11px 16px calc(11px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#FAFBFC;display:flex;gap:8px}.modal-footer .btn{flex:1}.summary-block{border:1px solid var(--line);border-radius:4px;padding:12px;margin-bottom:9px}.summary-block h4{margin:0 0 5px;font-size:13.5px}.summary-block p{margin:0;color:var(--muted);font-size:12px}.hide{display:none!important}.danger-text{color:var(--red)}.footer-hint{text-align:center;color:#969BA4;font-size:9.5px;margin-top:4px}.mini-note{font-size:10.5px;color:var(--muted);line-height:1.45;margin:7px 0 0}.mini-stack{display:flex;flex-direction:column;gap:7px}.mini-acc{border:1px solid var(--line);border-radius:4px;background:#fff;overflow:hidden;transition:opacity .22s,filter .22s}.mini-acc.open{border-color:var(--orangeLine);box-shadow:0 2px 10px rgba(255,90,31,.07)}.mini-stack.has-open .mini-acc:not(.open){opacity:.18;filter:blur(1.2px)}.mini-acc-head{display:flex;align-items:center;gap:8px;width:100%;border:0;background:#fff;padding:11px 12px;text-align:left;color:var(--ink);min-height:46px}.mini-acc-head:active{background:#FAFAFB}.mini-acc-head .t{flex:1;min-width:0;font-size:13.5px;font-weight:750;line-height:1.3}.mini-summary{font-size:11px;color:var(--muted);white-space:nowrap}.mini-acc-body{padding:12px;border-top:1px solid var(--line2)}.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}.chip{display:inline-flex;align-items:center;gap:7px;background:var(--orangeSoft);border:1px solid var(--orangeLine);color:#B5430F;border-radius:18px;padding:5px 11px;font-size:12.5px;font-weight:750}.chip button{border:0;background:transparent;color:#B5430F;font-size:10.5px;font-weight:800;padding:0;line-height:1;text-decoration:underline}.chip-add{display:flex;gap:7px;align-items:stretch}.chip-add .input,.chip-add .select{flex:1;min-width:0}.chip-add .btn{flex:0 0 auto;white-space:nowrap}.quote-box{background:linear-gradient(145deg,#171719,#25252B);color:#fff;border-radius:6px;padding:16px}.quote-box h4{margin:0 0 12px;font-size:14px;color:#FF9A70;text-transform:uppercase;letter-spacing:.1em;font-weight:850}.quote-line{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.08)}.quote-line:last-of-type{border-bottom:0;margin-top:4px;padding-top:10px;border-top:1px solid rgba(255,255,255,.16);font-weight:800;font-size:15px;color:#FFB27A}.quote-line span:last-child{font-variant-numeric:tabular-nums;font-weight:750}.quote-line .muted{color:#9AA1AC;font-weight:500}@media(min-width:520px){body{padding:12px 0}#app-shell{height:calc(100dvh - 24px);border-radius:9px}.modal-backdrop{align-items:center;padding:20px}.modal{border-radius:9px;max-height:90dvh}}@media(min-width:420px){.field-row.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field-row.two .field{margin-bottom:13px}.btn-row{flex-direction:row}.btn-row>*{flex:1}}
 </style>
 </head>
-<body data-page="caterer-onboarding">
-<div id="shell">
-
+<body>
+<div id="app-shell">
   <header class="topbar">
     <div class="topbar-row">
-      <a class="brand" href="index.html">
-        <span class="mark">E</span><span class="word">EatOuts</span>
-      </a>
-      <span class="hdr-chip">Caterer</span>
+      <div class="brand-mark">E</div>
+      <div><div class="brand-title">EatOuts</div><div class="brand-subtitle">Caterer setup</div></div>
+      <span class="draft-pill" id="saveIndicator">Draft mode</span>
     </div>
-    <div class="progress">
-      <div class="progress-top">
-        <span class="progress-label">Onboarding</span>
-        <span class="progress-count" id="progressCount">—</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    </div>
+    <div class="progress-row"><span>Setup completeness</span><strong id="progressText">0% complete</strong></div>
+    <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
   </header>
-
   <div class="scroll" id="scroll">
     <section class="intro">
-      <h1>Join as a <em>caterer</em>.</h1>
-      <p>Set up your kitchen, menus and payouts — six short steps to get listed on EatOuts.</p>
+      <div class="eyebrow">Catering business setup</div>
+      <h1>Build your <span>catering</span> profile.</h1>
+      <p>Set up the brand once, then manage every catering base, satellite kitchen, warehouse or head office from one place. Drafts save in this browser when local storage is available.</p>
     </section>
-    <main class="sheet" id="app"></main>
+    <main class="content">
+      <section class="group" aria-labelledby="brandGroupTitle">
+        <div class="group-heading"><span class="group-number">01</span><div><span class="group-kicker">Shared across the business</span><h2 id="brandGroupTitle">Brand & shared settings</h2><p>Information that represents the company, not just one branch.</p></div></div>
+        <div id="brandAccordions" class="accordion-stack"></div>
+      </section>
+      <section class="group" aria-labelledby="branchGroupTitle">
+        <div class="group-heading"><span class="group-number">02</span><div><span class="group-kicker">Manage physical locations</span><h2 id="branchGroupTitle">Catering bases & branches</h2><p>Each branch keeps its own address, service area, packages, add-ons, tastings, equipment, staffing, staff and offers.</p></div></div>
+        <div class="branch-toolbar">
+          <div class="branch-toolbar-top"><h3>Branch manager</h3><span class="branch-count" id="branchCount">0 locations</span></div>
+          <div class="view-toggle" role="group" aria-label="Branch view">
+            <button type="button" data-action="set-view" data-view="listed" id="listedToggle">Listed</button>
+            <button type="button" data-action="set-view" data-view="rail" id="railToggle">Rail</button>
+          </div>
+        </div>
+        <div id="branchListView"></div>
+        <div id="branchRailView"></div>
+        <button class="btn btn-primary btn-wide" type="button" data-action="add-branch" style="margin-top:10px">Add Branch</button>
+        <p class="footer-hint">A head office can exist without any kitchen. Turn on capabilities only when they apply.</p>
+      </section>
+    </main>
   </div>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <footer class="footer-actions"><button type="button" class="btn btn-secondary" data-action="save-draft">Save draft</button><button type="button" class="btn btn-primary" data-action="preview">Preview setup</button></footer>
+  <div class="status-toast" id="toast" role="status" aria-live="polite"></div>
 </div>
-
-<script src="js/eatouts-manager-db.js"></script>
-<script src="assets/data/demo/the-food-place/demo-data.js"></script>
-<script src="js/eatouts-manager-seed.js"></script>
-<script src="js/eatouts-roles.js"></script>
-<script src="js/eatouts-users.js"></script>
-<script src="js/eatouts-feedback.js"></script>
-<script src="js/eatouts-blog-admin.js"></script>
-<script src="js/eatouts-auth.js"></script>
-<script src="botswana_locations.js"></script>
-<script src="js/eatouts-locations.js"></script>
-<script src="js/eatouts-audit.js"></script>
-<script src="js/eatouts-customer.js"></script>
-<script src="js/eatouts-manager.js"></script>
+<div class="modal-backdrop hide" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modalTitle">Add</h3><button class="modal-close" type="button" data-action="close-modal">Close</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+(function(){
+'use strict';
 
-  /* ============================================================
-     AUTH GUARD
-     ============================================================ */
-  if (!window.EO || !EO.guard({})) return;
+/* ============================ CONSTANTS ============================ */
+const STORE_KEY = 'eatouts.caterer-onboarding.v1';
+const WEEKDAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 
-  var L = window.EatoutsLocations || null;
+const CATEGORIES = ['Catering','Full-service catering','Drop-off catering','Corporate catering','Wedding catering','Buffet catering','Private chef','Mobile bar','Event catering'];
 
-  /* ============================================================
-     HELPERS
-     ============================================================ */
-  function esc(v){
-    return String(v == null ? "" : v)
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-  }
-  function attr(v){ return esc(v).replace(/`/g,"&#96;"); }
-  function cssEscape(s){ return String(s).replace(/["\\]/g, "\\$&"); }
-  function confirmDialog(msg){
-    if (window.EO && typeof EO.confirm === "function") return EO.confirm(msg);
-    return window.confirm(msg);
-  }
+const BRANCH_TYPES = [
+ {id:'catering-base',      name:'Catering base',                       caps:['offsiteCatering','fullService','production']},
+ {id:'head-office',        name:'Head office / administrative office',  caps:['admin']},
+ {id:'satellite-kitchen',  name:'Satellite prep kitchen',              caps:['production','offsiteCatering','dropOff']},
+ {id:'commissary',         name:'Central commissary / production',     caps:['production','storage','distribution']},
+ {id:'equipment-warehouse',name:'Equipment warehouse',                 caps:['storage','equipmentRental','distribution']}
+];
 
-  var toastEl = document.getElementById("toast");
-  var toastTimer = null;
-  function toast(msg){
-    toastEl.textContent = msg;
-    toastEl.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2200);
-  }
+const CAPABILITIES = [
+ {id:'admin',          label:'Administrative office',                    desc:'Corporate operations; no kitchen or service features required.'},
+ {id:'offsiteCatering',label:'Cater at off-site venues',                 desc:'Cook at base, serve at customer venues.'},
+ {id:'onsiteCatering', label:'Cater on-premise',                         desc:'Host catering at a physical venue owned by this branch.'},
+ {id:'dropOff',        label:'Drop-off / delivery only',                 desc:'Deliver food without on-site service staff.'},
+ {id:'fullService',    label:'Full-service catering',                    desc:'Waiters, plated courses, plated service, on-site chef.'},
+ {id:'liveCooking',    label:'Live cooking stations',                    desc:'Chefs cooking to order at the event.'},
+ {id:'bartending',     label:'Bartending service',                       desc:'Bar staff, mobile bar, drinks package.'},
+ {id:'equipmentRental',label:'Equipment rental',                         desc:'Rent out tables, chairs, linens, chafers.'},
+ {id:'production',     label:'Prepare food for other branches',          desc:'Central production and prep workflows.'},
+ {id:'storage',        label:'Store or distribute stock',                desc:'Warehouse and dispatch profile details.'},
+ {id:'distribution',   label:'Dispatch goods or supplies',               desc:'Distribution and delivery coordination.'}
+];
 
-  function opts(list, cur, ph){
-    var o = [{ value:"", label: ph }].concat(list || []);
-    if (cur && !o.some(function(x){ return String(x.value) === String(cur); })){
-      o.splice(1, 0, { value: cur, label: cur });
-    }
-    return o;
-  }
-  function renderOpts(arr, cur){
-    return arr.map(function(o){
-      return '<option value="' + attr(o.value) + '"' +
-        (String(o.value) === String(cur) ? ' selected' : '') + '>' +
-        esc(o.label) + '</option>';
-    }).join('');
-  }
+const SOCIAL_PLATFORMS = ['Website','Facebook','Instagram','X / Twitter','WhatsApp Channel','TikTok','Snapchat','Telegram','YouTube','LinkedIn','Threads','Pinterest','Custom'];
 
-  /* ============================================================
-     STATE
-     ============================================================ */
-  var state = {
-    business: { name:"", tagline:"", description:"", logo:null, years:"" },
-    contact:  { district:"", districtName:"", town:"", area:"", street:"",
-                phone:"", whatsapp:"", email:"" },
-    cuisine:  { cuisines:[], dietary:[], services:[], minGuests:"" },
-    kitchen:  { capacity:"", leadTime:"", prepTime:"", radius:"", notes:"" },
-    docs:     { id:false, permit:false, food:false, health:false },
-    payout:   { method:"", bank:"", accountName:"", accountNumber:"",
-                branch:"", mobileMoney:"" }
+const PACKAGE_STYLES = ['Plated','Buffet','Family-style','Stations','Canapés','BBQ / Braai','Cocktail'];
+const DIETARY_VARIANTS = ['Vegetarian','Vegan','Gluten-free','Halal','Dairy-free','Nut-free'];
+const DRINK_PACKAGES = ['None','Soft drinks','Wine & beer','Full bar','Custom'];
+
+const ADDON_CATEGORIES = ['Main dishes','Sides','Salads','Desserts','Drinks','Live stations','Staff','Equipment rental','Other'];
+const ADDON_UNITS = ['Per person','Per item','Per hour','Per station','Per tray','Per day','Per event'];
+
+const EQUIPMENT_CATEGORIES = ['Tables','Chairs','Linens','Chafing dishes','Platters','Glassware','Cutlery','China','Serving utensils','Tents & marquees','Other'];
+const AMENITY_GROUPS = {
+ 'Catering equipment': ['Chafing dishes','Live cooking station','Carving station','Hot boxes','Cold boxes'],
+ 'Tableware':          ['China','Glassware','Cutlery','Linens','Serving platters'],
+ 'Bar':                ['Mobile bar','Glassware','Ice','Bartender'],
+ 'Staffing':           ['Uniform','On-site chef','Service staff']
+};
+
+const STAFFING_TIERS = [
+ {id:'bronze', name:'Bronze — drop-off',   desc:'No on-site staff; buffet set-up only.'},
+ {id:'silver', name:'Silver — buffet',     desc:'Servers for buffet, one chef on-call.'},
+ {id:'gold',   name:'Gold — full service', desc:'Plated service, chef, servers, bartender.'},
+ {id:'custom', name:'Custom',              desc:'Custom staffing per event.'}
+];
+
+const EVENT_TAXONOMY = {
+ weddings_cultural: {
+  id:'weddings_cultural', name:'Weddings & Cultural Traditions', icon:'💍',
+  subCategories: [
+   {name:'Pre-Wedding Socials', events:[
+     {id:'engagement_party', name:'Engagement Party'},
+     {id:'bridal_shower', name:'Bridal Shower'},
+     {id:'kitchen_tea', name:'Kitchen Tea'},
+     {id:'bachelor_party', name:'Bachelor Party'},
+     {id:'bachelorette_party', name:'Bachelorette Party'}
+   ]},
+   {name:'Ceremony & Weekend', events:[
+     {id:'rehearsal_dinner', name:'Rehearsal Dinner'},
+     {id:'wedding_ceremony', name:'Wedding Ceremony'},
+     {id:'wedding_reception', name:'Wedding Reception'},
+     {id:'post_wedding_brunch', name:'Post-Wedding Brunch'},
+     {id:'destination_wedding', name:'Destination Wedding'}
+   ]},
+   {name:'Setswana Cultural Events (Batswana)', events:[
+     {id:'setswana_patlo', name:'Patlo / Go Tshwarwa'},
+     {id:'setswana_bogadi', name:'Bogadi / Magadi'},
+     {id:'setswana_go_lefa', name:'Go Lefa'},
+     {id:'setswana_kgoroso', name:'Kgoroso / Go Isiwa ga Ngwetsi'}
+   ]},
+   {name:'Shona Cultural Events (Mashona)', events:[
+     {id:'shona_kuvhura_muromo', name:'Kuvhura Muromo'},
+     {id:'shona_roora_lobola', name:'Roora / Lobola Day'},
+     {id:'shona_kupindisa_muroora', name:'Kupindisa Muroora'}
+   ]}
+  ]
+ },
+ corporate: {
+  id:'corporate', name:'Corporate Events', icon:'💼',
+  subCategories: [
+   {name:'Business & Strategy', events:[
+     {id:'agm', name:'Annual General Meeting (AGM)'},
+     {id:'board_meeting', name:'Board Meeting'},
+     {id:'executive_retreat', name:'Executive Retreat'}
+   ]},
+   {name:'Knowledge & Industry', events:[
+     {id:'conference', name:'Conference'},
+     {id:'seminar', name:'Seminar'},
+     {id:'workshop', name:'Workshop'},
+     {id:'press_conference', name:'Press Conference'}
+   ]},
+   {name:'Expositions & Sales', events:[
+     {id:'trade_show', name:'Trade Show'},
+     {id:'product_launch', name:'Product Launch'},
+     {id:'sales_kickoff', name:'Sales Kick-Off (SKO)'}
+   ]},
+   {name:'Team & Culture', events:[
+     {id:'team_building', name:'Team-Building Event'},
+     {id:'company_milestone', name:'Company Milestone'},
+     {id:'company_retreat', name:'Company Offsite / Retreat'}
+   ]},
+   {name:'Galas & VIP', events:[
+     {id:'corporate_gala', name:'Corporate Gala'},
+     {id:'award_ceremony', name:'Award Ceremony'},
+     {id:'corporate_dinner', name:'Corporate Dinner'}
+   ]}
+  ]
+ },
+ social: {
+  id:'social', name:'Social & Celebrations', icon:'🎉',
+  subCategories: [
+   {name:'Milestones & Life Steps', events:[
+     {id:'baby_shower', name:'Baby Shower'},
+     {id:'gender_reveal', name:'Gender Reveal Party'},
+     {id:'birthday_party', name:'Birthday Party'},
+     {id:'anniversary', name:'Anniversary'},
+     {id:'retirement_party', name:'Retirement Party'}
+   ]},
+   {name:'Academic & Youth', events:[
+     {id:'graduation_party', name:'Graduation Party'},
+     {id:'prom', name:'Prom'}
+   ]},
+   {name:'Gatherings & Socials', events:[
+     {id:'family_reunion', name:'Family Reunion'},
+     {id:'housewarming', name:'Housewarming Party'},
+     {id:'dinner_party', name:'Dinner Party'},
+     {id:'cocktail_party', name:'Cocktail Party'},
+     {id:'holiday_party', name:'Holiday Party'}
+   ]},
+   {name:'Rites of Passage', events:[
+     {id:'coming_of_age', name:'Coming of Age / Debutante'},
+     {id:'christening', name:'Naming Ceremony / Christening'}
+   ]}
+  ]
+ },
+ food_drink: {
+  id:'food_drink', name:'Food & Drink', icon:'🍽️',
+  subCategories: [
+   {name:'Tastings & Pop-ups', events:[
+     {id:'wine_tasting', name:'Wine Tasting'},
+     {id:'culinary_popup', name:'Culinary Pop-up'},
+     {id:'chef_table', name:"Chef's Table Experience"}
+   ]}
+  ]
+ }
+};
+function getEventTypeById(id){
+  let found = null;
+  Object.values(EVENT_TAXONOMY).forEach(cat => {
+    (cat.subCategories || []).forEach(sub => {
+      (sub.events || []).forEach(ev => {
+        if (ev.id === id) found = Object.assign({}, ev, {categoryName: cat.name, subCategoryName: sub.name});
+      });
+    });
+  });
+  return found;
+}
+
+const PAYMENT_METHODS = ['Cash','Visa','Mastercard','American Express','Bank transfer','POS card terminal','BTC Smega','Mascom MyZaka','Orange Money','Other mobile wallet','Online payment link','Other'];
+const PROMO_TYPES = ['Percentage discount','Fixed amount discount','Free item or upgrade','Set-price offer','Loyalty benefit','Cashback / wallet benefit','Seasonal campaign','Event partnership','Deposit promotion','Other'];
+const CURRENCIES = ['BWP (Pula)','ZAR (Rand)','USD','Other'];
+
+const STAFF_ROLES = {
+ 'Management': ['General Manager','Catering Manager','Operations Manager','Assistant Manager','Branch Manager','Shift Supervisor'],
+ 'Events': ['Event Coordinator','Event Manager','Tasting Host','Sales Coordinator'],
+ 'Kitchen': ['Executive Chef','Catering Chef','Head Chef','Sous Chef','Chef','Line Cook','Prep Cook','Baker','Kitchen Porter','Dishwasher'],
+ 'Service': ['Head Server','Server','Waiter','Waitress','Runner','Bartender','Barista','Host'],
+ 'Operations': ['Procurement Officer','Stock Controller','Storekeeper','Cleaner','Maintenance Technician','Security Guard','Driver','Logistics Coordinator'],
+ 'Administration': ['HR Manager','Accountant','Payroll Officer','Marketing Manager','Social Media Manager','IT Administrator']
+};
+
+const USER_ROLES = ['Owner','Co-Owner','Brand Administrator','Branch Manager','Catering Manager','Event Coordinator','Executive Chef','Catering Chef','Finance Manager','HR Manager','Marketing Manager','Tasting Host','Custom'];
+
+const PERMISSION_OPTIONS = [
+ {id:'viewBrand',        label:'View brand profile'},
+ {id:'editBrand',        label:'Edit brand profile'},
+ {id:'viewBranches',     label:'View branches'},
+ {id:'editBranches',     label:'Edit branch details'},
+ {id:'managePackages',   label:'Manage catering packages'},
+ {id:'manageAddOns',     label:'Manage à-la-carte & add-ons'},
+ {id:'manageTastings',   label:'Manage tasting sessions'},
+ {id:'manageEquipment',  label:'Manage equipment inventory'},
+ {id:'manageQuotes',     label:'Build & manage event quotes'},
+ {id:'managePayments',   label:'Manage payments & promotions'},
+ {id:'viewStaff',        label:'View staff profiles'},
+ {id:'manageStaff',      label:'Manage staff'},
+ {id:'viewPayroll',      label:'View salary / payroll details'},
+ {id:'manageUsers',      label:'Manage users & permissions'},
+ {id:'publish',          label:'Publish profile changes'}
+];
+
+/* ============================ HELPERS ============================ */
+const e = (v) => String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const uid = (prefix='id') => prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+const arr = (v) => Array.isArray(v) ? v : [];
+
+function blankContact(label='General enquiries'){ return {id:uid('contact'), label, type:'Mobile', number:'', notes:''}; }
+function blankSocial(){ return {id:uid('social'), platform:'Website', label:'', url:'', notes:''}; }
+function blankPhoto(){ return {id:uid('photo'), label:'', url:'', notes:''}; }
+function blankPackage(){
+  return {id:uid('pkg'), name:'', style:'Buffet', pricePerHead:'', minGuests:'', maxGuests:'',
+          includedCourses:'', drinkPackage:'None', dietaryVariants:[], setupRequirements:'', gallery:[]};
+}
+function blankAddOn(){
+  return {id:uid('addon'), name:'', category:'Main dishes', price:'', unit:'Per person', description:'', minQty:''};
+}
+function blankTasting(){
+  return {id:uid('tasting'), date:'', startTime:'', endTime:'', price:'', sampleMenu:'', notes:'', bookAheadDays:'', maxGuests:''};
+}
+function blankEquipment(){
+  return {id:uid('eq'), name:'', category:'Tables', qty:'', dailyRate:'', replacementValue:'', availabilityNotes:''};
+}
+function blankStaffingTier(){
+  return {id:uid('tier'), tier:'bronze', name:'', servers:'', chefs:'', bartenders:'', pricePerHead:'', notes:''};
+}
+function blankQuote(){
+  return {id:uid('quote'), eventTypeId:'', eventTypeName:'', eventDate:'', headcount:'',
+          packageId:'', addOnIds:[], travelFee:'', staffingCost:'', equipmentCost:'',
+          subtotal:'', vat:'', total:'', status:'Enquiry', notes:'', customerName:'', customerContact:''};
+}
+function blankCustomHours(scope='office'){
+  return {id:uid('hours'), scope, label:'Special hours', startDate:'', endDate:'', open:'', close:'', notes:''};
+}
+function blankTravelTier(){
+  return {id:uid('tier'), fromKm:'', toKm:'', fee:''};
+}
+function blankServiceRegion(){ return {id:uid('region'), city:'', notes:''}; }
+
+function blankBranch(name='', type='catering-base', caps){
+  const t = BRANCH_TYPES.find(x => x.id === type) || BRANCH_TYPES[0];
+  return {
+    id: uid('branch'),
+    name, code:'', type, status:'draft', imageUrl:'',
+    inheritBrandContacts: true,
+    inheritBrandSocialLinks: true,
+    capabilities: arr(caps || t.caps).slice(),
+    location: {country:'Botswana', city:'', area:'', plotNumber:'', streetName:'', streetNumber:'',
+               building:'', unitNumber:'', landmark:'', latitude:'', longitude:'', directions:''},
+    contacts: [],
+    socialLinks: [],
+    hours: {
+      office:        {weekly: WEEKDAYS.map(day => ({day, open:'', close:'', closed:false}))},
+      eventService:  {weekly: WEEKDAYS.map(day => ({day, start:'', end:'', active:false}))},
+      tasting:       {weekly: WEEKDAYS.map(day => ({day, open:'', close:'', enabled:false}))},
+      custom: []
+    },
+    serviceArea: {
+      regions: [],
+      maxRadiusKm: '',
+      travelFeeTiers: [],
+      outOfAreaSurcharge: '',
+      setupTimeMinutes: '',
+      breakdownTimeMinutes: '',
+      minimumBookingValue: ''
+    },
+    amenities: [],
+    customAmenities: [],
+    customAmenitiesText: '',
+    amenityDetails: {},
+    packages: [],
+    addOns: [],
+    tastingSessions: [],
+    equipment: [],
+    staffing: {
+      serversPerGuest: 10,
+      chefRequired: false,
+      bartenderPerGuest: 25,
+      minimumCrew: 2,
+      tiers: []
+    },
+    quoteSettings: {
+      vatPercent: 14,
+      serverHourlyRate: 60,
+      chefHourlyRate: 120,
+      bartenderHourlyRate: 80,
+      equipmentHandlingPercent: 5,
+      serviceHoursDefault: 4
+    },
+    eventQuotes: [],
+    paymentPartnerships: [],
+    paymentMethods: [],
+    promotions: [],
+    depositSettings: {
+      depositPercent: 30,
+      cancellationWindowDays: 14,
+      cancellationFee: ''
+    },
+    paymentPlan: {
+      enabled: false,
+      minimumAmount: 5000,
+      installmentCount: 3
+    },
+    staffAssignments: []
   };
+}
 
-  var OPEN = null;   // accordion key — closed by default
+function initialState(){
+  return {
+    version: 1,
+    status: 'draft',
+    activeBranchId: 'branch_initial',
+    branchView: 'listed',
+    uiOpen: {brand:'', branch:'', hoursKey:'', customHours:'', amenityGroup:'', quotePreview:''},
+    brand: {
+      identity: {name:'', legalName:'', description:'', logoUrl:'', coverUrl:'', categories:[]},
+      registration: {country:'Botswana', registrationNumber:'', taxNumber:'', registeredAddress:'', legalNotes:''},
+      serviceAreas: {regions:[], maxRadiusKm:'', outOfRegionSurcharge:'', notes:''},
+      foodSafety: {
+        healthPermit:false, healthPermitNumber:'', healthPermitExpiry:'',
+        foodHandlerCerts:false, foodHandlerNotes:'',
+        insurance:false, insuranceProvider:'', insurancePolicyNumber:'', insuranceExpiry:''
+      },
+      tastingPolicy: {
+        enabled:false, pricePerSession:'', notes:'', advanceBookingDays:'', menuCustomisation:''
+      },
+      contacts: [],
+      socialLinks: [],
+      users: []
+    },
+    branches: [Object.assign(blankBranch('','catering-base'), {id:'branch_initial'})],
+    staffDirectory: []
+  };
+}
 
-  var CUISINES = ["Local / Setswana","Grills & Braai","Buffet","Continental",
-                  "Indian","Chinese","Vegetarian","Vegan","Seafood","Bakery & Desserts"];
-  var DIETARY  = ["Halal","Kosher","Gluten-free","Nut-free","Dairy-free","Low-carb"];
-  var SERVICES = ["Weddings","Corporate","Birthdays","Funerals","Conferences",
-                  "Private chef","Drop-off platters","Daily lunch"];
-  var DOCS = [
-    { key:"id",     name:"National ID",           hint:"Omang / passport copy" },
-    { key:"permit", name:"Business permit",       hint:"CIPA registration" },
-    { key:"food",   name:"Food handling cert.",   hint:"Kitchen hygiene training" },
-    { key:"health", name:"Health certificate",    hint:"Council health inspection" }
-  ];
+let state = initialState();
+try {
+  const existing = localStorage.getItem(STORE_KEY);
+  if (existing) {
+    const parsed = JSON.parse(existing);
+    if (parsed && parsed.version === 1) state = parsed;
+  }
+} catch(err){ console.warn('Could not read saved caterer onboarding draft', err); }
 
-  /* ============================================================
-     COMPLETION
-     ============================================================ */
-  function sectionDone(key){
-    if (key === "business") return !!(state.business.name && state.business.description);
-    if (key === "contact")  return !!(state.contact.district && state.contact.town && state.contact.phone);
-    if (key === "cuisine")  return state.cuisine.cuisines.length > 0;
-    if (key === "kitchen")  return !!(state.kitchen.capacity && state.kitchen.leadTime);
-    if (key === "docs")     return Object.keys(state.docs).filter(function(k){ return state.docs[k]; }).length >= 2;
-    if (key === "payout")   return !!(state.payout.method && (state.payout.accountName || state.payout.mobileMoney));
+if (!Array.isArray(state.branches)) state.branches = [];
+if (!state.branches.length) state.branches.push(blankBranch('','catering-base'));
+if (!state.activeBranchId || !state.branches.some(b => b.id === state.activeBranchId)) state.activeBranchId = state.branches[0].id;
+state.brand = state.brand || initialState().brand;
+state.staffDirectory = arr(state.staffDirectory);
+state.uiOpen = state.uiOpen || {};
+['brand','branch','hoursKey','customHours','amenityGroup','quotePreview'].forEach(k => {
+  if (typeof state.uiOpen[k] !== 'string') state.uiOpen[k] = '';
+});
+
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+let toastTimer = null, modalSubmit = null, lastFocus = null, pendingStaffPhoto = '';
+
+function toast(msg){
+  const t = $('#toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function saveState(show=false){
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    $('#saveIndicator').textContent = 'Saved locally';
+    $('#saveIndicator').style.color = '#B8E8C8';
+    if (show) toast('Draft saved on this device.');
+    return true;
+  } catch(err){
+    $('#saveIndicator').textContent = (err && err.name === 'QuotaExceededError') ? 'Storage full' : 'Draft mode';
+    if (show) toast(err && err.name === 'QuotaExceededError' ? 'Browser storage is full.' : 'Local browser storage is unavailable here.');
     return false;
   }
-  var KEYS = ["business","contact","cuisine","kitchen","docs","payout"];
+}
 
-  function completion(){
-    var done = KEYS.filter(sectionDone).length;
-    return { done: done, total: KEYS.length, pct: Math.round((done / KEYS.length) * 100) };
+function activeBranch(){ return state.branches.find(b => b.id === state.activeBranchId) || state.branches[0]; }
+
+/* -------- path plumbing -------- */
+function resolveRoot(path){
+  const parts = path.split('.');
+  let root;
+  if (parts[0] === 'brand') root = state.brand;
+  else if (parts[0] === 'branch') root = activeBranch();
+  else if (parts[0] === 'staffDirectory') root = state.staffDirectory;
+  else if (parts[0] === 'branches') root = state.branches;
+  else root = state;
+  return {root, parts: ['brand','branch','staffDirectory','branches'].includes(parts[0]) ? parts.slice(1) : parts};
+}
+function pathGet(path){
+  const o = resolveRoot(path);
+  let v = o.root;
+  for (const p of o.parts){ if (v == null) return ''; v = v[p]; }
+  return v == null ? '' : v;
+}
+function pathSet(path, value){
+  const o = resolveRoot(path);
+  let target = o.root;
+  const ps = o.parts;
+  for (let i = 0; i < ps.length - 1; i++){
+    const k = ps[i];
+    if (target[k] == null) target[k] = /^\d+$/.test(ps[i+1]) ? [] : {};
+    target = target[k];
   }
+  target[ps[ps.length - 1]] = value;
+}
+function collectionGet(path){ const v = pathGet(path); return Array.isArray(v) ? v : null; }
+function inputPath(path){ return 'data-bind="' + e(path) + '"'; }
 
-  /* ============================================================
-     SUBTITLES
-     ============================================================ */
-  function subBusiness(){
-    if (!state.business.name) return "Name, tagline and logo";
-    return state.business.name + (state.business.tagline ? " · " + state.business.tagline : "");
-  }
-  function subContact(){
-    var bits = [state.contact.town, state.contact.districtName].filter(Boolean);
-    if (!bits.length) return "District, town and phone";
-    return bits.join(", ") + (state.contact.phone ? " · " + state.contact.phone : "");
-  }
-  function subCuisine(){
-    var c = state.cuisine.cuisines;
-    if (!c.length) return "Cuisines, dietary and services";
-    if (c.length <= 3) return c.join(", ");
-    return c.length + " cuisines · " + c.slice(0,2).join(", ") + " +" + (c.length - 2);
-  }
-  function subKitchen(){
-    if (!state.kitchen.capacity) return "Capacity, lead time and radius";
-    return state.kitchen.capacity + " guests · " +
-      (state.kitchen.leadTime ? state.kitchen.leadTime + " lead" : "lead time not set");
-  }
-  function subDocs(){
-    var n = Object.keys(state.docs).filter(function(k){ return state.docs[k]; }).length;
-    if (!n) return "Upload 4 compliance documents";
-    return n + " of " + DOCS.length + " uploaded";
-  }
-  function subPayout(){
-    if (!state.payout.method) return "How you'd like to get paid";
-    var label = state.payout.method === "mobile" ? "Mobile money" : "Bank transfer";
-    return label + (state.payout.accountName ? " · " + state.payout.accountName : "");
-  }
+/* -------- field helpers -------- */
+function field(label, path, type='text', opts={}){
+  let value = pathGet(path);
+  let extra = '';
+  if (opts.placeholder) extra += ' placeholder="' + e(opts.placeholder) + '"';
+  if (opts.min !== undefined) extra += ' min="' + e(opts.min) + '"';
+  if (opts.max !== undefined) extra += ' max="' + e(opts.max) + '"';
+  if (opts.step !== undefined) extra += ' step="' + e(opts.step) + '"';
+  if (opts.required) extra += ' required';
+  return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><input class="input" type="${e(type)}" ${inputPath(path)} value="${e(value)}"${extra}${opts.number?' data-value-type="number"':''}>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;
+}
+function textarea(label, path, opts={}){
+  return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><textarea class="textarea" ${inputPath(path)} placeholder="${e(opts.placeholder||'')}"${opts.required?' required':''}>${e(pathGet(path))}</textarea>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;
+}
+function selectField(label, path, options, opts={}){
+  const val = String(pathGet(path));
+  const os = options.map(o => typeof o === 'string' ? {value:o,label:o} : o);
+  return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><select class="select" ${inputPath(path)}${opts.required?' required':''}><option value="">${e(opts.placeholder||'Select an option')}</option>${os.map(o=>`<option value="${e(o.value)}"${val===String(o.value)?' selected':''}>${e(o.label)}</option>`).join('')}</select>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;
+}
+function checkItem(label, path, opts={}){
+  const checked = !!pathGet(path);
+  return `<label class="check-item"><input type="checkbox" ${inputPath(path)} ${checked?'checked':''}><span>${e(label)}${opts.desc?`<small>${e(opts.desc)}</small>`:''}</span></label>`;
+}
+function choiceList(label, path, options, descriptions={}){
+  const value = arr(pathGet(path));
+  return `<div class="field"><span>${e(label)}</span><div class="check-list">${options.map(opt=>{
+    const v = typeof opt === 'string' ? opt : opt.id;
+    const l = typeof opt === 'string' ? opt : opt.label;
+    const d = (typeof opt === 'string' ? '' : opt.desc) || descriptions[v] || '';
+    return `<label class="check-item"><input type="checkbox" data-choice="${e(path)}" data-choice-value="${e(v)}" ${value.includes(v)?'checked':''}><span>${e(l)}${d?`<small>${e(d)}</small>`:''}</span></label>`;
+  }).join('')}</div></div>`;
+}
 
-  /* ============================================================
-     MODULE — BUSINESS
-     ============================================================ */
-  function moduleBusiness(){
-    var b = state.business;
-    var initial = b.name ? String(b.name).charAt(0).toUpperCase() : "";
-    var thumb = b.logo
-      ? '<div class="thumb-90"><img src="' + attr(b.logo) + '" alt=""><span class="badge">LOGO</span></div>'
-      : '<div class="thumb-90 empty">' + (initial ? esc(initial) : "＋") + '</div>';
+function acc(group, key, title, sub, body){
+  const open = state.uiOpen[group] === key;
+  const st = accState(group, key);
+  return `<section class="acc ${open?'open':''}" data-acc-group="${e(group)}" data-acc-key="${e(key)}" tabindex="-1"><button class="acc-head" type="button" data-action="toggle-acc" data-group="${e(group)}" data-key="${e(key)}" aria-expanded="${open}"><span class="acc-title-wrap"><span class="acc-title">${e(title)}</span><span class="acc-sub">${e(sub)}</span></span><span class="acc-state ${st}" aria-hidden="true"></span></button>${open?`<div class="acc-body">${body}</div>`:''}</section>`;
+}
+function sectionLabel(label){ return `<div class="section-label">${e(label)}</div>`; }
+function itemRemove(path, index){ return `<button type="button" class="remove-btn" data-action="remove-item" data-collection="${e(path)}" data-index="${index}">Remove</button>`; }
+function addButton(action, label, extra=''){ return `<button type="button" class="btn btn-dashed" data-action="${e(action)}" ${extra}>${e(label)}</button>`; }
+function empty(title, desc){ return `<div class="empty"><strong>${e(title)}</strong>${e(desc)}</div>`; }
+function imagePreview(url, alt='Preview'){
+  const usable = safeImage(url);
+  return usable ? `<img src="${e(usable)}" alt="${e(alt)}">` : '<span>No image</span>';
+}
+function safeImage(url){
+  const u = String(url||'').trim();
+  return (/^https?:\/\//i.test(u) || /^data:image\//i.test(u)) ? u : '';
+}
+function imagePicker(label, path, alt){
+  return `<div class="image-picker"><div class="image-preview" data-image-preview="${e(path)}">${imagePreview(pathGet(path), alt||label)}</div><div class="image-picker-copy"><div style="font-size:12.5px;font-weight:850;margin-bottom:7px">${e(label)}</div><label class="file-label">Choose image<input type="file" accept="image/*" data-upload="${e(path)}"></label><div class="mini-note">Or paste an image URL below.</div>${field('Image URL', path, 'url', {placeholder:'https://...'})}</div></div>`;
+}
+function recordHeader(title, sub, collection, index){
+  return `<div class="record-top"><div class="record-title">${e(title)}${sub?`<div class="record-subtitle">${e(sub)}</div>`:''}</div>${collection?`<div class="record-actions">${itemRemove(collection, index)}</div>`:''}</div>`;
+}
+function galleryEditor(path){
+  const list = arr(pathGet(path));
+  return `${sectionLabel('Gallery')}${list.length?`<div class="gallery-list">${list.map((p,i)=>`<div class="gallery-record"><div class="image-preview" data-image-preview="${e(path+'.'+i+'.url')}">${imagePreview(p.url, p.label||'Gallery photo')}</div><div>${recordHeader(p.label||'Gallery photo','', path, i)}${field('Photo label', `${path}.${i}.label`, 'text', {placeholder:'e.g. Function room setup'})}${field('Image URL', `${path}.${i}.url`, 'url', {placeholder:'https://...'})}<label class="file-label">Upload image<input type="file" accept="image/*" data-upload="${e(path+'.'+i+'.url')}"></label>${textarea('Image notes', `${path}.${i}.notes`, {placeholder:'What should this photo show?'})}</div></div>`).join('')}</div>`:empty('No gallery photos','Add a labelled image and notes for context.')}${addButton('add-photo','Add gallery photo',`data-path="${e(path)}"`)}`;
+}
 
-    return '<div class="module">' +
-      '<div class="thumb-row">' +
-        thumb +
-        '<div class="thumb-body">' +
-          '<div class="thumb-title">Kitchen logo</div>' +
-          '<div class="thumb-sub">Square image, at least 400×400px. Shown on your listing.</div>' +
-          '<div class="thumb-actions">' +
-            '<button class="mini-btn" type="button" data-logo-pick>' +
-              (b.logo ? "Replace" : "Upload logo") +
-            '</button>' +
-            (b.logo ? '<button class="mini-btn danger" type="button" data-logo-clear>Remove</button>' : '') +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-      '<input class="hidden-file" id="logo-file" type="file" accept="image/*">' +
-
-      '<div class="field" style="margin-top:14px">' +
-        '<label>Business name</label>' +
-        '<input data-bind="business.name" type="text" value="' + attr(b.name) + '" placeholder="e.g. Mma's Kitchen">' +
-      '</div>' +
-      '<div class="field">' +
-        '<label>Tagline</label>' +
-        '<input data-bind="business.tagline" type="text" value="' + attr(b.tagline) + '" placeholder="e.g. Home-cooked Setswana feasts">' +
-      '</div>' +
-      '<div class="grid2">' +
-        '<div class="field">' +
-          '<label>Years running</label>' +
-          '<input data-bind="business.years" type="number" min="0" step="1" value="' + attr(b.years) + '" placeholder="5">' +
-        '</div>' +
-      '</div>' +
-      '<div class="field">' +
-        '<label>About your kitchen</label>' +
-        '<textarea data-bind="business.description" placeholder="Tell customers what makes your food special…">' + esc(b.description) + '</textarea>' +
-      '</div>' +
-    '</div>';
-  }
-
-  /* ============================================================
-     MODULE — CONTACT
-     ============================================================ */
-  function moduleContact(){
-    var c = state.contact;
-    var districtOpts, townOpts, areaOpts;
-
-    if (L){
-      districtOpts = opts(L.districtOptions(), c.district, '— Select district —');
-      townOpts     = opts(L.townOptions(c.district), c.town, '— Select town —');
-      areaOpts     = opts(L.areaOptions(c.district, c.town), c.area, '— Select area —');
-    } else {
-      districtOpts = [{ value:"", label:"— Location data unavailable —" }];
-      townOpts     = [{ value:"", label:"— Select town —" }];
-      areaOpts     = [{ value:"", label:"— Select area —" }];
-    }
-
-    return '<div class="module">' +
-      '<div class="grid2">' +
-        '<div class="field">' +
-          '<label>District</label>' +
-          '<select id="on-district">' + renderOpts(districtOpts, c.district) + '</select>' +
-        '</div>' +
-        '<div class="field">' +
-          '<label>Town / city</label>' +
-          '<select id="on-town">' + renderOpts(townOpts, c.town) + '</select>' +
-        '</div>' +
-      '</div>' +
-      '<div class="grid2">' +
-        '<div class="field">' +
-          '<label>Area</label>' +
-          '<select id="on-area">' + renderOpts(areaOpts, c.area) + '</select>' +
-        '</div>' +
-        '<div class="field">' +
-          '<label>Street / plot</label>' +
-          '<input data-bind="contact.street" type="text" value="' + attr(c.street) + '" placeholder="e.g. Plot 1234">' +
-        '</div>' +
-      '</div>' +
-      '<div class="grid2">' +
-        '<div class="field">' +
-          '<label>Phone</label>' +
-          '<input data-bind="contact.phone" type="tel" value="' + attr(c.phone) + '" placeholder="+267 71 234 567">' +
-        '</div>' +
-        '<div class="field">' +
-          '<label>WhatsApp</label>' +
-          '<input data-bind="contact.whatsapp" type="tel" value="' + attr(c.whatsapp) + '" placeholder="+267 71 234 567">' +
-        '</div>' +
-      '</div>' +
-      '<div class="field">' +
-        '<label>Email</label>' +
-        '<input data-bind="contact.email" type="email" value="' + attr(c.email) + '" placeholder="kitchen@example.com">' +
-      '</div>' +
-    '</div>';
-  }
-
-  /* ============================================================
-     MODULE — CUISINE & SERVICE
-     ============================================================ */
-  function chipGroup(list, selected, path){
-    return '<div class="chip-wrap">' + list.map(function(v){
-      var on = selected.indexOf(v) !== -1;
-      return '<button class="chip' + (on ? ' on' : '') + '" type="button" ' +
-        'data-chip="' + attr(path) + '" data-value="' + attr(v) + '">' + esc(v) + '</button>';
-    }).join('') + '</div>';
-  }
-
-  function moduleCuisine(){
-    var c = state.cuisine;
-    return '<div class="module">' +
-      '<div class="field">' +
-        '<label>Cuisines you cook</label>' +
-        chipGroup(CUISINES, c.cuisines, 'cuisine.cuisines') +
-      '</div>' +
-      '<div class="field">' +
-        '<label>Dietary options</label>' +
-        chipGroup(DIETARY, c.dietary, 'cuisine.dietary') +
-      '</div>' +
-      '<div class="field">' +
-        '<label>Services offered</label>' +
-        chipGroup(SERVICES, c.services, 'cuisine.services') +
-      '</div>' +
-      '<div class="field">' +
-        '<label>Minimum guests</label>' +
-        '<input data-bind="cuisine.minGuests" type="number" min="1" step="1" value="' + attr(c.minGuests) + '" placeholder="e.g. 10">' +
-      '</div>' +
-    '</div>';
-  }
-
-  /* ============================================================
-     MODULE — KITCHEN & CAPACITY
-     ============================================================ */
-  function moduleKitchen(){
-    var k = state.kitchen;
-    return '<div class="module">' +
-      '<div class="grid2">' +
-        '<div class="field">' +
-          '<label>Max guests / event</label>' +
-          '<input data-bind="kitchen.capacity" type="number" min="1" step="1" value="' + attr(k.capacity) + '" placeholder="e.g. 250">' +
-        '</div>' +
-        '<div class="field">' +
-          '<label>Lead time</label>' +
-          '<select data-bind="kitchen.leadTime">' +
-            renderOpts(opts(["24 hours","48 hours","3 days","1 week","2 weeks","1 month"], k.leadTime, '— Select —'), k.leadTime) +
-          '</select>' +
-        '</div>' +
-      '</div>' +
-      '<div class="grid2">' +
-        '<div class="field">' +
-          '<label>Prep time</label>' +
-          '<input data-bind="kitchen.prepTime" type="text" value="' + attr(k.prepTime) + '" placeholder="e.g. 3 hours">' +
-        '</div>' +
-        '<div class="field">' +
-          '<label>Delivery radius</label>' +
-          '<input data-bind="kitchen.radius" type="text" value="' + attr(k.radius) + '" placeholder="e.g. 40 km">' +
-        '</div>' +
-      '</div>' +
-      '<div class="field">' +
-        '<label>Kitchen notes</label>' +
-        '<textarea data-bind="kitchen.notes" placeholder="Equipment, staffing, specialities…">' + esc(k.notes) + '</textarea>' +
-      '</div>' +
-    '</div>';
-  }
-
-  /* ============================================================
-     MODULE — DOCUMENTS (90px thumbnails)
-     ============================================================ */
-  function moduleDocs(){
-    var out = DOCS.map(function(d){
-      var done = !!state.docs[d.key];
-      var thumb = done
-        ? '<div class="thumb-90">' + esc(d.name.charAt(0)) + '<span class="badge">OK</span></div>'
-        : '<div class="thumb-90 empty">＋</div>';
-
-      return '<div class="thumb-row">' +
-          thumb +
-          '<div class="thumb-body">' +
-            '<div class="thumb-title">' + esc(d.name) + '</div>' +
-            '<div class="thumb-sub">' + esc(d.hint) + '</div>' +
-            '<div class="thumb-actions">' +
-              '<span class="pill ' + (done ? 'on' : 'off') + '">' + (done ? 'Uploaded' : 'Missing') + '</span>' +
-              '<button class="mini-btn" type="button" data-doc-toggle="' + attr(d.key) + '">' +
-                (done ? 'Remove' : 'Mark uploaded') +
-              '</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-    }).join('');
-
-    return '<div class="module">' +
-      out +
-      '<div class="empty-note" style="margin-top:10px">' +
-        'You can submit with <b>at least two</b> documents. The rest can follow during review.' +
-      '</div>' +
-    '</div>';
-  }
-
-  /* ============================================================
-     MODULE — PAYOUT
-     ============================================================ */
-  function modulePayout(){
-    var p = state.payout;
-    var isMobile = p.method === "mobile";
-    var isBank   = p.method === "bank";
-
-    return '<div class="module">' +
-      '<div class="field">' +
-        '<label>Payout method</label>' +
-        '<select data-bind="payout.method" id="po-method">' +
-          renderOpts([
-            { value:"",       label:"— Select method —" },
-            { value:"bank",   label:"Bank transfer" },
-            { value:"mobile", label:"Mobile money" }
-          ], p.method) +
-        '</select>' +
-      '</div>' +
-
-      (isBank ? (
-        '<div class="field">' +
-          '<label>Bank name</label>' +
-          '<input data-bind="payout.bank" type="text" value="' + attr(p.bank) + '" placeholder="e.g. FNB Botswana">' +
-        '</div>' +
-        '<div class="grid2">' +
-          '<div class="field">' +
-            '<label>Account name</label>' +
-            '<input data-bind="payout.accountName" type="text" value="' + attr(p.accountName) + '" placeholder="Business name">' +
-          '</div>' +
-          '<div class="field">' +
-            '<label>Branch</label>' +
-            '<input data-bind="payout.branch" type="text" value="' + attr(p.branch) + '" placeholder="e.g. Main Mall">' +
-          '</div>' +
-        '</div>' +
-        '<div class="field">' +
-          '<label>Account number</label>' +
-          '<input data-bind="payout.accountNumber" type="text" value="' + attr(p.accountNumber) + '" placeholder="0123456789">' +
-        '</div>'
-      ) : '') +
-
-      (isMobile ? (
-        '<div class="grid2">' +
-          '<div class="field">' +
-            '<label>Account name</label>' +
-            '<input data-bind="payout.accountName" type="text" value="' + attr(p.accountName) + '" placeholder="Registered name">' +
-          '</div>' +
-          '<div class="field">' +
-            '<label>Mobile number</label>' +
-            '<input data-bind="payout.mobileMoney" type="tel" value="' + attr(p.mobileMoney) + '" placeholder="+267 71 234 567">' +
-          '</div>' +
-        '</div>'
-      ) : '') +
-
-      (!isBank && !isMobile ? (
-        '<div class="empty-note">Choose a payout method above to reveal the required details.</div>'
-      ) : '') +
-    '</div>';
-  }
-
-  /* ============================================================
-     MODULE — REVIEW
-     ============================================================ */
-  function moduleReview(){
-    var b = state.business, c = state.contact, cu = state.cuisine,
-        k = state.kitchen, p = state.payout;
-
-    var docsDone = Object.keys(state.docs).filter(function(x){ return state.docs[x]; });
-    var docsLabel = docsDone.length
-      ? DOCS.filter(function(d){ return state.docs[d.key]; }).map(function(d){ return d.name; }).join(", ")
-      : "None uploaded yet";
-
-    function row(key, val){
-      return '<div class="review-row">' +
-        '<div class="review-key">' + esc(key) + '</div>' +
-        '<div class="review-val">' + (val || '<span style="color:var(--faint)">—</span>') + '</div>' +
-      '</div>';
-    }
-
-    var missing = KEYS.filter(function(k2){ return !sectionDone(k2); });
-
-    return '<div class="module">' +
-      row("Business", b.name ? '<b>' + esc(b.name) + '</b>' + (b.tagline ? ' · ' + esc(b.tagline) : '') : '') +
-      row("Location", [c.street, c.area, c.town, c.districtName].filter(Boolean).map(esc).join(", ")) +
-      row("Phone", esc(c.phone) + (c.whatsapp ? ' · WA ' + esc(c.whatsapp) : '')) +
-      row("Cuisines", esc(cu.cuisines.join(", "))) +
-      row("Services", esc(cu.services.join(", "))) +
-      row("Capacity", k.capacity ? esc(k.capacity) + " guests" : "") +
-      row("Lead time", esc(k.leadTime)) +
-      row("Documents", esc(docsLabel)) +
-      row("Payout", p.method
-        ? (p.method === "mobile" ? "Mobile money" : "Bank transfer") +
-          (p.accountName ? " · " + esc(p.accountName) : "")
-        : "") +
-
-      (missing.length
-        ? '<div class="empty-note" style="margin-top:12px">' +
-            '<b>' + missing.length + ' section' + (missing.length === 1 ? '' : 's') + ' incomplete.</b><br>' +
-            'Finish them before submitting your application.' +
-          '</div>'
-        : '<div class="empty-note" style="margin-top:12px;border-color:var(--orange-line);background:var(--orange-soft);color:var(--orange)">' +
-            '<b>Everything looks good.</b><br>Submit your application to start the review.' +
-          '</div>') +
-
-      '<div class="form-actions">' +
-        '<button class="btn btn-save" type="button" id="on-submit">Submit application</button>' +
-      '</div>' +
-    '</div>';
-  }
-
-  /* ============================================================
-     SECTION BUILDER — no chevrons / arrows / +– indicators
-     ============================================================ */
-  function section(key, letter, title, sub, body, badge, active){
-    var isOpen = OPEN === key;
-    var cls = 'acc' + (isOpen ? ' open' : '') + (active ? ' has-items' : '');
-    var badgeHtml = (badge != null && badge !== "")
-      ? '<span class="count">' + esc(badge) + '</span>' : '';
-
-    return '<section class="' + cls + '" data-key="' + attr(key) + '">' +
-      '<button class="acc-head" type="button" aria-expanded="' + (isOpen ? 'true' : 'false') + '">' +
-        '<span class="sec-thumb' + (active ? '' : ' plain') + '">' + esc(letter) + badgeHtml + '</span>' +
-        '<span class="acc-title">' +
-          '<b>' + esc(title) + '</b>' +
-          '<span class="acc-sub">' + esc(sub) + '</span>' +
-        '</span>' +
-        '<span class="vis-dot ' + (active ? 'green' : 'off') + '"></span>' +
-      '</button>' +
-      '<div class="acc-body"><div class="acc-inner">' + body + '</div></div>' +
-    '</section>';
-  }
-
-  /* ============================================================
-     META CARD + PROGRESS
-     ============================================================ */
-  function renderMeta(){
-    var c = completion();
-    var dot = c.done === c.total ? "green" : (c.done === 0 ? "warn" : "warn");
-    var msg;
-    if (c.done === 0){
-      msg = "Your application is empty — open a section below to get started";
-    } else if (c.done === c.total){
-      msg = "<b>All sections complete.</b> Review and submit your application";
-    } else {
-      msg = "<b>" + c.done + " of " + c.total + "</b> sections complete — keep going";
-    }
-
-    return '<div class="meta-card">' +
-      '<div class="meta-row">' +
-        '<span class="meta-dot ' + dot + '"></span>' +
-        '<span class="meta-text">' + msg + '</span>' +
-      '</div>' +
-      '<div class="meta-stats">' +
-        '<div class="stat"><b>' + c.done + '/' + c.total + '</b><span>Sections</span></div>' +
-        '<div class="stat"><b>' + state.cuisine.cuisines.length + '</b><span>Cuisines</span></div>' +
-        '<div class="stat"><b>' + Object.keys(state.docs).filter(function(k){ return state.docs[k]; }).length + '</b><span>Docs</span></div>' +
-      '</div>' +
-    '</div>';
-  }
-
-  function updateProgress(){
-    var c = completion();
-    document.getElementById('progressFill').style.width = c.pct + '%';
-    document.getElementById('progressCount').textContent = c.done + ' of ' + c.total + ' sections';
-  }
-
-  /* ============================================================
-     RENDER
-     ============================================================ */
-  var mount = document.getElementById('app');
-
-  function render(){
-    mount.innerHTML =
-      renderMeta() +
-      '<div class="stack">' +
-        section('business','B','Business profile',   subBusiness(), moduleBusiness(), null, sectionDone('business')) +
-        section('contact', 'C','Contact & location', subContact(),  moduleContact(),  null, sectionDone('contact'))  +
-        section('cuisine', 'M','Cuisine & service',  subCuisine(),  moduleCuisine(),  null, sectionDone('cuisine'))  +
-        section('kitchen', 'K','Kitchen & capacity', subKitchen(),  moduleKitchen(),  null, sectionDone('kitchen'))  +
-        section('docs',    'D','Documents',          subDocs(),     moduleDocs(),     Object.keys(state.docs).filter(function(k){return state.docs[k];}).length || null, sectionDone('docs')) +
-        section('payout',  'P','Payout details',     subPayout(),   modulePayout(),   null, sectionDone('payout'))   +
-        section('review',  'R','Review & submit',    'Check everything before sending', moduleReview(), null, completion().done === completion().total) +
-      '</div>';
-
-    updateProgress();
-    wire();
-  }
-
-  /* ============================================================
-     CAPTURE — read inputs into state before any re-render
-     ============================================================ */
-  function capture(){
-    var nodes = mount.querySelectorAll('[data-bind]');
-    for (var i = 0; i < nodes.length; i++){
-      var el = nodes[i];
-      var path = el.getAttribute('data-bind').split('.');
-      var sec = path[0], key = path[1];
-      if (!state[sec]) continue;
-      state[sec][key] = (el.type === 'checkbox') ? el.checked : el.value;
-    }
-  }
-
-  /* ============================================================
-     ACCORDION — one open at a time, closed by default
-     ============================================================ */
-  function toggleAccordion(key){
-    capture();
-    OPEN = (OPEN === key) ? null : key;
-    render();
-    if (OPEN){
-      var opened = mount.querySelector('.acc[data-key="' + cssEscape(OPEN) + '"]');
-      if (opened){
-        setTimeout(function(){
-          try { opened.scrollIntoView({ behavior:'smooth', block:'start' }); } catch (e) {}
-        }, 320);
+/* ============================ STATUS ============================ */
+function accState(group, key){
+  const b = activeBranch();
+  const br = state.brand;
+  if (group === 'brand'){
+    switch(key){
+      case 'identity': {
+        const i = br.identity;
+        const cats = arr(i.categories);
+        const some = i.name || i.legalName || i.description || i.logoUrl || i.coverUrl || cats.length;
+        if (!some) return 'untouched';
+        if (!i.name) return 'missing';
+        return (i.name && i.legalName && i.description && cats.length) ? 'complete' : 'progress';
+      }
+      case 'registration': {
+        const r = br.registration;
+        const sa = br.serviceAreas || {};
+        const fs = br.foodSafety || {};
+        const tp = br.tastingPolicy || {};
+        const some = r.registrationNumber || r.registeredAddress || arr(sa.regions).length ||
+                    fs.healthPermit || fs.foodHandlerCerts || fs.insurance || tp.enabled || tp.pricePerSession;
+        if (!some) return 'untouched';
+        const complete = r.registrationNumber && arr(sa.regions).length && sa.maxRadiusKm &&
+                         (fs.healthPermit || fs.insurance);
+        return complete ? 'complete' : 'progress';
+      }
+      case 'contacts': {
+        const cs = arr(br.contacts);
+        if (!cs.length) return 'untouched';
+        return cs.every(c => c.value || c.number) ? 'complete' : 'progress';
+      }
+      case 'socials': {
+        const ss = arr(br.socialLinks);
+        if (!ss.length) return 'untouched';
+        return ss.every(s => s.url) ? 'complete' : 'progress';
+      }
+      case 'users': {
+        const us = arr(br.users);
+        if (!us.length) return 'untouched';
+        return us.every(u => u.name && u.role) ? 'complete' : 'progress';
       }
     }
   }
-
-  /* ============================================================
-     LOCATION CASCADE
-     ============================================================ */
-  function wireLocations(){
-    if (!L) return;
-    var d = document.getElementById('on-district');
-    var t = document.getElementById('on-town');
-    var a = document.getElementById('on-area');
-    if (!d || !t || !a) return;
-
-    function fillTowns(){
-      t.innerHTML = opts(L.townOptions(d.value), '', '— Select town —').map(function(o){
-        return '<option value="' + attr(o.value) + '">' + esc(o.label) + '</option>';
-      }).join('');
-      fillAreas();
-      state.contact.district = d.value;
-      state.contact.town = '';
-      state.contact.area = '';
-    }
-    function fillAreas(){
-      a.innerHTML = opts(L.areaOptions(d.value, t.value), '', '— Select area —').map(function(o){
-        return '<option value="' + attr(o.value) + '">' + esc(o.label) + '</option>';
-      }).join('');
-    }
-
-    d.onchange = function(){
-      var dd = (L.allDistricts() || []).find(function(x){
-        return String(x.code) === String(d.value);
-      }) || {};
-      state.contact.districtName = dd.name || '';
-      fillTowns();
-    };
-    t.onchange = function(){
-      state.contact.town = t.value;
-      fillAreas();
-    };
-    a.onchange = function(){ state.contact.area = a.value; };
-  }
-
-  /* ============================================================
-     FORM WIRING
-     ============================================================ */
-  function wire(){
-
-    wireLocations();
-
-    /* ---- logo picker ---- */
-    var pick = document.querySelector('[data-logo-pick]');
-    var file = document.getElementById('logo-file');
-    if (pick && file){
-      pick.onclick = function(e){
-        e.stopPropagation();
-        file.click();
-      };
-      file.onchange = function(){
-        var f = file.files && file.files[0];
-        if (!f) return;
-        if (f.size > 2.5 * 1024 * 1024){ toast('Image is too large (max 2.5MB)'); return; }
-        var reader = new FileReader();
-        reader.onload = function(ev){
-          state.business.logo = ev.target.result;
-          OPEN = 'business';
-          render();
-          toast('Logo added');
-        };
-        reader.readAsDataURL(f);
-      };
-    }
-
-    /* ---- submit ---- */
-    var submit = document.getElementById('on-submit');
-    if (submit){
-      submit.onclick = function(){
-        capture();
-        var missing = KEYS.filter(function(k){ return !sectionDone(k); });
-        if (missing.length){
-          toast('Complete all sections first');
-          OPEN = missing[0];
-          render();
-          return;
-        }
-        if (!confirmDialog("Submit your caterer application for review?")) return;
-
-        try {
-          var DB = window.EatoutsMgrDB;
-          if (DB && DB.get && DB.save){
-            var d = DB.get();
-            if (!d.settings) d.settings = {};
-            d.settings.catererOnboarding = JSON.parse(JSON.stringify(state));
-            d.settings.catererOnboardingSubmittedAt = new Date().toISOString();
-            DB.save();
-          }
-        } catch (_) {}
-
-        if (window.EatoutsAudit){
-          try {
-            EatoutsAudit.log("caterer.onboarding.submit", state.business.name || "caterer", {
-              name: state.business.name,
-              town: state.contact.town,
-              cuisines: state.cuisine.cuisines
-            }, null);
-          } catch (_) {}
-        }
-
-        toast('Application submitted');
-      };
+  if (group === 'branch'){
+    switch(key){
+      case 'overview': {
+        if (!b.name && !b.code && !b.imageUrl) return 'untouched';
+        if (!b.name || !b.type) return 'missing';
+        return 'complete';
+      }
+      case 'location': {
+        const l = b.location || {};
+        if (!l.city && !l.area && !l.streetName) return 'untouched';
+        if (!l.city) return 'missing';
+        return (l.streetName || l.area) ? 'complete' : 'progress';
+      }
+      case 'contacts': {
+        if (b.inheritBrandContacts && arr(state.brand.contacts).length) return 'complete';
+        const cs = arr(b.contacts);
+        if (!cs.length) return 'untouched';
+        return cs.every(c => c.number) ? 'complete' : 'progress';
+      }
+      case 'socials': {
+        if (b.inheritBrandSocialLinks && arr(state.brand.socialLinks).length) return 'complete';
+        const ss = arr(b.socialLinks);
+        if (!ss.length) return 'untouched';
+        return ss.every(s => s.url) ? 'complete' : 'progress';
+      }
+      case 'serviceArea': {
+        const sa = b.serviceArea || {};
+        const any = arr(sa.regions).length || sa.maxRadiusKm || sa.minimumBookingValue;
+        if (!any) return 'untouched';
+        return (arr(sa.regions).length && sa.maxRadiusKm) ? 'complete' : 'progress';
+      }
+      case 'hours': {
+        const r = arr(b.hours.office.weekly);
+        const s = arr(b.hours.eventService.weekly);
+        const t = arr(b.hours.tasting.weekly);
+        const any = r.some(d => d.open || d.close || d.closed) ||
+                    s.some(d => d.start || d.end || d.active) ||
+                    t.some(d => d.open || d.close || d.enabled);
+        if (!any) return 'untouched';
+        return r.every(d => d.closed || (d.open && d.close)) ? 'complete' : 'progress';
+      }
+      case 'amenities': {
+        if (!arr(b.amenities).length && !String(b.customAmenitiesText||'').trim()) return 'untouched';
+        return 'complete';
+      }
+      case 'packages': {
+        const ps = arr(b.packages);
+        if (!ps.length) return 'untouched';
+        return ps.every(p => p.name && p.pricePerHead !== '') ? 'complete' : 'progress';
+      }
+      case 'addOns': {
+        const a = arr(b.addOns);
+        if (!a.length) return 'untouched';
+        return a.every(x => x.name && x.price !== '') ? 'complete' : 'progress';
+      }
+      case 'tastings': {
+        const ts = arr(b.tastingSessions);
+        if (!ts.length && !(state.brand.tastingPolicy || {}).enabled) return 'untouched';
+        return ts.length ? 'complete' : 'progress';
+      }
+      case 'equipment': {
+        const eq = arr(b.equipment);
+        if (!eq.length) return 'untouched';
+        return eq.every(x => x.name && x.dailyRate !== '') ? 'complete' : 'progress';
+      }
+      case 'staffing': {
+        const s = b.staffing || {};
+        if (!s.serversPerGuest && !s.chefRequired && !s.bartenderPerGuest) return 'untouched';
+        return (s.serversPerGuest && arr(s.tiers).length) ? 'complete' : 'progress';
+      }
+      case 'quoteBuilder': {
+        const qs = b.quoteSettings || {};
+        if (!qs.vatPercent && !qs.serverHourlyRate) return 'untouched';
+        return qs.vatPercent ? 'complete' : 'progress';
+      }
+      case 'eventQuotes': {
+        const eq = arr(b.eventQuotes);
+        if (!eq.length) return 'untouched';
+        return 'complete';
+      }
+      case 'partnerships': {
+        const ps = arr(b.paymentPartnerships);
+        if (!ps.length) return 'untouched';
+        return ps.every(p => p.provider) ? 'complete' : 'progress';
+      }
+      case 'payments': {
+        if (!arr(b.paymentMethods).length && !arr(b.promotions).length) return 'untouched';
+        return arr(b.paymentMethods).length ? 'complete' : 'progress';
+      }
+      case 'staff': {
+        if (!arr(b.staffAssignments).length) return 'untouched';
+        return 'complete';
+      }
     }
   }
+  return 'untouched';
+}
 
-  /* ============================================================
-     CLICK DELEGATION
-     ============================================================ */
-  mount.addEventListener('click', function(e){
-    var t = e.target;
-    if (!t || !t.closest) return;
+/* ============================ BRAND ============================ */
+function categoriesEditor(){
+  const cats = arr(state.brand.identity.categories);
+  const remaining = CATEGORIES.filter(c => !cats.includes(c));
+  return `<div class="field"><span>Catering business categories</span>
+    ${cats.length ? `<div class="chip-row">${cats.map((c,i)=>`<span class="chip">${e(c)}<button type="button" data-action="remove-category" data-index="${i}">Remove</button></span>`).join('')}</div>` : '<p class="mini-note">No categories added yet.</p>'}
+    <div class="chip-add"><select class="select" id="categoryPick"><option value="">Choose a common category to add</option>${remaining.map(o=>`<option value="${e(o)}">${e(o)}</option>`).join('')}</select></div>
+    <div class="chip-add" style="margin-top:7px"><input class="input" id="categoryCustom" type="text" placeholder="Or type a custom category"><button class="btn btn-secondary" type="button" data-action="add-custom-category">Add</button></div>
+    <small class="hint">Choose from the list or type your own and tap Add. Remove any chip to delete it.</small>
+  </div>`;
+}
 
-    /* --- logo clear --- */
-    if (t.closest('[data-logo-clear]')){
-      e.stopPropagation();
-      capture();
-      state.business.logo = null;
-      OPEN = 'business';
-      render();
-      toast('Logo removed');
-      return;
+function renderBrand(){
+  const b = state.brand;
+  let out = '';
+
+  // Identity
+  const identityBody = `${imagePicker('Brand logo','brand.identity.logoUrl','Brand logo')}${field('Brand cover image URL','brand.identity.coverUrl','url',{placeholder:'https://...'})}${field('Brand / trading name','brand.identity.name','text',{placeholder:'e.g. Mma\'s Kitchen',required:true})}${field('Registered company name','brand.identity.legalName','text',{placeholder:'Legal entity name'})}${textarea('Brand description','brand.identity.description',{placeholder:'What should customers know about this catering business?'})}${categoriesEditor()}`;
+  out += acc('brand','identity','Catering Identity','The name, look and identity shared by every branch.', identityBody);
+
+  // Business settings (registration + service areas + food safety + tasting policy)
+  const sa = b.serviceAreas || {};
+  const fs = b.foodSafety || {};
+  const tp = b.tastingPolicy || {};
+  const regionsList = arr(sa.regions);
+  const regionRecords = regionsList.length ? regionsList.map((r,i) => `
+    <div class="record">
+      <div class="record-top"><div class="record-title">${e(r.city||'Operating region')}<div class="record-subtitle">${e(r.notes||'')}</div></div><div class="record-actions">${itemRemove('brand.serviceAreas.regions',i)}</div></div>
+      ${field('City / region', `brand.serviceAreas.regions.${i}.city`, 'text', {placeholder:'e.g. Gaborone'})}
+      ${textarea('Notes', `brand.serviceAreas.regions.${i}.notes`, {placeholder:'Coverage limits, special notes'})}
+    </div>`).join('') : empty('No operating regions added','Add the cities/regions you actively serve.');
+  const regBody = `
+    ${selectField('Country of registration','brand.registration.country',['Botswana','Zimbabwe','South Africa','Namibia','Zambia','Other'])}
+    ${field('Company / registration number','brand.registration.registrationNumber','text',{placeholder:'Registration number'})}
+    ${field('Tax / VAT number','brand.registration.taxNumber','text',{placeholder:'Optional tax identifier'})}
+    ${textarea('Registered / corporate address','brand.registration.registeredAddress',{placeholder:'Legal registered address; separate from a physical branch.'})}
+    ${textarea('Legal and company notes','brand.registration.legalNotes',{placeholder:'Additional business registration notes'})}
+    ${sectionLabel('Service-area declaration')}
+    <p class="note">Define the cities you actively serve and the maximum distance you will travel. These are brand-level defaults; each branch can override them.</p>
+    ${regionRecords}
+    ${addButton('add-service-region','Add operating region')}
+    <div class="field-row two">
+      ${field('Max travel radius (km)', 'brand.serviceAreas.maxRadiusKm', 'number', {min:0, step:1, placeholder:'e.g. 60'})}
+      ${field('Out-of-region surcharge', 'brand.serviceAreas.outOfRegionSurcharge', 'number', {min:0, step:'0.01', placeholder:'Optional fee for out-of-region bookings'})}
+    </div>
+    ${textarea('Service-area notes', 'brand.serviceAreas.notes', {placeholder:'Any booking, region or travel conditions'})}
+    ${sectionLabel('Food safety & permits')}
+    ${checkItem('Health permit valid', 'brand.foodSafety.healthPermit')}
+    <div class="field-row two">
+      ${field('Health permit number', 'brand.foodSafety.healthPermitNumber', 'text', {placeholder:'Optional reference'})}
+      ${field('Health permit expiry', 'brand.foodSafety.healthPermitExpiry', 'date')}
+    </div>
+    ${checkItem('Food handler certificates held', 'brand.foodSafety.foodHandlerCerts')}
+    ${textarea('Food handler notes', 'brand.foodSafety.foodHandlerNotes', {placeholder:'How many certified staff, certificate numbers, expiry'})}
+    ${checkItem('Public liability / catering insurance', 'brand.foodSafety.insurance')}
+    <div class="field-row two">
+      ${field('Insurance provider', 'brand.foodSafety.insuranceProvider', 'text', {placeholder:'e.g. BIHL'})}
+      ${field('Policy number', 'brand.foodSafety.insurancePolicyNumber', 'text', {placeholder:'Optional reference'})}
+    </div>
+    ${field('Insurance expiry', 'brand.foodSafety.insuranceExpiry', 'date')}
+    ${sectionLabel('Tasting sessions policy')}
+    <p class="note">Set a default policy for tasting sessions across all branches. Individual branches can offer their own schedules.</p>
+    ${checkItem('Offer tasting sessions', 'brand.tastingPolicy.enabled')}
+    ${tp.enabled ? `
+      <div class="field-row two">
+        ${field('Default price per session', 'brand.tastingPolicy.pricePerSession', 'number', {min:0, step:'0.01'})}
+        ${field('Advance booking days', 'brand.tastingPolicy.advanceBookingDays', 'number', {min:0, step:1})}
+      </div>
+      ${textarea('Menu customisation notes', 'brand.tastingPolicy.menuCustomisation', {placeholder:'How customisable is the tasting menu?'})}
+      ${textarea('Tasting policy notes', 'brand.tastingPolicy.notes', {placeholder:'Cancellation, guest limits, deposit'})}
+    ` : ''}
+  `;
+  out += acc('brand','registration','Business Settings & Compliance','Registration, service areas, food safety, permits and tasting policy.', regBody);
+
+  // Brand-wide contacts
+  const bc = arr(b.contacts);
+  const contacts = bc.length ? bc.map((c,i)=>`<div class="record">${recordHeader(c.label||'Brand contact', c.type||'', 'brand.contacts', i)}${field('Contact label',`brand.contacts.${i}.label`,'text',{placeholder:'Corporate enquiries'})}${selectField('Contact type',`brand.contacts.${i}.type`,['Mobile','Landline','WhatsApp','Email','Other'])}${field('Phone / email / contact detail',`brand.contacts.${i}.value`,'text',{placeholder:'Contact detail'})}${textarea('Notes',`brand.contacts.${i}.notes`,{placeholder:'When should this contact be used?'})}</div>`).join('') : empty('No shared contacts added','Add corporate contacts that branches can reuse.');
+  out += acc('brand','contacts','Brand-wide Contacts','Shared corporate contacts that branches can inherit or override.', `${contacts}${addButton('add-brand-contact','Add brand contact')}`);
+
+  // Brand-wide socials
+  const bs = arr(b.socialLinks);
+  const socials = bs.length ? bs.map((s,i)=>`<div class="record">${recordHeader(s.label||s.platform||'Brand link','', 'brand.socialLinks', i)}${selectField('Platform',`brand.socialLinks.${i}.platform`,SOCIAL_PLATFORMS)}${field('Display label',`brand.socialLinks.${i}.label`,'text',{placeholder:'Official website'})}${field('Link URL',`brand.socialLinks.${i}.url`,'url',{placeholder:'https://...'})}${textarea('Notes',`brand.socialLinks.${i}.notes`,{placeholder:'Link purpose or instructions'})}</div>`).join('') : empty('No shared social links added','Add official brand channels for branches to inherit.');
+  out += acc('brand','socials','Brand-wide Social Links','Official links for the whole brand, including website and social channels.', `${socials}${addButton('add-brand-social','Add social link')}`);
+
+  // Users
+  const users = arr(b.users);
+  const userHTML = users.length ? users.map((u,i)=>`<div class="record">${recordHeader(u.name||'New catering user', u.role==='Custom'?(u.customRole||'Custom role'):(u.role||''), 'brand.users', i)}${field('Full name / display name',`brand.users.${i}.name`,'text',{placeholder:'Name of authorised user'})}${field('Contact number or email',`brand.users.${i}.contact`,'text',{placeholder:'Contact details'})}${selectField('Relationship / user role',`brand.users.${i}.role`,USER_ROLES)}${u.role==='Custom'?field('Custom role title',`brand.users.${i}.customRole`,'text',{placeholder:'Enter custom role'}):''}${selectField('Access scope',`brand.users.${i}.scope`,[{value:'brand',label:'All brand and branch settings'},{value:'selected',label:'Selected branches only'}])}${u.scope==='selected'?choiceList('Branches this user can access',`brand.users.${i}.branchIds`,state.branches.map(br=>({id:br.id,label:br.name||'Untitled branch'}))):''}${choiceList('Permissions',`brand.users.${i}.permissions`,PERMISSION_OPTIONS)}<p class="mini-note">User interface visibility is not security enforcement. Connect these permissions to server-side access rules before using real staff or business data.</p></div>`).join('') : empty('No catering users assigned','Add owners, administrators, chefs, coordinators or other authorised contacts.');
+  out += acc('brand','users','Catering Users & Permissions','Authorised people, access scope and granular permissions for the business.', `${users}${addButton('add-user','Add catering user')}`);
+
+  const container = $('#brandAccordions');
+  container.className = 'accordion-stack' + (state.uiOpen.brand ? ' has-open' : '');
+  container.innerHTML = out;
+}
+
+/* ============================ BRANCH LIST / RAIL ============================ */
+function branchAddress(b){
+  const l = b.location || {};
+  return [l.building, l.unitNumber, l.streetNumber, l.streetName, l.area, l.city].filter(Boolean).join(', ') || 'Address not added';
+}
+function contactsFor(b){
+  const local = arr(b.contacts);
+  if (!b.inheritBrandContacts) return local;
+  const keys = new Set(local.map(c => String(c.label||'').trim().toLowerCase()).filter(Boolean));
+  const inherited = arr(state.brand.contacts).filter(c => !keys.has(String(c.label||'').trim().toLowerCase()));
+  return local.concat(inherited);
+}
+function socialsFor(b){
+  const local = arr(b.socialLinks);
+  if (!b.inheritBrandSocialLinks) return local;
+  const localPlatforms = new Set(local.map(s => String(s.platform||'').toLowerCase()));
+  return local.concat(arr(state.brand.socialLinks).filter(s => !localPlatforms.has(String(s.platform||'').toLowerCase())));
+}
+function inheritedContactsPreview(b){
+  if (!b.inheritBrandContacts || !arr(state.brand.contacts).length) return '';
+  const localKeys = new Set(arr(b.contacts).map(c => String(c.label||'').trim().toLowerCase()));
+  const inherited = arr(state.brand.contacts).filter(c => !localKeys.has(String(c.label||'').trim().toLowerCase()));
+  if (!inherited.length) return '';
+  return `${sectionLabel('Inherited brand contacts')}<p class="mini-note">These shared contacts are available to this branch. Add a local contact with the same label to take precedence.</p>${inherited.map(c=>`<div class="inline-summary"><strong>${e(c.label||'Brand contact')}</strong><br>${e(c.type||'Contact')} · ${e(c.value||'No contact detail')}${c.notes?`<br>${e(c.notes)}`:''}</div>`).join('')}`;
+}
+function inheritedSocialsPreview(b){
+  if (!b.inheritBrandSocialLinks || !arr(state.brand.socialLinks).length) return '';
+  const localPlatforms = new Set(arr(b.socialLinks).map(s => String(s.platform||'').toLowerCase()));
+  const inherited = arr(state.brand.socialLinks).filter(s => !localPlatforms.has(String(s.platform||'').toLowerCase()));
+  if (!inherited.length) return '';
+  return `${sectionLabel('Inherited brand links')}<p class="mini-note">A local link for the same platform overrides the inherited link in this branch profile.</p>${inherited.map(s=>`<div class="inline-summary"><strong>${e(s.label||s.platform||'Brand link')}</strong><br>${e(s.url||'No URL added')}${s.notes?`<br>${e(s.notes)}`:''}</div>`).join('')}`;
+}
+function branchTypeName(id){ return (BRANCH_TYPES.find(t => t.id === id) || {}).name || id || 'Branch'; }
+function thumbHTML(b){
+  const url = safeImage(b.imageUrl);
+  return `<div class="thumb">${url ? `<img src="${e(url)}" alt="${e(b.name||'Branch image')}">` : `<div class="thumb-fallback"></div>`}</div>`;
+}
+
+function renderBranchList(){
+  const current = activeBranch();
+  $('#branchCount').textContent = state.branches.length + ' location' + (state.branches.length === 1 ? '' : 's');
+  $('#listedToggle').classList.toggle('active', state.branchView === 'listed');
+  $('#railToggle').classList.toggle('active', state.branchView === 'rail');
+  $('#branchListView').classList.toggle('hide', state.branchView !== 'listed');
+  $('#branchRailView').classList.toggle('hide', state.branchView !== 'rail');
+  $('#branchListView').innerHTML = state.branches.length
+    ? `<div class="branch-list">${state.branches.map(b=>`<div class="branch-card ${b.id===current.id?'active':''}" role="group"><button type="button" class="branch-card-main" data-action="edit-branch" data-id="${e(b.id)}">${thumbHTML(b)}<span class="branch-card-copy"><span class="branch-card-name">${e(b.name||'New branch')}</span><span class="branch-card-address">${e(branchAddress(b))}</span><span class="branch-card-type">${e(branchTypeName(b.type))}</span></span></button></div>`).join('')}</div>`
+    : empty('No branches yet','Add a catering base, satellite kitchen, commissary, head office or warehouse.');
+}
+function renderRail(){
+  const idx = state.branches.findIndex(b => b.id === state.activeBranchId);
+  const b = activeBranch();
+  $('#branchRailView').innerHTML = `<div class="rail-header" id="railHeader"><div class="rail-nav"><button class="btn btn-secondary btn-small" type="button" data-action="branch-prev" ${idx<=0?'disabled':''}>Previous</button><div class="rail-current"><strong>${e(b.name||'New branch')}</strong><span>Branch ${Math.max(1,idx+1)} of ${state.branches.length} · Swipe to switch</span></div><button class="btn btn-secondary btn-small" type="button" data-action="branch-next" ${idx>=state.branches.length-1?'disabled':''}>Next</button></div></div><div id="branchEditor">${renderBranchEditor(b)}</div>`;
+}
+
+/* ============================ HOURS ============================ */
+function renderHours(b){
+  let html = '<p class="note">Three separate schedules: office hours, event service windows (when you can serve events) and tasting hours.</p>';
+  html += sectionLabel('Office / booking hours');
+  html += renderHoursMiniStack('office', arr(b.hours.office.weekly));
+  html += sectionLabel('Event service windows');
+  html += renderHoursMiniStack('eventService', arr(b.hours.eventService.weekly));
+  html += sectionLabel('Tasting hours');
+  html += renderHoursMiniStack('tasting', arr(b.hours.tasting.weekly));
+  html += sectionLabel('Custom hours & exceptions');
+  html += renderCustomHours(arr(b.hours.custom));
+  return html;
+}
+function renderHoursMiniStack(scope, weekly){
+  const openKey = state.uiOpen.hoursKey || '';
+  const days = WEEKDAYS.map((dayName, i) => {
+    const d = weekly[i] || {day: dayName};
+    const key = `${scope}-d${i}`;
+    const open = openKey === key;
+    let summary, status;
+    if (scope === 'eventService'){
+      summary = (d.active && d.start && d.end) ? `${d.start} – ${d.end}` : (d.active ? 'Active, times not set' : 'Not active');
+      status = (d.active && d.start && d.end) ? 'complete' : (d.active ? 'progress' : 'untouched');
+    } else if (scope === 'tasting'){
+      summary = (d.enabled && d.open && d.close) ? `${d.open} – ${d.close}` : (d.enabled ? 'Enabled, times not set' : 'Not enabled');
+      status = (d.enabled && d.open && d.close) ? 'complete' : (d.enabled ? 'progress' : 'untouched');
+    } else {
+      summary = d.closed ? 'Closed' : (d.open && d.close ? `${d.open} – ${d.close}` : 'Not set');
+      status = d.closed ? 'complete' : (d.open && d.close ? 'complete' : (d.open || d.close ? 'progress' : 'untouched'));
     }
+    return `<div class="mini-acc ${open?'open':''}" data-mini="hoursKey" data-mini-key="${key}" tabindex="-1">
+      <button class="mini-acc-head" type="button" data-action="toggle-hours-day" data-key="${key}">
+        <span class="t">${e(dayName)}</span>
+        <span class="mini-summary">${e(summary)}</span>
+        <span class="acc-state ${status}" aria-hidden="true"></span>
+      </button>
+      ${open?`<div class="mini-acc-body">${renderHoursFields(scope, i, d)}</div>`:''}
+    </div>`;
+  }).join('');
+  const stackHasOpen = openKey.startsWith(scope + '-');
+  return `<div class="mini-stack${stackHasOpen?' has-open':''}">${days}</div>`;
+}
+function renderHoursFields(scope, i, d){
+  const path = `branch.hours.${scope}.weekly.${i}`;
+  if (scope === 'eventService'){
+    return `<label class="check-item" style="margin-bottom:10px"><input type="checkbox" data-bind="${path}.active" ${d.active?'checked':''}><span>Events can be served this day</span></label>
+      <div class="field-row two"><label class="field"><span>Service from</span><input class="input" type="time" data-bind="${path}.start" value="${e(d.start||'')}"></label><label class="field"><span>Service until</span><input class="input" type="time" data-bind="${path}.end" value="${e(d.end||'')}"></label></div>`;
+  }
+  if (scope === 'tasting'){
+    return `<label class="check-item" style="margin-bottom:10px"><input type="checkbox" data-bind="${path}.enabled" ${d.enabled?'checked':''}><span>Tastings available this day</span></label>
+      <div class="field-row two"><label class="field"><span>Tastings from</span><input class="input" type="time" data-bind="${path}.open" value="${e(d.open||'')}"></label><label class="field"><span>Tastings until</span><input class="input" type="time" data-bind="${path}.close" value="${e(d.close||'')}"></label></div>`;
+  }
+  return `<label class="check-item" style="margin-bottom:10px"><input type="checkbox" data-bind="${path}.closed" ${d.closed?'checked':''}><span>Closed all day</span></label>
+    <div class="field-row two"><label class="field"><span>Opening</span><input class="input" type="time" data-bind="${path}.open" value="${e(d.open||'')}"></label><label class="field"><span>Closing</span><input class="input" type="time" data-bind="${path}.close" value="${e(d.close||'')}"></label></div>`;
+}
+function renderCustomHours(custom){
+  const openKey = state.uiOpen.customHours || '';
+  const items = custom.length ? custom.map((h, i) => {
+    const key = `c${i}`;
+    const open = openKey === key;
+    const scopeLabel = h.scope === 'eventService' ? 'Event service' : h.scope === 'tasting' ? 'Tasting' : 'Office';
+    return `<div class="mini-acc ${open?'open':''}" data-mini="customHours" data-mini-key="${key}" tabindex="-1">
+      <button class="mini-acc-head" type="button" data-action="toggle-custom-hours" data-key="${key}">
+        <span class="t">${e(h.label || 'Custom hours')}</span>
+        <span class="mini-summary">${e(scopeLabel)} · ${e(h.startDate||'')} ${h.endDate?'to '+e(h.endDate):''}</span>
+        <span class="acc-state ${(h.open||h.startDate)?'progress':'untouched'}" aria-hidden="true"></span>
+      </button>
+      ${open?`<div class="mini-acc-body">
+        <label class="field"><span>Applies to</span>
+          <select class="select" data-bind="branch.hours.custom.${i}.scope">
+            <option value="office" ${h.scope==='office'?'selected':''}>Office hours</option>
+            <option value="eventService" ${h.scope==='eventService'?'selected':''}>Event service windows</option>
+            <option value="tasting" ${h.scope==='tasting'?'selected':''}>Tasting hours</option>
+          </select>
+        </label>
+        ${field('Label / reason', `branch.hours.custom.${i}.label`, 'text', {placeholder:'Public holiday, festive hours'})}
+        <div class="field-row two">${field('Start date', `branch.hours.custom.${i}.startDate`, 'date')}${field('End date', `branch.hours.custom.${i}.endDate`, 'date')}</div>
+        <div class="field-row two">${field('Opening time', `branch.hours.custom.${i}.open`, 'time')}${field('Closing time', `branch.hours.custom.${i}.close`, 'time')}</div>
+        ${textarea('Additional details', `branch.hours.custom.${i}.notes`, {placeholder:'Closed, reduced hours, kitchen closes earlier...'})}
+        ${itemRemove('branch.hours.custom', i)}
+      </div>`:''}
+    </div>`;
+  }).join('') : empty('No custom hours','Holiday and temporary hours can be added here.');
+  return `${items}${addButton('add-custom-hours','Add custom hours')}`;
+}
 
-    /* --- chips --- */
-    var chip = t.closest('[data-chip]');
-    if (chip){
-      e.stopPropagation();
-      capture();
-      var path = chip.getAttribute('data-chip').split('.');
-      var val = chip.getAttribute('data-value');
-      var sec = path[0], key = path[1];
-      var arr = state[sec][key];
-      var idx = arr.indexOf(val);
-      if (idx === -1) arr.push(val); else arr.splice(idx, 1);
-      OPEN = sec;
-      render();
-      return;
-    }
+/* ============================ SERVICE AREA & TRAVEL ============================ */
+function renderServiceArea(b){
+  const sa = b.serviceArea || {};
+  const regions = arr(sa.regions);
+  const regionRecords = regions.length ? regions.map((r, i) => `
+    <div class="record">
+      <div class="record-top"><div class="record-title">${e(r.city||'Region')}</div><div class="record-actions">${itemRemove('branch.serviceArea.regions', i)}</div></div>
+      ${field('City / region', `branch.serviceArea.regions.${i}.city`, 'text', {placeholder:'e.g. Gaborone'})}
+      ${textarea('Notes', `branch.serviceArea.regions.${i}.notes`, {placeholder:'Coverage notes for this region'})}
+    </div>`).join('') : empty('No service regions','Add the cities/regions this branch can serve.');
+  const tiers = arr(sa.travelFeeTiers);
+  const tierRecords = tiers.length ? tiers.map((t, i) => `
+    <div class="record">
+      <div class="record-top"><div class="record-title">${e((t.fromKm||'0') + '–' + (t.toKm||'∞') + ' km')}<div class="record-subtitle">Fee ${e(t.fee||'0')}</div></div><div class="record-actions">${itemRemove('branch.serviceArea.travelFeeTiers', i)}</div></div>
+      <div class="field-row two">
+        ${field('From (km)', `branch.serviceArea.travelFeeTiers.${i}.fromKm`, 'number', {min:0, step:1})}
+        ${field('To (km)', `branch.serviceArea.travelFeeTiers.${i}.toKm`, 'number', {min:0, step:1})}
+      </div>
+      ${field('Fee', `branch.serviceArea.travelFeeTiers.${i}.fee`, 'number', {min:0, step:'0.01'})}
+    </div>`).join('') : empty('No travel fee tiers','Add distance-based travel fees.');
+  return `<p class="note">The base location and service area are the key distinction for catering. This section defines where the branch can serve customers, travel fees and booking conditions.</p>
+    ${sectionLabel('Service regions')}${regionRecords}${addButton('add-branch-region','Add service region')}
+    ${sectionLabel('Travel settings')}
+    <div class="field-row two">
+      ${field('Max radius (km)', 'branch.serviceArea.maxRadiusKm', 'number', {min:0, step:1, placeholder:'e.g. 60'})}
+      ${field('Out-of-area surcharge', 'branch.serviceArea.outOfAreaSurcharge', 'number', {min:0, step:'0.01', placeholder:'Applied beyond max radius'})}
+    </div>
+    <div class="field-row two">
+      ${field('Setup time (minutes)', 'branch.serviceArea.setupTimeMinutes', 'number', {min:0, step:5})}
+      ${field('Breakdown time (minutes)', 'branch.serviceArea.breakdownTimeMinutes', 'number', {min:0, step:5})}
+    </div>
+    ${field('Minimum booking value', 'branch.serviceArea.minimumBookingValue', 'number', {min:0, step:'0.01', placeholder:'Minimum spend required'})}
+    ${sectionLabel('Travel fee tiers')}
+    ${tierRecords}${addButton('add-travel-tier','Add travel fee tier')}
+  `;
+}
 
-    /* --- doc toggle --- */
-    var doc = t.closest('[data-doc-toggle]');
-    if (doc){
-      e.stopPropagation();
-      capture();
-      var dk = doc.getAttribute('data-doc-toggle');
-      state.docs[dk] = !state.docs[dk];
-      OPEN = 'docs';
-      render();
-      toast(state.docs[dk] ? 'Document marked uploaded' : 'Document removed');
-      return;
-    }
+/* ============================ AMENITIES ============================ */
+function renderAmenities(b){
+  const groups = Object.entries(AMENITY_GROUPS);
+  const openGroup = state.uiOpen.amenityGroup || '';
+  const selected = arr(b.amenities);
+  const details = b.amenityDetails || {};
+  const stack = groups.map(([group, opts]) => {
+    const open = openGroup === group;
+    const anySel = opts.some(o => selected.includes(o));
+    const checks = `<div class="check-list">${opts.map(name => {
+      const on = selected.includes(name);
+      return `<div class="check-item amenity">
+        <label class="check-line"><input type="checkbox" data-choice="branch.amenities" data-choice-value="${e(name)}" ${on?'checked':''}><span>${e(name)}</span></label>
+        ${on?`<label class="amenity-detail"><span class="mini-label">Details / conditions</span><input class="input" type="text" data-bind="branch.amenityDetails.${e(name)}" value="${e(details[name]||'')}" placeholder="Add rules, availability or conditions for ${e(name)}"></label>`:''}
+      </div>`;
+    }).join('')}</div>`;
+    return `<div class="mini-acc ${open?'open':''}" data-mini="amenity" data-mini-key="${e(group)}" tabindex="-1">
+      <button class="mini-acc-head" type="button" data-action="toggle-amenity-group" data-key="${e(group)}">
+        <span class="t">${e(group)}</span>
+        <span class="mini-summary">${opts.filter(o=>selected.includes(o)).length} selected</span>
+        <span class="acc-state ${anySel?'complete':'untouched'}" aria-hidden="true"></span>
+      </button>
+      ${open?`<div class="mini-acc-body">${checks}</div>`:''}
+    </div>`;
+  }).join('');
+  return `<p class="note">Tap a category to open it. Select an amenity, then add any details, rules or conditions specific to this branch.</p><div class="mini-stack${openGroup?' has-open':''}">${stack}</div><div class="divider"></div>${sectionLabel('Custom amenities')}${field('Custom amenities (comma-separated)','branch.customAmenitiesText','text',{placeholder:'E.g. private tasting room, EV charging'})}`;
+}
 
-    /* --- accordion header (last, so inner buttons win) --- */
-    var head = t.closest('.acc-head');
-    if (head){
-      var acc = head.closest('.acc');
-      if (acc) toggleAccordion(acc.getAttribute('data-key'));
-      return;
-    }
+/* ============================ PACKAGES ============================ */
+function renderPackages(b){
+  const pkgs = arr(b.packages);
+  const records = pkgs.length ? pkgs.map((p, i) => `
+    <div class="record">
+      <div class="record-top"><div class="record-title">${e(p.name||'New package')}<div class="record-subtitle">${e(p.style||'Style not set')}${p.pricePerHead!==''?' · '+e(p.pricePerHead)+' per head':''}</div></div><div class="record-actions">${itemRemove('branch.packages', i)}</div></div>
+      ${field('Package name', `branch.packages.${i}.name`, 'text', {placeholder:'e.g. Bronze, Silver, Gold, Corporate Lunch'})}
+      ${selectField('Style', `branch.packages.${i}.style`, PACKAGE_STYLES)}
+      <div class="field-row two">${field('Price per head', `branch.packages.${i}.pricePerHead`, 'number', {min:0, step:'0.01'})}${field('Min guests', `branch.packages.${i}.minGuests`, 'number', {min:1, step:1})}</div>
+      <div class="field-row two">${field('Max guests', `branch.packages.${i}.maxGuests`, 'number', {min:1, step:1})}${selectField('Drink package', `branch.packages.${i}.drinkPackage`, DRINK_PACKAGES)}</div>
+      ${textarea('Included courses', `branch.packages.${i}.includedCourses`, {placeholder:'Starter, main, dessert, sides, drinks...'})}
+      ${choiceList('Dietary variants', `branch.packages.${i}.dietaryVariants`, DIETARY_VARIANTS)}
+      ${textarea('Setup requirements', `branch.packages.${i}.setupRequirements`, {placeholder:'Space, chafing dishes, staff, equipment...'})}
+      ${galleryEditor(`branch.packages.${i}.gallery`)}
+    </div>`).join('') : empty('No packages added','Create named packages (Bronze/Silver/Gold, Corporate Lunch, Wedding Buffet).');
+  return `<p class="note">Catering packages bundle courses, drinks and setup into a single per-head price. Each package can offer its own dietary variants and gallery.</p>${records}${addButton('add-package','Add package')}`;
+}
+
+/* ============================ ADD-ONS ============================ */
+function renderAddOns(b){
+  const items = arr(b.addOns);
+  const records = items.length ? items.map((a, i) => `
+    <div class="record">
+      <div class="record-top"><div class="record-title">${e(a.name||'New add-on')}<div class="record-subtitle">${e(a.category||'Category')}${a.price!==''?' · '+e(a.price):''} ${e(a.unit||'')}</div></div><div class="record-actions">${itemRemove('branch.addOns', i)}</div></div>
+      ${field('Item name', `branch.addOns.${i}.name`, 'text', {placeholder:'e.g. Grilled chicken main, 8x round tables'})}
+      ${selectField('Category', `branch.addOns.${i}.category`, ADDON_CATEGORIES)}
+      <div class="field-row two">${field('Price', `branch.addOns.${i}.price`, 'number', {min:0, step:'0.01'})}${selectField('Unit', `branch.addOns.${i}.unit`, ADDON_UNITS)}</div>
+      <div class="field-row two">${field('Minimum quantity', `branch.addOns.${i}.minQty`, 'number', {min:1, step:1})}<div></div></div>
+      ${textarea('Description', `branch.addOns.${i}.description`, {placeholder:'What is included, serving size, setup notes'})}
+    </div>`).join('') : empty('No à-la-carte items or add-ons','Add mains, sides, live stations, staff or equipment as separately priced add-ons.');
+  return `<p class="note">À-la-carte items and add-ons can be quoted alongside or instead of packages. Live stations, staff hours and equipment rental all live here.</p>${records}${addButton('add-addon','Add à-la-carte / add-on')}`;
+}
+
+/* ============================ TASTINGS ============================ */
+function renderTastings(b){
+  const list = arr(b.tastingSessions);
+  const records = list.length ? list.map((t, i) => `
+    <div class="record">
+      <div class="record-top"><div class="record-title">${e(t.date||'New tasting session')}<div class="record-subtitle">${e(t.startTime||'')}${t.endTime?' – '+e(t.endTime):''}${t.price!==''?' · '+e(t.price):''}</div></div><div class="record-actions">${itemRemove('branch.tastingSessions', i)}</div></div>
+      <div class="field-row two">${field('Date', `branch.tastingSessions.${i}.date`, 'date')}${field('Price', `branch.tastingSessions.${i}.price`, 'number', {min:0, step:'0.01'})}</div>
+      <div class="field-row two">${field('Start time', `branch.tastingSessions.${i}.startTime`, 'time')}${field('End time', `branch.tastingSessions.${i}.endTime`, 'time')}</div>
+      <div class="field-row two">${field('Max guests', `branch.tastingSessions.${i}.maxGuests`, 'number', {min:1, step:1})}${field('Book ahead (days)', `branch.tastingSessions.${i}.bookAheadDays`, 'number', {min:0, step:1})}</div>
+      ${textarea('Sample menu', `branch.tastingSessions.${i}.sampleMenu`, {placeholder:'Which dishes will guests taste?'})}
+      ${textarea('Notes', `branch.tastingSessions.${i}.notes`, {placeholder:'What is included, cancellation, deposit...'})}
+    </div>`).join('') : empty('No tasting sessions','Add dates, times, prices and sample menus for tasting sessions.');
+  return `<p class="note">Tasting sessions let prospective clients sample your food. Each session has its own date, price and sample menu.</p>${records}${addButton('add-tasting','Add tasting session')}`;
+}
+
+/* ============================ EQUIPMENT ============================ */
+function renderEquipment(b){
+  const items = arr(b.equipment);
+  const records = items.length ? items.map((eq, i) => `
+    <div class="record">
+      <div class="record-top"><div class="record-title">${e(eq.name||'New equipment')}<div class="record-subtitle">${e(eq.category||'Category')}${eq.qty?' · Qty '+e(eq.qty):''}${eq.dailyRate!==''?' · '+e(eq.dailyRate)+'/day':''}</div></div><div class="record-actions">${itemRemove('branch.equipment', i)}</div></div>
+      ${field('Item name', `branch.equipment.${i}.name`, 'text', {placeholder:'e.g. Round table (8-seater)'})}
+      ${selectField('Category', `branch.equipment.${i}.category`, EQUIPMENT_CATEGORIES)}
+      <div class="field-row two">${field('Quantity', `branch.equipment.${i}.qty`, 'number', {min:1, step:1})}${field('Daily rate', `branch.equipment.${i}.dailyRate`, 'number', {min:0, step:'0.01'})}</div>
+      <div class="field-row two">${field('Replacement value', `branch.equipment.${i}.replacementValue`, 'number', {min:0, step:'0.01'})}<div></div></div>
+      ${textarea('Availability notes', `branch.equipment.${i}.availabilityNotes`, {placeholder:'Blackout dates, condition, storage location...'})}
+    </div>`).join('') : empty('No equipment added','Track reusable equipment inventory so it can be quoted and reserved.');
+  return `<p class="note">Equipment rental is quoted from this inventory. Quantity, daily rate and replacement value are used in quotes and damage claims.</p>${records}${addButton('add-equipment','Add equipment item')}`;
+}
+
+/* ============================ STAFFING RATIOS ============================ */
+function renderStaffingRatios(b){
+  const s = b.staffing || {};
+  const tiers = arr(s.tiers);
+  const tierRecords = tiers.length ? tiers.map((t, i) => `
+    <div class="record">
+      <div class="record-top"><div class="record-title">${e(t.name||t.tier||'Staffing tier')}<div class="record-subtitle">${e(t.tier||'')}</div></div><div class="record-actions">${itemRemove('branch.staffing.tiers', i)}</div></div>
+      <div class="field-row two">
+        ${selectField('Tier', `branch.staffing.tiers.${i}.tier`, STAFFING_TIERS.map(x=>({value:x.id,label:x.name})))}
+        ${field('Display name', `branch.staffing.tiers.${i}.name`, 'text', {placeholder:'e.g. Gold service'})}
+      </div>
+      <div class="field-row two">${field('Servers', `branch.staffing.tiers.${i}.servers`, 'number', {min:0, step:1})}${field('Chefs', `branch.staffing.tiers.${i}.chefs`, 'number', {min:0, step:1})}</div>
+      <div class="field-row two">${field('Bartenders', `branch.staffing.tiers.${i}.bartenders`, 'number', {min:0, step:1})}${field('Price per head', `branch.staffing.tiers.${i}.pricePerHead`, 'number', {min:0, step:'0.01'})}</div>
+      ${textarea('Notes', `branch.staffing.tiers.${i}.notes`, {placeholder:'What is included in this staffing tier?'})}
+    </div>`).join('') : empty('No staffing tiers','Define service levels such as bronze, silver, gold.');
+  return `<p class="note">These ratios drive staffing suggestions in the quote builder. Staffing tiers can be offered as preset service levels.</p>
+    ${sectionLabel('Default ratios')}
+    <div class="field-row two">
+      ${field('Servers per guest ratio', 'branch.staffing.serversPerGuest', 'number', {min:1, step:1, placeholder:'e.g. 10'})}
+      ${field('Bartender per guest ratio', 'branch.staffing.bartenderPerGuest', 'number', {min:1, step:1, placeholder:'e.g. 25'})}
+    </div>
+    <div class="field-row two">
+      ${field('Minimum crew', 'branch.staffing.minimumCrew', 'number', {min:1, step:1})}
+      <div style="display:flex;align-items:flex-end">${checkItem('Chef required on site', 'branch.staffing.chefRequired')}</div>
+    </div>
+    ${sectionLabel('Staffing tiers')}${tierRecords}${addButton('add-staffing-tier','Add staffing tier')}
+  `;
+}
+
+/* ============================ QUOTE BUILDER ============================ */
+function renderQuoteBuilder(b){
+  const qs = b.quoteSettings || {};
+  const pkgs = arr(b.packages);
+  const addOns = arr(b.addOns);
+  const equipment = arr(b.equipment);
+  const tiers = arr(b.serviceArea.travelFeeTiers);
+  const staff = b.staffing || {};
+
+  return `<p class="note">Live quote preview. Enter headcount, choose a package and add-ons; travel, staffing and VAT calculate automatically. Save this section as a working reference — real quotes are created under Event Quotes & Enquiries.</p>
+    ${sectionLabel('Quote defaults')}
+    <div class="field-row two">
+      ${field('VAT %', 'branch.quoteSettings.vatPercent', 'number', {min:0, step:0.1})}
+      ${field('Default service hours', 'branch.quoteSettings.serviceHoursDefault', 'number', {min:1, step:1})}
+    </div>
+    <div class="field-row two">
+      ${field('Server hourly rate', 'branch.quoteSettings.serverHourlyRate', 'number', {min:0, step:'0.01'})}
+      ${field('Chef hourly rate', 'branch.quoteSettings.chefHourlyRate', 'number', {min:0, step:'0.01'})}
+    </div>
+    <div class="field-row two">
+      ${field('Bartender hourly rate', 'branch.quoteSettings.bartenderHourlyRate', 'number', {min:0, step:'0.01'})}
+      ${field('Equipment handling %', 'branch.quoteSettings.equipmentHandlingPercent', 'number', {min:0, step:0.1})}
+    </div>
+    ${sectionLabel('Live quote preview')}
+    <div class="record" data-quote-preview>
+      <div class="field-row two">
+        <label class="field"><span>Headcount</span><input class="input" type="number" min="1" step="1" data-quote-input="headcount" placeholder="e.g. 80"></label>
+        <label class="field"><span>Distance (km)</span><input class="input" type="number" min="0" step="1" data-quote-input="distance" placeholder="e.g. 25"></label>
+      </div>
+      <label class="field"><span>Package</span>
+        <select class="select" data-quote-input="packageId">
+          <option value="">No package</option>
+          ${pkgs.map(p => `<option value="${e(p.id)}" data-price="${e(p.pricePerHead)}" data-min="${e(p.minGuests)}" data-max="${e(p.maxGuests)}">${e(p.name||'Untitled')} — ${e(p.pricePerHead||'0')} /head</option>`).join('')}
+        </select>
+      </label>
+      <label class="field"><span>Add-ons</span>
+        <select class="select" data-quote-input="addOnIds" multiple size="${Math.min(6, Math.max(3, addOns.length))}">
+          ${addOns.map(a => `<option value="${e(a.id)}" data-price="${e(a.price)}" data-unit="${e(a.unit)}">${e(a.name||'Untitled')} — ${e(a.price||'0')} ${e(a.unit||'')}</option>`).join('')}
+        </select>
+      </label>
+      <label class="field"><span>Equipment</span>
+        <select class="select" data-quote-input="equipmentIds" multiple size="${Math.min(6, Math.max(3, equipment.length))}">
+          ${equipment.map(eq => `<option value="${e(eq.id)}" data-rate="${e(eq.dailyRate)}">${e(eq.name||'Untitled')} — ${e(eq.dailyRate||'0')}/day</option>`).join('')}
+        </select>
+      </label>
+      <button class="btn btn-secondary btn-wide" type="button" data-action="run-quote-preview" style="margin-top:4px">Calculate quote</button>
+      <div data-quote-output style="margin-top:12px"></div>
+    </div>
+  `;
+}
+
+function calculateQuote(b){
+  const qs = b.quoteSettings || {};
+  const previewEl = $('[data-quote-preview]');
+  if (!previewEl) return;
+  const headcount = Number(previewEl.querySelector('[data-quote-input="headcount"]').value) || 0;
+  const distance = Number(previewEl.querySelector('[data-quote-input="distance"]').value) || 0;
+  const pkgSelect = previewEl.querySelector('[data-quote-input="packageId"]');
+  const pkgOpt = pkgSelect.selectedOptions[0];
+  const addOnsSelect = previewEl.querySelector('[data-quote-input="addOnIds"]');
+  const equipmentSelect = previewEl.querySelector('[data-quote-input="equipmentIds"]');
+
+  let packageCost = 0;
+  let packageName = 'No package';
+  if (pkgOpt && pkgOpt.value){
+    packageCost = headcount * Number(pkgOpt.dataset.price || 0);
+    packageName = pkgOpt.textContent.split(' — ')[0];
+  }
+
+  let addOnCost = 0;
+  Array.from(addOnsSelect.selectedOptions).forEach(o => {
+    const price = Number(o.dataset.price || 0);
+    const unit = (o.dataset.unit || '').toLowerCase();
+    if (unit.includes('hour') || unit.includes('station') || unit.includes('day') || unit.includes('event')) addOnCost += price;
+    else addOnCost += price * headcount;
   });
 
-  /* ============================================================
-     BOOT — all accordions closed
-     ============================================================ */
-  render();
+  let equipmentCost = 0;
+  Array.from(equipmentSelect.selectedOptions).forEach(o => {
+    equipmentCost += Number(o.dataset.rate || 0);
+  });
+  const handling = equipmentCost * (Number(qs.equipmentHandlingPercent || 0) / 100);
+  equipmentCost += handling;
 
-  /* Attempt to restore a previous draft */
-  try {
-    var DB = window.EatoutsMgrDB;
-    if (DB && DB.get){
-      var saved = (DB.get().settings || {}).catererOnboarding;
-      if (saved && saved.business){
-        state = saved;
-        render();
-      }
+  let travelFee = 0;
+  const sa = b.serviceArea || {};
+  arr(sa.travelFeeTiers).forEach(t => {
+    const from = Number(t.fromKm || 0), to = Number(t.toKm || 9999);
+    if (distance >= from && distance <= to) travelFee = Number(t.fee || 0);
+  });
+  if (distance > Number(sa.maxRadiusKm || 0) && sa.outOfAreaSurcharge) {
+    travelFee += Number(sa.outOfAreaSurcharge);
+  }
+  const regionSurcharge = 0; // not applied in preview
+
+  const staff = b.staffing || {};
+  const hours = Number(qs.serviceHoursDefault || 4);
+  const serverCount = headcount > 0 ? Math.ceil(headcount / Math.max(1, Number(staff.serversPerGuest || 10))) : 0;
+  const chefCount = staff.chefRequired ? 1 : 0;
+  const bartenderCount = headcount > 0 ? Math.ceil(headcount / Math.max(1, Number(staff.bartenderPerGuest || 25))) : 0;
+  const staffingCost = (serverCount * Number(qs.serverHourlyRate || 0) + chefCount * Number(qs.chefHourlyRate || 0) + bartenderCount * Number(qs.bartenderHourlyRate || 0)) * hours;
+
+  const subtotal = packageCost + addOnCost + equipmentCost + travelFee + staffingCost;
+  const vat = subtotal * (Number(qs.vatPercent || 0) / 100);
+  const total = subtotal + vat;
+
+  const fmt = n => Number(n || 0).toFixed(2);
+  const out = $('[data-quote-output]');
+  if (!out) return;
+  out.innerHTML = `<div class="quote-box">
+    <h4>Quote preview</h4>
+    <div class="quote-line"><span>${e(packageName)} × ${headcount}</span><span>${fmt(packageCost)}</span></div>
+    <div class="quote-line"><span>À-la-carte add-ons</span><span>${fmt(addOnCost)}</span></div>
+    <div class="quote-line"><span>Equipment + handling</span><span>${fmt(equipmentCost)}</span></div>
+    <div class="quote-line"><span>Travel (${distance} km)</span><span>${fmt(travelFee)}</span></div>
+    <div class="quote-line"><span>Staffing (${serverCount} server / ${chefCount} chef / ${bartenderCount} bartender × ${hours}h)</span><span>${fmt(staffingCost)}</span></div>
+    <div class="quote-line"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
+    <div class="quote-line"><span>VAT ${qs.vatPercent||0}%</span><span>${fmt(vat)}</span></div>
+    <div class="quote-line"><span>TOTAL</span><span>${fmt(total)}</span></div>
+  </div>`;
+}
+
+/* ============================ EVENT QUOTES & ENQUIRIES ============================ */
+function renderEventQuotes(b){
+  const eq = arr(b.eventQuotes);
+  const records = eq.length ? eq.map((q, i) => `
+    <div class="record">
+      <div class="record-top"><div class="record-title">${e(q.eventTypeName||'Event enquiry')}<div class="record-subtitle">${e(q.eventDate||'Date not set')}${q.headcount?' · '+e(q.headcount)+' guests':''} · ${e(q.status||'Enquiry')}</div></div><div class="record-actions">${itemRemove('branch.eventQuotes', i)}</div></div>
+      <label class="field"><span>Event type</span><select class="select" data-event-type-select="${i}">${renderEventTypeOptions(q.eventTypeId)}</select></label>
+      <div class="field-row two">
+        ${field('Event date', `branch.eventQuotes.${i}.eventDate`, 'date')}
+        ${field('Headcount', `branch.eventQuotes.${i}.headcount`, 'number', {min:1, step:1})}
+      </div>
+      <label class="field"><span>Package</span><select class="select" data-bind="branch.eventQuotes.${i}.packageId"><option value="">No package</option>${arr(b.packages).map(p=>`<option value="${e(p.id)}" ${q.packageId===p.id?'selected':''}>${e(p.name||'Package')}</option>`).join('')}</select></label>
+      <div class="field-row two">
+        ${field('Customer name', `branch.eventQuotes.${i}.customerName`, 'text', {placeholder:'Customer / company'})}
+        ${field('Customer contact', `branch.eventQuotes.${i}.customerContact`, 'text', {placeholder:'Phone or email'})}
+      </div>
+      <div class="field-row two">
+        ${field('Travel fee', `branch.eventQuotes.${i}.travelFee`, 'number', {min:0, step:'0.01'})}
+        ${field('Staffing cost', `branch.eventQuotes.${i}.staffingCost`, 'number', {min:0, step:'0.01'})}
+      </div>
+      <div class="field-row two">
+        ${field('Equipment cost', `branch.eventQuotes.${i}.equipmentCost`, 'number', {min:0, step:'0.01'})}
+        ${field('Subtotal', `branch.eventQuotes.${i}.subtotal`, 'number', {min:0, step:'0.01'})}
+      </div>
+      <div class="field-row two">
+        ${field('VAT', `branch.eventQuotes.${i}.vat`, 'number', {min:0, step:'0.01'})}
+        ${field('Total', `branch.eventQuotes.${i}.total`, 'number', {min:0, step:'0.01'})}
+      </div>
+      ${selectField('Status', `branch.eventQuotes.${i}.status`, ['Enquiry','Quoted','Confirmed','Completed','Cancelled'])}
+      ${textarea('Notes', `branch.eventQuotes.${i}.notes`, {placeholder:'Requirements, follow-up, special requests'})}
+    </div>`).join('') : empty('No event quotes yet','Event enquiries from the catalogue are not venue-hire bookings. Log the enquiry, headcount, package and status here.');
+  return `<p class="note">Lightweight enquiry log — not a full venue-hire booking. Event types come from the taxonomy (weddings, corporate, social). Use Quote Builder above for a live cost preview.</p>${records}${addButton('add-event-quote','Add event enquiry')}`;
+}
+
+function renderEventTypeOptions(selected){
+  let out = '<option value="">Select event type</option>';
+  Object.values(EVENT_TAXONOMY).forEach(cat => (cat.subCategories || []).forEach(sub => {
+    const opts = (sub.events || []).map(ev => `<option value="${e(ev.id)}" ${ev.id===selected?'selected':''}>${e(ev.name)}</option>`).join('');
+    if (opts) out += `<optgroup label="${e(cat.name+' · '+sub.name)}">${opts}</optgroup>`;
+  }));
+  return out;
+}
+
+/* ============================ PAYMENTS ============================ */
+function renderPartnerships(b){
+  const ps = arr(b.paymentPartnerships);
+  const records = ps.length ? ps.map((p, i) => `<div class="record">${recordHeader(p.provider||'Payment partnership', p.promotionName||'', 'branch.paymentPartnerships', i)}${field('Bank / provider name', `branch.paymentPartnerships.${i}.provider`, 'text', {placeholder:'e.g. Stanbic Bank'})}${field('Partnership name', `branch.paymentPartnerships.${i}.promotionName`, 'text', {placeholder:'e.g. Blue Weekends'})}${textarea('Partnership overview', `branch.paymentPartnerships.${i}.notes`, {placeholder:'Describe the commercial partnership and its general conditions.'})}${field('Reference / campaign URL', `branch.paymentPartnerships.${i}.url`, 'url', {placeholder:'https://...'})}</div>`).join('') : empty('No payment partnerships added','Record bank, card and wallet partnerships for this branch.');
+  return `<p class="note">Each branch can have its own bank, card or mobile-wallet partnerships.</p>${records}${addButton('add-partnership','Add payment partnership')}`;
+}
+function renderPayments(b){
+  const promos = arr(b.promotions);
+  const ds = b.depositSettings || {};
+  const pp = b.paymentPlan || {};
+  const promoRecords = promos.length ? promos.map((p, i) => `<div class="record">${recordHeader(p.name||'Payment promotion', p.provider||'Provider not added', 'branch.promotions', i)}${field('Bank / wallet / payment provider', `branch.promotions.${i}.provider`, 'text', {placeholder:'e.g. Stanbic Bank, BTC Smega'})}${field('Promotion name', `branch.promotions.${i}.name`, 'text', {placeholder:'e.g. Wedding season deposit promotion'})}${selectField('Promotion type', `branch.promotions.${i}.type`, PROMO_TYPES)}<div class="field-row two">${field('Discount / benefit value', `branch.promotions.${i}.value`, 'number', {min:0, step:'0.01', placeholder:'e.g. 20'})}${selectField('Value unit', `branch.promotions.${i}.valueType`, ['% discount','Pula amount','Free item','Benefit description'])}</div><div class="field-row two">${field('Start date', `branch.promotions.${i}.startDate`, 'date')}${field('End date', `branch.promotions.${i}.endDate`, 'date')}</div>${field('Recurring days or schedule', `branch.promotions.${i}.schedule`, 'text', {placeholder:'Every Monday, weekends, seasonal dates'})}${field('Eligible card / wallet types', `branch.promotions.${i}.eligibleTypes`, 'text', {placeholder:'Stanbic Visa credit and debit cards'})}<div class="field-row two">${field('Minimum spend (Pula)', `branch.promotions.${i}.minimumSpend`, 'number', {min:0, step:'0.01'})}${field('Maximum discount (Pula)', `branch.promotions.${i}.maximumDiscount`, 'number', {min:0, step:'0.01'})}</div>${textarea('Terms, redemption and exclusions', `branch.promotions.${i}.terms`, {placeholder:'Valid at this location only, excluded items, how the customer redeems the offer'})}${field('Promotion URL / reference', `branch.promotions.${i}.url`, 'url', {placeholder:'Optional campaign link'})}</div>`).join('') : empty('No branch promotions added','Promotions can be recurring, seasonal, festival-based or limited to selected payment methods.');
+  return `<p class="note">Accepted payment methods describe what customers can use. Event deposit, cancellation and payment plan settings apply specifically to catering and events.</p>
+    ${sectionLabel('Accepted payment methods')}${choiceList('Select accepted methods','branch.paymentMethods',PAYMENT_METHODS)}
+    ${sectionLabel('Event deposits & cancellation')}
+    <div class="field-row two">
+      ${field('Deposit %', 'branch.depositSettings.depositPercent', 'number', {min:0, max:100, step:1})}
+      ${field('Cancellation window (days)', 'branch.depositSettings.cancellationWindowDays', 'number', {min:0, step:1})}
+    </div>
+    ${textarea('Cancellation fee notes', 'branch.depositSettings.cancellationFee', {placeholder:'e.g. 50% of deposit within window'})}
+    ${sectionLabel('Payment plan for large orders')}
+    ${checkItem('Enable payment plan', 'branch.paymentPlan.enabled')}
+    ${pp.enabled ? `<div class="field-row two">${field('Minimum amount', 'branch.paymentPlan.minimumAmount', 'number', {min:0, step:'0.01'})}${field('Installment count', 'branch.paymentPlan.installmentCount', 'number', {min:2, step:1})}</div>` : ''}
+    ${sectionLabel('Branch-specific payment promotions')}${promoRecords}${addButton('add-promotion','Add payment promotion')}
+  `;
+}
+
+/* ============================ STAFF ============================ */
+function renderStaff(b){
+  const staff = b.staffAssignments.map(id => state.staffDirectory.find(s => s.id === id)).filter(Boolean);
+  let html = `<p class="note">A staff profile lives once in the staff directory. Add the same person to multiple branches without duplicating personal records. Salary is mandatory when creating a new staff profile.</p>`;
+  html += staff.length ? staff.map(s => {
+    const i = state.staffDirectory.findIndex(x => x.id === s.id);
+    return `<div class="record"><div class="record-top"><div class="record-title">${e((s.firstName+' '+s.surname).trim()||'Staff member')}<div class="record-subtitle">${e(s.role==='Custom'?(s.customRole||'Custom role'):(s.role||'Role not set'))} · ${e(s.salaryFrequency||'Pay frequency not set')}</div></div><div class="record-actions">${itemRemove('branch.staffAssignments', b.staffAssignments.indexOf(s.id))}</div></div>${field('First name', `staffDirectory.${i}.firstName`, 'text', {placeholder:'First name'})}${field('Surname', `staffDirectory.${i}.surname`, 'text', {placeholder:'Surname'})}${selectField('Gender', `staffDirectory.${i}.gender`, ['Male','Female'])}${field('Mobile phone', `staffDirectory.${i}.phone`, 'tel', {placeholder:'Mobile number'})}${field('Email', `staffDirectory.${i}.email`, 'email', {placeholder:'Email address'})}${selectField('Role', `staffDirectory.${i}.role`, [...Object.entries(STAFF_ROLES).flatMap(([g, rs]) => rs.map(r => ({value:r, label:g+' · '+r}))), {value:'Custom', label:'Custom'}])}${s.role==='Custom'?field('Custom role title', `staffDirectory.${i}.customRole`, 'text', {placeholder:'Enter role'}):''}${field('Salary amount (Pula)', `staffDirectory.${i}.salaryAmount`, 'number', {min:0, step:'0.01', placeholder:'Mandatory'})}${selectField('Salary frequency', `staffDirectory.${i}.salaryFrequency`, ['Hourly','Daily','Weekly','Bi-weekly','Monthly'])}${field('Employment start date', `staffDirectory.${i}.startDate`, 'date')}${field('Qualifications / certificates', `staffDirectory.${i}.qualifications`, 'text', {placeholder:'Food safety, first aid...'})}<p class="mini-note">Salary, ID and emergency-contact information should only be visible to authorised users in the production app.</p></div>`;
+  }).join('') : empty('No staff assigned to this branch','Add a new staff profile or assign someone already in the staff directory.');
+  const available = state.staffDirectory.filter(s => !b.staffAssignments.includes(s.id));
+  if (available.length) html += `<label class="field"><span>Assign an existing staff profile</span><select class="select" data-action="assign-existing-staff"><option value="">Select staff member</option>${available.map(s=>`<option value="${e(s.id)}">${e((s.firstName+' '+s.surname).trim()||'Unnamed staff')} · ${e(s.role==='Custom'?s.customRole:s.role)}</option>`).join('')}</select></label>`;
+  html += `<button class="btn btn-primary btn-wide" type="button" data-action="add-staff" style="margin-top:8px">Add new staff member</button>`;
+  return html;
+}
+
+/* ============================ BRANCH EDITOR ============================ */
+function renderBranchEditor(b){
+  if (!b) return empty('No active branch','Add a branch to start configuring its details.');
+  let body = '';
+
+  // Overview
+  const ov = `${imagePicker('Branch thumbnail','branch.imageUrl','Branch thumbnail')}${field('Outlet / location name','branch.name','text',{placeholder:'e.g. Main catering base',required:true})}${field('Internal branch code','branch.code','text',{placeholder:'e.g. GAB-002'})}${selectField('Primary branch type','branch.type',BRANCH_TYPES.map(t=>({value:t.id,label:t.name})),{required:true})}${selectField('Branch status','branch.status',[{value:'draft',label:'Draft'},{value:'active',label:'Active'},{value:'temporarily-closed',label:'Temporarily closed'},{value:'permanently-closed',label:'Permanently closed'}])}<p class="note">Choose one primary type, then enable every capability that applies. A catering base might cook, serve, rent equipment and run tastings from the same location.</p>${choiceList('Location capabilities','branch.capabilities',CAPABILITIES)}`;
+  body += acc('branch','overview','Branch Overview','Name, branch type, status, thumbnail and operational capabilities.', ov);
+
+  // Location
+  const loc = `${selectField('Country','branch.location.country',['Botswana','Zimbabwe','South Africa','Namibia','Zambia','Other'])}${field('City / town','branch.location.city','text',{placeholder:'Gaborone'})}${field('Area / suburb','branch.location.area','text',{placeholder:'Broadhurst, CBD, etc.'})}${field('Plot / stand number','branch.location.plotNumber','text',{placeholder:'Plot number'})}${field('Street number','branch.location.streetNumber','text',{placeholder:'Street number'})}${field('Street name','branch.location.streetName','text',{placeholder:'Street name'})}${field('Building / mall / complex','branch.location.building','text',{placeholder:'Mall or building name'})}${field('Shop / unit number','branch.location.unitNumber','text',{placeholder:'Shop number or unit'})}${field('Nearby landmark','branch.location.landmark','text',{placeholder:'Opposite / near'})}${field('Latitude','branch.location.latitude','number',{step:'any',placeholder:'Optional GPS coordinate'})}${field('Longitude','branch.location.longitude','number',{step:'any',placeholder:'Optional GPS coordinate'})}${textarea('Directions and access notes','branch.location.directions',{placeholder:'Entrance, parking level, delivery access or directions'})}`;
+  body += acc('branch','location','Location','Base location vs service area — the location is the physical kitchen, the service area defines coverage.', loc);
+
+  // Contacts
+  const cs = arr(b.contacts);
+  const cont = cs.length ? cs.map((c,i)=>`<div class="record">${recordHeader(c.label||'New contact', c.number||'Contact details not added','branch.contacts', i)}${field('Contact label / purpose',`branch.contacts.${i}.label`,'text',{placeholder:'Orders, General enquiries, Events...'})}${selectField('Contact type',`branch.contacts.${i}.type`,['Mobile','Landline','WhatsApp','Email','Other'])}${field('Number / email / contact detail',`branch.contacts.${i}.number`,'text',{placeholder:'+267 ... or email'})}${textarea('Notes',`branch.contacts.${i}.notes`,{placeholder:'Best times to contact or what this number handles'})}</div>`).join('') : empty('No branch contacts','Add the main phone number, WhatsApp, events or class contacts.');
+  body += acc('branch','contacts','Contact Numbers','Branch-specific contacts plus shared brand contacts available to this location.', `${checkItem('Inherit shared brand contacts','branch.inheritBrandContacts')}${inheritedContactsPreview(b)}${sectionLabel('Contacts for this branch')}${cont}${addButton('add-contact','Add contact number')}`);
+
+  // Socials
+  const sl = arr(b.socialLinks);
+  const socials = sl.length ? sl.map((s,i)=>`<div class="record">${recordHeader(s.label||s.platform||'New social link', s.url||'URL not added','branch.socialLinks', i)}${selectField('Platform',`branch.socialLinks.${i}.platform`,SOCIAL_PLATFORMS)}${field('Display label',`branch.socialLinks.${i}.label`,'text',{placeholder:'e.g. Main base Instagram'})}${field('Link URL',`branch.socialLinks.${i}.url`,'url',{placeholder:'https://...'})}${textarea('Notes',`branch.socialLinks.${i}.notes`,{placeholder:'Notes about this branch-specific channel'})}</div>`).join('') : empty('No branch social links','Add or override any brand-wide website or social channel.');
+  body += acc('branch','socials','Social Links','Add, edit or remove links; each one has a platform, label, URL and notes.', `${checkItem('Inherit shared brand social links','branch.inheritBrandSocialLinks')}${inheritedSocialsPreview(b)}${sl.length?'<p class="note">A branch-specific link takes precedence over the shared link on the same platform.</p>':''}${socials}${addButton('add-social','Add social link')}`);
+
+  // Service area
+  body += acc('branch','serviceArea','Service Area & Travel','Service regions, radius, travel fee tiers, setup/breakdown and minimum booking value.', renderServiceArea(b));
+
+  // Hours
+  body += acc('branch','hours','Hours','Office hours, event service windows, tasting hours and custom exceptions.', renderHours(b));
+
+  // Amenities
+  body += acc('branch','amenities','Amenities','Catering equipment, tableware, bar and staffing capabilities.', renderAmenities(b));
+
+  // Packages
+  body += acc('branch','packages','Catering Packages','Named packages with per-head pricing, courses, drinks and dietary variants.', renderPackages(b));
+
+  // Add-ons
+  body += acc('branch','addOns','À-la-carte & Add-ons','Separately priced mains, sides, live stations, staff hours and equipment rental.', renderAddOns(b));
+
+  // Tastings
+  body += acc('branch','tastings','Tasting Sessions','Dates, prices, sample menus and advance booking for tasting sessions.', renderTastings(b));
+
+  // Equipment
+  body += acc('branch','equipment','Equipment Inventory','Reusable items with quantity, daily rate and replacement value.', renderEquipment(b));
+
+  // Staffing
+  body += acc('branch','staffing','Staffing Ratios & Service Levels','Servers per guest, chef and bartender ratios, minimum crew and staffing tiers.', renderStaffingRatios(b));
+
+  // Quote builder
+  body += acc('branch','quoteBuilder','Quote Builder','Live quote preview — headcount, package, add-ons, travel, staffing, equipment and VAT.', renderQuoteBuilder(b));
+
+  // Event quotes
+  body += acc('branch','eventQuotes','Event Quotes & Enquiries','Event enquiries from the taxonomy — not venue-hire bookings.', renderEventQuotes(b));
+
+  // Partnerships
+  body += acc('branch','partnerships','Payment Partnerships','Bank, card and wallet partnerships specific to this branch.', renderPartnerships(b));
+
+  // Payments
+  body += acc('branch','payments','Payments','Payment methods, event deposits, cancellation terms and payment plans.', renderPayments(b));
+
+  // Staff
+  body += acc('branch','staff','Service Staff','Staff directory with catering-specific roles and mandatory salary.', renderStaff(b));
+
+  return `<div class="branch-editor-head"><div class="top">${thumbHTML(b)}<div style="flex:1;min-width:0"><h3>${e(b.name||'New branch')}</h3><p>${e(branchAddress(b))}</p><div class="meta"><span class="badge orange">${e(branchTypeName(b.type))}</span><span class="badge">${e(b.status||'draft')}</span><span class="badge">${b.capabilities.length} capabilities</span></div></div></div></div><div class="accordion-stack${state.uiOpen.branch?' has-open':''}">${body}</div>`;
+}
+
+/* ============================ PROGRESS ============================ */
+function updateProgress(){
+  const brand = state.brand.identity;
+  const branch = activeBranch();
+  const hasPackages = ['offsiteCatering','fullService','dropOff'].some(c => branch.capabilities.includes(c));
+  const checks = [
+    !!brand.name,
+    !!brand.legalName,
+    !!brand.description,
+    !!brand.logoUrl,
+    arr(brand.categories).length > 0,
+    !!state.brand.registration.registrationNumber,
+    arr(state.brand.serviceAreas && state.brand.serviceAreas.regions).length > 0,
+    arr(state.brand.contacts).length > 0,
+    arr(state.brand.users).length > 0,
+    state.branches.length > 0,
+    !!branch.name,
+    !!branch.location.city,
+    arr(branch.serviceArea && branch.serviceArea.regions).length > 0,
+    arr(branch.contacts).length > 0,
+    arr(branch.hours.office.weekly).some(h => h.open && h.close),
+    hasPackages ? arr(branch.packages).length > 0 : true,
+    arr(branch.paymentMethods).length > 0,
+    arr(branch.staffAssignments).length > 0
+  ];
+  const pct = Math.round(checks.filter(Boolean).length / checks.length * 100);
+  $('#progressText').textContent = pct + '% complete';
+  $('#progressFill').style.width = pct + '%';
+}
+
+function renderApp(preserve=true){
+  const sc = $('#scroll');
+  const top = preserve && sc ? sc.scrollTop : 0;
+  renderBrand();
+  renderBranchList();
+  renderRail();
+  updateProgress();
+  if (sc) sc.scrollTop = top;
+}
+
+/* ============================ MUTATIONS ============================ */
+function setChoice(path, val, checked){
+  let v = arr(pathGet(path)).slice();
+  if (checked && !v.includes(val)) v.push(val);
+  if (!checked) v = v.filter(x => x !== val);
+  pathSet(path, v);
+  saveState();
+  updateProgress();
+}
+function refreshLiveLabels(){
+  $$('.acc[data-acc-group]').forEach(sec => {
+    const g = sec.dataset.accGroup, k = sec.dataset.accKey;
+    if (!g || !k) return;
+    const st = accState(g, k);
+    const dot = sec.querySelector(':scope > .acc-head > .acc-state');
+    if (dot) dot.className = 'acc-state ' + st;
+  });
+  updateProgress();
+}
+function addArray(path, item, group, key){
+  let a = collectionGet(path);
+  if (!a) { pathSet(path, []); a = collectionGet(path); }
+  a.push(item);
+  if (group && key) state.uiOpen[group] = key;
+  saveState();
+  renderApp(true);
+}
+function removeArrayItem(path, index, group, key){
+  const a = collectionGet(path);
+  if (!a || index < 0 || index >= a.length) return;
+  a.splice(index, 1);
+  if (group && key) state.uiOpen[group] = key;
+  saveState();
+  renderApp(true);
+  toast('Item removed');
+}
+function inferGroup(path){ return path.startsWith('brand.') ? 'brand' : 'branch'; }
+function inferKey(path){
+  if (path.includes('contacts')) return 'contacts';
+  if (path.includes('social')) return 'socials';
+  if (path.includes('hours')) return 'hours';
+  if (path.includes('serviceAreas') || path.includes('serviceArea')) return 'serviceArea';
+  if (path.includes('packages')) return 'packages';
+  if (path.includes('addOns')) return 'addOns';
+  if (path.includes('tasting')) return 'tastings';
+  if (path.includes('equipment')) return 'equipment';
+  if (path.includes('staffing')) return 'staffing';
+  if (path.includes('quoteSettings')) return 'quoteBuilder';
+  if (path.includes('eventQuotes')) return 'eventQuotes';
+  if (path.includes('paymentPartnerships')) return 'partnerships';
+  if (path.includes('promotions')) return 'payments';
+  if (path.includes('users')) return 'users';
+  if (path.includes('identity')) return 'identity';
+  return '';
+}
+
+/* ============================ MODALS ============================ */
+function showModal(title, body, submitLabel, submitFn){
+  lastFocus = document.activeElement;
+  $('#modalTitle').textContent = title;
+  $('#modalBody').innerHTML = body;
+  $('#modalFooter').innerHTML = `<button type="button" class="btn btn-secondary" data-action="close-modal">Cancel</button><button type="button" class="btn btn-primary" id="modalSubmit">${e(submitLabel||'Add')}</button>`;
+  $('#modalBackdrop').classList.remove('hide');
+  modalSubmit = submitFn;
+  $('#modalSubmit').onclick = () => { if (typeof modalSubmit === 'function') modalSubmit(); };
+}
+function closeModal(){
+  $('#modalBackdrop').classList.add('hide');
+  $('#modalBody').innerHTML = '';
+  $('#modalFooter').innerHTML = '';
+  modalSubmit = null;
+  pendingStaffPhoto = '';
+  if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+}
+function modalField(id, label, type='text', opts={}){
+  return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><input class="input" id="${e(id)}" type="${e(type)}" ${opts.required?'required':''} ${opts.min!==undefined?'min="'+e(opts.min)+'"':''} ${opts.step!==undefined?'step="'+e(opts.step)+'"':''} placeholder="${e(opts.placeholder||'')}"></label>`;
+}
+function modalSelect(id, label, options, required=true){
+  return `<label class="field"><span>${e(label)}${required?' *':''}</span><select id="${e(id)}" class="select" ${required?'required':''}><option value="">Select an option</option>${options.map(o=>typeof o==='string'?`<option value="${e(o)}">${e(o)}</option>`:`<option value="${e(o.value)}">${e(o.label)}</option>`).join('')}</select></label>`;
+}
+
+function addBranchModal(){
+  showModal('Add a branch',
+    `${modalField('newBranchName','Branch / location name','text',{placeholder:'e.g. Main catering base'})}${modalField('newBranchCode','Internal branch code','text',{placeholder:'Optional reference'})}${modalSelect('newBranchType','Primary branch type',BRANCH_TYPES.map(t=>({value:t.id,label:t.name}))) }<p class="note">After creation, you can edit the address, capabilities, service area, hours, packages, add-ons and staff.</p>`,
+    'Create branch',
+    () => {
+      const name = $('#newBranchName').value.trim();
+      const type = $('#newBranchType').value;
+      const code = $('#newBranchCode').value.trim();
+      if (!name) { toast('Enter a branch name.'); $('#newBranchName').focus(); return; }
+      if (!type) { toast('Choose a branch type.'); return; }
+      const br = blankBranch(name, type);
+      br.code = code;
+      state.branches.push(br);
+      state.activeBranchId = br.id;
+      state.branchView = 'rail';
+      state.uiOpen.branch = '';
+      saveState();
+      closeModal();
+      renderApp(true);
+      toast('Branch created.');
     }
-  } catch (_) {}
+  );
+}
+
+function addStaffModal(){
+  const roles = [...Object.entries(STAFF_ROLES).flatMap(([g, rs]) => rs.map(r => ({value:r, label:g+' · '+r}))), {value:'Custom', label:'Custom'}];
+  pendingStaffPhoto = '';
+  showModal('Add staff member',
+    `${modalField('staffFirstName','First name','text',{required:true})}${modalField('staffSurname','Surname','text',{required:true})}${modalSelect('staffGender','Gender',['Male','Female'])}${modalField('staffPhone','Mobile phone','tel',{required:true,placeholder:'+267 ...'})}${modalField('staffEmail','Email','email',{placeholder:'Optional'})}${modalSelect('staffRole','Role',roles)}${modalField('staffCustomRole','Custom role title','text',{placeholder:'Only if Role is Custom'})}${modalField('staffSalary','Salary amount (Pula)','number',{required:true,min:0,step:'0.01'})}${modalSelect('staffPayFrequency','Salary frequency',['Hourly','Daily','Weekly','Bi-weekly','Monthly'])}${modalField('staffStart','Employment start date','date')}${modalField('staffQualifications','Qualifications / certificates','text',{placeholder:'Food safety, first aid...'})}<p class="note">Salary amount and pay frequency are required for a new staff member.</p>`,
+    'Add staff member',
+    () => {
+      const name = $('#staffFirstName').value.trim();
+      const surname = $('#staffSurname').value.trim();
+      const role = $('#staffRole').value;
+      const salary = $('#staffSalary').value;
+      const frequency = $('#staffPayFrequency').value;
+      const phone = $('#staffPhone').value.trim();
+      if (!name || !surname || !role || salary === '' || Number(salary) < 0 || !frequency || !phone){
+        toast('Complete name, role, contact and required salary details.'); return;
+      }
+      if (role === 'Custom' && !$('#staffCustomRole').value.trim()){
+        toast('Enter the custom role title.'); return;
+      }
+      const s = {
+        id: uid('staff'), firstName: name, surname,
+        gender: $('#staffGender').value || 'Male',
+        phone, email: $('#staffEmail').value,
+        role, customRole: $('#staffCustomRole').value.trim(),
+        salaryAmount: Number(salary), salaryFrequency: frequency,
+        startDate: $('#staffStart').value,
+        qualifications: $('#staffQualifications').value
+      };
+      state.staffDirectory.push(s);
+      activeBranch().staffAssignments.push(s.id);
+      state.uiOpen.branch = 'staff';
+      saveState();
+      closeModal();
+      renderApp(true);
+      toast('Staff member added to this branch.');
+    }
+  );
+}
+
+function addUserModal(){
+  const staffOpts = state.staffDirectory.map(s => ({value:s.id, label:(s.firstName+' '+s.surname).trim()+' · '+(s.role==='Custom'?s.customRole:s.role)}));
+  showModal('Add catering user',
+    `${modalSelect('userSource','Choose a contact source',[{value:'staff',label:'Existing staff profile'},{value:'new',label:'New contact / external stakeholder'}])}<div id="userStaffWrap">${modalSelect('userStaffId','Staff profile',staffOpts,false)}</div><div id="userNewWrap" class="hide">${modalField('userName','Full name','text')}${modalField('userContact','Mobile / email','text',{placeholder:'Contact detail'})}</div>${modalSelect('userRole','Access role',USER_ROLES)}<div id="userCustomWrap" class="hide">${modalField('userCustomRole','Custom role title','text')}</div>${modalSelect('userScope','Access scope',[{value:'brand',label:'Entire brand'},{value:'selected',label:'Selected branches only'}])}<div id="userBranchesWrap" class="hide"><div class="section-label">Allowed branches</div><div class="check-list">${state.branches.map(b=>`<label class="check-item"><input type="checkbox" name="userBranch" value="${e(b.id)}"><span>${e(b.name||'Untitled branch')}</span></label>`).join('')}</div></div><div class="section-label">Permissions</div><div class="check-list">${PERMISSION_OPTIONS.map(p=>`<label class="check-item"><input type="checkbox" name="userPermission" value="${e(p.id)}"><span>${e(p.label)}</span></label>`).join('')}</div>`,
+    'Add authorised user',
+    () => {
+      const source = $('#userSource').value;
+      const role = $('#userRole').value;
+      const scope = $('#userScope').value;
+      let name = '', contact = '', staffId = null;
+      if (source === 'staff'){
+        staffId = $('#userStaffId').value;
+        const s = state.staffDirectory.find(x => x.id === staffId);
+        if (!s) { toast('Select a staff profile.'); return; }
+        name = (s.firstName + ' ' + s.surname).trim();
+        contact = s.phone || s.email || '';
+      } else {
+        name = $('#userName').value.trim();
+        contact = $('#userContact').value.trim();
+        if (!name) { toast('Enter the contact name.'); return; }
+      }
+      if (!role) { toast('Choose an access role.'); return; }
+      if (role === 'Custom' && !$('#userCustomRole').value.trim()){ toast('Enter the custom role title.'); return; }
+      const branchIds = $$('input[name="userBranch"]:checked', $('#modalBody')).map(n => n.value);
+      if (scope === 'selected' && !branchIds.length){ toast('Select at least one branch.'); return; }
+      const permissions = $$('input[name="userPermission"]:checked', $('#modalBody')).map(n => n.value);
+      state.brand.users.push({
+        id: uid('user'), source, staffId, name, contact, role,
+        customRole: $('#userCustomRole').value.trim(),
+        scope,
+        branchIds: scope === 'brand' ? state.branches.map(b => b.id) : branchIds,
+        permissions
+      });
+      state.uiOpen.brand = 'users';
+      saveState();
+      closeModal();
+      renderApp(true);
+      toast('Catering user added.');
+    }
+  );
+  const sync = () => {
+    const source = $('#userSource').value, role = $('#userRole').value, scope = $('#userScope').value;
+    $('#userStaffWrap').classList.toggle('hide', source !== 'staff');
+    $('#userNewWrap').classList.toggle('hide', source !== 'new');
+    $('#userCustomWrap').classList.toggle('hide', role !== 'Custom');
+    $('#userBranchesWrap').classList.toggle('hide', scope !== 'selected');
+  };
+  setTimeout(() => {
+    ['userSource','userRole','userScope'].forEach(id => $('#'+id)?.addEventListener('change', sync));
+    sync();
+  }, 0);
+}
+
+/* ============================ ACTION HANDLER ============================ */
+function handleAction(el){
+  const a = el.dataset.action;
+  switch(a){
+    case 'toggle-acc': {
+      const g = el.dataset.group, k = el.dataset.key;
+      state.uiOpen[g] = state.uiOpen[g] === k ? '' : k;
+      saveState();
+      renderApp(true);
+      break;
+    }
+    case 'set-view': state.branchView = el.dataset.view; renderApp(true); saveState(); break;
+    case 'add-branch': addBranchModal(); break;
+    case 'edit-branch': {
+      state.activeBranchId = el.dataset.id;
+      state.branchView = 'rail';
+      state.uiOpen.branch = ''; state.uiOpen.hoursKey = ''; state.uiOpen.customHours = ''; state.uiOpen.amenityGroup = '';
+      renderApp(true); saveState(); break;
+    }
+    case 'select-rail-branch': {
+      state.activeBranchId = el.dataset.id;
+      state.uiOpen.branch = ''; state.uiOpen.hoursKey = ''; state.uiOpen.customHours = ''; state.uiOpen.amenityGroup = '';
+      renderApp(true); saveState(); break;
+    }
+    case 'branch-prev': moveBranch(-1); break;
+    case 'branch-next': moveBranch(1); break;
+    case 'add-brand-contact': addArray('brand.contacts', blankContact('Corporate enquiries'), 'brand', 'contacts'); break;
+    case 'add-brand-social': addArray('brand.socialLinks', blankSocial(), 'brand', 'socials'); break;
+    case 'add-service-region': addArray('brand.serviceAreas.regions', blankServiceRegion(), 'brand', 'registration'); break;
+    case 'add-user': addUserModal(); break;
+    case 'add-contact': addArray('branch.contacts', blankContact(), 'branch', 'contacts'); break;
+    case 'add-social': addArray('branch.socialLinks', blankSocial(), 'branch', 'socials'); break;
+    case 'add-custom-hours': addArray('branch.hours.custom', blankCustomHours('office'), 'branch', 'hours'); break;
+    case 'add-branch-region': addArray('branch.serviceArea.regions', blankServiceRegion(), 'branch', 'serviceArea'); break;
+    case 'add-travel-tier': addArray('branch.serviceArea.travelFeeTiers', blankTravelTier(), 'branch', 'serviceArea'); break;
+    case 'add-package': addArray('branch.packages', blankPackage(), 'branch', 'packages'); break;
+    case 'add-addon': addArray('branch.addOns', blankAddOn(), 'branch', 'addOns'); break;
+    case 'add-tasting': addArray('branch.tastingSessions', blankTasting(), 'branch', 'tastings'); break;
+    case 'add-equipment': addArray('branch.equipment', blankEquipment(), 'branch', 'equipment'); break;
+    case 'add-staffing-tier': addArray('branch.staffing.tiers', blankStaffingTier(), 'branch', 'staffing'); break;
+    case 'add-event-quote': addArray('branch.eventQuotes', blankQuote(), 'branch', 'eventQuotes'); break;
+    case 'add-promotion': addArray('branch.promotions', {id:uid('promo'), provider:'', name:'', type:'Percentage discount', value:'', valueType:'% discount', startDate:'', endDate:'', schedule:'', eligibleTypes:'', minimumSpend:'', maximumDiscount:'', terms:'', url:''}, 'branch', 'payments'); break;
+    case 'add-partnership': addArray('branch.paymentPartnerships', {id:uid('partnership'), provider:'', promotionName:'', notes:'', url:''}, 'branch', 'partnerships'); break;
+    case 'add-staff': addStaffModal(); break;
+    case 'remove-item': removeArrayItem(el.dataset.collection, Number(el.dataset.index), inferGroup(el.dataset.collection), inferKey(el.dataset.collection)); break;
+    case 'add-photo': addArray(el.dataset.path, blankPhoto(), 'branch', inferKey(el.dataset.path)); break;
+    case 'toggle-hours-day': {
+      const k = el.dataset.key;
+      state.uiOpen.hoursKey = state.uiOpen.hoursKey === k ? '' : k;
+      saveState(); renderApp(true);
+      break;
+    }
+    case 'toggle-custom-hours': {
+      const k = el.dataset.key;
+      state.uiOpen.customHours = state.uiOpen.customHours === k ? '' : k;
+      saveState(); renderApp(true);
+      break;
+    }
+    case 'toggle-amenity-group': {
+      const k = el.dataset.key;
+      state.uiOpen.amenityGroup = state.uiOpen.amenityGroup === k ? '' : k;
+      saveState(); renderApp(true);
+      break;
+    }
+    case 'remove-category': {
+      const i = Number(el.dataset.index);
+      const cats = arr(state.brand.identity.categories);
+      if (i >= 0 && i < cats.length){
+        cats.splice(i, 1);
+        state.brand.identity.categories = cats;
+        saveState(); renderApp(true);
+      }
+      break;
+    }
+    case 'add-custom-category': {
+      const inp = $('#categoryCustom');
+      if (!inp) break;
+      const v = inp.value.trim();
+      if (!v) { toast('Type a category first.'); break; }
+      const cats = arr(state.brand.identity.categories);
+      if (!cats.includes(v)) cats.push(v);
+      state.brand.identity.categories = cats;
+      saveState(); renderApp(true);
+      toast('Category added.');
+      break;
+    }
+    case 'run-quote-preview': {
+      captureInputs();
+      calculateQuote(activeBranch());
+      break;
+    }
+    case 'save-draft': saveState(true); break;
+    case 'preview': showPreview(); break;
+    case 'close-modal': closeModal(); break;
+  }
+}
+
+function moveBranch(delta){
+  let i = state.branches.findIndex(b => b.id === state.activeBranchId);
+  i = Math.max(0, Math.min(state.branches.length - 1, i + delta));
+  state.activeBranchId = state.branches[i].id;
+  state.uiOpen.branch = ''; state.uiOpen.hoursKey = ''; state.uiOpen.customHours = ''; state.uiOpen.amenityGroup = '';
+  renderApp(true); saveState();
+}
+
+function showPreview(){
+  const brand = state.brand.identity;
+  const rows = state.branches.map(b => `<div class="summary-block"><h4>${e(b.name||'Untitled branch')} <span class="badge orange">${e(branchTypeName(b.type))}</span></h4><p>${e(branchAddress(b))}</p><p style="margin-top:5px">Capabilities: ${e(b.capabilities.map(c=>(CAPABILITIES.find(x=>x.id===c)||{}).label||c).join(', ')||'None selected')}</p><p style="margin-top:5px">Packages: ${b.packages.length} · Add-ons: ${b.addOns.length} · Tastings: ${b.tastingSessions.length} · Equipment: ${b.equipment.length} · Event quotes: ${b.eventQuotes.length} · Staff: ${b.staffAssignments.length}</p></div>`).join('');
+  showModal('Setup preview',
+    `<div class="summary-block"><h4>${e(brand.name||'Catering brand not named')}</h4><p>${e(brand.legalName||'No registered business name added')}</p><p style="margin-top:5px">${e(brand.description||'No brand description added')}</p></div><div class="section-label">Branches (${state.branches.length})</div>${rows}<p class="note"><strong>Local preview only.</strong> This self-contained file stores draft data in your browser. Connect the production API and server-side permission checks before publishing live profiles or storing sensitive staff information.</p>`,
+    'Close preview',
+    () => closeModal()
+  );
+}
+
+/* ============================ INPUTS ============================ */
+function captureInputs(){
+  $$('[data-bind]').forEach(el => {
+    const path = el.dataset.bind;
+    if (!path) return;
+    let val;
+    if (el.type === 'checkbox') val = el.checked;
+    else if (el.dataset.valueType === 'number') val = el.value === '' ? '' : Number(el.value);
+    else val = el.value;
+    pathSet(path, val);
+  });
+}
+
+function handleInput(el){
+  const path = el.dataset.bind;
+  if (!path) return;
+  let val;
+  if (el.type === 'checkbox') val = el.checked;
+  else if (el.dataset.valueType === 'number') val = el.value === '' ? '' : Number(el.value);
+  else val = el.value;
+  pathSet(path, val);
+  if (path === 'branch.customAmenitiesText'){
+    activeBranch().customAmenities = val.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  saveState();
+  refreshLiveLabels();
+  const img = $(`[data-image-preview="${CSS.escape(path)}"]`);
+  if (img && el.type !== 'file') img.innerHTML = imagePreview(val, 'Image preview');
+}
+
+function handleChange(el){
+  if (el.dataset.choice){
+    setChoice(el.dataset.choice, el.dataset.choiceValue, el.checked);
+    if (el.dataset.choice === 'branch.capabilities' || el.dataset.choice === 'branch.amenities'){
+      renderApp(true);
+    }
+    return;
+  }
+  if (el.dataset.bind){
+    handleInput(el);
+    const p = el.dataset.bind;
+    if (p === 'branch.type'){
+      const b = activeBranch();
+      const type = BRANCH_TYPES.find(t => t.id === b.type);
+      if (type) b.capabilities = type.caps.slice();
+      renderApp(true);
+    } else if (p === 'branch.inheritBrandContacts' || p === 'branch.inheritBrandSocialLinks'){
+      renderApp(true);
+    } else if (p.endsWith('.role')){
+      renderApp(true);
+    } else if (p === 'brand.tastingPolicy.enabled' || p === 'branch.paymentPlan.enabled'){
+      renderApp(true);
+    }
+  }
+}
+
+function handleEventTypeSelect(el){
+  const i = Number(el.dataset.eventTypeSelect);
+  const q = activeBranch().eventQuotes[i];
+  if (!q) return;
+  q.eventTypeId = el.value;
+  const found = getEventTypeById(el.value);
+  q.eventTypeName = found ? found.name : '';
+  saveState();
+  renderApp(true);
+}
+
+/* ============================ EVENT WIRING ============================ */
+$('#app-shell').addEventListener('click', ev => {
+  const t = ev.target.closest('[data-action]');
+  if (t){ ev.preventDefault(); handleAction(t); }
 });
+$('#app-shell').addEventListener('input', ev => {
+  const t = ev.target;
+  if (t.matches('[data-bind]') && t.type !== 'checkbox' && !t.matches('select')) handleInput(t);
+});
+$('#app-shell').addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.id === 'categoryPick'){
+    const v = t.value.trim();
+    if (v){
+      const cats = arr(state.brand.identity.categories);
+      if (!cats.includes(v)) cats.push(v);
+      state.brand.identity.categories = cats;
+      saveState(); renderApp(true);
+    }
+    return;
+  }
+  if (t.matches('[data-upload]')) handleUpload(t);
+  else if (t.matches('[data-event-type-select]')) handleEventTypeSelect(t);
+  else if (t.matches('[data-action="assign-existing-staff"]')){
+    const id = t.value;
+    if (id && !activeBranch().staffAssignments.includes(id)){
+      activeBranch().staffAssignments.push(id);
+      state.uiOpen.branch = 'staff';
+      saveState(); renderApp(true);
+      toast('Staff assigned to this branch.');
+    }
+  }
+  else if (t.matches('[data-bind], [data-choice]')) handleChange(t);
+});
+$('#modalBackdrop').addEventListener('click', ev => {
+  const t = ev.target.closest('[data-action]');
+  if (t) handleAction(t);
+  if (ev.target === $('#modalBackdrop')) closeModal();
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && !$('#modalBackdrop').classList.contains('hide')) closeModal();
+});
+
+function compressImage(file, callback){
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 1000;
+      let w = img.width, h = img.height;
+      if (Math.max(w, h) > max){
+        const ratio = max / Math.max(w, h);
+        w = Math.round(w * ratio); h = Math.round(h * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      try { callback(canvas.toDataURL('image/webp', .76)); }
+      catch(err){ callback(reader.result); }
+    };
+    img.onerror = () => callback(reader.result);
+    img.src = reader.result;
+  };
+  reader.onerror = () => toast('Could not read that image.');
+  reader.readAsDataURL(file);
+}
+function handleUpload(el){
+  const file = el.files && el.files[0], path = el.dataset.upload;
+  if (!file || !path) return;
+  if (!file.type.startsWith('image/')) { toast('Choose an image file.'); return; }
+  compressImage(file, data => {
+    pathSet(path, data);
+    saveState();
+    renderApp(true);
+    toast('Image added to the local draft.');
+  });
+}
+
+/* ============================ NORMALISE / BOOT ============================ */
+function normalizeState(){
+  state.brand.identity.categories = arr(state.brand.identity.categories);
+  state.brand.serviceAreas = Object.assign({regions:[], maxRadiusKm:'', outOfRegionSurcharge:'', notes:''}, state.brand.serviceAreas || {});
+  state.brand.serviceAreas.regions = arr(state.brand.serviceAreas.regions);
+  state.brand.foodSafety = Object.assign({healthPermit:false, healthPermitNumber:'', healthPermitExpiry:'', foodHandlerCerts:false, foodHandlerNotes:'', insurance:false, insuranceProvider:'', insurancePolicyNumber:'', insuranceExpiry:''}, state.brand.foodSafety || {});
+  state.brand.tastingPolicy = Object.assign({enabled:false, pricePerSession:'', notes:'', advanceBookingDays:'', menuCustomisation:''}, state.brand.tastingPolicy || {});
+  state.branches.forEach(b => {
+    b.capabilities = arr(b.capabilities);
+    b.contacts = arr(b.contacts);
+    b.socialLinks = arr(b.socialLinks);
+    b.amenities = arr(b.amenities);
+    b.customAmenities = arr(b.customAmenities);
+    b.packages = arr(b.packages);
+    b.addOns = arr(b.addOns);
+    b.tastingSessions = arr(b.tastingSessions);
+    b.equipment = arr(b.equipment);
+    b.eventQuotes = arr(b.eventQuotes);
+    b.paymentMethods = arr(b.paymentMethods);
+    b.promotions = arr(b.promotions);
+    b.paymentPartnerships = arr(b.paymentPartnerships);
+    b.staffAssignments = arr(b.staffAssignments);
+    b.amenityDetails = (b.amenityDetails && typeof b.amenityDetails === 'object') ? b.amenityDetails : {};
+    if (typeof b.customAmenitiesText !== 'string') b.customAmenitiesText = b.customAmenities.join(', ');
+
+    b.hours = b.hours || {};
+    ['office','eventService','tasting'].forEach(scope => {
+      if (!b.hours[scope] || !Array.isArray(b.hours[scope].weekly)){
+        b.hours[scope] = {weekly: WEEKDAYS.map(day => scope === 'eventService'
+          ? {day, start:'', end:'', active:false}
+          : scope === 'tasting'
+            ? {day, open:'', close:'', enabled:false}
+            : {day, open:'', close:'', closed:false})};
+      }
+    });
+    b.hours.custom = arr(b.hours.custom);
+
+    b.serviceArea = Object.assign({regions:[], maxRadiusKm:'', travelFeeTiers:[], outOfAreaSurcharge:'', setupTimeMinutes:'', breakdownTimeMinutes:'', minimumBookingValue:''}, b.serviceArea || {});
+    b.serviceArea.regions = arr(b.serviceArea.regions);
+    b.serviceArea.travelFeeTiers = arr(b.serviceArea.travelFeeTiers);
+
+    b.staffing = Object.assign({serversPerGuest:10, chefRequired:false, bartenderPerGuest:25, minimumCrew:2, tiers:[]}, b.staffing || {});
+    b.staffing.tiers = arr(b.staffing.tiers);
+    b.quoteSettings = Object.assign({vatPercent:14, serverHourlyRate:60, chefHourlyRate:120, bartenderHourlyRate:80, equipmentHandlingPercent:5, serviceHoursDefault:4}, b.quoteSettings || {});
+    b.depositSettings = Object.assign({depositPercent:30, cancellationWindowDays:14, cancellationFee:''}, b.depositSettings || {});
+    b.paymentPlan = Object.assign({enabled:false, minimumAmount:5000, installmentCount:3}, b.paymentPlan || {});
+
+    b.packages.forEach(p => { p.dietaryVariants = arr(p.dietaryVariants); p.gallery = arr(p.gallery); });
+    b.eventQuotes.forEach(q => { q.addOnIds = arr(q.addOnIds); });
+  });
+  state.brand.contacts = arr(state.brand.contacts);
+  state.brand.socialLinks = arr(state.brand.socialLinks);
+  state.brand.users = arr(state.brand.users);
+  state.staffDirectory = arr(state.staffDirectory);
+}
+
+normalizeState();
+state.uiOpen = {brand:'', branch:'', hoursKey:'', customHours:'', amenityGroup:'', quotePreview:''};
+renderApp(false);
+saveState();
+
+})();
 </script>
 </body>
 </html>

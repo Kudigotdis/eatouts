@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "merge": "python scripts/build_restaurant_directory.py",
+    "merge:submissions": "python scripts/merge_submissions.py",
     "link-registry": "node scripts/build_link_registry.mjs",
-    "build": "npm run merge && npm run link-registry && node copy-static.mjs",
+    "build": "npm run merge && npm run merge:submissions && npm run link-registry && node copy-static.mjs",
     "stage": "node copy-static.mjs",
     "deploy": "npm run build && npx wrangler pages deploy dist",
     "preview": "npm run build && npx wrangler pages dev dist",
