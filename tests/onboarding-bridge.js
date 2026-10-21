@@ -106,12 +106,12 @@ check('signup popup still uses #typePopupCta', signupSrc.indexOf('typePopupCta')
 check('signup popup still uses .popup-scrim', signupSrc.indexOf('popup-scrim') >= 0);
 
 /* the customer account page */
-check('eatouts_user_onboarding.html exists', has('eatouts_user_onboarding.html'));
-check('eatouts-user-onboarding.html is a redirect shim',
-  has('eatouts-user-onboarding.html') &&
-  /eatouts_user_onboarding\.html/.test(read('eatouts-user-onboarding.html')) &&
-  /location\.replace|http-equiv="refresh"/.test(read('eatouts-user-onboarding.html')));
-const userOnboard = read('eatouts_user_onboarding.html');
+const CUSTOMER_PAGE = 'eatouts-customer-signup.html';
+check(CUSTOMER_PAGE + ' exists', has(CUSTOMER_PAGE));
+check('the customer page is the one every sign-up link points at',
+  read('index.html').indexOf('"' + CUSTOMER_PAGE + '"') >= 0 &&
+  read('eatouts-login.html').indexOf(CUSTOMER_PAGE) >= 0);
+const userOnboard = read(CUSTOMER_PAGE);
 check('customer page has the 18+ gate', /age\(dob\)<18/.test(userOnboard) && /18 or older/.test(userOnboard));
 check('customer page creates the account through EatoutsCustomer.signup', /EatoutsCustomer[\s\S]{0,200}\.signup\(|ecustomer\.signup\(/.test(userOnboard));
 check('customer page verifies through EatoutsCustomer.verify', /ecustomer\.verify\(/.test(userOnboard));

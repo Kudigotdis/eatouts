@@ -1,0 +1,269 @@
+<!doctype html>
+<!-- PAGE: Customer signup -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#ffffff">
+<title>Customer signup · EatOuts</title>
+<link rel="stylesheet" href="assets/eatouts-manager.css">
+<style>
+.picks-list{max-height:260px;overflow:auto;border:1px solid #e7e4dd;border-radius:10px;padding:4px;margin:8px 0}
+.pick{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13.5px}
+.pick:hover{background:#faf8f4}
+.pick input{margin:0}
+.pick .pick-sub{margin-left:auto;font-size:11px;color:#8a8172;white-space:nowrap}
+.pick.pick-off{opacity:.45}
+.tip{position:relative}
+.tip-list{position:absolute;z-index:40;left:0;right:0;top:100%;margin:4px 0 0;background:#fff;border:1px solid #e7e4dd;border-radius:10px;box-shadow:0 12px 28px rgba(23,23,25,.14);max-height:230px;overflow:auto;display:none}
+.tip-list.open{display:block}
+.tip-opt{display:flex;gap:8px;align-items:baseline;padding:9px 11px;font-size:13.5px;cursor:pointer;border-bottom:1px solid #f2efe8}
+.tip-opt:last-child{border-bottom:0}
+.tip-opt:hover,.tip-opt.on{background:#faf8f4}
+.tip-opt .tip-kind{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#8a8172;margin-left:auto;white-space:nowrap}
+.tip-empty{padding:10px 11px;font-size:12.5px;color:#8a8172}
+</style>
+</head>
+<body data-page="eatouts-customer-signup">
+<div class="login"><div class="loginbox">
+<header class="topbar loginbar"><a class="brand" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts" style="height:30px;width:auto;display:block"></a><div class="hdr-right"><span class="hdr-chip">EatOuts</span></div></header>
+<div class="crumb">Customer onboarding</div>
+<div class="onboard-steps"><i class="step on"></i><i class="step"></i><i class="step"></i></div>
+
+<h1>Create your customer account</h1>
+<p>Your username, WhatsApp number and password are your login. Date of birth is used for the 18+ age gate.</p>
+<form id="onboard">
+<div class="two"><label class="field"><span>First name</span><input name="firstName" required></label><label class="field"><span>Surname</span><input name="surname" required></label></div>
+<div class="two"><label class="field"><span>Date of birth</span><input name="dob" type="date" required></label><label class="field"><span>Gender</span><select name="gender"><option>Prefer not to say</option><option>Female</option><option>Male</option><option>Other</option></select></label></div>
+<div class="two">
+<label class="field tip"><span>Town / city</span><input name="town" id="fTown" placeholder="Start typing a town" autocomplete="off" required><div class="tip-list" id="fTownList"></div></label>
+<label class="field tip"><span>Area</span><input name="area" id="fArea" placeholder="Start typing an area" autocomplete="off"><div class="tip-list" id="fAreaList"></div></label>
+</div>
+<label class="field"><span>Username</span><input name="username" autocomplete="username" placeholder="yourname" required></label>
+<label class="field"><span>Password</span><input name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required></label>
+<label class="field"><span>Confirm password</span><input name="confirm" type="password" autocomplete="new-password" required></label>
+<label class="field"><span>WhatsApp number — login</span><input name="whatsapp" inputmode="tel" autocomplete="tel" required></label>
+<label class="field"><span>Additional contact</span><input name="contact" inputmode="tel" placeholder="Optional"></label>
+<label class="field"><span>Email (optional)</span><input name="email" type="email"></label>
+<label class="check"><input type="checkbox" name="ageGate" required> I confirm I am 18 or older.</label>
+<div id="oerr" class="notice" style="display:none;margin-top:10px"></div>
+<button class="btn primary full" style="margin-top:10px">Create account</button>
+</form>
+<div id="verifyPanel" class="card" style="display:none;margin-top:16px"><div class="card-title">Confirm your WhatsApp</div><p style="font-size:13px;color:#6b6255">Tap the button to open WhatsApp and send your confirmation, then come back and press “I’ve confirmed”.</p><a id="waConfirm" class="btn primary full" target="_blank" rel="noopener">Confirm on WhatsApp</a><button id="verifiedBtn" class="btn full" style="margin-top:8px">I’ve confirmed</button></div>
+<div id="picksPanel" class="card" style="display:none;margin-top:16px"><div class="card-title">Pick your favourites</div><p style="font-size:13px;color:#6b6255">Choose up to 5 restaurants and 1 bottle &amp; liquor store. You can change these anytime from your profile.</p>
+<label class="field"><span>Town / city</span><select id="pkTown"></select></label>
+<label class="field"><span>Search restaurants</span><input id="pkSearch" placeholder="Type a restaurant name"></label>
+<div id="pkRests" class="picks-list"></div>
+<p id="pkCount" class="minor" style="margin:4px 0 10px"></p>
+<label class="field"><span>Bottle &amp; liquor store (optional)</span><select id="pkBottle"><option value="">— None —</option></select></label>
+<button id="pkSave" class="btn primary full" style="margin-top:10px">Save &amp; continue</button>
+<button id="pkSkip" class="btn full" style="margin-top:8px">Skip for now</button></div>
+</div></div>
+
+<script src="botswana_locations.js"></script>
+<script src="js/eatouts-locations.js"></script>
+<script src="js/eatouts-manager-db.js"></script>
+<script src="js/eatouts-roles.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-feedback.js"></script>
+<script src="js/eatouts-blog-admin.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-manager.js"></script>
+<script src="js/eatouts-customer.js"></script>
+<script src="assets/data/restaurant_listings/eatouts_restaurant_picks.js"></script>
+<script src="assets/data/BottleLliquorStoresDatabase.js"></script>
+<script src="js/eatouts-bottle-stores.js"></script>
+<script>
+(function(){
+ "use strict";
+ /* The signup draft lives here so a refresh never loses a half-typed form. */
+ var DRAFT_KEY = 'eatouts.user-onboarding.v1';
+
+ function showErr(msg){var x=document.querySelector("#oerr");x.textContent=msg;x.style.display="block";}
+ function age(dob){return new Date().getFullYear()-new Date(dob).getFullYear()-((new Date().getMonth()+1<new Date(dob).getMonth()+1||new Date(dob).getDate()<new Date(dob).getDate())?1:0);}
+ function escHtml(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+ function escAttr(s){return escHtml(s).replace(/"/g,"&quot;");}
+ function slugify(s){return String(s||"").toLowerCase().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
+
+ var ecustomer=window.EatoutsCustomer, pendingWa=null, pendingTown="Gaborone", brandBySlug={};
+
+ /* ---------- draft persistence ---------- */
+ function draftFields(){var f=document.querySelector("#onboard");if(!f)return[];return Array.prototype.slice.call(f.elements);}
+ function saveDraft(){
+  var out={};
+  draftFields().forEach(function(el){
+   if(!el.name)return;
+   if(el.type==="checkbox"){out[el.name]=!!el.checked;return;}
+   if(el.type==="password")return;                 /* never keep passwords */
+   out[el.name]=el.value;
+  });
+  try{localStorage.setItem(DRAFT_KEY,JSON.stringify(out));}catch(e){}
+ }
+ function loadDraft(){
+  var raw=null;
+  try{raw=localStorage.getItem(DRAFT_KEY);}catch(e){return;}
+  if(!raw)return;
+  var data=null;
+  try{data=JSON.parse(raw);}catch(e){return;}
+  if(!data)return;
+  draftFields().forEach(function(el){
+   if(!el.name||!(el.name in data))return;
+   if(el.type==="checkbox"){el.checked=!!data[el.name];return;}
+   if(el.type==="password")return;
+   el.value=data[el.name];
+  });
+  if(document.querySelector("#fTown"))document.querySelector("#fTown").dispatchEvent(new Event("input"));
+ }
+ function clearDraft(){try{localStorage.removeItem(DRAFT_KEY);}catch(e){}}
+
+ /* ---------- live town / area typeahead ---------- */
+ function tipList(id){return document.getElementById(id);}
+ function closeTips(){["fTownList","fAreaList"].forEach(function(id){var l=tipList(id);if(l){l.classList.remove("open");l.innerHTML="";}});}
+ function openTips(list,rows,onPick){
+  list.innerHTML=rows.length?rows.map(function(r,i){
+   return '<div class="tip-opt'+(i===0?' on':'')+'" data-i="'+i+'"><span>'+escHtml(r.name)+'</span><span class="tip-kind">'+escHtml(r.kind||"")+(r.district?" · "+escHtml(r.district):"")+'</span></div>';
+  }).join(""):'<div class="tip-empty">No matches — type a little more.</div>';
+  list.classList.add("open");
+  list.onmousedown=function(e){
+   var opt=e.target.closest(".tip-opt");if(!opt)return;
+   e.preventDefault();
+   onPick(rows[Number(opt.getAttribute("data-i"))]);
+   closeTips();
+  };
+ }
+ function wireTypeahead(inputId,listId,kind,filter){
+  var input=document.getElementById(inputId),list=tipList(listId);
+  if(!input||!list||!window.EatoutsLocations)return;
+  input.addEventListener("input",function(){
+   var q=(input.value||"").trim();
+   if(q.length<2){closeTips();return;}
+   var rows=window.EatoutsLocations.search(q,12).filter(function(r){return !kind||r.kind===kind;});
+   if(typeof filter==="function")rows=rows.filter(filter);
+   openTips(list,rows,function(r){input.value=r.name;input.dispatchEvent(new Event("input",{bubbles:true}));});
+  });
+  input.addEventListener("blur",function(){setTimeout(closeTips,120);});
+  input.addEventListener("keydown",function(e){
+   if(e.key==="Escape"){closeTips();return;}
+   if(e.key!=="ArrowDown"&&e.key!=="ArrowUp")return;
+   var opts=list.querySelectorAll(".tip-opt");if(!opts.length)return;
+   e.preventDefault();
+   var i=-1;opts.forEach(function(o,k){if(o.classList.contains("on"))i=k;});
+   var next=e.key==="ArrowDown"?Math.min(i+1,opts.length-1):Math.max(i-1,0);
+   opts.forEach(function(o,k){o.classList.toggle("on",k===next);});
+   opts[next].scrollIntoView({block:"nearest"});
+  });
+ }
+ wireTypeahead("fTown","fTownList","town",null);
+ wireTypeahead("fArea","fAreaList","area",function(r){
+   var town=(document.getElementById("fTown")||{}).value||"";
+   return !town||!r.town||r.town.toLowerCase()===town.toLowerCase();
+ });
+
+ /* ---------- account creation ---------- */
+ document.querySelector("#onboard").addEventListener("input",saveDraft);
+ document.querySelector("#onboard").addEventListener("submit",function(e){
+  e.preventDefault();
+  var f=new FormData(e.target), dob=f.get("dob");
+  if(age(dob)<18){showErr("You must be 18 or older to use this account.");return;}
+  if(f.get("password")!==f.get("confirm")){showErr("Passwords do not match.");return;}
+  if(String(f.get("password")).length<8){showErr("Password must be at least 8 characters.");return;}
+  var whatsapp=String(f.get("whatsapp")).replace(/\D/g,"");
+  pendingWa=whatsapp;pendingTown=f.get("town")||pendingTown;
+  var payload={firstName:f.get("firstName"),surname:f.get("surname"),dob:dob,gender:f.get("gender"),town:f.get("town"),area:f.get("area"),username:f.get("username"),password:f.get("password"),whatsapp:whatsapp,contacts:[f.get("contact")].filter(Boolean),email:f.get("email"),type:"customer"};
+  var btn=e.target.querySelector("button");btn.disabled=true;
+  ecustomer.signup(payload).then(function(r){
+   btn.disabled=false;
+   if(r&&r.ok){onSignedUp(r,payload);return;}
+   if(r&&r.error==="backend_not_configured"){localFallback(payload);return;}
+   showErr((r&&r.error)||"Could not create account.");
+  }).catch(function(){btn.disabled=false;showErr("Network error. Try again.");});
+ });
+ function onSignedUp(r,payload){
+  var link=(r.verify&&r.verify.link)||"https://wa.me/26771844129";
+  document.querySelector("#waConfirm").href=link;
+  document.querySelector("#onboard").style.display="none";
+  document.querySelector("#verifyPanel").style.display="block";
+  if(r.verify&&r.verify.whatsapp)pendingWa=r.verify.whatsapp;
+  clearDraft();
+ }
+ document.querySelector("#verifiedBtn").addEventListener("click",function(){
+  var b=this;b.disabled=true;
+  ecustomer.verify({whatsapp:pendingWa}).then(function(r){
+   b.disabled=false;
+   if(r&&r.ok){showPicks();return;}
+   if(r&&r.error==="backend_not_configured"){location.href="eatouts-profile.html";return;}
+   showErr((r&&r.error)||"Verification failed. Try again.");
+  }).catch(function(){b.disabled=false;showErr("Network error. Try again.");});
+ });
+ function localFallback(p){
+  function finish(u){
+   try{if(u&&EatoutsAuth.startSession)EatoutsAuth.startSession(u);}catch(err){}
+   if(window.EatoutsCustomer){
+    window.EatoutsCustomer.state.user={id:u&&u.id,username:p.username,name:p.firstName+" "+p.surname,whatsapp:p.whatsapp,type:"customer",local:true};
+   }
+   clearDraft();
+   showPicks();
+  }
+  function make(extra){
+   return EatoutsUsers.create(Object.assign({firstName:p.firstName,surname:p.surname,dob:p.dob,gender:p.gender,town:p.town,area:p.area,whatsapp:p.whatsapp,contacts:p.contacts||[],email:p.email,type:"customer",roles:["customer"],username:p.username},extra||{}));
+  }
+  if(window.EatoutsAuth&&EatoutsAuth.hashPassword&&EatoutsAuth.randomSalt){
+   var salt=EatoutsAuth.randomSalt();
+   EatoutsAuth.hashPassword(p.password,salt).then(function(hash){finish(make({passwordHash:hash,salt:salt}))}).catch(function(){finish(make({}))});
+   return;
+  }
+  finish(make({}));
+ }
+
+ /* ---------- favourites ---------- */
+ function updateCount(){var n=document.querySelectorAll("#pkRests input:checked").length;document.querySelector("#pkCount").textContent=n+" of 5 restaurants selected";}
+ function markDisabled(){var n=document.querySelectorAll("#pkRests input:checked").length,boxes=document.querySelectorAll("#pkRests input");for(var i=0;i<boxes.length;i++){var cb=boxes[i];cb.disabled=!cb.checked&&n>=5;var row=cb.parentNode;if(row&&String(row.className).indexOf("pick")===0)row.className="pick"+(cb.disabled?" pick-off":"");}}
+ function renderPicks(){
+  var data=(window.EATOUTS_RESTAURANT_PICKS)||{};
+  var town=document.querySelector("#pkTown").value;
+  var q=(document.querySelector("#pkSearch").value||"").toLowerCase().trim();
+  var list=(data[town]||[]).filter(function(r){return !q||String(r.name).toLowerCase().indexOf(q)>-1;});
+  var box=document.querySelector("#pkRests");
+  box.innerHTML=list.map(function(r){
+   var ref=slugify(r.name);
+   var saved=!!(window.EatoutsCustomer&&EatoutsCustomer.favourites.has({type:"restaurant",refId:ref}));
+   return '<label class="pick"><input type="checkbox" value="'+escAttr(ref)+'" data-title="'+escAttr(r.name)+'" data-sub="'+escAttr(town+" · "+(r.type||r.category||""))+'"'+(saved?" checked":"")+'><span>'+escHtml(r.name)+'</span><span class="pick-sub">'+escHtml(r.type||r.category||"")+'</span></label>';
+  }).join("")||'<p class="minor" style="padding:10px">No restaurants match.</p>';
+  updateCount();markDisabled();
+ }
+ function savePicks(){
+  var btn=document.querySelector("#pkSave");btn.disabled=true;
+  var S=window.EatoutsCustomer,jobs=[],boxes=document.querySelectorAll("#pkRests input:checked");
+  for(var i=0;i<boxes.length;i++){var cb=boxes[i];if(S)jobs.push(S.favourites.add({type:"restaurant",refId:cb.value,title:cb.getAttribute("data-title"),subtitle:cb.getAttribute("data-sub")}));}
+  var slug=document.querySelector("#pkBottle").value;
+  if(slug&&S&&brandBySlug[slug])jobs.push(S.favourites.add({type:"bottle_store",refId:slug,title:brandBySlug[slug].name,subtitle:brandBySlug[slug].sub}));
+  Promise.all(jobs).then(function(){location.href="eatouts-profile.html";}).catch(function(){location.href="eatouts-profile.html";});
+ }
+ function showPicks(){
+  var vp=document.querySelector("#verifyPanel");if(vp)vp.style.display="none";
+  var steps=document.querySelectorAll(".onboard-steps .step");for(var i=0;i<steps.length;i++)steps[i].className="step on";
+  document.querySelector("#picksPanel").style.display="block";
+  var data=(window.EATOUTS_RESTAURANT_PICKS)||{},towns=Object.keys(data),townSel=document.querySelector("#pkTown");
+  if(towns.length){
+   var match=towns.filter(function(t){return t.toLowerCase()===String(pendingTown).toLowerCase();})[0]||towns[0];
+   townSel.innerHTML=towns.map(function(t){return '<option'+(t===match?' selected':'')+'>'+escHtml(t)+'</option>';}).join("");
+  }
+  var bottleSel=document.querySelector("#pkBottle");
+  if(window.EatoutsBottleStores){
+   var brands=window.EatoutsBottleStores.all();
+   brands.forEach(function(b){brandBySlug[b.slug]={name:b.name,sub:window.EatoutsBottleStores.metaFor(b)};});
+   bottleSel.innerHTML='<option value="">— None —</option>'+brands.map(function(b){return '<option value="'+escAttr(b.slug)+'">'+escHtml(b.name)+'</option>';}).join("");
+  }
+  townSel.onchange=renderPicks;
+  document.querySelector("#pkSearch").oninput=renderPicks;
+  document.querySelector("#pkRests").onchange=function(e){var cb=e.target;if(!cb||cb.type!=="checkbox")return;if(document.querySelectorAll("#pkRests input:checked").length>5){cb.checked=false;alert("You can pick up to 5 restaurants.");}updateCount();markDisabled();};
+  document.querySelector("#pkSave").onclick=savePicks;
+  document.querySelector("#pkSkip").onclick=function(){location.href="eatouts-profile.html";};
+  renderPicks();
+ }
+
+ loadDraft();
+})();
+</script>
+</body>
+</html>

@@ -26,14 +26,14 @@ and `HTML_PAGES.md` the longer capability narrative.
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
 | Public & customer surfaces | 14 | 878 KB | 17503 |
-| Restaurant operator back-office | 9 | 536 KB | 6723 |
-| Manager / auth / platform admin (staged package) | 38 | 1145 KB | 22773 |
+| Restaurant operator back-office | 9 | 593 KB | 7753 |
+| Manager / auth / platform admin (staged package) | 38 | 1161 KB | 23013 |
 | Delivery flows | 3 | 129 KB | 2226 |
 | Internal ops & billing | 3 | 153 KB | 2750 |
 | Developer harness | 2 | 224 KB | 4643 |
-| **Total** | **69** | **3063 KB** | **56618** |
+| **Total** | **69** | **3135 KB** | **57888** |
 
-Status: 63 FULL · 1 REDIRECT · 1 PARTIAL · 4 STUB/DEMO.
+Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
 > Run the app through **`run-eatouts.bat`** (serves the root over `http://127.0.0.1`).
 > Opening a page via `file://` isolates `localStorage` per page and breaks
@@ -59,7 +59,7 @@ Status: 63 FULL · 1 REDIRECT · 1 PARTIAL · 4 STUB/DEMO.
 | 14 | `gallery-onboarding.html` | operator-onboarding | Manage gallery groups and images. | Operator back-office â†’ Gallery tab. | yes | `EatoutsDB`→`eatouts_db_v2` | 18 KB / 267 lines |
 | 15 | `restaurant-dashboard.html` | operator-onboarding | Owner dashboard: status, completeness, simulated analytics, billing and downloadable/printable reports. | Operator back-office â†’ Dashboard tab. | yes | `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 30 KB / 485 lines |
 | 16 | `eatouts-login.html` | manager-admin | Universal WhatsApp + PIN sign-in; routes the user by role. | Direct link; also index.html â†’ About â†’ Operator Sign in â†’ Universal sign-in. | - | — | 5 KB / 44 lines |
-| 17 | `eatouts-user-onboarding.html` | manager-admin | Redirect shim — the customer account page now lives at eatouts_user_onboarding.html. | Old bookmarks and links. | - | — | 1 KB / 30 lines |
+| 17 | `eatouts-customer-signup.html` | manager-admin | Customer account creation: name, 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks. | eatouts-login.html "Create an account"; the About Us guest popup (Sign Up); the index.html guest feature popup (Create Account). | - | — | 17 KB / 270 lines |
 | 18 | `eatouts-business-signup.html` | manager-admin | Business-type chooser for new businesses; each card opens that type’s own onboarding form. | eatouts-login.html / marketing links. | - | — | 31 KB / 947 lines |
 | 19 | `bottle-store-onboarding.html` | manager-admin | Bottle & liquor store setup: brand and outlets, stock, tastings, delivery and the Hosting Services block. | eatouts-business-signup.html → Bottle store; the operator dashboard. | - | — | 117 KB / 1630 lines |
 | 20 | `caterer-onboarding.html` | manager-admin | Caterer setup: brand and outlets, menus, service coverage and delivery areas, plus the Hosting Services block. | eatouts-business-signup.html → Caterer; the operator dashboard. | - | — | 137 KB / 1903 lines |
@@ -111,7 +111,7 @@ Status: 63 FULL · 1 REDIRECT · 1 PARTIAL · 4 STUB/DEMO.
 | 66 | `venue-about.html` | public-customer | Data-driven standalone venue About page: renders ANY resolved business's About surface (logo, hero, status, social row, Options, Operating Hours, Venue, Promos, Ambience, Amenities, Menu Tags) from the resolved business alone — no hardcoded venue values, section visibility driven only by present data. | Open directly; pick a business with ?link=<slug> (e.g. venue-about.html?link=nandos) or #<slug> (e.g. venue-about.html#nandos). No slug or an unresolvable slug hands straight back to the directory (location.replace('index.html#restaurants')) — there is no placeholder screen. | - | — | 60 KB / 1460 lines |
 | 67 | `bakery-onboarding.html` | operator-onboarding | Bakery setup: brand identity, outlets, product range, café/seating capability and the Hosting Services block. | eatouts-business-signup.html → Bakery; the operator dashboard. | - | — | 127 KB / 1702 lines |
 | 68 | `mobile-kitchen-onboarding.html` | operator-onboarding | Mobile kitchen setup: units, service locations, grab-and-go menu, throughput and the Hosting Services block. | eatouts-business-signup.html → Mobile Kitchen; the operator dashboard. | - | — | 113 KB / 1185 lines |
-| 69 | `eatouts_user_onboarding.html` | operator-onboarding | Customer account creation: name, 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks. | eatouts-login.html “Create an account”; the About Us guest popup; index.html. | - | — | 17 KB / 270 lines |
+| 69 | `eatouts_user_onboarding.html` | operator-onboarding | Caterer setup: brand, outlets, menus, packages, service coverage and a review-and-publish step. | Direct link. | - | — | 74 KB / 1300 lines |
 
 ## 3. Navigation map
 
@@ -152,7 +152,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_order_v1` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 8
-- **Size:** 502 KB / 9967 lines (513568 bytes)
+- **Size:** 502 KB / 9967 lines (513665 bytes)
 - **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `assets/data/CateringServicesDatabase.js?v=20261021`, `assets/data/bakery_services_database.js?v=20261021`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-catering.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-content.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`
 - **Notes:** Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only. On venue open the app hydrates that venue's canonical D1 content via window.EatoutsContent (js/eatouts-content.js), merging profile/menu/gallery/promos/events into the local store before re-rendering; an unreachable backend leaves the imported-directory path untouched.
 
@@ -295,7 +295,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 11 KB / 162 lines (11330 bytes)
+- **Size:** 11 KB / 162 lines (11427 bytes)
 - **Loads:** —
 - **Notes:** Added as part of Pop‑Up States Plan.
 
@@ -433,16 +433,16 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 
 #### #69 `eatouts_user_onboarding.html`
 
-- **Purpose:** Customer account creation: name, 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks.
-- **Audience:** Redesign draft
-- **Reach it:** eatouts-login.html “Create an account”; the About Us guest popup; index.html.
-- **How you use it:** Live town/area typeahead over botswana_locations.js, POST /api/auth/signup, WhatsApp click-to-chat confirmation, POST /api/auth/verify, then pick up to 5 restaurants and 1 bottle store.
+- **Purpose:** Caterer setup: brand, outlets, menus, packages, service coverage and a review-and-publish step.
+- **Audience:** Caterer
+- **Reach it:** Direct link.
+- **How you use it:** Numbered accordion form with a progress rail, live validation, on-device draft under eatouts.caterer-onboarding.v1, Save draft and Review & publish.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
-- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 1
-- **Size:** 17 KB / 270 lines (17309 bytes)
-- **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-manager-db.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`, `assets/data/restaurant_listings/eatouts_restaurant_picks.js`, `assets/data/BottleLliquorStoresDatabase.js`, `js/eatouts-bottle-stores.js`, `assets/eatouts-manager.css`
-- **Notes:** Rebuilt from the old caterer copy. The draft (minus passwords) survives a refresh under eatouts.user-onboarding.v1. eatouts-user-onboarding.html now redirects here.
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
+- **Size:** 74 KB / 1300 lines (75545 bytes)
+- **Loads:** —
+- **Notes:** Repurposed for the caterer setup form (the customer account page moved to eatouts-customer-signup.html). Shares the caterer-onboarding.html design and store key.
 
 ### Manager / auth / platform admin (staged package)
 
@@ -459,18 +459,18 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Loads:** `js/eatouts-manager-db.js`, `assets/data/demo/the-food-place/demo-data.js`, `js/eatouts-manager-seed.js`, `assets/data/business_types.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`, `assets/eatouts-manager.css`
 - **Notes:** The customer form posts to /api/auth/login (type-aware; business owners sign in here with WhatsApp + password and route to eatouts-business-signup.html) and falls back to a local password check offline. The Business sign-in details block still uses the demo PIN 1234.
 
-#### #17 `eatouts-user-onboarding.html`
+#### #17 `eatouts-customer-signup.html`
 
-- **Purpose:** Redirect shim — the customer account page now lives at eatouts_user_onboarding.html.
-- **Audience:** Legacy links only
-- **Reach it:** Old bookmarks and links.
-- **How you use it:** Meta refresh + location.replace to eatouts_user_onboarding.html.
-- **Auth:** open · **Status:** REDIRECT
+- **Purpose:** Customer account creation: name, 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks.
+- **Audience:** New customer
+- **Reach it:** eatouts-login.html "Create an account"; the About Us guest popup (Sign Up); the index.html guest feature popup (Create Account).
+- **How you use it:** Live town/area typeahead over botswana_locations.js, POST /api/auth/signup, WhatsApp click-to-chat confirmation, POST /api/auth/verify, then pick up to 5 restaurants and 1 bottle store.
+- **Auth:** open · **Status:** FULL
 - **Store:** —
-- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 1 KB / 30 lines (1136 bytes)
-- **Loads:** —
-- **Notes:** _redirects also answers /eatouts-user-onboarding.html with a 301.
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 1
+- **Size:** 17 KB / 270 lines (17301 bytes)
+- **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-manager-db.js`, `js/eatouts-roles.js`, `js/eatouts-users.js`, `js/eatouts-feedback.js`, `js/eatouts-blog-admin.js`, `js/eatouts-auth.js`, `js/eatouts-manager.js`, `js/eatouts-customer.js`, `assets/data/restaurant_listings/eatouts_restaurant_picks.js`, `assets/data/BottleLliquorStoresDatabase.js`, `js/eatouts-bottle-stores.js`, `assets/eatouts-manager.css`
+- **Notes:** The customer account page moved here when eatouts_user_onboarding.html was repurposed for the caterer setup form; _redirects answers /eatouts-user-onboarding.html with a 301. The draft (minus passwords) survives a refresh under eatouts.user-onboarding.v1.
 
 #### #18 `eatouts-business-signup.html`
 
@@ -1044,6 +1044,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 
 ## 5. Change log
 
+- **2026-10-21** — About tab guest card alert now offers three CTAs on a single row - Sign In (primary, eatouts-login.html), Sign Up (eatouts-customer-signup.html) and Later (dismiss); "Not Now" is gone and the row is styled to never wrap. The customer account page moved to eatouts-customer-signup.html (the old hyphenated path 301s there) so eatouts_user_onboarding.html could hold the caterer setup form; every customer sign-up entry point (login page, About guest popup, index.html guest feature popup, the unverified-user route in functions/api/auth/login.js) now points at the new page.
 - **2026-10-21** — Onboarding pages now publish for real. The six business forms (restaurant, mobile kitchen, bottle store, caterer, bakery, event supplier) share js/eatouts-onboarding-bridge.js: live town/area lookup from botswana_locations.js, mall/shopping-centre lookup from assets/data/botswana_shopping_malls_and_shopping_centres.js, a Hosting Services section (capacity spaces + hostable event types from assets/data/event_types.js + booking rules) and a Save & publish action that writes the D1 business profile (business_profiles.hosting_json, new migration 0010) and the local customer directory, then exports an eatouts.venue.v1 submission for the build-time merge. business-onboarding1.html was retired — every link now points at the matching per-type form (assets/data/business_types.js gained EatoutsBusinessTypes.onboardingPage). eatouts_user_onboarding.html was rebuilt as the real customer account page (18+ gate, live town/area, /api/auth/signup + /api/auth/verify, favourites) and eatouts-user-onboarding.html is now a redirect. scripts/merge_submissions.py carries place/capacity/hosting into the runtime directory and rewrites directory_runtime_data.js; npm run build now merges the owner submissions after the directory build so they survive.
 - **2026-10-21** — Brought the 2026-10 onboarding redesign pages up to the test contracts without touching the tests. Restored the `<!-- PAGE: X -->` banner and matching `<body data-page>` slug on all six: restaurant-, bottle-store-, caterer-, bakery-, mobile-kitchen-onboarding and eatouts_user_onboarding. restaurant-onboarding.html joined the app-shell standard: #app-shell renamed to #shell, brand mark wrapped in a home link to index.html#promos, hdr-chip page label, and the merchant tab strip (Restaurant active) — no appnav; it also now loads the upload libs (eatouts-image-compressor, eatouts-video-validator, eatouts-upload) ahead of its inline scripts, mirroring menu-onboarding. PAGE_INVENTORY.md gained section I (rows 69-71 for bakery/mobile-kitchen/user redesigns) and refreshed stale rows 28-30 (they are full editors now, not 3-line redirect wrappers). Catalog: added bakery-onboarding, mobile-kitchen-onboarding and eatouts_user_onboarding as ids 68-70 (operator-onboarding), and refreshed the stale 'Redirect wrapper' purposes on ids 10/19/20. npm test 52/52; npm run catalog 70 pages.
 - **2026-10-20** — Venue About is now a true out-of-SPA hand-off. Every 'view a business' tap in index.html (openRestAbout from the card/info icon, bottleStoreInfo, openCateringAbout, and the boot-time openVenueFromSlug used by shared/SEO deep links) routes through a single gotoVenueAbout(target) → venue-about.html?link=<slug>, so a tap on KFC opens KFC's About page and Nando's opens Nando's. The inline data-page="venue-about" screen, its js/eatouts-venue-about.js renderer, state.venueAboutOrphan, and the orphan/catering/bottle/about branches of renderRestaurantSubView were removed. venue-about.html drops the 'Choose a business' empty state: a missing or unresolvable slug now redirects to index.html#restaurants. Its Menu/Promos options emit index.html#<slug>/menu|promos, which index.html boot parses back into the venue-menu / venue-promos screens. Deleted the root venue-about-new.html mockup and the js/eatouts-venue-about.js renderer. Updated tests/venue-about-menu.js (asserts the out-of-SPA target carries the chosen venue), venue-about-options.js (hash round-trip), beverages.js, bottle-stores.js and venue-slug-integration.js (boot hand-off target).

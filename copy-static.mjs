@@ -64,7 +64,7 @@ const FILES = [
 
   // Auth / onboarding
   'eatouts-login.html',
-  'eatouts-user-onboarding.html',
+  'eatouts-customer-signup.html',
   'eatouts_user_onboarding.html',
   'eatouts-business-signup.html',
   'bottle-store-onboarding.html',

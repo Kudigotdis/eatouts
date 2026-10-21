@@ -75,7 +75,7 @@ export async function onRequestPost(context) {
   if (kind === 'business') {
     route = 'eatouts-business-signup.html';
   } else {
-    route = row.verified ? 'eatouts-profile.html' : 'eatouts_user_onboarding.html';
+    route = row.verified ? 'eatouts-profile.html' : 'eatouts-customer-signup.html';
   }
 
   return jsonWithCookie({

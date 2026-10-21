@@ -53,6 +53,7 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | eatouts-admin-dashboard.html | platform admin | guard | EatoutsMgrDB | FULL | 2.2K/1 | — / audit — | 0 |
 | eatouts-blog.html | readers + local admin | no (on-device key) | `eatouts_blog_v1` + cache | FULL | 28K/492 | — | 0 |
 | eatouts-business-signup.html | new business | no | EatoutsMgrDB | FULL | 24K/502 | — | 0 |
+| eatouts-customer-signup.html | customers | no | `eatouts.user-onboarding.v1` | FULL | 17K/270 | esc ✔ / audit — | 1 |
 | eatouts-disputes.html | platform admin/ops | guard | EatoutsMgrDB | FULL | 1.7K/2 | esc ✔ / audit — | 0 |
 | eatouts-event-planner.html | event hosts | no | `eatouts_event_planner_v1` | FULL | 67K/1365 | esc ✔ | 0 |
 | eatouts-favourites.html | customers | guard | EatoutsMgrDB | FULL | 1.5K/1 | esc ✔ / confirm ✔ / audit ✔ | 0 |
@@ -64,11 +65,10 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | eatouts-settings.html | platform admin | guard | EatoutsMgrDB `settings` | FULL | 2.3K/2 | esc — / audit ✔ | 0 |
 | eatouts-staff-admin1.html | platform staff | guard | EatoutsMgrDB + legacy keys | FULL | 19K/55 | esc ✔ / audit ✔ | 0 |
 | eatouts-suppliers.html | suppliers/customers | no (local label) | `eatouts_suppliers_*` | FULL | 88K/1674 | esc ✔ | 0 |
-| eatouts-user-onboarding.html | legacy links | n/a | — | REDIRECT (shim) | 1K/30 | esc — / audit — | 0 |
 | eatouts-users-manager.html | platform admin/ops | guard | EatoutsMgrDB | FULL | 3.2K/6 | esc ✔ / pager ✔ / confirm ✔ / audit ✔ | 0 |
 | eatouts-verification-queue.html | platform ops | guard | EatoutsMgrDB | FULL | 1.9K/2 | esc ✔ / audit — | 0 |
 | eatouts_feedback.html | customers/visitors | no | `eatouts_feedback_queue_v1` | FULL | 40K/833 | esc ✔ | 0 |
-| eatouts_user_onboarding.html | customers | n/a | `eatouts.user-onboarding.v1` | FULL | 17K/270 | esc ✔ / audit — | 1 |
+| eatouts_user_onboarding.html | caterers | no | `eatouts.caterer-onboarding.v1` | FULL | 74K/1300 | esc — / audit — | 0 |
 | event-onboarding.html | restaurant owner | auth | root `eatouts_db_v2` | FULL | 27K/416 | esc ✔ / audit — | 0 |
 | feedback-manager.html | platform admin/support | guard | EatoutsMgrDB + adapter | FULL | 2.8K/3 | esc ✔ / pager ✔ / audit ✔ | 0 |
 | food-truck-schedule1.html | food truck owner | guard | adapter + EatoutsMgrDB | FULL | 19K/37 | esc ✔ / audit ✔ | 0 |
@@ -238,7 +238,7 @@ Ordered by the four cross-cutting problems, then by page.
 
 ### 3.10 Other minor alerts
 
-- `index.html` (5 alerts), `eatouts-user-onboarding.html` (1) — informational
+- `index.html` (5 alerts), `eatouts-customer-signup.html` (1) — informational
   toasts/confirm prompts; acceptable, low priority.
 
 ### 3.11 Design marketplace — `designer-services.html` / `designer-dashboard.html` / `brand-kit-admin.html`

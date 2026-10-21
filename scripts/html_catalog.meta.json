@@ -247,15 +247,15 @@
     },
     {
       "id": 17,
-      "file": "eatouts-user-onboarding.html",
+      "file": "eatouts-customer-signup.html",
       "group": "manager-admin",
-      "purpose": "Redirect shim — the customer account page now lives at eatouts_user_onboarding.html.",
-      "audience": "Legacy links only",
-      "entry": "Old bookmarks and links.",
-      "interactions": "Meta refresh + location.replace to eatouts_user_onboarding.html.",
+      "purpose": "Customer account creation: name, 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks.",
+      "audience": "New customer",
+      "entry": "eatouts-login.html \"Create an account\"; the About Us guest popup (Sign Up); the index.html guest feature popup (Create Account).",
+      "interactions": "Live town/area typeahead over botswana_locations.js, POST /api/auth/signup, WhatsApp click-to-chat confirmation, POST /api/auth/verify, then pick up to 5 restaurants and 1 bottle store.",
       "auth": false,
-      "status": "REDIRECT",
-      "notes": "_redirects also answers /eatouts-user-onboarding.html with a 301."
+      "status": "FULL",
+      "notes": "The customer account page moved here when eatouts_user_onboarding.html was repurposed for the caterer setup form; _redirects answers /eatouts-user-onboarding.html with a 301. The draft (minus passwords) survives a refresh under eatouts.user-onboarding.v1."
     },
     {
       "id": 18,
@@ -873,16 +873,20 @@
       "id": 69,
       "file": "eatouts_user_onboarding.html",
       "group": "operator-onboarding",
-      "purpose": "Customer account creation: name, 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks.",
-      "audience": "Redesign draft",
-      "entry": "eatouts-login.html “Create an account”; the About Us guest popup; index.html.",
-      "interactions": "Live town/area typeahead over botswana_locations.js, POST /api/auth/signup, WhatsApp click-to-chat confirmation, POST /api/auth/verify, then pick up to 5 restaurants and 1 bottle store.",
+      "purpose": "Caterer setup: brand, outlets, menus, packages, service coverage and a review-and-publish step.",
+      "audience": "Caterer",
+      "entry": "Direct link.",
+      "interactions": "Numbered accordion form with a progress rail, live validation, on-device draft under eatouts.caterer-onboarding.v1, Save draft and Review & publish.",
       "auth": false,
       "status": "FULL",
-      "notes": "Rebuilt from the old caterer copy. The draft (minus passwords) survives a refresh under eatouts.user-onboarding.v1. eatouts-user-onboarding.html now redirects here."
+      "notes": "Repurposed for the caterer setup form (the customer account page moved to eatouts-customer-signup.html). Shares the caterer-onboarding.html design and store key."
     }
   ],
   "changelog": [
+    {
+      "date": "2026-10-21",
+      "note": "About tab guest card alert now offers three CTAs on a single row - Sign In (primary, eatouts-login.html), Sign Up (eatouts-customer-signup.html) and Later (dismiss); \"Not Now\" is gone and the row is styled to never wrap. The customer account page moved to eatouts-customer-signup.html (the old hyphenated path 301s there) so eatouts_user_onboarding.html could hold the caterer setup form; every customer sign-up entry point (login page, About guest popup, index.html guest feature popup, the unverified-user route in functions/api/auth/login.js) now points at the new page."
+    },
     {
       "date": "2026-10-21",
       "note": "Onboarding pages now publish for real. The six business forms (restaurant, mobile kitchen, bottle store, caterer, bakery, event supplier) share js/eatouts-onboarding-bridge.js: live town/area lookup from botswana_locations.js, mall/shopping-centre lookup from assets/data/botswana_shopping_malls_and_shopping_centres.js, a Hosting Services section (capacity spaces + hostable event types from assets/data/event_types.js + booking rules) and a Save & publish action that writes the D1 business profile (business_profiles.hosting_json, new migration 0010) and the local customer directory, then exports an eatouts.venue.v1 submission for the build-time merge. business-onboarding1.html was retired — every link now points at the matching per-type form (assets/data/business_types.js gained EatoutsBusinessTypes.onboardingPage). eatouts_user_onboarding.html was rebuilt as the real customer account page (18+ gate, live town/area, /api/auth/signup + /api/auth/verify, favourites) and eatouts-user-onboarding.html is now a redirect. scripts/merge_submissions.py carries place/capacity/hosting into the runtime directory and rewrites directory_runtime_data.js; npm run build now merges the owner submissions after the directory build so they survive."

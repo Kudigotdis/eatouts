@@ -113,12 +113,22 @@ setTimeout(() => {
     opts.map(o => o.textContent.trim()).join(','));
   const guestCtas = guestAlert ? Array.from(guestAlert.querySelectorAll('.card-alert-actions .dlg-btn')) : [];
   const signinCta = guestCtas.filter(a => a.textContent.trim() === 'Sign In')[0];
-  const notNowCta = guestCtas.filter(b => b.textContent.trim() === 'Not Now')[0];
+  const signupCta = guestCtas.filter(b => b.textContent.trim() === 'Sign Up')[0];
+  const laterCta = guestCtas.filter(c => c.textContent.trim() === 'Later')[0];
+  const guestActions = guestAlert ? guestAlert.querySelector('.card-alert-actions') : null;
+  check('guest popup offers three CTAs', guestCtas.length === 3, 'count=' + guestCtas.length);
+  check('guest popup CTAs sit on one row',
+    !!guestActions && dom.window.getComputedStyle(guestActions).flexDirection === 'row',
+    guestActions ? dom.window.getComputedStyle(guestActions).flexDirection : 'no actions row');
   check('guest popup offers Sign In (primary, login)',
     !!signinCta && signinCta.classList.contains('primary') &&
     signinCta.getAttribute('href') === 'eatouts-login.html');
-  check('guest popup offers Not Now',
-    !!notNowCta && notNowCta.getAttribute('data-act') === 'aboutClose');
+  check('guest popup offers Sign Up (onboarding)',
+    !!signupCta && signupCta.getAttribute('href') === 'eatouts-customer-signup.html');
+  check('guest popup offers Later (dismiss)',
+    !!laterCta && laterCta.getAttribute('data-act') === 'aboutClose');
+  check('guest popup no longer says Not Now',
+    !guestCtas.some(x => x.textContent.trim() === 'Not Now'));
   /* a feature option opens its explainer with Create Account */
   click(opts[0]);
   const feature = vp.querySelector('.card-alert.pp');
@@ -127,7 +137,7 @@ setTimeout(() => {
     .filter(a => a.textContent.trim() === 'Create Account')[0] : null;
   check('guest feature offers Create Account (primary, onboarding)',
     !!createCta && createCta.classList.contains('primary') &&
-    createCta.getAttribute('href') === 'eatouts_user_onboarding.html');
+    createCta.getAttribute('href') === 'eatouts-customer-signup.html');
   click(feature.querySelector('[data-act="aboutBack"]'));
   check('guest feature Back returns to the options list',
     !!vp.querySelector('.card-alert.pp .card-alert-options .card-opt'));
