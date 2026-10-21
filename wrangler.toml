@@ -10,7 +10,7 @@ pages_build_output_dir = "dist"
 # ------------------------------------------------------------------
 [vars]
 ENV = "development"
-PUBLIC_BASE = ""
+PUBLIC_BASE = "https://www.eatouts.site"
 
 # D1 database  ->  npx wrangler d1 create eatouts
 # Replace <D1_DATABASE_ID> with the database_id it prints.
@@ -32,7 +32,8 @@ id = "315b0ddf742046eaab81843535adaf65"
 #   SUPABASE_URL      e.g. https://xxxxxxxx.supabase.co
 #   SUPABASE_KEY      the service_role key (server-side only!)
 #   SUPABASE_BUCKET   e.g. eatouts-media
-#   PUBLIC_BASE       optional override for the public file URL prefix
+#   PUBLIC_BASE       public base URL, set in [vars] below (optional
+#                     override for the public file URL prefix)
 # ------------------------------------------------------------------
 
 # ------------------------------------------------------------------
@@ -41,11 +42,13 @@ id = "315b0ddf742046eaab81843535adaf65"
 # Set the real secrets in the Cloudflare dashboard
 # (Workers & Pages -> eatouts -> Settings -> Variables and Secrets):
 #   SESSION_SECRET, DEV_LOGIN_EMAILS, ADMIN_EMAILS,
-#   SUPABASE_URL, SUPABASE_KEY, SUPABASE_BUCKET, PUBLIC_BASE
+#   SUPABASE_URL, SUPABASE_KEY, SUPABASE_BUCKET
+# PUBLIC_BASE is NOT a secret — it comes from [vars] / [env.production.vars]
+# in this file, which is the source of truth for the Pages project.
 # ------------------------------------------------------------------
 [env.production.vars]
 ENV = "production"
-PUBLIC_BASE = ""
+PUBLIC_BASE = "https://www.eatouts.site"
 
 # Bindings are NOT inherited by environments, so the D1 database and
 # KV namespace are repeated for the production environment.
