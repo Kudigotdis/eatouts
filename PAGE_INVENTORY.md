@@ -169,7 +169,8 @@ one-liner, e.g. `PAGE: venue-menu-item — Menu · Item  [rest_pizza-perfect:bur
 
 | Screen | Description | Trigger | Render function | Page marker | Line |
 |--------|------------|---------|-----------------|-------------|------|
-| Restaurants Pager | Two-panel view: Food + Beverages (swipe) | No sub-view active | `renderRestaurantsPager()` | `PAGE: restaurants-pager — Restaurants` | 5007 |
+| Restaurants Pager | Four-panel view: Food + Catering + Bakery + Beverages (swipe) | No sub-view active | `renderRestaurantsPager()` | `PAGE: restaurants-pager — Restaurants` | 5007 |
+| Bakery Directory | Flat list of bakeries (placeholder logos, disabled WhatsApp) | `state.restPanel === "bakery"` | `renderBakeries()` | `PAGE: bakeries — Bakeries` | 5380 |
 | Bottle Store Directory | Beverages landing with store list | `state.restPanel === "beverages"` | `renderBottleStores()` | `PAGE: beverages — Beverages` | 5186 |
 
 ### Within a restaurant (`state.restaurantView` set — routed by `renderRestaurantSubView()`)

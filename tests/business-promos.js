@@ -199,7 +199,7 @@ check('unrelated favourite survives', env.DB._db.favourites.some((f) => f.id ===
 const fs = require('fs');
 const { JSDOM, VirtualConsole } = require(path.join(__dirname, 'node_modules', 'jsdom'));
 const rel = 'js/eatouts-business-api.js';
-const f = path.join(path.resolve(__dirname, '..'), rel.replace(/\//g, path.sep));
+const f = path.join(path.resolve(__dirname, '..'), rel.split('?')[0].replace(/\//g, path.sep));
 const html = '<!doctype html><html><head><meta charset="utf-8"></head><body><script>' +
   fs.readFileSync(f, 'utf8') + '</script></body></html>';
 const errors = [];

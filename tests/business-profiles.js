@@ -22,7 +22,7 @@ const check = (label, cond, extra) => {
 
 const errors = [];
 const rel = 'js/eatouts-business-api.js';
-const f = path.join(APP_DIR, rel.replace(/\//g, path.sep));
+const f = path.join(APP_DIR, rel.split('?')[0].replace(/\//g, path.sep));
 if (!fs.existsSync(f)) {
   console.log('missing script: ' + rel);
   process.exit(1);

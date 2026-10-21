@@ -20,7 +20,7 @@ const errors = [];
 function inline(file) {
   const html = fs.readFileSync(path.join(APP_DIR, file), 'utf8');
   return html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, src) => {
-    const f = path.join(APP_DIR, src.replace(/\//g, path.sep));
+    const f = path.join(APP_DIR, src.split('?')[0].replace(/\//g, path.sep));
     if (!fs.existsSync(f)) { errors.push(file + ' missing script: ' + src); return '<!-- missing ' + src + ' -->'; }
     return '<script>' + fs.readFileSync(f, 'utf8') + '</script>';
   });

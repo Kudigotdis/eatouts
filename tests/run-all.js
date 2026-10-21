@@ -67,6 +67,7 @@ const SUITES = [
   'venue-slug.js',
   'venue-slug-integration.js',
   'catering-directory.js',
+  'bakery-directory.js',
   'business-profiles.js',
   'business-promos.js'
 ];

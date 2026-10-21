@@ -25,7 +25,7 @@ function boot(url) {
   html = html.replace(/<head([^>]*)>/, '<head$1>' + polyfill);
   // inline every external script so jsdom runs the page with no HTTP server
   html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, src) => {
-    const f = path.join(APP_DIR, src.replace(/\//g, path.sep));
+    const f = path.join(APP_DIR, src.split('?')[0].replace(/\//g, path.sep));
     if (!fs.existsSync(f)) { errors.push('missing script file: ' + src); return '<!-- missing ' + src + ' -->'; }
     return '<script>' + fs.readFileSync(f, 'utf8') + '</script>';
   });

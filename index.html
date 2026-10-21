@@ -283,9 +283,10 @@ img{display:block;max-width:100%}
 /* ---------- RESTAURANTS PANEL (swipe inside the Restaurants tab) ---------- */
 /* Three-button strip above the pager: tap to jump, or swipe the pages. */
 .bev-toggle{position:relative;display:flex;align-items:center;flex:0 0 auto;min-height:2.25em;margin:0 0 8px;padding:5px;border-radius:0;background-color:#e7eff9;border:0;overflow:hidden}
-.bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc((100% - 10px)/3);height:calc(100% - 10px);border-radius:3px;background:#fff;transition:transform .4s ease}
+.bev-toggle-thumb{position:absolute;top:5px;left:5px;z-index:0;width:calc((100% - 10px)/4);height:calc(100% - 10px);border-radius:3px;background:#fff;transition:transform .4s ease}
 .bev-toggle.catering .bev-toggle-thumb{transform:translateX(100%)}
-.bev-toggle.bev .bev-toggle-thumb{transform:translateX(200%)}
+.bev-toggle.bakery .bev-toggle-thumb{transform:translateX(200%)}
+.bev-toggle.bev .bev-toggle-thumb{transform:translateX(300%)}
 .bev-toggle-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;background:transparent;border:0;padding:9px 15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:11.5px;font-weight:700;line-height:normal;letter-spacing:.06em;text-transform:uppercase;color:#7e93ad;cursor:pointer;transition:color .2s}
 .bev-toggle-btn:first-of-type{justify-content:flex-start}
 .bev-toggle-btn:last-of-type{justify-content:flex-end}
@@ -860,6 +861,7 @@ a.dlg-btn{display:flex;align-items:center;justify-content:center;text-decoration
 <script src="assets/data/venue-provider-list.js"></script>
 <script src="assets/data/BottleLliquorStoresDatabase.js"></script>
 <script src="assets/data/CateringServicesDatabase.js?v=20261021"></script>
+<script src="assets/data/bakery_services_database.js?v=20261021"></script>
 <script src="botswana_locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-brand.js"></script>
@@ -3670,6 +3672,7 @@ profilePhoto:null,
   cateringOpen:null,
   cateringBranchOf:{},
   cateringLocPicker:null,
+  bakeryOpen:null,
   cateringQuery:""
 };
 let restNoticeTimer=null;
@@ -5123,8 +5126,8 @@ function buildRestaurantsHTML(){
   return h;
 }
 /* PAGE: restaurants-pager — Restaurants */
-function restPanelClass(p){return p==='catering'?'catering':(p==='beverages'?'bev':'food');}
-function restPanelAct(p){return p==='catering'?'panelCatering':(p==='beverages'?'panelBev':'panelFood');}
+function restPanelClass(p){return p==='catering'?'catering':(p==='bakery'?'bakery':(p==='beverages'?'bev':'food'));}
+function restPanelAct(p){return p==='catering'?'panelCatering':(p==='bakery'?'panelBakery':(p==='beverages'?'panelBev':'panelFood'));}
 function renderRestaurantsPager(){
   const panel=state.restPanel;
   const hideToggle = panel==='beverages'
@@ -5133,9 +5136,9 @@ function renderRestaurantsPager(){
   if(!hideToggle){
     h+='<div class="bev-toggle '+restPanelClass(panel)+'" role="tablist">';
     h+='<span class="bev-toggle-thumb ai-custom-slider" aria-hidden="true"></span>';
-    ['food','catering','beverages'].forEach(function(p){
+    ['food','catering','bakery','beverages'].forEach(function(p){
       const on=(p===panel);
-      const label=p==='food'?'Restaurants':(p==='catering'?'Catering':'Beverages');
+      const label=p==='food'?'Restaurants':(p==='catering'?'Catering':(p==='bakery'?'Bakery':'Beverages'));
       h+='<button role="tab" class="bev-toggle-btn'+(on?' on':'')+'" data-act="'+restPanelAct(p)+'" aria-selected="'+(on?'true':'false')+'">'+label+'</button>';
     });
     h+='</div>';
@@ -5143,6 +5146,7 @@ function renderRestaurantsPager(){
   h+='<div class="bev-pager" id="bev-pager">';
   h+='<div class="bevpage" data-page="food">'+renderRestaurants()+'</div>';
   h+='<div class="bevpage" data-page="catering">'+renderCatering()+'</div>';
+  h+='<div class="bevpage" data-page="bakeries">'+renderBakeries()+'</div>';
   const bevInner=state.bevCheckout
     ?renderBeveragesCheckout()
     :(state.bevView&&state.bevView.type==='store')
@@ -5157,9 +5161,9 @@ function renderRestaurantsPager(){
     :(state.bevView&&state.bevView.type==='store')?"bottle-menu"
     :state.bevView?"bev-category"
     :(state.bevTypes.length?"bev-filter":"beverages");
-  return page(panel==='beverages'?bevPage:panel==='catering'?"catering":"restaurants-pager",h);
+  return page(panel==='beverages'?bevPage:panel==='catering'?"catering":panel==='bakery'?"bakeries":"restaurants-pager",h);
 }
-const REST_PANELS=['food','catering','beverages'];
+const REST_PANELS=['food','catering','bakery','beverages'];
 function restPanelFromScroll(pager){
   const pageW=pager.clientWidth||1;
   const at=pageW>0?(pager.scrollLeft/pageW):0;
@@ -5348,6 +5352,80 @@ function syncCateringAccordions(){
     const on=state.cateringOpen===el.getAttribute("data-cacc");
     el.classList.toggle("open",on);
     const b=el.querySelector('.rrow[data-act="toggleCatering"]');
+    if(b) b.setAttribute("aria-expanded",on?"true":"false");
+  });
+}
+/* ================================================================
+   BAKERY DIRECTORY (Bakeries landing)
+   Flat list of bakeries from assets/data/bakery_services_database.js
+   (window.BAKERY_BUSINESSES_DATA), rendered with the same ritem
+   accordion pattern as the restaurants + catering lists. No brand
+   logos yet — every row uses assets/logo/logo_placement_image.png
+   until real logo art is supplied. WhatsApp stays disabled until
+   proper contact numbers land in the database.
+   ================================================================ */
+function bakeryBrands(){
+  const rows=(window.BAKERY_BUSINESSES_DATA)||[];
+  return rows.map(function(r){
+    const name=String(r.businessName||"").trim()||"Bakery";
+    const notSpecified=function(v){v=String(v||"").trim();return (!v||v==="Not specified")?"":v;};
+    return {
+      id:"bakery-"+r.id,
+      slug:"bakery-"+r.id,
+      name:name,
+      phone:notSpecified(r.contacts),
+      address:notSpecified(r.address),
+      area:notSpecified(r.area),
+      town:notSpecified(r.town)
+    };
+  });
+}
+function bakeryThumb(b){
+  const B=window.EatoutsBrand;
+  const rec={name:b.name,slug:b.slug,logo:"assets/logo/logo_placement_image.png"};
+  if(B&&typeof B.thumbHtml==="function")return B.thumbHtml(rec);
+  return "";
+}
+/* PAGE: bakeries — Bakeries */
+function renderBakeries(){
+  let h='<div class="scroll">';
+  const brands=bakeryBrands();
+  if(!brands.length){h+='<div class="empty">No bakeries found.</div></div>';return h;}
+  brands.forEach(function(b){h+=bakeryItem(b);});
+  h+='<div style="height:24px"></div></div>';
+  return h;
+}
+function bakeryItem(b){
+  const open=state.bakeryOpen===b.slug;
+  const meta=[b.area,b.town].filter(Boolean).join(" · ");
+  let h='<div class="ritem'+(open?" open":"")+'" data-bacc="'+esc(b.slug)+'">';
+  h+='<button class="rrow" data-act="toggleBakery" data-id="'+esc(b.slug)+'" aria-expanded="'+(open?"true":"false")+'">';
+  h+='<div class="rthumb">'+bakeryThumb(b)+'</div>';
+  h+='<div class="rinfo"><div class="rname">'+esc(b.name)+'</div>';
+  h+='<div class="rmeta">Bakery'+(meta?" · "+esc(meta):"")+'</div></div>';
+  h+='</button>';
+  h+='<div class="acc-wrap"><div class="acc-in">'+bakeryOptions(b)+'</div></div>';
+  h+='</div>';
+  return h;
+}
+function bakeryOptions(b){
+  /* WhatsApp disabled on purpose: contact details arrive in a later update. */
+  const waBtn='<button class="ico-btn is-disabled" data-act="showRestNotice" data-notice="'+esc("WhatsApp details for "+b.name+" are coming soon.")+'" aria-disabled="true" aria-label="WhatsApp (coming soon)" title="WhatsApp (coming soon)"><img src="'+IMG.iconWA+'" alt=""></button>';
+  const infoBtn='<button class="ico-btn" data-act="openBakeryAbout" data-id="'+esc(b.slug)+'" aria-label="Store details for '+esc(b.name)+'" title="Store details"><img class="ico-info-img" src="'+IMG.iconInfo+'" alt=""></button>';
+  const contactLine=b.phone?esc(b.phone):'<span style="color:#aab1bb">Contact details coming soon</span>';
+  const addr=b.address?'<div class="baddr">'+esc(b.address)+'</div>':'';
+  return '<div class="ropts brows">'+
+    '<div class="line" style="cursor:default">'+contactLine+'</div>'+
+    '<div class="card-ico-row">'+waBtn+infoBtn+'</div>'+
+    '</div>'+addr;
+}
+function syncBakeryAccordions(){
+  const vp=document.getElementById("viewport");
+  if(!vp) return;
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-bacc]"),function(el){
+    const on=state.bakeryOpen===el.getAttribute("data-bacc");
+    el.classList.toggle("open",on);
+    const b=el.querySelector('.rrow[data-act="toggleBakery"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
 }
@@ -6003,8 +6081,8 @@ function renderControlBarInner(){
 
   /* ---- Restaurants tab: food filters, beverage filters, search ---- */
   if(state.tab==="restaurants"){
-    /* Catering panel: no filter bar of its own yet — keep the bar hidden. */
-    if(state.restPanel==='catering'){
+    /* Catering & Bakery panels: no filter bar of their own yet — keep the bar hidden. */
+    if(state.restPanel==='catering'||state.restPanel==='bakery'){
       cb.classList.remove("on"); cb.innerHTML="";
       state.bevTypePicker=false;state.bottleTownFilter=false;state.bottleAreaFilter=false;
       state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
@@ -6131,6 +6209,7 @@ const PAGE_TITLES={
   "promos-link":"Promos · Link",
   "restaurants-pager":"Restaurants",
   "catering":"Catering",
+  "bakeries":"Bakeries",
   "venue-menu":"Menu",
   "venue-locked":"Menu (locked)",
   "venue-menu-item":"Menu · Item",
@@ -6165,6 +6244,7 @@ function pageRef(){
   const vid=(rv&&rv.id)||state.restaurantOpen||"";
   switch(p){
     case "restaurants-pager":        return state.restPanel||"";
+    case "bakeries":                 return state.bakeryOpen||"";
     case "beverages":                return (state.bevTypes||[]).join(",");
     case "bev-filter":               return (state.bevTypes||[]).join(",");
     case "bottle-menu":              return (state.bevView&&state.bevView.id)||"";
@@ -9024,6 +9104,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
   /* BEVERAGES PANEL */
   if(act==="panelFood"){switchRestPanel('food');return;}
   if(act==="panelCatering"){switchRestPanel('catering');return;}
+  if(act==="panelBakery"){switchRestPanel('bakery');return;}
   if(act==="panelBev"){switchRestPanel('beverages');return;}
   if(act==="bevOpenSub"){state.bevView={type:'subcat',id:id,store:(state.bevView&&state.bevView.type==='store')?state.bevView.id:null};state.bevCheckout=false;render();return;}
   if(act==="bevOpenBucket"){state.bevView={type:'bucket',id:id,store:(state.bevView&&state.bevView.type==='store')?state.bevView.id:null};state.bevCheckout=false;render();return;}
@@ -9122,6 +9203,9 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     window.location.href=waLink(msg,r);
     return;
   }
+  /* BAKERY DIRECTORY */
+  if(act==="toggleBakery"){state.bakeryOpen=(state.bakeryOpen===id)?null:id;state.restNotice=null;syncBakeryAccordions();return;}
+  if(act==="openBakeryAbout"){gotoVenueAbout(id);return;}
   if(act==="openBottleTownFilter"){state.bottleTownFilter=!state.bottleTownFilter;state.bottleAreaFilter=false;state.bevTypePicker=false;renderControlBar();return;}
   if(act==="closeBottleTownFilter"){state.bottleTownFilter=false;renderControlBar();return;}
   if(act==="pickBottleTown"){state.bottleTown=t.getAttribute("data-town")||"All";state.bottleArea="All";state.bottleTownFilter=false;render();return;}

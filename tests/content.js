@@ -21,7 +21,7 @@ const check = (label, cond, extra) => {
 const files = ['js/eatouts-db.js', 'js/eatouts-content.js'];
 let scripts = '';
 for (const rel of files) {
-  const f = path.join(APP_DIR, rel.replace(/\//g, path.sep));
+  const f = path.join(APP_DIR, rel.split('?')[0].replace(/\//g, path.sep));
   if (!fs.existsSync(f)) { console.log('missing script: ' + rel); process.exit(1); }
   scripts += '<script>' + fs.readFileSync(f, 'utf8') + '</script>';
 }

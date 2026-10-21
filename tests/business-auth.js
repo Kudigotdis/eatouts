@@ -19,7 +19,7 @@ const check = (label, cond, extra) => {
 
 const errors = [];
 const rel = 'js/eatouts-business-auth.js';
-const f = path.join(APP_DIR, rel.replace(/\//g, path.sep));
+const f = path.join(APP_DIR, rel.split('?')[0].replace(/\//g, path.sep));
 if (!fs.existsSync(f)) { console.log('missing script: ' + rel); process.exit(1); }
 const html = '<!doctype html><html><head><meta charset="utf-8"></head><body><script>' +
   fs.readFileSync(f, 'utf8') + '</script></body></html>';

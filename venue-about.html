@@ -616,6 +616,7 @@
 <script src="assets/data/BottleLliquorStoresDatabase.js"></script>
 <script src="js/eatouts-bottle-stores.js"></script>
 <script src="assets/data/CateringServicesDatabase.js"></script>
+<script src="assets/data/bakery_services_database.js?v=20261021"></script>
 <script src="js/eatouts-catering.js"></script>
 </head>
 <body data-page="venue-about">
@@ -883,6 +884,39 @@
       }
     }
 
+    /* Bakeries: flat records from window.BAKERY_BUSINESSES_DATA, slugged
+       "bakery-<id>" by the directory list in index.html. Fields may be
+       incomplete ("Not specified"); normalise to empty so the page renders
+       gracefully with whatever exists. */
+    if (window.BAKERY_BUSINESSES_DATA) {
+      var bk = window.BAKERY_BUSINESSES_DATA;
+      var clean = function (v) { v = String(v || '').trim(); return (!v || v === 'Not specified') ? '' : v; };
+      for (var k = 0; k < bk.length; k++) {
+        var brec = bk[k] || {};
+        var bslug = 'bakery-' + brec.id;
+        var bname = String(brec.businessName || '');
+        if (bslug === s || canon(bslug) === target || canon(bname) === target) {
+          var bphone = clean(brec.contacts);
+          var btw = clean(brec.town), bar = clean(brec.area), bad = clean(brec.address);
+          return {
+            kind: 'bakery',
+            slug: bslug,
+            name: bname || s,
+            logo: 'assets/logo/logo_placement_image.png',
+            record: {
+              name: bname,
+              town: btw,
+              area: bar,
+              address: bad,
+              contacts: bphone ? [{ label: 'Phone', value: bphone }] : [],
+              socials: []
+            },
+            branch: { id: bslug, slug: bslug, name: bname, town: btw, area: bar, address: bad, phones: bphone ? [bphone] : [] }
+          };
+        }
+      }
+    }
+
     return null;
   }
 
@@ -912,7 +946,9 @@
   if (!logoSrc && window.EatoutsBrand && typeof EatoutsBrand.logoFor === 'function' && biz.record) {
     try { logoSrc = EatoutsBrand.logoFor(biz.record); } catch (e) {}
   }
-  if (logoSrc && window.EatoutsBrand && typeof EatoutsBrand.isPlaceholderLogo === 'function') {
+  /* Bakeries have no logo art yet — show the shared placeholder image
+     instead of the letter tile used for other logo-less venues. */
+  if (biz.kind !== 'bakery' && logoSrc && window.EatoutsBrand && typeof EatoutsBrand.isPlaceholderLogo === 'function') {
     try { if (EatoutsBrand.isPlaceholderLogo(logoSrc)) logoSrc = null; } catch (e) {}
   }
   if (logoImg) {

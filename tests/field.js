@@ -32,7 +32,7 @@ const FILES = [
 
 let html = '<!doctype html><html><head><meta charset="utf-8"></head><body></body></html>';
 FILES.forEach((rel) => {
-  const f = path.join(APP_DIR, rel.replace(/\//g, path.sep));
+  const f = path.join(APP_DIR, rel.split('?')[0].replace(/\//g, path.sep));
   if (!fs.existsSync(f)) { errors.push('missing script: ' + rel); return; }
   html = html.replace('</body>', '<script>' + fs.readFileSync(f, 'utf8') + '</script></body>');
 });

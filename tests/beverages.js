@@ -6,7 +6,7 @@ const APP_DIR = path.resolve(__dirname, '..');
 const errors = [];
 let html = fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8');
 html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, src) => {
-  const f = path.join(APP_DIR, src.replace(/\//g, path.sep));
+  const f = path.join(APP_DIR, src.split('?')[0].replace(/\//g, path.sep));
   if (!fs.existsSync(f)) { errors.push('missing script file: ' + src); return '<!-- missing ' + src + ' -->'; }
   return '<script>' + fs.readFileSync(f, 'utf8') + '</script>';
 });
@@ -52,7 +52,7 @@ setTimeout(() => {
   check('pager has a food page', !!doc.querySelector('#viewport .bevpage[data-page="food"]'));
   check('pager has a beverages page', !!doc.querySelector('#viewport .bevpage[data-page="beverages"]'));
   check('pager has a catering page', !!doc.querySelector('#viewport .bevpage[data-page="catering"]'));
-  check('panel toggle strip present', doc.querySelectorAll('.bev-toggle-btn').length === 3);
+  check('panel toggle strip present', doc.querySelectorAll('.bev-toggle-btn').length === 4);
   const toggle = doc.querySelector('.bev-toggle');
   check('toggle rides a sliding thumb', !!doc.querySelector('.bev-toggle-thumb'), toggle ? toggle.outerHTML : 'missing');
   check('toggle starts in food position', toggle && toggle.classList.contains('food'), toggle && toggle.className);

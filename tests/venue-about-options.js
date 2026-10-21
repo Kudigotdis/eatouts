@@ -31,7 +31,7 @@ function check(label, cond, extra) {
 function loadPage(slug) {
   let html = fs.readFileSync(path.join(APP_DIR, 'venue-about.html'), 'utf8');
   html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, src) => {
-    const f = path.join(APP_DIR, src.replace(/\//g, path.sep));
+    const f = path.join(APP_DIR, src.split('?')[0].replace(/\//g, path.sep));
     if (!fs.existsSync(f)) return '<!-- missing ' + src + ' -->';
     return '<script>' + fs.readFileSync(f, 'utf8') + '</script>';
   });

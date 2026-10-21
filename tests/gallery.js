@@ -7,7 +7,7 @@ const errors = [];
 const src = fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8');
 let html = src;
 html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, s) => {
-  const f = path.join(APP_DIR, s.replace(/\//g, path.sep));
+  const f = path.join(APP_DIR, s.split('?')[0].replace(/\//g, path.sep));
   if (!fs.existsSync(f)) { errors.push('missing script file: ' + s); return '<!-- missing ' + s + ' -->'; }
   return '<script>' + fs.readFileSync(f, 'utf8') + '</script>';
 });
