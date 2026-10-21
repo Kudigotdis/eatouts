@@ -129,6 +129,21 @@ setTimeout(() => {
     !!laterCta && laterCta.getAttribute('data-act') === 'aboutClose');
   check('guest popup no longer says Not Now',
     !guestCtas.some(x => x.textContent.trim() === 'Not Now'));
+  /* every .dlg-btn centres its label (the global button reset left-aligns plain buttons) */
+  const ctaStyles = guestCtas.map(b => dom.window.getComputedStyle(b));
+  check('every guest CTA centres its label',
+    ctaStyles.length === 3 && ctaStyles.every(s => s.textAlign === 'center'),
+    ctaStyles.map(s => s.textAlign).join(','));
+  check('every guest CTA is a centred flex box',
+    ctaStyles.length === 3 && ctaStyles.every(s => s.display === 'flex' || s.display === 'inline-flex'),
+    ctaStyles.map(s => s.display).join(','));
+  check('the dlg-btn rule centres its label', /\.dlg-btn\{[^}]*text-align:center/.test(html));
+  check('the global button reset is untouched (plain buttons stay left-aligned)',
+    /button\{cursor:pointer;border:0;background:none;text-align:left\}/.test(html));
+  check('about-guest-popup.html centres its dlg-btn labels',
+    /\.dlg-btn\{[^}]*text-align:center/.test(fs.readFileSync(path.join(APP_DIR, 'about-guest-popup.html'), 'utf8')));
+  check('about-profile-options.html styles and centres its dlg-btn',
+    /\.dlg-btn\{[^}]*text-align:center/.test(fs.readFileSync(path.join(APP_DIR, 'about-profile-options.html'), 'utf8')));
   /* a feature option opens its explainer with Create Account */
   click(opts[0]);
   const feature = vp.querySelector('.card-alert.pp');
