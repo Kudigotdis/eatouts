@@ -42,6 +42,13 @@ function sessionKey(token) {
   return 'sess:' + token;
 }
 
+/* Second index keyed by user, so every live session for one account can be
+   revoked at once (used when a password is reset). The session payload is
+   still the only source of truth - this is just a lookup handle. */
+function userSessionKey(userId, token) {
+  return 'sessu:' + userId + ':' + token;
+}
+
 /** Read the session for the incoming request, or null. */
 export async function getSession(env, request) {
   if (!env || !env.OPS_KV) return null;
@@ -69,6 +76,9 @@ function cookieAttrs(env) {
 export async function createSession(env, payload) {
   var token = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
   await env.OPS_KV.put(sessionKey(token), JSON.stringify(payload), { expirationTtl: MAX_AGE });
+  if (payload && payload.userId) {
+    await env.OPS_KV.put(userSessionKey(payload.userId, token), '1', { expirationTtl: MAX_AGE });
+  }
   return {
     token: token,
     cookie: COOKIE + '=' + token + cookieAttrs(env) + '; Max-Age=' + MAX_AGE
@@ -78,8 +88,56 @@ export async function createSession(env, payload) {
 export async function destroySession(env, request) {
   var cookies = parseCookies(request.headers.get('Cookie') || '');
   var token = cookies[COOKIE];
-  if (token && env && env.OPS_KV) await env.OPS_KV.delete(sessionKey(token));
+  if (token && env && env.OPS_KV) {
+    await env.OPS_KV.delete(sessionKey(token));
+    /* drop the per-user handle too, so a revoked session does not linger */
+    var session = null;
+    try { session = await getSession(env, request); } catch (e) { session = null; }
+    if (session && session.userId) {
+      await env.OPS_KV.delete(userSessionKey(session.userId, token));
+    }
+  }
   return COOKIE + '=;' + cookieAttrs(env) + '; Max-Age=0';
+}
+
+/**
+ * Patch the stored session payload (for example after the account email
+ * changes). Returns true when the session was found and rewritten.
+ */
+export async function updateSession(env, request, patch) {
+  if (!env || !env.OPS_KV) return false;
+  var session = await getSession(env, request);
+  if (!session || !session._token) return false;
+  var payload = {};
+  Object.keys(session).forEach(function (k) {
+    if (k !== '_token') payload[k] = session[k];
+  });
+  Object.keys(patch || {}).forEach(function (k) { payload[k] = patch[k]; });
+  await env.OPS_KV.put(sessionKey(session._token), JSON.stringify(payload), { expirationTtl: MAX_AGE });
+  return true;
+}
+
+/**
+ * Sign every live session of one account out.
+ * Used after a password reset so a stolen session cannot outlive the
+ * password it was opened with. Returns how many sessions were killed.
+ */
+export async function revokeUserSessions(env, userId) {
+  if (!env || !env.OPS_KV || !userId) return 0;
+  var prefix = 'sessu:' + userId + ':';
+  var killed = 0;
+  try {
+    var res = await env.OPS_KV.list({ prefix: prefix, limit: 1000 });
+    var keys = (res && res.keys) || [];
+    for (var i = 0; i < keys.length; i++) {
+      var token = String(keys[i].name).slice(prefix.length);
+      if (!token) continue;
+      await env.OPS_KV.delete(sessionKey(token));
+      await env.OPS_KV.delete(keys[i].name);
+      killed++;
+    }
+  } catch (e) { /* revocation is best-effort */ }
+  return killed;
 }
 
 export function jsonWithCookie(data, cookie, status) {

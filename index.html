@@ -190,6 +190,11 @@ img{display:block;max-width:100%}
 
 /* ---------- EVENT CARD (ACCORDION) ---------- */
 .ecard{margin:12px 14px;border-radius:16px;overflow:hidden;background:#ffffff;border:1px solid #ece7db;box-shadow:0 2px 8px -4px rgba(0,0,0,.06)}
+.promo-locked{margin:12px 14px;border-radius:16px;background:#ffffff;border:1px dashed #d9cfb8;box-shadow:0 2px 8px -4px rgba(0,0,0,.06);padding:18px 16px;text-align:center}
+.promo-locked .pl-tag{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#8a6d1f;background:#fdf6e2;border:1px solid #ecdcb4;border-radius:999px;padding:4px 10px;margin-bottom:9px}
+.promo-locked .pl-title{font-size:14px;font-weight:850;color:#171719;margin:0 0 4px}
+.promo-locked .pl-copy{font-size:11.5px;color:#a89a7e;line-height:1.55;margin:0 0 12px}
+.promo-locked .pl-btn{display:inline-block;font-size:12px;font-weight:850;color:#fff;background:#171719;border-radius:999px;padding:9px 18px;text-decoration:none}
 /* image drives card height: full width, full height, nothing cropped */
 .ecard .pimg{aspect-ratio:auto;display:block}
 .ecard .pimg>img{position:relative;inset:auto;width:100%;height:auto;object-fit:cover;display:block}
@@ -869,6 +874,7 @@ a.dlg-btn{text-decoration:none}
 <script src="js/eatouts-catering.js"></script>
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-age.js"></script>
 <script src="js/eatouts-customer.js"></script>
 <script src="js/eatouts-seed-data.js"></script>
 <script src="js/eatouts-seed.js"></script>
@@ -4222,8 +4228,26 @@ function allDayPromos(dayIdx){
   }
   return out.concat(bev);
 }
+/* ---------- age-restricted promos (18+) ----------
+   Alcohol promos are only shown to an account that is 18 or older.
+   The rule itself lives in js/eatouts-age.js so the server and the
+   browser always agree on what counts as age restricted. */
+function ageRulesReady(){return !!(window.EatoutsAge&&typeof window.EatoutsAge.isAgeRestrictedPromo==='function');}
+function promoIsAgeRestricted(p){return ageRulesReady()?!!window.EatoutsAge.isAgeRestrictedPromo(p):false;}
+function viewerMaySeeFlaggedPromos(){return ageRulesReady()?!!window.EatoutsAge.canViewFlaggedPromos():false;}
+/* the promos of a day the viewer is allowed to see */
 function promosOnDay(dayIdx){
-  return allDayPromos(dayIdx).filter(promoPassesFilter);
+  return allDayPromos(dayIdx).filter(promoPassesFilter).filter(function(e){
+    if(viewerMaySeeFlaggedPromos())return true;
+    return !promoIsAgeRestricted(e.promo);
+  });
+}
+/* the promos of a day that are hidden from this viewer */
+function hiddenFlaggedPromos(dayIdx){
+  if(viewerMaySeeFlaggedPromos())return [];
+  return allDayPromos(dayIdx).filter(promoPassesFilter).filter(function(e){
+    return promoIsAgeRestricted(e.promo);
+  });
 }
 function eventsOnDay(dayIdx){
   if (hasBridge()) {
@@ -6625,6 +6649,14 @@ function renderPromoCard(p,dayIdx,idx,r){
 }
 
 /* PAGE: promos-feed — Promos · Feed */
+function renderLockedPromoCard(n){
+  return '<div class="promo-locked">'+
+    '<span class="pl-tag">18+ only</span>'+
+    '<p class="pl-title">'+n+' age-restricted promo'+(n===1?'':'s')+' hidden</p>'+
+    '<p class="pl-copy">These promos are for alcohol. Sign in with an account that is 18 or older to see them.</p>'+
+    '<a class="pl-btn" href="eatouts-login.html?next='+encodeURIComponent('eatouts-profile.html')+'">Sign in to confirm your age</a>'+
+    '</div>';
+}
 function renderPromosFeed(){
   /* the bar & bottle promos arrive with their own JSON, so ask for it
      before the feed is built */
@@ -6670,6 +6702,10 @@ function renderPromosFeed(){
     if((i+1)%3===0) body+=signupBanner();
   });
 
+  /* age-restricted promos are hidden from anyone under 18 */
+  const lockedPromos=hiddenFlaggedPromos(dayIdx);
+  if(lockedPromos.length) body+=renderLockedPromoCard(lockedPromos.length);
+
   if(!dayPromos.length && !dayEvents.length && !feat.length){
     const filterBits=esc(state.promoTown)+
       (state.promoType!=='All'?' &middot; '+esc(promoCategoryLabel(state.promoType)):'')+
@@ -6686,12 +6722,15 @@ function promosCountForDate(d){
   const idx=d.getDay();
   const dayName=DAY_NAMES[idx];
   let count=0;
+  /* only the promos this viewer is allowed to see are counted */
+  const visible=function(p){ return viewerMaySeeFlaggedPromos()||!promoIsAgeRestricted(p); };
   if(hasBridge()){
-    count+=EatoutsBridge.promosForDay(idx,state.promoTown,null,state.promoArea,state.promoDistrict,state.promoDistrictName).length;
+    count+=EatoutsBridge.promosForDay(idx,state.promoTown,null,state.promoArea,state.promoDistrict,state.promoDistrictName)
+      .filter(function(e){ return visible(e.promo); }).length;
   }else{
-    count+=(PROMOS[dayName]||[]).length;
+    count+=(PROMOS[dayName]||[]).filter(function(p){ return visible(p); }).length;
   }
-  count+=beveragePromosOnDay(dayName).length;
+  count+=beveragePromosOnDay(dayName).filter(function(e){ return visible(e.promo); }).length;
   count+=featuredEventsForDay(idx).length;
   if(hasBridge()){
     count+=EatoutsBridge.eventsForDay(idx,state.promoTown,state.promoArea,state.promoDistrict,state.promoDistrictName).length;
@@ -7566,7 +7605,7 @@ function renderAboutGuestMain(){
   h+='<div class="card-alert-options">';
   ABOUT_GUEST_FEATURES.forEach(function(f){h+='<button class="card-opt" data-act="aboutFeature" data-id="'+f.id+'">'+esc(f.label)+'</button>';});
   h+='</div>';
-  h+='<div class="card-alert-actions"><a class="dlg-btn primary" href="eatouts-login.html">Sign In</a><a class="dlg-btn" href="eatouts-customer-signup.html">Sign Up</a><button class="dlg-btn" data-act="aboutClose">Later</button></div>';
+  h+='<div class="card-alert-actions"><a class="dlg-btn primary" href="eatouts-login.html?next='+encodeURIComponent("eatouts-profile.html")+'">Sign In</a><a class="dlg-btn" href="eatouts-customer-signup.html">Sign Up</a><button class="dlg-btn" data-act="aboutClose">Later</button></div>';
   h+='</div>';
   return h;
 }
@@ -8576,8 +8615,12 @@ function renderOperatorLogin(){
 
   h+='<div class="subh">Sign in</div>';
   h+='<div class="fld"><label>WhatsApp number</label>'+
-    '<input id="opWhats" type="tel" inputmode="tel" autocomplete="username" placeholder="'+
+    '<input id="opWhats" type="tel" inputmode="tel" autocomplete="tel" placeholder="'+
     esc(demo?demo.whatsapp:"267")+'" value="'+(demo?esc(demo.whatsapp):"")+'"></div>';
+
+  h+='<div class="fld"><label>Username</label>'+
+    '<input id="opUser" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="'+
+    esc(demo&&demo.username?demo.username:"your username")+'" value="'+(demo&&demo.username?esc(demo.username):"")+'"></div>';
 
   h+='<div class="fld"><label>Password</label>'+
     '<input id="opPass" type="password" autocomplete="current-password" placeholder="'+
@@ -8592,10 +8635,10 @@ function renderOperatorLogin(){
   h+='<button class="btn primary full" data-act="doOperatorDemo">Demo &mdash; The Yellow Giraffe</button>';
   h+='<p style="font-size:11px;color:#a89a7e;text-align:center;margin:9px 0 0;line-height:1.5">'+
     'Opens the owner console as The Yellow Giraffe so you can view and change its information. '+
-    'Credentials above are <b>'+esc(demo?demo.whatsapp:"0")+'</b> / <b>'+esc(demo?demo.password:"0")+'</b> &mdash; still a demo.</p>';
+    'Credentials above are <b>'+esc(demo?demo.whatsapp:"0")+'</b> / <b>'+esc(demo&&demo.username?demo.username:"0")+'</b> / <b>'+esc(demo?demo.password:"0")+'</b> &mdash; still a demo.</p>';
 
   h+='<div class="subh" style="margin-top:22px">Business, supplier &amp; admin</div>';
-  h+='<button class="btn ghost full" data-act="openUniversalLogin">Universal sign-in (WhatsApp + PIN)</button>';
+  h+='<button class="btn ghost full" data-act="openUniversalLogin">Universal sign-in (WhatsApp + username + password)</button>';
   h+='<p style="font-size:11px;color:#a89a7e;text-align:center;margin:9px 0 0;line-height:1.5">'+
     'Sign in as a customer, business manager, supplier or platform admin.</p>';
 
@@ -9523,19 +9566,42 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     state.operatorView="login";render();return;
   }
   if(act==="backFromOperatorLogin"){state.operatorView="about";state.aboutView="main";render();return;}
-  if(act==="openUniversalLogin"){location.href="eatouts-login.html";return;}
+  if(act==="openUniversalLogin"){location.href="eatouts-login.html?next="+encodeURIComponent("index.html");return;}
   if(act==="doOperatorLogin"){
-    const wEl=document.getElementById("opWhats"), pEl=document.getElementById("opPass");
+    const wEl=document.getElementById("opWhats"), uEl=document.getElementById("opUser"), pEl=document.getElementById("opPass");
     const errEl=document.getElementById("opErr");
     const show=(msg)=>{if(errEl){errEl.textContent=msg;errEl.style.display="block";}};
-    const whats=wEl?wEl.value:"", pass=pEl?pEl.value:"";
+    const whats=wEl?wEl.value.trim():"", user=uEl?uEl.value.trim():"", pass=pEl?pEl.value:"";
+    /* All three identifiers are mandatory. */
+    if(!whats){show("Enter your WhatsApp number.");if(wEl)wEl.focus();return;}
+    if(!user){show("Enter your username.");if(uEl)uEl.focus();return;}
+    if(!pass){show("Enter your password.");if(pEl)pEl.focus();return;}
     if(!window.EatoutsAuth){show("Sign-in is unavailable.");return;}
+    const go=(res)=>{
+      if(res&&res.ok){
+        const route=(res.route)||(res.user&&window.EatoutsAuth&&EatoutsAuth.routeFor?EatoutsAuth.routeFor(res.user):"")||"operator-dashboard1.html";
+        location.href=route;return;
+      }
+      show((res&&(res.message||res.error))||"Sign-in failed.");
+      if(pEl){pEl.value="";pEl.focus();}
+    };
     setTimeout(function(){
-      EatoutsAuth.login(whats,pass).then(function(res){
-        if(res.ok){location.href=(res.user&&EatoutsAuth.routeFor)?EatoutsAuth.routeFor(res.user):"operator-dashboard1.html";return;}
-        show(res.message||"Sign-in failed.");
-        if(pEl){pEl.value="";pEl.focus();}
-      }).catch(function(){show("Sign-in failed. Check the console.");});
+      /* One sign-in surface: the account API, which matches all three. */
+      const C=window.EatoutsCustomer;
+      if(C&&typeof C.login==="function"){
+        C.login({username:user,whatsapp:whats,password:pass}).then(function(res){
+          if(res&&res.ok){go(res);return;}
+          /* No server account for these details: fall back to the local
+             operator records (the seeded demo owner). */
+          if(res&&(res.error==="notfound"||res.error==="backend_not_configured")){
+            EatoutsAuth.login(whats,pass,user).then(go).catch(function(){show("Sign-in failed. Check the console.");});
+            return;
+          }
+          go(res);
+        }).catch(function(){show("Sign-in failed. Check the console.");});
+        return;
+      }
+      EatoutsAuth.login(whats,pass,user).then(go).catch(function(){show("Sign-in failed. Check the console.");});
     },30);
     return;
   }

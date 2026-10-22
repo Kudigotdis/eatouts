@@ -282,9 +282,109 @@ export function promoOut(r) {
     sponsor: r.sponsor || null,
     terms: r.terms || null,
     status: r.status || 'active',
+    /* The operator's own 18+ switch on the promo. */
+    ageRestricted: !!r.age_restricted,
     createdAt: r.created_at,
     updatedAt: r.updated_at
   };
+}
+
+/* ------------------------------------------------------------------
+   Schema-tolerant writes
+
+   The promos table grew over time: some deployments have the `image`
+   column and some do not, and `age_restricted` only arrives with
+   migration 0012. These helpers write whatever columns the table
+   actually has, so an endpoint never breaks because a migration has
+   not been applied yet.
+   ------------------------------------------------------------------ */
+
+/** The columns a table really has. Empty when PRAGMA is unavailable. */
+export async function tableColumns(db, table) {
+  if (!db || !table) return [];
+  try {
+    var res = await db.prepare('PRAGMA table_info(' + table + ')').all();
+    var rows = (res && res.results) || [];
+    if (!rows.length) return [];
+    return rows.map(function (r) { return String(r.name); });
+  } catch (e) {
+    return [];
+  }
+}
+
+async function runInsert(db, table, keys, values) {
+  var marks = keys.map(function () { return '?'; }).join(', ');
+  var sql = 'INSERT INTO ' + table + ' (' + keys.join(', ') + ') VALUES (' + marks + ')';
+  var binds = keys.map(function (k) { return values[k]; });
+  await db.prepare(sql).bind.apply(null, binds).run();
+}
+
+/**
+ * Insert a row, skipping any column the table does not have.
+ *
+ * @param db      the D1 binding
+ * @param table   table name
+ * @param values  { column: value } - undefined values are left out
+ * @param order   the columns to write, in order
+ * @param optional columns that may be dropped one at a time when the
+ *                table shape cannot be read
+ */
+export async function insertRow(db, table, values, order, optional) {
+  var keys = order.filter(function (k) { return values[k] !== undefined; });
+  var cols = await tableColumns(db, table);
+  if (cols.length) {
+    return runInsert(db, table, keys.filter(function (k) { return cols.indexOf(k) !== -1; }), values);
+  }
+  /* The table shape is unknown: try the full set, then drop the optional
+     columns one by one until the insert goes through. */
+  var drop = [];
+  var opt = optional || [];
+  for (var i = 0; i <= opt.length; i++) {
+    var use = keys.filter(function (k) { return drop.indexOf(k) === -1; });
+    try {
+      return await runInsert(db, table, use, values);
+    } catch (e) {
+      if (i >= opt.length) throw e;
+      drop.push(opt[i]);
+    }
+  }
+}
+
+/**
+ * Update a row, skipping any column the table does not have.
+ */
+export async function updateRow(db, table, values, keys, optional) {
+  var cols = await tableColumns(db, table);
+  var use = keys.filter(function (k) { return values[k] !== undefined; });
+  if (cols.length) {
+    use = use.filter(function (k) { return cols.indexOf(k) !== -1; });
+  }
+  if (!use.length) return;
+  var sets = use.map(function (k) { return k + ' = ?'; }).join(', ');
+  var sql = 'UPDATE ' + table + ' SET ' + sets + ' WHERE id = ?';
+  var binds = use.map(function (k) { return values[k]; });
+  try {
+    await db.prepare(sql).bind.apply(null, binds.concat([values.id])).run();
+  } catch (e) {
+    if (!cols.length && optional && optional.length) {
+      /* unknown table shape: retry without the optional columns */
+      var drop = [];
+      var opt = optional;
+      for (var i = 0; i < opt.length; i++) {
+        var keep = use.filter(function (k) { return drop.indexOf(k) === -1; });
+        try {
+          var sets2 = keep.map(function (k) { return k + ' = ?'; }).join(', ');
+          var sql2 = 'UPDATE ' + table + ' SET ' + sets2 + ' WHERE id = ?';
+          var binds2 = keep.map(function (k) { return values[k]; });
+          await db.prepare(sql2).bind.apply(null, binds2.concat([values.id])).run();
+          return;
+        } catch (e2) {
+          drop.push(opt[i]);
+        }
+      }
+    }
+    throw e;
+  }
 }
 
 /** Remove every customer favourite that points at a deleted business asset. */

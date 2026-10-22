@@ -51,7 +51,7 @@ only reads; it never rewrites this file. It warns on line drift.
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
 | 14 | `eatouts-login.html` | Universal WhatsApp + PIN sign-in; routes by role. | Direct; also About → Operator Sign in | `PAGE: Login` | 44 |
-| 15 | `eatouts-customer-signup.html` | Customer account creation — 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks. | login → create account; About guest popup → Sign Up | `PAGE: Customer signup` | 270 |
+| 15 | `eatouts-customer-signup.html` | Customer account creation — 10+ gate, required email, live town/area lookup, username + WhatsApp + password login, WhatsApp confirmation and favourite picks. | login → create account; About guest popup → Sign Up | `PAGE: Customer signup` | 1,406 |
 | 16 | `eatouts-profile.html` | User profile page. | Profile card → My Profile | `PAGE: My profile` | 1,217 |
 | 17 | `eatouts-orders.html` | Order history. | Profile card → Order History | `PAGE: My orders` | 967 |
 | 18 | `eatouts-favourites.html` | Saved favourites. | Profile card → Favourites | `PAGE: Favourites` | 1,278 |
@@ -69,7 +69,7 @@ only reads; it never rewrites this file. It warns on line drift.
 | 25 | `eatouts-business-signup.html` | Business-type chooser for new businesses — each card opens that type’s own onboarding form. | login / marketing links | `PAGE: List your business` | 947 |
 | 26 | `restaurant-onboarding.html` | Restaurant setup — brand, outlets, venue spaces, menu, promotions and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Restaurant; operator dashboard | `PAGE: Restaurant Setup` | 573 |
 | 27 | `bottle-store-onboarding.html` | Bottle & liquor store setup — brand, outlets, stock, tastings and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Bottle store; operator dashboard | `PAGE: Bottle store onboarding` | 1,629 |
-| 28 | `caterer-onboarding.html` | Caterer setup — brand, outlets, menus, service coverage and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Caterer; operator dashboard | `PAGE: Caterer onboarding` | 1,902 |
+| 28 | `caterer-onboarding.html` | Caterer setup — shared brand settings plus a branch manager (each branch keeps its own address, service area, packages, add-ons, tastings, equipment, staffing and offers); the draft stays on the device until it is published. | business-signup → Caterer; operator dashboard | `PAGE: Caterer setup` | 2,053 |
 | 29 | `lodge-onboarding.html` | Lodge setup — property, rooms, amenities, rates and booking rules. | business-signup → Lodge; operator dashboard | `PAGE: Lodge onboarding` | 1,093 |
 | 30 | `supplier-onboarding.html` | Event supplier setup — the shared service catalogue, contact and coverage details and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Event supplier; operator dashboard | `PAGE: Supplier onboarding` | 1,233 |
 | 31 | `event-onboarding.html` | Manage events and the performer roster. | Operator back-office → Events tab | `PAGE: Events & Performers` | 1,409 |
@@ -141,7 +141,6 @@ only reads; it never rewrites this file. It warns on line drift.
 |---|------|-----------|------------------|-------------|--------|
 | 67 | `bakery-onboarding.html` | Bakery setup — brand, outlets, products, café/seating and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Bakery; operator dashboard | `PAGE: Bakery onboarding` | 1,701 |
 | 68 | `mobile-kitchen-onboarding.html` | Mobile kitchen setup — units, service locations, grab-and-go menu, throughput and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Mobile Kitchen; operator dashboard | `PAGE: Mobile kitchen onboarding` | 1,184 |
-| 69 | `eatouts_user_onboarding.html` | Caterer setup — brand, outlets, menus, packages, service coverage and a review-and-publish step; the draft stays on the device. | direct link | `PAGE: Caterer setup` | 1,300 |
 ---
 
 # Part 2 — Screens Within index.html (SPA)

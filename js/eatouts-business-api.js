@@ -393,7 +393,9 @@
       actionJson: p.action || null,
       sponsor: p.sponsor || null,
       terms: p.terms || null,
-      status: p.status || 'active'
+      status: p.status || 'active',
+      /* The operator's own 18+ switch on the promo. */
+      ageRestricted: !!p.ageRestricted
     };
   }
 
@@ -420,6 +422,8 @@
       sponsor: s.sponsor || '',
       terms: s.terms || '',
       status: s.status || 'active',
+      /* The operator's own 18+ switch on the promo. */
+      ageRestricted: !!s.ageRestricted,
       createdAt: s.createdAt || Date.now(),
       updatedAt: s.updatedAt || null
     };

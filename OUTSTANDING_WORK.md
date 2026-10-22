@@ -122,7 +122,7 @@ are real bugs even once deployed:
 - [x] **B1.** `/api/*` reachable from the live origin (A1) — the backend is deployed and live, so
   customers can register and log in.
 - [x] **B2. Locally-created accounts can log in.** The onboarding fallback
-  (`eatouts-user-onboarding.html`) now stores a local `passwordHash`+`salt` (via
+  (`eatouts-customer-signup.html`) now stores a local `passwordHash`+`salt` (via
   `EatoutsAuth.hashPassword`), and `EatoutsCustomer.login` falls back to verifying locally-created
   accounts when the backend is unconfigured/unreachable (`loginLocal`). Covered by
   `tests/customer-local-login.js`.

@@ -124,7 +124,8 @@ console.log('\n-- Contract #4: auth gate --');
       typeof b.window.EatoutsAuth.isLoggedIn === 'function' &&
       b.window.EatoutsAuth.isLoggedIn() === false);
     check('auth: ' + rel + ' role-gate redirects to eatouts-login.html',
-      /location\.replace\(['"]eatouts-login\.html['"]\)/.test(read(rel)));
+      /location\.replace\(\s*['"]eatouts-login\.html/.test(read(rel)) &&
+      /location\.replace\(\s*['"]eatouts-login\.html\?next=/.test(read(rel)));
   } else {
     check('auth: ' + rel + ' redirectToLogin ran', b.state.redirected === true);
   }

@@ -173,9 +173,16 @@
     return !!currentSession();
   }
 
+  /* One sign-in surface: eatouts-login.html. The page we came from is
+     passed along as ?next= so the user lands back where they started. */
   function redirectToLogin() {
     if (typeof location !== 'undefined') {
-      location.replace('index.html#about');
+      var next = '';
+      try {
+        next = location.pathname + (location.search || '');
+        if (next.charAt(0) !== '/') next = '/' + next;
+      } catch (e) { next = ''; }
+      location.replace('eatouts-login.html' + (next ? '?next=' + encodeURIComponent(next) : ''));
     }
   }
 
@@ -213,10 +220,14 @@
   /* ---------- public API ---------- */
 
   /**
+   * Operator sign-in. All three identifiers are required: username,
+   * WhatsApp number and password.
+   *
    * @returns {Promise<{ok:true, session:object}|{ok:false, reason:string}>}
    */
-  function login(whatsapp, password) {
+  function login(whatsapp, password, username) {
     var norm = normaliseWhatsapp(whatsapp);
+    var uname = String(username == null ? '' : username).trim().toLowerCase();
 
     if (!secureContextAvailable()) {
       return Promise.resolve({
@@ -226,6 +237,9 @@
       });
     }
 
+    if (!uname) {
+      return Promise.resolve({ ok: false, reason: 'username', message: 'Enter your username.' });
+    }
     if (!norm) {
       return Promise.resolve({ ok: false, reason: 'number', message: 'Enter your WhatsApp number.' });
     }
@@ -252,6 +266,11 @@
         return normaliseWhatsapp(c.user.whatsapp) === '0' || normaliseWhatsapp(c.user.whatsapp) === '';
       });
     }
+
+    /* The username has to match the record as well. */
+    candidates = candidates.filter(function (c) {
+      return String(c.user.username || '').trim().toLowerCase() === uname;
+    });
 
     if (!candidates.length) {
       return Promise.resolve({ ok: false, reason: 'notfound', message: 'No account matches those details.' });
@@ -493,7 +512,7 @@
   globalThis.EatoutsAuth = {
     SESSION_KEY: SESSION_KEY,
     FLAGSHIP_SLUG: FLAGSHIP_SLUG,
-    demoCredentials: { whatsapp: '0', password: '0' },
+    demoCredentials: { whatsapp: '0', username: 'demo', password: '0' },
 
     login: login,
     loginDemo: loginDemo,

@@ -262,9 +262,9 @@ onboarding screens use the centred `.login` card with a platform logo header.
 
 | Page | Who | Purpose |
 |------|-----|---------|
-| `eatouts-login.html` | all | Universal WhatsApp + PIN sign-in, routes by role |
-| `eatouts-customer-signup.html` | customer | Customer account creation (18+ gate, live town/area, WhatsApp login, favourites) |
-| `eatouts_user_onboarding.html` | caterer | Caterer setup form (brand, outlets, menus, packages, service coverage) |
+| `eatouts-login.html` | all | The one sign-in page — WhatsApp number + username + password, plus a "Forgot password?" flow that emails a reset link |
+| `eatouts-customer-signup.html` | customer | Customer account creation (10+ gate, required email, live town/area, WhatsApp login, favourites) |
+| `caterer-onboarding.html` | caterer | Caterer setup form (shared brand settings, branch manager, packages, tastings, staffing, offers) |
 | `eatouts-business-signup.html` | new business | Business-type chooser — each card opens that type's own form |
 | `restaurant-onboarding.html` / `mobile-kitchen-onboarding.html` / `bottle-store-onboarding.html` / `caterer-onboarding.html` / `bakery-onboarding.html` / `supplier-onboarding.html` / `lodge-onboarding.html` | each type | Per-type business onboarding (shared bridge: live town/area + place lookup, Hosting Services, publish to D1 + customer directory) |
 | `staff-manager.html` | biz owner/admin/manager | Staff CRUD, employment records, roles, attendance, tips, performance, payroll tabs |

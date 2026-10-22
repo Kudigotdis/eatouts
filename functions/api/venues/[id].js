@@ -9,8 +9,13 @@
 
    Only public-safe content is returned: visible menu items and
    gallery images, active promos, published events.
+
+   Age-restricted promos (alcohol) are removed unless the caller is
+   signed in as an account that is 18 or older.
    ============================================================ */
-import { json } from './../_shared.js';
+import { json, getSession } from './../_shared.js';
+import { meetsAge } from './../_auth.js';
+import { isAgeRestrictedPromo } from './../_promo-rules.js';
 import {
   restaurantOut, categoryOut, itemOut, galleryGroupOut,
   galleryImageOut, eventOut
@@ -25,6 +30,14 @@ function promoOut(r) {
     details: r.details || null,
     imageKey: r.image_key || null,
     active: !!r.active,
+    /* The operator flag, when the column is there, plus the shared rule. */
+    ageRestricted: !!r.age_restricted || isAgeRestrictedPromo({
+      type: r.type || null,
+      title: r.title || '',
+      description: r.description || r.details || '',
+      sponsor: r.sponsor || '',
+      terms: r.terms || ''
+    }),
     startsAt: r.starts_at != null ? r.starts_at : null,
     endsAt: r.ends_at != null ? r.ends_at : null,
     created_at: r.created_at,
@@ -35,6 +48,21 @@ function promoOut(r) {
 async function rowsOf(db, sql, id) {
   var res = await db.prepare(sql).bind(id).all();
   return (res && res.results) || [];
+}
+
+/** True when the signed-in account is old enough for age-restricted promos. */
+async function viewerIsAdult(env, request) {
+  try {
+    var session = await getSession(env, request);
+    if (!session || !session.userId) return false;
+    var row = await env.DB.prepare('SELECT profile FROM users WHERE id = ?').bind(session.userId).first();
+    if (!row) return false;
+    var profile = {};
+    try { profile = row.profile ? JSON.parse(row.profile) : {}; } catch (e) { profile = {}; }
+    return meetsAge(profile.dob, 18);
+  } catch (e) {
+    return false;
+  }
 }
 
 export async function onRequestGet(context) {
@@ -66,13 +94,21 @@ export async function onRequestGet(context) {
   ]);
 
   var venue = restaurantOut(r);
+  var promos = parts[4].map(promoOut);
+
+  /* Age-restricted promos only go to an account that is 18 or older. */
+  var adult = await viewerIsAdult(env, context.request);
+  if (!adult) {
+    promos = promos.filter(function (p) { return !p.ageRestricted; });
+  }
+
   venue.content = {
     profile: restaurantOut(r),
     menuCategories: parts[0].map(categoryOut),
     menuItems: parts[1].map(itemOut),
     galleryGroups: parts[2].map(galleryGroupOut),
     galleryImages: parts[3].map(galleryImageOut),
-    promos: parts[4].map(promoOut),
+    promos: promos,
     events: parts[5].map(eventOut)
   };
 

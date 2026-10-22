@@ -70,7 +70,10 @@ const SUITES = [
   'bakery-directory.js',
   'business-profiles.js',
   'business-promos.js',
-  'onboarding-bridge.js'
+  'onboarding-bridge.js',
+  'login.js',
+  'password-reset.js',
+  'age-gate.js'
 ];
 
 function pad(n, width) {

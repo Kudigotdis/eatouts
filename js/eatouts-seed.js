@@ -242,6 +242,7 @@
 
     if (existing) {
       /* repair only what is missing; never reset an edited password */
+      if (!existing.username) existing.username = 'demo';
       if (existing.salt && existing.passwordHash && existing.whatsapp === '0') {
         return Promise.resolve(commit({ seeded: false, reason: 'already-present' }));
       }
@@ -262,6 +263,7 @@
         name: 'Owner',
         email: 'owner@yellowgiraffe.bw',
         role: 'Owner',
+        username: 'demo',
         whatsapp: '0',
         salt: salt,
         passwordHash: hash,

@@ -52,11 +52,16 @@ function check(label, cond, extra) {
   /* ---- age gate ---- */
   const adultDob = new Date();
   adultDob.setFullYear(adultDob.getFullYear() - 25);
-  const minorDob = new Date();
-  minorDob.setFullYear(minorDob.getFullYear() - 15);
+  const teenDob = new Date();
+  teenDob.setFullYear(teenDob.getFullYear() - 15);
+  const childDob = new Date();
+  childDob.setFullYear(childDob.getFullYear() - 9);
   const iso = (d) => d.toISOString().slice(0, 10);
-  check('isAdult true at 25', A.isAdult(iso(adultDob), 18) === true);
-  check('isAdult false at 15', A.isAdult(iso(minorDob), 18) === false);
+  check('meetsAge true at 25 (18)', A.meetsAge(iso(adultDob), 18) === true);
+  check('meetsAge false at 15 (18)', A.meetsAge(iso(teenDob), 18) === false);
+  check('meetsAge true at 15 (10+)', A.meetsAge(iso(teenDob), 10) === true);
+  check('meetsAge false at 9 (10+)', A.meetsAge(iso(childDob), 10) === false);
+  check('meetsAge false with no dob', A.meetsAge(null, 10) === false);
   check('ageFromDob null on junk', A.ageFromDob('not-a-date') === null);
 
   /* ---- safeEqual ---- */
@@ -86,6 +91,8 @@ function check(label, cond, extra) {
     profile: '{"firstName":"Kudz"}'
   });
   check('publicUser maps fields', pu.username === 'kudz' && pu.verified === true && pu.profile.firstName === 'Kudz');
+  check('publicUser carries the date of birth',
+    A.publicUser({ id: 'u', profile: '{"dob":"1998-04-01"}' }).dob === '1998-04-01');
   check('publicUser tolerates bad profile JSON', A.publicUser({ id: 'x', profile: 'not json' }).profile.firstName === undefined);
   check('publicUser null-safe', A.publicUser(null) === null);
 

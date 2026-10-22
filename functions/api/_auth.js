@@ -107,9 +107,10 @@ export function ageFromDob(dob) {
   return age;
 }
 
-export function isAdult(dob, minAge) {
+/** True when the date of birth shows the person is at least minAge years old. */
+export function meetsAge(dob, minAge) {
   var age = ageFromDob(dob);
-  return age != null && age >= (minAge || 18);
+  return age != null && age >= (minAge || 10);
 }
 
 /** Synthetic unique email for customers who do not give one. */
@@ -135,6 +136,9 @@ export function publicUser(row) {
     email: row.email || null,
     name: row.name || null,
     type: row.type || 'customer',
+    /* The account holder's date of birth: the client uses it to decide
+       whether age-restricted promos may be shown. */
+    dob: profile.dob || null,
     verified: !!row.verified,
     photoKey: row.photo_key || null,
     avatar: row.photo_key || null,

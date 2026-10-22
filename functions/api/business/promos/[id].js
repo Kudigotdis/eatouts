@@ -1,10 +1,23 @@
 /* /api/business/promos/:id
    PATCH  { title?, image?, type?, description?, originalPrice?, promoPrice?, locationJson?,
             startDate?, startTime?, endDate?, endTime?, recurring?, daysJson?, linkedMenuItemsJson?,
-            actionJson?, sponsor?, terms?, status? } -> update   (marketing_manager+)
+            actionJson?, sponsor?, terms?, status?, ageRestricted? } -> update   (marketing_manager+)
    DELETE                                                               -> delete + purge favourites */
 import { json, readJson, now } from './../../_shared.js';
-import { requireBusiness, promoOut, str, jsonString, numOrNull, purgeFavourites } from './../../_business.js';
+import {
+  requireBusiness, promoOut, str, jsonString, numOrNull, purgeFavourites, updateRow
+} from './../../_business.js';
+
+/* The columns a promo row is written with, in order. */
+var PROMO_COLUMNS = [
+  'title', 'image', 'type', 'description', 'original_price', 'promo_price',
+  'location_json', 'start_date', 'start_time', 'end_date', 'end_time',
+  'recurring', 'days_json', 'linked_menu_items_json', 'action_json', 'sponsor', 'terms',
+  'status', 'age_restricted', 'updated_at'
+];
+
+/* Dropped one at a time when the table shape cannot be read. */
+var PROMO_OPTIONAL = ['age_restricted', 'image'];
 
 async function load(context) {
   var env = context.env;
@@ -40,17 +53,38 @@ export async function onRequestPatch(context) {
   var sponsor = b.sponsor !== undefined ? str(b.sponsor) : row.sponsor;
   var terms = b.terms !== undefined ? str(b.terms) : row.terms;
   var status = b.status !== undefined ? (str(b.status) || row.status) : row.status;
+  /* The operator's own 18+ switch on the promo. */
+  var ageRestricted = (b.ageRestricted !== undefined || b.age_restricted !== undefined)
+    ? ((b.ageRestricted || b.age_restricted) ? 1 : 0)
+    : (row.age_restricted != null ? row.age_restricted : undefined);
 
-  await l.c.db.prepare(
-    'UPDATE promos SET title = ?, image = ?, type = ?, description = ?, original_price = ?, ' +
-    'promo_price = ?, location_json = ?, start_date = ?, start_time = ?, end_date = ?, end_time = ?, ' +
-    'recurring = ?, days_json = ?, linked_menu_items_json = ?, action_json = ?, sponsor = ?, ' +
-    'terms = ?, status = ?, updated_at = ? WHERE id = ?'
-  ).bind(
-    title, image, type, description, originalPrice, promoPrice, locationJson,
-    startDate, startTime, endDate, endTime, recurring, daysJson, linkedMenuItemsJson,
-    actionJson, sponsor, terms, status, now(), row.id
-  ).run();
+  try {
+    await updateRow(l.c.db, 'promos', {
+      id: row.id,
+      title: title,
+      image: image,
+      type: type,
+      description: description,
+      original_price: originalPrice,
+      promo_price: promoPrice,
+      location_json: locationJson,
+      start_date: startDate,
+      start_time: startTime,
+      end_date: endDate,
+      end_time: endTime,
+      recurring: recurring,
+      days_json: daysJson,
+      linked_menu_items_json: linkedMenuItemsJson,
+      action_json: actionJson,
+      sponsor: sponsor,
+      terms: terms,
+      status: status,
+      age_restricted: ageRestricted,
+      updated_at: now()
+    }, PROMO_COLUMNS, PROMO_OPTIONAL);
+  } catch (e) {
+    return json({ ok: false, error: 'could_not_save_promo' }, 500);
+  }
 
   var updated = await l.c.db.prepare('SELECT * FROM promos WHERE id = ?').bind(row.id).first();
   return json({ ok: true, promo: promoOut(updated) });

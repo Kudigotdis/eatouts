@@ -3,62 +3,292 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#ffffff">
-<title>Customer signup · EatOuts</title>
-<link rel="stylesheet" href="assets/eatouts-manager.css">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171719">
+<title>Customer Signup · EatOuts</title>
 <style>
-.picks-list{max-height:260px;overflow:auto;border:1px solid #e7e4dd;border-radius:10px;padding:4px;margin:8px 0}
-.pick{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13.5px}
-.pick:hover{background:#faf8f4}
-.pick input{margin:0}
-.pick .pick-sub{margin-left:auto;font-size:11px;color:#8a8172;white-space:nowrap}
-.pick.pick-off{opacity:.45}
-.tip{position:relative}
-.tip-list{position:absolute;z-index:40;left:0;right:0;top:100%;margin:4px 0 0;background:#fff;border:1px solid #e7e4dd;border-radius:10px;box-shadow:0 12px 28px rgba(23,23,25,.14);max-height:230px;overflow:auto;display:none}
+:root{--ink:#171719;--ink2:#35353B;--muted:#5E626B;--faint:#8A8F99;--paper:#F4F5F7;--card:#fff;--line:#E2E5EA;--line2:#F0F1F3;--orange:#FF5A1F;--orange2:#FF7A42;--orangeSoft:#FFF0E9;--orangeLine:#FFD4C2;--green:#178247;--greenSoft:#E7F6ED;--red:#B91C1C;--redSoft:#FDECEC;--redLine:#F3C9C9;--shadow:0 5px 20px rgba(22,22,28,.055)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#E8EAEE;color:var(--ink);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid rgba(255,90,31,.24);outline-offset:2px}
+
+/* ---------- shell ---------- */
+#app-shell{width:100%;max-width:520px;height:100dvh;min-height:560px;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 60px rgba(20,20,25,.12);position:relative}
+.topbar{flex:0 0 auto;background:#171719;color:#fff;padding:calc(13px + env(safe-area-inset-top)) 18px 14px}
+.topbar-row{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.brand-mark{height:36px;width:36px;display:grid;place-items:center;background:var(--orange);color:#fff;font-weight:900;font-size:19px;border-radius:7px}
+.brand-title{font-size:18px;font-weight:850;letter-spacing:-.03em;line-height:1.2}
+.brand-subtitle{font-size:11.5px;color:#AEB1B8;letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
+.draft-pill{margin-left:auto;border:1px solid #44444A;background:#242428;color:#FF9A70;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:5px 9px;border-radius:3px}
+.progress-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#B5B7BF;margin-bottom:7px}
+.progress-row strong{color:#FF9A70;font-weight:800}
+.progress-track{height:6px;background:#3B3B40;overflow:hidden;border-radius:3px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange2));width:0;transition:width .2s}
+.scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ---------- intro ---------- */
+.intro{padding:24px 20px 34px;background:linear-gradient(150deg,#171719,#25252B);color:#fff;position:relative;overflow:hidden}
+.intro:after{content:"";position:absolute;width:220px;height:220px;right:-105px;top:-120px;border-radius:50%;background:radial-gradient(circle,rgba(255,90,31,.28),transparent 68%);pointer-events:none}
+.eyebrow{font-size:11.5px;color:#FF9A70;font-weight:850;letter-spacing:.15em;text-transform:uppercase;margin-bottom:9px}
+.intro h1{font-size:30px;letter-spacing:-.045em;line-height:1.08;margin:0 0 10px;max-width:16ch;font-weight:850}
+.intro h1 span{color:#FF8B5A}
+.intro p{font-size:15.5px;line-height:1.6;color:#C8C9CF;margin:0;max-width:38ch}
+.content{padding:16px 13px 30px}
+
+/* ---------- accordion ---------- */
+.accordion-stack{display:flex;flex-direction:column;gap:10px}
+.acc{background:var(--card);border:1px solid var(--line);border-radius:6px;box-shadow:0 1px 2px rgba(20,20,25,.02);transition:opacity .22s,filter .22s,box-shadow .22s,border-color .22s}
+.acc.open{border-color:var(--orangeLine);box-shadow:0 4px 14px rgba(255,90,31,.08)}
+.accordion-stack.has-open .acc:not(.open){opacity:.15;filter:blur(1.6px)}
+.accordion-stack.has-open .acc.open{opacity:1;filter:none}
+.acc-head{display:flex;align-items:center;text-align:left;gap:12px;width:100%;border:0;background:#fff;padding:16px 15px;color:var(--ink);border-radius:6px}
+.acc.open .acc-head{border-radius:6px 6px 0 0}
+.acc-head:active{background:#FAFAFB}
+.acc-num{width:32px;height:32px;flex:0 0 auto;border-radius:6px;background:#F0F1F4;color:var(--faint);font-size:13px;font-weight:850;display:grid;place-items:center;letter-spacing:-.01em;transition:background .2s,color .2s}
+.acc.open .acc-num{background:var(--orange);color:#fff}
+.acc-num.done{background:var(--greenSoft);color:var(--green)}
+.acc-title-wrap{flex:1;min-width:0}
+.acc-title{font-size:17px;font-weight:800;display:block;line-height:1.3}
+.acc-sub{font-size:13px;color:var(--muted);display:block;margin-top:3px;font-weight:450;line-height:1.4}
+.acc-state{width:10px;height:10px;border-radius:50%;background:#D6DAE0;flex:0 0 auto;margin-left:auto}
+.acc-state.progress{background:#FFB27A}
+.acc-state.complete{background:var(--green)}
+.acc-body{border-top:1px solid var(--line2);padding:17px 15px 18px;border-radius:0 0 6px 6px}
+
+/* ---------- form primitives ---------- */
+.note{background:#F7F8FA;border:1px solid #EBEDF0;padding:11px 12px;color:var(--muted);font-size:13.5px;line-height:1.55;border-radius:4px;margin:0 0 15px}
+.note strong{color:var(--ink2)}
+.field{display:block;margin-bottom:15px;min-width:0;position:relative}
+.field:last-child{margin-bottom:0}
+.field>span,.field>label{display:block;font-size:12.5px;font-weight:850;text-transform:uppercase;letter-spacing:.07em;color:#666A74;margin-bottom:7px}
+.field .hint{display:block;text-transform:none;letter-spacing:0;font-weight:450;font-size:12.5px;color:var(--faint);margin-top:6px}
+.input,.select,.textarea{width:100%;min-width:0;border:1px solid #DDE1E7;background:#fff;border-radius:4px;color:var(--ink);padding:12px 13px;font-size:17px;outline:none;line-height:1.4}
+.input,.select{min-height:50px}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,90,31,.09)}
+.input::placeholder,.textarea::placeholder{color:#B0B5BE}
+
+/* ---------- profile picture (square, rounded) ---------- */
+.pfp-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin:4px 0 22px}
+.pfp-thumb{
+  width:150px;height:150px;border-radius:22px;
+  overflow:hidden;background:#F0F1F4;border:2px dashed #CDD2DA;
+  display:grid;place-items:center;cursor:pointer;position:relative;
+  transition:border-color .15s,background .15s,transform .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.pfp-thumb:hover{border-color:var(--orange);background:var(--orangeSoft)}
+.pfp-thumb:active{transform:scale(.98)}
+.pfp-thumb.has-photo{border-style:solid;border-color:var(--line)}
+.pfp-thumb.has-photo:hover{border-color:var(--orange)}
+.pfp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pfp-input{display:none}
+.pfp-caption{font-size:13px;color:var(--muted);font-weight:650;text-align:center}
+.pfp-remove{
+  border:0;background:transparent;color:var(--red);
+  font-size:13px;font-weight:750;padding:4px 10px;cursor:pointer;border-radius:4px;
+}
+.pfp-remove:hover{background:var(--redSoft)}
+
+/* ---------- DOB buttons ---------- */
+.dob-row{display:grid;grid-template-columns:1fr 1.15fr .85fr;gap:9px}
+.dob-btn{
+  -webkit-appearance:none;appearance:none;touch-action:manipulation;
+  width:100%;min-height:50px;padding:11px 10px;
+  border:1px solid #DDE1E7;border-radius:4px;background:#fff;
+  color:var(--ink);font-size:17px;font-weight:600;
+  text-align:center;line-height:1.3;
+  transition:border-color .15s,box-shadow .15s,background .15s;
+}
+.dob-btn:hover{border-color:#C6CBD3;background:#FAFAFB}
+.dob-btn.empty{color:#B0B5BE;font-weight:500}
+.dob-btn[aria-expanded="true"]{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,90,31,.09);background:#fff}
+.dob-btn:focus-visible{outline:3px solid rgba(255,90,31,.24);outline-offset:2px}
+
+/* ---------- DOB floating popover ---------- */
+.dob-popover{
+  position:fixed;z-index:200;
+  background:#fff;border:1px solid var(--line);border-radius:6px;
+  box-shadow:0 12px 32px rgba(23,23,25,.18);
+  max-height:min(280px,50vh);overflow-y:auto;
+  scrollbar-width:none;-ms-overflow-style:none;
+  padding:4px;-webkit-overflow-scrolling:touch;
+}
+.dob-popover::-webkit-scrollbar{display:none;width:0;height:0}
+.dob-popover.hide{display:none}
+.dob-opt{
+  -webkit-appearance:none;appearance:none;touch-action:manipulation;
+  display:block;width:100%;padding:11px 14px;
+  border:0;background:transparent;border-radius:4px;
+  color:var(--ink);font-size:16px;font-weight:600;
+  text-align:center;line-height:1.3;cursor:pointer;
+  transition:background .12s,color .12s;
+}
+.dob-opt:hover{background:var(--paper)}
+.dob-opt.on{background:var(--orangeSoft);color:#C84513;font-weight:800}
+
+/* ---------- Gender (no label, no dots) ---------- */
+.seg-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.seg{
+  -webkit-appearance:none;appearance:none;touch-action:manipulation;
+  display:flex;align-items:center;justify-content:center;
+  min-height:50px;border:1px solid #DDE1E7;border-radius:4px;
+  background:#fff;color:var(--ink);font-size:17px;font-weight:700;
+  transition:border-color .15s,background .15s,color .15s;
+}
+.seg:hover{border-color:#C6CBD3;background:#FAFAFB}
+.seg.on{border-color:var(--orange);background:var(--orangeSoft);color:#C84513;font-weight:850}
+
+/* ---------- Password ---------- */
+.pw-wrap{position:relative}
+.pw-wrap .input{padding-right:52px}
+.pw-toggle{
+  position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  width:38px;height:38px;border:0;background:transparent;color:var(--faint);
+  display:grid;place-items:center;border-radius:4px;cursor:pointer;
+  transition:background .15s,color .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.pw-toggle:hover{background:var(--paper);color:var(--ink2)}
+.pw-toggle[aria-pressed="true"]{color:var(--orange)}
+.pw-toggle:focus-visible{outline:3px solid rgba(255,90,31,.24);outline-offset:0}
+
+/* ---------- Phone row (dial code + number) ---------- */
+.phone-row{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:stretch}
+.phone-code-btn{
+  -webkit-appearance:none;appearance:none;touch-action:manipulation;
+  min-width:100px;min-height:50px;padding:11px 12px;
+  border:1px solid #DDE1E7;border-radius:4px;background:#fff;
+  color:var(--ink);font-size:17px;font-weight:700;
+  text-align:center;line-height:1.3;
+  transition:border-color .15s,box-shadow .15s,background .15s;
+}
+.phone-code-btn:hover{border-color:#C6CBD3;background:#FAFAFB}
+.phone-code-btn[aria-expanded="true"]{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,90,31,.09);background:#fff}
+.phone-code-btn:focus-visible{outline:3px solid rgba(255,90,31,.24);outline-offset:2px}
+.phone-num{min-width:0}
+
+/* ---------- Phone floating popover ---------- */
+.phone-popover{
+  position:fixed;z-index:210;
+  background:#fff;border:1px solid var(--line);border-radius:6px;
+  box-shadow:0 12px 32px rgba(23,23,25,.18);
+  width:320px;max-width:calc(100vw - 20px);
+  max-height:min(420px,70vh);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.phone-popover.hide{display:none}
+.phone-search-wrap{padding:8px;border-bottom:1px solid var(--line2);flex:0 0 auto}
+.phone-search{
+  width:100%;min-height:42px;padding:9px 12px;
+  border:1px solid #DDE1E7;border-radius:4px;background:#fff;
+  font-size:16px;color:var(--ink);outline:none;
+}
+.phone-search:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,90,31,.09)}
+.phone-search::placeholder{color:#B0B5BE}
+.phone-list{
+  flex:1;min-height:0;overflow-y:auto;
+  scrollbar-width:none;-ms-overflow-style:none;
+  padding:4px;-webkit-overflow-scrolling:touch;
+}
+.phone-list::-webkit-scrollbar{display:none;width:0;height:0}
+.phone-opt{
+  -webkit-appearance:none;appearance:none;touch-action:manipulation;
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:11px 12px;border:0;background:transparent;
+  border-radius:4px;color:var(--ink);font-size:15px;font-weight:600;
+  text-align:left;line-height:1.3;cursor:pointer;
+  transition:background .12s;
+}
+.phone-opt:hover{background:var(--paper)}
+.phone-opt.on{background:var(--orangeSoft);color:#C84513;font-weight:800}
+.phone-opt .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.phone-opt .code{flex:0 0 auto;font-size:14px;color:var(--faint);font-weight:700;white-space:nowrap}
+.phone-opt.on .code{color:#C84513}
+.phone-empty{padding:14px;font-size:14px;color:var(--faint);text-align:center}
+
+/* ---------- checkboxes ---------- */
+.check-list{display:flex;flex-direction:column;gap:8px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--line);background:#fff;border-radius:5px;min-height:48px}
+.check-item input{accent-color:var(--orange);width:20px;height:20px;flex:0 0 auto;margin:2px 0 0}
+.check-item span{font-size:15px;font-weight:650;line-height:1.45}
+.check-item small{display:block;font-size:12.5px;color:var(--muted);font-weight:450;margin-top:2px}
+
+/* ---------- buttons ---------- */
+.btn{border:1px solid transparent;border-radius:4px;min-height:48px;padding:11px 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800;text-align:center;text-decoration:none;line-height:1.2}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-primary:hover{background:#E94E18}
+.btn-secondary{background:#fff;border-color:#DDE1E7;color:var(--ink2)}
+.btn-wide{width:100%}
+.btn-row{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+@media(min-width:420px){.btn-row{flex-direction:row}.btn-row>*{flex:1}}
+
+/* ---------- footer ---------- */
+.footer-actions{flex:0 0 auto;background:#fff;border-top:1px solid var(--line);padding:10px 13px calc(10px + env(safe-area-inset-bottom));display:flex;gap:9px}
+.footer-actions .btn{flex:1;min-height:48px}
+
+/* ---------- toast ---------- */
+.status-toast{position:absolute;z-index:30;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#171719;color:#fff;padding:12px 16px;border-radius:5px;max-width:88%;font-size:13.5px;font-weight:750;box-shadow:var(--shadow);transition:opacity .2s,transform .2s;white-space:normal;text-align:center}
+.status-toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- typeahead ---------- */
+.tip-list{position:absolute;z-index:40;left:0;right:0;top:100%;margin:5px 0 0;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 12px 28px rgba(23,23,25,.14);max-height:250px;overflow:auto;display:none}
 .tip-list.open{display:block}
-.tip-opt{display:flex;gap:8px;align-items:baseline;padding:9px 11px;font-size:13.5px;cursor:pointer;border-bottom:1px solid #f2efe8}
+.tip-opt{display:flex;gap:8px;align-items:baseline;padding:11px 13px;font-size:15px;cursor:pointer;border-bottom:1px solid var(--line2)}
 .tip-opt:last-child{border-bottom:0}
-.tip-opt:hover,.tip-opt.on{background:#faf8f4}
-.tip-opt .tip-kind{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#8a8172;margin-left:auto;white-space:nowrap}
-.tip-empty{padding:10px 11px;font-size:12.5px;color:#8a8172}
+.tip-opt:hover,.tip-opt.on{background:var(--paper)}
+.tip-opt .tip-kind{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-left:auto;white-space:nowrap}
+.tip-empty{padding:12px 13px;font-size:14px;color:var(--faint)}
+
+/* ---------- picks ---------- */
+.picks-list{max-height:280px;overflow:auto;border:1px solid var(--line);border-radius:6px;padding:4px;margin:9px 0;background:#fff}
+.pick{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:5px;font-size:15px;cursor:pointer}
+.pick:hover{background:var(--paper)}
+.pick input{accent-color:var(--orange);margin:0;width:19px;height:19px;flex:0 0 auto}
+.pick .pick-sub{margin-left:auto;font-size:12.5px;color:var(--faint);white-space:nowrap}
+.pick.pick-off{opacity:.45}
+
+/* ---------- phase card ---------- */
+.phase-card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:18px;box-shadow:var(--shadow)}
+.phase-card .card-title{font-size:12px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:#6E727C;margin-bottom:11px}
+.phase-card p{font-size:14.5px;color:var(--muted);margin:0 0 15px;line-height:1.6}
+
+.hide{display:none!important}
+
+@media(min-width:520px){body{padding:12px 0}#app-shell{height:calc(100dvh - 24px);border-radius:9px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body data-page="eatouts-customer-signup">
-<div class="login"><div class="loginbox">
-<header class="topbar loginbar"><a class="brand" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts" style="height:30px;width:auto;display:block"></a><div class="hdr-right"><span class="hdr-chip">EatOuts</span></div></header>
-<div class="crumb">Customer onboarding</div>
-<div class="onboard-steps"><i class="step on"></i><i class="step"></i><i class="step"></i></div>
-
-<h1>Create your customer account</h1>
-<p>Your username, WhatsApp number and password are your login. Date of birth is used for the 18+ age gate.</p>
-<form id="onboard">
-<div class="two"><label class="field"><span>First name</span><input name="firstName" required></label><label class="field"><span>Surname</span><input name="surname" required></label></div>
-<div class="two"><label class="field"><span>Date of birth</span><input name="dob" type="date" required></label><label class="field"><span>Gender</span><select name="gender"><option>Prefer not to say</option><option>Female</option><option>Male</option><option>Other</option></select></label></div>
-<div class="two">
-<label class="field tip"><span>Town / city</span><input name="town" id="fTown" placeholder="Start typing a town" autocomplete="off" required><div class="tip-list" id="fTownList"></div></label>
-<label class="field tip"><span>Area</span><input name="area" id="fArea" placeholder="Start typing an area" autocomplete="off"><div class="tip-list" id="fAreaList"></div></label>
+<div id="app-shell">
+  <header class="topbar">
+    <div class="topbar-row">
+      <div class="brand-mark">E</div>
+      <div>
+        <div class="brand-title">EatOuts</div>
+        <div class="brand-subtitle" id="brandSub">Customer signup</div>
+      </div>
+      <span class="draft-pill" id="saveIndicator">Draft mode</span>
+    </div>
+    <div class="progress-row" id="progressRow"><span>Signup completeness</span><strong id="progressText">0% complete</strong></div>
+    <div class="progress-track" id="progressTrack"><div id="progressFill" class="progress-fill"></div></div>
+  </header>
+  <div class="scroll" id="scroll">
+    <section class="intro" id="introSection"></section>
+    <main class="content">
+      <div id="moduleStack" class="accordion-stack"></div>
+      <div id="phasePanel" class="hide"></div>
+    </main>
+  </div>
+  <footer class="footer-actions" id="footerActions">
+    <button type="button" class="btn btn-secondary" data-action="save-draft">Save draft</button>
+    <button type="button" class="btn btn-primary" data-action="publish">Review &amp; create account</button>
+  </footer>
+  <div class="status-toast" id="toast" role="status" aria-live="polite"></div>
 </div>
-<label class="field"><span>Username</span><input name="username" autocomplete="username" placeholder="yourname" required></label>
-<label class="field"><span>Password</span><input name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required></label>
-<label class="field"><span>Confirm password</span><input name="confirm" type="password" autocomplete="new-password" required></label>
-<label class="field"><span>WhatsApp number — login</span><input name="whatsapp" inputmode="tel" autocomplete="tel" required></label>
-<label class="field"><span>Additional contact</span><input name="contact" inputmode="tel" placeholder="Optional"></label>
-<label class="field"><span>Email (optional)</span><input name="email" type="email"></label>
-<label class="check"><input type="checkbox" name="ageGate" required> I confirm I am 18 or older.</label>
-<div id="oerr" class="notice" style="display:none;margin-top:10px"></div>
-<button class="btn primary full" style="margin-top:10px">Create account</button>
-</form>
-<div id="verifyPanel" class="card" style="display:none;margin-top:16px"><div class="card-title">Confirm your WhatsApp</div><p style="font-size:13px;color:#6b6255">Tap the button to open WhatsApp and send your confirmation, then come back and press “I’ve confirmed”.</p><a id="waConfirm" class="btn primary full" target="_blank" rel="noopener">Confirm on WhatsApp</a><button id="verifiedBtn" class="btn full" style="margin-top:8px">I’ve confirmed</button></div>
-<div id="picksPanel" class="card" style="display:none;margin-top:16px"><div class="card-title">Pick your favourites</div><p style="font-size:13px;color:#6b6255">Choose up to 5 restaurants and 1 bottle &amp; liquor store. You can change these anytime from your profile.</p>
-<label class="field"><span>Town / city</span><select id="pkTown"></select></label>
-<label class="field"><span>Search restaurants</span><input id="pkSearch" placeholder="Type a restaurant name"></label>
-<div id="pkRests" class="picks-list"></div>
-<p id="pkCount" class="minor" style="margin:4px 0 10px"></p>
-<label class="field"><span>Bottle &amp; liquor store (optional)</span><select id="pkBottle"><option value="">— None —</option></select></label>
-<button id="pkSave" class="btn primary full" style="margin-top:10px">Save &amp; continue</button>
-<button id="pkSkip" class="btn full" style="margin-top:8px">Skip for now</button></div>
-</div></div>
 
 <script src="botswana_locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
@@ -75,194 +305,1209 @@
 <script src="js/eatouts-bottle-stores.js"></script>
 <script>
 (function(){
- "use strict";
- /* The signup draft lives here so a refresh never loses a half-typed form. */
- var DRAFT_KEY = 'eatouts.user-onboarding.v1';
+'use strict';
 
- function showErr(msg){var x=document.querySelector("#oerr");x.textContent=msg;x.style.display="block";}
- function age(dob){return new Date().getFullYear()-new Date(dob).getFullYear()-((new Date().getMonth()+1<new Date(dob).getMonth()+1||new Date(dob).getDate()<new Date(dob).getDate())?1:0);}
- function escHtml(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
- function escAttr(s){return escHtml(s).replace(/"/g,"&quot;");}
- function slugify(s){return String(s||"").toLowerCase().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
+/* ============================================================
+   CONSTANTS
+   ============================================================ */
+const DRAFT_KEY = 'eatouts.customer-signup.v4';
+const MIN_AGE = 10;
+const MAX_AGE = 120;
 
- var ecustomer=window.EatoutsCustomer, pendingWa=null, pendingTown="Gaborone", brandBySlug={};
+const MODULES = [
+  {key:'personal', num:1, title:'Personal details', sub:'Photo, name, username and date of birth'},
+  {key:'location', num:2, title:'Location',         sub:'Your town and area'},
+  {key:'password', num:3, title:'Password',         sub:'Choose a secure password'},
+  {key:'contact',  num:4, title:'Contact',          sub:'WhatsApp number and email'},
+  {key:'review',   num:5, title:'Review & create account', sub:'Confirm your age and submit'}
+];
 
- /* ---------- draft persistence ---------- */
- function draftFields(){var f=document.querySelector("#onboard");if(!f)return[];return Array.prototype.slice.call(f.elements);}
- function saveDraft(){
-  var out={};
-  draftFields().forEach(function(el){
-   if(!el.name)return;
-   if(el.type==="checkbox"){out[el.name]=!!el.checked;return;}
-   if(el.type==="password")return;                 /* never keep passwords */
-   out[el.name]=el.value;
-  });
-  try{localStorage.setItem(DRAFT_KEY,JSON.stringify(out));}catch(e){}
- }
- function loadDraft(){
-  var raw=null;
-  try{raw=localStorage.getItem(DRAFT_KEY);}catch(e){return;}
-  if(!raw)return;
-  var data=null;
-  try{data=JSON.parse(raw);}catch(e){return;}
-  if(!data)return;
-  draftFields().forEach(function(el){
-   if(!el.name||!(el.name in data))return;
-   if(el.type==="checkbox"){el.checked=!!data[el.name];return;}
-   if(el.type==="password")return;
-   el.value=data[el.name];
-  });
-  if(document.querySelector("#fTown"))document.querySelector("#fTown").dispatchEvent(new Event("input"));
- }
- function clearDraft(){try{localStorage.removeItem(DRAFT_KEY);}catch(e){}}
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
- /* ---------- live town / area typeahead ---------- */
- function tipList(id){return document.getElementById(id);}
- function closeTips(){["fTownList","fAreaList"].forEach(function(id){var l=tipList(id);if(l){l.classList.remove("open");l.innerHTML="";}});}
- function openTips(list,rows,onPick){
-  list.innerHTML=rows.length?rows.map(function(r,i){
-   return '<div class="tip-opt'+(i===0?' on':'')+'" data-i="'+i+'"><span>'+escHtml(r.name)+'</span><span class="tip-kind">'+escHtml(r.kind||"")+(r.district?" · "+escHtml(r.district):"")+'</span></div>';
-  }).join(""):'<div class="tip-empty">No matches — type a little more.</div>';
-  list.classList.add("open");
-  list.onmousedown=function(e){
-   var opt=e.target.closest(".tip-opt");if(!opt)return;
-   e.preventDefault();
-   onPick(rows[Number(opt.getAttribute("data-i"))]);
-   closeTips();
+/* Hardcoded country dial codes (digits only, without the leading +) */
+const COUNTRY_CODES = [
+  ['Afghanistan','93'],['Albania','355'],['Algeria','213'],['American Samoa','1684'],['Andorra','376'],
+  ['Angola','244'],['Anguilla','1264'],['Antigua and Barbuda','1268'],['Argentina','54'],['Armenia','374'],
+  ['Aruba','297'],['Australia','61'],['Austria','43'],['Azerbaijan','994'],['Bahamas','1242'],
+  ['Bahrain','973'],['Bangladesh','880'],['Barbados','1246'],['Belarus','375'],['Belgium','32'],
+  ['Belize','501'],['Benin','229'],['Bermuda','1441'],['Bhutan','975'],['Bolivia','591'],
+  ['Bosnia and Herzegovina','387'],['Botswana','267'],['Brazil','55'],['British Virgin Islands','1284'],['Brunei','673'],
+  ['Bulgaria','359'],['Burkina Faso','226'],['Burundi','257'],['Cambodia','855'],['Cameroon','237'],
+  ['Canada','1'],['Cape Verde','238'],['Cayman Islands','1345'],['Central African Republic','236'],['Chad','235'],
+  ['Chile','56'],['China','86'],['Christmas Island','61'],['Cocos Islands','61'],['Colombia','57'],
+  ['Comoros','269'],['Cook Islands','682'],['Costa Rica','506'],['Croatia','385'],['Cuba','53'],
+  ['Curacao','599'],['Cyprus','357'],['Czech Republic','420'],['Democratic Republic of the Congo','243'],['Denmark','45'],
+  ['Djibouti','253'],['Dominica','1767'],['Dominican Republic','1809'],['East Timor','670'],['Ecuador','593'],
+  ['Egypt','20'],['El Salvador','503'],['Equatorial Guinea','240'],['Eritrea','291'],['Estonia','372'],
+  ['Ethiopia','251'],['Falkland Islands','500'],['Faroe Islands','298'],['Fiji','679'],['Finland','358'],
+  ['France','33'],['French Guiana','594'],['French Polynesia','689'],['Gabon','241'],['Gambia','220'],
+  ['Georgia','995'],['Germany','49'],['Ghana','233'],['Gibraltar','350'],['Greece','30'],
+  ['Greenland','299'],['Grenada','1473'],['Guadeloupe','590'],['Guam','1671'],['Guatemala','502'],
+  ['Guernsey','441481'],['Guinea','224'],['Guinea-Bissau','245'],['Guyana','592'],['Haiti','509'],
+  ['Honduras','504'],['Hong Kong','852'],['Hungary','36'],['Iceland','354'],['India','91'],
+  ['Indonesia','62'],['Iran','98'],['Iraq','964'],['Ireland','353'],['Isle of Man','441624'],
+  ['Israel','972'],['Italy','39'],['Ivory Coast','225'],['Jamaica','1876'],['Japan','81'],
+  ['Jersey','441534'],['Jordan','962'],['Kazakhstan','7'],['Kenya','254'],['Kiribati','686'],
+  ['Kosovo','383'],['Kuwait','965'],['Kyrgyzstan','996'],['Laos','856'],['Latvia','371'],
+  ['Lebanon','961'],['Lesotho','266'],['Liberia','231'],['Libya','218'],['Liechtenstein','423'],
+  ['Lithuania','370'],['Luxembourg','352'],['Macau','853'],['Macedonia','389'],['Madagascar','261'],
+  ['Malawi','265'],['Malaysia','60'],['Maldives','960'],['Mali','223'],['Malta','356'],
+  ['Marshall Islands','692'],['Martinique','596'],['Mauritania','222'],['Mauritius','230'],['Mayotte','262'],
+  ['Mexico','52'],['Micronesia','691'],['Moldova','373'],['Monaco','377'],['Mongolia','976'],
+  ['Montenegro','382'],['Montserrat','1664'],['Morocco','212'],['Mozambique','258'],['Myanmar','95'],
+  ['Namibia','264'],['Nauru','674'],['Nepal','977'],['Netherlands','31'],['New Caledonia','687'],
+  ['New Zealand','64'],['Nicaragua','505'],['Niger','227'],['Nigeria','234'],['Niue','683'],
+  ['North Korea','850'],['Northern Mariana Islands','1670'],['Norway','47'],['Oman','968'],['Pakistan','92'],
+  ['Palau','680'],['Palestine','970'],['Panama','507'],['Papua New Guinea','675'],['Paraguay','595'],
+  ['Peru','51'],['Philippines','63'],['Pitcairn','64'],['Poland','48'],['Portugal','351'],
+  ['Puerto Rico','1787'],['Qatar','974'],['Republic of the Congo','242'],['Reunion','262'],['Romania','40'],
+  ['Russia','7'],['Rwanda','250'],['Saint Barthelemy','590'],['Saint Helena','290'],['Saint Kitts and Nevis','1869'],
+  ['Saint Lucia','1758'],['Saint Martin','590'],['Saint Pierre and Miquelon','508'],['Saint Vincent and the Grenadines','1784'],['Samoa','685'],
+  ['San Marino','378'],['Sao Tome and Principe','239'],['Saudi Arabia','966'],['Senegal','221'],['Serbia','381'],
+  ['Seychelles','248'],['Sierra Leone','232'],['Singapore','65'],['Sint Maarten','1721'],['Slovakia','421'],
+  ['Slovenia','386'],['Solomon Islands','677'],['Somalia','252'],['South Africa','27'],['South Korea','82'],
+  ['South Sudan','211'],['Spain','34'],['Sri Lanka','94'],['Sudan','249'],['Suriname','597'],
+  ['Svalbard and Jan Mayen','47'],['Swaziland','268'],['Sweden','46'],['Switzerland','41'],['Syria','963'],
+  ['Taiwan','886'],['Tajikistan','992'],['Tanzania','255'],['Thailand','66'],['Togo','228'],
+  ['Tokelau','690'],['Tonga','676'],['Trinidad and Tobago','1868'],['Tunisia','216'],['Turkey','90'],
+  ['Turkmenistan','993'],['Turks and Caicos Islands','1649'],['Tuvalu','688'],['U.S. Virgin Islands','1340'],['Uganda','256'],
+  ['Ukraine','380'],['United Arab Emirates','971'],['United Kingdom','44'],['United States','1'],['Uruguay','598'],
+  ['Uzbekistan','998'],['Vanuatu','678'],['Vatican','379'],['Venezuela','58'],['Vietnam','84'],
+  ['Wallis and Futuna','681'],['Western Sahara','212'],['Yemen','967'],['Zambia','260'],['Zimbabwe','263']
+];
+
+const SVG_EYE = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const SVG_EYE_OFF = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+const SVG_CAMERA = '<svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="#8A8F99" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+
+/* ============================================================
+   STATE
+   ============================================================ */
+function initialState(){
+  return {
+    version:4,
+    phase:'form',
+    uiOpen:'personal',
+    personal:{firstName:'', surname:'', username:'', dobYear:'', dobMonth:'', dobDay:'', gender:'', photo:''},
+    location:{town:'', area:''},
+    account:{password:'', confirm:''},
+    contact:{dialCode:'267', number:'', email:''},
+    ageGate:false
   };
- }
- function wireTypeahead(inputId,listId,kind,filter){
-  var input=document.getElementById(inputId),list=tipList(listId);
-  if(!input||!list||!window.EatoutsLocations)return;
-  input.addEventListener("input",function(){
-   var q=(input.value||"").trim();
-   if(q.length<2){closeTips();return;}
-   var rows=window.EatoutsLocations.search(q,12).filter(function(r){return !kind||r.kind===kind;});
-   if(typeof filter==="function")rows=rows.filter(filter);
-   openTips(list,rows,function(r){input.value=r.name;input.dispatchEvent(new Event("input",{bubbles:true}));});
-  });
-  input.addEventListener("blur",function(){setTimeout(closeTips,120);});
-  input.addEventListener("keydown",function(e){
-   if(e.key==="Escape"){closeTips();return;}
-   if(e.key!=="ArrowDown"&&e.key!=="ArrowUp")return;
-   var opts=list.querySelectorAll(".tip-opt");if(!opts.length)return;
-   e.preventDefault();
-   var i=-1;opts.forEach(function(o,k){if(o.classList.contains("on"))i=k;});
-   var next=e.key==="ArrowDown"?Math.min(i+1,opts.length-1):Math.max(i-1,0);
-   opts.forEach(function(o,k){o.classList.toggle("on",k===next);});
-   opts[next].scrollIntoView({block:"nearest"});
-  });
- }
- wireTypeahead("fTown","fTownList","town",null);
- wireTypeahead("fArea","fAreaList","area",function(r){
-   var town=(document.getElementById("fTown")||{}).value||"";
-   return !town||!r.town||r.town.toLowerCase()===town.toLowerCase();
- });
+}
 
- /* ---------- account creation ---------- */
- document.querySelector("#onboard").addEventListener("input",saveDraft);
- document.querySelector("#onboard").addEventListener("submit",function(e){
-  e.preventDefault();
-  var f=new FormData(e.target), dob=f.get("dob");
-  if(age(dob)<18){showErr("You must be 18 or older to use this account.");return;}
-  if(f.get("password")!==f.get("confirm")){showErr("Passwords do not match.");return;}
-  if(String(f.get("password")).length<8){showErr("Password must be at least 8 characters.");return;}
-  var whatsapp=String(f.get("whatsapp")).replace(/\D/g,"");
-  pendingWa=whatsapp;pendingTown=f.get("town")||pendingTown;
-  var payload={firstName:f.get("firstName"),surname:f.get("surname"),dob:dob,gender:f.get("gender"),town:f.get("town"),area:f.get("area"),username:f.get("username"),password:f.get("password"),whatsapp:whatsapp,contacts:[f.get("contact")].filter(Boolean),email:f.get("email"),type:"customer"};
-  var btn=e.target.querySelector("button");btn.disabled=true;
-  ecustomer.signup(payload).then(function(r){
-   btn.disabled=false;
-   if(r&&r.ok){onSignedUp(r,payload);return;}
-   if(r&&r.error==="backend_not_configured"){localFallback(payload);return;}
-   showErr((r&&r.error)||"Could not create account.");
-  }).catch(function(){btn.disabled=false;showErr("Network error. Try again.");});
- });
- function onSignedUp(r,payload){
-  var link=(r.verify&&r.verify.link)||"https://wa.me/26771844129";
-  document.querySelector("#waConfirm").href=link;
-  document.querySelector("#onboard").style.display="none";
-  document.querySelector("#verifyPanel").style.display="block";
-  if(r.verify&&r.verify.whatsapp)pendingWa=r.verify.whatsapp;
+let state = initialState();
+try {
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (raw){
+    const p = JSON.parse(raw);
+    if (p && p.version === 4){
+      state = Object.assign(initialState(), p);
+      state.personal = Object.assign(initialState().personal, state.personal || {});
+      state.contact  = Object.assign(initialState().contact,  state.contact  || {});
+      state.account  = {password:'', confirm:''};
+      state.phase    = 'form';
+    }
+  }
+} catch(e){ console.warn('Could not load draft', e); }
+
+const ecustomer = window.EatoutsCustomer;
+let pendingWa = '';
+let pendingTown = 'Gaborone';
+let pendingVerifyLink = 'https://wa.me/26771844129';
+let brandBySlug = {};
+let pwVisible = {};
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $  = (s,r=document) => r.querySelector(s);
+const $$ = (s,r=document) => Array.from(r.querySelectorAll(s));
+const e  = (v) => String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const nonEmpty = (v) => v != null && String(v).trim().length > 0;
+
+function getPath(obj, path){
+  const parts = path.split('.');
+  let v = obj;
+  for (const p of parts){ if (v == null) return ''; v = v[p]; }
+  return v == null ? '' : v;
+}
+function setPath(obj, path, value){
+  const parts = path.split('.');
+  let t = obj;
+  for (let i=0;i<parts.length-1;i++){
+    const k = parts[i];
+    if (t[k] == null) t[k] = {};
+    t = t[k];
+  }
+  t[parts[parts.length-1]] = value;
+}
+function pathGet(path){ return getPath(state, path); }
+function setPathState(path, value){ setPath(state, path, value); }
+
+function calcAge(year, month, day){
+  if (!year || !month || !day) return NaN;
+  const dob = new Date(Number(year), Number(month) - 1, Number(day));
+  if (isNaN(dob.getTime())) return NaN;
+  const now = new Date();
+  let a = now.getFullYear() - dob.getFullYear();
+  const m = now.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) a--;
+  return a;
+}
+function daysInMonth(year, month){
+  if (!year || !month) return 31;
+  return new Date(Number(year), Number(month), 0).getDate();
+}
+function dobISO(){
+  const p = state.personal;
+  if (!p.dobYear || !p.dobMonth || !p.dobDay) return '';
+  return `${p.dobYear}-${String(p.dobMonth).padStart(2,'0')}-${String(p.dobDay).padStart(2,'0')}`;
+}
+function slugify(s){ return String(s||'').toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
+
+function buildFullWhatsapp(){
+  const code = String(state.contact.dialCode || '267').replace(/\D/g,'');
+  const num  = String(state.contact.number || '').replace(/\D/g,'');
+  return code + num;
+}
+
+let toastTimer = null;
+function toast(msg){
+  const t = $('#toast'); if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+/* ============================================================
+   PERSISTENCE
+   ============================================================ */
+function saveState(show=false){
+  try {
+    const snap = JSON.parse(JSON.stringify(state));
+    snap.account = {password:'', confirm:''};
+    snap.phase = 'form';
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
+    const ind = $('#saveIndicator');
+    if (ind){ ind.textContent = 'Saved locally'; ind.style.color = '#B8E8C8'; }
+    if (show) toast('Draft saved on this device.');
+  } catch(err){
+    const ind = $('#saveIndicator');
+    if (ind) ind.textContent = (err && err.name === 'QuotaExceededError') ? 'Storage full' : 'Draft mode';
+    if (show) toast('Could not save draft locally.');
+  }
+}
+function clearDraft(){ try { localStorage.removeItem(DRAFT_KEY); } catch(e){} }
+
+/* ============================================================
+   FORM HELPERS
+   ============================================================ */
+function inputPath(path){ return 'data-bind="'+e(path)+'"'; }
+function field(label,path,type='text',opts={}){
+  const value = pathGet(path);
+  let extra = '';
+  if (opts.placeholder) extra += ' placeholder="'+e(opts.placeholder)+'"';
+  if (opts.min !== undefined) extra += ' min="'+e(opts.min)+'"';
+  if (opts.max !== undefined) extra += ' max="'+e(opts.max)+'"';
+  if (opts.step !== undefined) extra += ' step="'+e(opts.step)+'"';
+  if (opts.autocomplete) extra += ' autocomplete="'+e(opts.autocomplete)+'"';
+  if (opts.inputmode) extra += ' inputmode="'+e(opts.inputmode)+'"';
+  if (opts.required) extra += ' required';
+  return `<label class="field"><span>${e(label)}${opts.required?' *':''}</span><input class="input" type="${e(type)}" ${inputPath(path)} value="${e(value)}"${extra}>${opts.hint?`<small class="hint">${e(opts.hint)}</small>`:''}</label>`;
+}
+function checkItem(label,path,opts={}){
+  const checked = !!pathGet(path);
+  return `<label class="check-item"><input type="checkbox" ${inputPath(path)} ${checked?'checked':''}><span>${e(label)}${opts.desc?`<small>${e(opts.desc)}</small>`:''}</span></label>`;
+}
+
+/* ============================================================
+   RENDER: PROFILE PICTURE (square, rounded, larger)
+   ============================================================ */
+function renderPfp(){
+  const photo = state.personal.photo || '';
+  const hasPhoto = !!photo;
+  return `
+    <div class="pfp-wrap">
+      <label class="pfp-thumb${hasPhoto?' has-photo':''}" aria-label="${hasPhoto ? 'Change profile picture' : 'Add profile picture'}">
+        ${hasPhoto ? `<img src="${e(photo)}" alt="Profile picture">` : SVG_CAMERA}
+        <input type="file" accept="image/*" class="pfp-input" data-pfp-input>
+      </label>
+      <span class="pfp-caption">${hasPhoto ? 'Tap to change' : 'Add profile picture (optional)'}</span>
+      ${hasPhoto ? `<button type="button" class="pfp-remove" data-pfp-remove>Remove photo</button>` : ''}
+    </div>`;
+}
+
+/* ============================================================
+   RENDER: DOB (buttons with placeholder labels, no field label)
+   ============================================================ */
+function renderDOB(){
+  const p = state.personal;
+  const yVal = p.dobYear ? String(p.dobYear) : '';
+  const mVal = p.dobMonth ? String(p.dobMonth) : '';
+  const dVal = p.dobDay ? String(p.dobDay) : '';
+  const mLabel = mVal ? MONTH_NAMES[Number(mVal)-1] : 'Month';
+  return `<div class="field">
+    <div class="dob-row">
+      <button type="button" class="dob-btn${yVal?'':' empty'}" data-dob-btn="year" aria-haspopup="listbox" aria-expanded="false">${yVal || 'Year'}</button>
+      <button type="button" class="dob-btn${mVal?'':' empty'}" data-dob-btn="month" aria-haspopup="listbox" aria-expanded="false">${mLabel}</button>
+      <button type="button" class="dob-btn${dVal?'':' empty'}" data-dob-btn="day" aria-haspopup="listbox" aria-expanded="false">${dVal || 'Day'}</button>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   RENDER: GENDER (no label, no dots)
+   ============================================================ */
+function renderGender(){
+  const g = state.personal.gender;
+  return `<div class="field">
+    <div class="seg-row" role="radiogroup" aria-label="Gender">
+      <button type="button" class="seg ${g==='Male'?'on':''}" data-gender="Male" role="radio" aria-checked="${g==='Male'}">Male</button>
+      <button type="button" class="seg ${g==='Female'?'on':''}" data-gender="Female" role="radio" aria-checked="${g==='Female'}">Female</button>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   RENDER: PERSONAL
+   ============================================================ */
+function renderPersonal(){
+  return `
+    <p class="note"><strong>Tip:</strong> Use the name that appears on your ID. Date of birth is used for the age gate (must be ${MIN_AGE} or older).</p>
+    ${renderPfp()}
+    ${field('First name','personal.firstName','text',{placeholder:'e.g. Tapiwa',autocomplete:'given-name',required:true})}
+    ${field('Surname','personal.surname','text',{placeholder:'e.g. Moyo',autocomplete:'family-name',required:true})}
+    ${field('Username','personal.username','text',{placeholder:'yourname',autocomplete:'username',required:true,hint:'Letters, numbers and underscores work best.'})}
+    ${renderDOB()}
+    ${renderGender()}`;
+}
+
+/* ============================================================
+   RENDER: LOCATION
+   ============================================================ */
+function renderLocation(){
+  const town = pathGet('location.town') || '';
+  const area = pathGet('location.area') || '';
+  return `
+    <p class="note">We use your town and area to show restaurants and bottle stores near you.</p>
+    <label class="field">
+      <span>Town / city *</span>
+      <input class="input" id="fTown" data-bind="location.town" value="${e(town)}"
+             placeholder="Start typing a town" autocomplete="off" required>
+      <div class="tip-list" id="fTownList"></div>
+    </label>
+    <label class="field">
+      <span>Area <span class="hint" style="display:inline;text-transform:none;font-weight:450;color:var(--faint);font-size:12.5px">(optional)</span></span>
+      <input class="input" id="fArea" data-bind="location.area" value="${e(area)}"
+             placeholder="Start typing an area" autocomplete="off">
+      <div class="tip-list" id="fAreaList"></div>
+    </label>`;
+}
+
+/* ============================================================
+   RENDER: PASSWORD (with eye toggle)
+   ============================================================ */
+function renderPasswordField(label, path, opts){
+  opts = opts || {};
+  const isVisible = !!pwVisible[path];
+  const value = pathGet(path);
+  const icon = isVisible ? SVG_EYE_OFF : SVG_EYE;
+  const ariaLabel = isVisible ? 'Hide password' : 'Show password';
+  return `<label class="field pw-field">
+    <span>${e(label)}${opts.required?' *':''}</span>
+    <div class="pw-wrap">
+      <input class="input" type="${isVisible?'text':'password'}" ${inputPath(path)} value="${e(value)}"
+             placeholder="${e(opts.placeholder||'')}"
+             autocomplete="${e(opts.autocomplete||'new-password')}"
+             ${opts.required?'required':''}>
+      <button type="button" class="pw-toggle" data-pw-toggle="${e(path)}" aria-label="${ariaLabel}" aria-pressed="${isVisible}">${icon}</button>
+    </div>
+  </label>`;
+}
+
+function renderPassword(){
+  return `
+    <p class="note">Choose a password of at least 8 characters. You'll use this together with your username and WhatsApp number to sign in.</p>
+    ${renderPasswordField('Password','account.password',{placeholder:'At least 8 characters',required:true})}
+    ${renderPasswordField('Confirm password','account.confirm',{placeholder:'Repeat password',required:true})}`;
+}
+
+/* ============================================================
+   RENDER: CONTACT (dial code + number)
+   ============================================================ */
+function renderWhatsappField(){
+  const dial = state.contact.dialCode || '267';
+  const num  = state.contact.number || '';
+  return `<div class="field">
+    <span>WhatsApp number *</span>
+    <div class="phone-row">
+      <button type="button" class="phone-code-btn" data-phone-code-btn aria-haspopup="listbox" aria-expanded="false">+${e(dial)}</button>
+      <input class="input phone-num" type="tel" inputmode="tel" autocomplete="tel-national"
+             data-bind="contact.number" value="${e(num)}"
+             placeholder="70 000 001" required>
+    </div>
+  </div>`;
+}
+
+function renderContact(){
+  return `
+    <p class="note">Your WhatsApp number is your login identifier. We'll use it to send order updates.</p>
+    ${renderWhatsappField()}
+    ${field('Email','contact.email','email',{placeholder:'you@example.com',autocomplete:'email',required:true,hint:'We use this to send your password reset link.'})}`;
+}
+
+/* ============================================================
+   RENDER: REVIEW
+   ============================================================ */
+function renderReview(){
+  const rows = [
+    {key:'personal',label:'Personal details'},
+    {key:'location',label:'Location'},
+    {key:'password',label:'Password'},
+    {key:'contact',label:'Contact'}
+  ];
+  const allDone = isPersonalDone() && isLocationDone() && isPasswordDone() && isContactDone();
+  const canSubmit = allDone && state.ageGate;
+  return `
+    <p class="note">${canSubmit ? 'Everything looks good. Submit to create your account.' : 'Some steps are still incomplete. Tap any row to finish, then confirm your age below.'}</p>
+    <div class="check-list">
+      ${rows.map(r=>{
+        const done = moduleDone(r.key);
+        return `<button type="button" class="check-item" data-jump-to="${r.key}" style="cursor:pointer;width:100%;text-align:left">
+          <input type="checkbox" ${done?'checked':''} disabled>
+          <span>${e(r.label)}<small>${done?'Complete':'Not yet complete'}</small></span>
+        </button>`;
+      }).join('')}
+    </div>
+    <div style="margin-top:16px">
+      ${checkItem(`I confirm I am ${MIN_AGE} or older.`,'ageGate',{desc:'Your date of birth must match.'})}
+    </div>
+    <div class="btn-row" style="margin-top:16px">
+      <button type="button" class="btn btn-primary btn-wide" data-action="signup"
+              ${canSubmit?'':'disabled style="opacity:.45;pointer-events:none"'}>Create account</button>
+    </div>`;
+}
+
+/* ============================================================
+   RENDER: MODULES
+   ============================================================ */
+function renderModules(){
+  const stack = $('#moduleStack');
+  if (!stack) return;
+  stack.className = 'accordion-stack' + (state.uiOpen?' has-open':'');
+  stack.innerHTML = MODULES.map(m=>{
+    const open = state.uiOpen === m.key;
+    const st = moduleState(m.key);
+    const done = moduleDone(m.key);
+    let body = '';
+    if (m.key === 'personal') body = renderPersonal();
+    else if (m.key === 'location') body = renderLocation();
+    else if (m.key === 'password') body = renderPassword();
+    else if (m.key === 'contact') body = renderContact();
+    else if (m.key === 'review') body = renderReview();
+    return `<section class="acc ${open?'open':''}" data-acc-key="${m.key}">
+      <button class="acc-head" type="button" data-toggle-acc="${m.key}" aria-expanded="${open}">
+        <span class="acc-num ${done?'done':''}">${m.num}</span>
+        <span class="acc-title-wrap">
+          <span class="acc-title">${e(m.title)}</span>
+          <span class="acc-sub">${e(m.sub)}</span>
+        </span>
+        <span class="acc-state ${st}" aria-hidden="true"></span>
+      </button>
+      ${open?`<div class="acc-body">${body}</div>`:''}
+    </section>`;
+  }).join('');
+  wireTypeaheads();
+}
+
+/* ============================================================
+   COMPLETION
+   ============================================================ */
+function isPersonalDone(){
+  const p = state.personal;
+  return nonEmpty(p.firstName) && nonEmpty(p.surname) && nonEmpty(p.username)
+      && nonEmpty(p.dobYear) && nonEmpty(p.dobMonth) && nonEmpty(p.dobDay)
+      && nonEmpty(p.gender);
+}
+function isLocationDone(){ return nonEmpty(state.location.town); }
+function isPasswordDone(){
+  return state.account.password.length >= 8 && state.account.password === state.account.confirm;
+}
+function isContactDone(){
+  const num = String(state.contact.number || '').replace(/\D/g,'');
+  /* The email is required: it is where a password reset link is sent. */
+  const mail = String(state.contact.email || '').trim();
+  const mailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
+  return num.length >= 6 && nonEmpty(state.contact.dialCode) && mailOk;
+}
+function moduleDone(key){
+  if (key === 'personal') return isPersonalDone();
+  if (key === 'location') return isLocationDone();
+  if (key === 'password') return isPasswordDone();
+  if (key === 'contact')  return isContactDone();
+  if (key === 'review')   return isPersonalDone() && isLocationDone() && isPasswordDone() && isContactDone() && !!state.ageGate;
+  return false;
+}
+function moduleState(key){
+  if (moduleDone(key)) return 'complete';
+  if (key === 'personal') return (nonEmpty(state.personal.firstName) || nonEmpty(state.personal.surname)) ? 'progress' : '';
+  if (key === 'location') return nonEmpty(state.location.town) ? 'progress' : '';
+  if (key === 'password') return state.account.password.length ? 'progress' : '';
+  if (key === 'contact')  return (nonEmpty(state.contact.number) || nonEmpty(state.contact.email)) ? 'progress' : '';
+  return '';
+}
+function completedCount(){
+  return ['personal','location','password','contact'].filter(k=>moduleDone(k)).length;
+}
+function updateProgress(){
+  const pct = Math.round(completedCount()/4*100);
+  const t = $('#progressText'), f = $('#progressFill');
+  if (t) t.textContent = pct + '% complete';
+  if (f) f.style.width = pct + '%';
+}
+
+/* ============================================================
+   VERIFY / PICKS PHASES
+   ============================================================ */
+function renderVerifyPanel(){
+  const pp = $('#phasePanel');
+  if (!pp) return;
+  pp.innerHTML = `
+    <div class="phase-card">
+      <div class="card-title">Confirm your WhatsApp</div>
+      <p>Tap the button to open WhatsApp and send your confirmation, then come back and press "I've confirmed".</p>
+      <a id="waConfirm" class="btn btn-primary btn-wide" target="_blank" rel="noopener" href="${e(pendingVerifyLink)}">Confirm on WhatsApp</a>
+      <button id="verifiedBtn" class="btn btn-secondary btn-wide" style="margin-top:9px">I've confirmed</button>
+    </div>`;
+  const btn = pp.querySelector('#verifiedBtn');
+  if (btn) btn.onclick = handleVerify;
+}
+
+function renderPicksPanel(){
+  const pp = $('#phasePanel');
+  if (!pp) return;
+  pp.innerHTML = `
+    <div class="phase-card">
+      <div class="card-title">Pick your favourites</div>
+      <p>Choose up to 5 restaurants and 1 bottle &amp; liquor store. You can change these anytime from your profile.</p>
+      <label class="field"><span>Town / city</span><select id="pkTown" class="select"></select></label>
+      <label class="field"><span>Search restaurants</span><input id="pkSearch" class="input" placeholder="Type a restaurant name"></label>
+      <div id="pkRests" class="picks-list"></div>
+      <p id="pkCount" class="note" style="margin:4px 0 11px"></p>
+      <label class="field"><span>Bottle &amp; liquor store (optional)</span><select id="pkBottle" class="select"><option value="">— None —</option></select></label>
+      <button id="pkSave" class="btn btn-primary btn-wide" style="margin-top:11px">Save &amp; continue</button>
+      <button id="pkSkip" class="btn btn-secondary btn-wide" style="margin-top:9px">Skip for now</button>
+    </div>`;
+  initPicksPanel();
+}
+
+/* ============================================================
+   INTRO / TOPBAR PER PHASE
+   ============================================================ */
+function renderIntro(){
+  const intro = $('#introSection');
+  if (!intro) return;
+  if (state.phase === 'form'){
+    intro.innerHTML = `
+      <div class="eyebrow">Customer onboarding</div>
+      <h1>Create your <span>customer</span> account.</h1>
+      <p>Your username, WhatsApp number and password are your login. Date of birth is used for the age gate (${MIN_AGE}+). Drafts save in this browser.</p>`;
+  } else if (state.phase === 'verify'){
+    intro.innerHTML = `
+      <div class="eyebrow">Step 2 of 3</div>
+      <h1>Confirm your <span>WhatsApp</span>.</h1>
+      <p>We need to verify your number before you can start ordering. Open WhatsApp, send the confirmation message, then come back.</p>`;
+  } else if (state.phase === 'picks'){
+    intro.innerHTML = `
+      <div class="eyebrow">Step 3 of 3</div>
+      <h1>Pick your <span>favourites</span>.</h1>
+      <p>Choose up to 5 restaurants and 1 bottle &amp; liquor store. You can change these anytime from your profile.</p>`;
+  }
+}
+function updateTopbar(){
+  const sub = $('#brandSub');
+  const pr = $('#progressRow');
+  const pt = $('#progressTrack');
+  if (sub){
+    sub.textContent = state.phase === 'form' ? 'Customer signup'
+                   : state.phase === 'verify' ? 'Confirm WhatsApp'
+                   : 'Pick favourites';
+  }
+  const show = state.phase === 'form';
+  if (pr) pr.style.display = show ? 'flex' : 'none';
+  if (pt) pt.style.display = show ? 'block' : 'none';
+}
+
+/* ============================================================
+   RENDER: APP
+   ============================================================ */
+function renderApp(preserve=true){
+  const sc = $('#scroll');
+  const top = preserve && sc ? sc.scrollTop : 0;
+  updateTopbar();
+  renderIntro();
+
+  if (state.phase === 'form'){
+    $('#moduleStack').classList.remove('hide');
+    $('#phasePanel').classList.add('hide');
+    $('#footerActions').style.display = 'flex';
+    renderModules();
+    updateProgress();
+  } else {
+    $('#moduleStack').classList.add('hide');
+    $('#phasePanel').classList.remove('hide');
+    $('#footerActions').style.display = 'none';
+    if (state.phase === 'verify') renderVerifyPanel();
+    else if (state.phase === 'picks') renderPicksPanel();
+  }
+  if (sc) sc.scrollTop = top;
+}
+
+function setPhase(phase){
+  state.phase = phase;
+  renderApp(false);
+}
+
+/* ============================================================
+   TYPEAHEAD (town / area)
+   ============================================================ */
+function closeTips(){
+  ['fTownList','fAreaList'].forEach(id=>{
+    const l = document.getElementById(id);
+    if (l){ l.classList.remove('open'); l.innerHTML = ''; }
+  });
+}
+function openTips(list, rows, onPick){
+  list.innerHTML = rows.length ? rows.map((r,i)=>{
+    return '<div class="tip-opt'+(i===0?' on':'')+'" data-i="'+i+'"><span>'+e(r.name)+'</span><span class="tip-kind">'+e(r.kind||'')+(r.district?' · '+e(r.district):'')+'</span></div>';
+  }).join('') : '<div class="tip-empty">No matches — type a little more.</div>';
+  list.classList.add('open');
+  list.onmousedown = function(ev){
+    const opt = ev.target.closest('.tip-opt'); if (!opt) return;
+    ev.preventDefault();
+    onPick(rows[Number(opt.getAttribute('data-i'))]);
+    closeTips();
+  };
+}
+function wireTypeahead(inputId, listId, kind, filter){
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+  if (!input || !list || !window.EatoutsLocations) return;
+  input.addEventListener('input', function(){
+    const q = (input.value||'').trim();
+    if (q.length < 2){ closeTips(); return; }
+    let rows = window.EatoutsLocations.search(q, 12).filter(r => !kind || r.kind === kind);
+    if (typeof filter === 'function') rows = rows.filter(filter);
+    openTips(list, rows, r=>{
+      input.value = r.name;
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+    });
+  });
+  input.addEventListener('blur', ()=>setTimeout(closeTips, 120));
+  input.addEventListener('keydown', function(ev){
+    if (ev.key === 'Escape'){ closeTips(); return; }
+    if (ev.key !== 'ArrowDown' && ev.key !== 'ArrowUp') return;
+    const opts = list.querySelectorAll('.tip-opt'); if (!opts.length) return;
+    ev.preventDefault();
+    let i = -1; opts.forEach((o,k)=>{ if (o.classList.contains('on')) i = k; });
+    const next = ev.key === 'ArrowDown' ? Math.min(i+1, opts.length-1) : Math.max(i-1, 0);
+    opts.forEach((o,k)=>o.classList.toggle('on', k === next));
+    opts[next].scrollIntoView({block:'nearest'});
+  });
+}
+function wireTypeaheads(){
+  wireTypeahead('fTown', 'fTownList', 'town', null);
+  wireTypeahead('fArea', 'fAreaList', 'area', r=>{
+    const town = state.location.town || '';
+    return !town || !r.town || r.town.toLowerCase() === town.toLowerCase();
+  });
+}
+
+/* ============================================================
+   DOB FLOATING POPOVER
+   ============================================================ */
+let dobPopoverEl = null;
+let dobActiveField = null;
+
+function getDobPopover(){
+  if (!dobPopoverEl){
+    dobPopoverEl = document.createElement('div');
+    dobPopoverEl.className = 'dob-popover hide';
+    dobPopoverEl.setAttribute('role', 'listbox');
+    document.body.appendChild(dobPopoverEl);
+  }
+  return dobPopoverEl;
+}
+function closeDobPopover(){
+  if (dobPopoverEl) dobPopoverEl.classList.add('hide');
+  if (dobActiveField){
+    const btn = document.querySelector(`[data-dob-btn="${dobActiveField}"]`);
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+  dobActiveField = null;
+}
+function buildDobOptions(field){
+  if (field === 'year'){
+    const now = new Date().getFullYear();
+    const maxY = now - (MIN_AGE + 1);
+    const minY = now - MAX_AGE;
+    const out = [];
+    for (let y = maxY; y >= minY; y--) out.push({ value: String(y), label: String(y) });
+    return out;
+  }
+  if (field === 'month'){
+    const out = [];
+    for (let i = 1; i <= 12; i++) out.push({ value: String(i), label: MONTH_NAMES[i-1] });
+    return out;
+  }
+  if (field === 'day'){
+    const max = daysInMonth(state.personal.dobYear, state.personal.dobMonth);
+    const out = [];
+    for (let i = 1; i <= max; i++) out.push({ value: String(i), label: String(i) });
+    return out;
+  }
+  return [];
+}
+function currentDobValue(field){
+  if (field === 'year') return state.personal.dobYear;
+  if (field === 'month') return state.personal.dobMonth;
+  if (field === 'day') return state.personal.dobDay;
+  return '';
+}
+function openDobPopover(field){
+  const btn = document.querySelector(`[data-dob-btn="${field}"]`);
+  if (!btn) return;
+  const pop = getDobPopover();
+  const options = buildDobOptions(field);
+  const current = String(currentDobValue(field));
+  pop.innerHTML = options.map(o =>
+    `<button type="button" class="dob-opt${current === o.value ? ' on' : ''}" data-dob-val="${o.value}" role="option" aria-selected="${current === o.value}">${o.label}</button>`
+  ).join('');
+
+  pop.style.visibility = 'hidden';
+  pop.style.top = '0px';
+  pop.style.left = '0px';
+  pop.classList.remove('hide');
+
+  const rect = btn.getBoundingClientRect();
+  const minW = field === 'month' ? 160 : 90;
+  pop.style.width = Math.max(rect.width, minW) + 'px';
+
+  const popW = pop.offsetWidth;
+  const popH = pop.offsetHeight;
+
+  let top = rect.bottom + 6;
+  const spaceBelow = window.innerHeight - rect.bottom;
+  if (spaceBelow < popH + 12 && rect.top > popH + 12) top = rect.top - popH - 6;
+  top = Math.max(10, Math.min(top, window.innerHeight - popH - 10));
+
+  let left = rect.left;
+  if (left + popW > window.innerWidth - 10) left = window.innerWidth - popW - 10;
+  left = Math.max(10, left);
+
+  pop.style.top = top + 'px';
+  pop.style.left = left + 'px';
+
+  let target = pop.querySelector('.dob-opt.on');
+  if (!target && field === 'year'){
+    const defaultYear = String(new Date().getFullYear() - 30);
+    target = pop.querySelector(`.dob-opt[data-dob-val="${defaultYear}"]`);
+  }
+  if (target) pop.scrollTop = Math.max(0, target.offsetTop - (pop.clientHeight - target.offsetHeight) / 2);
+
+  pop.style.visibility = '';
+  dobActiveField = field;
+  btn.setAttribute('aria-expanded', 'true');
+}
+
+/* ============================================================
+   PHONE DIAL CODE FLOATING POPOVER
+   ============================================================ */
+let phonePopoverEl = null;
+let phonePopoverOpen = false;
+
+function getPhonePopover(){
+  if (!phonePopoverEl){
+    phonePopoverEl = document.createElement('div');
+    phonePopoverEl.className = 'phone-popover hide';
+    phonePopoverEl.setAttribute('role', 'dialog');
+    phonePopoverEl.setAttribute('aria-label', 'Country dial code');
+    document.body.appendChild(phonePopoverEl);
+  }
+  return phonePopoverEl;
+}
+function ensurePhoneStructure(pop){
+  if (pop.querySelector('.phone-search')) return;
+  pop.innerHTML = `<div class="phone-search-wrap"><input class="phone-search" type="text" placeholder="Search country..." autocomplete="off"></div><div class="phone-list" role="listbox"></div>`;
+  const s = pop.querySelector('.phone-search');
+  s.addEventListener('input', ()=> renderPhoneList(s.value));
+}
+function renderPhoneList(filter){
+  const pop = getPhonePopover();
+  ensurePhoneStructure(pop);
+  const q = String(filter||'').toLowerCase().trim();
+  const current = String(state.contact.dialCode || '267');
+  const list = pop.querySelector('.phone-list');
+  const matches = COUNTRY_CODES.filter(c => {
+    if (!q) return true;
+    const name = c[0].toLowerCase();
+    const code = c[1];
+    return name.includes(q) || ('+'+code).includes(q) || code.includes(q);
+  });
+  list.innerHTML = matches.length
+    ? matches.map(c => {
+        const isOn = c[1] === current;
+        return `<button type="button" class="phone-opt${isOn?' on':''}" data-phone-code="${e(c[1])}" role="option" aria-selected="${isOn}"><span class="name">${e(c[0])}</span><span class="code">+${e(c[1])}</span></button>`;
+      }).join('')
+    : '<div class="phone-empty">No country matches.</div>';
+}
+function closePhonePopover(){
+  if (phonePopoverEl) phonePopoverEl.classList.add('hide');
+  if (phonePopoverOpen){
+    const btn = document.querySelector('[data-phone-code-btn]');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+  phonePopoverOpen = false;
+}
+function openPhonePopover(){
+  const btn = document.querySelector('[data-phone-code-btn]');
+  if (!btn) return;
+  const pop = getPhonePopover();
+  ensurePhoneStructure(pop);
+
+  const search = pop.querySelector('.phone-search');
+  if (search) search.value = '';
+  renderPhoneList('');
+
+  pop.style.visibility = 'hidden';
+  pop.style.top = '0px';
+  pop.style.left = '0px';
+  pop.classList.remove('hide');
+
+  const rect = btn.getBoundingClientRect();
+  const popW = pop.offsetWidth;
+  const popH = pop.offsetHeight;
+
+  let top = rect.bottom + 6;
+  const spaceBelow = window.innerHeight - rect.bottom;
+  if (spaceBelow < popH + 12 && rect.top > popH + 12) top = rect.top - popH - 6;
+  top = Math.max(10, Math.min(top, window.innerHeight - popH - 10));
+
+  let left = rect.left;
+  if (left + popW > window.innerWidth - 10) left = window.innerWidth - popW - 10;
+  left = Math.max(10, left);
+
+  pop.style.top = top + 'px';
+  pop.style.left = left + 'px';
+  pop.style.visibility = '';
+
+  phonePopoverOpen = true;
+  btn.setAttribute('aria-expanded', 'true');
+
+  const current = pop.querySelector('.phone-opt.on');
+  if (current){
+    const list = pop.querySelector('.phone-list');
+    if (list) list.scrollTop = Math.max(0, current.offsetTop - (list.clientHeight - current.offsetHeight) / 2);
+  }
+
+  if (window.matchMedia('(hover: hover)').matches && search){
+    setTimeout(()=>search.focus(), 30);
+  }
+}
+
+/* ============================================================
+   GLOBAL CLICK: both popovers
+   ============================================================ */
+document.addEventListener('click', function(ev){
+  /* DOB option */
+  const dobOpt = ev.target.closest('.dob-opt');
+  if (dobOpt && dobActiveField && dobPopoverEl && dobPopoverEl.contains(dobOpt)){
+    const field = dobActiveField;
+    const val = dobOpt.dataset.dobVal;
+    if (field === 'year') state.personal.dobYear = val;
+    else if (field === 'month') state.personal.dobMonth = val;
+    else if (field === 'day') state.personal.dobDay = val;
+    if (field === 'year' || field === 'month'){
+      const max = daysInMonth(state.personal.dobYear, state.personal.dobMonth);
+      if (Number(state.personal.dobDay) > max) state.personal.dobDay = '';
+    }
+    closeDobPopover();
+    saveState();
+    renderApp(true);
+    return;
+  }
+
+  /* Phone code option */
+  const phoneOpt = ev.target.closest('.phone-opt');
+  if (phoneOpt && phonePopoverOpen && phonePopoverEl && phonePopoverEl.contains(phoneOpt)){
+    state.contact.dialCode = phoneOpt.dataset.phoneCode;
+    closePhonePopover();
+    saveState();
+    renderApp(true);
+    return;
+  }
+
+  /* DOB button */
+  const dobBtn = ev.target.closest('[data-dob-btn]');
+  if (dobBtn){
+    const field = dobBtn.dataset.dobBtn;
+    closePhonePopover();
+    if (dobActiveField === field){ closeDobPopover(); }
+    else { closeDobPopover(); openDobPopover(field); }
+    return;
+  }
+
+  /* Phone code button */
+  const phoneBtn = ev.target.closest('[data-phone-code-btn]');
+  if (phoneBtn){
+    closeDobPopover();
+    if (phonePopoverOpen) closePhonePopover();
+    else openPhonePopover();
+    return;
+  }
+
+  /* Outside clicks */
+  if (dobActiveField && (!dobPopoverEl || !dobPopoverEl.contains(ev.target))){
+    closeDobPopover();
+  }
+  if (phonePopoverOpen && (!phonePopoverEl || !phonePopoverEl.contains(ev.target))){
+    closePhonePopover();
+  }
+}, true);
+
+window.addEventListener('scroll', ()=>{ closeDobPopover(); closePhonePopover(); }, {capture:true, passive:true});
+window.addEventListener('resize', ()=>{ closeDobPopover(); closePhonePopover(); });
+document.addEventListener('keydown', ev=>{ if (ev.key === 'Escape'){ closeDobPopover(); closePhonePopover(); } });
+
+/* ============================================================
+   SIGNUP FLOW
+   ============================================================ */
+function handleSignup(){
+  const p = state.personal, a = state.account, c = state.contact, l = state.location;
+
+  if (!nonEmpty(p.firstName) || !nonEmpty(p.surname)){ toast('Enter your first name and surname.'); return; }
+  if (!nonEmpty(p.username)){ toast('Choose a username.'); return; }
+  if (!nonEmpty(p.dobYear) || !nonEmpty(p.dobMonth) || !nonEmpty(p.dobDay)){ toast('Enter your full date of birth.'); return; }
+  if (!nonEmpty(p.gender)){ toast('Select your gender.'); return; }
+
+  const years = calcAge(p.dobYear, p.dobMonth, p.dobDay);
+  if (isNaN(years) || years < MIN_AGE){ toast(`You must be at least ${MIN_AGE} years old.`); return; }
+  if (years > MAX_AGE){ toast('Please check your date of birth.'); return; }
+
+  if (!nonEmpty(l.town)){ toast('Enter your town or city.'); return; }
+  if (a.password.length < 8){ toast('Password must be at least 8 characters.'); return; }
+  if (a.password !== a.confirm){ toast('Passwords do not match.'); return; }
+  if (String(c.number || '').replace(/\D/g,'').length < 6){ toast('Enter a valid WhatsApp number.'); return; }
+  if (!state.ageGate){ toast(`Please confirm you are ${MIN_AGE} or older.`); return; }
+
+  pendingWa = buildFullWhatsapp();
+  pendingTown = l.town;
+
+  const payload = {
+    firstName: p.firstName,
+    surname: p.surname,
+    username: p.username,
+    dob: dobISO(),
+    gender: p.gender,
+    town: l.town,
+    area: l.area,
+    password: a.password,
+    whatsapp: pendingWa,
+    dialCode: String(c.dialCode||'267'),
+    email: c.email,
+    photo: p.photo || '',
+    type: 'customer'
+  };
+
+  const btn = document.querySelector('[data-action="signup"]');
+  if (btn){ btn.disabled = true; btn.textContent = 'Creating account…'; }
+
+  Promise.resolve()
+    .then(()=> ecustomer.signup(payload))
+    .then(r=>{
+      if (btn){ btn.disabled = false; btn.textContent = 'Create account'; }
+      if (r && r.ok){ onSignedUp(r); return; }
+      if (r && r.error === 'backend_not_configured'){ localFallback(payload); return; }
+      toast((r && r.error) || 'Could not create account.');
+    })
+    .catch(()=>{
+      if (btn){ btn.disabled = false; btn.textContent = 'Create account'; }
+      toast('Network error. Please try again.');
+    });
+}
+
+function onSignedUp(r){
+  pendingVerifyLink = (r.verify && r.verify.link) || 'https://wa.me/26771844129';
+  if (r.verify && r.verify.whatsapp) pendingWa = r.verify.whatsapp;
   clearDraft();
- }
- document.querySelector("#verifiedBtn").addEventListener("click",function(){
-  var b=this;b.disabled=true;
-  ecustomer.verify({whatsapp:pendingWa}).then(function(r){
-   b.disabled=false;
-   if(r&&r.ok){showPicks();return;}
-   if(r&&r.error==="backend_not_configured"){location.href="eatouts-profile.html";return;}
-   showErr((r&&r.error)||"Verification failed. Try again.");
-  }).catch(function(){b.disabled=false;showErr("Network error. Try again.");});
- });
- function localFallback(p){
+  setPhase('verify');
+}
+
+function localFallback(p){
   function finish(u){
-   try{if(u&&EatoutsAuth.startSession)EatoutsAuth.startSession(u);}catch(err){}
-   if(window.EatoutsCustomer){
-    window.EatoutsCustomer.state.user={id:u&&u.id,username:p.username,name:p.firstName+" "+p.surname,whatsapp:p.whatsapp,type:"customer",local:true};
-   }
-   clearDraft();
-   showPicks();
+    try { if (u && EatoutsAuth.startSession) EatoutsAuth.startSession(u); } catch(err){}
+    if (window.EatoutsCustomer){
+      window.EatoutsCustomer.state = window.EatoutsCustomer.state || {};
+      window.EatoutsCustomer.state.user = {id:u && u.id, username:p.username, name:p.firstName+' '+p.surname, whatsapp:p.whatsapp, type:'customer', local:true};
+    }
+    clearDraft();
+    setPhase('picks');
   }
   function make(extra){
-   return EatoutsUsers.create(Object.assign({firstName:p.firstName,surname:p.surname,dob:p.dob,gender:p.gender,town:p.town,area:p.area,whatsapp:p.whatsapp,contacts:p.contacts||[],email:p.email,type:"customer",roles:["customer"],username:p.username},extra||{}));
+    return EatoutsUsers.create(Object.assign({
+      firstName:p.firstName, surname:p.surname, dob:p.dob, gender:p.gender,
+      town:p.town, area:p.area, whatsapp:p.whatsapp, dialCode:p.dialCode, contacts:[],
+      email:p.email, photo:p.photo, type:'customer', roles:['customer'], username:p.username
+    }, extra||{}));
   }
-  if(window.EatoutsAuth&&EatoutsAuth.hashPassword&&EatoutsAuth.randomSalt){
-   var salt=EatoutsAuth.randomSalt();
-   EatoutsAuth.hashPassword(p.password,salt).then(function(hash){finish(make({passwordHash:hash,salt:salt}))}).catch(function(){finish(make({}))});
-   return;
+  if (window.EatoutsAuth && EatoutsAuth.hashPassword && EatoutsAuth.randomSalt){
+    const salt = EatoutsAuth.randomSalt();
+    EatoutsAuth.hashPassword(p.password, salt)
+      .then(hash => finish(make({passwordHash:hash, salt:salt})))
+      .catch(()=>finish(make({})));
+    return;
   }
   finish(make({}));
- }
+}
 
- /* ---------- favourites ---------- */
- function updateCount(){var n=document.querySelectorAll("#pkRests input:checked").length;document.querySelector("#pkCount").textContent=n+" of 5 restaurants selected";}
- function markDisabled(){var n=document.querySelectorAll("#pkRests input:checked").length,boxes=document.querySelectorAll("#pkRests input");for(var i=0;i<boxes.length;i++){var cb=boxes[i];cb.disabled=!cb.checked&&n>=5;var row=cb.parentNode;if(row&&String(row.className).indexOf("pick")===0)row.className="pick"+(cb.disabled?" pick-off":"");}}
- function renderPicks(){
-  var data=(window.EATOUTS_RESTAURANT_PICKS)||{};
-  var town=document.querySelector("#pkTown").value;
-  var q=(document.querySelector("#pkSearch").value||"").toLowerCase().trim();
-  var list=(data[town]||[]).filter(function(r){return !q||String(r.name).toLowerCase().indexOf(q)>-1;});
-  var box=document.querySelector("#pkRests");
-  box.innerHTML=list.map(function(r){
-   var ref=slugify(r.name);
-   var saved=!!(window.EatoutsCustomer&&EatoutsCustomer.favourites.has({type:"restaurant",refId:ref}));
-   return '<label class="pick"><input type="checkbox" value="'+escAttr(ref)+'" data-title="'+escAttr(r.name)+'" data-sub="'+escAttr(town+" · "+(r.type||r.category||""))+'"'+(saved?" checked":"")+'><span>'+escHtml(r.name)+'</span><span class="pick-sub">'+escHtml(r.type||r.category||"")+'</span></label>';
-  }).join("")||'<p class="minor" style="padding:10px">No restaurants match.</p>';
-  updateCount();markDisabled();
- }
- function savePicks(){
-  var btn=document.querySelector("#pkSave");btn.disabled=true;
-  var S=window.EatoutsCustomer,jobs=[],boxes=document.querySelectorAll("#pkRests input:checked");
-  for(var i=0;i<boxes.length;i++){var cb=boxes[i];if(S)jobs.push(S.favourites.add({type:"restaurant",refId:cb.value,title:cb.getAttribute("data-title"),subtitle:cb.getAttribute("data-sub")}));}
-  var slug=document.querySelector("#pkBottle").value;
-  if(slug&&S&&brandBySlug[slug])jobs.push(S.favourites.add({type:"bottle_store",refId:slug,title:brandBySlug[slug].name,subtitle:brandBySlug[slug].sub}));
-  Promise.all(jobs).then(function(){location.href="eatouts-profile.html";}).catch(function(){location.href="eatouts-profile.html";});
- }
- function showPicks(){
-  var vp=document.querySelector("#verifyPanel");if(vp)vp.style.display="none";
-  var steps=document.querySelectorAll(".onboard-steps .step");for(var i=0;i<steps.length;i++)steps[i].className="step on";
-  document.querySelector("#picksPanel").style.display="block";
-  var data=(window.EATOUTS_RESTAURANT_PICKS)||{},towns=Object.keys(data),townSel=document.querySelector("#pkTown");
-  if(towns.length){
-   var match=towns.filter(function(t){return t.toLowerCase()===String(pendingTown).toLowerCase();})[0]||towns[0];
-   townSel.innerHTML=towns.map(function(t){return '<option'+(t===match?' selected':'')+'>'+escHtml(t)+'</option>';}).join("");
-  }
-  var bottleSel=document.querySelector("#pkBottle");
-  if(window.EatoutsBottleStores){
-   var brands=window.EatoutsBottleStores.all();
-   brands.forEach(function(b){brandBySlug[b.slug]={name:b.name,sub:window.EatoutsBottleStores.metaFor(b)};});
-   bottleSel.innerHTML='<option value="">— None —</option>'+brands.map(function(b){return '<option value="'+escAttr(b.slug)+'">'+escHtml(b.name)+'</option>';}).join("");
-  }
-  townSel.onchange=renderPicks;
-  document.querySelector("#pkSearch").oninput=renderPicks;
-  document.querySelector("#pkRests").onchange=function(e){var cb=e.target;if(!cb||cb.type!=="checkbox")return;if(document.querySelectorAll("#pkRests input:checked").length>5){cb.checked=false;alert("You can pick up to 5 restaurants.");}updateCount();markDisabled();};
-  document.querySelector("#pkSave").onclick=savePicks;
-  document.querySelector("#pkSkip").onclick=function(){location.href="eatouts-profile.html";};
-  renderPicks();
- }
+function handleVerify(){
+  const btn = document.getElementById('verifiedBtn');
+  if (btn){ btn.disabled = true; btn.textContent = 'Checking…'; }
+  Promise.resolve()
+    .then(()=> ecustomer.verify({whatsapp: pendingWa}))
+    .then(r=>{
+      if (btn){ btn.disabled = false; btn.textContent = "I've confirmed"; }
+      if (r && r.ok){ setPhase('picks'); return; }
+      if (r && r.error === 'backend_not_configured'){ location.href = 'eatouts-profile.html'; return; }
+      toast((r && r.error) || 'Verification failed. Try again.');
+    })
+    .catch(()=>{
+      if (btn){ btn.disabled = false; btn.textContent = "I've confirmed"; }
+      toast('Network error. Please try again.');
+    });
+}
 
- loadDraft();
+/* ============================================================
+   PICKS PANEL
+   ============================================================ */
+function initPicksPanel(){
+  const townSel = document.querySelector('#pkTown');
+  const bottleSel = document.querySelector('#pkBottle');
+  const search = document.querySelector('#pkSearch');
+  const list = document.querySelector('#pkRests');
+  const countEl = document.querySelector('#pkCount');
+  const saveBtn = document.querySelector('#pkSave');
+  const skipBtn = document.querySelector('#pkSkip');
+  if (!townSel || !bottleSel || !search || !list) return;
+
+  const data = window.EATOUTS_RESTAURANT_PICKS || {};
+  const towns = Object.keys(data);
+
+  if (towns.length){
+    const match = towns.filter(t=>t.toLowerCase() === String(pendingTown).toLowerCase())[0] || towns[0];
+    townSel.innerHTML = towns.map(t=>'<option'+(t === match?' selected':'')+'>'+e(t)+'</option>').join('');
+  }
+
+  if (window.EatoutsBottleStores){
+    const brands = window.EatoutsBottleStores.all();
+    brands.forEach(b=>{ brandBySlug[b.slug] = {name:b.name, sub:window.EatoutsBottleStores.metaFor(b)}; });
+    bottleSel.innerHTML = '<option value="">— None —</option>' + brands.map(b=>'<option value="'+e(b.slug)+'">'+e(b.name)+'</option>').join('');
+  }
+
+  function updateCount(){
+    const n = document.querySelectorAll('#pkRests input:checked').length;
+    if (countEl) countEl.textContent = n + ' of 5 restaurants selected';
+  }
+  function markDisabled(){
+    const n = document.querySelectorAll('#pkRests input:checked').length;
+    document.querySelectorAll('#pkRests input').forEach(cb=>{
+      cb.disabled = !cb.checked && n >= 5;
+      const row = cb.closest('.pick');
+      if (row) row.classList.toggle('pick-off', cb.disabled);
+    });
+  }
+  function renderList(){
+    const town = townSel.value;
+    const q = (search.value||'').toLowerCase().trim();
+    const rows = (data[town]||[]).filter(r=> !q || String(r.name).toLowerCase().indexOf(q) > -1);
+    list.innerHTML = rows.map(r=>{
+      const ref = slugify(r.name);
+      const saved = !!(window.EatoutsCustomer && EatoutsCustomer.favourites.has({type:'restaurant', refId:ref}));
+      return '<label class="pick"><input type="checkbox" value="'+e(ref)+'" data-title="'+e(r.name)+'" data-sub="'+e(town+' · '+(r.type||r.category||''))+'"'+(saved?' checked':'')+'><span>'+e(r.name)+'</span><span class="pick-sub">'+e(r.type||r.category||'')+'</span></label>';
+    }).join('') || '<p class="note" style="padding:11px;margin:0">No restaurants match.</p>';
+    updateCount();
+    markDisabled();
+  }
+
+  townSel.onchange = renderList;
+  search.oninput = renderList;
+  list.onchange = function(ev){
+    const cb = ev.target;
+    if (!cb || cb.type !== 'checkbox') return;
+    if (document.querySelectorAll('#pkRests input:checked').length > 5){
+      cb.checked = false;
+      toast('You can pick up to 5 restaurants.');
+    }
+    updateCount();
+    markDisabled();
+  };
+  saveBtn.onclick = function(){
+    saveBtn.disabled = true;
+    const S = window.EatoutsCustomer;
+    const jobs = [];
+    document.querySelectorAll('#pkRests input:checked').forEach(cb=>{
+      if (S) jobs.push(S.favourites.add({type:'restaurant', refId:cb.value, title:cb.getAttribute('data-title'), subtitle:cb.getAttribute('data-sub')}));
+    });
+    const slug = bottleSel.value;
+    if (slug && S && brandBySlug[slug]){
+      jobs.push(S.favourites.add({type:'bottle_store', refId:slug, title:brandBySlug[slug].name, subtitle:brandBySlug[slug].sub}));
+    }
+    Promise.all(jobs)
+      .then(()=>{ location.href = 'eatouts-profile.html'; })
+      .catch(()=>{ location.href = 'eatouts-profile.html'; });
+  };
+  skipBtn.onclick = function(){ location.href = 'eatouts-profile.html'; };
+
+  renderList();
+}
+
+/* ============================================================
+   PROFILE PICTURE COMPRESSION
+   ============================================================ */
+function compressAvatar(file, cb){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const size = 320;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const min = Math.min(img.width, img.height);
+      const sx = (img.width - min) / 2;
+      const sy = (img.height - min) / 2;
+      ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+      try { cb(canvas.toDataURL('image/webp', 0.85)); }
+      catch(err){ cb(reader.result); }
+    };
+    img.onerror = ()=>cb(reader.result);
+    img.src = reader.result;
+  };
+  reader.onerror = ()=>toast('Could not read that image.');
+  reader.readAsDataURL(file);
+}
+
+/* ============================================================
+   EVENT HANDLING (appShell)
+   ============================================================ */
+const appShell = $('#app-shell');
+
+appShell.addEventListener('click', ev=>{
+  const t = ev.target.closest('[data-toggle-acc]');
+  if (t){
+    const key = t.dataset.toggleAcc;
+    state.uiOpen = state.uiOpen === key ? '' : key;
+    renderApp(true);
+    return;
+  }
+  const g = ev.target.closest('[data-gender]');
+  if (g){
+    state.personal.gender = g.dataset.gender;
+    saveState();
+    renderApp(true);
+    return;
+  }
+  const pfpRemove = ev.target.closest('[data-pfp-remove]');
+  if (pfpRemove){
+    state.personal.photo = '';
+    saveState();
+    renderApp(true);
+    return;
+  }
+  const pwBtn = ev.target.closest('[data-pw-toggle]');
+  if (pwBtn){
+    const path = pwBtn.dataset.pwToggle;
+    pwVisible[path] = !pwVisible[path];
+    const wrap = pwBtn.closest('.pw-wrap');
+    const input = wrap && wrap.querySelector('input');
+    if (input){
+      const len = input.value.length;
+      input.type = pwVisible[path] ? 'text' : 'password';
+      try { input.focus(); input.setSelectionRange(len, len); } catch(e){}
+    }
+    pwBtn.setAttribute('aria-pressed', String(!!pwVisible[path]));
+    pwBtn.setAttribute('aria-label', pwVisible[path] ? 'Hide password' : 'Show password');
+    pwBtn.innerHTML = pwVisible[path] ? SVG_EYE_OFF : SVG_EYE;
+    return;
+  }
+  if (ev.target.closest('[data-action="save-draft"]')){ saveState(true); return; }
+  if (ev.target.closest('[data-action="publish"]')){
+    state.uiOpen = 'review';
+    renderApp(true);
+    const r = $('[data-acc-key="review"]');
+    if (r) setTimeout(()=>r.scrollIntoView({behavior:'smooth',block:'start'}), 60);
+    return;
+  }
+  if (ev.target.closest('[data-action="signup"]')){ handleSignup(); return; }
+  const jump = ev.target.closest('[data-jump-to]');
+  if (jump){
+    state.uiOpen = jump.dataset.jumpTo;
+    renderApp(true);
+    return;
+  }
+});
+
+appShell.addEventListener('input', ev=>{
+  const t = ev.target;
+  if (!t.dataset || !t.dataset.bind) return;
+  if (t.matches('select')) return;
+  if (t.type === 'checkbox') return;
+  const path = t.dataset.bind;
+  setPathState(path, t.value);
+  saveState();
+  updateProgress();
+});
+
+appShell.addEventListener('change', ev=>{
+  const t = ev.target;
+
+  if (t.matches('[data-pfp-input]')){
+    const file = t.files && t.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')){ toast('Choose an image file.'); return; }
+    compressAvatar(file, data=>{
+      state.personal.photo = data;
+      saveState();
+      renderApp(true);
+      toast('Profile picture added.');
+    });
+    t.value = '';
+    return;
+  }
+
+  if (!t.dataset) return;
+  if (t.matches('select') && t.dataset.bind){
+    setPathState(t.dataset.bind, t.value);
+    saveState();
+    renderApp(true);
+    return;
+  }
+  if (t.type === 'checkbox' && t.dataset.bind){
+    setPathState(t.dataset.bind, t.checked);
+    saveState();
+    renderApp(true);
+    return;
+  }
+});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+if (!state.uiOpen) state.uiOpen = 'personal';
+renderApp(false);
+saveState();
 })();
 </script>
 </body>

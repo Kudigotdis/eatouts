@@ -101,7 +101,7 @@ window.EATOUTS_PRIVACY_POLICY = {
           "number": 11,
           "heading": "Children",
           "paragraphs": [
-            "Eatouts is not directed at children under 13. We do not knowingly collect their data."
+            "Eatouts accounts are for people aged 10 and over. Promos for alcohol are hidden from anyone who is not 18 or older, and we keep only the date of birth needed to apply that rule. We do not knowingly collect the data of children under 13."
           ]
         },
         {

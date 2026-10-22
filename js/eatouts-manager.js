@@ -85,12 +85,15 @@
     const u=currentUser();
     /* A role-gated area needs a real session: never auto-seed the demo owner
        into it, or guests land inside customer/manager pages as the demo owner. */
-    if(!u&&opts.roles&&opts.roles.length){location.href="eatouts-login.html";return null}
-    if(!u){if(opts.demo!==false){ensureDemo();return currentUser()}location.href="eatouts-login.html";return null}
-    if(opts.roles&&opts.roles.length&&!opts.roles.some(r=>EatoutsAuth.hasRole(r))){document.body.innerHTML=`<main class="blocked"><h1>Access restricted</h1><p>Your current account does not have permission for this area.</p><a class="btn primary" href="eatouts-login.html">Sign in</a></main>`;return null}
+    if(!u&&opts.roles&&opts.roles.length){location.href=loginHref();return null}
+    if(!u){if(opts.demo!==false){ensureDemo();return currentUser()}location.href=loginHref();return null}
+    if(opts.roles&&opts.roles.length&&!opts.roles.some(r=>EatoutsAuth.hasRole(r))){document.body.innerHTML=`<main class="blocked"><h1>Access restricted</h1><p>Your current account does not have permission for this area.</p><a class="btn primary" href="${loginHref()}">Sign in</a></main>`;return null}
     return u
   }
   function currentFile(){return (location.pathname.split("/").pop()||"")}
+  /* One sign-in surface: eatouts-login.html, with the current page as ?next=
+     so signing in returns the user to where they were. */
+  function loginHref(){return "eatouts-login.html?next="+encodeURIComponent(currentFile())}
   function shell(title,subtitle,content,opts={}){
     const group=opts.group||roleGroup();
     const nav=opts.nav||NAV[group];

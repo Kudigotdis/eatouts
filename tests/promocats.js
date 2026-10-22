@@ -131,6 +131,27 @@ setTimeout(() => {
   check('All segment mixes categories', all.indexOf('Beverage') > -1 && all.indexOf('Food') > -1,
     JSON.stringify(all.slice(0, 6)));
 
+  /* ---------- the 18+ gate ----------
+     A guest is not shown the promos that sell alcohol, and the feed says
+     how many are being held back. */
+  const guestFlagged = evjSub('(function(){var out=[];var l=promosOnDay(state.promoDay);' +
+    'for(var i=0;i<l.length;i++){if(EatoutsAge.isAgeRestrictedPromo(l[i].promo))out.push(l[i].promo.id);}' +
+    'return out;})()');
+  check('a guest is not shown the alcohol promos', guestFlagged.length === 0,
+    JSON.stringify(guestFlagged.slice(0, 4)));
+  const guestLocked = ev('hiddenFlaggedPromos(state.promoDay).length');
+  check('the feed counts the promos hidden from a guest', guestLocked > 0, String(guestLocked));
+  ev('render();renderControlBar()');
+  const lockedCard = doc.querySelector('#viewport .promo-locked');
+  check('the feed offers the locked 18+ card', !!lockedCard);
+  check('the locked card points at the sign-in page',
+    !!lockedCard && /eatouts-login\.html\?next=/.test(lockedCard.querySelector('.pl-btn').getAttribute('href')),
+    lockedCard ? lockedCard.querySelector('.pl-btn').getAttribute('href') : 'no card');
+
+  /* from here on the viewer is signed in and 18 or older */
+  ev('window.EatoutsCustomer.getUser=function(){return {id:"test-adult",dob:"' +
+    (new Date().getFullYear() - 20) + '-01-01"};}');
+
   ev('state.promoType="Beverage"');
   const bevOnly = evjSub('promosOnDay(state.promoDay).map(function(e){return promoCategoryOf(e.promo);})');
   check('Beverage segment is all Beverage', bevOnly.length > 0 && bevOnly.every(c => c === 'Beverage'),

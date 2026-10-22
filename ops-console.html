@@ -235,7 +235,7 @@ table tr:last-child td{border-bottom:0}
 (function(){
   var ok = globalThis.EatoutsAuth && EatoutsAuth.isLoggedIn() &&
     (EatoutsAuth.hasRole('rep') || EatoutsAuth.hasRole('admin') || EatoutsAuth.hasRole('platform_admin'));
-  if(!ok){ location.replace('eatouts-login.html'); return; }
+  if(!ok){ location.replace('eatouts-login.html?next='+encodeURIComponent('ops-console.html')); return; }
   if(globalThis.EatoutsField) EatoutsField.seedFieldVenues();
 })();
 </script>

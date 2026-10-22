@@ -57,7 +57,6 @@ const BUSINESS_PAGES = [
   'restaurant-onboarding.html',
   'mobile-kitchen-onboarding.html',
   'bottle-store-onboarding.html',
-  'caterer-onboarding.html',
   'bakery-onboarding.html',
   'supplier-onboarding.html'
 ];
@@ -79,6 +78,16 @@ BUSINESS_PAGES.forEach((p) => {
   check(p + ' exposes EOOnboardPage', src.indexOf('EOOnboardPage') >= 0);
   check(p + ' has a hosting section', /hosting/i.test(src));
 });
+
+/* The caterer form is its own self-contained page (brand + branches), so it
+   does not run the shared onboarding bridge. */
+const CATERER_PAGE = 'caterer-onboarding.html';
+check(CATERER_PAGE + ' exists', has(CATERER_PAGE));
+const catererSrc = read(CATERER_PAGE);
+check(CATERER_PAGE + ' has a PAGE marker', /<!-- PAGE: Caterer setup -->/.test(catererSrc));
+check(CATERER_PAGE + ' declares its page id', /<body data-page="caterer-onboarding">/.test(catererSrc));
+check(CATERER_PAGE + ' manages branches', /branch/i.test(catererSrc));
+check(CATERER_PAGE + ' can publish the profile', /publish/i.test(catererSrc));
 
 /* business type -> onboarding page */
 const btSrc = read('assets/data/business_types.js');
@@ -112,14 +121,16 @@ check('the customer page is the one every sign-up link points at',
   read('index.html').indexOf('"' + CUSTOMER_PAGE + '"') >= 0 &&
   read('eatouts-login.html').indexOf(CUSTOMER_PAGE) >= 0);
 const userOnboard = read(CUSTOMER_PAGE);
-check('customer page has the 18+ gate', /age\(dob\)<18/.test(userOnboard) && /18 or older/.test(userOnboard));
+check('customer page has the 10+ gate',
+  /const MIN_AGE = 10/.test(userOnboard) && /years < MIN_AGE/.test(userOnboard) &&
+  /or older/.test(userOnboard));
 check('customer page creates the account through EatoutsCustomer.signup', /EatoutsCustomer[\s\S]{0,200}\.signup\(|ecustomer\.signup\(/.test(userOnboard));
 check('customer page verifies through EatoutsCustomer.verify', /ecustomer\.verify\(/.test(userOnboard));
 const customerApi = read('js/eatouts-customer.js');
 check('the customer API posts to /auth/signup', customerApi.indexOf("'/auth/signup'") >= 0);
 check('the customer API posts to /auth/verify', customerApi.indexOf("'/auth/verify'") >= 0);
 check('customer page uses the live town/area lookup', userOnboard.indexOf('eatouts-locations.js') >= 0);
-check('customer page keeps a device draft', userOnboard.indexOf('eatouts.user-onboarding.v1') >= 0);
+check('customer page keeps a device draft', /DRAFT_KEY\s*=\s*'eatouts\.customer-signup\./.test(userOnboard));
 
 /* ------------------------------------------------------------------ */
 /* 2. DOM checks (the bridge, with the real datasets)                   */

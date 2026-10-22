@@ -142,6 +142,52 @@
     });
   }
 
+  /* ---------- password reset ---------- */
+
+  /* Ask the server to email a reset link. The server always answers with the
+     same generic message, so this call never reveals whether an account
+     exists for the address. */
+  function passwordReset(data) {
+    var body = { email: String((data && data.email) || '').trim() };
+    return api('/auth/password-reset', { method: 'POST', body: body })
+      .then(function (r) {
+        if (r.status === 0) {
+          return { ok: false, error: 'Password reset needs a connection to the EatOuts server.' };
+        }
+        return normaliseResetResult(r);
+      })
+      .catch(function () {
+        return { ok: false, error: 'Could not reach the EatOuts server. Try again shortly.' };
+      });
+  }
+
+  /* Set the new password with the token from the emailed link. */
+  function passwordResetConfirm(data) {
+    var body = {
+      token: String((data && data.token) || '').trim(),
+      password: String((data && data.password) || '')
+    };
+    return api('/auth/password-reset/confirm', { method: 'POST', body: body })
+      .then(function (r) {
+        if (r.status === 0) {
+          return { ok: false, error: 'Password reset needs a connection to the EatOuts server.' };
+        }
+        return normaliseResetResult(r);
+      })
+      .catch(function () {
+        return { ok: false, error: 'Could not reach the EatOuts server. Try again shortly.' };
+      });
+  }
+
+  /* The API answers with `error`; the login page reads `message`. */
+  function normaliseResetResult(r) {
+    var data = (r && r.data) || {};
+    var out = Object.assign({}, data);
+    out.ok = !!r.ok;
+    if (!out.ok && !out.message && out.error) out.message = out.error;
+    return out;
+  }
+
   function logout() {
     return api('/auth/logout', { method: 'POST' }).catch(function () { return {}; })
       .then(function () {
@@ -211,14 +257,18 @@
     }
     var username = String((data && data.username) || '').trim().toLowerCase();
     var wa = String((data && (data.whatsapp || data.phone)) || '').replace(/\D/g, '');
+    var password = String((data && data.password) || '');
+    /* All three identifiers are mandatory: username AND WhatsApp AND password. */
+    if (!username || !wa || !password) {
+      return Promise.resolve({ ok: false, error: 'Enter your username, WhatsApp number and password.' });
+    }
     var candidates = (EatoutsUsers.all() || []).filter(function (u) {
       if (!u || !u.passwordHash || !u.salt) return false;
-      var nameMatch = !!username && String(u.username || '').toLowerCase() === username;
-      var waMatch = !!wa && String(u.whatsapp || '').replace(/\D/g, '') === wa;
-      return nameMatch || waMatch;
+      var nameMatch = String(u.username || '').toLowerCase() === username;
+      var waMatch = String(u.whatsapp || '').replace(/\D/g, '') === wa;
+      return nameMatch && waMatch;
     });
     if (!candidates.length) return Promise.resolve({ ok: false, error: 'notfound' });
-    var password = String((data && data.password) || '');
     return candidates.reduce(function (chain, u) {
       return chain.then(function (found) {
         if (found) return found;
@@ -233,11 +283,12 @@
         username: u.username || '',
         name: String((u.firstName || '') + ' ' + (u.surname || '')).trim(),
         whatsapp: u.whatsapp || '',
+        email: u.email || '',
         type: 'customer',
         local: true
       };
       setLocalUser(user);
-      return { ok: true, user: user, route: 'index.html#promos' };
+      return { ok: true, user: user, route: 'eatouts-profile.html' };
     });
   }
 
@@ -484,6 +535,8 @@
     signup: signup,
     verify: verify,
     login: login,
+    passwordReset: passwordReset,
+    passwordResetConfirm: passwordResetConfirm,
     logout: logout,
     uploadAvatar: uploadAvatar,
     updateProfile: updateProfile,

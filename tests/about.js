@@ -122,7 +122,8 @@ setTimeout(() => {
     guestActions ? dom.window.getComputedStyle(guestActions).flexDirection : 'no actions row');
   check('guest popup offers Sign In (primary, login)',
     !!signinCta && signinCta.classList.contains('primary') &&
-    signinCta.getAttribute('href') === 'eatouts-login.html');
+    /^\eatouts-login\.html(\?next=.+)?$/.test(signinCta.getAttribute('href') || ''),
+    signinCta ? signinCta.getAttribute('href') : 'no cta');
   check('guest popup offers Sign Up (onboarding)',
     !!signupCta && signupCta.getAttribute('href') === 'eatouts-customer-signup.html');
   check('guest popup offers Later (dismiss)',

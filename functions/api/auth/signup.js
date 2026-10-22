@@ -1,10 +1,10 @@
 /* ============================================================
    POST /api/auth/signup
    Create an account. `type` may be "customer" (default) or
-   "business"; the 18+ gate applies to customers only.
+   "business"; the 10+ age gate applies to customers only.
 
    Body: { username, whatsapp, password, firstName, surname,
-           dob, gender, town, area, email?, type? }
+           dob, gender, town, area, email, type? }
 
    No external OTP channel: the account is created unverified and
    the response returns a WhatsApp click-to-chat link the user taps
@@ -13,7 +13,7 @@
 import { json, uid, now, readJson, rateLimit, clientIp } from './../_shared.js';
 import {
   validateUsername, validatePassword, normalisePhone, phoneIntl,
-  syntheticEmail, validEmail, isAdult, randomSalt, hashPassword,
+  validEmail, meetsAge, randomSalt, hashPassword,
   PBKDF2_ITER, publicUser
 } from './../_auth.js';
 
@@ -50,10 +50,11 @@ export async function onRequestPost(context) {
     return json({ ok: false, error: 'A valid WhatsApp number is required.' }, 400);
   }
 
-  /* The 18+ gate applies to customer accounts only; business owners are
-     businesses rather than consumers of age-restricted content. */
-  if (type === 'customer' && !isAdult(body.dob, 18)) {
-    return json({ ok: false, error: 'You must be 18 or older to create an account.' }, 400);
+  /* The age gate applies to customer accounts only; business owners are
+     businesses rather than consumers of age-restricted content.
+     10+ may hold an account; 18+ is needed for age-restricted promos. */
+  if (type === 'customer' && !meetsAge(body.dob, 10)) {
+    return json({ ok: false, error: 'You must be 10 or older to create an account.' }, 400);
   }
 
   var firstName = String(body.firstName || '').trim();
@@ -62,7 +63,13 @@ export async function onRequestPost(context) {
     return json({ ok: false, error: 'First name and surname are required.' }, 400);
   }
 
-  var email = validEmail(body.email) || syntheticEmail(whatsapp);
+  /* A real email address is required: it is where the password reset
+     link is sent. Accounts created before this rule keep their synthetic
+     address, but no new account is created without one. */
+  var email = validEmail(body.email);
+  if (!email) {
+    return json({ ok: false, error: 'A valid email address is required.' }, 400);
+  }
 
   /* uniqueness */
   var clash = await env.DB.prepare(

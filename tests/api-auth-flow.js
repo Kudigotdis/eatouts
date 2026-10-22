@@ -129,10 +129,10 @@ function cookieToken(res) {
 
   const env = { DB: fakeDB(), OPS_KV: fakeKV(), ENV: 'development' };
 
-  /* ---- business signup ignores the 18+ gate ---- */
+  /* ---- business signup ignores the age gate ---- */
   let r = await signup.onRequestPost(ctx(env, {
     body: { type: 'business', username: 'kudu_bites', whatsapp: '26771111111',
-      password: 'secretpass', firstName: 'Kudu', surname: 'Bites' }
+      password: 'secretpass', firstName: 'Kudu', surname: 'Bites', email: 'kudu@example.com' }
   }));
   let j = await r.json();
   check('business signup -> 201', r.status === 201, r.status + ' ' + JSON.stringify(j));
@@ -142,24 +142,41 @@ function cookieToken(res) {
   /* ---- customer signup still enforces the age gate ---- */
   r = await signup.onRequestPost(ctx(env, {
     body: { username: 'young_one', whatsapp: '26772222222', password: 'secretpass',
-      firstName: 'Young', surname: 'One', dob: '2020-01-01' }
+      firstName: 'Young', surname: 'One', dob: '2020-01-01', email: 'young@example.com' }
   }));
   j = await r.json();
-  check('customer signup under 18 -> 400', r.status === 400, r.status);
+  check('customer signup under 10 -> 400', r.status === 400, r.status);
+
+  /* ---- a 10-year-old may hold an account ---- */
+  const tenYearOld = new Date();
+  tenYearOld.setFullYear(tenYearOld.getFullYear() - 10);
+  r = await signup.onRequestPost(ctx(env, {
+    body: { username: 'ten_year_old', whatsapp: '26774444444', password: 'secretpass',
+      firstName: 'Ten', surname: 'Year', dob: tenYearOld.toISOString().slice(0, 10), email: 'ten@example.com' }
+  }));
+  j = await r.json();
+  check('customer signup at 10 -> 201', r.status === 201, r.status + ' ' + JSON.stringify(j));
 
   /* ---- customer signup (adult) ---- */
   r = await signup.onRequestPost(ctx(env, {
     body: { username: 'adult_one', whatsapp: '26773333333', password: 'secretpass',
-      firstName: 'Adult', surname: 'One', dob: '1990-01-01' }
+      firstName: 'Adult', surname: 'One', dob: '1990-01-01', email: 'adult@example.com' }
   }));
   j = await r.json();
   check('customer signup -> 201', r.status === 201, r.status + ' ' + JSON.stringify(j));
   check('customer user typed customer', j.user && j.user.type === 'customer');
 
+  /* ---- the email is required on sign-up ---- */
+  r = await signup.onRequestPost(ctx(env, {
+    body: { type: 'business', username: 'no_email_biz', whatsapp: '26775555555',
+      password: 'secretpass', firstName: 'No', surname: 'Email' }
+  }));
+  check('signup without an email -> 400', r.status === 400, r.status);
+
   /* ---- duplicate whatsapp rejected ---- */
   r = await signup.onRequestPost(ctx(env, {
     body: { type: 'business', username: 'other_biz', whatsapp: '26771111111',
-      password: 'secretpass', firstName: 'Other', surname: 'Biz' }
+      password: 'secretpass', firstName: 'Other', surname: 'Biz', email: 'other@example.com' }
   }));
   check('duplicate whatsapp -> 409', r.status === 409, r.status);
 
@@ -176,15 +193,21 @@ function cookieToken(res) {
   r = await verify.onRequestPost(ctx(env, { body: { whatsapp: '26771111111', type: 'customer' } }));
   check('business verify as customer -> 404', r.status === 404, r.status);
 
-  /* ---- business login by whatsapp + password ---- */
-  r = await login.onRequestPost(ctx(env, { body: { whatsapp: '26771111111', password: 'secretpass' } }));
+  /* ---- business login needs username + whatsapp + password ---- */
+  r = await login.onRequestPost(ctx(env, { body: { username: 'kudu_bites', whatsapp: '26771111111', password: 'secretpass' } }));
   j = await r.json();
   check('business login -> 200', r.status === 200, r.status + ' ' + JSON.stringify(j));
   check('business login sets cookie', !!cookieToken(r));
   check('business login routes to business signup', j.route === 'eatouts-business-signup.html', j.route);
 
-  r = await login.onRequestPost(ctx(env, { body: { whatsapp: '26771111111', password: 'wrongpass1' } }));
+  r = await login.onRequestPost(ctx(env, { body: { username: 'kudu_bites', whatsapp: '26771111111', password: 'wrongpass1' } }));
   check('business login wrong password -> 401', r.status === 401, r.status);
+
+  /* ---- all three identifiers are mandatory ---- */
+  r = await login.onRequestPost(ctx(env, { body: { whatsapp: '26771111111', password: 'secretpass' } }));
+  check('login without a username -> 400', r.status === 400, r.status);
+  r = await login.onRequestPost(ctx(env, { body: { username: 'kudu_bites', password: 'secretpass' } }));
+  check('login without a whatsapp number -> 400', r.status === 400, r.status);
 
   /* ---- customer login unchanged (username + whatsapp + password) ---- */
   r = await verify.onRequestPost(ctx(env, { body: { whatsapp: '26773333333' } }));
@@ -204,12 +227,12 @@ function cookieToken(res) {
   }));
   check('customer login whatsapp mismatch -> 401', r.status === 401, r.status);
 
-  /* unknown whatsapp -> 401 */
-  r = await login.onRequestPost(ctx(env, { body: { whatsapp: '26770000000', password: 'secretpass' } }));
-  check('unknown whatsapp login -> 401', r.status === 401, r.status);
+  /* unknown account -> 401 */
+  r = await login.onRequestPost(ctx(env, { body: { username: 'nobody', whatsapp: '26770000000', password: 'secretpass' } }));
+  check('unknown username login -> 401', r.status === 401, r.status);
 
   /* missing password -> 400 */
-  r = await login.onRequestPost(ctx(env, { body: { whatsapp: '26773333333' } }));
+  r = await login.onRequestPost(ctx(env, { body: { username: 'adult_one', whatsapp: '26773333333' } }));
   check('login without password -> 400', r.status === 400, r.status);
 
   /* unconfigured backend -> 503 */

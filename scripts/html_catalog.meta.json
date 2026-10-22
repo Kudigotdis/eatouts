@@ -249,13 +249,13 @@
       "id": 17,
       "file": "eatouts-customer-signup.html",
       "group": "manager-admin",
-      "purpose": "Customer account creation: name, 18+ gate, live town/area lookup, username + WhatsApp login, WhatsApp confirmation and favourite picks.",
+      "purpose": "Customer account creation: name, 10+ gate, required email, live town/area lookup, username + WhatsApp + password login, WhatsApp confirmation and favourite picks.",
       "audience": "New customer",
       "entry": "eatouts-login.html \"Create an account\"; the About Us guest popup (Sign Up); the index.html guest feature popup (Create Account).",
       "interactions": "Live town/area typeahead over botswana_locations.js, POST /api/auth/signup, WhatsApp click-to-chat confirmation, POST /api/auth/verify, then pick up to 5 restaurants and 1 bottle store.",
       "auth": false,
       "status": "FULL",
-      "notes": "The customer account page moved here when eatouts_user_onboarding.html was repurposed for the caterer setup form; _redirects answers /eatouts-user-onboarding.html with a 301. The draft (minus passwords) survives a refresh under eatouts.user-onboarding.v1."
+      "notes": "The customer account page. The email address is required (it is where a password reset link is sent) and the age gate is 10+. The draft (minus passwords) survives a refresh under eatouts.customer-signup.v4."
     },
     {
       "id": 18,
@@ -285,13 +285,13 @@
       "id": 20,
       "file": "caterer-onboarding.html",
       "group": "manager-admin",
-      "purpose": "Caterer setup: brand and outlets, menus, service coverage and delivery areas, plus the Hosting Services block.",
+      "purpose": "Caterer setup: shared brand settings plus a branch manager (each branch keeps its own address, service area, packages, add-ons, tastings, equipment, staffing and offers).",
       "audience": "Caterer owner",
       "entry": "eatouts-business-signup.html → Caterer; the operator dashboard.",
-      "interactions": "Menu and coverage forms, live town/area and place lookup, event types from assets/data/event_types.js, publish to the D1 profile and the customer directory.",
+      "interactions": "Brand group, then a branch manager where each branch is added, edited and removed; each branch carries its own location, packages, tastings, equipment, staffing and offers; a publish action offers the profile changes for review.",
       "auth": false,
       "status": "FULL",
-      "notes": "Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory). The embedded event taxonomy was replaced by assets/data/event_types.js."
+      "notes": "Self-contained page (no shared onboarding bridge): the draft stays on the device under eatouts.caterer-onboarding.v1 until it is published."
     },
     {
       "id": 21,
@@ -868,21 +868,13 @@
       "auth": false,
       "status": "FULL",
       "notes": "Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory)."
-    },
-    {
-      "id": 69,
-      "file": "eatouts_user_onboarding.html",
-      "group": "operator-onboarding",
-      "purpose": "Caterer setup: brand, outlets, menus, packages, service coverage and a review-and-publish step.",
-      "audience": "Caterer",
-      "entry": "Direct link.",
-      "interactions": "Numbered accordion form with a progress rail, live validation, on-device draft under eatouts.caterer-onboarding.v1, Save draft and Review & publish.",
-      "auth": false,
-      "status": "FULL",
-      "notes": "Repurposed for the caterer setup form (the customer account page moved to eatouts-customer-signup.html). Shares the caterer-onboarding.html design and store key."
     }
   ],
   "changelog": [
+    {
+      "date": "2026-10-22",
+      "note": "One sign-in surface, a working password reset and the age policy. eatouts-login.html is now the only way in: WhatsApp number + username + password, all three, with a \"Forgot password?\" flow that mails a reset link (functions/api/_mail.js sends through Resend, or Brevo when that key is set; from EatOuts <info@eatouts.site>). The reset link lands back on eatouts-login.html?reset_token=..., the token lives 30 minutes and works once, and every other session for that account is signed out (migrations/0011_password_reset.sql). Every sign-in prompt in the app now points at that page with ?next= so people land back where they were; the About tab operator form was hardened to the same three credentials. Age policy: 10+ to hold an account, 18+ for the promos that sell alcohol - js/eatouts-age.js and functions/api/_promo-rules.js hold the same word list (tests/age-gate.js asserts they match), the venue bundle drops flagged promos for anyone under 18, the promos timeline shows a locked \"18+ only\" card, and the operator can flag any promo themselves (migrations/0012_promo_age_restriction.sql). eatouts_user_onboarding.html was retired (the caterer setup form now lives in caterer-onboarding.html) and the customer account page is eatouts-customer-signup.html. New suites: tests/login.js, tests/password-reset.js, tests/age-gate.js."
+    },
     {
       "date": "2026-10-21",
       "note": "About tab guest card alert now offers three CTAs on a single row - Sign In (primary, eatouts-login.html), Sign Up (eatouts-customer-signup.html) and Later (dismiss); \"Not Now\" is gone and the row is styled to never wrap. The customer account page moved to eatouts-customer-signup.html (the old hyphenated path 301s there) so eatouts_user_onboarding.html could hold the caterer setup form; every customer sign-up entry point (login page, About guest popup, index.html guest feature popup, the unverified-user route in functions/api/auth/login.js) now points at the new page."

@@ -3926,7 +3926,7 @@ document.addEventListener("click",function(e){
   // Customer account: save event / post on promos (manual P50 invoice)
   if(act==="favEvent"){
     const S=window.EatoutsCustomer;
-    if(!S||!S.getUser()){ if(confirm("Sign in to save this event to your account. Continue to sign in?")) location.href="eatouts-login.html"; return; }
+    if(!S||!S.getUser()){ if(confirm("Sign in to save this event to your account. Continue to sign in?")) location.href="eatouts-login.html?next="+encodeURIComponent("eatout_event_builder.html"); return; }
     const item=eventFavItem();
     const was=S.favourites.has(item);
     S.favourites.toggle(item);
@@ -3936,7 +3936,7 @@ document.addEventListener("click",function(e){
   }
   if(act==="saveEvent"){
     const S=window.EatoutsCustomer;
-    if(!S||!S.getUser()){ if(confirm("Sign in to save this event to your account. Continue to sign in?")) location.href="eatouts-login.html"; return; }
+    if(!S||!S.getUser()){ if(confirm("Sign in to save this event to your account. Continue to sign in?")) location.href="eatouts-login.html?next="+encodeURIComponent("eatout_event_builder.html"); return; }
     S.events.save(eventSavePayload())
       .then(function(){ toast("Event saved to your account"); })
       .catch(function(){ toast("Saved on this device"); });

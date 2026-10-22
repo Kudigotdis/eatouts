@@ -1,11 +1,12 @@
 /* ============================================================
    POST /api/auth/login
-   Sign in a customer or business account. Customers sign in with
-   username + WhatsApp + password; business owners may sign in with
-   WhatsApp + password. Lookup is by username when supplied, else by
-   WhatsApp number.
+   Sign in a customer or business account.
 
-   Body: { username?, whatsapp?, password }
+   All three identifiers are mandatory: username + WhatsApp number
+   + password. The username finds the row, the password is verified
+   against it, and the WhatsApp number must match the row too.
+
+   Body: { username, whatsapp, password }
    ============================================================ */
 import { json, now, readJson, createSession, jsonWithCookie, rateLimit, clientIp } from './../_shared.js';
 import { normalisePhone, verifyPassword, publicUser } from './../_auth.js';
@@ -27,16 +28,13 @@ export async function onRequestPost(context) {
   var whatsapp = normalisePhone(body.whatsapp);
   var password = String(body.password || '');
 
-  if (!password || (!username && !whatsapp)) {
-    return json({ ok: false, error: 'Provide your WhatsApp number (or username) and password.' }, 400);
+  if (!password || !username || !whatsapp) {
+    return json({ ok: false, error: 'Provide your username, WhatsApp number and password.' }, 400);
   }
 
-  /* Look up by username when given, otherwise by WhatsApp number, so the same
-     endpoint serves customers (username + WhatsApp + password) and business
-     owners (WhatsApp + password). */
-  var row = username
-    ? await env.DB.prepare('SELECT * FROM users WHERE username = ?').bind(username).first()
-    : await env.DB.prepare('SELECT * FROM users WHERE whatsapp = ?').bind(whatsapp).first();
+  /* The username finds the row; the password and the WhatsApp number must
+     both match it before anyone is let in. */
+  var row = await env.DB.prepare('SELECT * FROM users WHERE username = ?').bind(username).first();
 
   var kind = row ? String(row.type || 'customer').toLowerCase() : '';
 
@@ -47,7 +45,7 @@ export async function onRequestPost(context) {
   }
 
   var ok = await verifyPassword(password, row.password_salt, row.password_iter, row.password_hash);
-  if (!ok || (whatsapp && normalisePhone(row.whatsapp) !== whatsapp)) {
+  if (!ok || normalisePhone(row.whatsapp) !== whatsapp) {
     return json({ ok: false, error: 'Invalid username, WhatsApp number or password.' }, 401);
   }
 

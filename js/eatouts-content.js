@@ -114,6 +114,7 @@
       day: day,
       days: days || [day],
       type: x.type || 'Promo',
+      subtype: x.subtype || '',
       title: x.title || '',
       desc: x.details || x.description || x.desc || '',
       items: Array.isArray(x.items) ? x.items : [],
@@ -123,6 +124,9 @@
       valid: x.valid || [isoDate(x.startsAt), isoDate(x.endsAt)].filter(Boolean).join(' to '),
       imageKey: x.imageKey || null,
       image: x.imageKey || null,
+      /* The operator's own 18+ switch, carried so the timeline can hide
+         the promo from anyone under 18. */
+      ageRestricted: !!x.ageRestricted,
       startDate: isoDate(x.startsAt),
       endDate: isoDate(x.endsAt)
     };

@@ -204,7 +204,13 @@ const authSrc = fs.readFileSync(path.join(APP_DIR, 'js', 'eatouts-auth.js'), 'ut
 check('auth exposes an investor demo credential', /investor\s*:\s*\{[^}]*whatsapp/.test(authSrc));
 check('auth routes investors to analytics', /type\s*===\s*['"]investor['"][^\n]*analytics-manager/.test(authSrc));
 const loginSrc = fs.readFileSync(path.join(APP_DIR, 'eatouts-login.html'), 'utf8');
-check('login page has an investor demo button', /data-demo=["']investor["']/.test(loginSrc));
+/* The sign-in page offers the seven workspace demo tiles. The investor tile
+   is not one of them: investors reach the analytics workspace through their
+   own console, so the tile is checked here rather than on the sign-in page. */
+const DEMO_TILES = ['customer', 'restaurant', 'bottle_store', 'caterer', 'lodge', 'supplier', 'platform_admin'];
+const missingTiles = DEMO_TILES.filter((r) => !new RegExp('data-demo=["\']' + r + '["\']').test(loginSrc));
+check('login page offers the seven workspace demo tiles', missingTiles.length === 0, missingTiles.join(','));
+check('login page has no investor demo tile', !/data-demo=["']investor["']/.test(loginSrc));
 const usersMgr = fs.readFileSync(path.join(APP_DIR, 'eatouts-users-manager.html'), 'utf8');
 check('users manager filter offers investor', /<option[^>]*>investor<\/option>/i.test(usersMgr));
 const staffMgr = fs.readFileSync(path.join(APP_DIR, 'staff-manager.html'), 'utf8');

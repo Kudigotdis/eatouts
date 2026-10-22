@@ -1,8 +1,8 @@
 /* GET   /api/me  -> the signed-in user, or { user: null }
    PATCH /api/me  -> update the customer profile (name, town, photo, notify)
    POST  /api/me  -> alias of PATCH */
-import { json, getSession, now, readJson } from './_shared.js';
-import { publicUser } from './_auth.js';
+import { json, getSession, now, readJson, updateSession } from './_shared.js';
+import { publicUser, validEmail } from './_auth.js';
 
 /* Onboarding = the mandatory 5 restaurants + 1 bottle store picks that the
    client stores as favourites, so count them per type for the session payload. */
@@ -94,17 +94,47 @@ async function updateProfile(context) {
 
   var photo = (body.photoKey !== undefined) ? body.photoKey : row.photo_key;
 
+  /* The account email can be changed here. It is what a password reset is
+     sent to, so it must stay a real, unique address. */
+  var newEmail = null;
+  if (patch.email !== undefined && patch.email !== null && String(patch.email).trim() !== '') {
+    var candidate = validEmail(patch.email);
+    if (!candidate) return json({ ok: false, error: 'Enter a valid email address.' }, 400);
+    if (candidate !== String(row.email || '').trim().toLowerCase()) {
+      var clash = null;
+      try {
+        clash = await env.DB.prepare(
+          'SELECT id FROM users WHERE lower(email) = ? AND id <> ? LIMIT 1'
+        ).bind(candidate, row.id).first();
+      } catch (e) { clash = null; }
+      if (clash) return json({ ok: false, error: 'That email is already registered.' }, 409);
+    }
+    newEmail = candidate;
+  }
+
   try {
-    await env.DB.prepare(
-      'UPDATE users SET profile = ?, name = ?, photo_key = ?, updated_at = ? WHERE id = ?'
-    ).bind(JSON.stringify(profile), name, (photoKey !== undefined && photoKey !== null && photoKey !== '') ? photoKey : (photo || row.photo_key || null), now(), row.id).run();
+    if (newEmail) {
+      await env.DB.prepare(
+        'UPDATE users SET profile = ?, name = ?, photo_key = ?, email = ?, updated_at = ? WHERE id = ?'
+      ).bind(JSON.stringify(profile), name, (photoKey !== undefined && photoKey !== null && photoKey !== '') ? photoKey : (photo || row.photo_key || null), newEmail, now(), row.id).run();
+    } else {
+      await env.DB.prepare(
+        'UPDATE users SET profile = ?, name = ?, photo_key = ?, updated_at = ? WHERE id = ?'
+      ).bind(JSON.stringify(profile), name, (photoKey !== undefined && photoKey !== null && photoKey !== '') ? photoKey : (photo || row.photo_key || null), now(), row.id).run();
+    }
   } catch (e) {
     return json({ ok: false, error: 'update_failed' }, 500);
+  }
+
+  /* Keep the signed-in session in step with the new address. */
+  if (newEmail) {
+    try { await updateSession(env, context.request, { email: newEmail }); } catch (e) { /* best-effort */ }
   }
 
   row.profile = JSON.stringify(profile);
   row.name = name;
   row.photo_key = photo;
+  if (newEmail) row.email = newEmail;
   return json({ ok: true, user: publicUser(row) });
 }
 

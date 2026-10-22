@@ -114,13 +114,20 @@ window.EATOUTS_TERMS_OF_SERVICE = {
       },
       {
         "number": 12,
+        "heading": "Age and age-restricted content",
+        "paragraphs": [
+          "You must be 10 or older to hold an Eatouts account. Promos for alcohol (beer, cider, spirits, wine and drinks made from them) are only shown to accounts that are 18 or older, and restaurants may mark other promos as 18+ themselves. We keep your date of birth only to apply that rule, and a restaurant is responsible for checking ID at the table."
+        ]
+      },
+      {
+        "number": 13,
         "heading": "Availability",
         "paragraphs": [
           "We aim for high availability but do not guarantee uninterrupted or error-free service. Features may change or be withdrawn."
         ]
       },
       {
-        "number": 13,
+        "number": 14,
         "heading": "Disclaimer",
         "paragraphs": [
           "Eatouts is provided \"as is\" and \"as available\".",
@@ -128,7 +135,7 @@ window.EATOUTS_TERMS_OF_SERVICE = {
         ]
       },
       {
-        "number": 14,
+        "number": 15,
         "heading": "Limitation of liability",
         "paragraphs": [
           "To the fullest extent permitted by Botswana law, Eatouts is not liable for indirect, incidental, special, or consequential loss, loss of profit, or loss arising from any order, meal, restaurant experience, or reliance on listing information.",
@@ -136,35 +143,35 @@ window.EATOUTS_TERMS_OF_SERVICE = {
         ]
       },
       {
-        "number": 15,
+        "number": 16,
         "heading": "Indemnity",
         "paragraphs": [
           "You agree to indemnify Eatouts against claims arising from your misuse of the app, your breach of these Terms, or content you upload."
         ]
       },
       {
-        "number": 16,
+        "number": 17,
         "heading": "Termination",
         "paragraphs": [
           "We may suspend or terminate access, or remove any listing, at our discretion, particularly for breach of these Terms or on a valid takedown request."
         ]
       },
       {
-        "number": 17,
+        "number": 18,
         "heading": "Governing law",
         "paragraphs": [
           "These Terms are governed by the laws of Botswana, and the courts of Botswana have exclusive jurisdiction."
         ]
       },
       {
-        "number": 18,
+        "number": 19,
         "heading": "Changes",
         "paragraphs": [
           "We may update these Terms. Continued use after an update constitutes acceptance. The current version and date are always shown in Settings."
         ]
       },
       {
-        "number": 19,
+        "number": 20,
         "heading": "Contact",
         "paragraphs": [
           "info@eatouts.site · [Registered Address]"

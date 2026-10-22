@@ -297,6 +297,13 @@ function renderEditor(){
     ${sec('trm','07 · Sponsor & Terms',`
       ${fld('Sponsor','sponsor',p.sponsor)}
       ${fldArea('Terms & Conditions','terms',p.terms)}
+      <div style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px">
+        ${fldChk('Age-restricted (18+)','ageRestricted',p.ageRestricted)}
+        <div style="font-size:11.5px;color:var(--muted);margin-top:2px">
+          Alcohol promos are already treated as 18+ automatically. Tick this only for
+          other promos that must stay hidden from under-18s.
+        </div>
+      </div>
     `)}
     <div style="display:flex;gap:10px;margin:12px 0 40px">
       <button class="btn btn-ghost" style="flex:1" id="btnCancel">Cancel</button>
@@ -373,7 +380,7 @@ function newPromo(){
     location:{useRestaurantLocation:true,city:DB.restaurant.location.city,area:DB.restaurant.location.area},
     startDate:'',startTime:'',endDate:'',endTime:'',recurring:false,days:[],
     linkedMenuItems:[],action:{type:'reserve',contactId:null},sponsor:'',terms:'',
-    status:'active',createdAt:Date.now()};
+    status:'active',ageRestricted:false,createdAt:Date.now()};
   DB.promos.push(p);dbSave(DB);VIEW={mode:'edit',id:p.id};render();
 }
 
