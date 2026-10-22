@@ -13,11 +13,11 @@ var PROMO_COLUMNS = [
   'title', 'image', 'type', 'description', 'original_price', 'promo_price',
   'location_json', 'start_date', 'start_time', 'end_date', 'end_time',
   'recurring', 'days_json', 'linked_menu_items_json', 'action_json', 'sponsor', 'terms',
-  'status', 'age_restricted', 'updated_at'
+  'status', 'active', 'age_restricted', 'updated_at'
 ];
 
 /* Dropped one at a time when the table shape cannot be read. */
-var PROMO_OPTIONAL = ['age_restricted', 'image'];
+var PROMO_OPTIONAL = ['age_restricted', 'image', 'active'];
 
 async function load(context) {
   var env = context.env;
@@ -79,6 +79,8 @@ export async function onRequestPatch(context) {
       sponsor: sponsor,
       terms: terms,
       status: status,
+      /* The legacy flag the public venue bundle filters on. */
+      active: status === 'active' ? 1 : 0,
       age_restricted: ageRestricted,
       updated_at: now()
     }, PROMO_COLUMNS, PROMO_OPTIONAL);

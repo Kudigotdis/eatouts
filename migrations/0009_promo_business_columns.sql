@@ -1,9 +1,10 @@
 -- EatOuts schema v9 (Cloudflare D1 / SQLite)
 -- Business promo CRUD columns.
 --
--- The v8 migration declared a full `promos` table via CREATE TABLE IF NOT EXISTS,
--- but v1 had already created a minimal one, so the IF NOT EXISTS was a no-op and
--- the rich columns never landed. This migration adds them to the live table.
+-- The v8 migration created a base `promos` table; the rich columns are added
+-- here so that there is exactly one place that defines them. Migration 0013
+-- then normalises the table onto the canonical owner key
+-- (restaurant_id -> restaurants.id).
 --
 -- Column set matches the operator promo-onboarding UI
 -- (promo-onboarding.html `newPromo` shape) and the promoOut exporter.
@@ -28,4 +29,4 @@ ALTER TABLE promos ADD COLUMN linked_menu_items_json    TEXT;
 ALTER TABLE promos ADD COLUMN action_json               TEXT;
 ALTER TABLE promos ADD COLUMN sponsor                   TEXT;
 ALTER TABLE promos ADD COLUMN terms                     TEXT;
-ALTER TABLE promos ADD COLUMN status                    TEXT NOT NULL DEFAULT 'active';
+ALTER TABLE promos ADD COLUMN status                    TEXT NOT NULL DEFAULT 'draft';

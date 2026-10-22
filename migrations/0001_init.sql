@@ -104,83 +104,14 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 
 -- ------------------------------------------------------------------
 -- Content
+--
+-- The venue-content tables (menu_categories, menu_items, gallery_groups,
+-- gallery_images, promos, events) are created by migration 0008, which
+-- is also where their columns are extended. They live there so that a
+-- database built from this migration chain ends up with exactly the
+-- shape migration 0013 then normalises onto the canonical owner key
+-- (restaurant_id -> restaurants.id).
 -- ------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS menu_categories (
-  id            TEXT PRIMARY KEY,
-  restaurant_id TEXT NOT NULL,
-  name          TEXT NOT NULL,
-  position      INTEGER NOT NULL DEFAULT 0,
-  created_at    INTEGER NOT NULL,
-  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
-);
-
-CREATE TABLE IF NOT EXISTS menu_items (
-  id            TEXT PRIMARY KEY,
-  restaurant_id TEXT NOT NULL,
-  category_id   TEXT,
-  name          TEXT NOT NULL,
-  description   TEXT,
-  price         REAL,
-  currency      TEXT DEFAULT 'BWP',
-  image_key     TEXT,
-  visible       INTEGER NOT NULL DEFAULT 1,
-  position      INTEGER NOT NULL DEFAULT 0,
-  created_at    INTEGER NOT NULL,
-  updated_at    INTEGER NOT NULL,
-  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
-);
-
-CREATE TABLE IF NOT EXISTS gallery_groups (
-  id            TEXT PRIMARY KEY,
-  restaurant_id TEXT NOT NULL,
-  title         TEXT NOT NULL,
-  visible       INTEGER NOT NULL DEFAULT 1,
-  position      INTEGER NOT NULL DEFAULT 0,
-  created_at    INTEGER NOT NULL,
-  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
-);
-
-CREATE TABLE IF NOT EXISTS gallery_images (
-  id            TEXT PRIMARY KEY,
-  restaurant_id TEXT NOT NULL,
-  group_id      TEXT,
-  image_key     TEXT NOT NULL,
-  label         TEXT,
-  visible       INTEGER NOT NULL DEFAULT 1,
-  position      INTEGER NOT NULL DEFAULT 0,
-  created_at    INTEGER NOT NULL,
-  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
-);
-
-CREATE TABLE IF NOT EXISTS promos (
-  id            TEXT PRIMARY KEY,
-  restaurant_id TEXT NOT NULL,
-  title         TEXT NOT NULL,
-  details       TEXT,
-  image_key     TEXT,
-  active        INTEGER NOT NULL DEFAULT 1,
-  starts_at     INTEGER,
-  ends_at       INTEGER,
-  created_at    INTEGER NOT NULL,
-  updated_at    INTEGER NOT NULL,
-  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
-);
-
-CREATE TABLE IF NOT EXISTS events (
-  id            TEXT PRIMARY KEY,
-  restaurant_id TEXT NOT NULL,
-  title         TEXT NOT NULL,
-  description   TEXT,
-  figure        TEXT,      -- JSON blob (lineup, schedule, etc.)
-  image_key     TEXT,
-  admission     TEXT,
-  starts_at     INTEGER,
-  ends_at       INTEGER,
-  published     INTEGER NOT NULL DEFAULT 0,
-  created_at    INTEGER NOT NULL,
-  updated_at    INTEGER NOT NULL,
-  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id)
-);
 
 -- ------------------------------------------------------------------
 -- Audit
@@ -201,8 +132,5 @@ CREATE INDEX IF NOT EXISTS idx_restaurants_status        ON restaurants(status);
 CREATE INDEX IF NOT EXISTS idx_restaurants_town          ON restaurants(town);
 CREATE INDEX IF NOT EXISTS idx_memberships_user          ON memberships(user_id);
 CREATE INDEX IF NOT EXISTS idx_memberships_restaurant    ON memberships(restaurant_id);
-CREATE INDEX IF NOT EXISTS idx_menu_items_restaurant     ON menu_items(restaurant_id);
-CREATE INDEX IF NOT EXISTS idx_gallery_images_restaurant ON gallery_images(restaurant_id);
-CREATE INDEX IF NOT EXISTS idx_promos_restaurant         ON promos(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_claims_status             ON claims(status);
 CREATE INDEX IF NOT EXISTS idx_invites_token             ON invites(token);

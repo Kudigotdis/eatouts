@@ -58,7 +58,7 @@ export async function onRequestPost(context) {
   var orderIndex = (max && max.mx != null ? max.mx : -1) + 1;
 
   await c.db.prepare(
-    'INSERT INTO business_contacts (id, business_id, title, country_code, number, purpose, primary, whatsapp, active, order_index) ' +
+    'INSERT INTO business_contacts (id, business_id, title, country_code, number, purpose, "primary", whatsapp, active, order_index) ' +
     'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
   ).bind(
     id, businessId, str(b.title), str(b.countryCode), str(b.number), str(b.purpose),
@@ -84,7 +84,7 @@ export async function onRequestPatch(context) {
   if (!owner || owner.user_id !== c.userId) return json({ ok: false, error: 'not_found' }, 404);
 
   await c.db.prepare(
-    'UPDATE business_contacts SET title = ?, country_code = ?, number = ?, purpose = ?, primary = ?, whatsapp = ?, active = ? WHERE id = ?'
+    'UPDATE business_contacts SET title = ?, country_code = ?, number = ?, purpose = ?, "primary" = ?, whatsapp = ?, active = ? WHERE id = ?'
   ).bind(
     str(b.title), str(b.countryCode), str(b.number), str(b.purpose),
     pick(b, 'primary', 0) ? 1 : 0, pick(b, 'whatsapp', 0) ? 1 : 0, pick(b, 'active', 1) ? 1 : 0, contactId

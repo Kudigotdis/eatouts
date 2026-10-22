@@ -21,6 +21,13 @@ import {
   galleryImageOut, eventOut
 } from './../_business.js';
 
+/* "2026-11-07" + "18:00" -> epoch ms. Null when the date part is missing. */
+function stamp(date, time) {
+  if (!date) return null;
+  var t = Date.parse(String(date) + (time ? 'T' + String(time) : ''));
+  return isNaN(t) ? null : t;
+}
+
 function promoOut(r) {
   if (!r) return null;
   return {
@@ -28,7 +35,8 @@ function promoOut(r) {
     restaurantId: r.restaurant_id,
     title: r.title,
     details: r.details || null,
-    imageKey: r.image_key || null,
+    description: r.description || r.details || null,
+    imageKey: r.image_key || r.image || null,
     active: !!r.active,
     /* The operator flag, when the column is there, plus the shared rule. */
     ageRestricted: !!r.age_restricted || isAgeRestrictedPromo({
@@ -38,16 +46,22 @@ function promoOut(r) {
       sponsor: r.sponsor || '',
       terms: r.terms || ''
     }),
-    startsAt: r.starts_at != null ? r.starts_at : null,
-    endsAt: r.ends_at != null ? r.ends_at : null,
+    startsAt: r.starts_at != null ? r.starts_at : stamp(r.start_date, r.start_time),
+    endsAt: r.ends_at != null ? r.ends_at : stamp(r.end_date, r.end_time),
     created_at: r.created_at,
     updated_at: r.updated_at
   };
 }
 
 async function rowsOf(db, sql, id) {
-  var res = await db.prepare(sql).bind(id).all();
-  return (res && res.results) || [];
+  /* One missing column or table must not take the whole bundle down:
+     the caller still gets the venue profile it came for. */
+  try {
+    var res = await db.prepare(sql).bind(id).all();
+    return (res && res.results) || [];
+  } catch (e) {
+    return [];
+  }
 }
 
 /** True when the signed-in account is old enough for age-restricted promos. */
@@ -89,7 +103,7 @@ export async function onRequestGet(context) {
     rowsOf(env.DB, 'SELECT * FROM menu_items WHERE restaurant_id = ? AND visible = 1 ORDER BY position, created_at', rid),
     rowsOf(env.DB, 'SELECT * FROM gallery_groups WHERE restaurant_id = ? AND visible = 1 ORDER BY position, created_at', rid),
     rowsOf(env.DB, 'SELECT * FROM gallery_images WHERE restaurant_id = ? AND visible = 1 ORDER BY position, created_at', rid),
-    rowsOf(env.DB, 'SELECT * FROM promos WHERE restaurant_id = ? AND active = 1 ORDER BY created_at', rid),
+    rowsOf(env.DB, 'SELECT * FROM promos WHERE restaurant_id = ? AND (active = 1 OR status = \'active\') ORDER BY created_at', rid),
     rowsOf(env.DB, 'SELECT * FROM events WHERE restaurant_id = ? AND published = 1 ORDER BY starts_at, created_at', rid)
   ]);
 

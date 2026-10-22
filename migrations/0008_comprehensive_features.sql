@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS business_contacts (
   country_code  TEXT,
   number        TEXT,
   purpose       TEXT,
-  primary       INTEGER NOT NULL DEFAULT 0,
+  "primary"     INTEGER NOT NULL DEFAULT 0,
   whatsapp      INTEGER NOT NULL DEFAULT 0,
   active        INTEGER NOT NULL DEFAULT 1,
   order_index   INTEGER NOT NULL DEFAULT 0,
@@ -282,34 +282,21 @@ CREATE INDEX IF NOT EXISTS idx_menu_items_business     ON menu_items(business_id
 CREATE INDEX IF NOT EXISTS idx_menu_items_category     ON menu_items(category_id);
 CREATE INDEX IF NOT EXISTS idx_menu_items_status       ON menu_items(status);
 
+-- The rich promo columns (type, description, prices, schedule, status, ...)
+-- are added by migration 0009 so that there is exactly one place that
+-- defines them. Migration 0013 then normalises the whole table onto the
+-- canonical owner key (restaurant_id -> restaurants.id).
 CREATE TABLE IF NOT EXISTS promos (
   id                 TEXT PRIMARY KEY,
   business_id        TEXT NOT NULL,
   title              TEXT NOT NULL,
   image              TEXT,
-  type               TEXT,
-  description        TEXT,
-  original_price     REAL,
-  promo_price        REAL,
-  location_json      TEXT,                            -- JSON
-  start_date         TEXT,
-  start_time         TEXT,
-  end_date           TEXT,
-  end_time           TEXT,
-  recurring          INTEGER NOT NULL DEFAULT 0,
-  days_json          TEXT,                            -- JSON array
-  linked_menu_items_json TEXT,                      -- JSON array
-  action_json        TEXT,                            -- JSON
-  sponsor            TEXT,
-  terms              TEXT,
-  status             TEXT NOT NULL DEFAULT 'draft', -- draft | active | expired
   created_at         INTEGER NOT NULL,
   updated_at         INTEGER NOT NULL,
   FOREIGN KEY (business_id) REFERENCES business_profiles(id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_promos_business   ON promos(business_id);
-CREATE INDEX IF NOT EXISTS idx_promos_status     ON promos(status);
 CREATE INDEX IF NOT EXISTS idx_promos_created    ON promos(created_at);
 
 CREATE TABLE IF NOT EXISTS events (

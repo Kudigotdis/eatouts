@@ -15,11 +15,11 @@ var PROMO_COLUMNS = [
   'id', 'restaurant_id', 'title', 'image', 'type', 'description', 'original_price',
   'promo_price', 'location_json', 'start_date', 'start_time', 'end_date', 'end_time',
   'recurring', 'days_json', 'linked_menu_items_json', 'action_json', 'sponsor', 'terms',
-  'status', 'age_restricted', 'created_at', 'updated_at'
+  'status', 'active', 'age_restricted', 'created_at', 'updated_at'
 ];
 
 /* Dropped one at a time when the table shape cannot be read. */
-var PROMO_OPTIONAL = ['age_restricted', 'image'];
+var PROMO_OPTIONAL = ['age_restricted', 'image', 'active'];
 
 export async function onRequestGet(context) {
   var rid = new URL(context.request.url).searchParams.get('restaurant');
@@ -44,6 +44,9 @@ export async function onRequestPost(context) {
 
   var id = b.id || uid('promo');
   var ts = now();
+  /* `status` is the operator-facing switch; `active` is the legacy flag
+     the public venue bundle filters on. They are kept in step. */
+  var status = str(b.status) || 'active';
   var values = {
     id: id,
     restaurant_id: c.restaurantId,
@@ -64,7 +67,8 @@ export async function onRequestPost(context) {
     action_json: jsonString(b.actionJson),
     sponsor: str(b.sponsor),
     terms: str(b.terms),
-    status: str(b.status) || 'active',
+    status: status,
+    active: status === 'active' ? 1 : 0,
     /* The operator's own 18+ switch on the promo. */
     age_restricted: (b.ageRestricted || b.age_restricted) ? 1 : 0,
     created_at: ts,
