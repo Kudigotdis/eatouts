@@ -103,18 +103,21 @@ export async function onRequest(context) {
   var row = null;
   var kind = 'restaurant';
   var metaId = null;
+  var metaSlug = slug;
   var d1Error = null;
   try {
     row = await env.DB.prepare(
       'SELECT * FROM restaurants WHERE slug = ? LIMIT 1'
     ).bind(slug).first();
     metaId = row && row.id;
+    if (row && row.slug) metaSlug = row.slug;
 
     if (!row && slug !== slug.toLowerCase()) {
       row = await env.DB.prepare(
         'SELECT * FROM restaurants WHERE lower(slug) = ? LIMIT 1'
       ).bind(slug.toLowerCase()).first();
       metaId = row && row.id;
+      if (row && row.slug) metaSlug = row.slug;
     }
 
     if (!row) {
@@ -131,6 +134,7 @@ export async function onRequest(context) {
         ).bind(row.ref_id).first();
         if (restRow) {
           metaId = restRow.id;
+          if (restRow.slug) metaSlug = restRow.slug;
           if (!row.name && restRow.name) row.name = restRow.name;
         } else {
           metaId = row.ref_id;
@@ -148,6 +152,7 @@ export async function onRequest(context) {
           ).bind(row.ref_id).first();
           if (restRow) {
             metaId = restRow.id;
+            if (restRow.slug) metaSlug = restRow.slug;
             if (!row.name && restRow.name) row.name = restRow.name;
           } else {
             metaId = row.ref_id;
@@ -197,7 +202,7 @@ export async function onRequest(context) {
 
   var metaObj = {
     id: metaId,
-    slug: slug,
+    slug: metaSlug,
     kind: kind,
     name: row.name || row.slug || slug
   };
