@@ -57,6 +57,11 @@ const RESERVED = new Set([
 
 /* Branch rows whose brand key can't be derived from their name - mirrors
    BRAND_ALIAS in js/eatouts-bridge.js. */
+/* Custom public-slug overrides for specific restaurants (name-derived slug -> desired slug). */
+const SLUG_OVERRIDE = {
+  'touchdownrestaurantpub': 'touchdown'
+};
+
 const BRAND_ALIAS = {
   'chicken-licken-station': 'chicken-licken',
   'chicken-licken-warehouse-lobatse': 'chicken-licken',
@@ -123,6 +128,7 @@ function main() {
     const alt = slugFromParts([name].concat(fallbackParts || []));
     if (!base && !alt) return;
     let seed = base || alt;
+    if (SLUG_OVERRIDE[seed]) seed = SLUG_OVERRIDE[seed];
     if (RESERVED.has(seed)) seed += 'biz';
     let candidate = seed;
     let n = 2;
