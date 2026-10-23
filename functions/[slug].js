@@ -138,6 +138,9 @@ export async function onRequest(context) {
           if (!row.name && restRow.name) row.name = restRow.name;
         } else {
           metaId = row.ref_id;
+          if (row.ref_id && String(row.ref_id).indexOf('rest_') === 0) {
+            metaSlug = String(row.ref_id).slice(5);
+          }
         }
       }
       if (!row && slug !== slug.toLowerCase()) {
@@ -156,6 +159,9 @@ export async function onRequest(context) {
             if (!row.name && restRow.name) row.name = restRow.name;
           } else {
             metaId = row.ref_id;
+            if (row.ref_id && String(row.ref_id).indexOf('rest_') === 0) {
+              metaSlug = String(row.ref_id).slice(5);
+            }
           }
         }
       }
