@@ -16,6 +16,39 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 
+### [2026-10-25 01:11:07] - [Agent: Cline] - [COMMITTED]
+- Task: chore - narrow .gitignore `fix*.js` to `fix_*.js` + `fix-*.js`
+- Files changed:
+  - .gitignore (L24 `fix*.js` replaced by L24 `fix_*.js` + L25 `fix-*.js`; every other line untouched)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit (entry folded into the stage commit; resolve with `git log -1 --format=%h`)
+- Push: same single push as the venue-about commit above, 1d8a895..origin/main on 2026-10-25
+- Notes:
+  Why: `fix*.js` was over-broad. It ignored ANY .js whose name starts with "fix", so a legitimate app
+  file such as fixed-header.js (or fixlayout.js) would have been silently untracked with no warning.
+  Narrowed to the prefix convention the one-off repair scripts actually use: "fix_" or "fix-".
+  The replacement is STRICTLY NARROWER than the pattern it replaces, so it cannot newly ignore anything;
+  it can only un-ignore. Line endings preserved (CRLF 76 -> 77, pre-existing bare LFs unchanged at 4).
+  Pre-check (read-only, before editing): `git ls-files` matched ZERO files against (^|/)fix[-_].*\.js$,
+  and `git ls-files -ci --exclude-standard` showed NO tracked file is currently ignored - so nothing
+  could have been silently untracked under the old pattern either.
+  check-ignore -v proofs (all five as requested):
+    fix_payment.js        -> matched .gitignore:24:fix_*.js   (intended)
+    fix-layout.js         -> matched .gitignore:25:fix-*.js   (intended)
+    fixlayout.js          -> NOT matched (exit 1)             (intended - no dash/underscore)
+    fixed-header.js       -> NOT matched (exit 1)             (intended - this is the point of narrowing)
+    fix_venue_about_v2.py -> NOT matched by any .js pattern. It IS ignored, but by the PRE-EXISTING
+                             unrelated rule now at .gitignore:78 `fix_venue_about*.py` (HEAD line 77).
+                             Verified against HEAD that this rule predates the change and was not
+                             touched. A .js pattern cannot match a .py, so there is no unintended
+                             cross-extension match. Not treated as a stop condition.
+  Deliberately UNCHANGED (as instructed): .gitignore L26 `fix*.ps.js`. Note this line is NOT redundant
+  with the new patterns - it still matches dash-less/underscore-less .ps.js names (e.g. fixabc.ps.js)
+  that neither `fix_*.js` nor `fix-*.js` covers, so it keeps its current scope. `gen*.js`, `genseed.js`,
+  `testfix.js` and all other lines were left alone.
+- Errors: None
+
+
 ### [2026-10-25 01:10:13] - [Agent: Cline] - [COMMITTED]
 - Task: venue-about - differentiate the #optMenu button label as "Menu Options"
 - Files changed:
