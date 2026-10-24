@@ -16,6 +16,47 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 
+### [2026-10-25 01:28:49] - [Agent: Cline] - [COMMITTED]
+- Task: venue-about - swap the two "Menu" labels (accordion header <-> #optMenu button)
+- Files changed:
+  - venue-about.html (L679 and L1232 only)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit (entry folded into the stage commit; resolve with `git log -1 --format=%h`)
+- Push: single push, 7cf166e..origin/main on 2026-10-25
+- Notes:
+  Why: after 1fa1d24 the accordion header read "Menu" while the #optMenu button inside it read "Menu
+  Options", and the header also contained the Town/Area pickers. User asked to SWAP the two labels, so the
+  header now describes the group ("Menu Options") and the button is the plain action ("Menu").
+  Change:
+    L679  <summary>Menu</summary>                                  -> <summary>Menu Options</summary>
+    L1232 <span class="val">Menu Options</span></button>           -> <span class="val">Menu</span></button>
+  Copy only. id="optMenu", class="opt", data-opt="menu", type="button", the delegated click handler and all
+  CSS are byte-identical - the handler dispatches on data-opt, never on label text.
+  How the swap was done safely: a sequential Menu->Menu Options then Menu Options->Menu would have
+  collapsed both labels into one, so each line was replaced in place using a unique anchor
+  (<summary>...</summary> for the header, the <span class="val"> prefix for the button) instead of a
+  global find/replace.
+  Verification:
+    - git diff -> exactly 1 file, +2/-2, two hunks, nothing else.
+    - <summary>Menu Options</summary> count=1 (L679); <summary>Menu</summary> count=0 (ABSENT).
+    - <span class="val">Menu</span> count=1 (L1232); <span class="val">Menu Options</span> count=0.
+    - <summary>Menu Tags</summary> untouched at L773 (a different accordion - excluded by the anchor).
+    - <summary>Promos</summary> L660 and "Promos Gallery" L1234 untouched.
+    - Structure guards intact: id="optMenu" data-opt="menu" type="button" (L1231), data-opt="promos"
+      (L1233), id="optList" (L682).
+    - Line endings: 1459 lines, CRLF pairs 1459, bare LF 0 (no line-ending damage).
+    - node tests/venue-about-options.js -> PASSED, 33 checks, 0 failures, exit 0.
+    - node tests/venue-about-menu.js    -> PASSED, 7 checks, 0 failures, exit 0.
+    - Full 55-suite run deliberately skipped: grepping tests/*.js found NO assertion on "Menu Options" or
+      on the summary labels, so no other suite can observe this copy change. Last full run on this tree
+      was 55 passed / 2 failed (pre-existing inventory.js + login.js only).
+  Not verified: actual rendering. "Menu Options" is longer than "Menu" in the same <summary>, which is a
+  flex row with no nowrap/ellipsis/fixed width, so clipping is not expected - still worth an eyeball.
+  Deliberately UNCHANGED: all CSS, ids, data-opt values, handlers, HTML_CATALOG.md and
+  scripts/html_catalog.meta.json.
+- Errors: None
+
+
 ### [2026-10-25 01:21:47] - [Agent: Cline] - [COMMITTED]
 - Task: tests - sync the venue-about-options.js L3 header comment to the "Menu" accordion
 - Files changed:
