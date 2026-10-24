@@ -16,6 +16,43 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 
+### [2026-10-25 01:10:13] - [Agent: Cline] - [COMMITTED]
+- Task: venue-about - differentiate the #optMenu button label as "Menu Options"
+- Files changed:
+  - venue-about.html (L1232 only: the #optMenu <span class="val"> text)
+  - tests/venue-about-options.js (L5 comment only - it still described a grey "Options" accordion)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit (entry folded into the stage commit as instructed; a commit cannot contain its own
+  final SHA, so resolve with `git log -1 --format=%h`)
+- Push: same single push as the .gitignore commit below, 1d8a895..origin/main on 2026-10-25
+- Notes:
+  Why: bb60ed4 renamed the accordion header to "Menu" and flagged (in that entry) that the accordion then
+  read "Menu" while ALSO containing a button labelled "Menu". User asked to differentiate the button.
+  Scope: copy only. Only the <span class="val"> text changed. id="optMenu", class="opt", data-opt="menu",
+  type="button", the delegated click handler and the CSS are all untouched. The handler dispatches on
+  data-opt, never on label text, so behaviour is identical.
+  Deliberately UNCHANGED: <summary>Menu</summary> (L679), <summary>Promos</summary> (L660), the #optPromos
+  "Promos Gallery" label (L1234), all CSS, ids, data-opt values and handlers. HTML_CATALOG.md and
+  scripts/html_catalog.meta.json were NOT regenerated (dated artifacts stay as-is).
+  Verification:
+    - grep '<span class="val">Menu Options</span>' -> PRESENT, L1232.
+    - grep '<span class="val">Menu</span>'         -> ABSENT (the guard is exact: "Menu Options</span>"
+      does not satisfy the "Menu</span>" match).
+    - node tests/venue-about-options.js -> PASSED, 33 checks, exit 0. Count unchanged - the only edit in
+      that file is one comment line, so no assertion was added or lost.
+    - node tests/venue-about-menu.js    -> PASSED, 7 checks, exit 0.
+    - npm test -> 55 passed, 2 failed. The failures are exactly tests/inventory.js + tests/login.js
+      ("PAGE_INVENTORY.md lists all SPA screens -- 30 vs 31", "the About page links to
+      operator-businesses.html", "the About page no longer has the inline operator form") - identical to
+      the baseline already proven pre-existing in the bb60ed4 entry. No new failure.
+  CORRECTION ON RECORD: the bb60ed4 entry quoted "34 checks" for venue-about-options.js. The true count is
+  33. That was a reporting miscount by the agent, not a lost assertion (that suite's content is unchanged
+  apart from the comment line below).
+  tests/venue-about-options.js L3 (file header summary) still reads 'Venue About "Options" accordion'.
+  Only L5 was in scope for this task, so L3 was left alone - flagged to the user rather than widened.
+- Errors: None
+
+
 ### [2026-10-25 00:42:19] - [Agent: Cline] - [COMMITTED]
 - Task: venue-about.html copy change - accordion header "Options" -> "Menu"; "Promos" button -> "Promos Gallery"
 - Files changed:

@@ -2,7 +2,7 @@
 /**
  * Venue About "Options" accordion — town/area pickers, Menu & Promos.
  *
- * venue-about.html renders a grey "Options" accordion (inside <details>)
+ * venue-about.html renders a grey "Menu" accordion (inside <details>)
  * with four identifiable buttons:
  *   #optTown   — floating "Select Town" popup (single town shown inline)
  *   #optArea   — floating "Select Area" popup, gated on a town being chosen
