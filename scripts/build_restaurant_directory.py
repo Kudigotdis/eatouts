@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import re
 import sqlite3
-import time
 import unicodedata
 from collections import OrderedDict
 from pathlib import Path
@@ -527,7 +527,11 @@ def main() -> None:
     if FILTER_JSON_PATH.exists():
         filter_payload = FILTER_JSON_PATH.read_text(encoding="utf-8").strip()
         write_js(FILTER_JS_PATH, "RESTAURANT_TYPES_FILTER_DATA", filter_payload, "Cuisine type filter copy of restaurant_types_filter.json.")
-    manifest["buildStamp"] = int(time.time() * 1000)
+    # content-derived for determinism - preserves cache-bust intent
+    # (busts only when content changes, not on every no-op build)
+    stamp_source = json.dumps(manifest, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    stamp_digest = hashlib.sha256(stamp_source.encode("utf-8")).hexdigest()
+    manifest["buildStamp"] = 10**12 + int(stamp_digest[:16], 16) % (9 * 10**12)
     manifest_payload = json.dumps(manifest, ensure_ascii=False, separators=(",", ":"))
     write_js(MANIFEST_JS_PATH, "EATOUTS_MANIFEST", manifest_payload, "Hand-maintained logo mapping + extra listings (edit eatouts_manifest.json).")
     used = set()
