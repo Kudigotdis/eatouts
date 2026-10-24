@@ -439,6 +439,25 @@ Move OUT of Vibe mode when:
 
 AI should act as a **critical thinking partner**, not a passive executor.
 
+---
+
+## 🔐 AGENT COMMIT DISCIPLINE (MANDATORY)
+
+**Purpose:** Ensure no agent changes are ever forgotten. Git is the source of truth, and the change ledger is persistent memory.
+
+### Core Rules
+1. **ALWAYS LOG CHANGES** - Every file modification MUST be logged to `docs/AGENT_CHANGE_LOG.md` with task description, files changed, status, and timestamps.
+2. **CHECK BEFORE ENDING** - Before ending ANY turn or starting a new task, run `git status --short`. If there are uncommitted changes, you MUST commit them or explicitly ask the user for approval to skip.
+3. **ATOMIC COMMITS** - Auto-commit after verification with format `[Agent] <description>`. Do NOT bundle unrelated tasks. Commit only files related to the completed task.
+4. **STOP AND FIX ON FAILURE** - If `git commit` or `git push` fails (hooks, permissions, syntax), log the EXACT error to the ledger. Fix the failure and retry until the commit/push succeeds. You CANNOT move to a new task until it's green.
+5. **DEPLOY EXCEPTION** - For explicit deployment requests where user says "commit ALL pending changes", use `git add -A` but still follow atomic commit discipline and log everything.
+6. **LEDGER IS COMMITTED** - `docs/AGENT_CHANGE_LOG.md` MUST be committed to git. It is shared memory across sessions/agents.
+
+### Enforcement
+- Run `./scripts/agent-audit-uncommitted.ps1` to audit uncommitted changes
+- Never claim success without seeing git push output
+- Failed commits are NOT forgotten - they're logged and block progress
+
 ### Required Behaviors
 
 **1. Challenge Assumptions Politely**
