@@ -16,6 +16,55 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 
+### [2026-10-24 23:54:02] - [Agent: Cline] - [COMMITTED]
+- Task: Cleanup Stage C - archive the 4 superseded design folders to _archive_local/tier3/
+- Files changed:
+  - Deleted (50 tracked files): SORT_REDESIGNS_ARCHIVED_20261017/ (31), Onboarding Designs/ (12),
+    dashboard htmls/ (6), DO NOT USE THESE/ (1)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: Stage C
+- Push: pending
+- Notes:
+  All 50 files were COPIED byte-for-byte into _archive_local/tier3/<original-folder-name>/ and
+  verified by SHA256 BEFORE removal: 31/31, 12/12, 6/6, 1/1 = 50 files, 0 hash mismatches. Only then
+  were the originals removed with `git rm -r` (still recoverable from git history). _archive_local/
+  is gitignored, so the archive stays local and out of the client-facing repo.
+  Superseding evidence confirmed earlier: the menu-selector feature is already integrated into
+  index.html (asserted by tests/restloc.js) and supplier_onboarding_catalog.js was merged into
+  assets/data/supplier_catalog.js. NOTE: `SORT THIS/Pop-Up States Plan.txt` and
+  `code-implement-task.html` are unintegrated FUTURE work - they were archived in Stage B, not
+  deleted, so they remain available locally.
+  Tier 4 deliberately UNTOUCHED: staging/ (48), reference/ (4), dashboards/ (6).
+  Verification: after `npm run build`, `git diff --no-index` between dist/ and the C:\tmp\dist-before
+  baseline exited 0 - dist byte-identical (2055 = 2055 files). Also ran a further build after the
+  commit: git status CLEAN. Total cleanup across Stages B and C changed ZERO shipped bytes.
+  FINAL STATE: 17 + 50 = 67 tracked junk files removed; 20 local junk files archived; working tree clean.
+- Errors: None
+
+## Open issues / not addressed
+1. `.gitignore` line 24 `fix*.js` is too broad - it also matches legitimate names like
+   `fix-layout.js` or `fixtures.js`-adjacent helpers. Suggested future form: `fix_*.js` + `fix-*.js`.
+   Deliberately NOT changed during this cleanup (out of scope, and would risk un-ignoring files).
+2. `eatouts-designers-demo-seed.json` and `eatouts-designers-demo-agent-prompt.md` exist and are
+   tracked at the repo root, but they are NOT in the copy-static.mjs deploy list, so they will not
+   ship. If any page links to them the link would 404 in production. Needs a product decision:
+   deploy them, or move them to a non-deployed docs location.
+3. Build non-determinism: RESOLVED in this session (commit 04ac49f). Three causes removed -
+   unsorted Map iteration, `Date.now()` stamped into all 838 business_links rows, and a wall-clock
+   `buildStamp`. Two consecutive builds are now byte-identical and leave git status clean.
+4. PRE-EXISTING test failures - NOT caused by this cleanup. `npm test` reports 55 suites passing and
+   2 failing; both were reproduced unchanged at the pre-session commit 22f67ad in a throwaway
+   worktree, so this cleanup introduced ZERO regressions:
+   a) `tests/login.js` - 2 of 30 checks fail: "the About page links to operator-businesses.html" and
+      "the About page no longer has the inline operator form". The About page markup and this test
+      have drifted apart (one still expects the removed inline operator form / the other link).
+   b) `tests/inventory.js` - 1 of 19 checks fails: "PAGE_INVENTORY.md lists all SPA screens --
+      30 vs 31". PAGE_INVENTORY.md is one SPA screen behind the banner markers in index.html.
+      PAGE_INVENTORY.md is hand-maintained (scripts/update-inventory.mjs is read-only and never
+      rewrites it), so this needs a human edit to add the missing screen row.
+   Both were left untouched: fixing them is outside the scope of this cleanup and requires product
+   decisions about which About-page markup and which SPA screen are intended.
+
 ### [2026-10-24 23:52:52] - [Agent: Cline] - [COMMITTED]
 - Task: Cleanup Stage B - archive Tier 1 local junk, delete Tier 2 tracked junk, harden .gitignore
 - Files changed:
