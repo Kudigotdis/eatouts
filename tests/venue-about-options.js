@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Venue About "Options" accordion — town/area pickers, Menu & Promos.
+ * Venue About "Menu" accordion — town/area pickers, Menu & Promos.
  *
  * venue-about.html renders a grey "Menu" accordion (inside <details>)
  * with four identifiable buttons:

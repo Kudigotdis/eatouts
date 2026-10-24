@@ -16,6 +16,32 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 
+### [2026-10-25 01:21:47] - [Agent: Cline] - [COMMITTED]
+- Task: tests - sync the venue-about-options.js L3 header comment to the "Menu" accordion
+- Files changed:
+  - tests/venue-about-options.js (L3 comment only)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit (entry folded into the stage commit; resolve with `git log -1 --format=%h`)
+- Push: single push, c78a7bb..origin/main on 2026-10-25
+- Notes:
+  Why: 1fa1d24 updated L5 to describe a grey "Menu" accordion but left L3 reading 'Venue About "Options"
+  accordion', so two comments in the same header block contradicted each other. L3 now reads
+  'Venue About "Menu" accordion - town/area pickers, Menu & Promos.' Only the quoted label reference
+  changed; the surrounding prose ("town/area pickers, Menu & Promos") was left exactly as-is.
+  Comment-only. Zero assertion logic touched: no test, no fixture, no helper, no rename.
+  Verification (targeted suites only - a comment cannot affect any other suite, so the full 55-suite run
+  was deliberately NOT re-executed for this change):
+    - git diff tests/venue-about-options.js -> EXACTLY one line changed (1 insertion, 1 deletion; the two
+      +/- content lines are one removed + one added). Files changed = 1.
+    - node tests/venue-about-options.js -> PASSED, 33 checks, 0 failures, exit 0 (count unchanged).
+    - node tests/venue-about-menu.js    -> PASSED, 7 checks, 0 failures, exit 0.
+    - Full-suite context from the run on this same tree: 55 passed / 2 failed, the failures being only the
+      pre-existing tests/inventory.js + tests/login.js. Unchanged and out of scope.
+  Deliberately UNCHANGED: L5 (already correct since 1fa1d24), venue-about.html, all CSS, every other test
+  file, .gitignore (including the fix*.ps.js line), HTML_CATALOG.md and scripts/html_catalog.meta.json.
+- Errors: None
+
+
 ### [2026-10-25 01:11:07] - [Agent: Cline] - [COMMITTED]
 - Task: chore - narrow .gitignore `fix*.js` to `fix_*.js` + `fix-*.js`
 - Files changed:
