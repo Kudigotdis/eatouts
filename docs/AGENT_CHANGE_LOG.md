@@ -22,8 +22,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - Deleted (50 tracked files): SORT_REDESIGNS_ARCHIVED_20261017/ (31), Onboarding Designs/ (12),
     dashboard htmls/ (6), DO NOT USE THESE/ (1)
   - docs/AGENT_CHANGE_LOG.md (this entry)
-- Commit: Stage C
-- Push: pending
+- Commit: 4d138ef
+- Push: 4d138ef + this changelog commit -> origin/main on 2026-10-24 (UTC)
 - Notes:
   All 50 files were COPIED byte-for-byte into _archive_local/tier3/<original-folder-name>/ and
   verified by SHA256 BEFORE removal: 31/31, 12/12, 6/6, 1/1 = 50 files, 0 hash mismatches. Only then
@@ -64,6 +64,13 @@ This file is the source of truth for all agent-initiated changes. Every time an 
       rewrites it), so this needs a human edit to add the missing screen row.
    Both were left untouched: fixing them is outside the scope of this cleanup and requires product
    decisions about which About-page markup and which SPA screen are intended.
+5. `business_links.sql` epoch `8655508347967` is CONTENT-DERIVED (~2244 AD), not wall-clock. Do NOT
+   "fix" it to a human date -- determinism requires it. V3-verified: no UI renders
+   `business_links.created_at`/`updated_at` as human dates (only raw via `linkOut()`; client callers
+   of `/api/links/*` don't surface these fields).
+6. `_archive_local/tier1/` (20 files) is the ONLY archive without git-history recovery (Tier 1 was
+   untracked when moved). Tier 2 recoverable at `a3f17aa^`; Tier 3 recoverable at `4d138ef^`. Back up
+   `_archive_local/tier1/` separately before any future `_archive_local/` cleanup.
 
 ### [2026-10-24 23:52:52] - [Agent: Cline] - [COMMITTED]
 - Task: Cleanup Stage B - archive Tier 1 local junk, delete Tier 2 tracked junk, harden .gitignore
@@ -74,8 +81,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
     find-page-titles-end.cjs, td_find.cjs, td_find.js, td_find.mjs, fix_venue_about_v2.py
   - .gitignore (+19 lines)
   - docs/AGENT_CHANGE_LOG.md (this entry)
-- Commit: Stage B
-- Push: pending
+- Commit: a3f17aa
+- Push: 4d138ef + this changelog commit -> origin/main on 2026-10-24 (UTC)
 - Notes:
   Tier 1 (20 files, 473.5 KB) moved byte-for-byte to _archive_local/tier1/ preserving structure:
     _trash/ (13), SORT THIS/ (3), _headers.bak (1), venue-about.html.bak.20261020-* (3).
@@ -103,8 +110,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - assets/data/restaurant_listings/eatouts_manifest.js (regenerated)
   - assets/data/link_registry.json (regenerated - key order follows the now-sorted candidates; key set unchanged)
   - docs/AGENT_CHANGE_LOG.md (this entry, amended into the same commit)
-- Commit: A-FIX.5
-- Push: pending
+- Commit: 04ac49f
+- Push: 4d138ef + this changelog commit -> origin/main on 2026-10-24 (UTC)
 - Notes:
   Three independent non-determinism sources were removed:
     1. `scripts/build_link_registry.mjs` iterated a `Map` without sorting -> candidates/rows followed
