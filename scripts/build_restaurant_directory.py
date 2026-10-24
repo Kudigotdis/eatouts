@@ -119,6 +119,7 @@ def canonical_name(value: Any) -> str:
         "roco-mamas": "rocomamas",
         "bull-and-bush-maun": "bull-and-bush",
         "the-game-reserve-menu": "the-game-reserve",
+        "touchdown-restaurant-and-pub-menu": "touchdown-restaurant-and-pub",
     }
     return aliases.get(key, key)
 
@@ -404,7 +405,10 @@ def add_manifest_extras(records: OrderedDict, manifest: dict[str, Any]) -> None:
 
 def menu_key(filename: str) -> str:
     stem = Path(filename).stem
-    stem = re.sub(r"\s+menu$", "", stem, flags=re.IGNORECASE)
+    # Strip a trailing "menu" whether it is separated by whitespace or a
+    # hyphen (e.g. "Touchdown-Restaurant-&-Pub-menu.json"), so the derived
+    # key matches the restaurant's brand slug instead of "...-menu".
+    stem = re.sub(r"[\s-]+menu$", "", stem, flags=re.IGNORECASE)
     return canonical_name(stem)
 
 

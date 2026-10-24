@@ -2927,7 +2927,7 @@ function catRowsOf(payload){
     const byCat={};
     arr.forEach(function(g){
       if(!g||typeof g!=="object")return;
-      const cat=g.category||fallback;
+      const cat=g.category||g.section||fallback;
       (byCat[cat]=byCat[cat]||[]).push(g);
     });
     Object.keys(byCat).forEach(function(cat){push(cat,"",byCat[cat]);});
@@ -2937,9 +2937,9 @@ function catRowsOf(payload){
     const structured=menu.every(function(g){return g&&(Array.isArray(g.items)||Array.isArray(g.subcategories));});
     if(structured){
       menu.forEach(function(g){
-        if(Array.isArray(g.items))push(g.category||g.name,g.note||"",g.items);
+        if(Array.isArray(g.items))push(g.category||g.section||g.name,g.note||"",g.items);
         if(Array.isArray(g.subcategories))g.subcategories.forEach(function(sc){
-          if(sc&&Array.isArray(sc.items))push(sc.name||g.category,(sc&&sc.note)||"",sc.items);
+          if(sc&&Array.isArray(sc.items))push(sc.name||sc.section||g.category||g.section,(sc&&sc.note)||"",sc.items);
         });
       });
     }else{
@@ -2951,7 +2951,7 @@ function catRowsOf(payload){
     Object.keys(menus).forEach(function(k){
       const m=menus[k];
       if(!m||typeof m!=="object")return;
-      const label=m.category||capitalize(pickText(k).replace(/[_-]+/g," "))||"Menu";
+      const label=m.category||m.section||capitalize(pickText(k).replace(/[_-]+/g," "))||"Menu";
       if(Array.isArray(m.sections))m.sections.forEach(function(s){push((s&&s.section)||label,s&&s.note,s&&s.items||[]);});
       else if(Array.isArray(m.items))push(label,m&&m.note,m.items);
     });
