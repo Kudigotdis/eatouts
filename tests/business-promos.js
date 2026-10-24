@@ -24,6 +24,18 @@ function fakeKV(sessions) {
 
 function norm(sql) { return String(sql).replace(/\s+/g, ' ').trim(); }
 
+/* Read the column list out of an INSERT / UPDATE so the fake never has to
+   hardcode the (growing) promo shape. */
+function insertCols(s) {
+  const m = /INSERT INTO promos \(([^)]+)\)/.exec(s);
+  return m ? m[1].split(',').map((x) => x.trim()) : null;
+}
+function updateCols(s) {
+  const m = /UPDATE promos SET (.+) WHERE id = \?$/.exec(s);
+  if (!m) return null;
+  return m[1].split(',').map((x) => x.trim().split('=')[0].trim());
+}
+
 function fakeDB(seed) {
   const db = {
     users: [], restaurants: [], memberships: [],
@@ -43,23 +55,21 @@ function fakeDB(seed) {
       return first(db.promos.find((x) => x.id === args[0]));
     }
     if (s.startsWith('INSERT INTO promos')) {
-      const cols = ['id', 'restaurant_id', 'title', 'image', 'type', 'description',
-        'original_price', 'promo_price', 'location_json', 'start_date', 'start_time',
-        'end_date', 'end_time', 'recurring', 'days_json', 'linked_menu_items_json',
-        'action_json', 'sponsor', 'terms', 'status', 'created_at', 'updated_at'];
-      const row = {}; cols.forEach((c, i) => { row[c] = args[i]; });
+      const cols = insertCols(s) || [];
+      const row = {};
+      cols.forEach((c, i) => { row[c] = args[i]; });
       db.promos.push(row); return null;
     }
     if (s.startsWith('UPDATE promos SET')) {
       const p = db.promos.find((x) => x.id === args[args.length - 1]);
       if (p) {
-        const cols = ['title', 'image', 'type', 'description', 'original_price',
-          'promo_price', 'location_json', 'start_date', 'start_time', 'end_date',
-          'end_time', 'recurring', 'days_json', 'linked_menu_items_json',
-          'action_json', 'sponsor', 'terms', 'status', 'updated_at'];
+        const cols = updateCols(s) || [];
         cols.forEach((c, i) => { p[c] = args[i]; });
       }
       return null;
+    }
+    if (s.startsWith('SELECT COALESCE(SUM(quoted_days)')) {
+      return mode === 'first' ? { used: 0 } : [{ used: 0 }];
     }
     if (s.startsWith('DELETE FROM promos WHERE id = ?')) {
       const i = db.promos.findIndex((x) => x.id === args[0]);
@@ -176,7 +186,11 @@ r = await promos.onRequestPost(ctx(env, { token: 'mark', method: 'POST', url: 'h
 } }));
 j = await r.json();
 check('POST creates promo -> 201', r.status === 201 && j.ok && j.promo, r.status + ' ' + JSON.stringify(j));
-check('POST returns mapped fields', j.promo && j.promo.title === 'Castle Lite Bucket' && j.promo.originalPrice === 220 && j.promo.promoPrice === 180 && j.promo.recurring === true && j.promo.status === 'active');
+check('POST returns mapped fields', j.promo && j.promo.title === 'Castle Lite Bucket' && j.promo.originalPrice === 220 && j.promo.promoPrice === 180 && j.promo.recurring === true, JSON.stringify(j.promo));
+check('POST ignores the client status and saves a draft', j.promo && j.promo.status === 'draft', j.promo && j.promo.status);
+check('POST derives the Promos-tab segment', j.promo && j.promo.category === 'Beverage', j.promo && j.promo.category);
+check('POST forces the alcohol audience to 18+', j.promo && j.promo.ageRestricted === true && j.promo.audience === '18plus', JSON.stringify({ a: j.promo && j.promo.ageRestricted, b: j.promo && j.promo.audience }));
+check('POST counts the active days', j.promo && j.promo.billableDays === 5, j.promo && j.promo.billableDays);
 const promoId = j.promo && j.promo.id;
 
 /* ---- PATCH / DELETE (purge) ---- */

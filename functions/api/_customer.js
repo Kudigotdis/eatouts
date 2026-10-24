@@ -117,7 +117,15 @@ export function promoSubmissionOut(r) {
     monthKey: r.month_key || null,
     promoId: r.promo_id || null,
     feeCharged: r.fee_charged != null ? r.fee_charged : null,
-    billed: !!r.billed
+    billed: !!r.billed,
+    /* 0014 - the locked quote */
+    quotedDays: r.quoted_days != null ? r.quoted_days : 0,
+    quotedFree: !!r.quoted_free,
+    paymentStatus: r.payment_status || 'not_required',
+    invoiceId: r.invoice_id || null,
+    promoDraftId: r.promo_draft_id || null,
+    adminOverride: !!r.admin_override,
+    reviewedAt: r.reviewed_at != null ? r.reviewed_at : null
   };
 }
 

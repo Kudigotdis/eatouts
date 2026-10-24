@@ -1,23 +1,17 @@
 /* /api/business/promos/:id
-   PATCH  { title?, image?, type?, description?, originalPrice?, promoPrice?, locationJson?,
-            startDate?, startTime?, endDate?, endTime?, recurring?, daysJson?, linkedMenuItemsJson?,
-            actionJson?, sponsor?, terms?, status?, ageRestricted? } -> update   (marketing_manager+)
-   DELETE                                                               -> delete + purge favourites */
+   PATCH  { ...fields, action?: 'pause'|'resume' }  -> update  (marketing_manager+)
+   DELETE                                          -> delete + purge favourites
+
+   The operator may edit a draft, and may pause / resume a promo that an
+   admin has already published. They may never publish: `active = 1` is
+   only ever set by `PATCH /api/admin/promo-submissions {action:'publish'}`.
+   `resume` is safe because it only restores a row that already carries a
+   `published_at` (an admin published it before it was paused). */
 import { json, readJson, now } from './../../_shared.js';
 import {
-  requireBusiness, promoOut, str, jsonString, numOrNull, purgeFavourites, updateRow
+  requireBusiness, promoOut, purgeFavourites, updateRow
 } from './../../_business.js';
-
-/* The columns a promo row is written with, in order. */
-var PROMO_COLUMNS = [
-  'title', 'image', 'type', 'description', 'original_price', 'promo_price',
-  'location_json', 'start_date', 'start_time', 'end_date', 'end_time',
-  'recurring', 'days_json', 'linked_menu_items_json', 'action_json', 'sponsor', 'terms',
-  'status', 'active', 'age_restricted', 'updated_at'
-];
-
-/* Dropped one at a time when the table shape cannot be read. */
-var PROMO_OPTIONAL = ['age_restricted', 'image', 'active'];
+import { PROMO_COLUMNS, PROMO_OPTIONAL, promoValues } from './../../_promo-write.js';
 
 async function load(context) {
   var env = context.env;
@@ -25,7 +19,7 @@ async function load(context) {
   var row = await env.DB.prepare('SELECT * FROM promos WHERE id = ?').bind(context.params.id).first();
   if (!row) return { error: json({ ok: false, error: 'not_found' }, 404) };
   var c = await requireBusiness(context, row.restaurant_id, 'marketing_manager');
-  if (c.error) return c;
+  if (c.error) return { error: c.error };
   return { row: row, c: c };
 }
 
@@ -34,56 +28,57 @@ export async function onRequestPatch(context) {
   if (l.error) return l.error;
   var row = l.row;
   var b = await readJson(context.request);
+  var ts = now();
 
-  var title = b.title !== undefined ? (str(b.title) || row.title) : row.title;
-  var image = b.image !== undefined ? str(b.image) : row.image;
-  var type = b.type !== undefined ? str(b.type) : row.type;
-  var description = b.description !== undefined ? str(b.description) : row.description;
-  var originalPrice = b.originalPrice !== undefined ? numOrNull(b.originalPrice) : row.original_price;
-  var promoPrice = b.promoPrice !== undefined ? numOrNull(b.promoPrice) : row.promo_price;
-  var locationJson = b.locationJson !== undefined ? jsonString(b.locationJson) : row.location_json;
-  var startDate = b.startDate !== undefined ? str(b.startDate) : row.start_date;
-  var startTime = b.startTime !== undefined ? str(b.startTime) : row.start_time;
-  var endDate = b.endDate !== undefined ? str(b.endDate) : row.end_date;
-  var endTime = b.endTime !== undefined ? str(b.endTime) : row.end_time;
-  var recurring = b.recurring !== undefined ? (b.recurring ? 1 : 0) : row.recurring;
-  var daysJson = b.daysJson !== undefined ? jsonString(b.daysJson) : row.days_json;
-  var linkedMenuItemsJson = b.linkedMenuItemsJson !== undefined ? jsonString(b.linkedMenuItemsJson) : row.linked_menu_items_json;
-  var actionJson = b.actionJson !== undefined ? jsonString(b.actionJson) : row.action_json;
-  var sponsor = b.sponsor !== undefined ? str(b.sponsor) : row.sponsor;
-  var terms = b.terms !== undefined ? str(b.terms) : row.terms;
-  var status = b.status !== undefined ? (str(b.status) || row.status) : row.status;
-  /* The operator's own 18+ switch on the promo. */
-  var ageRestricted = (b.ageRestricted !== undefined || b.age_restricted !== undefined)
-    ? ((b.ageRestricted || b.age_restricted) ? 1 : 0)
-    : (row.age_restricted != null ? row.age_restricted : undefined);
+  var status = String(row.status || 'draft');
+  var action = String(b.action || '').trim().toLowerCase();
+  var nextStatus;
+  var nextActive;
+
+  if (action === 'pause') {
+    if (['active', 'paused'].indexOf(status) === -1) {
+      return json({ ok: false, error: 'not_published', status: status }, 409);
+    }
+    nextStatus = 'paused';
+    nextActive = 0;
+  } else if (action === 'resume') {
+    if (status !== 'paused') {
+      return json({ ok: false, error: 'not_paused', status: status }, 409);
+    }
+    if (!row.published_at) {
+      return json({ ok: false, error: 'not_published_by_admin', status: status }, 409);
+    }
+    nextStatus = 'active';
+    nextActive = 1;
+  } else {
+    /* A plain edit. Only a draft or a paused promo may be rewritten;
+       a submitted / approved promo is edited through its submission. */
+    if (['draft', 'paused'].indexOf(status) === -1) {
+      return json({ ok: false, error: 'promo_not_editable', status: status }, 409);
+    }
+    nextStatus = status;
+    nextActive = status === 'paused' ? 0 : 0;
+  }
+
+  var values = promoValues(b, row, {
+    id: row.id,
+    restaurantId: row.restaurant_id,
+    status: nextStatus,
+    active: nextActive,
+    createdAt: row.created_at,
+    publishedAt: row.published_at,
+    submittedAt: row.submitted_at,
+    paymentStatus: row.payment_status,
+    invoiceId: row.invoice_id,
+    feeCharged: row.fee_charged,
+    quotaMonth: row.quota_month,
+    submissionId: row.submission_id,
+    now: ts
+  });
+  values.updated_at = ts;
 
   try {
-    await updateRow(l.c.db, 'promos', {
-      id: row.id,
-      title: title,
-      image: image,
-      type: type,
-      description: description,
-      original_price: originalPrice,
-      promo_price: promoPrice,
-      location_json: locationJson,
-      start_date: startDate,
-      start_time: startTime,
-      end_date: endDate,
-      end_time: endTime,
-      recurring: recurring,
-      days_json: daysJson,
-      linked_menu_items_json: linkedMenuItemsJson,
-      action_json: actionJson,
-      sponsor: sponsor,
-      terms: terms,
-      status: status,
-      /* The legacy flag the public venue bundle filters on. */
-      active: status === 'active' ? 1 : 0,
-      age_restricted: ageRestricted,
-      updated_at: now()
-    }, PROMO_COLUMNS, PROMO_OPTIONAL);
+    await updateRow(l.c.db, 'promos', values, PROMO_COLUMNS, PROMO_OPTIONAL);
   } catch (e) {
     return json({ ok: false, error: 'could_not_save_promo' }, 500);
   }

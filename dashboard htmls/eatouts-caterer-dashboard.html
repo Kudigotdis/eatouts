@@ -1,0 +1,1176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#171719">
+<title>Caterer Dashboard · EatOuts</title>
+<style>
+:root{
+  --ink:#171719;--ink2:#303138;--muted:#626773;--faint:#777D88;
+  --paper:#F3F4F6;--card:#FFFFFF;--line:#E0E3E8;--line2:#ECEEF1;
+  --orange:#FF5A1F;--orange2:#E94E18;--orangeSoft:#FFF0E9;--orangeLine:#FFD0BC;
+  --green:#187A45;--greenSoft:#E9F7EE;--amber:#9A5808;--amberSoft:#FFF4D9;
+  --red:#B42318;--redSoft:#FDEDEC;--blue:#1769AA;--blueSoft:#EAF4FD;
+  --shadow:0 2px 12px rgba(23,23,25,.045);--radius:8px;
+  --rail:#0E0F12;--railLine:#24252B;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:#E7E9ED;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(255,90,31,.32);outline-offset:2px}a{color:inherit;text-decoration:none}
+#shell{width:100%;max-width:520px;height:100vh;height:100dvh;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;position:relative;box-shadow:0 0 48px rgba(16,18,25,.13)}
+.topbar{flex:0 0 auto;background:#171719;color:#fff;padding:calc(12px + env(safe-area-inset-top)) 14px 14px;display:flex;align-items:center;gap:13px;border-bottom:1px solid #323238}
+.restaurant-logo{width:90px;height:90px;flex:0 0 90px;display:block;object-fit:cover;background:#34343A;border:1px solid #56565E;border-radius:4px}
+.logo-fallback{display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#FF7A42,#D94512);font-size:36px;font-weight:900;letter-spacing:-.06em}
+.brand-info{min-width:0;flex:1}
+.brand-name{font-size:20px;line-height:1.2;font-weight:900;letter-spacing:-.03em;overflow-wrap:anywhere;margin:0}
+.brand-tagline{font-size:12px;color:#AEB1B8;margin-top:2px;font-weight:500}
+/* ── Accordion filter section ── */
+.filter-section{flex:0 0 auto;background:#fff;border-bottom:1px solid var(--line);position:relative;z-index:10;box-shadow:0 2px 4px rgba(0,0,0,.025)}
+.filter-accordion-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border:0;background:#fff;padding:13px 14px;text-align:left;transition:background .15s}
+.filter-accordion-toggle:hover{background:#FAFBFC}
+.filter-accordion-toggle[aria-expanded="true"]{border-bottom:1px solid var(--line2)}
+.filter-accordion-title{font-size:16px;font-weight:900;letter-spacing:.035em;text-transform:uppercase;color:#666B75}
+.filter-accordion-meta{font-size:14px;color:var(--muted);font-weight:700;text-align:right;line-height:1.3}
+.filter-accordion-body{padding:4px 14px 14px}
+.filter-stack{display:grid;grid-template-columns:1fr;gap:9px}
+.filter-control{width:100%;border:1px solid #D9DDE3;background:#fff;border-radius:6px;color:var(--ink);padding:11px 12px;min-height:48px;text-align:left;display:flex;align-items:center;gap:10px}
+.filter-control:hover{border-color:#B6BAC3}
+.filter-control-main{min-width:0;flex:1}
+.filter-control-label{display:block;font-size:16px;font-weight:800;line-height:1.25}
+.filter-control-sub{display:block;font-size:14px;color:var(--muted);margin-top:2px;line-height:1.25}
+.filter-select{width:100%;min-height:48px;border:1px solid #D9DDE3;border-radius:6px;background:#fff;color:var(--ink);padding:10px 12px;font-size:16px;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:center}
+.filter-select:hover{border-color:#B6BAC3}
+.filter-label{display:block;font-size:16px;font-weight:800;line-height:1.25;text-align:center}
+.filter-reset{width:100%;margin-top:6px;min-height:42px;border:1px dashed #CDD1D8;border-radius:6px;background:#FAFBFC;color:var(--red);font-size:15px;font-weight:800}
+.filter-reset:hover{background:#FDEDEC;border-color:#E8B8B3}
+/* ── Workspace dim layer ── */
+.filter-dim{position:absolute;left:0;right:0;background:rgba(13,14,18,.52);z-index:9;opacity:0;pointer-events:none;transition:opacity .18s ease;cursor:pointer}
+.filter-dim.show{opacity:1;pointer-events:auto}
+/* ── Scrollable workspace ── */
+.scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding:14px 12px 22px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
+.scroll::-webkit-scrollbar{display:none}
+.page-head{margin:1px 2px 13px}
+.page-title{font-size:20px;font-weight:900;letter-spacing:-.025em;line-height:1.2;margin:0}
+.page-subtitle{font-size:16px;color:var(--muted);margin:5px 0 0;line-height:1.4}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:19px 2px 9px;font-size:18px;font-weight:900;line-height:1.25}
+.section-title:first-of-type{margin-top:5px}
+.section-note{font-size:14px;color:var(--muted);font-weight:500;margin-top:3px;line-height:1.35}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow);min-width:0}
+.card:last-child{margin-bottom:0}
+.card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.card-head-main{min-width:0;flex:1}
+.card-title{font-size:18px;font-weight:900;line-height:1.25;margin:0}
+.card-subtitle{font-size:14px;color:var(--muted);margin:4px 0 0;line-height:1.4}
+/* ── KPI tiles ── */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
+.kpi{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:10px;border-radius:8px;background:#F7F8FA;border:1px solid rgba(224,227,232,.9);color:var(--ink);text-align:left;font:inherit;appearance:none;-webkit-appearance:none;transition:background .15s,border-color .15s,transform .12s}
+.kpi:hover{background:#F0F2F5;border-color:#C9CED6}
+.kpi:active{transform:scale(.985)}
+.kpi-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.kpi-label{font-size:11px;font-weight:700;color:var(--muted);line-height:1.25;overflow-wrap:anywhere}
+.kpi-value{flex:0 0 auto;font-size:14px;font-weight:900;letter-spacing:-.02em;color:var(--ink);background:#fff;border:1px solid #E1E4EA;border-radius:6px;padding:2px 8px;line-height:1.4;box-shadow:0 1px 2px rgba(23,23,25,.06);white-space:nowrap}
+.stat-list{display:flex;flex-direction:column;gap:0}
+.stat-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.stat-row:last-child{border-bottom:0;padding-bottom:0}.stat-row:first-child{padding-top:0}
+.stat-row-main{flex:1;min-width:0}.stat-row-label{font-size:15px;color:#353840;font-weight:750;line-height:1.3}.stat-row-note{font-size:14px;color:var(--muted);line-height:1.35;margin-top:3px}.stat-row-value{font-size:15px;font-weight:900;text-align:right;white-space:nowrap;line-height:1.35}
+.bar-list{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:grid;grid-template-columns:minmax(110px,1fr) minmax(70px,1.05fr) auto;align-items:center;gap:9px}
+.bar-label{font-size:15px;font-weight:750;color:#363840;line-height:1.3;overflow-wrap:anywhere}
+.bar-track{height:10px;background:#ECEEF1;border-radius:3px;overflow:hidden;min-width:20px}
+.bar-fill{height:100%;display:block;background:var(--orange);border-radius:3px;min-width:2px}
+.bar-fill.green{background:var(--green)}.bar-fill.amber{background:var(--amber)}.bar-fill.red{background:var(--red)}.bar-fill.blue{background:var(--blue)}
+.bar-value{font-size:14px;font-weight:900;white-space:nowrap;text-align:right}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px}
+table{width:100%;border-collapse:collapse;min-width:440px;background:#fff}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line2);font-size:14px;vertical-align:top}th{background:#F7F8FA;color:#50545E;font-weight:900;white-space:nowrap}td{color:#303239}tbody tr:last-child td{border-bottom:0}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.table-title{font-weight:800}.table-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:4px;padding:4px 7px;font-size:13px;font-weight:800;line-height:1.25;white-space:normal}.badge.good{background:var(--greenSoft);color:var(--green)}.badge.warn{background:var(--amberSoft);color:var(--amber)}.badge.bad{background:var(--redSoft);color:var(--red)}.badge.info{background:var(--blueSoft);color:var(--blue)}.badge.neutral{background:#F1F2F4;color:#545963}
+.alert-list{display:flex;flex-direction:column;gap:9px}.alert{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:6px;padding:11px}.alert-mark{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:5px;font-size:14px;font-weight:900}.alert.warning .alert-mark{background:var(--amberSoft);color:var(--amber)}.alert.danger .alert-mark{background:var(--redSoft);color:var(--red)}.alert.info .alert-mark{background:var(--blueSoft);color:var(--blue)}.alert.good .alert-mark{background:var(--greenSoft);color:var(--green)}.alert-main{flex:1;min-width:0}.alert-title{font-size:15px;font-weight:900;line-height:1.3}.alert-text{font-size:14px;color:#50545E;line-height:1.4;margin-top:3px}.alert-action{font-size:14px;color:var(--orange2);font-weight:900;border:0;background:transparent;padding:6px 0 0;text-align:left}
+.empty-state{border:1px dashed #CDD1D8;border-radius:7px;padding:22px 14px;text-align:center;background:#FAFBFC;color:var(--muted);font-size:15px;line-height:1.45}
+.btn{min-height:46px;border:1px solid transparent;border-radius:6px;padding:10px 13px;font-size:15px;font-weight:850;line-height:1.25;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.btn.primary{background:var(--orange);color:#fff;border-color:var(--orange)}.btn.primary:hover{background:var(--orange2)}
+.btn.secondary{background:#fff;border-color:var(--line);color:var(--ink)}.btn.secondary:hover{background:#F6F7F8}
+.btn.full{width:100%}
+.button-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+/* ── Bottom rail ── */
+.bottom-rail{flex:0 0 auto;background:var(--rail);border-top:1px solid var(--railLine);padding:0 0 env(safe-area-inset-bottom);overflow-x:auto;overflow-y:hidden;display:flex;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x}
+.bottom-rail::-webkit-scrollbar{display:none}
+.rail-tab{flex:0 0 25%;width:25%;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px;border:0;border-top:3px solid transparent;background:transparent;color:rgba(255,255,255,.5);text-align:center;line-height:1.15;font-size:clamp(12px,3.4vw,14px);font-weight:800;scroll-snap-align:center;scroll-snap-stop:always;white-space:normal}
+.rail-tab .rail-label{display:block;max-width:100%;overflow-wrap:anywhere}
+.rail-tab.active{color:var(--orange);border-top-color:var(--orange)}
+.rail-tab:focus-visible{outline-offset:-4px}
+/* ── Popups / scrim ── */
+.scrim{position:fixed;inset:0;background:rgba(12,13,17,.58);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility 0s linear .22s}
+.scrim.open{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .22s ease,visibility 0s}
+.sheet{width:100%;max-width:500px;max-height:min(88vh,860px);background:#fff;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;transform:translateY(-40px);opacity:0;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .22s ease}
+.scrim.open .sheet{transform:translateY(0);opacity:1}
+.sheet-head{padding:17px 16px 12px;border-bottom:1px solid var(--line);flex:0 0 auto}.sheet-title{font-size:20px;font-weight:900;margin:0}.sheet-sub{font-size:14px;color:var(--muted);margin-top:4px;line-height:1.4}
+.sheet-search-wrap{display:flex;align-items:center;gap:8px;padding:12px 16px 8px;flex:0 0 auto}
+.sheet-search{flex:1;min-width:0;min-height:44px;border:1px solid #D6DAE1;border-radius:5px;padding:9px 12px;font-size:15px}
+.sheet-all-btn,.sheet-clear-btn{flex:0 0 auto;min-height:44px;min-width:44px;border:1px solid var(--line);border-radius:5px;background:#F8F9FA;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 12px}
+.sheet-all-btn:hover,.sheet-clear-btn:hover{background:#EFF1F4}
+.sheet-clear-btn{color:var(--red);font-size:16px;padding:0 10px}
+.branch-options{padding:0 16px 12px;overflow:auto;min-height:120px;max-height:44vh}
+.branch-option{display:flex;align-items:flex-start;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line2);cursor:pointer}
+.branch-option:last-child{border-bottom:0}
+.branch-option input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:22px;height:22px;border-radius:5px;border:2px solid #C6CBD3;background:#F0F1F4;position:relative;cursor:pointer;flex:0 0 auto;margin:1px 0 0}
+.branch-option input[type="checkbox"]:checked{background:var(--green);border-color:var(--green)}
+.branch-option input[type="checkbox"]:checked::after{content:'';position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.branch-option-main{flex:1;min-width:0}
+.branch-option-name{display:block;font-size:16px;font-weight:900}
+.branch-option-location{display:block;font-size:14px;color:var(--muted);margin-top:3px;line-height:1.3}
+.sheet-foot{flex:0 0 auto;padding:12px 16px 16px;border-top:1px solid var(--line);background:#fff}
+.sheet-actions{display:grid;grid-template-columns:1fr;gap:8px}
+.popup{width:100%;max-width:480px;max-height:min(86vh,780px);background:#fff;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;transform:translateY(12px) scale(.97);opacity:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease}
+.scrim.open .popup{transform:translateY(0) scale(1);opacity:1}
+.popup-head{padding:16px 16px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto}
+.popup-title{font-size:18px;font-weight:900;margin:0}
+.popup-close{border:1px solid var(--line);background:#F8F9FA;border-radius:5px;padding:7px 12px;font-size:14px;font-weight:800;color:var(--muted)}
+.popup-close:hover{background:#EFF1F4}
+.popup-body{padding:14px 16px;overflow:auto;flex:1 1 auto;min-height:0}
+.popup-foot{padding:12px 16px 16px;border-top:1px solid var(--line);flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.popup-foot.single{grid-template-columns:1fr}
+.kpi-popup{max-width:400px}
+.kpi-popup-value{font-size:32px;font-weight:900;letter-spacing:-.035em;line-height:1.1;color:var(--ink);overflow-wrap:anywhere}
+.kpi-popup-sub{font-size:14px;color:var(--muted);font-weight:700;margin-top:6px}
+.kpi-popup-text{font-size:15px;color:#50545E;line-height:1.45;margin:12px 0 0}
+.date-presets{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+.date-preset{min-height:42px;border:1px solid var(--line);border-radius:5px;background:#F8F9FA;font-size:14px;font-weight:700;padding:8px 10px;text-align:left}
+.date-preset:hover{background:#EFF1F4}
+.date-preset.active{background:var(--orangeSoft);border-color:var(--orangeLine);color:#A83A10}
+.date-section-title{font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#666B75;margin:6px 0 8px;padding-top:6px;border-top:1px solid var(--line2)}
+.date-rows{display:flex;flex-direction:column;gap:6px}
+.date-row{display:grid;grid-template-columns:28px 1fr 1fr 1fr 60px;gap:5px;align-items:center}
+.date-row-head{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;padding:0 1px}
+.date-row-head span{text-align:center}
+.date-row input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:22px;height:22px;border-radius:4px;border:2px solid #C6CBD3;background:#F0F1F4;position:relative;cursor:pointer;justify-self:center}
+.date-row input[type="checkbox"]:checked{background:var(--green);border-color:var(--green)}
+.date-row input[type="checkbox"]:checked::after{content:'';position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.date-row input[type="number"],.date-row select{min-height:38px;border:1px solid #D9DDE3;border-radius:4px;padding:6px 7px;font-size:14px;width:100%;background:#fff}
+.date-actions{display:flex;gap:3px;justify-content:center}
+.date-actions button{width:26px;height:30px;border:1px solid var(--line);border-radius:4px;background:#F8F9FA;font-size:15px;font-weight:900;color:var(--ink2);display:flex;align-items:center;justify-content:center;padding:0}
+.date-actions button:hover{background:#EFF1F4}
+.date-add-row{width:100%;margin-top:8px;min-height:38px;border:1px dashed #CDD1D8;border-radius:5px;background:#FAFBFC;font-size:14px;font-weight:800;color:var(--orange2)}
+.date-add-row:hover{background:#FFF7F2;border-color:var(--orangeLine)}
+.service-options{display:flex;flex-direction:column;gap:6px}
+.service-option{min-height:48px;border:1px solid var(--line);border-radius:6px;background:#F8F9FA;font-size:15px;font-weight:700;padding:10px 12px;text-align:left}
+.service-option:hover{background:#EFF1F4}
+.service-option.active{background:var(--orangeSoft);border-color:var(--orangeLine);color:#A83A10}
+.toast{position:fixed;left:50%;bottom:calc(82px + env(safe-area-inset-bottom));transform:translate(-50%,10px);background:#202126;color:#fff;border-radius:6px;padding:12px 16px;max-width:90vw;min-width:180px;text-align:center;font-size:14px;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:200}.toast.show{opacity:1;transform:translate(-50%,0)}
+/* ── Dashboard-specific additions ── */
+.funnel-list{display:flex;flex-direction:column;gap:8px}
+.funnel-step{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F7F8FA;border:1px solid var(--line2);border-radius:6px}
+.funnel-step-num{width:26px;height:26px;flex:0 0 26px;display:grid;place-items:center;background:var(--orange);color:#fff;border-radius:5px;font-size:13px;font-weight:900}
+.funnel-step-main{flex:1;min-width:0}
+.funnel-step-label{font-size:14px;font-weight:800;line-height:1.25}
+.funnel-step-bar{height:5px;background:#E4E7EC;border-radius:2px;margin-top:6px;overflow:hidden}
+.funnel-step-bar span{display:block;height:100%;background:var(--orange);border-radius:2px}
+.funnel-step-value{font-size:14px;font-weight:900;white-space:nowrap}
+.waterfall{display:flex;flex-direction:column;gap:2px}
+.waterfall-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:8px 10px;font-size:14px;border-radius:4px}
+.waterfall-row.positive{background:#F2FAF5}
+.waterfall-row.negative{background:#FEF5F4}
+.waterfall-row.total{background:#171719;color:#fff;font-weight:900;font-size:15px;margin-top:4px}
+.waterfall-row .wf-label{font-weight:700;color:#353840}
+.waterfall-row.negative .wf-label{color:#8F2D24}
+.waterfall-row.total .wf-label{color:#fff}
+.waterfall-row .wf-value{font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}
+.heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.heatmap-cell{aspect-ratio:1;border-radius:3px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff}
+.heatmap-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--muted)}
+.heatmap-legend span{display:inline-flex;align-items:center;gap:5px}
+.heatmap-dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+@media(min-width:560px){body{padding:12px 0;display:flex;align-items:center}#shell{height:calc(100vh - 24px);height:calc(100dvh - 24px);max-height:1000px;border-radius:9px}.scrim{padding:20px}.sheet{border-radius:10px}}
+@media(max-height:700px){.topbar{padding-top:calc(8px + env(safe-area-inset-top));padding-bottom:9px}.rail-tab{min-height:46px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header class="topbar">
+    <img id="restaurantLogo" class="restaurant-logo" alt="Caterer logo" hidden>
+    <div id="logoFallback" class="restaurant-logo logo-fallback" aria-hidden="true">C</div>
+    <div class="brand-info">
+      <h1 id="restaurantName" class="brand-name">Caterer</h1>
+      <div class="brand-tagline">Event &amp; pipeline dashboard</div>
+    </div>
+  </header>
+
+  <section class="filter-section" aria-label="Dashboard filters" id="filterAccordion">
+    <button class="filter-accordion-toggle" type="button" aria-expanded="false" aria-controls="filterAccordionBody" id="filterToggle">
+      <span class="filter-accordion-title">Filter</span>
+      <span class="filter-accordion-meta" id="filterAccordionMeta"></span>
+    </button>
+    <div class="filter-accordion-body" id="filterAccordionBody" hidden>
+      <div class="filter-stack">
+        <div>
+          <button id="branchPicker" class="filter-control" type="button" aria-haspopup="dialog" aria-expanded="false">
+            <span class="filter-control-main"><span id="branchControlLabel" class="filter-control-label">All bases</span><span id="branchControlSub" class="filter-control-sub">4 bases</span></span>
+          </button>
+        </div>
+        <div>
+          <button id="dateRange" class="filter-select" type="button">
+            <span class="filter-label">Last 90 days</span>
+          </button>
+        </div>
+        <div>
+          <button id="serviceType" class="filter-select" type="button">
+            <span class="filter-label">All event types</span>
+          </button>
+        </div>
+        <button id="clearFilters" class="filter-reset" type="button" hidden>Reset all filters</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="filterDim" class="filter-dim" aria-hidden="true"></div>
+
+  <main id="workspace" class="scroll" tabindex="0" aria-live="polite"></main>
+
+  <nav id="bottomRail" class="bottom-rail" role="tablist" aria-label="Caterer dashboard sections">
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="overview"><span class="rail-label">Overview</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="pipeline"><span class="rail-label">Pipeline</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="profitability"><span class="rail-label">Profitability</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="servicearea"><span class="rail-label">Service Area</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="tastings"><span class="rail-label">Tastings</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="events"><span class="rail-label">Events</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="quotes"><span class="rail-label">Quotes</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="packages"><span class="rail-label">Packages</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="equipment"><span class="rail-label">Equipment</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="staffing"><span class="rail-label">Staffing</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="compliance"><span class="rail-label">Compliance</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="reviews"><span class="rail-label">Reviews</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="reports"><span class="rail-label">Reports</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="settings"><span class="rail-label">Settings</span></button>
+  </nav>
+</div>
+
+<div id="branchScrim" class="scrim" aria-hidden="true">
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head"><h2 id="sheetTitle" class="sheet-title">Select catering bases</h2><div class="sheet-sub">Choose one base or combine several. All dashboard sections will use the same selection.</div></div>
+    <div class="sheet-search-wrap">
+      <button id="branchSearch" class="sheet-all-btn" type="button">All</button>
+      <input id="branchSearchInput" class="sheet-search" type="search" placeholder="Search base or area" autocomplete="off" aria-label="Search bases">
+      <button id="clearBranchSelection" class="sheet-clear-btn" type="button" aria-label="Clear selection">X</button>
+    </div>
+    <div id="branchOptions" class="branch-options"></div>
+    <div class="sheet-foot">
+      <div class="sheet-actions">
+        <button id="applyBranches" class="btn primary full" type="button" hidden>View 0</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="dateScrim" class="scrim" aria-hidden="true">
+  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="datePopupTitle">
+    <div class="popup-head"><h2 id="datePopupTitle" class="popup-title">Reporting period</h2><button class="popup-close" type="button" data-close-date>Close</button></div>
+    <div class="popup-body">
+      <div class="date-presets" id="datePresets"></div>
+      <div class="date-section-title">Specific dates</div>
+      <div class="date-row date-row-head"><span></span><span>Year</span><span>Month</span><span>Date</span><span></span></div>
+      <div class="date-rows" id="specificDateRows"></div>
+      <button type="button" class="date-add-row" id="addSpecificDate">+ Add another date</button>
+    </div>
+    <div class="popup-foot">
+      <button type="button" class="btn secondary" data-close-date>Cancel</button>
+      <button type="button" class="btn primary" id="applyDate">Apply</button>
+    </div>
+  </div>
+</div>
+
+<div id="serviceScrim" class="scrim" aria-hidden="true">
+  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="servicePopupTitle">
+    <div class="popup-head"><h2 id="servicePopupTitle" class="popup-title">Event type</h2><button class="popup-close" type="button" data-close-service>Close</button></div>
+    <div class="popup-body"><div class="service-options" id="serviceOptions"></div></div>
+    <div class="popup-foot"><button type="button" class="btn secondary" data-close-service>Cancel</button><button type="button" class="btn primary" id="applyService">Apply</button></div>
+  </div>
+</div>
+
+<div id="kpiScrim" class="scrim" aria-hidden="true">
+  <div class="popup kpi-popup" role="dialog" aria-modal="true" aria-labelledby="kpiPopupTitle">
+    <div class="popup-head"><h2 id="kpiPopupTitle" class="popup-title">Metric</h2><button class="popup-close" type="button" data-close-kpi>Close</button></div>
+    <div class="popup-body">
+      <div class="kpi-popup-value" id="kpiPopupValue">—</div>
+      <div class="kpi-popup-sub" id="kpiPopupSub"></div>
+      <p class="kpi-popup-text" id="kpiPopupText"></p>
+    </div>
+    <div class="popup-foot single"><button type="button" class="btn primary" data-close-kpi>Done</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+const STORE_KEY='eatouts.caterer-dashboard.v1';
+const PERIODS={
+  today:{label:'Today',factor:0.011},
+  yesterday:{label:'Yesterday',factor:0.011},
+  '7':{label:'Last 7 days',factor:0.077},
+  '30':{label:'Last 30 days',factor:0.33},
+  '90':{label:'Last 90 days',factor:1},
+  '6m':{label:'Last 6 months',factor:2},
+  '1y':{label:'Last 1 year',factor:4},
+  custom:{label:'Custom dates',factor:1}
+};
+const SERVICE_LABELS={all:'All event types',wedding:'Weddings & cultural',corporate:'Corporate',social:'Social & celebrations',food_drink:'Food & drink experiences'};
+
+/* ─────────────── CATERING BASES (branches) ─────────────── */
+const BASES=[
+ {id:'main',name:'Main Catering Base',area:'CBD · Gaborone',type:'Catering base',services:['wedding','corporate','social','food_drink'],share:{wedding:.42,corporate:.31,social:.21,food_drink:.06},scale:1.18,capacity:180,
+  enquiries:96,quotes:72,bookings:41,tastingInvites:34,tastingsBooked:22,tastingsAttended:19,
+  avgQuoteValue:28600,avgBookingValue:24800,avgLeadDays:38,depositCollected:34,depositDue:41,paymentPlanUsers:9,
+  perHead:148,foodCostPerHead:52,labourCostPerHead:31,travelCostPerHead:8,equipmentCostPerHead:6,netMarginPerHead:51,
+  upcomingEvents:14,completedEvents:52,lostEnquiries:12,repeatCorporate:7,
+  radiusKm:60,outOfAreaEnquiries:8,avgTravelMinutes:34,setupAccuracy:92,minBookingValue:6500,
+  permits:4,permitExpiring:1,staffCount:18,equipmentUnits:210,equipmentUtil:64,clientRating:4.6,
+  recentFeedback:4,openIssues:1},
+ {id:'north',name:'North Side Satellite',area:'Broadhurst · Gaborone',type:'Satellite prep kitchen',services:['wedding','corporate','social'],share:{wedding:.38,corporate:.36,social:.26,food_drink:0},scale:.86,capacity:120,
+  enquiries:64,quotes:48,bookings:29,tastingInvites:20,tastingsBooked:14,tastingsAttended:12,
+  avgQuoteValue:21400,avgBookingValue:19600,avgLeadDays:42,depositCollected:23,depositDue:29,paymentPlanUsers:6,
+  perHead:132,foodCostPerHead:48,labourCostPerHead:29,travelCostPerHead:11,equipmentCostPerHead:5,netMarginPerHead:39,
+  upcomingEvents:9,completedEvents:34,lostEnquiries:14,repeatCorporate:4,
+  radiusKm:45,outOfAreaEnquiries:13,avgTravelMinutes:28,setupAccuracy:88,minBookingValue:5500,
+  permits:3,permitExpiring:0,staffCount:12,equipmentUnits:140,equipmentUtil:51,clientRating:4.4,
+  recentFeedback:3,openIssues:2},
+ {id:'south',name:'South Industrial Commissary',area:'Gaborone West',type:'Central commissary',services:['corporate','social'],share:{wedding:.22,corporate:.52,social:.26,food_drink:0},scale:.72,capacity:90,
+  enquiries:41,quotes:33,bookings:18,tastingInvites:9,tastingsBooked:6,tastingsAttended:5,
+  avgQuoteValue:18900,avgBookingValue:17200,avgLeadDays:48,depositCollected:14,depositDue:18,paymentPlanUsers:3,
+  perHead:126,foodCostPerHead:46,labourCostPerHead:27,travelCostPerHead:9,equipmentCostPerHead:5,netMarginPerHead:39,
+  upcomingEvents:6,completedEvents:22,lostEnquiries:11,repeatCorporate:6,
+  radiusKm:35,outOfAreaEnquiries:6,avgTravelMinutes:22,setupAccuracy:94,minBookingValue:4800,
+  permits:3,permitExpiring:2,staffCount:9,equipmentUnits:95,equipmentUtil:42,clientRating:4.2,
+  recentFeedback:2,openIssues:3},
+ {id:'weddings',name:'Wedding & Cultural Studio',area:'Tlokweng',type:'Catering base (cultural)',services:['wedding','social'],share:{wedding:.71,corporate:0,social:.29,food_drink:0},scale:.94,capacity:150,
+  enquiries:58,quotes:41,bookings:27,tastingInvites:26,tastingsBooked:18,tastingsAttended:16,
+  avgQuoteValue:34200,avgBookingValue:31800,avgLeadDays:56,depositCollected:22,depositDue:27,paymentPlanUsers:8,
+  perHead:186,foodCostPerHead:61,labourCostPerHead:38,travelCostPerHead:12,equipmentCostPerHead:8,netMarginPerHead:67,
+  upcomingEvents:11,completedEvents:31,lostEnquiries:9,repeatCorporate:2,
+  radiusKm:80,outOfAreaEnquiries:15,avgTravelMinutes:41,setupAccuracy:85,minBookingValue:8500,
+  permits:4,permitExpiring:1,staffCount:14,equipmentUnits:180,equipmentUtil:72,clientRating:4.8,
+  recentFeedback:5,openIssues:1}
+];
+
+/* ─────────────── PERMIT / COMPLIANCE DATA ─────────────── */
+const PERMIT_ALERTS=[
+ {base:'South Industrial Commissary',permit:'Kitchen licence',expiry:'in 18 days',severity:'bad'},
+ {base:'Wedding & Cultural Studio',permit:'Liquor licence (bar service)',expiry:'in 41 days',severity:'warn'},
+ {base:'Main Catering Base',permit:'Food handling permit',expiry:'in 62 days',severity:'warn'},
+ {base:'North Side Satellite',permit:'Health certificate — 3 staff',expiry:'in 12 days',severity:'bad'}
+];
+const HACCP_SCORE={main:92,north:78,south:71,weddings:88};
+
+/* ─────────────── ENQUIRY FUNNEL ─────────────── */
+const ENQUIRIES=[
+ {id:'ENQ-4101',customer:'Kefilwe & Thato',type:'wedding',subtype:'Setswana Patlo',date:'22 Nov 2026',guests:120,base:'weddings',status:'quoted',quoteValue:38600,leadDays:84,source:'WhatsApp',lostReason:''},
+ {id:'ENQ-4102',customer:'Stanbic Bank',type:'corporate',subtype:'Executive Retreat',date:'14 Dec 2026',guests:60,base:'main',status:'booked',quoteValue:29400,leadDays:62,source:'Referral',lostReason:''},
+ {id:'ENQ-4103',customer:'Naledi S.',type:'social',subtype:'Baby Shower',date:'2 Jan 2027',guests:35,base:'north',status:'quoted',quoteValue:8900,leadDays:35,source:'Platform form',lostReason:''},
+ {id:'ENQ-4104',customer:'Mascom',type:'corporate',subtype:'Product Launch',date:'19 Nov 2026',guests:150,base:'main',status:'booked',quoteValue:52200,leadDays:48,source:'Phone',lostReason:''},
+ {id:'ENQ-4105',customer:'Amara & Tumelo',type:'wedding',subtype:'Roora / Lobola Day',date:'6 Feb 2027',guests:180,base:'weddings',status:'lost',quoteValue:0,leadDays:0,source:'Instagram',lostReason:'Date unavailable — fully booked'},
+ {id:'ENQ-4106',customer:'Sipho R.',type:'social',subtype:'Graduation Party',date:'12 Dec 2026',guests:45,base:'north',status:'tasting',quoteValue:12400,leadDays:28,source:'WhatsApp',lostReason:''},
+ {id:'ENQ-4107',customer:'Ministry of Health',type:'corporate',subtype:'Conference',date:'28 Jan 2027',guests:90,base:'south',status:'quoted',quoteValue:26100,leadDays:55,source:'Tender',lostReason:''},
+ {id:'ENQ-4108',customer:'Mpho T.',type:'social',subtype:'Anniversary',date:'8 Dec 2026',guests:28,base:'main',status:'lost',quoteValue:0,leadDays:0,source:'Phone',lostReason:'Outside service area (distance)'},
+ {id:'ENQ-4109',customer:'Debswana',type:'corporate',subtype:'AGM',date:'5 Feb 2027',guests:200,base:'south',status:'quoted',quoteValue:69400,leadDays:70,source:'Referral',lostReason:''},
+ {id:'ENQ-4110',customer:'Lerato P.',type:'wedding',subtype:'Engagement Party',date:'18 Jan 2027',guests:65,base:'weddings',status:'booked',quoteValue:19800,leadDays:44,source:'Instagram',lostReason:''},
+ {id:'ENQ-4111',customer:'Orange Botswana',type:'corporate',subtype:'Sales Kick-Off',date:'9 Mar 2027',guests:110,base:'main',status:'lost',quoteValue:0,leadDays:0,source:'Platform form',lostReason:'Budget below minimum'},
+ {id:'ENQ-4112',customer:'Kabelo & Zodwa',type:'wedding',subtype:'Wedding Reception',date:'20 Mar 2027',guests:140,base:'weddings',status:'quoted',quoteValue:58200,leadDays:96,source:'WhatsApp',lostReason:''}
+];
+
+/* ─────────────── EVENT QUOTES ─────────────── */
+const EVENT_QUOTES=[
+ {id:'QT-7101',event:'Setswana Patlo — Kefilwe & Thato',type:'wedding',date:'22 Nov 2026',guests:120,base:'weddings',package:'Platinum Cultural',status:'Sent',value:38600,deposit:11580,depositPaid:true,daysToEvent:24},
+ {id:'QT-7102',event:'Executive Retreat — Stanbic Bank',type:'corporate',date:'14 Dec 2026',guests:60,base:'main',package:'Corporate Silver',status:'Accepted',value:29400,deposit:8820,depositPaid:true,daysToEvent:46},
+ {id:'QT-7103',event:'Product Launch — Mascom',type:'corporate',date:'19 Nov 2026',guests:150,base:'main',package:'Corporate Gold',status:'Accepted',value:52200,deposit:15660,depositPaid:true,daysToEvent:21},
+ {id:'QT-7104',event:'Roora / Lobola — Amara & Tumelo',type:'wedding',date:'6 Feb 2027',guests:180,base:'weddings',package:'Platinum Cultural',status:'Lost',value:0,deposit:0,depositPaid:false,daysToEvent:100},
+ {id:'QT-7105',event:'Baby Shower — Naledi S.',type:'social',date:'2 Jan 2027',guests:35,base:'north',package:'Social Lite',status:'Sent',value:8900,deposit:2670,depositPaid:false,daysToEvent:65},
+ {id:'QT-7106',event:'Graduation Party — Sipho R.',type:'social',date:'12 Dec 2026',guests:45,base:'north',package:'Social Lite',status:'Tasting',value:12400,deposit:3720,depositPaid:false,daysToEvent:44},
+ {id:'QT-7107',event:'Conference — Ministry of Health',type:'corporate',date:'28 Jan 2027',guests:90,base:'south',package:'Corporate Silver',status:'Sent',value:26100,deposit:7830,depositPaid:false,daysToEvent:91},
+ {id:'QT-7108',event:'AGM — Debswana',type:'corporate',date:'5 Feb 2027',guests:200,base:'south',package:'Corporate Gold',status:'Draft',value:69400,deposit:20820,depositPaid:false,daysToEvent:99},
+ {id:'QT-7109',event:'Engagement — Lerato P.',type:'wedding',date:'18 Jan 2027',guests:65,base:'weddings',package:'Gold Cultural',status:'Accepted',value:19800,deposit:5940,depositPaid:true,daysToEvent:81},
+ {id:'QT-7110',event:'Wedding Reception — Kabelo & Zodwa',type:'wedding',date:'20 Mar 2027',guests:140,base:'weddings',package:'Platinum Cultural',status:'Sent',value:58200,deposit:17460,depositPaid:false,daysToEvent:142}
+];
+
+/* ─────────────── PACKAGES ─────────────── */
+const PACKAGES=[
+ {id:'pkg-platinum',name:'Platinum Cultural',style:'Family-style + stations',pricePerHead:186,base:'weddings',bookings:14,accepted:9,revenue:71200,netMarginPerHead:67,costPerHead:119},
+ {id:'pkg-corp-gold',name:'Corporate Gold',style:'Plated + canapés',pricePerHead:232,base:'main',bookings:11,accepted:8,revenue:105600,netMarginPerHead:81,costPerHead:151},
+ {id:'pkg-corp-silver',name:'Corporate Silver',style:'Buffet',pricePerHead:168,base:'main',bookings:16,accepted:11,revenue:68400,netMarginPerHead:52,costPerHead:116},
+ {id:'pkg-social-lite',name:'Social Lite',style:'Drop-off buffet',pricePerHead:128,base:'north',bookings:19,accepted:13,revenue:34800,netMarginPerHead:31,costPerHead:97},
+ {id:'pkg-gold-cultural',name:'Gold Cultural',style:'Family-style',pricePerHead:152,base:'weddings',bookings:8,accepted:6,revenue:36900,netMarginPerHead:48,costPerHead:104}
+];
+
+/* ─────────────── ADD-ON ATTACHMENT ─────────────── */
+const ADDON_ATTACHMENT=[
+ {name:'Live cooking station',attachedTo:'Platinum Cultural',rate:71,revenue:18400},
+ {name:'Mobile bar + bartender',attachedTo:'Corporate Gold',rate:64,revenue:22600},
+ {name:'Chafing dish rental',attachedTo:'Corporate Silver',rate:88,revenue:9400},
+ {name:'Table linen upgrade',attachedTo:'Gold Cultural',rate:50,revenue:4800},
+ {name:'Traditional dancers catering',attachedTo:'Platinum Cultural',rate:43,revenue:6200},
+ {name:'Dessert grazing table',attachedTo:'Social Lite',rate:37,revenue:3900}
+];
+
+/* ─────────────── TASTING SESSIONS ─────────────── */
+const TASTINGS=[
+ {id:'TS-2201',date:'5 Oct 2026',base:'weddings',booked:8,attended:7,converted:5,menu:'Platinum Cultural tasting',revenue:22700,costPerSession:1450},
+ {id:'TS-2202',date:'12 Oct 2026',base:'main',booked:6,attended:6,converted:3,menu:'Corporate Gold tasting',revenue:15600,costPerSession:1250},
+ {id:'TS-2203',date:'19 Oct 2026',base:'weddings',booked:9,attended:8,converted:6,menu:'Platinum Cultural tasting',revenue:31200,costPerSession:1450},
+ {id:'TS-2204',date:'26 Oct 2026',base:'north',booked:5,attended:5,converted:2,menu:'Social Lite tasting',revenue:6800,costPerSession:820},
+ {id:'TS-2205',date:'2 Nov 2026',base:'main',booked:7,attended:6,converted:4,menu:'Corporate Gold tasting',revenue:18400,costPerSession:1250},
+ {id:'TS-2206',date:'9 Nov 2026',base:'weddings',booked:10,attended:9,converted:7,menu:'Platinum Cultural tasting',revenue:39600,costPerSession:1450}
+];
+
+/* ─────────────── EQUIPMENT UTILISATION ─────────────── */
+const EQUIPMENT=[
+ {name:'Round tables (8-seater)',owned:60,rented:38,util:63,replacementValue:380,depreciation:14},
+ {name:'Chairs (banquet)',owned:450,rented:210,util:47,replacementValue:85,depreciation:8},
+ {name:'Chafing dishes',owned:120,rented:96,util:80,replacementValue:420,depreciation:22},
+ {name:'Platters (large)',owned:200,rented:74,util:37,replacementValue:120,depreciation:9},
+ {name:'Glassware (sets)',owned:300,rented:185,util:62,replacementValue:65,depreciation:11},
+ {name:'Tents & marquees',owned:12,rented:5,util:42,replacementValue:8500,depreciation:340}
+];
+
+/* ─────────────── STAFFING ─────────────── */
+const STAFFING=[
+ {tier:'Bronze — drop-off',servers:'0',chefs:'1',bartenders:'0',events:22,guestSatisfaction:4.1},
+ {tier:'Silver — buffet',servers:'6',chefs:'2',bartenders:'1',events:31,guestSatisfaction:4.4},
+ {tier:'Gold — full service',servers:'12',chefs:'3',bartenders:'3',events:18,guestSatisfaction:4.7},
+ {tier:'Custom',servers:'varies',chefs:'varies',bartenders:'varies',events:7,guestSatisfaction:4.5}
+];
+
+/* ─────────────── DIETARY BREAKDOWN ─────────────── */
+const DIETARY=[
+ {label:'Standard',pct:54},{label:'Vegetarian',pct:18},{label:'Vegan',pct:7},
+ {label:'Gluten-free',pct:9},{label:'Halal',pct:6},{label:'Dairy-free',pct:3},{label:'Nut-free',pct:3}
+];
+
+/* ─────────────── SERVICE AREA DEMAND ─────────────── */
+const SERVICE_AREAS=[
+ {area:'Gaborone CBD',enquiries:34,booked:18,conversion:53,distance:0,outOfArea:false},
+ {area:'Broadhurst',enquiries:22,booked:13,conversion:59,distance:8,outOfArea:false},
+ {area:'Tlokweng',enquiries:19,booked:14,conversion:74,distance:14,outOfArea:false},
+ {area:'Mogoditshane',enquiries:16,booked:8,conversion:50,distance:12,outOfArea:false},
+ {area:'Molepolole',enquiries:11,booked:3,conversion:27,distance:58,outOfArea:true},
+ {area:'Kanye',enquiries:7,booked:1,conversion:14,distance:82,outOfArea:true},
+ {area:'Serowe',enquiries:5,booked:0,conversion:0,distance:210,outOfArea:true}
+];
+
+/* ─────────────── CULTURAL EVENT DEMAND ─────────────── */
+const CULTURAL_DEMAND=[
+ {label:'Setswana Patlo / Bogadi',count:18,trend:'+22%',colour:'green'},
+ {label:'Shona Roora / Lobola',count:11,trend:'+14%',colour:'green'},
+ {label:'Corporate AGM / Conference',count:24,trend:'+6%',colour:'blue'},
+ {label:'Wedding Reception',count:16,trend:'+9%',colour:'green'},
+ {label:'Social Celebrations',count:21,trend:'-4%',colour:'amber'}
+];
+
+/* ─────────────── REVIEWS ─────────────── */
+const REVIEWS=[
+ {customer:'Kefilwe & Thato',event:'Setswana Patlo',stars:5,text:'The cultural dishes were authentic and beautifully presented. Our elders were impressed.',date:'8 Nov 2026'},
+ {customer:'Stanbic Bank',event:'Executive Retreat',stars:4,text:'Professional service, slightly delayed setup but excellent food.',date:'2 Nov 2026'},
+ {customer:'Naledi S.',event:'Baby Shower',stars:5,text:'The grazing table was a showstopper. Highly recommend.',date:'28 Oct 2026'},
+ {customer:'Mascom',event:'Product Launch',stars:5,text:'Flawless execution for 150 guests. Our clients were impressed.',date:'21 Oct 2026'},
+ {customer:'Sipho R.',event:'Graduation Party',stars:3,text:'Food was good but portions smaller than expected.',date:'15 Oct 2026'}
+];
+
+/* ─────────────── STATE ─────────────── */
+let selectedIds=BASES.map(b=>b.id), draftIds=[...selectedIds];
+let period='90', service='all', activeTab='overview';
+let customDates=[]; let customDraftDates=[];
+let toastTimer=null;
+let businessName='Caterer', businessLogo='';
+let filterOpen=false;
+
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2300)}
+
+function loadSavedProfile(){
+ try{
+  const raw=localStorage.getItem(STORE_KEY);if(!raw)return;
+  const p=JSON.parse(raw);if(!p)return;
+  if(p.businessName)businessName=p.businessName;
+ }catch(e){/* defaults */}
+}
+
+function bases(){return BASES.filter(b=>selectedIds.includes(b.id))}
+function periodFactor(){
+ if(period==='custom')return Math.max(0.05,customDates.length*0.011);
+ return PERIODS[period]?PERIODS[period].factor:1;
+}
+function periodLabel(){
+ if(period==='custom'){
+  if(!customDates.length)return 'Custom dates';
+  if(customDates.length===1){const d=customDates[0];return `${d.day} ${monthName(d.month)} ${d.year}`}
+  return `${customDates.length} specific dates`;
+ }
+ return PERIODS[period]?PERIODS[period].label:'Last 90 days';
+}
+function monthName(m){return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(m)-1]||''}
+function serviceShare(b){return service==='all'?1:(b.share[service]||0)}
+function scopeBases(){return bases().filter(b=>service==='all'||b.services.includes(service))}
+function nfmt(v){return Math.round(v).toLocaleString('en-US')}
+function money(v){return 'P'+Math.round(v).toLocaleString('en-US')}
+function dec(v,d=1){return Number(v).toFixed(d)}
+function percent(v,d=0){return dec(v,d)+'%'}
+function selectedScope(){const bs=bases();return bs.length===BASES.length?'All bases':bs.length===1?bs[0].name:bs.length+' bases selected'}
+function rangeNote(){return `${selectedScope()} · ${periodLabel()} · ${SERVICE_LABELS[service]}`}
+function pageHeader(title,sub){return `<div class="page-head"><h2 class="page-title">${title}</h2><p class="page-subtitle">${esc(sub||rangeNote())}</p></div>`}
+function sectionTitle(title,note=''){return `<div class="section-title"><div>${title}${note?`<div class="section-note">${note}</div>`:''}</div></div>`}
+function cardHead(title,sub=''){return `<div class="card-head"><div class="card-head-main"><h3 class="card-title">${title}</h3>${sub?`<p class="card-subtitle">${sub}</p>`:''}</div></div>`}
+function badge(text,type='neutral'){return `<span class="badge ${type}">${text}</span>`}
+function statRows(rows){return `<div class="stat-list">${rows.map(r=>`<div class="stat-row"><div class="stat-row-main"><div class="stat-row-label">${r.label}</div>${r.note?`<div class="stat-row-note">${r.note}</div>`:''}</div><div class="stat-row-value">${r.value}</div></div>`).join('')}</div>`}
+function barRows(rows,maxValue){return `<div class="bar-list">${rows.map(r=>`<div class="bar-row"><div class="bar-label">${esc(r.label)}</div><div class="bar-track"><i class="bar-fill ${r.colour||''}" style="width:${Math.max(2,Math.min(100,(r.value/(maxValue||1))*100))}%"></i></div><div class="bar-value">${esc(r.display==null?r.value:r.display)}</div></div>`).join('')}</div>`}
+function zeroState(){return `<div class="empty-state">No bases are selected. Open Filter above and choose at least one base to view the dashboard.</div>`}
+
+/* ── KPI tiles ── */
+let kpiSeq=0;
+const KPI_INFO=new Map();
+function kpi(label,value,detail){
+ const id='k'+(++kpiSeq);
+ KPI_INFO.set(id,{label,value,detail:detail||'Illustrative sample data for the current base, period and event-type selection.'});
+ return `<button class="kpi" type="button" data-kpi="${id}" aria-haspopup="dialog" aria-label="${esc(label)}: ${esc(value)}"><span class="kpi-main"><span class="kpi-label">${label}</span></span><span class="kpi-value">${value}</span></button>`;
+}
+function openKpiPopup(id){
+ const info=KPI_INFO.get(id);if(!info)return;
+ $('#kpiPopupTitle').textContent=info.label;
+ $('#kpiPopupValue').textContent=info.value;
+ $('#kpiPopupSub').textContent='';
+ $('#kpiPopupText').textContent=info.detail;
+ $('#kpiScrim').classList.add('open');
+ $('#kpiScrim').setAttribute('aria-hidden','false');
+}
+function closeKpiPopup(){
+ $('#kpiScrim').classList.remove('open');
+ $('#kpiScrim').setAttribute('aria-hidden','true');
+}
+
+/* ═══════════════════ TAB RENDERERS ═══════════════════ */
+
+/* ── Overview ── */
+function renderOverview(){
+ const bs=scopeBases();if(!bs.length)return pageHeader('Overview')+zeroState();
+ const pf=periodFactor();
+ const bookings=bs.reduce((s,b)=>s+b.bookings*serviceShare(b),0)*pf;
+ const enquiries=bs.reduce((s,b)=>s+b.enquiries*serviceShare(b),0)*pf;
+ const quotes=bs.reduce((s,b)=>s+b.quotes*serviceShare(b),0)*pf;
+ const bookingsValue=bs.reduce((s,b)=>s+b.avgBookingValue*b.bookings*serviceShare(b),0)*pf;
+ const avgBooking=bookings?bookingsValue/bookings:0;
+ const conversion=quotes?bookings/quotes*100:0;
+ const netPerHead=bs.reduce((s,b)=>s+b.netMarginPerHead*serviceShare(b),0)/bs.length;
+
+ let html=pageHeader('Caterer overview','Key indicators for '+rangeNote()+'. All values are illustrative sample data.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Booked events*',nfmt(bookings),'Total confirmed event bookings across the selected bases for the reporting period. Includes weddings, corporate functions and social celebrations.')}
+   ${kpi('Enquiries*',nfmt(enquiries),'All enquiries received via WhatsApp, phone, platform form, referral and Instagram.')}
+   ${kpi('Quote-to-booking',percent(conversion),'Bookings divided by quotes issued. A healthy caterer benchmark is 50–65%.')}
+   ${kpi('Avg booking value*',money(avgBooking),'Average confirmed event value across all bookings in the period.')}
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Caterer health','Core operating indicators together.')}${statRows([
+   {label:'Net margin per head',note:'After food, labour, travel and equipment',value:money(netPerHead)},
+   {label:'Average lead time',note:'Enquiry to event date',value:dec(bs.reduce((s,b)=>s+b.avgLeadDays,0)/bs.length,0)+' days'},
+   {label:'Deposit collection',note:'Collected ÷ due',value:percent(bs.reduce((s,b)=>s+b.depositCollected,0)/Math.max(1,bs.reduce((s,b)=>s+b.depositDue,0))*100)},
+   {label:'Client rating',note:'Post-event feedback average',value:dec(bs.reduce((s,b)=>s+b.clientRating,0)/bs.length,1)+' / 5'}
+ ])}</div>`;
+
+ const mix=['wedding','corporate','social','food_drink'].map(key=>({label:SERVICE_LABELS[key],value:bs.reduce((s,b)=>s+b.bookings*(b.share[key]||0)*pf,0)}));
+ html+=`<div class="card">${cardHead('Bookings by event type','Revenue mix across weddings, corporate, social and food experiences.')}${barRows(mix.map(x=>({...x,display:nfmt(x.value)})),Math.max(...mix.map(x=>x.value),1))}</div>`;
+
+ html+=sectionTitle('Priority attention');
+ let a='';
+ const lowConversion=bs.filter(b=>(b.bookings/Math.max(1,b.quotes))<0.55);
+ if(lowConversion.length)a+=`<div class="alert warning"><div class="alert-mark">!</div><div class="alert-main"><div class="alert-title">Quote-to-booking below 55%</div><div class="alert-text">${lowConversion.map(b=>b.name).join(', ')} are converting below the caterer benchmark. Review pricing and follow-up.</div><button class="alert-action" type="button" data-goto="pipeline">Open pipeline →</button></div></div>`;
+ const expiring=bs.filter(b=>b.permitExpiring>0);
+ if(expiring.length)a+=`<div class="alert danger"><div class="alert-mark">!</div><div class="alert-main"><div class="alert-title">Permits expiring soon</div><div class="alert-text">${expiring.reduce((s,b)=>s+b.permitExpiring,0)} permits expiring within 90 days across ${expiring.length} base(s).</div><button class="alert-action" type="button" data-goto="compliance">Review permits →</button></div></div>`;
+ a+=`<div class="alert info"><div class="alert-mark">i</div><div class="alert-main"><div class="alert-title">Cultural event demand rising</div><div class="alert-text">Setswana Patlo and Shona Roora enquiries are trending up this quarter. Consider a cultural tasting package.</div><button class="alert-action" type="button" data-goto="tastings">View tastings →</button></div></div>`;
+ html+=`<div class="card"><div class="alert-list">${a}</div></div>`;
+ return html;
+}
+
+/* ── Pipeline ── */
+function renderPipeline(){
+ const bs=scopeBases();if(!bs.length)return pageHeader('Pipeline')+zeroState();
+ const pf=periodFactor();
+ const totalEnq=bs.reduce((s,b)=>s+b.enquiries*serviceShare(b),0)*pf;
+ const totalQuotes=bs.reduce((s,b)=>s+b.quotes*serviceShare(b),0)*pf;
+ const totalBookings=bs.reduce((s,b)=>s+b.bookings*serviceShare(b),0)*pf;
+ const totalTasting=bs.reduce((s,b)=>s+b.tastingsAttended*serviceShare(b),0)*pf;
+
+ let html=pageHeader('Pipeline & quote intelligence','Enquiry-to-booking funnel across '+rangeNote()+'.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Enquiry-to-quote',percent(totalEnq?totalQuotes/totalEnq*100:0),'Percentage of enquiries that receive a formal quote. Target: 70–80%.')}
+   ${kpi('Quote-to-booking',percent(totalQuotes?totalBookings/totalQuotes*100:0),'Bookings ÷ quotes. Healthy caterer benchmark is 50–65%.')}
+   ${kpi('Avg days to book',dec(bs.reduce((s,b)=>s+b.avgLeadDays,0)/bs.length,0),'Average days from enquiry to confirmed booking. Long lags signal follow-up gaps.')}
+   ${kpi('Lost enquiries',nfmt(bs.reduce((s,b)=>s+b.lostEnquiries*serviceShare(b),0)*pf),'Enquiries that did not convert. Review lost-reason breakdown below.')}
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Enquiry funnel','Where deals stall between enquiry and booking.')}
+   <div class="funnel-list">
+     <div class="funnel-step"><span class="funnel-step-num">1</span><div class="funnel-step-main"><div class="funnel-step-label">Enquiries received</div><div class="funnel-step-bar"><span style="width:100%"></span></div></div><span class="funnel-step-value">${nfmt(totalEnq)}</span></div>
+     <div class="funnel-step"><span class="funnel-step-num">2</span><div class="funnel-step-main"><div class="funnel-step-label">Quotes issued</div><div class="funnel-step-bar"><span style="width:${totalEnq?totalQuotes/totalEnq*100:0}%"></span></div></div><span class="funnel-step-value">${nfmt(totalQuotes)}</span></div>
+     <div class="funnel-step"><span class="funnel-step-num">3</span><div class="funnel-step-main"><div class="funnel-step-label">Tastings attended</div><div class="funnel-step-bar"><span style="width:${totalQuotes?totalTasting/totalQuotes*100:0}%"></span></div></div><span class="funnel-step-value">${nfmt(totalTasting)}</span></div>
+     <div class="funnel-step"><span class="funnel-step-num">4</span><div class="funnel-step-main"><div class="funnel-step-label">Bookings confirmed</div><div class="funnel-step-bar"><span style="width:${totalEnq?totalBookings/totalEnq*100:0}%"></span></div></div><span class="funnel-step-value">${nfmt(totalBookings)}</span></div>
+   </div>
+ </div>`;
+
+ const lost=ENQUIRIES.filter(q=>q.status==='lost');
+ const lostReasons={};
+ lost.forEach(q=>{if(q.lostReason){lostReasons[q.lostReason]=(lostReasons[q.lostReason]||0)+1}});
+ const lostRows=Object.entries(lostReasons).sort((a,b)=>b[1]-a[1]).map(([r,c])=>({label:r,value:c,display:nfmt(c)}));
+ html+=`<div class="card">${cardHead('Lost enquiry analysis','Reasons enquiries did not convert to bookings.')}${barRows(lostRows,Math.max(...lostRows.map(r=>r.value),1))}</div>`;
+
+ html+=`<div class="card">${cardHead('Recent enquiries','Event type, base, status and quote value.')}
+   <div class="table-wrap"><table><thead><tr><th>Enquiry</th><th>Event</th><th>Guests</th><th class="num">Quote</th><th>Status</th></tr></thead><tbody>
+   ${ENQUIRIES.slice(0,8).map(q=>`<tr><td><div class="table-title">${esc(q.id)}</div><div class="table-sub">${esc(q.customer)} · ${esc(q.base)}</div></td><td>${esc(q.subtype)}</td><td class="num">${q.guests}</td><td class="num">${q.quoteValue?money(q.quoteValue):'—'}</td><td>${badge(q.status,q.status==='booked'?'good':q.status==='lost'?'bad':q.status==='quoted'?'info':'warn')}</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Deposit & payment plan','Collection rate and installment uptake.')}${statRows([
+   {label:'Deposit collection rate',note:'Collected ÷ due across confirmed bookings',value:percent(bs.reduce((s,b)=>s+b.depositCollected,0)/Math.max(1,bs.reduce((s,b)=>s+b.depositDue,0))*100)},
+   {label:'Payment plan uptake',note:'Customers using installments',value:percent(bs.reduce((s,b)=>s+b.paymentPlanUsers,0)/Math.max(1,bs.reduce((s,b)=>s+b.bookings,0))*100)},
+   {label:'Repeat corporate clients',note:'Booked more than once',value:nfmt(bs.reduce((s,b)=>s+b.repeatCorporate,0))}
+ ])}</div>`;
+ return html;
+}
+
+/* ── Profitability ── */
+function renderProfitability(){
+ const bs=scopeBases();if(!bs.length)return pageHeader('Profitability')+zeroState();
+ const avgPerHead=bs.reduce((s,b)=>s+b.perHead*serviceShare(b),0)/bs.length;
+ const avgFood=bs.reduce((s,b)=>s+b.foodCostPerHead*serviceShare(b),0)/bs.length;
+ const avgLabour=bs.reduce((s,b)=>s+b.labourCostPerHead*serviceShare(b),0)/bs.length;
+ const avgTravel=bs.reduce((s,b)=>s+b.travelCostPerHead*serviceShare(b),0)/bs.length;
+ const avgEquip=bs.reduce((s,b)=>s+b.equipmentCostPerHead*serviceShare(b),0)/bs.length;
+ const avgNet=bs.reduce((s,b)=>s+b.netMarginPerHead*serviceShare(b),0)/bs.length;
+
+ let html=pageHeader('Event profitability','Per-head margin waterfall and cost drivers for '+rangeNote()+'.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Revenue per head',money(avgPerHead),'Average package revenue per guest across selected bases.')}
+   ${kpi('Net margin / head',money(avgNet),'After food, labour, travel and equipment costs. Target: 35–45% of revenue per head.')}
+   ${kpi('Food cost / head',money(avgFood),'Ingredients and consumables per guest.')}
+   ${kpi('Labour cost / head',money(avgLabour),'Kitchen and service crew cost per guest.')}
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Per-head margin waterfall','Where the per-head revenue goes.')}
+   <div class="waterfall">
+     <div class="waterfall-row positive"><span class="wf-label">Revenue per head</span><span class="wf-value">${money(avgPerHead)}</span></div>
+     <div class="waterfall-row negative"><span class="wf-label">− Food & ingredients</span><span class="wf-value">${money(avgFood)}</span></div>
+     <div class="waterfall-row negative"><span class="wf-label">− Labour</span><span class="wf-value">${money(avgLabour)}</span></div>
+     <div class="waterfall-row negative"><span class="wf-label">− Travel</span><span class="wf-value">${money(avgTravel)}</span></div>
+     <div class="waterfall-row negative"><span class="wf-label">− Equipment</span><span class="wf-value">${money(avgEquip)}</span></div>
+     <div class="waterfall-row total"><span class="wf-label">Net margin per head</span><span class="wf-value">${money(avgNet)}</span></div>
+   </div>
+ </div>`;
+
+ const pkgRows=PACKAGES.map(p=>({label:p.name,value:p.netMarginPerHead,display:money(p.netMarginPerHead)+'/head'}));
+ html+=`<div class="card">${cardHead('Package profitability ranking','Net margin per head by package.')}${barRows(pkgRows,Math.max(...pkgRows.map(r=>r.value),1))}</div>`;
+
+ html+=`<div class="card">${cardHead('Cost overrun alerts','Events where projected cost exceeded the quote.')}${statRows([
+   {label:'Events over budget',note:'Actual cost > projected cost',value:nfmt(2),},
+   {label:'Average overrun',note:'Across affected events',value:percent(8.4)},
+   {label:'Travel fee accuracy',note:'Travel fees covering actual travel cost',value:percent(76)},
+   {label:'Equipment depreciation',note:'Value lost per rental cycle',value:money(62)}
+ ])}</div>`;
+
+ html+=`<div class="card">${cardHead('Dietary variant cost impact','How dietary complexity changes per-head cost.')}${statRows([
+   {label:'Standard meal',note:'Base cost per head',value:money(avgFood)},
+   {label:'Vegetarian variant',note:'Average uplift',value:'+'+money(avgFood*0.08)},
+   {label:'Vegan variant',note:'Average uplift',value:'+'+money(avgFood*0.14)},
+   {label:'Gluten-free variant',note:'Average uplift',value:'+'+money(avgFood*0.11)},
+   {label:'Halal variant',note:'Average uplift',value:'+'+money(avgFood*0.16)}
+ ])}</div>`;
+ return html;
+}
+
+/* ── Service Area ── */
+function renderServiceArea(){
+ const bs=scopeBases();if(!bs.length)return pageHeader('Service Area')+zeroState();
+
+ let html=pageHeader('Service area & demand','Coverage vs demand across '+rangeNote()+'.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Out-of-area enquiries',nfmt(bs.reduce((s,b)=>s+b.outOfAreaEnquiries,0)),'Enquiries outside the stated service radius. High numbers may signal an expansion opportunity.')}
+   ${kpi('Avg travel time',dec(bs.reduce((s,b)=>s+b.avgTravelMinutes,0)/bs.length,0)+' min','Average travel time to events. Travel beyond 40 minutes usually reduces margin.')}
+   ${kpi('Setup accuracy',percent(bs.reduce((s,b)=>s+b.setupAccuracy,0)/bs.length),'Percentage of events where setup time was within estimate.')}
+   ${kpi('Min booking value',money(bs.reduce((s,b)=>s+b.minBookingValue,0)/bs.length),'Average minimum booking threshold across bases.')}
+ </div>`;
+
+ const rows=SERVICE_AREAS.map(a=>({label:a.area,value:a.enquiries,display:nfmt(a.enquiries)+' enquiries',colour:a.outOfArea?'amber':''}));
+ html+=`<div class="card">${cardHead('Enquiries by service area','Where demand is coming from. Out-of-area areas shown in amber.')}${barRows(rows,Math.max(...rows.map(r=>r.value),1))}</div>`;
+
+ html+=`<div class="card">${cardHead('Coverage vs demand','Conversion rate by area. High enquiry volume with low conversion may indicate distance or pricing issues.')}
+   <div class="table-wrap"><table><thead><tr><th>Area</th><th class="num">Enquiries</th><th class="num">Booked</th><th class="num">Conversion</th><th class="num">Distance</th><th>Status</th></tr></thead><tbody>
+   ${SERVICE_AREAS.map(a=>`<tr><td>${esc(a.area)}</td><td class="num">${a.enquiries}</td><td class="num">${a.booked}</td><td class="num">${percent(a.conversion)}</td><td class="num">${a.distance} km</td><td>${a.outOfArea?badge('Out of area','warn'):badge('In area','good')}</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Expansion opportunity','Areas with high enquiry volume but low conversion — potential for a satellite base or partner kitchen.')}${statRows([
+   {label:'Molepolole',note:'58 km · 11 enquiries · 27% conversion',value:badge('Watch','warn')},
+   {label:'Kanye',note:'82 km · 7 enquiries · 14% conversion',value:badge('Consider partner','info')},
+   {label:'Serowe',note:'210 km · 5 enquiries · 0% conversion',value:badge('Out of range','neutral')}
+ ])}</div>`;
+ return html;
+}
+
+/* ── Tastings ── */
+function renderTastings(){
+ const bs=scopeBases();if(!bs.length)return pageHeader('Tastings')+zeroState();
+ const booked=bs.reduce((s,b)=>s+b.tastingsBooked,0);
+ const attended=bs.reduce((s,b)=>s+b.tastingsAttended,0);
+ const converted=TASTINGS.reduce((s,t)=>s+t.converted,0);
+ const totalRevenue=TASTINGS.reduce((s,t)=>s+t.revenue,0);
+ const totalCost=TASTINGS.reduce((s,t)=>s+t.costPerSession,0);
+
+ let html=pageHeader('Tasting & sales intelligence','Tasting ROI and conversion for '+rangeNote()+'.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Tastings attended',nfmt(attended),'Guests who attended a tasting session in the period.')}
+   ${kpi('Tasting-to-booking',percent(attended?converted/attended*100:0),'Tasting attendees who converted to a paid event. Target: 60–75%.')}
+   ${kpi('Tasting ROI',percent(totalCost?(totalRevenue-totalCost)/totalCost*100:0),'Revenue from converted bookings minus tasting cost, divided by tasting cost.')}
+   ${kpi('Avg days to book',dec(bs.reduce((s,b)=>s+b.avgLeadDays,0)/bs.length,0),'Days from tasting to confirmed booking. Shorter is better.')}
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Tasting session performance','Booked, attended and converted by session.')}
+   <div class="table-wrap"><table><thead><tr><th>Session</th><th>Menu</th><th class="num">Booked</th><th class="num">Attended</th><th class="num">Converted</th><th class="num">Revenue</th></tr></thead><tbody>
+   ${TASTINGS.map(t=>`<tr><td><div class="table-title">${esc(t.id)}</div><div class="table-sub">${esc(t.date)} · ${esc(t.base)}</div></td><td>${esc(t.menu)}</td><td class="num">${t.booked}</td><td class="num">${t.attended}</td><td class="num">${t.converted}</td><td class="num">${money(t.revenue)}</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>`;
+
+ const menuRows=TASTINGS.reduce((acc,t)=>{const e=acc.find(x=>x.label===t.menu);if(e){e.value+=t.converted}else{acc.push({label:t.menu,value:t.converted})}return acc},[]);
+ html+=`<div class="card">${cardHead('Tasting menu popularity','Which sample menus drive the most conversions.')}${barRows(menuRows.map(r=>({...r,display:nfmt(r.value)})),Math.max(...menuRows.map(r=>r.value),1))}</div>`;
+
+ html+=`<div class="card">${cardHead('Enquiry channel mix','Which channel converts best.')}${statRows([
+   {label:'WhatsApp',note:'Highest volume channel',value:percent(62)},
+   {label:'Platform form',note:'Good qualification, slower response',value:percent(51)},
+   {label:'Phone',note:'Fastest close rate',value:percent(48)},
+   {label:'Instagram',note:'High interest, lower conversion',value:percent(34)},
+   {label:'Referral',note:'Highest conversion rate',value:percent(74)}
+ ])}</div>`;
+ return html;
+}
+
+/* ── Events ── */
+function renderEvents(){
+ const bs=scopeBases();if(!bs.length)return pageHeader('Events')+zeroState();
+ const upcoming=EVENT_QUOTES.filter(q=>q.status!=='Lost'&&q.status!=='Draft'&&q.daysToEvent>0);
+
+ let html=pageHeader('Upcoming events','Confirmed and quoted events across '+rangeNote()+'.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Upcoming events',nfmt(upcoming.length),'Events with a future date that are confirmed or quoted.')}
+   ${kpi('Completed events',nfmt(bs.reduce((s,b)=>s+b.completedEvents,0)),'Events delivered in the reporting period.')}
+   ${kpi('Avg value',money(upcoming.length?upcoming.reduce((s,q)=>s+q.value,0)/upcoming.length:0),'Average quoted value of upcoming events.')}
+   ${kpi('Deposits due',nfmt(EVENT_QUOTES.filter(q=>!q.depositPaid&&q.status!=='Lost').length),'Upcoming events where the deposit has not yet been collected.')}
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Event pipeline','Sorted by days to event.')}
+   <div class="table-wrap"><table><thead><tr><th>Event</th><th>Type</th><th class="num">Date</th><th class="num">Guests</th><th class="num">Value</th><th>Status</th></tr></thead><tbody>
+   ${upcoming.sort((a,b)=>a.daysToEvent-b.daysToEvent).map(q=>`<tr><td><div class="table-title">${esc(q.event)}</div><div class="table-sub">${esc(q.base)} · ${esc(q.package)}</div></td><td>${esc(q.type)}</td><td class="num">${esc(q.date)}</td><td class="num">${q.guests}</td><td class="num">${money(q.value)}</td><td>${badge(q.status,q.status==='Accepted'?'good':q.status==='Sent'?'info':q.status==='Tasting'?'warn':'neutral')}</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>`;
+
+ const typeMix=['wedding','corporate','social'].map(t=>({label:SERVICE_LABELS[t],value:EVENT_QUOTES.filter(q=>q.type===t&&q.status!=='Lost').length}));
+ html+=`<div class="card">${cardHead('Upcoming by event type','Wedding, corporate and social mix.')}${barRows(typeMix.map(x=>({...x,display:nfmt(x.value)})),Math.max(...typeMix.map(x=>x.value),1))}</div>`;
+ return html;
+}
+
+/* ── Quotes ── */
+function renderQuotes(){
+ let html=pageHeader('Event quotes & enquiries','Quote status across '+rangeNote()+'.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Total quotes',nfmt(EVENT_QUOTES.length),'Quotes issued, accepted, lost or in tasting stage.')}
+   ${kpi('Accepted',nfmt(EVENT_QUOTES.filter(q=>q.status==='Accepted').length),'Quotes that converted to confirmed bookings.')}
+   ${kpi('Sent',nfmt(EVENT_QUOTES.filter(q=>q.status==='Sent').length),'Quotes awaiting customer decision.')}
+   ${kpi('Lost',nfmt(EVENT_QUOTES.filter(q=>q.status==='Lost').length),'Quotes that did not convert.')}
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Quote list','All event quotes with status, value and deposit.')}
+   <div class="table-wrap"><table><thead><tr><th>Quote</th><th>Event</th><th class="num">Value</th><th class="num">Deposit</th><th>Deposit paid</th><th>Status</th></tr></thead><tbody>
+   ${EVENT_QUOTES.map(q=>`<tr><td><div class="table-title">${esc(q.id)}</div><div class="table-sub">${esc(q.base)}</div></td><td>${esc(q.event)}<div class="table-sub">${esc(q.date)} · ${q.guests} guests</div></td><td class="num">${money(q.value)}</td><td class="num">${money(q.deposit)}</td><td>${q.depositPaid?badge('Paid','good'):badge('Due','warn')}</td><td>${badge(q.status,q.status==='Accepted'?'good':q.status==='Sent'?'info':q.status==='Lost'?'bad':'neutral')}</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Quote acceptance by package','Which packages are accepted vs sit on the table.')}${barRows(PACKAGES.map(p=>({label:p.name,value:p.bookings?p.accepted/p.bookings*100:0,display:percent(p.bookings?p.accepted/p.bookings*100:0)})),100)}</div>`;
+ return html;
+}
+
+/* ── Packages ── */
+function renderPackages(){
+ let html=pageHeader('Package performance','Revenue, margin and acceptance by package.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Packages',nfmt(PACKAGES.length),'Active catering packages across selected bases.')}
+   ${kpi('Top package',PACKAGES.sort((a,b)=>b.revenue-a.revenue)[0].name,'Package with the highest revenue.')}
+   ${kpi('Avg acceptance',percent(PACKAGES.reduce((s,p)=>s+p.accepted,0)/Math.max(1,PACKAGES.reduce((s,p)=>s+p.bookings,0))*100),'Accepted ÷ bookings across all packages.')}
+   ${kpi('Avg margin',money(PACKAGES.reduce((s,p)=>s+p.netMarginPerHead,0)/PACKAGES.length),'Average net margin per head across packages.')}
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Package ranking','Revenue and margin per package.')}
+   <div class="table-wrap"><table><thead><tr><th>Package</th><th>Style</th><th class="num">Bookings</th><th class="num">Accepted</th><th class="num">Revenue</th><th class="num">Net/head</th></tr></thead><tbody>
+   ${PACKAGES.map(p=>`<tr><td><div class="table-title">${esc(p.name)}</div><div class="table-sub">${esc(p.base)}</div></td><td>${esc(p.style)}</td><td class="num">${p.bookings}</td><td class="num">${p.accepted}</td><td class="num">${money(p.revenue)}</td><td class="num">${money(p.netMarginPerHead)}</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Add-on attachment rate','Which add-ons attach to which packages.')}
+   <div class="table-wrap"><table><thead><tr><th>Add-on</th><th>Attached to</th><th class="num">Rate</th><th class="num">Revenue</th></tr></thead><tbody>
+   ${ADDON_ATTACHMENT.map(a=>`<tr><td>${esc(a.name)}</td><td>${esc(a.attachedTo)}</td><td class="num">${percent(a.rate)}</td><td class="num">${money(a.revenue)}</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>`;
+ return html;
+}
+
+/* ── Equipment ── */
+function renderEquipment(){
+ const totalOwned=EQUIPMENT.reduce((s,e)=>s+e.owned,0);
+ const totalRented=EQUIPMENT.reduce((s,e)=>s+e.rented,0);
+ const avgUtil=EQUIPMENT.reduce((s,e)=>s+e.util,0)/EQUIPMENT.length;
+
+ let html=pageHeader('Equipment utilisation','Asset utilisation and depreciation across the fleet.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Units owned',nfmt(totalOwned),'Total equipment units across selected bases.')}
+   ${kpi('Units rented',nfmt(totalRented),'Units currently on a rental or event.')}
+   ${kpi('Avg utilisation',percent(avgUtil),'Rented ÷ owned across all equipment categories.')}
+   ${kpi('Underutilised',nfmt(EQUIPMENT.filter(e=>e.util<45).length),'Categories below 45% utilisation — consider selling or repurposing.')}
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Equipment utilisation','Owned vs rented and replacement value.')}
+   <div class="table-wrap"><table><thead><tr><th>Item</th><th class="num">Owned</th><th class="num">Rented</th><th class="num">Utilisation</th><th class="num">Replacement</th><th class="num">Depreciation</th></tr></thead><tbody>
+   ${EQUIPMENT.map(e=>`<tr><td>${esc(e.name)}</td><td class="num">${e.owned}</td><td class="num">${e.rented}</td><td class="num">${percent(e.util)}</td><td class="num">${money(e.replacementValue)}</td><td class="num">${money(e.depreciation)}/use</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Depreciation per use','Value lost per rental cycle — high cost items should rent more often.')}${barRows(EQUIPMENT.map(e=>({label:e.name,value:e.depreciation,display:money(e.depreciation)})),Math.max(...EQUIPMENT.map(e=>e.depreciation),1))}</div>`;
+ return html;
+}
+
+/* ── Staffing ── */
+function renderStaffing(){
+ const bs=scopeBases();if(!bs.length)return pageHeader('Staffing')+zeroState();
+ const totalStaff=bs.reduce((s,b)=>s+b.staffCount,0);
+
+ let html=pageHeader('Staffing & service levels','Ratios, tiers and guest satisfaction.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Staff members',nfmt(totalStaff),'Total staff across selected bases.')}
+   ${kpi('Avg servers/guest','1 : 10','Average server-to-guest ratio across all tiers.')}
+   ${kpi('Gold satisfaction','4.7 / 5','Guest satisfaction for full-service (gold) tier.')}
+   ${kpi('Custom events',nfmt(STAFFING.reduce((s,t)=>s+t.events,0)),'Events using custom staffing arrangements.')}
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Staffing tier performance','Events served and guest satisfaction by tier.')}
+   <div class="table-wrap"><table><thead><tr><th>Tier</th><th>Servers</th><th>Chefs</th><th>Bartenders</th><th class="num">Events</th><th class="num">Satisfaction</th></tr></thead><tbody>
+   ${STAFFING.map(t=>`<tr><td>${esc(t.tier)}</td><td>${esc(t.servers)}</td><td>${esc(t.chefs)}</td><td>${esc(t.bartenders)}</td><td class="num">${t.events}</td><td class="num">${dec(t.guestSatisfaction,1)}/5</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Staffing ratio alert','Server-per-guest ratio vs category median.')}${statRows([
+   {label:'Your average ratio',note:'Servers to guests',value:'1 : 10'},
+   {label:'Category median',note:'Catering industry benchmark',value:'1 : 12'},
+   {label:'Assessment',note:'Your ratio is tighter than median',value:badge('Consider adjusting','warn')}
+ ])}</div>`;
+ return html;
+}
+
+/* ── Compliance ── */
+function renderCompliance(){
+ const bs=scopeBases();if(!bs.length)return pageHeader('Compliance')+zeroState();
+
+ let html=pageHeader('Compliance & risk','Permits, certificates and food-safety status across '+rangeNote()+'.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Permits on file',nfmt(bs.reduce((s,b)=>s+b.permits,0)),'Total permits across selected bases.')}
+   ${kpi('Expiring ≤90 days',nfmt(bs.reduce((s,b)=>s+b.permitExpiring,0)),'Permits expiring within 90 days. Renew before the deadline.')}
+   ${kpi('HACCP score',percent(bs.reduce((s,b)=>s+(HACCP_SCORE[b.id]||0),0)/bs.length),'Average HACCP compliance score across bases.')}
+   ${kpi('Open issues',nfmt(bs.reduce((s,b)=>s+b.openIssues,0)),'Compliance issues flagged but not yet resolved.')}
+ </div>`;
+
+ html+=`<div class="card">${cardHead('Permit expiry tracking','Permits expiring in the next 30 / 60 / 90 days.')}
+   <div class="table-wrap"><table><thead><tr><th>Base</th><th>Permit</th><th>Expiry</th><th>Severity</th></tr></thead><tbody>
+   ${PERMIT_ALERTS.map(p=>`<tr><td>${esc(p.base)}</td><td>${esc(p.permit)}</td><td>${esc(p.expiry)}</td><td>${badge(p.severity==='bad'?'Urgent':'Review',p.severity==='bad'?'bad':'warn')}</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>`;
+
+ html+=`<div class="card">${cardHead('HACCP compliance by base','Score out of 100.')}${barRows(Object.entries(HACCP_SCORE).map(([k,v])=>({label:BASES.find(b=>b.id===k).name,value:v,display:v+'/100',colour:v<80?'amber':v<90?'':'green'})),100)}</div>`;
+
+ html+=`<div class="card">${cardHead('Compliance checklist','Required items across all selected bases.')}${statRows([
+   {label:'Food handling permits',note:'Valid and on file',value:badge('Compliant','good')},
+   {label:'Liquor licences (bar service)',note:'Where alcohol is served',value:badge('1 expiring','warn')},
+   {label:'Public liability insurance',note:'Current policy',value:badge('Compliant','good')},
+   {label:'Temperature logging',note:'Daily logs in use',value:badge('Compliant','good')},
+   {label:'Allergen management policy',note:'Documented and communicated',value:badge('Compliant','good')},
+   {label:'Staff food-safety training',note:'Last training date',value:badge('Due in 45 days','warn')}
+ ])}</div>`;
+ return html;
+}
+
+/* ── Reviews ── */
+function renderReviews(){
+ const avg=(REVIEWS.reduce((s,r)=>s+r.stars,0)/REVIEWS.length).toFixed(1);
+ const list=REVIEWS.map(r=>`<div class="card" style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><div class="table-title">${esc(r.customer)}</div><div class="table-sub">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)} · ${esc(r.date)}</div></div>${badge(r.event,'info')}</div><p style="font-size:14px;color:var(--ink2);line-height:1.4;margin:8px 0 0">${esc(r.text)}</p></div>`).join('');
+ return pageHeader('Reviews','Post-event feedback and ratings.')+
+  `<div class="kpi-grid">
+    ${kpi('Reviews',nfmt(REVIEWS.length),'Total post-event reviews received.')}
+    ${kpi('Average rating',avg,'Mean star rating across all reviews.')}
+    ${kpi('Response rate','100%','All reviews have been acknowledged or replied to.')}
+    ${kpi('Awaiting reply',nfmt(0),'Reviews still needing a response.')}
+   </div>`+list;
+}
+
+/* ── Reports ── */
+function renderReports(){
+ return pageHeader('Reports','Summary and export for the current scope.')+
+  `<div class="kpi-grid">
+    ${kpi('Quotes',nfmt(EVENT_QUOTES.length),'All sample quotes in this view.')}
+    ${kpi('Value logged',money(EVENT_QUOTES.reduce((s,q)=>s+q.value,0)),'Illustrative total value of logged quotes.')}
+    ${kpi('Booked',nfmt(EVENT_QUOTES.filter(q=>q.status==='Accepted').length),'Quotes accepted.')}
+    ${kpi('Lost',nfmt(EVENT_QUOTES.filter(q=>q.status==='Lost').length),'Quotes lost.')}
+   </div>`+
+  `<div class="card">${cardHead('Export')}<p class="card-subtitle">Download a CSV summary for the current base selection, period and event type.</p><div class="button-row"><button id="exportCsv" class="btn primary full" type="button">Download CSV report</button></div></div>`+
+  `<div class="card">${cardHead('Quote status breakdown')}<div class="table-wrap"><table><thead><tr><th>Status</th><th class="num">Count</th></tr></thead><tbody>${['Draft','Sent','Tasting','Accepted','Lost'].map(s=>`<tr><td>${esc(s)}</td><td class="num">${EVENT_QUOTES.filter(q=>q.status===s).length}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ── Settings ── */
+function renderSettings(){
+ return pageHeader('Settings','Business identity and publishing controls.')+
+  `<div class="card">${cardHead('Business profile')}${statRows([{label:'Display name',note:'Shown across the dashboard and listing.',value:esc(businessName)},{label:'Catering bases',note:'Locations included in this workspace.',value:String(BASES.length)},{label:'Publishing status',note:'Live or draft.',value:badge('Ready','good')}])}<div class="button-row"><button class="btn secondary full" type="button">Edit profile</button></div></div>`+
+  `<div class="card">${cardHead('Publishing')}<p class="card-subtitle">Publishing is blocked until profile, permits and insurance confirmation are complete.</p><div class="button-row"><button class="btn primary full" type="button">Publish business</button></div></div>`;
+}
+
+const RENDERERS={overview:renderOverview,pipeline:renderPipeline,profitability:renderProfitability,servicearea:renderServiceArea,tastings:renderTastings,events:renderEvents,quotes:renderQuotes,packages:renderPackages,equipment:renderEquipment,staffing:renderStaffing,compliance:renderCompliance,reviews:renderReviews,reports:renderReports,settings:renderSettings};
+
+/* ── Workspace ── */
+function renderWorkspace(){
+ const host=$('#workspace');host.innerHTML=RENDERERS[activeTab]();
+ $$('#bottomRail .rail-tab').forEach(btn=>{const on=btn.dataset.tab===activeTab;btn.classList.toggle('active',on);btn.setAttribute('aria-selected',String(on));btn.tabIndex=on?0:-1});
+ updateFilterUI();
+ if(filterOpen)positionFilterDim();
+}
+function updateFilterUI(){
+ const bs=bases(),num=selectedIds.length;
+ $('#branchControlLabel').textContent=num===BASES.length?'All bases':num===1?bs[0].name:`${num} bases`;
+ $('#branchControlSub').textContent=bs.length?bs.map(b=>b.name).join(', '):'No bases selected';
+ const dl=periodLabel();
+ $('#dateRange').querySelector('.filter-label').textContent=dl;
+ $('#serviceType').querySelector('.filter-label').textContent=SERVICE_LABELS[service];
+ const active=[];
+ if(num!==BASES.length)active.push(`${num} ${num===1?'base':'bases'}`);
+ if(period!=='90')active.push(dl);
+ if(service!=='all')active.push(SERVICE_LABELS[service]);
+ $('#filterAccordionMeta').textContent=active.length?active.join(' · '):'All bases · Last 90 days';
+ $('#clearFilters').hidden=(num===BASES.length&&period==='90'&&service==='all');
+}
+
+/* ── Filter dim ── */
+function positionFilterDim(){
+ const shell=$('#shell'),fs=$('#filterAccordion'),rail=$('#bottomRail'),dim=$('#filterDim');
+ const shellRect=shell.getBoundingClientRect(),fsRect=fs.getBoundingClientRect(),railRect=rail.getBoundingClientRect();
+ dim.style.top=(fsRect.bottom-shellRect.top)+'px';
+ dim.style.bottom=(shellRect.bottom-railRect.top)+'px';
+}
+function setFilterOpen(open){
+ filterOpen=open;
+ $('#filterToggle').setAttribute('aria-expanded',String(open));
+ $('#filterAccordionBody').hidden=!open;
+ const dim=$('#filterDim');
+ if(open){positionFilterDim();dim.classList.add('show');dim.setAttribute('aria-hidden','false')}
+ else{dim.classList.remove('show');dim.setAttribute('aria-hidden','true')}
+}
+
+/* ── Branch sheet ── */
+function renderBranchOptions(){
+ const q=($('#branchSearchInput').value||'').trim().toLowerCase();
+ const list=BASES.filter(b=>(b.name+' '+b.area+' '+b.type).toLowerCase().includes(q));
+ $('#branchOptions').innerHTML=list.length?list.map(b=>`<label class="branch-option"><input type="checkbox" data-branch-check="${esc(b.id)}" ${draftIds.includes(b.id)?'checked':''}><span class="branch-option-main"><span class="branch-option-name">${esc(b.name)}</span><span class="branch-option-location">${esc(b.area)}</span></span></label>`).join(''):`<div class="empty-state">No matching base. Try another name or area.</div>`;
+ updateApplyBtn();
+}
+function updateApplyBtn(){
+ const btn=$('#applyBranches');
+ if(draftIds.length){btn.hidden=false;btn.textContent='View '+draftIds.length}
+ else{btn.hidden=true;btn.textContent='View 0'}
+}
+function openBranchSheet(){
+ draftIds=[...selectedIds];
+ $('#branchSearchInput').value='';
+ renderBranchOptions();
+ $('#branchScrim').classList.add('open');
+ $('#branchScrim').setAttribute('aria-hidden','false');
+ $('#branchPicker').setAttribute('aria-expanded','true');
+ setTimeout(()=>$('#branchSearchInput').focus(),150);
+}
+function closeBranchSheet(){
+ $('#branchScrim').classList.remove('open');
+ $('#branchScrim').setAttribute('aria-hidden','true');
+ $('#branchPicker').setAttribute('aria-expanded','false');
+ $('#branchPicker').focus();
+}
+
+/* ── Date popup ── */
+const DATE_PRESETS=[
+ ['today','Today'],['yesterday','Yesterday'],['7','Last 7 days'],['30','Last 30 days'],
+ ['90','Last 90 days'],['6m','Last 6 months'],['1y','Last 1 year']
+];
+function renderDatePopup(){
+ const wrap=$('#datePresets');
+ wrap.innerHTML=DATE_PRESETS.map(([key,label])=>`<button type="button" class="date-preset ${period===key?'active':''}" data-preset="${key}">${label}</button>`).join('');
+ const rows=$('#specificDateRows');
+ if(!customDraftDates.length){customDraftDates=[{checked:false,year:new Date().getFullYear(),month:1,day:1}]}
+ rows.innerHTML=customDraftDates.map((d,i)=>`
+  <div class="date-row" data-row="${i}">
+    <input type="checkbox" data-check ${d.checked?'checked':''}>
+    <input type="number" data-year min="2000" max="2100" value="${d.year||''}" placeholder="YYYY">
+    <select data-month>${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,idx)=>`<option value="${idx+1}" ${Number(d.month)===idx+1?'selected':''}>${m}</option>`).join('')}</select>
+    <input type="number" data-day min="1" max="31" value="${d.day||''}" placeholder="DD">
+    <div class="date-actions"><button type="button" data-add title="Add a row below">+</button><button type="button" data-remove title="Remove this row">−</button></div>
+  </div>`).join('');
+}
+function openDatePopup(){
+ customDraftDates=customDates.length?customDates.map(d=>({...d})):[{checked:false,year:new Date().getFullYear(),month:new Date().getMonth()+1,day:new Date().getDate()}];
+ renderDatePopup();
+ $('#dateScrim').classList.add('open');
+ $('#dateScrim').setAttribute('aria-hidden','false');
+}
+function closeDatePopup(){
+ $('#dateScrim').classList.remove('open');
+ $('#dateScrim').setAttribute('aria-hidden','true');
+ $('#dateRange').focus();
+}
+function collectDateDraft(){
+ const rows=$$('#specificDateRows .date-row');
+ customDraftDates=rows.map(r=>({
+  checked:r.querySelector('[data-check]').checked,
+  year:Number(r.querySelector('[data-year]').value)||0,
+  month:Number(r.querySelector('[data-month]').value)||1,
+  day:Number(r.querySelector('[data-day]').value)||0
+ }));
+}
+
+/* ── Service popup ── */
+function renderServicePopup(){
+ const opts=['all','wedding','corporate','social','food_drink'];
+ $('#serviceOptions').innerHTML=opts.map(k=>`<button type="button" class="service-option ${service===k?'active':''}" data-service="${k}">${SERVICE_LABELS[k]}</button>`).join('');
+}
+function openServicePopup(){
+ renderServicePopup();
+ $('#serviceScrim').classList.add('open');
+ $('#serviceScrim').setAttribute('aria-hidden','false');
+}
+function closeServicePopup(){
+ $('#serviceScrim').classList.remove('open');
+ $('#serviceScrim').setAttribute('aria-hidden','true');
+ $('#serviceType').focus();
+}
+
+/* ── CSV ── */
+function csvCell(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}
+function downloadCsv(){
+ const rows=[['EatOuts Caterer Dashboard — illustrative demo report'],['Business',businessName],['Scope',selectedScope()],['Period',periodLabel()],['Event type',SERVICE_LABELS[service]],['Data status','Illustrative demo data — not live measurements'],[],['Base','Area','Enquiries','Quotes','Bookings','Quote-to-booking','Avg booking value','Net margin/head','Upcoming events','Staff count']];
+ scopeBases().forEach(b=>{rows.push([b.name,b.area,b.enquiries,b.quotes,b.bookings,percent(b.quotes?b.bookings/b.quotes*100:0),b.avgBookingValue,b.netMarginPerHead,b.upcomingEvents,b.staffCount])});
+ const csv=rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+ const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='eatouts-caterer-demo-report.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast('CSV report downloaded');
+}
+
+/* ── Tab switching ── */
+function setTab(tab){
+ if(!RENDERERS[tab])return;
+ activeTab=tab;renderWorkspace();$('#workspace').scrollTop=0;
+ const btn=$(`#bottomRail [data-tab="${tab}"]`);
+ if(btn){const rail=$('#bottomRail');const left=btn.offsetLeft,right=left+btn.offsetWidth,vl=rail.scrollLeft,vr=vl+rail.clientWidth;if(left<vl||right>vr)btn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})}
+}
+
+/* ── Events ── */
+function bindEvents(){
+ $('#filterToggle').addEventListener('click',()=>setFilterOpen(!filterOpen));
+ $('#filterDim').addEventListener('click',()=>setFilterOpen(false));
+ window.addEventListener('resize',()=>{if(filterOpen)positionFilterDim()});
+
+ $('#branchPicker').addEventListener('click',openBranchSheet);
+ $('#branchSearchInput').addEventListener('input',renderBranchOptions);
+ $('#branchSearch').addEventListener('click',()=>{draftIds=BASES.map(b=>b.id);renderBranchOptions()});
+ $('#clearBranchSelection').addEventListener('click',()=>{draftIds=[];renderBranchOptions()});
+ $('#branchOptions').addEventListener('change',e=>{
+  const cb=e.target.closest('[data-branch-check]');if(!cb)return;
+  if(cb.checked){if(!draftIds.includes(cb.dataset.branchCheck))draftIds.push(cb.dataset.branchCheck)}
+  else draftIds=draftIds.filter(id=>id!==cb.dataset.branchCheck);
+  renderBranchOptions();
+ });
+ $('#applyBranches').addEventListener('click',()=>{
+  selectedIds=BASES.map(b=>b.id).filter(id=>draftIds.includes(id));
+  closeBranchSheet();renderWorkspace();
+  toast(selectedIds.length?`Showing ${selectedIds.length} ${selectedIds.length===1?'base':'bases'}`:'Choose a base to populate the dashboard');
+ });
+ $('#branchScrim').addEventListener('click',e=>{if(e.target===$('#branchScrim'))closeBranchSheet()});
+
+ $('#dateRange').addEventListener('click',openDatePopup);
+ $('#datePresets').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-preset]');if(!btn)return;
+  period=btn.dataset.preset;customDates=[];customDraftDates=[];
+  $('#dateScrim').classList.remove('open');$('#dateScrim').setAttribute('aria-hidden','true');
+  renderWorkspace();
+ });
+ $('#addSpecificDate').addEventListener('click',()=>{
+  collectDateDraft();
+  customDraftDates.push({checked:false,year:new Date().getFullYear(),month:new Date().getMonth()+1,day:new Date().getDate()});
+  renderDatePopup();
+ });
+ $('#specificDateRows').addEventListener('click',e=>{
+  const add=e.target.closest('[data-add]'),rm=e.target.closest('[data-remove]');
+  if(add){collectDateDraft();customDraftDates.push({checked:false,year:new Date().getFullYear(),month:new Date().getMonth()+1,day:new Date().getDate()});renderDatePopup()}
+  if(rm){const row=e.target.closest('.date-row');const idx=Number(row.dataset.row);collectDateDraft();customDraftDates.splice(idx,1);if(!customDraftDates.length)customDraftDates=[{checked:false,year:new Date().getFullYear(),month:new Date().getMonth()+1,day:new Date().getDate()}];renderDatePopup()}
+ });
+ $('#applyDate').addEventListener('click',()=>{
+  collectDateDraft();
+  const picked=customDraftDates.filter(d=>d.checked&&d.year>=2000&&d.month>=1&&d.day>=1);
+  if(!picked.length){toast('Tick at least one specific date');return}
+  customDates=picked;period='custom';
+  closeDatePopup();renderWorkspace();
+ });
+ $$('[data-close-date]').forEach(b=>b.addEventListener('click',closeDatePopup));
+ $('#dateScrim').addEventListener('click',e=>{if(e.target===$('#dateScrim'))closeDatePopup()});
+
+ $('#serviceType').addEventListener('click',openServicePopup);
+ $('#serviceOptions').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-service]');if(!btn)return;
+  service=btn.dataset.service;
+  closeServicePopup();renderWorkspace();
+ });
+ $$('[data-close-service]').forEach(b=>b.addEventListener('click',closeServicePopup));
+ $('#serviceScrim').addEventListener('click',e=>{if(e.target===$('#serviceScrim'))closeServicePopup()});
+
+ $$('[data-close-kpi]').forEach(b=>b.addEventListener('click',closeKpiPopup));
+ $('#kpiScrim').addEventListener('click',e=>{if(e.target===$('#kpiScrim'))closeKpiPopup()});
+
+ $('#clearFilters').addEventListener('click',()=>{
+  selectedIds=BASES.map(b=>b.id);period='90';service='all';customDates=[];customDraftDates=[];
+  renderWorkspace();toast('Filters reset');
+ });
+
+ $('#bottomRail').addEventListener('click',e=>{const btn=e.target.closest('[data-tab]');if(btn)setTab(btn.dataset.tab)});
+
+ $('#workspace').addEventListener('click',e=>{
+  const kp=e.target.closest('[data-kpi]');
+  if(kp){openKpiPopup(kp.dataset.kpi);return}
+  const go=e.target.closest('[data-goto]');if(go){setTab(go.dataset.goto);return}
+  if(e.target.closest('#exportCsv')){downloadCsv();return}
+ });
+
+ document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if($('#branchScrim').classList.contains('open'))closeBranchSheet();
+  else if($('#dateScrim').classList.contains('open'))closeDatePopup();
+  else if($('#serviceScrim').classList.contains('open'))closeServicePopup();
+  else if($('#kpiScrim').classList.contains('open'))closeKpiPopup();
+  else if(filterOpen)setFilterOpen(false);
+ });
+}
+
+function start(){
+ loadSavedProfile();
+ $('#restaurantName').textContent=businessName;
+ $('#logoFallback').textContent=(businessName||'C').charAt(0).toUpperCase();
+ bindEvents();
+ renderWorkspace();
+}
+start();
+})();
+</script>
+</body>
+</html>

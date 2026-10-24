@@ -940,10 +940,32 @@
     });
   }
 
+  /** The canonical business type for an onboarding page. */
+  function businessTypeOf(p, profile) {
+    var raw = (p && p.type) || (profile && profile.type) || '';
+    if (window.EatoutsBusinessTypes && typeof window.EatoutsBusinessTypes.normalize === 'function') {
+      return window.EatoutsBusinessTypes.normalize(raw);
+    }
+    return String(raw || 'restaurant').toLowerCase().trim();
+  }
+
+  /** The logo of the business, wherever the page keeps it. */
+  function profileLogo(profile) {
+    var p = profile || {};
+    var brand = p.brand || p.identity || {};
+    var logo = brand.logo || brand.logoUrl || brand.logoRef || p.logo || p.logoUrl || '';
+    if (logo && typeof logo === 'object') logo = logo.url || logo.src || '';
+    return typeof logo === 'string' ? logo : '';
+  }
+
   /** Create the customer-facing restaurants row if we do not have one yet. */
   function ensureRestaurantRow(p, profile, restaurantId) {
     var client = apiClient();
     if (!client) return Promise.resolve({ restaurantId: restaurantId || '' });
+    /* The business type is what the hub uses to label a card and to route
+       to the right dashboard, so it has to reach the server. */
+    var type = businessTypeOf(p, profile);
+    var logo = profileLogo(profile);
     if (restaurantId) {
       return client.profilePatch(restaurantId, {
         name: profile.name,
@@ -957,6 +979,8 @@
         category: profile.category || '',
         contacts: arr(profile.contacts),
         socials: arr(profile.socials),
+        type: type || undefined,
+        logoRef: logo || undefined,
         hours: profile.operatingHours && arr(profile.operatingHours.weekly).length ? profile.operatingHours.weekly : undefined
       }).then(function (res) {
         return { restaurantId: res && res.ok ? restaurantId : '' };
@@ -976,7 +1000,14 @@
         writeId(restaurantIdKey(p.key || 'onboarding'), match.id || match.restaurantId || '');
         return { restaurantId: match.id || match.restaurantId || '' };
       }
-      return client.create({ name: profile.name }).then(function (cr) {
+      return client.create({
+        name: profile.name,
+        type: type,
+        logoRef: logo,
+        town: (profile.location || {}).town || '',
+        area: (profile.location || {}).area || '',
+        district: (profile.location || {}).district || ''
+      }).then(function (cr) {
         if (!cr || !cr.ok) return { restaurantId: '' };
         var b = (cr.data && cr.data.business) || {};
         var rid = b.id || b.restaurantId || '';

@@ -92,13 +92,12 @@ check('the server looks the account up by username',
 check('the server checks the WhatsApp number matches',
   /normalisePhone\(row\.whatsapp\)\s*!==\s*whatsapp/.test(loginApi));
 
-/* ---------- the About operator form ---------- */
+/* ---------- the About operator link ---------- */
 const indexSrc = fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8');
-check('the About operator form asks for a username', /id="opUser"/.test(indexSrc));
-check('the About operator form asks for the WhatsApp number', /id="opWhats"/.test(indexSrc));
-check('the About operator form asks for the password', /id="opPass"/.test(indexSrc));
-check('the About operator form posts all three',
-  /C\.login\(\{username:user,whatsapp:whats,password:pass\}\)/.test(indexSrc));
+check('the About page links to operator-businesses.html',
+  /href="operator-businesses\.html"/.test(indexSrc));
+check('the About page no longer has the inline operator form',
+  !/id="opWhats"/.test(indexSrc));
 
 /* ---------- no other sign-in door ---------- */
 const SIGN_IN_WORDS = /(sign in|signin|log in|login|sign-in)/i;

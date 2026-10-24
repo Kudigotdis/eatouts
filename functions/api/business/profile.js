@@ -37,7 +37,7 @@ export async function onRequestPatch(context) {
   await c.db.prepare(
     'UPDATE restaurants SET name = ?, town = ?, district = ?, district_name = ?, area = ?, landmark = ?, ' +
     'description = ?, website = ?, logo_ref = ?, cover_ref = ?, types = ?, category = ?, contacts = ?, ' +
-    'socials = ?, hours = ?, price_range = ?, features = ?, updated_at = ? WHERE id = ?'
+    'socials = ?, hours = ?, price_range = ?, features = ?, type = ?, updated_at = ? WHERE id = ?'
   ).bind(
     str(pick('name')) || row.name,
     str(pick('town')), str(pick('district')), str(pick('districtName', 'district_name')),
@@ -45,6 +45,7 @@ export async function onRequestPatch(context) {
     str(pick('logoRef', 'logo_ref')), str(pick('coverRef', 'cover_ref')),
     pickList('types'), str(pick('category')), pickList('contacts'), pickList('socials'),
     pickJson('hours'), str(pick('priceRange', 'price_range')), pickList('features'),
+    str(pick('type')),
     now(), c.restaurantId
   ).run();
 

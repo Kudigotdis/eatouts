@@ -66,7 +66,7 @@ check('every root .html has <body data-page="...">', noBody.length === 0, noBody
 
 const indexSrc = fs.readFileSync(INDEX, 'utf8');
 
-const mapM = indexSrc.match(/const PAGE_TITLES\s*=\s*\{([\s\S]*?)\n\};/);
+const mapM = indexSrc.match(/const PAGE_TITLES\s*=\s*\{([\s\S]*?)\r?\n\s*\};/);
 const titleMap = {};
 if (mapM) {
   const re = /"([^"]+)"\s*:\s*"([^"]*)"/g;

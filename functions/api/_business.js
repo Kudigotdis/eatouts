@@ -160,6 +160,10 @@ export function restaurantOut(r) {
     hours: jsonOrNull(r.hours),
     priceRange: r.price_range || null,
     features: jsonOrEmptyArray(r.features),
+    /* 0014 - the business type slug (restaurant, bakery, caterer,
+       foodtruck, bottlestore, supplier, lodge). It is the key the hub
+       uses to pick a dashboard. */
+    type: r.type || null,
     created_at: r.created_at,
     updated_at: r.updated_at
   };
@@ -284,6 +288,26 @@ export function promoOut(r) {
     status: r.status || 'active',
     /* The operator's own 18+ switch on the promo. */
     ageRestricted: !!r.age_restricted,
+    /* 0014 - the listing and pricing shape */
+    category: r.category || null,
+    subtype: r.subtype || null,
+    promoFamily: r.promo_family || null,
+    contentFormat: r.content_format || 'offer',
+    mechanic: r.mechanic || null,
+    audience: r.audience || 'everyone',
+    brand: r.brand || null,
+    billableDays: r.billable_days != null ? r.billable_days : 1,
+    quotaMonth: r.quota_month || null,
+    submissionId: r.submission_id || null,
+    paymentStatus: r.payment_status || 'not_required',
+    invoiceId: r.invoice_id || null,
+    feeCharged: r.fee_charged != null ? r.fee_charged : 0,
+    currency: r.currency || 'BWP',
+    ctaType: r.cta_type || null,
+    ctaUrl: r.cta_url || null,
+    crossPostEvent: !!r.cross_post_event,
+    submittedAt: r.submitted_at != null ? r.submitted_at : null,
+    publishedAt: r.published_at != null ? r.published_at : null,
     createdAt: r.created_at,
     updatedAt: r.updated_at
   };

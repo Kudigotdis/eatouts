@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!-- PAGE: Mobile Kitchen Dashboard -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171719">
+<title>Mobile Kitchen Dashboard · EatOuts</title>
+</head>
+<body data-page="mobile-kitchen-dashboard">
+<div id="shell">
+  <header class="topbar"><h1>Mobile Kitchen Dashboard</h1></header>
+  <main class="scroll"><div id="promosSection"></div></main>
+</div>
+<script src="../js/eatouts-business-api.js"></script>
+<script src="../js/eatouts-age.js"></script>
+<script src="../js/eatouts-promo-rules.js"></script>
+<script>
+(function(){
+  'use strict';
+  var params=new URLSearchParams(window.location.search);
+  var bizId=params.get('business');
+  if(!bizId){window.location.href='../operator-businesses.html';return;}
+  var BA=window.EatoutsBusinessApi;
+  if(BA){BA.mine().then(function(r){
+    if(!r.ok||!r.data||!Array.isArray(r.data.businesses)){window.location.href='../operator-businesses.html';return;}
+    var biz=r.data.businesses.find(function(b){return b.id===bizId;});
+    if(!biz){window.location.href='../operator-businesses.html';return;}
+    renderPromos(bizId);
+  }).catch(function(){window.location.href='../operator-businesses.html';});}
+  function renderPromos(rid){
+    var el=document.getElementById('promosSection');
+    if(!el||!BA)return;
+    BA.promosRead(rid).then(function(r){
+      if(!r.ok||!r.data||!Array.isArray(r.data.promos)){el.innerHTML='<p>No promos found.</p>';return;}
+      var promos=r.data.promos;
+      var html='<h2>Promos</h2><a class="btn" href="../promo-onboarding.html?business='+encodeURIComponent(rid)+'">+ Add Promo</a>';
+      html+='<div class="free-days">X of 3 free days used this month</div>';
+      promos.forEach(function(p){html+='<div class="promo-row"><span>'+(p.title||'Untitled')+'</span><span>'+(p.segment||'')+'</span><span>runs on '+(p.activeDays||1)+' days</span><span class="status">'+(p.status||'draft')+'</span><span>'+(p.feeCharged?'P'+p.feeCharged:'Free')+'</span></div>';});
+      el.innerHTML=html;
+    });
+  }
+})();
+</script>
+</body>
+</html>

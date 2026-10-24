@@ -1,405 +1,1751 @@
-<!DOCTYPE html>
+<!doctype html>
 <!-- PAGE: Promotions -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Promotions — Eatouts</title>
-<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
-<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141418">
+<title>Promotions · EatOuts</title>
 <style>
-:root{--black:#1a1a1a;--bg:#faf8f2;--card:#fff;--text:#1a1a1a;--muted:#a89a7e;--muted-2:#8a8170;--border:#ece7db;--danger:#c43c3c;--radius:16px}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5}
-.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
-.brand{font-weight:900;font-size:16px;color:var(--black)}.brand span{color:#8a8170}
-.topbar .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.tabs{position:sticky;top:57px;z-index:49;background:#fff;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 8px}
-.tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:12px 14px;font-size:12.5px;font-weight:800;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
-.tab.active{color:var(--black);border-bottom-color:#1a1a1a}
-.app{max-width:1180px;margin:0 auto;padding-bottom:130px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;padding:14px}
-.promo-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:12px;overflow:hidden}
-.promo-img{height:150px;background:#f0eee8 center/cover no-repeat;position:relative}
-.promo-img .st{position:absolute;top:10px;left:10px}
-.promo-body{padding:14px 16px}
-.promo-title{font-weight:800;font-size:15.5px}
-.promo-meta{font-size:11.5px;color:var(--muted);margin-top:4px}
-.promo-price{font-size:14px;font-weight:900;color:#1a1a1a;margin-top:8px}
-.promo-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
-.btn{min-height:44px;border:0;border-radius:12px;padding:0 16px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-.btn-primary{background:var(--black);color:#fff}
-.btn-gold{background:#1a1a1a;color:#fff}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:#3a3324}
-.btn-danger{background:#fbeaea;color:var(--danger)}
-.btn-sm{min-height:34px;padding:0 11px;font-size:11.5px;border-radius:9px}
-.btn-full{width:100%}
-.empty{border:1.5px dashed var(--border);border-radius:14px;padding:22px 16px;text-align:center;color:var(--muted);font-size:13px}
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
-.badge.draft{background:#f0eee8;color:#7a7466}
-.badge.active{background:#e3f5e9;color:#17834b}
-.badge.paused{background:#fdf3dc;color:#9a6a0a}
-.badge.expired{background:#eee;color:#999}
-.badge.pending{background:#fff4dc;color:#9a6a0a}
-.badge.approved{background:#e3f0fb;color:#1565a0}
-.badge.published{background:#e3f5e9;color:#17834b}
-.badge.rejected{background:#fbeaea;color:var(--danger)}
-.section{background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:12px}
-.section-hdr{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13.5px}
-.section-body{padding:0 14px 14px;display:none}
-.section.open .section-body{display:block}
-.field{margin-bottom:12px}
-.field label{display:block;margin-bottom:6px;font-size:12.5px;font-weight:750;color:#3a3324}
-input,textarea,select{width:100%;min-height:44px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fff;font:inherit;font-size:13.5px;outline:0}
-textarea{min-height:80px;resize:vertical}
-input:focus,textarea:focus,select:focus{border-color:#1a1a1a;box-shadow:0 0 0 3px rgba(26,26,26,.08)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:520px){.grid2{grid-template-columns:1fr}}
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none}
-.toast.on{opacity:1}
-.action-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:1180px;background:#fff;border-top:1px solid var(--border);border-left:1px solid var(--border);border-right:1px solid var(--border);border-radius:16px 16px 0 0;padding:12px 16px;display:flex;gap:10px;z-index:40;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
-.action-bar .btn{flex:1}
-.modal-scrim{position:fixed;inset:0;background:rgba(20,18,14,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center}
-@media(min-width:701px){.modal-scrim{align-items:center;padding:20px}}
-.modal{background:#fff;width:100%;max-width:560px;max-height:92vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
-@media(min-width:701px){.modal{border-radius:20px}}
-.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-.modal-hdr h3{margin:0;font-size:15px;font-weight:800;flex:1}
-.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
-.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;background:#fafaf7}
-.modal-foot .btn{flex:1}
-.chips{display:flex;gap:7px;flex-wrap:wrap}
-.chip{display:inline-flex;align-items:center;min-height:34px;padding:0 13px;border-radius:999px;background:#f0eee8;font-size:12px;font-weight:700;cursor:pointer;color:#5c5547;border:1px solid transparent}
-.chip.active{background:#1a1a1a;color:#fff}
-/* ===== APP SHELL PARITY ===== */
-#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
-@media(min-width:520px){#shell{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
-#shell .topbar{position:static;height:58px;padding:0 14px;padding-top:env(safe-area-inset-top)}
-#shell .brand{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;text-decoration:none}
-#shell .brand img{width:100%;height:100%;object-fit:contain;display:block}
-#shell .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-#shell .hdr-chip{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:4px 9px;background:#faf8f2;white-space:nowrap}
-#shell .tabs{position:static;flex:0 0 auto}
-#shell .app{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;max-width:none;width:100%;padding-bottom:24px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-#shell .action-bar{position:static;max-width:none;border-radius:0;border-left:0;border-right:0}
-.toast{bottom:84px}
-.modal{max-width:460px}
-@media(min-width:520px){.modal-scrim{align-items:center;padding:20px}.modal{border-radius:16px}}
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0F0F12;--ink-2:#2A2A30;--ink-3:#4A4A52;
+    --paper:#F4F5F7;--card:#FFFFFF;
+    --line:#E6E8EC;--line-2:#F0F1F4;
+    --orange:#FF5A1F;--orange-2:#FF7A42;--orange-soft:#FFEDE4;--orange-line:#FFD5C2;
+    --green:#16A34A;--green-soft:#E7F7EE;
+    --red:#DC2626;--red-soft:#FEE2E2;
+    --amber:#B45309;--amber-soft:#FEF3C7;
+    --blue:#0284C7;--blue-soft:#E0F2FE;
+    --muted:#6B7280;--faint:#9AA1AC;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;background:#E9EBEF;color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;overscroll-behavior:none;
+    display:flex;justify-content:center;
+  }
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  #shell{
+    width:100%;max-width:460px;height:100vh;height:100dvh;
+    background:var(--paper);display:flex;flex-direction:column;
+    overflow:hidden;position:relative;box-shadow:0 0 70px rgba(20,20,25,.16);
+  }
+
+  /* ============ topbar ============ */
+  .topbar{flex:0 0 auto;background:#141418;padding:calc(13px + env(safe-area-inset-top)) 18px 0}
+  .topbar-row{display:flex;align-items:center;gap:10px;padding-bottom:13px}
+  .brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none}
+  .brand .mark{
+    width:28px;height:28px;flex:0 0 auto;border-radius:8px;
+    background:linear-gradient(145deg,var(--orange-2),var(--orange));
+    color:#fff;display:grid;place-items:center;font-size:14px;font-weight:900;
+    letter-spacing:-.03em;box-shadow:0 2px 10px rgba(255,90,31,.35);
+  }
+  .brand .word{color:#fff;font-size:15px;font-weight:800;letter-spacing:-.02em}
+  .hdr-chip{
+    margin-left:auto;font-size:10px;font-weight:800;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--orange-2);
+    border:1px solid rgba(255,122,66,.32);background:rgba(255,90,31,.1);
+    border-radius:999px;padding:5px 11px;white-space:nowrap;
+  }
+  .progress{padding-bottom:14px}
+  .progress-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .progress-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+  .progress-count{font-size:11.5px;font-weight:800;color:var(--orange-2);letter-spacing:.02em}
+  .progress-track{height:5px;border-radius:99px;background:rgba(255,255,255,.13);overflow:hidden}
+  .progress-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--orange),var(--orange-2));transition:width .35s cubic-bezier(.4,0,.2,1)}
+
+  /* ============ tabs ============ */
+  .tabs{
+    flex:0 0 auto;display:flex;gap:2px;overflow-x:auto;background:#fff;
+    border-bottom:1px solid var(--line);padding:0 6px;scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    flex:0 0 auto;padding:12px 13px;font-size:12.5px;font-weight:800;
+    color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;
+    white-space:nowrap;
+  }
+  .tab.active{color:var(--ink);border-bottom-color:var(--orange)}
+
+  /* ============ scroll ============ */
+  .scroll{
+    flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none;
+  }
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ============ intro ============ */
+  .intro{
+    background:linear-gradient(175deg,#141418 0%,#1B1B21 60%,#232329 100%);
+    padding:4px 22px 46px;position:relative;overflow:hidden;text-align:center;
+  }
+  .intro::after{
+    content:"";position:absolute;top:-80px;right:-80px;width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,31,.2),transparent 68%);pointer-events:none;
+  }
+  .intro h1{
+    position:relative;margin:0 auto 12px;font-size:26px;line-height:1.15;
+    font-weight:800;letter-spacing:-.03em;color:#fff;max-width:15ch;
+  }
+  .intro h1 em{font-style:normal;color:var(--orange-2)}
+  .intro p{position:relative;margin:0 auto;font-size:14px;line-height:1.6;color:rgba(255,255,255,.6);max-width:32ch}
+
+  /* ============ sheet ============ */
+  .sheet{position:relative;z-index:1;margin-top:-26px;background:var(--paper);border-radius:26px 26px 0 0;padding:20px 14px 30px}
+
+  /* ============ meta card ============ */
+  .meta-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(20,20,25,.03)}
+  .meta-row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+  .meta-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft)}
+  .meta-text{font-size:13.5px;color:var(--ink-2);line-height:1.4;min-width:0}
+  .meta-text b{color:var(--ink);font-weight:750}
+  .meta-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:11px;border-top:1px solid var(--line-2)}
+  .stat{text-align:center}
+  .stat b{display:block;font-size:19px;font-weight:850;letter-spacing:-.03em;color:var(--ink);line-height:1.1}
+  .stat span{display:block;margin-top:3px;font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+
+  /* ============ accordion ============ */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .acc{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .2s ease,box-shadow .2s ease}
+  .acc.open{border-color:var(--orange-line);box-shadow:0 4px 18px -6px rgba(255,90,31,.22)}
+  .acc-head{width:100%;display:flex;align-items:center;gap:12px;padding:16px 15px;background:transparent;border:0;text-align:left;-webkit-tap-highlight-color:transparent;transition:background .15s}
+  .acc-head:active{background:#FAFBFC}
+  .acc-head .dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto;background:#D3D7DE;transition:background .25s ease,box-shadow .25s ease}
+  .acc.touched .acc-head .dot{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .acc.warn .acc-head .dot{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+  .acc.dim .acc-head .dot{background:var(--faint);box-shadow:none}
+  .acc-title{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .acc-title b{font-size:15px;font-weight:750;letter-spacing:-.015em;color:var(--ink);line-height:1.25}
+  .acc-sub{font-size:11.5px;color:var(--faint);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .acc.touched .acc-sub{color:var(--green);font-weight:650}
+  .acc.warn .acc-sub{color:var(--amber);font-weight:650}
+  .acc-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
+  .acc.open .acc-body{grid-template-rows:1fr}
+  .acc-inner{overflow:hidden;min-height:0}
+  .module{padding:2px 15px 18px}
+  .module-note{font-size:12.5px;line-height:1.5;color:var(--muted);margin:0 0 14px;padding:11px 12px;background:#FAFBFC;border:1px solid var(--line-2);border-radius:11px}
+
+  /* ============ promo card ============ */
+  .promo{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:10px;-webkit-tap-highlight-color:transparent;transition:border-color .15s}
+  .promo:last-child{margin-bottom:0}
+  .promo:active{border-color:var(--orange-line)}
+  .promo-hero{height:120px;background:#F0F1F4;position:relative;display:grid;place-items:center;overflow:hidden;color:#B7BDC6;font-size:32px}
+  .promo-hero img{width:100%;height:100%;object-fit:cover;display:block}
+  .promo-hero .badge{position:absolute;top:9px;left:9px}
+  .promo-hero .type-tag{
+    position:absolute;bottom:9px;left:9px;background:rgba(15,15,18,.72);color:#fff;
+    font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    padding:3px 8px;border-radius:6px;line-height:1;
+  }
+  .promo-hero .age-tag{
+    position:absolute;bottom:9px;right:9px;background:#FEF3C7;color:#B45309;
+    font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 8px;border-radius:6px;line-height:1;
+  }
+  .promo-body{padding:12px 13px 13px}
+  .promo-title{font-size:15px;font-weight:750;letter-spacing:-.01em;color:var(--ink);line-height:1.3;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .promo-meta{font-size:11.5px;color:var(--faint);font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:8px}
+  .promo-prices{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:11px}
+  .promo-price{font-size:16px;font-weight:850;letter-spacing:-.02em;color:var(--orange)}
+  .promo-price-was{font-size:12.5px;font-weight:600;color:var(--faint);text-decoration:line-through}
+  .promo-save{font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;background:var(--green-soft);color:var(--green);border-radius:999px}
+  .promo-actions{display:flex;gap:6px;flex-wrap:wrap;padding-top:11px;border-top:1px solid var(--line-2)}
+  .promo-btn{
+    flex:1 1 auto;min-width:0;height:34px;border:1px solid var(--line);background:#fff;
+    border-radius:9px;font-size:11.5px;font-weight:750;color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,color .15s;padding:0 10px;
+  }
+  .promo-btn:active{background:#F4F5F7}
+  .promo-btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
+  .promo-btn.primary:active{background:#E64A12}
+  .promo-btn.danger{flex:0 0 auto;color:var(--red);border-color:#FECACA;background:#FEF2F2;padding:0 12px}
+  .promo-btn.danger:active{background:var(--red-soft)}
+  .promo-btn.armed{background:var(--red-soft);color:var(--red);border-color:#FECACA}
+
+  /* ============ badges ============ */
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+  .badge::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;flex:0 0 auto}
+  .badge.active,.badge.approved,.badge.published{background:var(--green-soft);color:var(--green)}
+  .badge.pending{background:var(--amber-soft);color:var(--amber)}
+  .badge.paused{background:#F0F1F4;color:var(--faint)}
+  .badge.expired{background:#EEE;color:#8A9099}
+  .badge.draft{background:#F0F1F4;color:var(--faint)}
+  .badge.rejected{background:var(--red-soft);color:var(--red)}
+
+  /* ============ empty state ============ */
+  .empty-note{font-size:12.5px;color:var(--faint);text-align:center;padding:18px 12px;border:1.5px dashed #DCE0E6;border-radius:11px;background:#FAFBFC;line-height:1.5}
+
+  /* ============ how promos work ============ */
+  .info-block{background:#FAFBFC;border:1px solid var(--line-2);border-radius:12px;padding:13px 14px;margin-bottom:10px}
+  .info-block:last-child{margin-bottom:0}
+  .info-block h4{margin:0 0 6px;font-size:13.5px;font-weight:750;letter-spacing:-.01em;color:var(--ink)}
+  .info-block p{margin:0;font-size:12.5px;line-height:1.55;color:var(--muted)}
+  .info-block p + p{margin-top:6px}
+  .info-block b{color:var(--ink);font-weight:750}
+
+  /* ============ bottom actions ============ */
+  .actions{flex:0 0 auto;padding:11px 14px calc(11px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+  .btn{width:100%;height:52px;border:0;border-radius:13px;font-family:inherit;font-size:15px;font-weight:750;letter-spacing:-.01em;display:inline-flex;align-items:center;justify-content:center;gap:9px;transition:transform .1s ease,background .15s;-webkit-tap-highlight-color:transparent}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:linear-gradient(145deg,var(--orange-2),var(--orange));color:#fff;box-shadow:0 6px 18px -6px rgba(255,90,31,.5)}
+  .btn-primary:active{background:var(--orange)}
+  .btn-ghost{background:#F4F5F7;color:var(--ink-2);border:1px solid var(--line)}
+  .btn-ghost:active{background:#E9EBEF}
+
+  /* ============ modal ============ */
+  .modal-scrim{position:fixed;inset:0;z-index:100;background:rgba(15,15,18,.55);display:flex;align-items:flex-end;justify-content:center;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @media(min-width:520px){.modal-scrim{align-items:center;padding:20px}}
+  .modal{background:#fff;width:100%;max-width:460px;height:94vh;max-height:94vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:slideup .25s cubic-bezier(.4,0,.2,1)}
+  @keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  @media(min-width:520px){
+    .modal{border-radius:18px;height:auto;max-height:92vh}
+    @keyframes slideup{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+  }
+  .modal-hdr{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;background:#fff;flex:0 0 auto}
+  .modal-hdr h3{margin:0;flex:1;font-size:16px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+  .modal-close{width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:9px;color:var(--muted);font-size:14px;line-height:1;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+  .modal-close:active{background:#F4F5F7}
+  .modal-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 18px 20px;scrollbar-width:none}
+  .modal-body::-webkit-scrollbar{display:none}
+  .modal-foot{flex:0 0 auto;padding:12px 18px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#FAFBFC;display:flex;gap:9px}
+  .modal-foot .btn{flex:1;height:48px;font-size:14.5px}
+
+  /* ============ form ============ */
+  .form-section{margin-bottom:18px}
+  .form-section:last-child{margin-bottom:0}
+  .form-label{display:block;font-size:11.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .form-label .opt{text-transform:none;letter-spacing:0;font-weight:650;color:var(--faint);font-size:11px}
+  .form-help{margin:8px 0 0;font-size:11.5px;color:var(--faint);line-height:1.5}
+  .input,.textarea,.select{width:100%;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);font-size:15px;line-height:1.4;padding:13px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
+  .textarea{min-height:80px;resize:vertical;line-height:1.55}
+  .select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;background-size:14px;padding-right:38px}
+  .input:focus,.textarea:focus,.select:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,90,31,.13)}
+  .input::placeholder,.textarea::placeholder{color:#B7BDC6}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  @media(max-width:400px){.row-3{grid-template-columns:1fr 1fr}}
+  .price-wrap{position:relative}
+  .price-wrap::before{content:"P";position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:800;color:var(--muted);pointer-events:none}
+  .price-wrap .input{padding-left:30px}
+
+  /* ============ image picker ============ */
+  .picker-row{display:flex;justify-content:center;margin-bottom:16px}
+  .picker-box{
+    width:140px;height:110px;border-radius:14px;background:#F0F1F4;border:1.5px dashed #C8CDD4;
+    display:grid;place-items:center;overflow:hidden;cursor:pointer;position:relative;
+    -webkit-tap-highlight-color:transparent;transition:border-color .15s,background .15s;
+  }
+  .picker-box:active{border-color:var(--orange);background:var(--orange-soft)}
+  .picker-box.has-img{border-style:solid;border-color:var(--line)}
+  .picker-box img{width:100%;height:100%;object-fit:cover;display:block}
+  .picker-box .glyph{font-size:28px;color:var(--orange);line-height:1;font-weight:300}
+  .picker-box .lbl{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#8A9099;background:rgba(255,255,255,.9);padding:2px 8px;border-radius:99px}
+  .picker-box.has-img .lbl{background:rgba(15,15,18,.72);color:#fff}
+  .picker-box input{display:none}
+
+  /* ============ check row ============ */
+  .check-row{display:flex;align-items:center;gap:10px;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:14px;font-weight:650;color:var(--ink-2);-webkit-tap-highlight-color:transparent;margin-bottom:10px;cursor:pointer}
+  .check-row:last-child{margin-bottom:0}
+  .check-row:active{background:#FAFBFC}
+  .check-row input{width:20px;height:20px;accent-color:var(--orange);margin:0;flex:0 0 auto}
+  .check-row .check-text{flex:1;min-width:0}
+  .check-row .check-help{display:block;margin-top:2px;font-size:11px;color:var(--faint);font-weight:550;line-height:1.4}
+
+  /* ============ radio cards ============ */
+  .radio-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .radio-card{position:relative;border:1px solid var(--line);border-radius:11px;padding:12px;display:flex;gap:9px;align-items:flex-start;cursor:pointer;background:#fff;transition:border-color .15s,background .15s}
+  .radio-card:has(input:checked){border-color:var(--orange);background:var(--orange-soft)}
+  .radio-card:has(input:disabled){opacity:.55;cursor:not-allowed}
+  .radio-card input{width:16px;height:16px;margin:2px 0 0;accent-color:var(--orange);flex:0 0 auto}
+  .radio-card strong{display:block;font-size:12.5px;font-weight:800;color:var(--ink)}
+  .radio-card small{display:block;color:var(--muted);font-size:10.5px;line-height:1.4;margin-top:3px}
+  .radio-cards.three{grid-template-columns:1fr 1fr 1fr}
+  @media(max-width:400px){.radio-cards.three{grid-template-columns:1fr}}
+
+  /* ============ day chips ============ */
+  .day-chips{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .day-chip{
+    border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--muted);
+    font-size:11px;font-weight:800;padding:8px 4px;text-align:center;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,color .15s;
+  }
+  .day-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .day-chip:active{transform:scale(.96)}
+
+  /* ============ menu picker ============ */
+  .menu-picker{border:1px solid var(--line);border-radius:11px;max-height:180px;overflow-y:auto;padding:6px;background:#fff}
+  .menu-option{display:flex;align-items:flex-start;gap:9px;padding:8px 6px;font-size:12.5px;border-bottom:1px solid var(--line-2);cursor:pointer}
+  .menu-option:last-child{border-bottom:0}
+  .menu-option input{width:16px;height:16px;accent-color:var(--orange);margin:2px 0 0;flex:0 0 auto}
+  .menu-option .menu-name{flex:1;min-width:0;color:var(--ink-2);font-weight:650}
+  .menu-option .menu-price{color:var(--muted);font-size:11px;font-weight:600;margin-left:4px}
+  .menu-group-label{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 4px 3px}
+
+  /* ============ callouts ============ */
+  .callout{border-radius:10px;padding:11px 12px;font-size:11.5px;line-height:1.5;margin-top:10px}
+  .callout.info{background:#F0F5FA;border:1px solid #DCE7F0;color:#3A546B}
+  .callout.warn{background:var(--amber-soft);border:1px solid #F1DDAA;color:#7A4D06}
+  .callout.danger{background:var(--red-soft);border:1px solid #F4C5C2;color:#8C2A2C}
+  .callout.success{background:var(--green-soft);border:1px solid #C6E6D2;color:#146A3F}
+  .callout b{font-weight:800}
+
+  /* ============ preview mini ============ */
+  .preview-mini{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#F8FAFC}
+  .preview-mini .hero{height:130px;background:linear-gradient(135deg,#F2F5F9,#E4E9F1);position:relative;overflow:hidden;display:grid;place-items:center;color:#B7BDC6;font-size:28px}
+  .preview-mini .hero img{width:100%;height:100%;object-fit:cover;display:block}
+  .preview-mini .hero .preview-kind{position:absolute;top:10px;left:10px;border-radius:6px;padding:4px 8px;background:#fff;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+  .preview-mini .body{padding:13px}
+  .preview-mini .title{font-size:15px;font-weight:800;line-height:1.25;margin:0 0 5px;letter-spacing:-.015em;color:var(--ink);overflow-wrap:anywhere}
+  .preview-mini .desc{font-size:11.5px;color:var(--muted);margin:0 0 10px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .preview-mini .price{font-size:16px;font-weight:900;color:var(--orange);letter-spacing:-.02em}
+  .preview-mini .price del{font-size:11.5px;color:var(--faint);font-weight:600;margin-left:6px}
+  .preview-mini .meta{font-size:10.5px;color:var(--faint);margin-top:9px;padding-top:9px;border-top:1px solid var(--line-2)}
+  .preview-mini .aud{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6F4D17;margin-top:6px}
+
+  /* ============ fee panel ============ */
+  .fee-panel{background:#FAFBFC;border:1px solid var(--line-2);border-radius:12px;padding:14px}
+  .fee-panel h4{margin:0 0 10px;font-size:12.5px;font-weight:800;color:var(--ink)}
+  .fee-row{display:flex;justify-content:space-between;gap:12px;margin:7px 0;font-size:12px;color:var(--muted)}
+  .fee-row strong{color:var(--ink);font-weight:750;text-align:right}
+  .fee-total{border-top:1px solid var(--line-2);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .fee-total span{font-size:11.5px;font-weight:800;color:var(--ink-2)}
+  .fee-total b{font-size:20px;font-weight:900;letter-spacing:-.03em;color:var(--ink)}
+  .fee-fine{font-size:10.5px;color:var(--faint);margin:8px 0 0;line-height:1.45}
+
+  /* ============ toast ============ */
+  .toast{
+    position:fixed;left:50%;z-index:200;bottom:calc(88px + env(safe-area-inset-bottom));
+    transform:translate(-50%,10px);background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:650;padding:12px 18px;border-radius:999px;
+    max-width:88vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media print{
+    body{background:#fff;display:block}
+    #shell{max-width:none;height:auto;box-shadow:none;display:block;overflow:visible}
+    .topbar,.actions{display:none!important}
+    .scroll{overflow:visible;height:auto}
+    .acc-body{grid-template-rows:1fr!important}
+    .intro{border-radius:0}
+    .sheet{margin-top:0;border-radius:0}
+  }
 </style>
 </head>
 <body data-page="promo-onboarding">
+
 <div id="shell">
-<header class="topbar">
-  <a class="brand" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
-  <div class="hdr-right"><span class="hdr-chip">Promotions</span></div>
-</header>
-<nav class="tabs">
-  <a class="tab" href="restaurant-onboarding.html">Restaurant</a>
-  <a class="tab" href="menu-onboarding.html">Menu</a>
-  <a class="tab active" href="promo-onboarding.html">Promos</a>
-  <a class="tab" href="event-onboarding.html">Events</a>
-  <a class="tab" href="gallery-onboarding.html">Gallery</a>
-  <a class="tab" href="operator-dashboard1.html">Dashboard</a>
-</nav>
-<main id="app" class="app"></main>
-<div class="action-bar">
-  <button class="btn btn-ghost" id="btnBack">← Back</button>
-  <button class="btn btn-gold" id="btnNew">+ Create Promo</button>
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="index.html#promos">
+        <span class="mark">E</span>
+        <span class="word">EatOuts</span>
+      </a>
+      <span class="hdr-chip">Promotions</span>
+    </div>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="progress-label">Promo activity</span>
+        <span class="progress-count" id="progressCount">0 of 3 free days used</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <a class="tab" href="restaurant-onboarding.html">Restaurant</a>
+    <a class="tab" href="menu-onboarding.html">Menu</a>
+    <a class="tab active" href="promo-onboarding.html">Promos</a>
+    <a class="tab" href="event-onboarding.html">Events</a>
+    <a class="tab" href="gallery-onboarding.html">Gallery</a>
+    <a class="tab" href="operator-dashboard1.html">Dashboard</a>
+  </nav>
+
+  <div class="scroll" id="scroll">
+    <section class="intro">
+      <h1>Promos that <em>sell</em> today.</h1>
+      <p>Food specials, happy hours, combos, seasonal offers and events. Submitted promos are reviewed before going live.</p>
+    </section>
+    <main class="sheet">
+      <div class="meta-card" id="metaCard"></div>
+      <div class="stack" id="stack"></div>
+    </main>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="btnNew" type="button">+ Create promo</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
-</div>
-<div id="toast" class="toast"></div>
 
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-owner-compat.js"></script>
+<script src="js/eatouts-age.js"></script>
+<script src="js/eatouts-promo-rules.js"></script>
 <script src="js/eatouts-image-compressor.js"></script>
 <script src="js/eatouts-video-validator.js"></script>
 <script src="js/eatouts-upload.js"></script>
 <script src="js/eatouts-business-api.js"></script>
 <script>
-/* Operator pages are only reachable through the About Us sign-in.
-   This runs before any page content paints. */
-if(!EatoutsAuth.requireSession()){EatoutsAuth.redirectToLogin();}
-else{EatoutsAuth.applyActive();}
-</script>
-<script>
-const DB_KEY=EatoutsDB.KEY;
-const EMPTY_DB={version:1,restaurant:{id:'rest_001',identity:{name:''},location:{city:'',area:''},contacts:[]},menuCategories:[],menuItems:[],promos:[],events:[],performers:[],performances:[],galleryGroups:[],galleryImages:[],settings:{currency:'BWP',currencySymbol:'P'}};
-function dbLoad(){return EatoutsOwnerCompat.load();}
-function dbSave(d){EatoutsOwnerCompat.save(d);}
-function uid(p){return p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);}
-function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
-let DB=dbLoad();function save(){dbSave(DB);render();
-  if(PROMO_SERVER&&SRID&&API){
-    const p=DB.promos.slice();
-    Promise.all(p.map(x=>API.promoUpdate(SRID,x.id,API.promoToServer(x)).catch(()=>{}))).catch(()=>{});
+(function () {
+  "use strict";
+
+  /* ============================================================
+     CONFIG
+     ============================================================ */
+  const STORE_KEY = "eatouts.promo-onboarding.v2";
+  const INCLUDED_PROMOS_PER_MONTH = 3;
+  const FIRST_DAY_FEE = 50;
+  const ADDITIONAL_DAY_FEE = 10;
+  const CURRENCY = "BWP";
+  const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+  const CATEGORY_TAXONOMY = {
+    Food: [
+      "Food Special","Daily Special","Chef's Special","Signature Dish Promo","Breakfast Special","Brunch Deal",
+      "Lunch Special","Dinner Special","Late Night Bite","Kids Meal Deal","Family Meal Deal","Student Special",
+      "Pensioner Special","Two-for-One Meal","Buy-One-Get-One (BOGO)","Percentage Off Item","Fixed-Price Menu",
+      "Set Menu / Prix Fixe","Dessert Special","Grill / Braai Special","Seafood Special","Vegetarian / Vegan Special",
+      "Healthy Bowl Deal","Pizza Deal","Burger Deal","Wings / Ribs Special","Curry Night","Sunday Roast",
+      "New Item Launch (Food)","Chef Tasting Menu","Mystery / Surprise Meal"
+    ],
+    Beverage: [
+      "Beverage Only","Mocktail Special","Coffee / Tea Deal","Smoothie / Juice Deal","Cold Drink Combo",
+      "Happy Hour (Non-alcoholic)","Bottle Service (Soft)","Frappé / Iced Drink Special",
+      "Beverage Only (Alcohol)","Beer Bucket","Beer / Cider Special","Draught Special","Wine by the Glass",
+      "Wine Bottle Promo","Champagne / Sparkling Promo","Spirits Special","Cocktail of the Day",
+      "Cocktail Pitcher / Jug","2-for-1 Drinks","Shot / Bomb Special","Bottle Service (Alcohol)",
+      "Brand Launch / Tasting","Brewery / Distillery Night","Wine Pairing Dinner","Cocktail Masterclass",
+      "Mix-Your-Own / DIY Cocktail","After-Work Drinks Deal","Late Night Bar Special"
+    ],
+    Combo: [
+      "Combo (Food + Drink)","Combo (Food + Beer/Cider)","Combo (Food + Wine)","Combo (Food + Cocktail)",
+      "Combo (Food + Mocktail)","Date Night Combo","Sports Bar Combo","Family Combo","Breakfast + Bubbles",
+      "Lunch + Drink Combo","Pizza + Beer Combo","Burger + Beer Combo"
+    ],
+    Platter: [
+      "Platter Without Alcohol","Platter With Beer/Cider","Sharing Platter","Group Platter (4–6 people)",
+      "Party / Event Platter","Seafood Platter","Wings & Ribs Platter","Breakfast Platter",
+      "Cold Platter / Charcuterie","Vegetarian Platter"
+    ],
+    "Happy Hour": [
+      "Happy Hour","Reverse Happy Hour","Afternoon Tea Special","Lunch Rush Discount","Early Bird Special",
+      "Late Night Discount","Twilight Menu","Midnight Snack Deal","Time-Limited Flash Promo"
+    ],
+    Seasonal: [
+      "Seasonal","Public Holiday Promo","Festive Special","New Year's Special","Valentine's Special",
+      "Mother's Day / Father's Day","Easter Special","Heritage / Independence Day","Ramadan / Iftar Special",
+      "Back-to-School","Winter Warmer","Summer Cooler","Year-End Function Package","Limited Time Offer",
+      "Anniversary / Birthday Promo"
+    ],
+    Events: [
+      "Sports Screening","Football / Match Day","UEFA / Champions League Night","Rugby / Cricket Screening",
+      "Watch Party","Fight Night (Boxing / UFC)","Sports Awards Viewing","Tournament / Competition",
+      "Live Music Night","Live Jazz","DJ / Club Night","Live DJ Battle","Dance / Salsa Night","Karaoke Night",
+      "Open Mic Night","Comedy Night","Album / Single Release","Ladies Night","Product Launch Party",
+      "Brand Takeover Night","Tasting / Sampling Event","Brewery / Distillery Event","Chef's Table Dinner",
+      "Networking / Business Mixer","Industry / Trade Night","Kids Party / Funday","Family Funday",
+      "Cultural / Themed Night","Quiz / Trivia Night","Club / Society Meeting","Charity / Fundraiser Event",
+      "Market / Pop-Up Day","Private Event / Function","Birthday Party Package","Corporate Function",
+      "Year-End Function","Wedding / Celebration","Baby Shower / Bridal Shower"
+    ],
+    Loyalty: [
+      "Loyalty Stamp Card","First-Visit Reward","Refer-a-Friend","Birthday Reward","App-Only Promo",
+      "QR-Code Promo","Member-Only Promo","Gamified / Spin-to-Win","Review Reward","Combo Upgrade",
+      "Free Delivery Promo","Group Booking Discount","Referral / Influencer Promo","New Customer Welcome",
+      "Comeback / Win-Back"
+    ]
+  };
+  const CATEGORY_LABELS = {
+    Food:"Food", Beverage:"Beverage", Combo:"Combo", Platter:"Platter",
+    "Happy Hour":"Happy Hour", Seasonal:"Seasonal", Events:"Events", Loyalty:"Loyalty & Rewards"
+  };
+  /* The Promos-tab segment for a promo. The shared map decides - the
+     eight operator families fold onto Food / Combo / Beverage, and
+     Happy Hour is derived from the copy. */
+  function segmentFor(promo){
+    if(PROMO_RULES && typeof PROMO_RULES.segmentForPromo === "function"){
+      return PROMO_RULES.segmentForPromo(promo || {});
+    }
+    return (promo && promo.promoFamily) || "Food";
   }
-}
-const money=v=>DB.settings.currencySymbol+(Number(v)||0).toFixed(2);
 
-/* ========== SERVER SYNC (D1 business promos) ==========
-   Business promos are published directly through /api/business/promos.
-   The moderation-queue path (promoSubmit / promoToSubmission) is kept as a
-   secondary "submit for admin review" step. Server rows are mirrored into
-   the local store via promoFromServer so the existing CRUD UI keeps working. */
-const API=window.EatoutsBusinessApi;let SRID=(DB.settings||{}).serverRestaurantId||null,PROMO_SERVER=false;
-function currentRestaurant(){try{const d=EatoutsDB.load();const list=d.restaurants||[];return list.find(r=>r.id===DB.restaurant.id)||list[0]||{};}catch(e){return {};}}
-function resolveInput(){const cur=currentRestaurant();return {serverRestaurantId:SRID,id:DB.restaurant.id,slug:cur.slug,name:(DB.restaurant.identity||{}).name||cur.name};}
-function promoServerSync(){if(!API)return;API.resolve(resolveInput(),{create:false}).then(r=>{if(!r||!r.rid)return;SRID=r.rid;PROMO_SERVER=true;if(!(DB.settings||{}).serverRestaurantId){DB.settings=DB.settings||{};DB.settings.serverRestaurantId=r.rid;dbSave(DB);}return API.promosRead(SRID).then(res=>{if(!res.ok||!res.data||!Array.isArray(res.data.promos))return;mergeServerPromos(res.data.promos);});}).catch(()=>{});}
-function mergeServerPromos(list){let changed=false;
-  list.forEach(s=>{const p=DB.promos.find(x=>x.id===s.id);if(p){const m=API.promoFromServer(s);Object.keys(m).forEach(k=>{p[k]=m[k];});p.synced=true;changed=true;}else{DB.promos.push(Object.assign(API.promoFromServer(s),{synced:true}));changed=true;}});
-  if(changed){dbSave(DB);render();}}
-function submitPromo(p){if(!PROMO_SERVER||!SRID||!API)return;try{Promise.resolve(API.promoSubmit(SRID,API.promoToSubmission(p,DB.restaurant))).then(r=>{if(r.ok){p.reviewStatus='pending';dbSave(DB);toast(r.data&&r.data.already?'Already submitted for review':'Submitted for review');render();}else if(r.data&&r.data.error){toast('Server: '+r.data.error);}}).catch(()=>{});}catch(e){}}
-function promoStatus(p){if(p.reviewStatus)return p.reviewStatus;return statusOf(p);}
+  const MECHANICS = [
+    "Percentage Off","Fixed-Price","2-for-1","Buy-One-Get-One (BOGO)","Free Item","Free Upgrade",
+    "Bundled Price","Tiered Discount","Early Bird","Last-Minute","Flash Sale","Coupon Code",
+    "Happy Hour Price","Loyalty Point Multiplier","No Discount / Event Listing","Custom Offer"
+  ];
+  const ACTIONS = [
+    { value:"order", label:"Order on WhatsApp" },
+    { value:"reserve", label:"Reserve a table" },
+    { value:"book", label:"Book / buy ticket" },
+    { value:"rsvp", label:"RSVP" },
+    { value:"enquire", label:"Send an enquiry" },
+    { value:"call", label:"Call the venue" },
+    { value:"visit", label:"Visit venue" },
+    { value:"redeem", label:"Redeem in person" }
+  ];
+  const TICKET_TYPES = ["Free entry","Paid ticket","Reservation required","Ticketed + reservation","Invite only"];
 
-let VIEW={mode:'list',id:null};
-const OPEN={};
+  /* The alcohol rule and the pricing rule live in the shared modules, so
+     this page, the customer app and the server can never disagree about
+     what is 18+ or what a promo costs. */
+  const AGE_RULES = window.EatoutsAge || null;
+  const PROMO_RULES = window.EatoutsPromoRules || null;
 
-function openForm({title,fields,values,onSave,saveLabel}){
-  values=values||{};
-  const scrim=document.createElement('div');
-  scrim.className='modal-scrim';
-  scrim.innerHTML=`<div class="modal">
-    <div class="modal-hdr"><h3>${esc(title)}</h3><button class="btn btn-ghost btn-sm" data-close>Close</button></div>
-    <div class="modal-body">${fields.map(f=>field(f,values[f.key])).join('')}</div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" data-close>Cancel</button>
-      <button class="btn btn-gold" data-save>${esc(saveLabel||'Save')}</button>
-    </div></div>`;
-  document.body.appendChild(scrim);
-  scrim.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>scrim.remove());
-  scrim.querySelector('[data-save]').onclick=()=>{
-    const out={};
-    scrim.querySelectorAll('[name]').forEach(el=>{
-      const k=el.getAttribute('name');
-      if(el.type==='checkbox')out[k]=el.checked;
-      else if(el.type==='number')out[k]=el.value===''?null:Number(el.value);
-      else out[k]=el.value;
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  const $ = s => document.querySelector(s);
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const uid = p => p + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+  const esc = v => String(v == null ? "" : v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const money = v => "P" + (Number(v) || 0).toFixed(2);
+  const now = () => Date.now();
+  const parseDate = v => { if(!v) return null; const d = new Date(v); return isNaN(d.getTime()) ? null : d; };
+  const formatDate = v => { const d = parseDate(v); return d ? d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "Date not set"; };
+  const monthKey = v => { const d = parseDate(v); return d ? d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") : ""; };
+
+  const statusText = p => String((p && (p.reviewStatus || p.submissionStatus || p.status)) || "draft").toLowerCase();
+  const statusClass = s => ["pending","approved","published","active","draft","paused","rejected","expired"].includes(s) ? s : "draft";
+
+  /* ============================================================
+     DB LOAD / SAVE
+     ============================================================ */
+  const fallbackRestaurant = { id:"rest_001", identity:{name:""}, location:{city:"",area:""}, contacts:[] };
+  const emptyDb = { version:1, restaurant:clone(fallbackRestaurant), menuCategories:[], menuItems:[], promos:[], events:[], settings:{currency:CURRENCY,currencySymbol:"P"} };
+
+  let DB = loadDb();
+  let API = window.EatoutsBusinessApi || null;
+  /* The editor is per business: the business hub opens
+     `promo-onboarding.html?business=<restaurantId>` for each venue it
+     owns, so several businesses can be managed from one device. */
+  function businessParam(){
+    try {
+      const v = new URLSearchParams(window.location.search).get("business");
+      return v ? String(v).trim() : "";
+    } catch(e){ return ""; }
+  }
+  const BUSINESS_ID = businessParam();
+  let SRID = BUSINESS_ID || (DB.settings || {}).serverRestaurantId || null;
+  let SERVER_CONNECTED = false;
+
+  function loadDb(){
+    try {
+      let d = null;
+      if(window.EatoutsOwnerCompat && typeof window.EatoutsOwnerCompat.load === "function") d = window.EatoutsOwnerCompat.load();
+      if(!d && window.EatoutsDB && typeof window.EatoutsDB.load === "function") d = window.EatoutsDB.load();
+      d = d || clone(emptyDb);
+      d.restaurant = d.restaurant || clone(fallbackRestaurant);
+      d.restaurant.identity = d.restaurant.identity || {name:""};
+      d.restaurant.location = d.restaurant.location || {city:"",area:""};
+      d.promos = Array.isArray(d.promos) ? d.promos : [];
+      d.events = Array.isArray(d.events) ? d.events : [];
+      d.menuItems = Array.isArray(d.menuItems) ? d.menuItems : [];
+      d.menuCategories = Array.isArray(d.menuCategories) ? d.menuCategories : [];
+      d.settings = d.settings || {currency:CURRENCY,currencySymbol:"P"};
+      return d;
+    } catch(e){ console.error("Load error", e); return clone(emptyDb); }
+  }
+  function persistDb(){
+    try {
+      if(window.EatoutsOwnerCompat && typeof window.EatoutsOwnerCompat.save === "function") window.EatoutsOwnerCompat.save(DB);
+      else if(window.EatoutsDB && typeof window.EatoutsDB.save === "function") window.EatoutsDB.save(DB);
+      else localStorage.setItem(STORE_KEY, JSON.stringify(DB));
+      return true;
+    } catch(e){ console.error("Save error", e); toast("Could not save"); return false; }
+  }
+
+  /* ============================================================
+     TOAST / META HELPERS
+     ============================================================ */
+  let toastTimer = null;
+  function toast(msg){
+    const el = $("#toast"); if(!el) return;
+    el.textContent = msg; el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
+  }
+
+  function venueName(){
+    return (DB.restaurant.identity && DB.restaurant.identity.name) || DB.restaurant.name || "Your business";
+  }
+
+  /* ============================================================
+     SERVER SYNC (optional — silent if API missing)
+     ============================================================ */
+  function promoServerSync(){
+    if(!API || typeof API.resolve !== "function") return;
+    try {
+      const cur = currentRestaurant();
+      const input = { serverRestaurantId:SRID, id:DB.restaurant.id, slug:cur.slug, name:venueName() };
+      Promise.resolve(API.resolve(input, {create:false})).then(r => {
+        if(!r || !r.rid) return null;
+        SRID = r.rid; SERVER_CONNECTED = true;
+        DB.settings = DB.settings || {}; DB.settings.serverRestaurantId = SRID; persistDb();
+        return API.promosRead ? API.promosRead(SRID) : null;
+      }).then(res => {
+        if(res && res.ok && res.data && Array.isArray(res.data.promos)) mergeServerPromos(res.data.promos);
+      }).catch(() => {});
+    } catch(e){ console.warn("Server sync skipped", e); }
+  }
+  function currentRestaurant(){
+    try {
+      const d = window.EatoutsDB && window.EatoutsDB.load ? window.EatoutsDB.load() : null;
+      const list = d && Array.isArray(d.restaurants) ? d.restaurants : [];
+      return list.find(r => r.id === DB.restaurant.id) || list[0] || {};
+    } catch(e){ return {}; }
+  }
+  function mergeServerPromos(list){
+    let changed = false;
+    list.forEach(sp => {
+      try {
+        const incoming = API && API.promoFromServer ? API.promoFromServer(sp) : sp;
+        const id = String(incoming.id || sp.id || ""); if(!id) return;
+        const existing = DB.promos.find(p => String(p.id) === id);
+        if(existing){
+          if(statusText(existing) === "draft" && !existing.submittedAt) return;
+          Object.assign(existing, incoming, {synced:true});
+          changed = true;
+        } else {
+          DB.promos.push(Object.assign({}, incoming, {synced:true}));
+          changed = true;
+        }
+      } catch(e){ console.warn("Merge error", e); }
     });
-    onSave(out,scrim);
-  };
-  return scrim;
-}
-function field(f,v){
-  if(f.type==='html')return f.html;
-  if(f.type==='textarea')return `<div class="field"><label>${esc(f.label)}</label><textarea name="${f.key}">${esc(v||'')}</textarea></div>`;
-  if(f.type==='select')return `<div class="field"><label>${esc(f.label)}</label><select name="${f.key}">${(f.options||[]).map(o=>{const val=typeof o==='string'?o:o.value;const lbl=typeof o==='string'?o:o.label;return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lbl)}</option>`;}).join('')}</select></div>`;
-  if(f.type==='checkbox')return `<label style="display:flex;gap:8px;align-items:center;padding:8px 0;font-weight:700;font-size:13px"><input type="checkbox" name="${f.key}" ${v?'checked':''}> ${esc(f.label)}</label>`;
-  return `<div class="field"><label>${esc(f.label)}</label><input type="${f.type||'text'}" name="${f.key}" value="${esc(v||'')}" placeholder="${esc(f.placeholder||'')}"></div>`;
-}
-
-/* ========== RENDER ========== */
-function statusOf(p){
-  if(p.status)return p.status;
-  const now=new Date();
-  if(p.endDate&&new Date(p.endDate)<now)return 'expired';
-  return 'active';
-}
-function render(){
-  if(VIEW.mode==='edit'){
-    renderEditor();return;
+    if(changed){ persistDb(); render(); }
   }
-  const list=DB.promos.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  let h=`<div class="card" style="display:flex;justify-content:space-between;align-items:center">
-    <div><div style="font-weight:800;font-size:15px">Promotions</div>
-    <div style="font-size:11.5px;color:var(--muted);margin-top:2px">${list.length} promo${list.length===1?'':'s'} · submitted promos are reviewed before going live</div></div>
-  </div>`;
-  if(!list.length)h+=`<div class="empty">No promos yet. Tap <b>+ Create Promo</b> to launch your first one.</div>`;
-  list.forEach(p=>{
-    const s=promoStatus(p);
-    h+=`<div class="promo-card">
-      <div class="promo-img" ${p.image?`style="background-image:url('${esc(p.image)}')"`:''}>
-        <span class="badge ${s} st">${s}</span>
-      </div>
-      <div class="promo-body">
-        <div class="promo-title">${esc(p.title||'Untitled promo')}</div>
-        <div class="promo-meta">${esc(p.location&&p.location.city||'')}${p.location&&p.location.area?' · '+esc(p.location.area):''}</div>
-        ${p.promoPrice?`<div class="promo-price">${money(p.promoPrice)} <span style="color:var(--muted);text-decoration:line-through;font-weight:600;font-size:12px">${money(p.originalPrice)}</span></div>`:''}
-        <div class="promo-actions">
-          <button class="btn btn-ghost btn-sm" data-act="edit" data-id="${p.id}">Edit</button>
-          <button class="btn btn-ghost btn-sm" data-act="dup" data-id="${p.id}">Duplicate</button>
-          <button class="btn btn-ghost btn-sm" data-act="pause" data-id="${p.id}">${p.status==='paused'?'Resume':'Pause'}</button>
-          <button class="btn btn-danger btn-sm" data-act="del" data-id="${p.id}">Remove</button>
-        </div>
-      </div></div>`;
-  });
-  document.getElementById('app').innerHTML=h;
-}
 
-function renderEditor(){
-  const p=DB.promos.find(x=>x.id===VIEW.id);
-  if(!p){VIEW.mode='list';render();return;}
-  const r=DB.restaurant;
-  const contacts=r.contacts||[];
-  const menuItems=DB.menuItems||[];
-  const cats=DB.menuCategories||[];
-  document.getElementById('app').innerHTML=`
-    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
-      <div style="font-weight:800;font-size:15px">${esc(p.title||'Edit Promo')}</div>
-      <span class="badge ${promoStatus(p)}">${promoStatus(p)}</span>
-    </div>
-    ${sec('idn','01 · Promo Identity',`
-      ${fld('Title *','title',p.title)}
-      ${fld('Promo Image URL','image',p.image)}
-      ${fld('Promo Type','type',p.type,['Food Special','Beverage','Combo','Platter','Happy Hour','Seasonal'])}
-      ${fldArea('Description','description',p.description)}
-    `)}
-    ${sec('pri','02 · Pricing',`
-      <div class="grid2">
-        ${fldNum('Original Price','originalPrice',p.originalPrice)}
-        ${fldNum('Promo Price','promoPrice',p.promoPrice)}
-      </div>
-      <div style="font-size:12px;color:var(--muted)">Saving: <b>${money((p.originalPrice||0)-(p.promoPrice||0))}</b></div>
-    `)}
-    ${sec('loc','03 · Location',`
-      <label style="display:flex;gap:8px;align-items:center;padding:6px 0;font-size:13px;font-weight:700">
-        <input type="checkbox" id="useRestLoc" ${p.location&&p.location.useRestaurantLocation?'checked':''}>
-        Use restaurant location (${esc(r.location.city||'—')} · ${esc(r.location.area||'—')})
-      </label>
-      <div class="grid2" style="margin-top:8px">
-        ${fld('Village / Town / City','locCity',p.location&&p.location.city)}
-        ${fld('Area / Neighbourhood','locArea',p.location&&p.location.area)}
-      </div>
-    `)}
-    ${sec('sch','04 · Schedule',`
-      <div class="grid2">
-        ${fldDate('Start Date','startDate',p.startDate)}
-        ${fldTime('Start Time','startTime',p.startTime)}
-      </div>
-      <div class="grid2">
-        ${fldDate('End Date','endDate',p.endDate)}
-        ${fldTime('End Time','endTime',p.endTime)}
-      </div>
-      ${fldChk('Recurring','recurring',p.recurring)}
-      ${fld('Recurring Days (comma separated)','days',(p.days||[]).join(', '),null,'Monday, Friday')}
-    `)}
-    ${sec('mnu','05 · Menu Connection',`
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Link existing menu items to this promo.</div>
-      <div class="chips" id="menuPicker">
-        ${cats.map(c=>{
-          const its=menuItems.filter(i=>i.categoryId===c.id);
-          if(!its.length)return '';
-          return `<div style="width:100%;margin:6px 0 2px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">${esc(c.name)}</div>`+
-            its.map(i=>`<span class="chip ${(p.linkedMenuItems||[]).includes(i.id)?'active':''}" data-menu="${i.id}">${esc(i.name)}</span>`).join('');
-        }).join('')}
-      </div>
-    `)}
-    ${sec('act','06 · Action',`
-      ${fld('Action','actionType',p.action&&p.action.type,['Order','Reserve','Book','RSVP','Enquire','Call'])}
-      <label class="field"><label>WhatsApp / Contact</label>
-        <select id="actionContact">
-          <option value="">— choose contact —</option>
-          ${contacts.map(c=>`<option value="${c.id}" ${p.action&&p.action.contactId===c.id?'selected':''}>${esc(c.title||c.number)}</option>`).join('')}
-        </select></label>
-    `)}
-    ${sec('trm','07 · Sponsor & Terms',`
-      ${fld('Sponsor','sponsor',p.sponsor)}
-      ${fldArea('Terms & Conditions','terms',p.terms)}
-      <div style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px">
-        ${fldChk('Age-restricted (18+)','ageRestricted',p.ageRestricted)}
-        <div style="font-size:11.5px;color:var(--muted);margin-top:2px">
-          Alcohol promos are already treated as 18+ automatically. Tick this only for
-          other promos that must stay hidden from under-18s.
-        </div>
-      </div>
-    `)}
-    <div style="display:flex;gap:10px;margin:12px 0 40px">
-      <button class="btn btn-ghost" style="flex:1" id="btnCancel">Cancel</button>
-      <button class="btn btn-gold" style="flex:1" id="btnSavePromo">Save Promo</button>
-    </div>
-    <div class="hint" style="margin:8px 0;color:#6b6b6b;font-size:12px;">3 free promos per venue per calendar month; the 4th and beyond cost P50.00 each (tracking-only).</div>
-  `;
-  if(window.EatoutsUpload){try{EatoutsUpload.setUploadPrefix(EatoutsUpload.sessionPrefix('venues'));}catch(e){}EatoutsUpload.decorate(document.getElementById('app'));}
-  wireEditor(p);
-}
-
-function sec(k,title,body){
-  return `<div class="section ${OPEN[k]!==false?'open':''}" data-sec="${k}">
-    <div class="section-hdr" data-sec-toggle="${k}"><span>${title}</span><span>▾</span></div>
-    <div class="section-body">${body}</div></div>`;
-}
-function fld(label,key,val,options,placeholder){
-  if(options)return `<div class="field"><label>${esc(label)}</label><select data-k="${key}">${['<option value="">—</option>',...options.map(o=>`<option value="${esc(o)}"${o===val?' selected':''}>${esc(o)}</option>`)].join('')}</select></div>`;
-  if(key==='image')return `<div class="field"><label>${esc(label)}</label><input data-k="${key}" data-upload value="${esc(val||'')}" placeholder="${esc(placeholder||'')}"><button type="button" class="btn btn-ghost btn-sm" data-upload-for="${key}">Upload</button></div>`;
-  return `<div class="field"><label>${esc(label)}</label><input data-k="${key}" value="${esc(val||'')}" placeholder="${esc(placeholder||'')}"></div>`;
-}
-function fldNum(label,key,val){return `<div class="field"><label>${esc(label)}</label><input type="number" data-k="${key}" value="${val==null?'':val}"></div>`;}
-function fldDate(label,key,val){return `<div class="field"><label>${esc(label)}</label><input type="date" data-k="${key}" value="${esc(val||'')}"></div>`;}
-function fldTime(label,key,val){return `<div class="field"><label>${esc(label)}</label><input type="time" data-k="${key}" value="${esc(val||'')}"></div>`;}
-function fldArea(label,key,val){return `<div class="field"><label>${esc(label)}</label><textarea data-k="${key}">${esc(val||'')}</textarea></div>`;}
-function fldChk(label,key,val){return `<label style="display:flex;gap:8px;align-items:center;padding:8px 0;font-weight:700;font-size:13px"><input type="checkbox" data-k="${key}" ${val?'checked':''}> ${esc(label)}</label>`;}
-
-function wireEditor(p){
-  document.querySelectorAll('[data-sec-toggle]').forEach(el=>el.onclick=()=>{const k=el.getAttribute('data-sec-toggle');OPEN[k]=OPEN[k]===false?true:false;renderEditor();});
-  document.querySelectorAll('[data-k]').forEach(el=>{
-    const k=el.getAttribute('data-k');
-    el.onchange=el.oninput=()=>{
-      let v=el.type==='checkbox'?el.checked:el.value;
-      if(el.type==='number')v=v===''?null:Number(v);
-      if(k==='locCity'||k==='locArea'){p.location=p.location||{};p.location[k==='locCity'?'city':'area']=v;}
-      else if(k==='actionType'){p.action=p.action||{};p.action.type=v.toLowerCase();}
-      else if(k==='days'){p.days=v.split(',').map(s=>s.trim()).filter(Boolean);}
-      else p[k]=v;
-      dbSave(DB);
+  /* ============================================================
+     PROMO MODEL
+     ============================================================ */
+  function defaultPromo(){
+    const loc = DB.restaurant.location || {};
+    return {
+      id: uid("promo"), title:"", shortDescription:"", description:"", image:"", imageAlt:"",
+      contentFormat:"offer", promoFamily:"Food", category:"Food", type:"Food Special",
+      mechanic:"Bundled Price", originalPrice:"", promoPrice:"", discountPercent:"",
+      couponCode:"", minimumSpend:"", maxRedemptions:"", perCustomerLimit:"",
+      startDate:"", startTime:"", endDate:"", endTime:"", recurring:false, days:[],
+      availabilityNotes:"",
+      location:{ useRestaurantLocation:true, city:loc.city || "", area:loc.area || "" },
+      linkedMenuItems:[], action:{ type:"reserve", contactId:"" }, actionUrl:"",
+      sponsor:"", terms:"", termsConfirmed:false,
+      audience:"everyone", ageRestricted:false,
+      eventDetails:{ name:"", type:"Sports Screening", highlights:"", sponsor:"", performers:"", capacity:"",
+                     ticketType:"Free entry", ticketPrice:"", bookingUrl:"", entryNotes:"" },
+      crossPostEvent:true, alsoShowInEvents:false,
+      status:"draft", reviewStatus:"draft", createdAt:now(), updatedAt:now()
     };
-  });
-  const useLoc=document.getElementById('useRestLoc');
-  if(useLoc)useLoc.onchange=()=>{p.location=p.location||{};p.location.useRestaurantLocation=useLoc.checked;if(useLoc.checked){p.location.city=DB.restaurant.location.city;p.location.area=DB.restaurant.location.area;}dbSave(DB);renderEditor();};
-  const ac=document.getElementById('actionContact');
-  if(ac)ac.onchange=()=>{p.action=p.action||{};p.action.contactId=ac.value||null;dbSave(DB);};
-  document.querySelectorAll('[data-menu]').forEach(el=>{
-    el.onclick=()=>{
-      const id=el.getAttribute('data-menu');
-      p.linkedMenuItems=p.linkedMenuItems||[];
-      const i=p.linkedMenuItems.indexOf(id);
-      if(i>=0)p.linkedMenuItems.splice(i,1);else p.linkedMenuItems.push(id);
-      el.classList.toggle('active');dbSave(DB);
+  }
+  function normalizePromo(p){
+    const out = Object.assign(defaultPromo(), p || {});
+    out.location = Object.assign(defaultPromo().location, out.location || {});
+    out.action = Object.assign({type:"reserve",contactId:""}, out.action || {});
+    out.eventDetails = Object.assign(defaultPromo().eventDetails, out.eventDetails || {});
+    if(!out.promoFamily){
+      const c = String(out.category || "Food");
+      out.promoFamily = CATEGORY_TAXONOMY[c] ? c : (c === "Combo" ? "Combo" : "Food");
+    }
+    if(!out.category) out.category = segmentFor(out);
+    if(!out.ageRestricted && out.audience === "18plus") out.ageRestricted = true;
+    if(out.contentFormat === "event"){
+      out.promoFamily = "Events"; out.category = "Events";
+      out.type = out.eventDetails.type || out.type || "Sports Screening";
+    }
+    return out;
+  }
+
+  function detectAlcohol(data){
+    const linked = (data.linkedMenuItems || []).map(id => {
+      const it = DB.menuItems.find(x => String(x.id) === String(id));
+      return it ? (it.name || it.title || "") : "";
+    }).join(" ");
+    const ev = data.eventDetails || {};
+    const fields = [data.category, data.promoFamily, data.type, data.title, data.description,
+      data.sponsor, data.terms, data.mechanic, ev.name, ev.type, ev.highlights, ev.performers, linked];
+    /* The shared rule decides - it knows the brand list and the
+       negations ("without beer", "non-alcoholic cider"). */
+    if(AGE_RULES && typeof AGE_RULES.mentionsAlcohol === "function"){
+      for(const f of fields){
+        if(f && AGE_RULES.mentionsAlcohol(String(f))) return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
+  /* Rule A - how many days the promo is actually offered. */
+  function durationDays(d){
+    if(PROMO_RULES && typeof PROMO_RULES.activeDays === "function"){
+      return Math.max(1, PROMO_RULES.activeDays(d || {}));
+    }
+    const s = parseDate(d.startDate), e = parseDate(d.endDate);
+    if(!s || !e || e < s) return 1;
+    const sMs = new Date(s.getFullYear(), s.getMonth(), s.getDate()).getTime();
+    const eMs = new Date(e.getFullYear(), e.getMonth(), e.getDate()).getTime();
+    return Math.max(1, Math.floor((eMs - sMs) / 86400000) + 1);
+  }
+  function isSubmitted(p){
+    if(p.submittedAt) return true;
+    return ["pending","approved","published","active","rejected"].includes(statusText(p));
+  }
+  function submittedThisMonth(p){
+    if(!isSubmitted(p)) return false;
+    return monthKey(p.submittedAt || p.createdAt || p.updatedAt) === monthKey(new Date());
+  }
+  function monthlySubmissions(exceptId){
+    return DB.promos.filter(p => String(p.id) !== String(exceptId || "") && submittedThisMonth(p)).length;
+  }
+  /* Free promo-DAYS a venue has left this month. Only the promos the
+     server confirmed as free consume the allowance. */
+  function freeDaysLeft(exceptId){
+    const key = monthKey(new Date());
+    let used = 0;
+    DB.promos.forEach(p => {
+      if(String(p.id) === String(exceptId || "")) return;
+      if(!p.quotedFree) return;
+      if(!isSubmitted(p)) return;
+      const mk = p.quotaMonth || monthKey(p.submittedAt || p.createdAt || now());
+      if(mk !== key) return;
+      used += Number(p.quotedDays || p.billableDays || 1);
+    });
+    return Math.max(0, INCLUDED_PROMOS_PER_MONTH - used);
+  }
+  /* All-or-nothing: a promo is free only when it fits entirely in the
+     free days that remain, otherwise the whole promo is charged. */
+  function feeQuote(d){
+    const days = durationDays(d);
+    const left = freeDaysLeft(d && d.id);
+    const q = (PROMO_RULES && typeof PROMO_RULES.quotePromoFee === "function")
+      ? PROMO_RULES.quotePromoFee({ days, freeDaysLeft: left })
+      : { included: days <= left, fee: days <= left ? 0 : FIRST_DAY_FEE + (Math.max(1, days) - 1) * ADDITIONAL_DAY_FEE };
+    return {
+      countBefore: INCLUDED_PROMOS_PER_MONTH - left,
+      submissionNumber: (INCLUDED_PROMOS_PER_MONTH - left) + 1,
+      days, freeDaysLeft: left, fee: q.fee, included: q.included
     };
-  });
-  document.getElementById('btnCancel').onclick=()=>{VIEW={mode:'list',id:null};render();};
-  document.getElementById('btnSavePromo').onclick=()=>{
-    if(!p.title){toast('Title is required');return;}
-    const serverBody=API?API.promoToServer(p):null;
-    const doSave=()=>{
-      VIEW={mode:'list',id:null};save();
-      if(PROMO_SERVER&&SRID&&API&&serverBody){
-        const apiCall=p.id&&p.synced?API.promoUpdate(SRID,p.id,serverBody):API.promoCreate(SRID,serverBody);
-        Promise.resolve(apiCall).then(r=>{if(r&&r.data&&r.data.promo){Object.assign(p,API.promoFromServer(r.data.promo));p.synced=true;dbSave(DB);}render();}).catch(()=>{render();});
-      }else{render();}
-      if(PROMO_SERVER&&SRID&&API)submitPromo(p);else toast('Promo saved');
+  }
+  function activeMenuItems(){
+    return (DB.menuItems || []).filter(it => it && it.id != null && (it.name || it.title));
+  }
+
+  /* ============================================================
+     GROUPING
+     ============================================================ */
+  function promoGroup(p){
+    const s = statusText(p);
+    if(["active","published","approved"].includes(s)) return "active";
+    if(["pending","submitted"].includes(s)) return "pending";
+    return "other";
+  }
+  function groupedPromos(){
+    const g = { active:[], pending:[], other:[] };
+    DB.promos.slice()
+      .sort((a,b) => Number(b.updatedAt || b.createdAt || 0) - Number(a.updatedAt || a.createdAt || 0))
+      .forEach(p => g[promoGroup(p)].push(p));
+    return g;
+  }
+  function totalSavings(){
+    return DB.promos.filter(p => promoGroup(p) === "active").reduce((sum, p) => {
+      const o = Number(p.originalPrice) || 0;
+      const n = Number(p.promoPrice) || 0;
+      return sum + (o > n ? o - n : 0);
+    }, 0);
+  }
+
+  /* ============================================================
+     LIST VIEW
+     ============================================================ */
+  let openKey = null;
+
+  function render(){
+    renderMeta();
+    renderStack();
+  }
+
+  function renderMeta(){
+    const total = DB.promos.length;
+    const groups = groupedPromos();
+    const activeCount = groups.active.length;
+    const pendingCount = groups.pending.length;
+    const savings = totalSavings();
+    const submitted = DB.promos.filter(submittedThisMonth).length;
+    const usedDays = Math.min(INCLUDED_PROMOS_PER_MONTH, INCLUDED_PROMOS_PER_MONTH - freeDaysLeft());
+    const usedSlots = usedDays;
+
+    $("#metaCard").innerHTML =
+      '<div class="meta-row"><span class="meta-dot"></span><span class="meta-text">' +
+        (total === 0
+          ? 'No promos yet · tap <b>+ Create promo</b> to launch your first one'
+          : '<b>' + activeCount + '</b> live promo' + (activeCount === 1 ? "" : "s") +
+            (pendingCount > 0 ? ' · <b>' + pendingCount + '</b> in review' : '')
+        ) +
+      '</span></div>' +
+      '<div class="meta-stats">' +
+        '<div class="stat"><b>' + total + '</b><span>Total</span></div>' +
+        '<div class="stat"><b>' + activeCount + '</b><span>Active</span></div>' +
+        '<div class="stat"><b>' + money(savings) + '</b><span>Savings</span></div>' +
+      '</div>';
+
+    const pct = Math.round((usedSlots / INCLUDED_PROMOS_PER_MONTH) * 100);
+    $("#progressFill").style.width = pct + "%";
+    $("#progressCount").textContent = usedSlots + " of " + INCLUDED_PROMOS_PER_MONTH + " free days used";
+  }
+
+  function renderStack(){
+    const groups = groupedPromos();
+    const acc = (key, title, sub, cls) => {
+      const isOpen = openKey === key;
+      return '<section class="acc ' + (cls || "") + (isOpen ? " open" : "") + '" data-key="' + key + '">' +
+        '<button class="acc-head" type="button" data-toggle="' + key + '" aria-expanded="' + isOpen + '">' +
+          '<span class="dot"></span>' +
+          '<span class="acc-title"><b>' + esc(title) + '</b><span class="acc-sub">' + esc(sub) + '</span></span>' +
+        '</button>' +
+        '<div class="acc-body"><div class="acc-inner" data-body="' + key + '">' + bodyFor(key, groups) + '</div></div>' +
+      '</section>';
     };
-    doSave();
-  };
-}
+    $("#stack").innerHTML =
+      acc("active", "Active promos",
+          groups.active.length ? groups.active.length + " live · " + money(totalSavings()) + " total savings" : "No active promos",
+          groups.active.length ? "touched" : "dim") +
+      acc("pending", "Pending review",
+          groups.pending.length ? groups.pending.length + " awaiting approval" : "Nothing waiting",
+          (groups.pending.length ? "touched warn" : "dim")) +
+      acc("other", "Drafts & paused",
+          groups.other.length ? groups.other.length + " saved" : "Nothing saved",
+          groups.other.length ? "touched" : "dim") +
+      acc("how", "How promos work", "Free days, review, 18+ policy, best practices", "");
+  }
 
-function newPromo(){
-  const p={id:uid('promo'),title:'',image:'',type:'Food Special',description:'',
-    originalPrice:0,promoPrice:0,
-    location:{useRestaurantLocation:true,city:DB.restaurant.location.city,area:DB.restaurant.location.area},
-    startDate:'',startTime:'',endDate:'',endTime:'',recurring:false,days:[],
-    linkedMenuItems:[],action:{type:'reserve',contactId:null},sponsor:'',terms:'',
-    status:'active',ageRestricted:false,createdAt:Date.now()};
-  DB.promos.push(p);dbSave(DB);VIEW={mode:'edit',id:p.id};render();
-}
+  function bodyFor(key, groups){
+    if(key === "active"){
+      if(!groups.active.length) return '<div class="module"><div class="empty-note">No active promos. Approved promos appear here and are visible to customers on the EatOuts app.</div></div>';
+      return '<div class="module"><p class="module-note">' + groups.active.length + ' live promo' + (groups.active.length === 1 ? "" : "s") + ' visible to customers.</p>' + groups.active.map(promoCardHTML).join("") + '</div>';
+    }
+    if(key === "pending"){
+      if(!groups.pending.length) return '<div class="module"><div class="empty-note">Nothing waiting for review. Submit a draft and it will appear here.</div></div>';
+      return '<div class="module"><p class="module-note">' + groups.pending.length + ' promo' + (groups.pending.length === 1 ? "" : "s") + ' waiting for admin review. Approval requires payment to be received.</p>' + groups.pending.map(promoCardHTML).join("") + '</div>';
+    }
+    if(key === "other"){
+      if(!groups.other.length) return '<div class="module"><div class="empty-note">No saved drafts. Drafts, paused and rejected promos appear here.</div></div>';
+      return '<div class="module"><p class="module-note">Drafts are only visible to you. Paused promos are hidden from customers but can be resumed anytime.</p>' + groups.other.map(promoCardHTML).join("") + '</div>';
+    }
+    if(key === "how"){
+      return '<div class="module">' +
+        '<div class="info-block"><h4>Free promo-days every month</h4><p>Every venue gets <b>' + INCLUDED_PROMOS_PER_MONTH + ' free promo-days per calendar month</b>. The length of the promo counts - a 3-day promo uses 3 free days. It is all-or-nothing: if your promo fits entirely inside the free days you have left it is free, otherwise the <b>whole promo is charged</b> (' + money(FIRST_DAY_FEE) + ' for day one + ' + money(ADDITIONAL_DAY_FEE) + ' per additional day) and it uses none of your free days. Drafts do not use the allowance.</p></div>' +
+        '<div class="info-block"><h4>Review + payment before publishing</h4><p>Submitted promos go into an admin review queue. Approval requires <b>payment to have been received</b>. You can cancel a pending review to move it back to paused, or duplicate it to start over.</p></div>' +
+        '<div class="info-block"><h4>18+ alcohol policy</h4><p>Any promo featuring alcoholic drinks is <b>automatically restricted to 18+ users</b> — detected from the title, description, type and linked menu items. You can also manually mark any other promo as 18+ using the audience radio in the editor.</p></div>' +
+        '<div class="info-block"><h4>What makes a good promo</h4><p><b>Clear title</b> · <b>sharp image</b> · <b>honest original price</b> · <b>specific days or dates</b> · <b>simple terms</b>. Show the exact saving and avoid vague wording like "huge discount".</p></div>' +
+        '<div class="info-block"><h4>Events & offers</h4><p>A promo can be a <b>standalone deal</b>, a <b>pure event listing</b>, or an <b>event + offer combo</b>. Events can be flagged for cross-listing on the Events tab, and can carry highlights, performers, ticketing and capacity.</p></div>' +
+      '</div>';
+    }
+    return "";
+  }
 
-document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-act]');if(!t)return;
-  const act=t.getAttribute('data-act');const id=t.getAttribute('data-id');
-  if(act==='edit'){VIEW={mode:'edit',id};render();return;}
-  if(act==='dup'){const p=DB.promos.find(x=>x.id===id);if(!p)return;const c=JSON.parse(JSON.stringify(p));c.id=uid('promo');c.title+=' (copy)';c.createdAt=Date.now();DB.promos.push(c);save();return;}
-  if(act==='pause'){const p=DB.promos.find(x=>x.id===id);if(!p)return;p.status=p.status==='paused'?'active':'paused';save();return;}
-  if(act==='del'){if(confirm('Remove this promo?')){
-      DB.promos=DB.promos.filter(x=>x.id!==id);save();
-      if(PROMO_SERVER&&SRID&&API)Promise.resolve(API.promoDelete(SRID,id)).catch(()=>{});
-    }return;}
-});
-document.getElementById('btnNew').onclick=newPromo;
-document.getElementById('btnBack').onclick=()=>{if(VIEW.mode==='edit'){VIEW={mode:'list',id:null};render();}else history.back();};
+  function promoCardHTML(p){
+    const s = statusText(p);
+    const display = s === "submitted" ? "pending" : s;
+    const family = p.contentFormat === "event" ? "Events" : (CATEGORY_LABELS[p.promoFamily] || p.category || "Promo");
+    const img = p.image ? '<img src="' + esc(p.image) + '" alt="' + esc(p.imageAlt || p.title || "") + '" loading="lazy" onerror="this.remove()">' : '<span>🏷</span>';
+    const isAge = detectAlcohol(p) || p.ageRestricted;
+    const ageTag = isAge ? '<span class="age-tag">18+</span>' : "";
+    const typeTag = p.type ? '<span class="type-tag">' + esc(p.type) + '</span>' : "";
+    const sv = Math.max(0, (Number(p.originalPrice) || 0) - (Number(p.promoPrice) || 0));
+    const prices = (Number(p.promoPrice) > 0)
+      ? '<div class="promo-prices">' +
+          '<span class="promo-price">' + money(p.promoPrice) + '</span>' +
+          (Number(p.originalPrice) > 0 ? '<span class="promo-price-was">' + money(p.originalPrice) + '</span>' : '') +
+          (sv > 0 ? '<span class="promo-save">Save ' + money(sv) + '</span>' : '') +
+        '</div>'
+      : '<div class="promo-prices" style="color:var(--faint);font-weight:600">' + (p.contentFormat === "event" ? "Event listing" : "Price not set") + '</div>';
+    const schedule = p.recurring && p.days && p.days.length
+      ? p.days.map(d => d.slice(0,3)).join(" · ") + (p.startTime && p.endTime ? " · " + p.startTime + " – " + p.endTime : "")
+      : (p.startDate ? formatDate(p.startDate) + (p.endDate && p.endDate !== p.startDate ? " → " + formatDate(p.endDate) : "") + (p.startTime ? " · " + p.startTime : "") : (p.startTime && p.endTime ? p.startTime + " – " + p.endTime : ""));
 
-render();
-promoServerSync();
+    let actions = "";
+    if(["active","published","approved"].includes(s)){
+      actions = '<button type="button" class="promo-btn" data-act="view" data-id="' + esc(p.id) + '">View</button>' +
+                '<button type="button" class="promo-btn" data-act="pause" data-id="' + esc(p.id) + '">Pause</button>' +
+                '<button type="button" class="promo-btn" data-act="dup" data-id="' + esc(p.id) + '">Duplicate</button>' +
+                '<button type="button" class="promo-btn danger" data-act="del" data-id="' + esc(p.id) + '" aria-label="Remove">✕</button>';
+    } else if(["pending","submitted"].includes(s)){
+      actions = '<button type="button" class="promo-btn" data-act="view" data-id="' + esc(p.id) + '">View</button>' +
+                '<button type="button" class="promo-btn" data-act="cancel-review" data-id="' + esc(p.id) + '">Cancel review</button>' +
+                '<button type="button" class="promo-btn danger" data-act="del" data-id="' + esc(p.id) + '" aria-label="Remove">✕</button>';
+    } else if(s === "paused"){
+      actions = '<button type="button" class="promo-btn primary" data-act="resume" data-id="' + esc(p.id) + '">Resume</button>' +
+                '<button type="button" class="promo-btn" data-act="edit" data-id="' + esc(p.id) + '">Edit</button>' +
+                '<button type="button" class="promo-btn" data-act="dup" data-id="' + esc(p.id) + '">Duplicate</button>' +
+                '<button type="button" class="promo-btn danger" data-act="del" data-id="' + esc(p.id) + '" aria-label="Remove">✕</button>';
+    } else {
+      actions = '<button type="button" class="promo-btn primary" data-act="edit" data-id="' + esc(p.id) + '">Edit</button>' +
+                '<button type="button" class="promo-btn" data-act="dup" data-id="' + esc(p.id) + '">Duplicate</button>' +
+                '<button type="button" class="promo-btn danger" data-act="del" data-id="' + esc(p.id) + '" aria-label="Remove">✕</button>';
+    }
+
+    return '<article class="promo" data-promo="' + esc(p.id) + '">' +
+      '<div class="promo-hero">' + img +
+        '<span class="badge ' + esc(statusClass(display)) + '">' + esc(display.replace(/-/g," ")) + '</span>' +
+        typeTag + ageTag +
+      '</div>' +
+      '<div class="promo-body">' +
+        '<div class="promo-title">' + esc(p.title || "Untitled promo") + '</div>' +
+        (schedule ? '<div class="promo-meta">' + esc(schedule) + '</div>' : '') +
+        prices +
+        '<div class="promo-actions">' + actions + '</div>' +
+      '</div>' +
+    '</article>';
+  }
+
+  /* ============================================================
+     ACCORDION TOGGLE
+     ============================================================ */
+  function toggleAccordion(key){
+    openKey = (openKey === key) ? null : key;
+    renderStack();
+    if(openKey){
+      setTimeout(() => {
+        try {
+          const acc = document.querySelector('.acc[data-key="' + openKey + '"]');
+          if(acc) acc.scrollIntoView({behavior:"smooth",block:"start"});
+        } catch(e){}
+      }, 220);
+    }
+  }
+
+  /* ============================================================
+     EDITOR MODAL
+     ============================================================ */
+
+  /* A draft always goes to the server as a draft - never published.
+     The server owns the row, so the local id is sent along and the
+     server row keeps that id (the submission then points at it). */
+  async function saveDraftToServer(promo, btn){
+    if(!API || typeof API.promoCreate !== "function" || !SRID) return false;
+    if(btn){ btn.disabled = true; btn.textContent = "Saving…"; }
+    try {
+      const body = API.promoToServer(promo) || {};
+      body.status = "draft";
+      const res = await API.promoCreate(SRID, body);
+      if(!res || !res.ok) throw new Error((res && res.data && res.data.error) || "Server rejected the draft.");
+      const row = (res.data && res.data.promo) || {};
+      promo.serverId = row.id || promo.serverId || promo.id;
+      if(row.billableDays != null) promo.billableDays = row.billableDays;
+      if(row.category) promo.category = row.category;
+      promo.audience = row.audience || promo.audience;
+      promo.ageRestricted = !!row.ageRestricted;
+      promo.status = "draft";
+      const ix = DB.promos.findIndex(x => String(x.id) === String(promo.id));
+      if(ix >= 0) DB.promos[ix] = promo;
+      persistDb();
+      return true;
+    } catch(err){
+      console.error("Draft save failed", err);
+      return false;
+    } finally {
+      if(btn){ btn.disabled = false; btn.textContent = "Save draft"; }
+    }
+  }
+
+  function openPromoEditor(existing){
+    const isNew = !existing;
+    let p = existing ? normalizePromo(clone(existing)) : normalizePromo(defaultPromo());
+    let fileReader = null;
+
+    const menuGroups = {};
+    activeMenuItems().forEach(it => {
+      const cat = DB.menuCategories.find(c => String(c.id) === String(it.categoryId));
+      const lbl = cat ? (cat.name || "Menu") : "Other items";
+      (menuGroups[lbl] = menuGroups[lbl] || []).push(it);
+    });
+
+    const scrim = document.createElement("div");
+    scrim.className = "modal-scrim";
+    scrim.innerHTML =
+      '<div class="modal" role="dialog" aria-modal="true">' +
+        '<div class="modal-hdr"><h3>' + (isNew ? "Create promo" : "Edit promo") + '</h3>' +
+          '<button class="modal-close" type="button" data-close aria-label="Close">✕</button></div>' +
+        '<div class="modal-body">' + buildEditorBody(p, menuGroups, isNew) + '</div>' +
+        '<div class="modal-foot">' +
+          '<button class="btn btn-ghost" type="button" id="btnCancel">Cancel</button>' +
+          '<button class="btn btn-ghost" type="button" id="btnSaveDraft">Save draft</button>' +
+          '<button class="btn btn-primary" type="button" id="btnSubmit">' + (isNew ? "Submit" : "Submit →") + '</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(scrim);
+    document.body.style.overflow = "hidden";
+    window.__editorCurrentP = p;
+
+    function close(){
+      scrim.remove();
+      document.body.style.overflow = "";
+    }
+    scrim.querySelector("[data-close]").onclick = close;
+    scrim.addEventListener("click", e => { if(e.target === scrim) close(); });
+    scrim.querySelector("#btnCancel").onclick = close;
+
+    // Delegated helper
+    const q = sel => scrim.querySelector(sel);
+    const qAll = sel => Array.prototype.slice.call(scrim.querySelectorAll(sel));
+
+    // Wire up form state <-> DOM
+    function readForm(){
+      const get = n => { const el = q('[name="' + n + '"]'); return el ? el.value : ""; };
+      const check = n => { const el = q('[name="' + n + '"]'); return !!(el && el.checked); };
+      const radio = n => { const el = q('[name="' + n + '"]:checked'); return el ? el.value : ""; };
+
+      p.contentFormat = radio("contentFormat") || p.contentFormat || "offer";
+      p.title = get("title").trim();
+      p.shortDescription = get("shortDescription").trim();
+      p.description = get("description").trim();
+      p.image = get("image").trim();
+      p.imageAlt = get("imageAlt").trim();
+
+      p.promoFamily = p.contentFormat === "event" ? "Events" : (get("promoFamily") || p.promoFamily || "Food");
+      p.type = p.contentFormat === "event"
+        ? (get("eventType") || p.eventDetails.type || p.type || "Sports Screening")
+        : (get("type") || p.type || "Food Special");
+      /* The segment is decided from the family + the copy, so it is read
+         after the type is known. */
+      p.category = segmentFor(p);
+
+      p.mechanic = get("mechanic");
+      p.originalPrice = get("originalPrice") === "" ? "" : Number(get("originalPrice"));
+      p.promoPrice = get("promoPrice") === "" ? "" : Number(get("promoPrice"));
+      p.discountPercent = get("discountPercent") === "" ? "" : Number(get("discountPercent"));
+      p.couponCode = get("couponCode").trim();
+      p.minimumSpend = get("minimumSpend") === "" ? "" : Number(get("minimumSpend"));
+      p.maxRedemptions = get("maxRedemptions") === "" ? "" : Number(get("maxRedemptions"));
+      p.perCustomerLimit = get("perCustomerLimit").trim();
+
+      p.startDate = get("startDate");
+      p.startTime = get("startTime");
+      p.endDate = get("endDate");
+      p.endTime = get("endTime");
+      p.recurring = check("recurring");
+      p.days = qAll('[name="days"]:checked').map(el => el.value);
+      p.availabilityNotes = get("availabilityNotes").trim();
+
+      p.location = {
+        useRestaurantLocation: check("useRestaurantLocation"),
+        city: get("locCity").trim(),
+        area: get("locArea").trim()
+      };
+      if(p.location.useRestaurantLocation){
+        const loc = DB.restaurant.location || {};
+        p.location.city = loc.city || p.location.city;
+        p.location.area = loc.area || p.location.area;
+      }
+
+      p.linkedMenuItems = qAll('[name="linkedMenuItems"]:checked').map(el => el.value);
+      p.action = { type: get("actionType") || "reserve", contactId: get("actionContact") || "" };
+      p.actionUrl = get("actionUrl").trim();
+      p.sponsor = get("sponsor").trim();
+      p.terms = get("terms").trim();
+      p.termsConfirmed = check("termsConfirmed");
+
+      p.ageRestricted = radio("audience") === "18plus";
+      p.audience = p.ageRestricted ? "18plus" : "everyone";
+
+      p.eventDetails = {
+        name: get("eventName").trim() || p.title,
+        type: get("eventType") || p.eventDetails.type || "Sports Screening",
+        sponsor: get("eventSponsor").trim(),
+        highlights: get("eventHighlights"),
+        performers: get("eventPerformers").trim(),
+        capacity: get("eventCapacity") === "" ? "" : Number(get("eventCapacity")),
+        ticketType: get("ticketType") || "Free entry",
+        ticketPrice: get("ticketPrice") === "" ? "" : Number(get("ticketPrice")),
+        bookingUrl: get("bookingUrl").trim(),
+        entryNotes: get("entryNotes").trim()
+      };
+      p.crossPostEvent = check("crossPostEvent");
+      p.alsoShowInEvents = p.contentFormat !== "offer" && p.crossPostEvent;
+
+      // Force 18+ if alcohol detected
+      if(detectAlcohol(p)){
+        p.ageRestricted = true;
+        p.audience = "18plus";
+      }
+
+      return p;
+    }
+
+    // Live updates: any input/change triggers a readForm + repaint of preview + fee
+    function updateLive(){
+      readForm();
+      window.__editorCurrentP = p;
+      repaintPreviewAndFee();
+      // Force-all/disable logic
+      const alcohol = detectAlcohol(p);
+      const allRadio = q('[name="audience"][value="everyone"]');
+      const ageRadio = q('[name="audience"][value="18plus"]');
+      if(alcohol){
+        if(ageRadio) ageRadio.checked = true;
+        if(allRadio) allRadio.disabled = true;
+      } else if(allRadio){
+        allRadio.disabled = false;
+      }
+    }
+    scrim.addEventListener("input", e => {
+      if(e.target.name === "contentFormat" || e.target.name === "promoFamily") return;
+      updateLive();
+    });
+    scrim.addEventListener("change", e => {
+      if(e.target.name === "contentFormat" || e.target.name === "promoFamily"){
+        // Need a full re-render of body because layout changes
+        p = readForm();
+        scrim.querySelector(".modal-body").innerHTML = buildEditorBody(p, menuGroups, isNew);
+        // rebind img preview
+        updateLive();
+        return;
+      }
+      updateLive();
+    });
+
+    // Image picker — the shared uploader compresses the image and runs the
+    // video validator, so a promo can never carry an unusable file.
+    const picker = scrim.querySelector("#pr-picker");
+    const fileInput = scrim.querySelector("#pr-img");
+    function showPickedImage(dataUrl){
+      if(!dataUrl) return;
+      p.image = dataUrl;
+      const img = picker && picker.querySelector("img");
+      const glyph = picker && picker.querySelector(".glyph");
+      const lbl = picker && picker.querySelector(".lbl");
+      if(picker){
+        if(!img){ const i = document.createElement("img"); picker.insertBefore(i, fileInput); i.src = p.image; }
+        else img.src = p.image;
+        if(glyph) glyph.style.display = "none";
+        if(lbl) lbl.textContent = "Replace";
+        picker.classList.add("has-img");
+      }
+      window.__editorCurrentP = p;
+      repaintPreviewAndFee();
+    }
+    if(fileInput) fileInput.addEventListener("change", () => {
+      const f = fileInput.files && fileInput.files[0]; if(!f) return;
+      fileInput.value = "";
+      if(window.EatoutsUpload && typeof window.EatoutsUpload.pickImage === "function"){
+        try {
+          window.EatoutsUpload.setUploadPrefix(window.EatoutsUpload.sessionPrefix("promos"));
+        } catch(e){}
+        window.EatoutsUpload.pickImage(showPickedImage, err => {
+          toast((err && err.message) ? err.message : "That image could not be used.");
+        }, { accept: "image/*" });
+        return;
+      }
+      const r = new FileReader();
+      r.onload = ev => showPickedImage(ev.target.result);
+      r.readAsDataURL(f);
+    });
+
+    // Save draft
+    scrim.querySelector("#btnSaveDraft").onclick = async () => {
+      p = readForm();
+      if(!p.title){ toast("Add a title first"); q('[name="title"]').focus(); return; }
+      p.status = "draft"; p.reviewStatus = "draft"; p.submissionStatus = "draft"; p.updatedAt = now();
+      const idx = DB.promos.findIndex(x => String(x.id) === String(p.id));
+      if(idx >= 0) DB.promos[idx] = p; else DB.promos.push(p);
+      syncLocalEvent(p);
+      persistDb();
+      const saved = await saveDraftToServer(p, scrim.querySelector("#btnSaveDraft"));
+      close(); render();
+      toast(saved ? "Draft saved to the server — not submitted or published"
+                  : "Draft saved on this device — the server is not reachable yet");
+    };
+
+    // Submit for review
+    scrim.querySelector("#btnSubmit").onclick = async () => {
+      p = readForm();
+      const errs = validate(p);
+      if(errs.length){ showErrors(errs); return; }
+      p.status = "draft"; p.reviewStatus = "draft";
+      const idx = DB.promos.findIndex(x => String(x.id) === String(p.id));
+      if(idx >= 0) DB.promos[idx] = p; else DB.promos.push(p);
+      syncLocalEvent(p); persistDb();
+      const btn = scrim.querySelector("#btnSubmit");
+      btn.disabled = true; btn.textContent = "Submitting…";
+      try {
+        if(!API || typeof API.promoSubmit !== "function" || !API.promoToSubmission){
+          throw new Error("Review server unavailable. Your draft is saved.");
+        }
+        const payload = API.promoToSubmission(p, DB.restaurant) || {};
+        Object.assign(payload, {
+          category:p.category, promoFamily:p.promoFamily, contentFormat:p.contentFormat,
+          eventDetails:p.eventDetails, alsoShowInEvents:p.alsoShowInEvents,
+          ageRestricted:p.ageRestricted, audience:p.audience,
+          originalPrice:p.originalPrice, promoPrice:p.promoPrice,
+          durationDays:durationDays(p), estimatedFee:feeQuote(p).fee, feeCurrency:CURRENCY,
+          mechanic:p.mechanic, linkedMenuItems:p.linkedMenuItems,
+          sponsor:p.sponsor, terms:p.terms, locationJson:JSON.stringify(p.location)
+        });
+        const res = await API.promoSubmit(SRID, payload);
+        if(!res || !res.ok) throw new Error((res && res.data && res.data.error) || "Server rejected the submission.");
+        /* The server locks the quote at submission time. Keep it locally so
+           the meter and the card show what was actually agreed. */
+        const q = (res.data && res.data.quote) || {};
+        p.quotedDays = q.days != null ? q.days : durationDays(p);
+        p.quotedFree = !!(q.included);
+        p.feeCharged = q.fee != null ? q.fee : 0;
+        p.quotaMonth = q.month || monthKey(new Date());
+        p.invoiceId = q.invoiceId || null;
+        p.paymentStatus = q.included ? "not_required" : "pending";
+        p.submissionId = (res.data && res.data.id) || null;
+        p.serverId = (res.data && res.data.promoId) || p.serverId || p.id;
+        p.reviewStatus = "pending"; p.submissionStatus = "pending"; p.status = "draft";
+        p.submittedAt = now(); p.updatedAt = now();
+        const ix = DB.promos.findIndex(x => String(x.id) === String(p.id));
+        if(ix >= 0) DB.promos[ix] = p; else DB.promos.push(p);
+        syncLocalEvent(p); persistDb(); close(); render();
+        const feeNote = q.included
+          ? " — included in your free days"
+          : " — " + money(q.fee || 0) + " payable once approved";
+        toast((res.data && res.data.already) ? "Already in the review queue." : "Submitted for admin review" + feeNote);
+      } catch(err){
+        console.error("Submit failed", err);
+        toast(err && err.message ? err.message : "Could not submit. Draft kept.");
+        btn.disabled = false; btn.textContent = isNew ? "Submit" : "Submit →";
+      }
+    };
+
+    // Focus first field
+    setTimeout(() => { const t = q('[name="title"]'); if(t) try{t.focus()}catch(e){} }, 100);
+
+    function syncLocalEvent(promo){
+      if(!promo || promo.contentFormat === "offer" || !promo.crossPostEvent) return;
+      DB.events = DB.events || [];
+      const evId = promo.eventId || uid("event"); promo.eventId = evId;
+      const d = promo.eventDetails || {};
+      const rec = {
+        id:evId, sourcePromoId:promo.id, title:d.name || promo.title, name:d.name || promo.title,
+        description:promo.description || "", image:promo.image || "", type:d.type || promo.type || "Event",
+        category:"Events", startDate:promo.startDate || "", endDate:promo.endDate || "",
+        startTime:promo.startTime || "", endTime:promo.endTime || "",
+        highlights:Array.isArray(d.highlights) ? d.highlights : String(d.highlights || "").split("\n").map(x=>x.trim()).filter(Boolean),
+        sponsor:d.sponsor || promo.sponsor || "", performers:d.performers || "",
+        capacity:d.capacity || "", ticketType:d.ticketType || "Free entry",
+        ticketPrice:d.ticketPrice || "", bookingUrl:d.bookingUrl || "", entryNotes:d.entryNotes || "",
+        location:clone(promo.location || {}), ageRestricted:!!promo.ageRestricted,
+        alsoShowInPromos:true, status:statusText(promo) === "pending" ? "pending" : "draft",
+        reviewStatus:statusText(promo), updatedAt:now()
+      };
+      const ix = DB.events.findIndex(e => String(e.id) === String(evId) || String(e.sourcePromoId) === String(promo.id));
+      if(ix >= 0) DB.events[ix] = Object.assign({}, DB.events[ix], rec); else DB.events.push(rec);
+    }
+  }
+
+  function validate(p){
+    const errs = [];
+    if(!p.title) errs.push("Add a public title.");
+    if(!p.description) errs.push("Add a description of what is included.");
+    if(!p.startDate || !p.endDate) errs.push("Choose a start date and end date.");
+    const s = parseDate(p.startDate), e = parseDate(p.endDate);
+    if(s && e && e < s) errs.push("End date must be on or after the start date.");
+    if(p.contentFormat !== "event" && p.mechanic !== "No Discount / Event Listing" &&
+       p.promoPrice === "" && !["Coupon Code","Loyalty Point Multiplier","Custom Offer"].includes(p.mechanic)){
+      errs.push("Add the promo price, or choose a mechanic that doesn't require one.");
+    }
+    if(p.originalPrice !== "" && p.promoPrice !== "" && Number(p.promoPrice) > Number(p.originalPrice)){
+      errs.push("Promo price should not exceed the original value.");
+    }
+    if(p.contentFormat !== "offer" && !p.eventDetails.name && !p.title){
+      errs.push("Add an event name.");
+    }
+    if(!p.termsConfirmed) errs.push("Confirm the accuracy of the offer, terms and safety info.");
+    if(!SERVER_CONNECTED) errs.push("The review server is not connected. Save as draft, or reconnect to submit.");
+    return errs;
+  }
+
+  function showErrors(errs){
+    const scrim = document.createElement("div");
+    scrim.className = "modal-scrim";
+    scrim.innerHTML = '<div class="modal" role="dialog" aria-modal="true"><div class="modal-hdr"><h3>Check these details</h3><button class="modal-close" data-close>✕</button></div><div class="modal-body" style="padding:16px 18px"><ul style="padding-left:19px;font-size:13px;line-height:1.75;color:var(--ink-2)">' + errs.map(e => '<li>' + esc(e) + '</li>').join("") + '</ul></div><div class="modal-foot"><button class="btn btn-primary" data-close>Back to form</button></div></div>';
+    document.body.appendChild(scrim);
+    scrim.querySelectorAll("[data-close]").forEach(b => b.onclick = () => scrim.remove());
+    scrim.addEventListener("click", e => { if(e.target === scrim) scrim.remove(); });
+  }
+
+  /* ============================================================
+     EDITOR BODY HTML
+     ============================================================ */
+  /* The live preview and the fee panel are built from these two helpers,
+     so the editor and the live repaint can never show different numbers. */
+  function previewSectionHTML(p){
+    const isEvent = p.contentFormat === "event";
+    const alcohol = detectAlcohol(p);
+    const previewImg = p.image ? '<img src="' + esc(p.image) + '" alt="">' : '<span>🏷</span>';
+    const previewTitle = esc(p.title || "Your promo title");
+    const previewDesc = esc(p.shortDescription || p.description || "Short customer-facing description.");
+    const previewPrice = (p.promoPrice !== "" && p.promoPrice != null)
+      ? money(p.promoPrice) + (p.originalPrice !== "" && p.originalPrice != null && Number(p.originalPrice) > Number(p.promoPrice) ? ' <del>' + money(p.originalPrice) + '</del>' : '')
+      : (isEvent ? "Event listing" : "Price not set");
+    const locArea = (p.location && p.location.area) ? p.location.area : "";
+    const previewMeta = (p.startDate ? formatDate(p.startDate) : "Date not set") + (p.startTime ? " · " + p.startTime : "") + (locArea ? " · " + locArea : "");
+    const previewAud = (alcohol || p.ageRestricted) ? "18+ only" : "Everyone";
+    return '<div class="form-section" id="previewSection">' +
+      '<label class="form-label">Customer preview</label>' +
+      '<div class="preview-mini">' +
+        '<div class="hero">' + previewImg + '<span class="preview-kind">' + esc(isEvent ? "Event" : (CATEGORY_LABELS[p.promoFamily] || "Promo")) + '</span></div>' +
+        '<div class="body">' +
+          '<h3 class="title">' + previewTitle + '</h3>' +
+          '<p class="desc">' + previewDesc + '</p>' +
+          '<div class="price">' + previewPrice + '</div>' +
+          '<div class="meta">' + esc(previewMeta) + '</div>' +
+          '<div class="aud">' + esc(previewAud) + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function feeSectionHTML(quote){
+    return '<div class="form-section" id="feeSection">' +
+      '<label class="form-label">Submission fee</label>' +
+      '<div class="fee-panel">' +
+        '<h4>Estimate (not a charge)</h4>' +
+        '<div class="fee-row"><span>Free promo-days left this month</span><strong>' + quote.freeDaysLeft + '</strong></div>' +
+        '<div class="fee-row"><span>Duration of this promo</span><strong>' + quote.days + ' day' + (quote.days === 1 ? "" : "s") + '</strong></div>' +
+        '<div class="fee-total"><span>' + (quote.included ? "Free" : "Estimated fee") + '</span><b>' + money(quote.fee) + '</b></div>' +
+        '<p class="fee-fine">' + (quote.included
+          ? 'This promo needs ' + quote.days + ' day' + (quote.days === 1 ? "" : "s") + ' and you have ' + quote.freeDaysLeft + ' free day' + (quote.freeDaysLeft === 1 ? "" : "s") + ' left, so it is free and uses up ' + quote.days + ' of them.'
+          : 'This promo needs ' + quote.days + ' day' + (quote.days === 1 ? "" : "s") + ' but you only have ' + quote.freeDaysLeft + ' free day' + (quote.freeDaysLeft === 1 ? "" : "s") + ' left, so the whole promo is charged: P50.00 for day one + P10.00 per additional day. It uses none of your free days.'
+        ) + ' The server confirms the price when you submit, and admin confirms payment. This page does not collect payment.</p>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* Rule A - a recurring promo counts the weekdays it repeats on between
+     the start and end date, not the whole calendar span. */
+  function durationText(p){
+    const days = durationDays(p);
+    const unit = days + " day" + (days === 1 ? "" : "s");
+    if(p && p.recurring && p.days && p.days.length){
+      return "Duration: " + unit + " — the " + p.days.length + " weekday" + (p.days.length === 1 ? "" : "s") +
+             " you picked, between the start and end date.";
+    }
+    return "Duration: " + unit + " (inclusive).";
+  }
+
+  function buildEditorBody(p, menuGroups, isNew){
+    const alcohol = detectAlcohol(p);
+    const audience = alcohol ? "18plus" : (p.ageRestricted ? "18plus" : (p.audience || "everyone"));
+    const isEvent = p.contentFormat === "event";
+    const isHybrid = p.contentFormat === "offer_event";
+    const quote = feeQuote(p);
+
+    const familyOpts = Object.keys(CATEGORY_TAXONOMY).map(k =>
+      '<option value="' + k + '"' + (k === p.promoFamily ? " selected" : "") + '>' + CATEGORY_LABELS[k] + (k === "Loyalty" ? " · shows as Combo" : "") + '</option>'
+    ).join("");
+    const typeOpts = (CATEGORY_TAXONOMY[p.promoFamily] || CATEGORY_TAXONOMY.Food).map(t =>
+      '<option value="' + esc(t) + '"' + (t === p.type ? " selected" : "") + '>' + esc(t) + '</option>'
+    ).join("");
+    const eventTypeOpts = CATEGORY_TAXONOMY.Events.map(t =>
+      '<option value="' + esc(t) + '"' + (t === (p.eventDetails.type || "") ? " selected" : "") + '>' + esc(t) + '</option>'
+    ).join("");
+    const mechanicOpts = MECHANICS.map(m =>
+      '<option value="' + esc(m) + '"' + (m === p.mechanic ? " selected" : "") + '>' + esc(m) + '</option>'
+    ).join("");
+    const actionOpts = ACTIONS.map(a =>
+      '<option value="' + a.value + '"' + (a.value === (p.action && p.action.type) ? " selected" : "") + '>' + esc(a.label) + '</option>'
+    ).join("");
+    const ticketOpts = TICKET_TYPES.map(t =>
+      '<option value="' + esc(t) + '"' + (t === (p.eventDetails.ticketType || "") ? " selected" : "") + '>' + esc(t) + '</option>'
+    ).join("");
+    const contactOpts = '<option value="">Choose a saved contact</option>' +
+      (DB.restaurant.contacts || []).map(c =>
+        '<option value="' + esc(c.id) + '"' + ((p.action && p.action.contactId === c.id) ? " selected" : "") + '>' + esc(c.title || c.name || c.number || "Contact") + '</option>'
+      ).join("");
+
+    const linked = (p.linkedMenuItems || []).map(String);
+    const menuHTML = Object.keys(menuGroups).length
+      ? Object.keys(menuGroups).map(g => '<div class="menu-group-label">' + esc(g) + '</div>' +
+          menuGroups[g].map(it => '<label class="menu-option"><input type="checkbox" name="linkedMenuItems" value="' + esc(it.id) + '"' + (linked.includes(String(it.id)) ? " checked" : "") + '><span class="menu-name">' + esc(it.name || it.title) + '</span>' + (it.price != null ? '<span class="menu-price">' + money(it.price) + '</span>' : '') + '</label>').join("")
+        ).join("")
+      : '<div style="padding:12px;color:var(--faint);font-size:12px">No menu items yet. Save the promo without linking items, or add them on the Menu page.</div>';
+
+    const daysHTML = DAYS.map(d =>
+      '<button type="button" class="day-chip' + (p.days && p.days.includes(d) ? " on" : "") + '" data-day="' + d + '">' + d.slice(0,3) + '</button>'
+    ).join("");
+
+    return '' +
+      // Image picker
+      '<div class="picker-row"><label class="picker-box' + (p.image ? " has-img" : "") + '" id="pr-picker">' +
+        (p.image ? '<img src="' + esc(p.image) + '" alt="">' : '<span class="glyph">+</span>') +
+        '<span class="lbl">' + (p.image ? "Replace" : "Add image") + '</span>' +
+        '<input type="file" accept="image/*" id="pr-img">' +
+      '</label></div>' +
+
+      // 01 — Format
+      '<div class="form-section">' +
+        '<label class="form-label">What are you creating?</label>' +
+        '<div class="radio-cards three">' +
+          '<label class="radio-card"><input type="radio" name="contentFormat" value="offer"' + (p.contentFormat === "offer" ? " checked" : "") + '><div><strong>Promo</strong><small>A discount, bundle, food or drink special, or reward.</small></div></label>' +
+          '<label class="radio-card"><input type="radio" name="contentFormat" value="event"' + (p.contentFormat === "event" ? " checked" : "") + '><div><strong>Event</strong><small>A screening, live music, launch, themed night or function.</small></div></label>' +
+          '<label class="radio-card"><input type="radio" name="contentFormat" value="offer_event"' + (p.contentFormat === "offer_event" ? " checked" : "") + '><div><strong>Event + offer</strong><small>Promote an event with a food or drink deal attached.</small></div></label>' +
+        '</div>' +
+      '</div>' +
+
+      // 02 — Family + type (hidden for events)
+      (isEvent ? '' :
+        '<div class="form-section">' +
+          '<label class="form-label">Category & kind</label>' +
+          '<div class="row-2">' +
+            '<select class="select" name="promoFamily">' + familyOpts + '</select>' +
+            '<select class="select" name="type">' + typeOpts + '</select>' +
+          '</div>' +
+          '<p class="form-help">“All” is a customer feed filter, not a content type. Choose the most specific category here.</p>' +
+        '</div>'
+      ) +
+
+      // 03 — Title + description
+      '<div class="form-section">' +
+        '<label class="form-label">Title & description</label>' +
+        '<input class="input" type="text" name="title" maxlength="90" placeholder="e.g. Monday Comfort Beef Stew" value="' + esc(p.title) + '" style="margin-bottom:10px">' +
+        '<input class="input" type="text" name="shortDescription" maxlength="120" placeholder="Short hook (optional)" value="' + esc(p.shortDescription || "") + '" style="margin-bottom:10px">' +
+        '<textarea class="textarea" name="description" maxlength="1200" placeholder="What is included? Portion sizes, choices, exclusions, anything customers should know.">' + esc(p.description) + '</textarea>' +
+      '</div>' +
+
+      // 04 — Pricing
+      (isEvent ? '' :
+        '<div class="form-section">' +
+          '<label class="form-label">Pricing</label>' +
+          '<div class="row-2" style="margin-bottom:10px">' +
+            '<div class="price-wrap"><input class="input" type="number" name="originalPrice" min="0" step="0.01" placeholder="Original" value="' + (p.originalPrice === "" ? "" : p.originalPrice) + '"></div>' +
+            '<div class="price-wrap"><input class="input" type="number" name="promoPrice" min="0" step="0.01" placeholder="Promo price" value="' + (p.promoPrice === "" ? "" : p.promoPrice) + '"></div>' +
+          '</div>' +
+          '<div class="row-2" style="margin-bottom:10px">' +
+            '<select class="select" name="mechanic">' + mechanicOpts + '</select>' +
+            '<input class="input" type="text" name="couponCode" placeholder="Coupon code (optional)" value="' + esc(p.couponCode || "") + '">' +
+          '</div>' +
+          '<div class="row-2" style="margin-bottom:10px">' +
+            '<input class="input" type="number" name="minimumSpend" min="0" step="0.01" placeholder="Min spend (P)" value="' + (p.minimumSpend === "" ? "" : p.minimumSpend) + '">' +
+            '<input class="input" type="number" name="maxRedemptions" min="1" step="1" placeholder="Max redemptions" value="' + (p.maxRedemptions === "" ? "" : p.maxRedemptions) + '">' +
+          '</div>' +
+          '<input class="input" type="text" name="perCustomerLimit" placeholder="Limit per customer (optional)" value="' + esc(p.perCustomerLimit || "") + '">' +
+        '</div>'
+      ) +
+
+      // 05 — Menu link
+      '<div class="form-section">' +
+        '<label class="form-label">Linked menu items <span class="opt">— optional</span></label>' +
+        '<div class="menu-picker">' + menuHTML + '</div>' +
+      '</div>' +
+
+      // 06 — Schedule
+      '<div class="form-section">' +
+        '<label class="form-label">Schedule</label>' +
+        '<div class="row-2" style="margin-bottom:10px">' +
+          '<input class="input" type="date" name="startDate" value="' + esc(p.startDate) + '">' +
+          '<input class="input" type="date" name="endDate" value="' + esc(p.endDate) + '">' +
+        '</div>' +
+        '<div class="row-2" style="margin-bottom:10px">' +
+          '<input class="input" type="time" name="startTime" value="' + esc(p.startTime) + '">' +
+          '<input class="input" type="time" name="endTime" value="' + esc(p.endTime) + '">' +
+        '</div>' +
+        '<label class="check-row"><input type="checkbox" name="recurring"' + (p.recurring ? " checked" : "") + '><span class="check-text">Repeats on selected weekdays</span></label>' +
+        '<div id="daysWrap" style="display:' + (p.recurring ? "block" : "none") + ';margin-top:8px">' +
+          '<div class="day-chips">' + daysHTML + '</div>' +
+        '</div>' +
+        '<div class="callout info" id="dateInfo" style="margin-top:12px">' + durationText(p) + '</div>' +
+        '<input class="input" type="text" name="availabilityNotes" placeholder="Availability notes (optional)" value="' + esc(p.availabilityNotes || "") + '" style="margin-top:10px">' +
+      '</div>' +
+
+      // 07 — Event details
+      (isEvent || isHybrid ?
+        '<div class="form-section">' +
+          '<label class="form-label">Event details</label>' +
+          '<input class="input" type="text" name="eventName" placeholder="Event name" value="' + esc(p.eventDetails.name || "") + '" style="margin-bottom:10px">' +
+          '<div class="row-2" style="margin-bottom:10px">' +
+            '<select class="select" name="eventType">' + eventTypeOpts + '</select>' +
+            '<input class="input" type="text" name="eventSponsor" placeholder="Event sponsor / partner" value="' + esc(p.eventDetails.sponsor || "") + '">' +
+          '</div>' +
+          '<textarea class="textarea" name="eventHighlights" placeholder="Highlights (one per line)&#10;e.g. Live match on wide screen&#10;Half-time specials">' + esc(p.eventDetails.highlights || "") + '</textarea>' +
+          '<div class="row-2" style="margin-top:10px;margin-bottom:10px">' +
+            '<input class="input" type="text" name="eventPerformers" placeholder="Performers / hosts / teams" value="' + esc(p.eventDetails.performers || "") + '">' +
+            '<input class="input" type="number" name="eventCapacity" min="1" placeholder="Capacity (optional)" value="' + (p.eventDetails.capacity === "" ? "" : p.eventDetails.capacity) + '">' +
+          '</div>' +
+          '<div class="row-2" style="margin-bottom:10px">' +
+            '<select class="select" name="ticketType">' + ticketOpts + '</select>' +
+            '<div class="price-wrap"><input class="input" type="number" name="ticketPrice" min="0" step="0.01" placeholder="Ticket price" value="' + (p.eventDetails.ticketPrice === "" ? "" : p.eventDetails.ticketPrice) + '"></div>' +
+          '</div>' +
+          '<input class="input" type="url" name="bookingUrl" placeholder="Ticket / booking URL" value="' + esc(p.eventDetails.bookingUrl || "") + '" style="margin-bottom:10px">' +
+          '<input class="input" type="text" name="entryNotes" placeholder="Entry requirements / event notes" value="' + esc(p.eventDetails.entryNotes || "") + '">' +
+          '<label class="check-row" style="margin-top:10px"><input type="checkbox" name="crossPostEvent"' + (p.crossPostEvent !== false ? " checked" : "") + '><span class="check-text">Also flag this for the Events tab<span class="check-help">Cross-listing intent is stored with the promo.</span></span></label>' +
+        '</div>'
+      : '') +
+
+      // 08 — Audience
+      '<div class="form-section">' +
+        '<label class="form-label">Audience &amp; safety</label>' +
+        '<div class="radio-cards">' +
+          '<label class="radio-card"><input type="radio" name="audience" value="everyone"' + (audience === "everyone" && !alcohol ? " checked" : "") + (alcohol ? " disabled" : "") + '><div><strong>Everyone</strong><small>Suitable for all ages. Alcohol copy not permitted.</small></div></label>' +
+          '<label class="radio-card"><input type="radio" name="audience" value="18plus"' + (audience === "18plus" || alcohol ? " checked" : "") + '><div><strong>Adults only · 18+</strong><small>Hidden from under-18s. Required for alcohol.</small></div></label>' +
+        '</div>' +
+        '<div class="callout ' + (alcohol ? "warn" : "info") + '" id="alcoholWarning">' +
+          (alcohol
+            ? '<b>18+ required automatically.</b> Alcoholic products or language detected. The Everyone option is disabled.'
+            : 'Alcohol promos are automatically restricted to adults. If this offer includes alcohol, mention the product accurately so the safety check can detect it.'
+          ) +
+        '</div>' +
+      '</div>' +
+
+      // 09 — Location + sponsor
+      '<div class="form-section">' +
+        '<label class="form-label">Location &amp; sponsor</label>' +
+        '<label class="check-row"><input type="checkbox" name="useRestaurantLocation"' + (p.location && p.location.useRestaurantLocation !== false ? " checked" : "") + '><span class="check-text">Use the business location<span class="check-help">Uses the saved business address.</span></span></label>' +
+        '<div class="row-2" style="margin-bottom:10px;margin-top:8px">' +
+          '<input class="input" type="text" name="locCity" placeholder="Town / city" value="' + esc(p.location.city || "") + '">' +
+          '<input class="input" type="text" name="locArea" placeholder="Area / neighbourhood" value="' + esc(p.location.area || "") + '">' +
+        '</div>' +
+        '<input class="input" type="text" name="sponsor" placeholder="Sponsor / brand credit (optional)" value="' + esc(p.sponsor || "") + '">' +
+      '</div>' +
+
+      // 10 — CTA & terms
+      '<div class="form-section">' +
+        '<label class="form-label">Call to action &amp; terms</label>' +
+        '<div class="row-2" style="margin-bottom:10px">' +
+          '<select class="select" name="actionType">' + actionOpts + '</select>' +
+          '<select class="select" name="actionContact">' + contactOpts + '</select>' +
+        '</div>' +
+        '<input class="input" type="url" name="actionUrl" placeholder="Booking / order URL (optional)" value="' + esc(p.actionUrl || "") + '" style="margin-bottom:10px">' +
+        '<textarea class="textarea" name="terms" placeholder="Terms & conditions (e.g. Dine-in only. Not combinable with other offers. Subject to availability.)">' + esc(p.terms || "") + '</textarea>' +
+        '<label class="check-row" style="margin-top:10px"><input type="checkbox" name="termsConfirmed"' + (p.termsConfirmed ? " checked" : "") + '><span class="check-text">I confirm the offer, prices, image rights and terms are accurate, and this promo complies with age / alcohol rules.</span></label>' +
+      '</div>' +
+
+      // 11 — Preview
+      previewSectionHTML(p) +
+
+      // 12 — Fee
+      feeSectionHTML(quote);
+  }
+
+  function repaintPreviewAndFee(){
+    /* Live repaint: only the preview, the fee panel and the duration
+       callout are rebuilt. The rest of the form is left alone so the
+       operator never loses focus while typing. */
+    const body = document.querySelector('.modal-body');
+    if(!body) return;
+    const currentP = window.__editorCurrentP;
+    if(!currentP) return;
+    const preview = body.querySelector('#previewSection');
+    if(preview) preview.outerHTML = previewSectionHTML(currentP);
+    const fee = body.querySelector('#feeSection');
+    if(fee) fee.outerHTML = feeSectionHTML(feeQuote(currentP));
+    const info = body.querySelector('#dateInfo');
+    if(info) info.textContent = durationText(currentP);
+  }
+
+  /* ============================================================
+     ACTIONS
+     ============================================================ */
+  function actNew(){ openPromoEditor(null); }
+  function actEdit(id){
+    const p = DB.promos.find(x => String(x.id) === String(id));
+    if(!p) return;
+    const s = statusText(p);
+    if(!["draft","rejected","paused"].includes(s)){
+      toast("Submitted promos are locked. Duplicate to prepare a new version.");
+      return;
+    }
+    openPromoEditor(p);
+  }
+  function actDuplicate(id){
+    const p = DB.promos.find(x => String(x.id) === String(id));
+    if(!p) return;
+    const c = normalizePromo(clone(p));
+    c.id = uid("promo"); c.title = (c.title || "Promo") + " (copy)";
+    c.createdAt = now(); c.updatedAt = now();
+    delete c.submittedAt; delete c.synced; delete c.eventId;
+    c.reviewStatus = "draft"; c.submissionStatus = "draft"; c.status = "draft";
+    openPromoEditor(c);
+  }
+  async function actPause(id){
+    const p = DB.promos.find(x => String(x.id) === String(id));
+    if(!p) return;
+    const done = await serverPromoAction(p, "pause");
+    if(done === false) return;
+    p.status = "paused"; p.reviewStatus = "paused"; p.updatedAt = now();
+    persistDb(); render(); toast("Promo paused.");
+  }
+  async function actResume(id){
+    const p = DB.promos.find(x => String(x.id) === String(id));
+    if(!p) return;
+    const done = await serverPromoAction(p, "resume");
+    if(done === false) return;
+    p.status = "active"; p.reviewStatus = "approved"; p.updatedAt = now();
+    persistDb(); render(); toast("Promo resumed and live.");
+  }
+  async function actCancelReview(id){
+    const p = DB.promos.find(x => String(x.id) === String(id));
+    if(!p) return;
+    /* Releasing the review also releases the free days it used. */
+    if(API && typeof API.promoCancel === "function" && SRID && p.submissionId){
+      try {
+        const res = await API.promoCancel(SRID, p.submissionId, "Cancelled by the venue");
+        if(!res || !res.ok){
+          toast((res && res.data && res.data.error) || "Could not cancel the review.");
+          return;
+        }
+        p.quotedFree = false;
+        p.quotedDays = 0;
+      } catch(err){
+        console.error("Cancel failed", err);
+        toast("Could not cancel the review. Try again.");
+        return;
+      }
+    }
+    p.status = "paused"; p.reviewStatus = "paused"; p.updatedAt = now();
+    persistDb(); render(); toast("Review cancelled · promo saved as paused.");
+  }
+  /* Pause / resume go through the server so the published state on the
+     live site always matches what the operator sees. Returns false when
+     the server refused the action. */
+  async function serverPromoAction(p, action){
+    if(!API || typeof API.promoUpdate !== "function" || !SRID) return true;
+    const pid = p.serverId || p.id;
+    try {
+      const res = await API.promoUpdate(SRID, pid, { action: action });
+      if(!res || !res.ok){
+        const err = (res && res.data && res.data.error) || "Server refused the action.";
+        toast(action === "resume"
+          ? "This promo has not been published by admin yet, so it cannot be resumed."
+          : err);
+        return false;
+      }
+      const row = (res.data && res.data.promo) || {};
+      p.status = row.status || p.status;
+      p.active = !!row.active;
+      return true;
+    } catch(err){
+      console.error(action + " failed", err);
+      toast("The server is not reachable, so nothing was changed.");
+      return false;
+    }
+  }
+  function actView(id){
+    const p = DB.promos.find(x => String(x.id) === String(id));
+    if(!p) return;
+    const s = statusText(p);
+    const isAge = detectAlcohol(p) || p.ageRestricted;
+    const rows = [
+      ["Status", s.replace(/-/g," ")],
+      ["Category", p.promoFamily || p.category || "—"],
+      ["Type", p.type || "—"],
+      ["Audience", isAge ? "18+ only" : "Everyone"],
+      ["Schedule", (p.startDate ? formatDate(p.startDate) : "—") + (p.endDate && p.endDate !== p.startDate ? " → " + formatDate(p.endDate) : "") + (p.startTime ? " · " + p.startTime + (p.endTime ? "–" + p.endTime : "") : "")],
+      ["Duration", durationDays(p) + " day" + (durationDays(p) === 1 ? "" : "s")],
+      ["Original price", p.originalPrice !== "" && p.originalPrice != null ? money(p.originalPrice) : "—"],
+      ["Promo price", p.promoPrice !== "" && p.promoPrice != null ? money(p.promoPrice) : "—"],
+      ["Fee estimate", money(feeQuote(p).fee)],
+      ["Sponsor", p.sponsor || "—"],
+      ["Terms", p.terms || "—"]
+    ];
+    if(p.contentFormat !== "offer"){
+      rows.push(["Event name", (p.eventDetails && p.eventDetails.name) || "—"]);
+      rows.push(["Event sponsor", (p.eventDetails && p.eventDetails.sponsor) || "—"]);
+      rows.push(["Ticket type", (p.eventDetails && p.eventDetails.ticketType) || "—"]);
+    }
+    const scrim = document.createElement("div");
+    scrim.className = "modal-scrim";
+    scrim.innerHTML = '<div class="modal" role="dialog" aria-modal="true"><div class="modal-hdr"><h3>' + esc(p.title || "Promotion") + '</h3><button class="modal-close" data-close>✕</button></div>' +
+      '<div class="modal-body" style="padding:16px 18px">' +
+        (p.description || p.shortDescription ? '<p style="margin:0 0 12px;color:var(--muted);font-size:13px">' + esc(p.description || p.shortDescription) + '</p>' : '') +
+        rows.map(r => '<div style="display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:12.5px"><span style="color:var(--muted)">' + esc(r[0]) + '</span><b style="text-align:right;max-width:60%;word-break:break-word">' + esc(r[1]) + '</b></div>').join("") +
+      '</div>' +
+      '<div class="modal-foot"><button class="btn btn-ghost" data-close>Close</button></div></div>';
+    document.body.appendChild(scrim);
+    scrim.querySelectorAll("[data-close]").forEach(b => b.onclick = () => scrim.remove());
+    scrim.addEventListener("click", e => { if(e.target === scrim) scrim.remove(); });
+  }
+  let armedDeleteId = null, armedDeleteTimer = null;
+  function actDelete(id, btn){
+    if(armedDeleteId === id){
+      clearTimeout(armedDeleteTimer); armedDeleteId = null;
+      DB.promos = DB.promos.filter(x => String(x.id) !== String(id));
+      DB.events = (DB.events || []).filter(e => String(e.sourcePromoId) !== String(id));
+      persistDb(); render(); toast("Promo removed.");
+      return;
+    }
+    armedDeleteId = id;
+    btn.dataset.armed = "1"; btn.textContent = "Sure?";
+    armedDeleteTimer = setTimeout(() => {
+      armedDeleteId = null;
+      render();
+    }, 2600);
+  }
+
+  /* ============================================================
+     EVENT DELEGATION
+     ============================================================ */
+  document.addEventListener("click", e => {
+    const toggle = e.target.closest("[data-toggle]");
+    if(toggle){ toggleAccordion(toggle.dataset.toggle); return; }
+    const btn = e.target.closest("[data-act]");
+    if(btn){
+      e.stopPropagation();
+      const a = btn.dataset.act, id = btn.dataset.id;
+      if(a === "edit") actEdit(id);
+      else if(a === "dup") actDuplicate(id);
+      else if(a === "pause") actPause(id);
+      else if(a === "resume") actResume(id);
+      else if(a === "cancel-review") actCancelReview(id);
+      else if(a === "view") actView(id);
+      else if(a === "del") actDelete(id, btn);
+      return;
+    }
+  });
+
+  // Day chip toggling inside modal — use delegated listener on document
+  document.addEventListener("click", e => {
+    const chip = e.target.closest(".day-chip");
+    if(!chip) return;
+    chip.classList.toggle("on");
+    const wrap = chip.closest("#daysWrap");
+    if(wrap){
+      const selected = Array.prototype.slice.call(wrap.querySelectorAll(".day-chip.on")).map(c => c.dataset.day);
+      // Write back via a hidden field
+      let hidden = wrap.querySelector('input[name="days"]');
+      // Multiple checkboxes need to be added dynamically
+      wrap.querySelectorAll('input[name="days"]').forEach(i => i.remove());
+      selected.forEach(d => {
+        const inp = document.createElement("input");
+        inp.type = "checkbox"; inp.name = "days"; inp.value = d; inp.checked = true;
+        inp.style.display = "none";
+        wrap.appendChild(inp);
+      });
+    }
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  $("#btnNew").addEventListener("click", actNew);
+
+  try {
+    if(window.EatoutsAuth && typeof window.EatoutsAuth.requireSession === "function"){
+      if(!window.EatoutsAuth.requireSession()) window.EatoutsAuth.redirectToLogin();
+      else if(typeof window.EatoutsAuth.applyActive === "function") window.EatoutsAuth.applyActive();
+    }
+  } catch(e){ console.warn("Auth check skipped", e); }
+
+  render();
+  promoServerSync();
+
+})();
 </script>
 </body>
 </html>

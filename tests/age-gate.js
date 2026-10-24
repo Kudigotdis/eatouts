@@ -41,6 +41,12 @@ const Age = sandbox.window.EatoutsAge;
   check('the word lists match',
     JSON.stringify(Age.ALCOHOL_WORDS) === JSON.stringify(rules.ALCOHOL_WORDS),
     JSON.stringify(Age.ALCOHOL_WORDS) + ' vs ' + JSON.stringify(rules.ALCOHOL_WORDS));
+  check('the brand lists match',
+    JSON.stringify(Age.ALCOHOL_BRANDS) === JSON.stringify(rules.ALCOHOL_BRANDS),
+    JSON.stringify(Age.ALCOHOL_BRANDS) + ' vs ' + JSON.stringify(rules.ALCOHOL_BRANDS));
+  check('the negation lists match',
+    JSON.stringify(Age.ALCOHOL_NEGATIONS) === JSON.stringify(rules.ALCOHOL_NEGATIONS),
+    JSON.stringify(Age.ALCOHOL_NEGATIONS) + ' vs ' + JSON.stringify(rules.ALCOHOL_NEGATIONS));
   check('the non-alcohol subtypes match',
     JSON.stringify(Age.NON_ALCOHOL_SUBTYPES) === JSON.stringify(rules.NON_ALCOHOL_SUBTYPES));
   check('the word list is not empty', Age.ALCOHOL_WORDS.length > 10);
@@ -63,7 +69,15 @@ const Age = sandbox.window.EatoutsAge;
     { label: 'a wine promo', promo: { type: 'Wines', title: 'Red Wine' }, flagged: true },
     { label: 'a soft drink promo', promo: { type: 'Fizzy Drinks', title: 'Soft Drink' }, flagged: false },
     { label: 'an operator flagged promo',
-      promo: { type: 'Food Special', title: 'Chef Tasting', ageRestricted: true }, flagged: true }
+      promo: { type: 'Food Special', title: 'Chef Tasting', ageRestricted: true }, flagged: true },
+    { label: 'a promo naming a beer brand',
+      promo: { type: 'Beers', title: 'Castle Lite Bucket' }, flagged: true },
+    { label: 'a non-alcoholic beer',
+      promo: { type: 'Beverages', title: 'Non-alcoholic beer' }, flagged: false },
+    { label: 'an alcohol-free cider',
+      promo: { type: 'Beverages', title: 'Alcohol-free cider' }, flagged: false },
+    { label: 'a promo that names the 18+ audience',
+      promo: { type: 'Combo', title: 'Chef Tasting', audience: '18plus' }, flagged: true }
   ];
   for (const c of cases) {
     const client = !!Age.isAgeRestrictedPromo(c.promo);
@@ -108,15 +122,28 @@ const Age = sandbox.window.EatoutsAge;
   check('the venue bundle removes the flagged promos',
     /promos\s*=\s*promos\.filter\(function \(p\) \{ return !p\.ageRestricted; \}\)/.test(venueSrc));
 
-  /* ---------- the operator can flag a promo ---------- */
+  /* ---------- the operator can set the audience ---------- */
   const promoPage = fs.readFileSync(path.join(APP_DIR, 'promo-onboarding.html'), 'utf8');
-  check('the promo editor has an age-restricted tick box',
-    /fldChk\('Age-restricted \(18\+\)','ageRestricted'/.test(promoPage));
+  check('the promo editor asks for the audience',
+    /name="audience" value="everyone"/.test(promoPage) &&
+    /name="audience" value="18plus"/.test(promoPage));
+  check('the audience is a real radio group',
+    (promoPage.match(/name="audience"/g) || []).length >= 2);
+  check('the everyone option is disabled when alcohol is detected',
+    /value="everyone"[\s\S]{0,220}?\(alcohol \? " disabled" : ""\)/.test(promoPage));
+  check('the editor reads the audience choice back',
+    /p\.ageRestricted = radio\("audience"\) === "18plus"/.test(promoPage));
+  check('the editor forces 18+ when alcohol is detected',
+    /p\.ageRestricted = true/.test(promoPage));
+  check('the legacy age tick box is gone',
+    !/fldChk\('Age-restricted \(18\+\)','ageRestricted'/.test(promoPage));
   const businessApi = fs.readFileSync(path.join(APP_DIR, 'js', 'eatouts-business-api.js'), 'utf8');
   check('the promo is sent to the server with the flag',
     /ageRestricted:\s*!!p\.ageRestricted/.test(businessApi));
   check('the promo comes back from the server with the flag',
     /ageRestricted:\s*!!s\.ageRestricted/.test(businessApi));
+  check('the promo is sent to the server with the audience',
+    /audience:\s*p\.audience \|\| 'everyone'/.test(businessApi));
 
   /* ---------- the migration ---------- */
   const migration = path.join(APP_DIR, 'migrations', '0012_promo_age_restriction.sql');

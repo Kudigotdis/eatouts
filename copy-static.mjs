@@ -11,6 +11,7 @@ const OUT = 'dist';
 const FOLDERS = [
   'js',
   'assets',
+  'dashboards',
 ];
 
 // ---- SINGLE FILES to copy (root-level) ----
@@ -84,6 +85,7 @@ const FILES = [
 
   // Spec workspaces (business / staff / food truck)
   'operator-dashboard1.html',
+  'operator-businesses.html',
   'eatouts-staff-admin1.html',
   'food-truck-schedule1.html',
 

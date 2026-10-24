@@ -486,6 +486,10 @@
       var t = (r.location && r.location.town) || 'Gaborone';
       set[t] = 1;
     });
+    FEED_PROMOS.forEach(function (p) {
+      var t = (p.venue && p.venue.town) || '';
+      if (t) set[t] = 1;
+    });
     return Object.keys(set).sort();
   }
 
@@ -521,6 +525,8 @@
 
   /** Find a promo by id across every restaurant. */
   function findPromoAnywhere(id) {
+    var feed = findFeedPromo(id);
+    if (feed) return feed;
     for (var i = 0; i < promoOwners().length; i++) {
       var r = promoOwners()[i];
       var c = DB.resolveContent(r.id, db());
@@ -553,9 +559,74 @@
     return typeof d === 'string' ? d : null;
   }
 
+  /* ---------- the server feed ---------- */
+
+  /* Live promos fetched from GET /api/promos. They belong to venues that
+     may not exist in the local demo store at all, so they are kept beside
+     it and merged by promosForDay(). Feed rows win on an id clash. */
+  var FEED_PROMOS = [];
+
+  function setFeedPromos(list) {
+    FEED_PROMOS = Array.isArray(list) ? list.filter(function (p) { return p && p.id; }) : [];
+    return FEED_PROMOS.length;
+  }
+  function feedPromos() { return FEED_PROMOS.slice(); }
+
+  function feedPromoDays(p) {
+    if (p.days && p.days.length) return p.days;
+    if (p.day) return [p.day];
+    return DAY_NAMES.slice();
+  }
+
+  function feedPromosForDay(dayIdx, townFilter, areaFilter, districtFilter, districtName) {
+    var want = dayName(dayIdx);
+    var out = [];
+    FEED_PROMOS.forEach(function (p) {
+      var days = feedPromoDays(p);
+      if (want && days.indexOf(want) === -1) return;
+      var venue = p.venue || {};
+      if (!locationMatches(venue, {
+        town: townFilter, area: areaFilter,
+        district: districtFilter, districtName: districtName
+      })) return;
+      out.push({
+        promo: p,
+        day: want || days[0],
+        restaurant: venue,
+        source: 'server'
+      });
+    });
+    return out;
+  }
+
+  function findFeedPromo(id) {
+    for (var i = 0; i < FEED_PROMOS.length; i++) {
+      var p = FEED_PROMOS[i];
+      if (p.id !== id) continue;
+      var days = feedPromoDays(p);
+      return { promo: p, day: days[0] || null, restaurant: p.venue || null, source: 'server' };
+    }
+    return null;
+  }
+
   /** Promos for a weekday index, honouring the town + type filters. */
   function promosForDay(dayIdx, townFilter, typeFilter, areaFilter, districtFilter, districtName) {
     var want = dayName(dayIdx);
+    var out = [];
+    var seen = {};
+    promosForLocalDay(want, townFilter, typeFilter, areaFilter, districtFilter, districtName).forEach(function (e) {
+      seen[e.promo && e.promo.id] = true;
+      out.push(e);
+    });
+    feedPromosForDay(dayIdx, townFilter, areaFilter, districtFilter, districtName).forEach(function (e) {
+      if (seen[e.promo.id]) return;
+      seen[e.promo.id] = true;
+      out.push(e);
+    });
+    return out;
+  }
+
+  function promosForLocalDay(want, townFilter, typeFilter, areaFilter, districtFilter, districtName) {
     var out = [];
     promoOwners().forEach(function (r) {
       if (!locationMatches(r, { town: townFilter, district: districtFilter, districtName: districtName, area: areaFilter })) return;
@@ -619,6 +690,8 @@
     promoTypes: promoTypes,
     restaurantCountAt: restaurantCountAt,
     findPromoAnywhere: findPromoAnywhere,
+    setFeedPromos: setFeedPromos,
+    feedPromos: feedPromos,
     findEventAnywhere: findEventAnywhere,
     promosForDay: promosForDay,
     eventsForDay: eventsForDay,

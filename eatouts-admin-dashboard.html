@@ -174,8 +174,9 @@
     letter-spacing:.05em;text-transform:uppercase;line-height:1.4;
     background:#F0F1F4;color:var(--muted);white-space:nowrap;}
   .pill.pending,.pill.draft,.pill.due{background:var(--amber-soft);color:var(--amber);}
-  .pill.approved,.pill.published,.pill.active,.pill.paid,.pill.resolved,.pill.refunded{
+  .pill.approved,.pill.published,.pill.active,.pill.paid,.pill.resolved,.pill.refunded,.pill.green{
     background:var(--green-soft);color:var(--green);}
+  .pill.amber{background:var(--amber-soft);color:var(--amber);}
   .pill.rejected,.pill.revoked,.pill.failed,.pill.cancelled{
     background:var(--red-soft);color:var(--red);}
   .pill.redirect{background:var(--blue-soft);color:var(--blue);}
@@ -547,10 +548,28 @@ document.addEventListener("DOMContentLoaded", function () {
      PROMO SUBMISSIONS — fetch + render (preserves original APIs)
      ============================================================ */
   var psStatus = "pending";
+  var psFreeDays = {};
+  var psMonth = "";
+  /* ids the admin has been told need payment before publishing */
+  var psNeedsPayment = {};
   var verdictLabel = { pending:"Pending", approved:"Approved", published:"Published", rejected:"Rejected" };
 
   function psStatusClass(s){
     return ({ pending:"pending", approved:"approved", published:"published", rejected:"rejected" })[s] || "";
+  }
+
+  function psMoney(v, cur){
+    var n = Number(v);
+    if (!isFinite(n)) n = 0;
+    return (cur || "BWP") + " " + n.toFixed(2);
+  }
+
+  /* The quote is locked when the operator submits - the admin never
+     guesses the price. */
+  function psFeeOf(x){
+    if (x.feeCharged != null && x.feeCharged !== "") return Number(x.feeCharged);
+    if (x.fee != null && x.fee !== "") return Number(x.fee);
+    return 0;
   }
 
   function psThumb(x){
@@ -583,9 +602,38 @@ document.addEventListener("DOMContentLoaded", function () {
     box.innerHTML = rows.map(function(x){
       var st = x.status || "pending";
       var when = x.whenText || (x.payload && x.payload.meta && x.payload.meta.when) || "";
+      var fee = psFeeOf(x);
+      var days = Number(x.quotedDays || 0);
+      var free = !!x.quotedFree;
+      var meter = x.restaurantId ? psFreeDays[x.restaurantId] : null;
+
       var meta = '';
       meta += '<span class="pill ' + psStatusClass(st) + '">' + esc(verdictLabel[st] || st) + '</span>';
-      meta += '<span class="pill orange">' + esc((x.currency || "BWP") + " " + (x.fee != null ? x.fee : 50)) + '</span>';
+
+      /* the quote: how many days it runs for and what it costs */
+      if (days > 0){
+        meta += '<span class="pill ' + (free ? 'green' : 'orange') + '">' +
+          days + ' day' + (days === 1 ? '' : 's') + ' · ' +
+          (free ? 'free' : psMoney(fee, x.currency)) + '</span>';
+      } else if (fee > 0){
+        meta += '<span class="pill orange">' + esc(psMoney(fee, x.currency)) + '</span>';
+      }
+
+      /* the venue's free-day meter */
+      if (meter){
+        meta += '<span class="pill">' + meter.left + ' of ' + meter.total + ' free days left</span>';
+      }
+
+      /* the invoice / payment state */
+      if (fee > 0){
+        var ps = String(x.paymentStatus || "pending");
+        if (ps === "received") meta += '<span class="pill green">Paid</span>';
+        else if (ps === "waived") meta += '<span class="pill">Waived</span>';
+        else meta += '<span class="pill amber">Payment due</span>';
+        if (x.invoiceId) meta += '<span class="pill">' + esc(x.invoiceId) + '</span>';
+      }
+      if (x.adminOverride) meta += '<span class="pill amber">Override</span>';
+
       if (x.source === "business") meta += '<span class="pill">Business</span>';
       if (x.restaurantId) meta += '<span class="pill">' + esc(x.restaurantId) + '</span>';
       if (x.userId) meta += '<span class="pill">' + esc(x.userId) + '</span>';
@@ -595,7 +643,11 @@ document.addEventListener("DOMContentLoaded", function () {
         actions += '<button class="mini-btn" type="button" data-ps-act="approve">Approve</button>';
       }
       if (st !== "published"){
-        actions += '<button class="mini-btn primary" type="button" data-ps-act="publish">Publish</button>';
+        if (psNeedsPayment[x.id]){
+          actions += '<button class="mini-btn danger" type="button" data-ps-act="publish" data-ps-override="1">Publish anyway</button>';
+        } else {
+          actions += '<button class="mini-btn primary" type="button" data-ps-act="publish">Publish</button>';
+        }
       }
       if (st !== "rejected"){
         actions += '<button class="mini-btn danger" type="button" data-ps-act="reject">Reject</button>';
@@ -611,6 +663,9 @@ document.addEventListener("DOMContentLoaded", function () {
           '<div class="item-title">' + esc(x.title || "Untitled Event") + '</div>' +
           (subBits.length ? '<div class="item-sub">' + subBits.join(" · ") + '</div>' : '') +
           '<div class="item-meta">' + meta + '</div>' +
+          (psNeedsPayment[x.id]
+            ? '<div class="item-sub" style="color:var(--amber)">Payment not received — mark the invoice paid, or publish anyway.</div>'
+            : '') +
           (x.adminNote ? '<div class="item-sub" style="color:var(--muted)">Note: ' + esc(x.adminNote) + '</div>' : '') +
           (actions ? '<div class="item-actions">' + actions + '</div>' : '') +
         '</div>' +
@@ -630,6 +685,8 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch(url, { credentials:"include" })
       .then(function(r){ return r.json().catch(function(){ return {}; }); })
       .then(function(j){
+        psFreeDays = (j && j.freeDays) ? j.freeDays : {};
+        psMonth = (j && j.month) ? j.month : "";
         renderPromos(j && j.submissions ? j.submissions : []);
       })
       .catch(function(){
@@ -639,17 +696,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function actPromo(id, action, btn){
     if (!window.fetch) return;
+    var override = btn && btn.getAttribute('data-ps-override') === '1';
+    if (override){
+      var ok = false;
+      try {
+        ok = window.confirm("Publish without payment?\n\nThe promo goes live and the invoice stays unpaid. The override is recorded against the submission.");
+      } catch (e) { ok = true; }
+      if (!ok) return;
+    }
     btn.disabled = true;
     try {
+      var body = { id: id, action: action };
+      if (override) body.override = true;
       var r = await fetch("/api/admin/promo-submissions", {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ id: id, action: action })
+        body: JSON.stringify(body)
       });
       var j = await r.json().catch(function(){ return {}; });
       if (j && j.ok){
         toast("Submission " + ({ approve:"approved", reject:"rejected", publish:"published" }[action] || action));
+        delete psNeedsPayment[id];
+        loadPromos();
+      } else if (j && j.error === "payment_required"){
+        /* The payment gate blocked the publish. Offer the override. */
+        psNeedsPayment[id] = true;
+        toast("Payment not received (" + psMoney(j.amount, j.currency) + "). Publish anyway?");
         loadPromos();
       } else {
         toast((j && j.error) || "Action failed");

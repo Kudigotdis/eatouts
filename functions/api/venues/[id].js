@@ -30,6 +30,22 @@ function stamp(date, time) {
 
 function promoOut(r) {
   if (!r) return null;
+  var days = [];
+  try {
+    days = r.days_json ? JSON.parse(r.days_json) : [];
+    if (!Array.isArray(days)) days = [];
+  } catch (e) { days = []; }
+  var adult = !!r.age_restricted || isAgeRestrictedPromo({
+    type: r.type || null,
+    subtype: r.subtype || null,
+    category: r.category || null,
+    brand: r.brand || null,
+    title: r.title || '',
+    description: r.description || r.details || '',
+    sponsor: r.sponsor || '',
+    terms: r.terms || '',
+    audience: r.audience || null
+  });
   return {
     id: r.id,
     restaurantId: r.restaurant_id,
@@ -39,13 +55,24 @@ function promoOut(r) {
     imageKey: r.image_key || r.image || null,
     active: !!r.active,
     /* The operator flag, when the column is there, plus the shared rule. */
-    ageRestricted: !!r.age_restricted || isAgeRestrictedPromo({
-      type: r.type || null,
-      title: r.title || '',
-      description: r.description || r.details || '',
-      sponsor: r.sponsor || '',
-      terms: r.terms || ''
-    }),
+    ageRestricted: adult,
+    /* The listing shape the Promos tab needs. */
+    type: r.type || null,
+    subtype: r.subtype || null,
+    category: r.category || null,
+    brand: r.brand || null,
+    originalPrice: r.original_price != null ? r.original_price : null,
+    promoPrice: r.promo_price != null ? r.promo_price : null,
+    days: days,
+    recurring: !!r.recurring,
+    startDate: r.start_date || null,
+    startTime: r.start_time || null,
+    endDate: r.end_date || null,
+    endTime: r.end_time || null,
+    sponsor: r.sponsor || null,
+    terms: r.terms || null,
+    ctaType: r.cta_type || null,
+    ctaUrl: r.cta_url || null,
     startsAt: r.starts_at != null ? r.starts_at : stamp(r.start_date, r.start_time),
     endsAt: r.ends_at != null ? r.ends_at : stamp(r.end_date, r.end_time),
     created_at: r.created_at,

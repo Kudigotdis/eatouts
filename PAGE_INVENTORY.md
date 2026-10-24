@@ -15,7 +15,7 @@ only reads; it never rewrites this file. It warns on line drift.
 
 ## How to use this document
 
-- **Part 1** — Standalone `*.html` files (67 files in the project root). Each
+- **Part 1** — Standalone `*.html` files (68 files in the project root). Each
   carries `<!-- PAGE: <title> -->` near the top and `data-page="<slug>"` on
   `<body>`.
 - **Part 2** — Screens within the SPA (`index.html`), organised by tab. Each
@@ -67,6 +67,7 @@ only reads; it never rewrites this file. It warns on line drift.
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
 | 25 | `eatouts-business-signup.html` | Business-type chooser for new businesses — each card opens that type’s own onboarding form. | login / marketing links | `PAGE: List your business` | 947 |
+| 26 | `operator-businesses.html` | Business hub — lists the operator's businesses as profile cards and routes each to its type-specific dashboard after sign-in. | About → Operator; direct URL | `PAGE: Operator businesses hub` | 405 |
 | 26 | `restaurant-onboarding.html` | Restaurant setup — brand, outlets, venue spaces, menu, promotions and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Restaurant; operator dashboard | `PAGE: Restaurant Setup` | 573 |
 | 27 | `bottle-store-onboarding.html` | Bottle & liquor store setup — brand, outlets, stock, tastings and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Bottle store; operator dashboard | `PAGE: Bottle store onboarding` | 1,629 |
 | 28 | `caterer-onboarding.html` | Caterer setup — shared brand settings plus a branch manager (each branch keeps its own address, service area, packages, add-ons, tastings, equipment, staffing and offers); the draft stays on the device until it is published. | business-signup → Caterer; operator dashboard | `PAGE: Caterer setup` | 2,053 |
@@ -226,10 +227,8 @@ one-liner, e.g. `PAGE: venue-menu-item — Menu · Item  [rest_pizza-perfect:bur
 | About Main | Brand info + social links + settings | Default | `renderAbout()` | `PAGE: about-main — About` | 7937 |
 | Restaurant Gallery | Dedicated gallery view | `state.aboutView === "gallery"` | `renderRestaurantGallery()` | `PAGE: about-restaurant-gallery — Gallery (restaurant)` | 7864 |
 | Legal Document | Terms / Privacy / Cookies | `state.legalView` set | `renderLegalDoc(type)` | `PAGE: about-legal — Legal` | 8023 |
-| Operator Login | Sign-in for business operators | `state.operatorView === "login"` | `renderOperatorLogin()` | `PAGE: about-operator-login — Operator Sign in` | 8052 |
 
 ## Shell & shared elements
-
 These are shared chrome / components inside the SPA, not independently
 addressable pages. They have no `PAGE:` marker (and never become `data-page`).
 

@@ -251,13 +251,13 @@ setTimeout(() => {
   /* ---------- G: About tab ---------- */
   click(doc.querySelector('[data-tab="about"]'));
   const vp = doc.getElementById('viewport');
-  const btns = Array.from(vp.querySelectorAll('button'));
-  const texts = btns.map(b => b.textContent.trim());
-  check('Install EatOuts button present', texts.indexOf('Install EatOuts') > -1, JSON.stringify(texts));
-  const blogLink = vp.querySelector('a[href="eatouts-blog.html"]');
-  check('Blog link present', !!blogLink && blogLink.textContent.trim() === 'Blog', JSON.stringify(texts));
-  check('Terms + Privacy still present', texts.indexOf('Terms of Service') > -1 && texts.indexOf('Privacy Policy') > -1);
-  check('Operator still present', texts.indexOf('Operator') > -1);
+const btns = Array.from(vp.querySelectorAll('button, a.setrow'));
+const texts = btns.map(b => b.textContent.trim());
+check('Install EatOuts button present', texts.indexOf('Install EatOuts') > -1, JSON.stringify(texts));
+const blogLink = vp.querySelector('a[href="eatouts-blog.html"]');
+check('Blog link present', !!blogLink && blogLink.textContent.trim() === 'Blog', JSON.stringify(texts));
+check('Terms + Privacy still present', texts.indexOf('Terms of Service') > -1 && texts.indexOf('Privacy Policy') > -1);
+check('Operator still present', texts.indexOf('Operator') > -1);
   check('no Open Restaurant Gallery button', !vp.querySelector('[data-act="openAboutGallery"]'));
   check('no Send via WhatsApp button', texts.indexOf('Send via WhatsApp') < 0, JSON.stringify(texts));
   check('install button stubs a notice', !!vp.querySelector('button[data-act="showRestNotice"][data-notice*="APK"]'));

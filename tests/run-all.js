@@ -73,7 +73,8 @@ const SUITES = [
   'onboarding-bridge.js',
   'login.js',
   'password-reset.js',
-  'age-gate.js'
+  'age-gate.js',
+  'promo-pricing.js'
 ];
 
 function pad(n, width) {

@@ -1,0 +1,18 @@
+# GOLDEN RULE: ZERO-TOLERANCE BASH SECURITY & TOKEN CONSERVATION
+
+BEFORE PROPOSING OR EXECUTING ANY TOOL OR TERMINAL COMMAND, YOU MUST STRICTLY FOLLOW THESE RULES:
+
+1. UNDERSTAND THE "WHY" (AVOID THE RED ERROR):
+   - Kilo Code automatically blocks bash commands containing pipes, chaining, redirection, or restricted flags. 
+   - Generating these commands triggers a red "action: deny" security block, stalls execution, forces endless loops, and wastes thousands of context tokens.
+
+2. ABSOLUTELY FORBIDDEN BASH SYNTAX (NEVER WRITE THESE):
+   - NO PIPES OR CHAINING: Never use `|`, `&&`, `;`, or `||`. Every command must be 100% standalone.
+   - NO REDIRECTION: Never use `>`, `>>`, `<`, `2>&1`, or `<()`.
+   - NO SUBSHELLS: Never use `$()` or backticks ` `` `.
+   - NO RESTRICTED CLI FLAGS: Never use `sort` with `-o`/`--output`, `rg` with `--pre`, `ag` with `--pager`, or `man` with `-P`/`-H`.
+
+3. MANDATORY EXECUTION WORKFLOW (HOW TO ACT):
+   - USE NATIVE TOOLS FIRST: For finding files or searching text, use Kilo Code's built-in file search and read tools instead of writing terminal search commands (`rg`, `grep`, `find`).
+   - SINGLE-LINE COMMANDS ONLY: If you must use the terminal, propose ONLY clean, single-action commands (e.g., `git status`, `node script.js`). 
+   - ZERO RETRY ON DENIAL: If a command is denied or blocked, STOP IMMEDIATELY. Do not attempt to rewrite, pipe, or wrap it in another shell. Switch instantly to native tool inspection.

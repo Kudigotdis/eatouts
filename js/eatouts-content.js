@@ -104,31 +104,51 @@
 
   function promoFrom(x) {
     x = x || {};
-    var days = Array.isArray(x.days) && x.days.length ? x.days.slice() : null;
-    var day = (days && days[0]) || x.day || 'Monday';
+    var rules = window.EatoutsPromoRules;
+    var src = {
+      startDate: x.startDate || isoDate(x.startsAt),
+      endDate: x.endDate || isoDate(x.endsAt),
+      recurring: !!x.recurring,
+      days: Array.isArray(x.days) ? x.days : []
+    };
+    var days = rules && rules.activeWeekdays
+      ? rules.activeWeekdays(src)
+      : (src.days.length ? src.days.slice() : []);
+    var day = x.day || days[0] || null;
+    if (!day && src.startDate) {
+      var t = Date.parse(src.startDate + 'T00:00:00');
+      if (!isNaN(t)) day = dayNameFrom(t);
+    }
     var was = num(x.originalPrice != null ? x.originalPrice : x.was);
     var price = num(x.promoPrice != null ? x.promoPrice : x.price);
     var save = x.savings != null ? num(x.savings) : (x.save != null ? num(x.save) : Math.max(0, was - price));
     return {
       id: x.id,
       day: day,
-      days: days || [day],
-      type: x.type || 'Promo',
+      days: days.length ? days : (day ? [day] : []),
+      /* Do not invent a type: the Promos tab reads category + subtype and
+         falls back to the copy when they are missing. */
+      type: x.type || '',
       subtype: x.subtype || '',
+      category: x.category || '',
+      brand: x.brand || '',
+      mechanic: x.mechanic || '',
       title: x.title || '',
       desc: x.details || x.description || x.desc || '',
       items: Array.isArray(x.items) ? x.items : [],
       was: was,
       price: price,
       save: save,
-      valid: x.valid || [isoDate(x.startsAt), isoDate(x.endsAt)].filter(Boolean).join(' to '),
+      valid: x.valid || [src.startDate, src.endDate === src.startDate ? '' : src.endDate].filter(Boolean).join(' to '),
       imageKey: x.imageKey || null,
       image: x.imageKey || null,
       /* The operator's own 18+ switch, carried so the timeline can hide
          the promo from anyone under 18. */
       ageRestricted: !!x.ageRestricted,
-      startDate: isoDate(x.startsAt),
-      endDate: isoDate(x.endsAt)
+      audience: x.audience || (x.ageRestricted ? '18plus' : 'everyone'),
+      recurring: !!x.recurring,
+      startDate: src.startDate,
+      endDate: src.endDate
     };
   }
 

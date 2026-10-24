@@ -44,16 +44,19 @@ export async function onRequestPost(context) {
   var ts = now();
   await c.db.prepare(
     'INSERT INTO restaurants (id, slug, name, status, plan, claimed, town, district, district_name, area, ' +
-    'landmark, description, website, types, category, contacts, socials, hours, price_range, features, ' +
-    'created_at, updated_at) ' +
-    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    'landmark, description, website, logo_ref, cover_ref, types, category, contacts, socials, hours, ' +
+    'price_range, features, type, created_at, updated_at) ' +
+    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
   ).bind(
     id, slug, name, 'draft', 'starter', 1,
     str(b.town), str(b.district), str(b.districtName), str(b.area), str(b.landmark),
     str(b.description), str(b.website),
+    str(b.logoRef) || str(b.logo_ref) || null,
+    str(b.coverRef) || str(b.cover_ref) || null,
     JSON.stringify(asArray(b.types)), str(b.category),
     JSON.stringify(asArray(b.contacts)), JSON.stringify(asArray(b.socials)),
     b.hours ? JSON.stringify(b.hours) : null, str(b.priceRange), JSON.stringify(asArray(b.features)),
+    str(b.type) || null,
     ts, ts
   ).run();
 

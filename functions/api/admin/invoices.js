@@ -57,6 +57,25 @@ export async function onRequestPatch(context) {
     'UPDATE invoices SET status = ?, paid_at = ? WHERE id = ?'
   ).bind(cfg.status, paidAt, id).run();
 
+  /* Keep the promo side of the ledger in step: marking an invoice paid is
+     what unlocks the admin publish gate, so the submission and the promo
+     row must observe it immediately. */
+  if (row.promo_id || row.submission_id) {
+    var payStatus = cfg.setPaidAt ? 'received' : 'pending';
+    try {
+      if (row.submission_id) {
+        await c.db.prepare(
+          'UPDATE promo_submissions SET payment_status = ?, billed = ?, updated_at = ? WHERE id = ?'
+        ).bind(payStatus, cfg.setPaidAt ? 1 : 0, t, row.submission_id).run();
+      }
+      if (row.promo_id) {
+        await c.db.prepare(
+          'UPDATE promos SET payment_status = ?, updated_at = ? WHERE id = ?'
+        ).bind(payStatus, t, row.promo_id).run();
+      }
+    } catch (e) { /* pre-0014 shape: the invoice is still the record */ }
+  }
+
   var updated = await c.db.prepare('SELECT * FROM invoices WHERE id = ?').bind(id).first();
   return json({ ok: true, invoice: invoiceOut(updated || row) });
 }

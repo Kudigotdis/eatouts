@@ -99,7 +99,10 @@ setTimeout(async () => {
   check('contentFrom maps menu categories to {id,name,order}', server.menuCategories[0].id === 'cat_1' && server.menuCategories[0].order === 0);
   check('contentFrom maps menu items', server.menuItems[0].name === 'Steak' && server.menuItems[0].categoryId === 'cat_1' && server.menuItems[0].price === 120);
   check('contentFrom maps gallery image cat from group title', server.galleryImages[0].cat === 'Food' && server.galleryImages[0].src === 'a.jpg');
-  check('contentFrom maps promo (day + valid)', server.promos[0].day === 'Monday' && server.promos[0].title === 'Live');
+  check('contentFrom maps promo (day + valid)',
+    ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(server.promos[0].day) >= 0 &&
+    server.promos[0].title === 'Live' && server.promos[0].startDate === '2023-11-14',
+    JSON.stringify(server.promos[0]));
   check('contentFrom maps event (day + title)', ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(server.events[0].day) >= 0 && server.events[0].title === 'Gig');
   check('contentFrom keeps figures', server.events[0].figure && server.events[0].figure.lineup[0] === 'A');
   check('emptyContent shape reused', Array.isArray(server.performers) && server.performances.length === 0);

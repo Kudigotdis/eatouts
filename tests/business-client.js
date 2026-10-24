@@ -429,7 +429,9 @@ setTimeout(async () => {
     sub.title === 'Weekend Special' && sub.venueName === 'The Yard' && sub.summary === 'Two for one' && sub.imageRef === 'promo.jpg',
     JSON.stringify(sub));
   check('promoToSubmission builds a when string', /2026-04-01/.test(sub.whenText) && /2026-04-30/.test(sub.whenText), sub.whenText);
-  check('promoToSubmission sets the P50 fee', sub.fee === 50 && sub.currency === 'BWP');
+  check('promoToSubmission leaves the fee to the server', sub.fee === undefined && sub.currency === 'BWP', JSON.stringify(sub));
+  check('promoToSubmission forwards a display estimate',
+    API.promoToSubmission(Object.assign({}, localPromo, { estimateFee: 70 }), { identity: { name: 'The Yard' } }).fee === 70);
   check('promoToSubmission embeds the full promo payload', sub.payload && sub.payload.id === 'promo_1');
 
   check('no window errors during the run', errors.length === 0, errors.slice(0, 3).join(' | '));

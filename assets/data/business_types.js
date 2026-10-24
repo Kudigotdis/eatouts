@@ -75,6 +75,9 @@
     bottle_store: 'bottlestore',
     'bottle-store': 'bottlestore',
     bottleStore: 'bottlestore',
+    liquor_store: 'bottlestore',
+    'liquor-store': 'bottlestore',
+    liquorStore: 'bottlestore',
     caterer: 'caterer',
     catering: 'caterer',
     lodge: 'lodge',
@@ -129,6 +132,34 @@
     return ONBOARDING_PAGES[normalize(raw)] || 'eatouts-business-signup.html';
   }
 
+  /* The dashboard that belongs to a business type. The business hub uses
+     this to send an operator to the right workspace, so no page has to
+     hard-code the file name.
+
+     `lodge` has no dashboard of its own yet, so it falls back to the
+     restaurant shell - the most complete one. */
+  const DASHBOARD_FILES = {
+    restaurant: 'dashboards/eatouts-restaurant-dashboard.html',
+    bakery: 'dashboards/eatouts-bakery-dashboard.html',
+    caterer: 'dashboards/eatouts-caterer-dashboard.html',
+    foodtruck: 'dashboards/eatouts-mobile-kitchen-dashboard.html',
+    bottlestore: 'dashboards/eatouts-bottle-store-dashboard.html',
+    supplier: 'dashboards/eatouts-event-supplier-dashboard.html',
+    lodge: 'dashboards/eatouts-restaurant-dashboard.html'
+  };
+
+  function dashboardFile(raw) {
+    return DASHBOARD_FILES[normalize(raw)] || DASHBOARD_FILES.restaurant;
+  }
+
+  /* The path is relative to the page that asks for it, so a page inside
+     `dashboards/` gets `../dashboards/...` and a root page gets
+     `dashboards/...`. */
+  function dashboardHref(raw, fromSubfolder) {
+    const file = dashboardFile(raw);
+    return fromSubfolder ? '../' + file : file;
+  }
+
   window.EatoutsBusinessTypes = {
     all: TYPES,
     keys: Object.keys(TYPES),
@@ -136,6 +167,9 @@
     normalize: normalize,
     onboardingPages: ONBOARDING_PAGES,
     onboardingPage: onboardingPage,
+    dashboardFiles: DASHBOARD_FILES,
+    dashboardFile: dashboardFile,
+    dashboardHref: dashboardHref,
     roles: Object.keys(TYPES).reduce(function (m, k) { m[k] = TYPES[k].roles; return m; }, {})
   };
 })();

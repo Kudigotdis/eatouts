@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<!-- PAGE: Operator businesses hub -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171719">
+<title>My businesses — EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<style>
+:root{--ink:#171719;--ink2:#303138;--muted:#626773;--faint:#777D88;--paper:#F3F4F6;--card:#FFFFFF;--line:#E0E3E8;--line2:#ECEEF1;--orange:#FF5A1F;--orange2:#E94E18;--orangeSoft:#FFF0E9;--green:#187A45;--greenSoft:#E9F7EE;--amber:#9A5808;--amberSoft:#FFF4D9;--red:#B42318;--redSoft:#FDEDEC;--blue:#1769AA;--blueSoft:#EAF4FD;--shadow:0 2px 12px rgba(23,23,25,.045);--radius:8px}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:#E7E9ED;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+#shell{width:100%;max-width:520px;min-height:100vh;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;box-shadow:0 0 48px rgba(16,18,25,.13)}
+.topbar{flex:0 0 auto;background:#171719;color:#fff;padding:calc(12px + env(safe-area-inset-top)) 14px 14px;display:flex;align-items:center;gap:13px;border-bottom:1px solid #323238}
+.brand-mark{display:flex;align-items:center;gap:9px;text-decoration:none;font-weight:800;color:#fff;font-size:15px;letter-spacing:-.2px}
+.brand-mark img{height:34px;width:auto;object-fit:contain}
+.brand-info{min-width:0;flex:1}
+.brand-name{font-size:20px;line-height:1.2;font-weight:900;letter-spacing:-.03em;margin:0}
+.scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding:14px 12px 22px;-webkit-overflow-scrolling:touch}
+.page-head{margin:1px 2px 13px}
+.page-title{font-size:20px;font-weight:900;letter-spacing:-.025em;line-height:1.2;margin:0}
+.page-subtitle{font-size:16px;color:var(--muted);margin:5px 0 0;line-height:1.4}
+.empty-state{border:1px dashed #CDD1D8;border-radius:7px;padding:22px 14px;text-align:center;background:#FAFBFC;color:var(--muted);font-size:15px;line-height:1.45;margin:12px 0}
+.btn{min-height:46px;border:1px solid transparent;border-radius:6px;padding:10px 13px;font-size:15px;font-weight:850;line-height:1.25;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.btn.primary{background:var(--orange);color:#fff;border-color:var(--orange)}
+.btn.primary:hover{background:var(--orange2)}
+.btn.secondary{background:#fff;border-color:var(--line);color:var(--ink)}
+.btn.full{width:100%}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(23,23,25,.08)}
+.card-thumb{width:90px;height:90px;flex:0 0 90px;border-radius:6px;overflow:hidden;background:#F0F1F4;display:flex;align-items:center;justify-content:center;font-size:36px;border:1px solid var(--line)}
+.card-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.card-body{flex:1;min-width:0}
+.card-name{font-size:15px;font-weight:800;line-height:1.3;margin:0;overflow-wrap:anywhere}
+.card-type{font-size:13px;color:var(--muted);margin:2px 0 0}
+.card-location{font-size:13px;color:var(--muted);margin:2px 0 0}
+.card-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:4px 7px;font-size:12px;font-weight:800;line-height:1.25;white-space:nowrap}
+.pill.status-live{background:var(--greenSoft);color:var(--green)}
+.pill.status-draft{background:#F1F2F4;color:#545963}
+.pill.status-pending{background:var(--amberSoft);color:var(--amber)}
+.pill.role{background:var(--blueSoft);color:var(--blue)}
+.toast{position:fixed;left:50%;bottom:calc(82px + env(safe-area-inset-bottom));transform:translate(-50%,10px);background:#202126;color:#fff;border-radius:6px;padding:12px 16px;max-width:90vw;min-width:180px;text-align:center;font-size:14px;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:200}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+/* Sign-in sheet */
+.scrim{position:fixed;inset:0;background:rgba(12,13,17,.58);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility 0s linear .22s}
+.scrim.open{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .22s ease,visibility 0s}
+.sheet{width:100%;max-width:400px;background:#fff;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;transform:translateY(-40px);opacity:0;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .22s ease}
+.scrim.open .sheet{transform:translateY(0);opacity:1}
+.sheet-head{padding:17px 16px 12px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.sheet-title{font-size:20px;font-weight:900;margin:0}
+.sheet-sub{font-size:14px;color:var(--muted);margin-top:4px;line-height:1.4}
+.sheet-body{padding:16px;flex:1 1 auto}
+.sheet-foot{padding:12px 16px 16px;border-top:1px solid var(--line);background:#fff}
+.field{margin-bottom:12px}
+.field label{display:block;margin-bottom:6px;font-size:13px;font-weight:700;color:#3a3324}
+.field input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:15px}
+.field input:focus{border-color:var(--ink);outline:none}
+.error-msg{color:var(--red);font-size:13px;font-weight:700;margin:0 0 12px;display:none}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted)}
+</style>
+</head>
+<body data-page="operator-businesses">
+<div id="shell">
+  <header class="topbar">
+    <a class="brand-mark" href="index.html#promos"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
+    <div class="brand-info">
+      <h1 class="brand-name">My businesses</h1>
+    </div>
+  </header>
+  <main class="scroll">
+    <div class="page-head">
+      <h2 class="page-title">Businesses</h2>
+      <p class="page-subtitle">Tap a business to sign in and open its dashboard.</p>
+    </div>
+    <div id="businessList"><div class="loading">Loading businesses…</div></div>
+    <div style="margin:16px 0">
+      <a class="btn primary full" href="eatouts-business-signup.html">+ Add Business</a>
+    </div>
+  </main>
+</div>
+<div id="toast" class="toast"></div>
+
+<!-- Sign-in sheet -->
+<div id="signinScrim" class="scrim" aria-hidden="true">
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="signinTitle">
+    <div class="sheet-head">
+      <h2 id="signinTitle" class="sheet-title">Sign in</h2>
+      <p class="sheet-sub" id="signinSub">Enter your credentials to continue</p>
+    </div>
+    <div class="sheet-body">
+      <div id="continueShortcut" style="display:none;margin-bottom:12px">
+        <button class="btn secondary full" id="btnContinueAs">Continue as <span id="continueName"></span></button>
+      </div>
+      <div id="signinError" class="error-msg"></div>
+      <div class="field">
+        <label>WhatsApp number</label>
+        <input type="tel" id="signinWhatsapp" placeholder="267 71 234 567" autocomplete="tel">
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="signinUsername" placeholder="your username" autocomplete="username" autocapitalize="none" spellcheck="false">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="signinPassword" placeholder="password" autocomplete="current-password">
+      </div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn primary full" id="btnSignin">Sign in</button>
+    </div>
+  </section>
+</div>
+
+<script src="assets/data/business_types.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-business-api.js"></script>
+<script src="js/eatouts-customer.js"></script>
+<script>
+(function(){
+  'use strict';
+  var selectedBusiness = null;
+  var toastTimer = null;
+
+  function toast(msg){
+    var el=document.getElementById('toast');
+    el.textContent=msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){el.classList.remove('show');},2300);
+  }
+
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+  function getIcon(type){
+    var bt=window.EatoutsBusinessTypes;
+    if(bt && bt.get){var t=bt.get(type);return t && t.icon?t.icon:'🍽';}
+    return '🍽';
+  }
+
+  function getStatusPill(status){
+    var s=String(status||'draft').toLowerCase();
+    if(s==='live'||s==='active'||s==='published')return '<span class="pill status-live">Live</span>';
+    if(s==='pending')return '<span class="pill status-pending">Pending</span>';
+    return '<span class="pill status-draft">Draft</span>';
+  }
+
+  function getRolePill(role){
+    var r=String(role||'owner').toLowerCase();
+    if(r==='owner')return '<span class="pill role">Owner</span>';
+    if(r==='manager')return '<span class="pill role">Manager</span>';
+    return '<span class="pill role">'+esc(role)+'</span>';
+  }
+
+  function renderBusinesses(businesses){
+    var list=document.getElementById('businessList');
+    if(!businesses||!businesses.length){
+      list.innerHTML='<div class="empty-state">No businesses yet. Tap "+ Add Business" to get started.</div>';
+      return;
+    }
+    list.innerHTML=businesses.map(function(b){
+      var icon=getIcon(b.type);
+      var thumb='';
+      if(b.logoRef){thumb='<img src="'+esc(b.logoRef)+'" alt="">';}
+      else if(b.coverRef){thumb='<img src="'+esc(b.coverRef)+'" alt="">';}
+      else{thumb=icon;}
+      return '<div class="card" data-biz-id="'+esc(b.id)+'" data-biz-type="'+esc(b.type)+'" data-biz-name="'+esc(b.name)+'">'+
+        '<div class="card-thumb">'+thumb+'</div>'+
+        '<div class="card-body">'+
+          '<p class="card-name">'+esc(b.name||'Unnamed business')+'</p>'+
+          '<p class="card-type">'+esc((window.EatoutsBusinessTypes&&window.EatoutsBusinessTypes.get?window.EatoutsBusinessTypes.get(b.type).label:b.type)||'Business')+'</p>'+
+          '<p class="card-location">'+esc(b.town||'')+(b.area?' · '+esc(b.area):'')+'</p>'+
+          '<div class="card-pills">'+getStatusPill(b.status)+getRolePill(b.role)+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+    list.querySelectorAll('.card').forEach(function(card){
+      card.addEventListener('click',function(){
+        openSignin(card.getAttribute('data-biz-id'),card.getAttribute('data-biz-name'),card.getAttribute('data-biz-type'));
+      });
+    });
+  }
+
+  function filterDemoData(businesses){
+    return (businesses||[]).filter(function(b){
+      if(!b||!b.id)return false;
+      if(String(b.id).indexOf('biz-')===0)return false;
+      if(b.isDemo)return false;
+      return true;
+    });
+  }
+
+  function loadBusinesses(){
+    var BA=window.EatoutsBusinessApi;
+    var local=[];
+    try{var raw=localStorage.getItem('eatouts_businesses_v1');if(raw){var parsed=JSON.parse(raw);if(Array.isArray(parsed))local=parsed;}}catch(e){}
+    local=filterDemoData(local);
+    if(!BA){renderBusinesses(local);return;}
+    BA.mine().then(function(r){
+      if(r.ok&&r.data&&Array.isArray(r.data.businesses)){
+        var server=r.data.businesses;
+        // server wins on conflict
+        var merged=server.slice();
+        var serverIds=server.map(function(b){return b.id;});
+        local.forEach(function(lb){
+          if(serverIds.indexOf(lb.id)===-1)merged.push(lb);
+        });
+        merged=filterDemoData(merged);
+        renderBusinesses(merged);
+      }else{
+        renderBusinesses(local);
+      }
+    }).catch(function(){renderBusinesses(local);});
+  }
+
+  function openSignin(bizId,bizName,bizType){
+    selectedBusiness={id:bizId,name:bizName,type:bizType};
+    document.getElementById('signinTitle').textContent='Sign in';
+    document.getElementById('signinSub').textContent='Sign in to '+bizName;
+    document.getElementById('signinError').style.display='none';
+    document.getElementById('signinError').textContent='';
+    document.getElementById('signinWhatsapp').value='';
+    document.getElementById('signinUsername').value='';
+    document.getElementById('signinPassword').value='';
+    // Check if already logged in
+    var user=window.EatoutsAuth&&window.EatoutsAuth.getUser?window.EatoutsAuth.getUser():null;
+    var shortcut=document.getElementById('continueShortcut');
+    if(user&&user.name){
+      shortcut.style.display='block';
+      document.getElementById('continueName').textContent=user.name;
+    }else{
+      shortcut.style.display='none';
+    }
+    document.getElementById('signinScrim').classList.add('open');
+  }
+
+  function closeSignin(){
+    document.getElementById('signinScrim').classList.remove('open');
+    selectedBusiness=null;
+  }
+
+  function handleSignin(){
+    var whats=document.getElementById('signinWhatsapp').value.trim();
+    var user=document.getElementById('signinUsername').value.trim();
+    var pass=document.getElementById('signinPassword').value;
+    var errEl=document.getElementById('signinError');
+    if(!whats){errEl.textContent='Enter your WhatsApp number.';errEl.style.display='block';return;}
+    if(!user){errEl.textContent='Enter your username.';errEl.style.display='block';return;}
+    if(!pass){errEl.textContent='Enter your password.';errEl.style.display='block';return;}
+    var btn=document.getElementById('btnSignin');
+    btn.disabled=true;
+    btn.textContent='Signing in…';
+    var C=window.EatoutsCustomer;
+    if(C&&typeof C.login==='function'){
+      C.login({username:user,whatsapp:whats,password:pass}).then(function(res){
+        btn.disabled=false;
+        btn.textContent='Sign in';
+        if(res&&res.ok){
+          handleSigninSuccess();
+        }else if(res&&res.status===429){
+          errEl.textContent='Too many attempts. Try again shortly.';
+          errEl.style.display='block';
+        }else{
+          errEl.textContent=(res&&(res.message||res.error))||'Sign-in failed.';
+          errEl.style.display='block';
+        }
+      }).catch(function(){
+        btn.disabled=false;
+        btn.textContent='Sign in';
+        errEl.textContent='Sign-in failed. Check your connection.';
+        errEl.style.display='block';
+      });
+    }else{
+      // Fallback to local auth
+      var A=window.EatoutsAuth;
+      if(A&&typeof A.login==='function'){
+        A.login(whats,pass,user).then(function(res){
+          btn.disabled=false;
+          btn.textContent='Sign in';
+          if(res&&res.ok){handleSigninSuccess();}
+          else{errEl.textContent=(res&&(res.message||res.error))||'Sign-in failed.';errEl.style.display='block';}
+        }).catch(function(){
+          btn.disabled=false;
+          btn.textContent='Sign in';
+          errEl.textContent='Sign-in failed.';
+          errEl.style.display='block';
+        });
+      }else{
+        btn.disabled=false;
+        btn.textContent='Sign in';
+        errEl.textContent='Sign-in is unavailable.';
+        errEl.style.display='block';
+      }
+    }
+  }
+
+  function handleSigninSuccess(){
+    if(!selectedBusiness)return;
+    if(window.EatoutsAuth&&typeof window.EatoutsAuth.setActiveBusiness==='function'){
+      window.EatoutsAuth.setActiveBusiness(selectedBusiness.id);
+    }
+    try{sessionStorage.setItem('eatouts_active_business_v2',selectedBusiness.id);}catch(e){}
+    var bt=window.EatoutsBusinessTypes;
+    var href=bt&&bt.dashboardHref?bt.dashboardHref(selectedBusiness.type,false):'dashboards/eatouts-restaurant-dashboard.html';
+    location.href=href+'?business='+encodeURIComponent(selectedBusiness.id);
+  }
+
+  function handleContinueAs(){
+    // Already logged in, just navigate
+    handleSigninSuccess();
+  }
+
+  // Event listeners
+  document.getElementById('btnSignin').addEventListener('click',handleSignin);
+  document.getElementById('signinScrim').addEventListener('click',function(e){
+    if(e.target===this)closeSignin();
+  });
+  document.getElementById('btnContinueAs').addEventListener('click',handleContinueAs);
+
+  // Initialize
+  loadBusinesses();
+})();
+</script>
+</body>
+</html>

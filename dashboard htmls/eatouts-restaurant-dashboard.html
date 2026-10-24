@@ -1,0 +1,872 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#171719">
+<title>Restaurant Dashboard · EatOuts</title>
+<style>
+:root{
+  --ink:#171719;--ink2:#303138;--muted:#626773;--faint:#777D88;
+  --paper:#F3F4F6;--card:#FFFFFF;--line:#E0E3E8;--line2:#ECEEF1;
+  --orange:#FF5A1F;--orange2:#E94E18;--orangeSoft:#FFF0E9;--orangeLine:#FFD0BC;
+  --green:#187A45;--greenSoft:#E9F7EE;--amber:#9A5808;--amberSoft:#FFF4D9;
+  --red:#B42318;--redSoft:#FDEDEC;--blue:#1769AA;--blueSoft:#EAF4FD;
+  --shadow:0 2px 12px rgba(23,23,25,.045);--radius:8px;
+  --rail:#0E0F12;--railLine:#24252B;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:#E7E9ED;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(255,90,31,.32);outline-offset:2px}a{color:inherit;text-decoration:none}
+#shell{width:100%;max-width:520px;height:100vh;height:100dvh;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;position:relative;box-shadow:0 0 48px rgba(16,18,25,.13)}
+.topbar{flex:0 0 auto;background:#171719;color:#fff;padding:calc(12px + env(safe-area-inset-top)) 14px 14px;display:flex;align-items:center;gap:13px;border-bottom:1px solid #323238}
+.restaurant-logo{width:90px;height:90px;flex:0 0 90px;display:block;object-fit:cover;background:#34343A;border:1px solid #56565E;border-radius:4px}
+.logo-fallback{display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#FF7A42,#D94512);font-size:36px;font-weight:900;letter-spacing:-.06em}
+.brand-info{min-width:0;flex:1}
+.brand-name{font-size:20px;line-height:1.2;font-weight:900;letter-spacing:-.03em;overflow-wrap:anywhere;margin:0}
+/* ── Accordion filter section ── */
+.filter-section{flex:0 0 auto;background:#fff;border-bottom:1px solid var(--line);position:relative;z-index:10;box-shadow:0 2px 4px rgba(0,0,0,.025)}
+.filter-accordion-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border:0;background:#fff;padding:13px 14px;text-align:left;transition:background .15s}
+.filter-accordion-toggle:hover{background:#FAFBFC}
+.filter-accordion-toggle[aria-expanded="true"]{border-bottom:1px solid var(--line2)}
+.filter-accordion-title{font-size:16px;font-weight:900;letter-spacing:.035em;text-transform:uppercase;color:#666B75}
+.filter-accordion-meta{font-size:14px;color:var(--muted);font-weight:700;text-align:right;line-height:1.3}
+.filter-accordion-body{padding:4px 14px 14px}
+.filter-stack{display:grid;grid-template-columns:1fr;gap:9px}
+.filter-control{width:100%;border:1px solid #D9DDE3;background:#fff;border-radius:6px;color:var(--ink);padding:11px 12px;min-height:48px;text-align:left;display:flex;align-items:center;gap:10px}
+.filter-control:hover{border-color:#B6BAC3}
+.filter-control-main{min-width:0;flex:1}
+.filter-control-label{display:block;font-size:16px;font-weight:800;line-height:1.25}
+.filter-control-sub{display:block;font-size:14px;color:var(--muted);margin-top:2px;line-height:1.25}
+.filter-select{width:100%;min-height:48px;border:1px solid #D9DDE3;border-radius:6px;background:#fff;color:var(--ink);padding:10px 12px;font-size:16px;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:center}
+.filter-select:hover{border-color:#B6BAC3}
+.filter-label{display:block;font-size:16px;font-weight:800;line-height:1.25;text-align:center}
+.filter-reset{width:100%;margin-top:6px;min-height:42px;border:1px dashed #CDD1D8;border-radius:6px;background:#FAFBFC;color:var(--red);font-size:15px;font-weight:800}
+.filter-reset:hover{background:#FDEDEC;border-color:#E8B8B3}
+/* ── Workspace dim layer (darkens workspace only, never the bottom rail) ── */
+.filter-dim{position:absolute;left:0;right:0;background:rgba(13,14,18,.52);z-index:9;opacity:0;pointer-events:none;transition:opacity .18s ease;cursor:pointer}
+.filter-dim.show{opacity:1;pointer-events:auto}
+/* ── Scrollable workspace, hidden scrollbar ── */
+.scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding:14px 12px 22px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
+.scroll::-webkit-scrollbar{display:none}
+.page-head{margin:1px 2px 13px}
+.page-title{font-size:20px;font-weight:900;letter-spacing:-.025em;line-height:1.2;margin:0}
+.page-subtitle{font-size:16px;color:var(--muted);margin:5px 0 0;line-height:1.4}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:19px 2px 9px;font-size:18px;font-weight:900;line-height:1.25}
+.section-title:first-of-type{margin-top:5px}
+.section-note{font-size:14px;color:var(--muted);font-weight:500;margin-top:3px;line-height:1.35}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow);min-width:0}
+.card:last-child{margin-bottom:0}
+.card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.card-head-main{min-width:0;flex:1}
+.card-title{font-size:18px;font-weight:900;line-height:1.25;margin:0}
+.card-subtitle{font-size:14px;color:var(--muted);margin:4px 0 0;line-height:1.4}
+.card-action{border:1px solid var(--line);background:#fff;border-radius:5px;padding:7px 9px;font-size:14px;font-weight:800;color:var(--ink);white-space:nowrap}
+.card-action:hover{background:#F7F8FA;border-color:#C6CBD3}
+/* ── KPI tiles (compact, tappable) ── */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
+.kpi{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:10px;border-radius:8px;background:#F7F8FA;border:1px solid rgba(224,227,232,.9);color:var(--ink);text-align:left;font:inherit;appearance:none;-webkit-appearance:none;transition:background .15s,border-color .15s,transform .12s}
+.kpi:hover{background:#F0F2F5;border-color:#C9CED6}
+.kpi:active{transform:scale(.985)}
+.kpi-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.kpi-label{font-size:11px;font-weight:700;color:var(--muted);line-height:1.25;overflow-wrap:anywhere}
+.kpi-value{flex:0 0 auto;font-size:14px;font-weight:900;letter-spacing:-.02em;color:var(--ink);background:#fff;border:1px solid #E1E4EA;border-radius:6px;padding:2px 8px;line-height:1.4;box-shadow:0 1px 2px rgba(23,23,25,.06);white-space:nowrap}
+.chip-row{display:flex;flex-wrap:wrap;gap:7px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#F5F6F8;border:1px solid var(--line);border-radius:5px;padding:7px 9px;font-size:14px;font-weight:700;color:#353840}
+.stat-list{display:flex;flex-direction:column;gap:0}
+.stat-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.stat-row:last-child{border-bottom:0;padding-bottom:0}.stat-row:first-child{padding-top:0}
+.stat-row-main{flex:1;min-width:0}.stat-row-label{font-size:15px;color:#353840;font-weight:750;line-height:1.3}.stat-row-note{font-size:14px;color:var(--muted);line-height:1.35;margin-top:3px}.stat-row-value{font-size:15px;font-weight:900;text-align:right;white-space:nowrap;line-height:1.35}
+.bar-list{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:grid;grid-template-columns:minmax(110px,1fr) minmax(70px,1.05fr) auto;align-items:center;gap:9px}
+.bar-label{font-size:15px;font-weight:750;color:#363840;line-height:1.3;overflow-wrap:anywhere}
+.bar-track{height:10px;background:#ECEEF1;border-radius:3px;overflow:hidden;min-width:20px}
+.bar-fill{height:100%;display:block;background:var(--orange);border-radius:3px;min-width:2px}
+.bar-value{font-size:14px;font-weight:900;white-space:nowrap;text-align:right}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px}
+table{width:100%;border-collapse:collapse;min-width:440px;background:#fff}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line2);font-size:14px;vertical-align:top}th{background:#F7F8FA;color:#50545E;font-weight:900;white-space:nowrap}td{color:#303239}tbody tr:last-child td{border-bottom:0}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.table-title{font-weight:800}.table-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:4px;padding:4px 7px;font-size:13px;font-weight:800;line-height:1.25;white-space:normal}.badge.good{background:var(--greenSoft);color:var(--green)}.badge.warn{background:var(--amberSoft);color:var(--amber)}.badge.bad{background:var(--redSoft);color:var(--red)}.badge.info{background:var(--blueSoft);color:var(--blue)}.badge.neutral{background:#F1F2F4;color:#545963}
+.alert-list{display:flex;flex-direction:column;gap:9px}.alert{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:6px;padding:11px}.alert-mark{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:5px;font-size:14px;font-weight:900}.alert.warning .alert-mark{background:var(--amberSoft);color:var(--amber)}.alert.danger .alert-mark{background:var(--redSoft);color:var(--red)}.alert.info .alert-mark{background:var(--blueSoft);color:var(--blue)}.alert.good .alert-mark{background:var(--greenSoft);color:var(--green)}.alert-main{flex:1;min-width:0}.alert-title{font-size:15px;font-weight:900;line-height:1.3}.alert-text{font-size:14px;color:#50545E;line-height:1.4;margin-top:3px}.alert-action{font-size:14px;color:var(--orange2);font-weight:900;border:0;background:transparent;padding:6px 0 0;text-align:left}
+.empty-state{border:1px dashed #CDD1D8;border-radius:7px;padding:22px 14px;text-align:center;background:#FAFBFC;color:var(--muted);font-size:15px;line-height:1.45}
+.btn{min-height:46px;border:1px solid transparent;border-radius:6px;padding:10px 13px;font-size:15px;font-weight:850;line-height:1.25;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.btn.primary{background:var(--orange);color:#fff;border-color:var(--orange)}.btn.primary:hover{background:var(--orange2)}
+.btn.secondary{background:#fff;border-color:var(--line);color:var(--ink)}.btn.secondary:hover{background:#F6F7F8}
+.btn.full{width:100%}
+.button-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+/* ── Bottom rail: black, 4 tabs per view, snap ── */
+.bottom-rail{flex:0 0 auto;background:var(--rail);border-top:1px solid var(--railLine);padding:0 0 env(safe-area-inset-bottom);overflow-x:auto;overflow-y:hidden;display:flex;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x}
+.bottom-rail::-webkit-scrollbar{display:none}
+.rail-tab{flex:0 0 25%;width:25%;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px;border:0;border-top:3px solid transparent;background:transparent;color:rgba(255,255,255,.5);text-align:center;line-height:1.15;font-size:clamp(12px,3.4vw,14px);font-weight:800;scroll-snap-align:center;scroll-snap-stop:always;white-space:normal}
+.rail-tab .rail-label{display:block;max-width:100%;overflow-wrap:anywhere}
+.rail-tab.active{color:var(--orange);border-top-color:var(--orange)}
+.rail-tab:focus-visible{outline-offset:-4px}
+/* ── Popups / scrim ── */
+.scrim{position:fixed;inset:0;background:rgba(12,13,17,.58);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility 0s linear .22s}
+.scrim.open{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .22s ease,visibility 0s}
+/* ── Branch sheet: floats centered (never docked to the bottom) ── */
+.sheet{width:100%;max-width:500px;max-height:min(88vh,860px);background:#fff;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;transform:translateY(-40px);opacity:0;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .22s ease}
+.scrim.open .sheet{transform:translateY(0);opacity:1}
+.sheet-head{padding:17px 16px 12px;border-bottom:1px solid var(--line);flex:0 0 auto}.sheet-title{font-size:20px;font-weight:900;margin:0}.sheet-sub{font-size:14px;color:var(--muted);margin-top:4px;line-height:1.4}
+.sheet-search-wrap{display:flex;align-items:center;gap:8px;padding:12px 16px 8px;flex:0 0 auto}
+.sheet-search{flex:1;min-width:0;min-height:44px;border:1px solid #D6DAE1;border-radius:5px;padding:9px 12px;font-size:15px}
+.sheet-all-btn,.sheet-clear-btn{flex:0 0 auto;min-height:44px;min-width:44px;border:1px solid var(--line);border-radius:5px;background:#F8F9FA;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 12px}
+.sheet-all-btn:hover,.sheet-clear-btn:hover{background:#EFF1F4}
+.sheet-clear-btn{color:var(--red);font-size:16px;padding:0 10px}
+.branch-options{padding:0 16px 12px;overflow:auto;min-height:120px;max-height:44vh}
+.branch-option{display:flex;align-items:flex-start;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line2);cursor:pointer}
+.branch-option:last-child{border-bottom:0}
+.branch-option input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:22px;height:22px;border-radius:5px;border:2px solid #C6CBD3;background:#F0F1F4;position:relative;cursor:pointer;flex:0 0 auto;margin:1px 0 0}
+.branch-option input[type="checkbox"]:checked{background:var(--green);border-color:var(--green)}
+.branch-option input[type="checkbox"]:checked::after{content:'';position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.branch-option-main{flex:1;min-width:0}
+.branch-option-name{display:block;font-size:16px;font-weight:900}
+.branch-option-location{display:block;font-size:14px;color:var(--muted);margin-top:3px;line-height:1.3}
+.sheet-foot{flex:0 0 auto;padding:12px 16px 16px;border-top:1px solid var(--line);background:#fff}
+.sheet-actions{display:grid;grid-template-columns:1fr;gap:8px}
+/* ── Generic floating popup (date / service / KPI) ── */
+.popup{width:100%;max-width:480px;max-height:min(86vh,780px);background:#fff;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;transform:translateY(12px) scale(.97);opacity:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease}
+.scrim.open .popup{transform:translateY(0) scale(1);opacity:1}
+.popup-head{padding:16px 16px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto}
+.popup-title{font-size:18px;font-weight:900;margin:0}
+.popup-close{border:1px solid var(--line);background:#F8F9FA;border-radius:5px;padding:7px 12px;font-size:14px;font-weight:800;color:var(--muted)}
+.popup-close:hover{background:#EFF1F4}
+.popup-body{padding:14px 16px;overflow:auto;flex:1 1 auto;min-height:0}
+.popup-foot{padding:12px 16px 16px;border-top:1px solid var(--line);flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.popup-foot.single{grid-template-columns:1fr}
+/* ── KPI detail popup ── */
+.kpi-popup{max-width:400px}
+.kpi-popup-value{font-size:32px;font-weight:900;letter-spacing:-.035em;line-height:1.1;color:var(--ink);overflow-wrap:anywhere}
+.kpi-popup-sub{font-size:14px;color:var(--muted);font-weight:700;margin-top:6px}
+.kpi-popup-text{font-size:15px;color:#50545E;line-height:1.45;margin:12px 0 0}
+/* ── Date presets ── */
+.date-presets{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+.date-preset{min-height:42px;border:1px solid var(--line);border-radius:5px;background:#F8F9FA;font-size:14px;font-weight:700;padding:8px 10px;text-align:left}
+.date-preset:hover{background:#EFF1F4}
+.date-preset.active{background:var(--orangeSoft);border-color:var(--orangeLine);color:#A83A10}
+.date-section-title{font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#666B75;margin:6px 0 8px;padding-top:6px;border-top:1px solid var(--line2)}
+.date-rows{display:flex;flex-direction:column;gap:6px}
+.date-row{display:grid;grid-template-columns:28px 1fr 1fr 1fr 60px;gap:5px;align-items:center}
+.date-row-head{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;padding:0 1px}
+.date-row-head span{text-align:center}
+.date-row input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:22px;height:22px;border-radius:4px;border:2px solid #C6CBD3;background:#F0F1F4;position:relative;cursor:pointer;justify-self:center}
+.date-row input[type="checkbox"]:checked{background:var(--green);border-color:var(--green)}
+.date-row input[type="checkbox"]:checked::after{content:'';position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.date-row input[type="number"],.date-row select{min-height:38px;border:1px solid #D9DDE3;border-radius:4px;padding:6px 7px;font-size:14px;width:100%;background:#fff}
+.date-actions{display:flex;gap:3px;justify-content:center}
+.date-actions button{width:26px;height:30px;border:1px solid var(--line);border-radius:4px;background:#F8F9FA;font-size:15px;font-weight:900;color:var(--ink2);display:flex;align-items:center;justify-content:center;padding:0}
+.date-actions button:hover{background:#EFF1F4}
+.date-add-row{width:100%;margin-top:8px;min-height:38px;border:1px dashed #CDD1D8;border-radius:5px;background:#FAFBFC;font-size:14px;font-weight:800;color:var(--orange2)}
+.date-add-row:hover{background:#FFF7F2;border-color:var(--orangeLine)}
+/* ── Service options ── */
+.service-options{display:flex;flex-direction:column;gap:6px}
+.service-option{min-height:48px;border:1px solid var(--line);border-radius:6px;background:#F8F9FA;font-size:15px;font-weight:700;padding:10px 12px;text-align:left}
+.service-option:hover{background:#EFF1F4}
+.service-option.active{background:var(--orangeSoft);border-color:var(--orangeLine);color:#A83A10}
+.toast{position:fixed;left:50%;bottom:calc(82px + env(safe-area-inset-bottom));transform:translate(-50%,10px);background:#202126;color:#fff;border-radius:6px;padding:12px 16px;max-width:90vw;min-width:180px;text-align:center;font-size:14px;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:200}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:560px){body{padding:12px 0;display:flex;align-items:center}#shell{height:calc(100vh - 24px);height:calc(100dvh - 24px);max-height:1000px;border-radius:9px}.scrim{padding:20px}.sheet{border-radius:10px}}
+@media(max-height:700px){.topbar{padding-top:calc(8px + env(safe-area-inset-top));padding-bottom:9px}.rail-tab{min-height:46px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header class="topbar">
+    <img id="restaurantLogo" class="restaurant-logo" alt="Restaurant logo" hidden>
+    <div id="logoFallback" class="restaurant-logo logo-fallback" aria-hidden="true">R</div>
+    <div class="brand-info">
+      <h1 id="restaurantName" class="brand-name">Restaurant</h1>
+    </div>
+  </header>
+
+  <section class="filter-section" aria-label="Dashboard filters" id="filterAccordion">
+    <button class="filter-accordion-toggle" type="button" aria-expanded="false" aria-controls="filterAccordionBody" id="filterToggle">
+      <span class="filter-accordion-title">Filter</span>
+      <span class="filter-accordion-meta" id="filterAccordionMeta"></span>
+    </button>
+    <div class="filter-accordion-body" id="filterAccordionBody" hidden>
+      <div class="filter-stack">
+        <div>
+          <button id="branchPicker" class="filter-control" type="button" aria-haspopup="dialog" aria-expanded="false">
+            <span class="filter-control-main"><span id="branchControlLabel" class="filter-control-label">All branches</span><span id="branchControlSub" class="filter-control-sub">4 branches</span></span>
+          </button>
+        </div>
+        <div>
+          <button id="dateRange" class="filter-select" type="button">
+            <span class="filter-label">Last 30 days</span>
+          </button>
+        </div>
+        <div>
+          <button id="serviceType" class="filter-select" type="button">
+            <span class="filter-label">All service types</span>
+          </button>
+        </div>
+        <button id="clearFilters" class="filter-reset" type="button" hidden>Reset all filters</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Darkens only the workspace while the Filter panel is open (no blur, rail untouched) -->
+  <div id="filterDim" class="filter-dim" aria-hidden="true"></div>
+
+  <main id="workspace" class="scroll" tabindex="0" aria-live="polite"></main>
+
+  <nav id="bottomRail" class="bottom-rail" role="tablist" aria-label="Restaurant dashboard sections">
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="overview"><span class="rail-label">Overview</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="deliveries"><span class="rail-label">Deliveries</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="orders"><span class="rail-label">Orders</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="menu"><span class="rail-label">Menu</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="beverages"><span class="rail-label">Beverages</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="events"><span class="rail-label">Events</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="reservations"><span class="rail-label">Reservations</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="gallery"><span class="rail-label">Gallery</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="staff"><span class="rail-label">Staff</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="users"><span class="rail-label">Users</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="reviews"><span class="rail-label">Reviews</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="reports"><span class="rail-label">Reports</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="billings"><span class="rail-label">Billings</span></button>
+    <button class="rail-tab" type="button" role="tab" aria-selected="false" data-tab="settings"><span class="rail-label">Settings</span></button>
+  </nav>
+</div>
+
+<!-- Branch selection sheet -->
+<div id="branchScrim" class="scrim" aria-hidden="true">
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head"><h2 id="sheetTitle" class="sheet-title">Select branches</h2><div class="sheet-sub">Choose one location or combine several. All dashboard sections will use the same selection.</div></div>
+    <div class="sheet-search-wrap">
+      <button id="branchSearch" class="sheet-all-btn" type="button">All</button>
+      <input id="branchSearchInput" class="sheet-search" type="search" placeholder="Search branch or area" autocomplete="off" aria-label="Search branches">
+      <button id="clearBranchSelection" class="sheet-clear-btn" type="button" aria-label="Clear selection">X</button>
+    </div>
+    <div id="branchOptions" class="branch-options"></div>
+    <div class="sheet-foot">
+      <div class="sheet-actions">
+        <button id="applyBranches" class="btn primary full" type="button" hidden>View 0</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Date range popup -->
+<div id="dateScrim" class="scrim" aria-hidden="true">
+  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="datePopupTitle">
+    <div class="popup-head"><h2 id="datePopupTitle" class="popup-title">Reporting period</h2><button class="popup-close" type="button" data-close-date>Close</button></div>
+    <div class="popup-body">
+      <div class="date-presets" id="datePresets"></div>
+      <div class="date-section-title">Specific dates</div>
+      <div class="date-row date-row-head"><span></span><span>Year</span><span>Month</span><span>Date</span><span></span></div>
+      <div class="date-rows" id="specificDateRows"></div>
+      <button type="button" class="date-add-row" id="addSpecificDate">+ Add another date</button>
+    </div>
+    <div class="popup-foot">
+      <button type="button" class="btn secondary" data-close-date>Cancel</button>
+      <button type="button" class="btn primary" id="applyDate">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- Service type popup -->
+<div id="serviceScrim" class="scrim" aria-hidden="true">
+  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="servicePopupTitle">
+    <div class="popup-head"><h2 id="servicePopupTitle" class="popup-title">Service type</h2><button class="popup-close" type="button" data-close-service>Close</button></div>
+    <div class="popup-body"><div class="service-options" id="serviceOptions"></div></div>
+    <div class="popup-foot"><button type="button" class="btn secondary" data-close-service>Cancel</button><button type="button" class="btn primary" id="applyService">Apply</button></div>
+  </div>
+</div>
+
+<!-- KPI detail popup (floating, centered) -->
+<div id="kpiScrim" class="scrim" aria-hidden="true">
+  <div class="popup kpi-popup" role="dialog" aria-modal="true" aria-labelledby="kpiPopupTitle">
+    <div class="popup-head"><h2 id="kpiPopupTitle" class="popup-title">Metric</h2><button class="popup-close" type="button" data-close-kpi>Close</button></div>
+    <div class="popup-body">
+      <div class="kpi-popup-value" id="kpiPopupValue">—</div>
+      <div class="kpi-popup-sub" id="kpiPopupSub"></div>
+      <p class="kpi-popup-text" id="kpiPopupText"></p>
+    </div>
+    <div class="popup-foot single"><button type="button" class="btn primary" data-close-kpi>Done</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+const STORE_KEY='eatouts.restaurant-onboarding.v2';
+const PERIODS={
+  today:{label:'Today',factor:0.045},
+  yesterday:{label:'Yesterday',factor:0.045},
+  '7':{label:'Last 7 days',factor:0.24},
+  '30':{label:'Last 30 days',factor:1},
+  '3m':{label:'Last 3 months',factor:3},
+  '4m':{label:'Last 4 months',factor:4},
+  '6m':{label:'Last 6 months',factor:6},
+  '9m':{label:'Last 9 months',factor:9},
+  '1y':{label:'Last 1 year',factor:12},
+  custom:{label:'Custom dates',factor:1}
+};
+const SERVICE_LABELS={all:'All service types',dineIn:'Dine-in',takeout:'Takeout',delivery:'Delivery',event:'Events & private dining'};
+const BRANCHES=[
+ {id:'central',name:'Central Mall',area:'CBD',type:'Dining outlet',services:['dineIn','takeout','delivery','event'],share:{dineIn:.54,takeout:.31,delivery:.11,event:.04},scale:1.22,sales:48600,orders:1320,views:6500,menuViews:3760,whatsapp:215,reservations:190,walkins:260,turnover:3.8,ticket:18,margin:31,sentiment:4.4,search:5200,rank:2.4,nearMe:63,voice:23,saves:510,photoTaps:840,staffUse:84,prepAccuracy:78,congestion:73,noShow:8.2,feedback:126,replySla:82,discountSpend:1850,promoOrders:94,attributedSales:9800},
+ {id:'riverside',name:'Riverside',area:'Riverside district',type:'Dining outlet',services:['dineIn','takeout','delivery'],share:{dineIn:.64,takeout:.23,delivery:.13,event:0},scale:.94,sales:37800,orders:1010,views:4800,menuViews:2780,whatsapp:162,reservations:148,walkins:230,turnover:3.2,ticket:22,margin:34,sentiment:4.6,search:3980,rank:3.1,nearMe:57,voice:18,saves:390,photoTaps:590,staffUse:68,prepAccuracy:71,congestion:59,noShow:6.4,feedback:104,replySla:91,discountSpend:1320,promoOrders:72,attributedSales:7600},
+ {id:'westgate',name:'Westgate',area:'Westgate retail area',type:'Quick service',services:['takeout','delivery'],share:{dineIn:.13,takeout:.62,delivery:.25,event:0},scale:.78,sales:31900,orders:1130,views:4300,menuViews:2360,whatsapp:143,reservations:48,walkins:160,turnover:2.1,ticket:16,margin:28,sentiment:4.1,search:3450,rank:4.3,nearMe:49,voice:15,saves:345,photoTaps:650,staffUse:92,prepAccuracy:64,congestion:86,noShow:9.1,feedback:88,replySla:64,discountSpend:2100,promoOrders:112,attributedSales:8400},
+ {id:'airport',name:'Airport Road',area:'Airport corridor',type:'Dining outlet',services:['dineIn','takeout','delivery','event'],share:{dineIn:.46,takeout:.40,delivery:.10,event:.04},scale:.65,sales:26400,orders:720,views:3500,menuViews:1920,whatsapp:108,reservations:126,walkins:130,turnover:4.1,ticket:21,margin:33,sentiment:4.3,search:2960,rank:2.8,nearMe:68,voice:20,saves:285,photoTaps:430,staffUse:76,prepAccuracy:83,congestion:66,noShow:7.0,feedback:72,replySla:86,discountSpend:970,promoOrders:48,attributedSales:5800}
+];
+const MENU_ITEMS=[
+ {name:'Signature Burger',category:'Burgers',views:1820,saves:236,orders:178,price:96,cost:59,photo:true,tag:'High demand',pair:'Classic fries'},
+ {name:'Peri-Peri Chicken Wings',category:'Grills & sides',views:1470,saves:198,orders:142,price:82,cost:48,photo:true,tag:'Strong margin',pair:'Lemon herb rice'},
+ {name:'Classic Fries',category:'Sides',views:1280,saves:141,orders:240,price:34,cost:14,photo:true,tag:'Combo opportunity',pair:'Signature Burger'},
+ {name:'Garden Power Bowl',category:'Fresh & light',views:910,saves:122,orders:55,price:78,cost:48,photo:false,tag:'Photo needed',pair:'Fresh juice'},
+ {name:'Vegan Harvest Wrap',category:'Fresh & light',views:690,saves:97,orders:28,price:72,cost:46,photo:false,tag:'Tag & photo review',pair:'House iced tea'}
+];
+const BEVERAGES=[
+ {name:'House Iced Tea',category:'Cold drinks',price:26,cost:7,stock:120,isAlcohol:false},
+ {name:'Fresh Lemonade',category:'Cold drinks',price:30,cost:9,stock:80,isAlcohol:false},
+ {name:'Craft Lager',category:'Beer',price:45,cost:22,stock:48,isAlcohol:true},
+ {name:'House Red Wine',category:'Wine',price:75,cost:38,stock:24,isAlcohol:true},
+ {name:'Sparkling Water',category:'Water',price:18,cost:5,stock:200,isAlcohol:false}
+];
+const DELIVERIES=[
+ {id:'DLV-2001',customer:'Amara K.',town:'CBD',window:'12:00–12:30',driver:'',fee:15,status:'new',items:'2× Signature Burger, 1× Fries'},
+ {id:'DLV-2002',customer:'Thabo M.',town:'Riverside',window:'13:00–13:30',driver:'Kabelo D.',fee:20,status:'dispatched',items:'1× Wings, 1× Iced Tea'},
+ {id:'DLV-2003',customer:'Naledi S.',town:'Westgate',window:'11:30–12:00',driver:'Tebogo M.',fee:15,status:'delivered',items:'3× Power Bowl'},
+ {id:'DLV-2004',customer:'Sipho R.',town:'Airport',window:'13:15–13:45',driver:'',fee:25,status:'new',items:'2× Burger, 2× Lemonade'}
+];
+const ORDERS=[
+ {id:'ORD-3001',customer:'Lerato P.',items:'1× Signature Burger, 1× Fries',total:130,mode:'Dine-in',status:'new',created:'12 Jun 2024 12:15'},
+ {id:'ORD-3002',customer:'Sipho R.',items:'2× Wings, 2× Iced Tea',total:216,mode:'Delivery',status:'preparing',created:'12 Jun 2024 12:02'},
+ {id:'ORD-3003',customer:'Kefilwe N.',items:'1× Power Bowl',total:78,mode:'Takeout',status:'ready',created:'12 Jun 2024 11:48'},
+ {id:'ORD-3004',customer:'Mpho T.',items:'3× Burger, 3× Fries, 3× Iced Tea',total:468,mode:'Dine-in',status:'delivered',created:'12 Jun 2024 11:30'},
+ {id:'ORD-3005',customer:'Thato B.',items:'1× Wings, 1× Fries',total:116,mode:'Takeout',status:'cancelled',created:'12 Jun 2024 11:12'}
+];
+const EVENTS=[
+ {title:'Weekend Grill Session',date:'Sat 22 Jun',time:'18:00',capacity:80,booked:56,price:150,status:'On sale'},
+ {title:'Live Jazz Night',date:'Fri 28 Jun',time:'19:00',capacity:60,booked:42,price:200,status:'On sale'},
+ {title:'Family Feast Sunday',date:'Sun 30 Jun',time:'12:00',capacity:100,booked:78,price:120,status:'On sale'},
+ {title:'Tasting Menu Preview',date:'Sat 6 Jul',time:'17:00',capacity:40,booked:12,price:250,status:'Draft'}
+];
+const RESERVATIONS=[
+ {guest:'Amara K.',date:'12 Jun 2024',time:'19:00',guests:4,status:'confirmed',deposit:100},
+ {guest:'Thabo M.',date:'12 Jun 2024',time:'20:00',guests:2,status:'pending',deposit:0},
+ {guest:'Naledi S.',date:'13 Jun 2024',time:'12:30',guests:6,status:'confirmed',deposit:200},
+ {guest:'Lerato P.',date:'13 Jun 2024',time:'18:00',guests:3,status:'pending',deposit:0}
+];
+const GALLERY=[
+ {caption:'Main entrance',alt:'Restaurant exterior'},
+ {caption:'Signature burger',alt:'Signature burger plated'},
+ {caption:'Main dining room',alt:'Dining room interior'},
+ {caption:'Grill station',alt:'Chefs working the grill'}
+];
+const STAFF=[
+ {name:'Kabelo D.',role:'Head Chef',status:'active',shift:'Morning'},
+ {name:'Tebogo M.',role:'Waiter',status:'active',shift:'Evening'},
+ {name:'Precious L.',role:'Host',status:'active',shift:'Morning'},
+ {name:'Daniel O.',role:'Delivery Driver',status:'active',shift:'Split'}
+];
+const USERS=[
+ {name:'Kabelo D.',whatsapp:'+267 71 234 567',roles:'Owner, Admin',status:'active'},
+ {name:'Tebogo M.',whatsapp:'+267 72 345 678',roles:'Staff, Waiter',status:'active'},
+ {name:'Precious L.',whatsapp:'+267 73 456 789',roles:'Host',status:'active'}
+];
+const REVIEWS=[
+ {customer:'Amara K.',stars:5,text:'Amazing burger and great service!',date:'10 Jun 2024',reply:'Thank you Amara!'},
+ {customer:'Thabo M.',stars:4,text:'Good food, slightly slow at peak time.',date:'9 Jun 2024',reply:''},
+ {customer:'Naledi S.',stars:5,text:'Love the vegan options. Will be back.',date:'8 Jun 2024',reply:''},
+ {customer:'Sipho R.',stars:3,text:'Delivery was late but food was warm.',date:'7 Jun 2024',reply:''}
+];
+
+let selectedIds=BRANCHES.map(b=>b.id), draftIds=[...selectedIds];
+let period='30', service='all', activeTab='overview';
+let customDates=[]; let customDraftDates=[];
+let toastTimer=null;
+let businessName='Restaurant', businessLogo='';
+let filterOpen=false;
+
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2300)}
+
+function loadSavedProfile(){
+ try{
+  const raw=localStorage.getItem(STORE_KEY);if(!raw)return;
+  const p=JSON.parse(raw);if(!p||!Array.isArray(p.branches)||!p.branches.length)return;
+  const identity=p.brand&&p.brand.identity||{};
+  if(identity.name)businessName=identity.name;
+  if(identity.logoUrl)businessLogo=identity.logoUrl;
+  const mapped=p.branches.map((b,i)=>{
+    const base=BRANCHES[i%BRANCHES.length];
+    const loc=b.location||{};
+    const area=[loc.area,loc.city||loc.town].filter(Boolean).join(', ');
+    return {...base,id:String(b.id||('saved-'+i)),name:b.name||base.name,area:area||base.area,type:b.type||base.type,savedProfile:true};
+  });
+  BRANCHES.splice(0,BRANCHES.length,...mapped);
+  selectedIds=BRANCHES.map(b=>b.id);draftIds=[...selectedIds];
+ }catch(e){/* keep illustrative defaults */}
+}
+
+function branches(){return BRANCHES.filter(b=>selectedIds.includes(b.id))}
+function periodFactor(){
+ if(period==='custom')return Math.max(0.033,customDates.length*0.045);
+ return PERIODS[period]?PERIODS[period].factor:1;
+}
+function periodLabel(){
+ if(period==='custom'){
+  if(!customDates.length)return 'Custom dates';
+  if(customDates.length===1){const d=customDates[0];return `${d.day} ${monthName(d.month)} ${d.year}`}
+  return `${customDates.length} specific dates`;
+ }
+ return PERIODS[period]?PERIODS[period].label:'Last 30 days';
+}
+function monthName(m){return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(m)-1]||''}
+function serviceShare(b){return service==='all'?1:(b.share[service]||0)}
+function serviceSelectedBranches(){return branches().filter(b=>service==='all'||b.services.includes(service))}
+function nfmt(v){return Math.round(v).toLocaleString('en-US')}
+function money(v){return 'P'+Math.round(v).toLocaleString('en-US')}
+function dec(v,d=1){return Number(v).toFixed(d)}
+function percent(v,d=0){return dec(v,d)+'%'}
+function weightedMetric(key,weightKey='orders'){const arr=serviceSelectedBranches();const weights=arr.map(b=>(b[weightKey]||1)*periodFactor()*serviceShare(b));const den=weights.reduce((a,b)=>a+b,0)||1;return arr.reduce((s,b,i)=>s+(b[key]||0)*weights[i],0)/den}
+function branchSales(b){return b.sales*periodFactor()*serviceShare(b)}
+function branchOrders(b){return b.orders*periodFactor()*serviceShare(b)}
+function branchMetric(b,key){return (b[key]||0)*periodFactor()*serviceShare(b)}
+function selectedScope(){const bs=branches();return bs.length===BRANCHES.length?'All branches':bs.length===1?bs[0].name:bs.length+' branches selected'}
+function rangeNote(){return `${selectedScope()} · ${periodLabel()} · ${SERVICE_LABELS[service]}`}
+function pageHeader(title,sub){return `<div class="page-head"><h2 class="page-title">${title}</h2><p class="page-subtitle">${esc(sub||rangeNote())}</p></div>`}
+function sectionTitle(title,note=''){return `<div class="section-title"><div>${title}${note?`<div class="section-note">${note}</div>`:''}</div></div>`}
+function cardHead(title,sub='',action=''){return `<div class="card-head"><div class="card-head-main"><h3 class="card-title">${title}</h3>${sub?`<p class="card-subtitle">${sub}</p>`:''}</div>${action||''}</div>`}
+function badge(text,type='neutral'){return `<span class="badge ${type}">${text}</span>`}
+function statRows(rows){return `<div class="stat-list">${rows.map(r=>`<div class="stat-row"><div class="stat-row-main"><div class="stat-row-label">${r.label}</div>${r.note?`<div class="stat-row-note">${r.note}</div>`:''}</div><div class="stat-row-value">${r.value}</div></div>`).join('')}</div>`}
+function barRows(rows,maxValue){return `<div class="bar-list">${rows.map(r=>`<div class="bar-row"><div class="bar-label">${esc(r.label)}</div><div class="bar-track"><i class="bar-fill" style="width:${Math.max(2,Math.min(100,(r.value/(maxValue||1))*100))}%"></i></div><div class="bar-value">${esc(r.display==null?r.value:r.display)}</div></div>`).join('')}</div>`}
+function alertCard(type,title,text,action='View details',tab='operations'){return `<div class="alert ${type}"><div class="alert-mark">${type==='danger'||type==='warning'?'!':type==='good'?'✓':'i'}</div><div class="alert-main"><div class="alert-title">${title}</div><div class="alert-text">${text}</div><button class="alert-action" type="button" data-goto="${tab}">${action} →</button></div></div>`}
+function zeroState(){return `<div class="empty-state">No branches are selected. Open Filter above and choose at least one branch to view the dashboard.</div>`}
+
+/* ── KPI tiles ── */
+let kpiSeq=0;
+const KPI_INFO=new Map();
+function kpi(label,value,sub,detail){
+ const id='k'+(++kpiSeq);
+ KPI_INFO.set(id,{label,value,sub:sub||'',detail:detail||''});
+ return `<button class="kpi" type="button" data-kpi="${id}" aria-haspopup="dialog" aria-label="${esc(label)}: ${esc(value)}"><span class="kpi-main"><span class="kpi-label">${label}</span></span><span class="kpi-value">${value}</span></button>`;
+}
+function openKpiPopup(id){
+ const info=KPI_INFO.get(id);if(!info)return;
+ $('#kpiPopupTitle').textContent=info.label;
+ $('#kpiPopupValue').textContent=info.value;
+ $('#kpiPopupSub').textContent=info.sub;
+ $('#kpiPopupText').textContent=info.detail||'Illustrative sample data for the current branch, period and service selection.';
+ $('#kpiScrim').classList.add('open');
+ $('#kpiScrim').setAttribute('aria-hidden','false');
+}
+function closeKpiPopup(){
+ $('#kpiScrim').classList.remove('open');
+ $('#kpiScrim').setAttribute('aria-hidden','true');
+}
+
+/* ────────────── Tab renderers ────────────── */
+function renderOverview(){
+ const bs=serviceSelectedBranches();if(!bs.length)return pageHeader('Overview')+zeroState();
+ const sales=bs.reduce((s,b)=>s+branchSales(b),0),orders=bs.reduce((s,b)=>s+branchOrders(b),0),views=bs.reduce((s,b)=>s+branchMetric(b,'views'),0);
+ const turnover=weightedMetric('turnover'),margin=weightedMetric('margin','sales'),sentiment=weightedMetric('sentiment','feedback');
+ let html=pageHeader('Restaurant overview','Key indicators for '+rangeNote()+'. All values are illustrative sample data.');
+ html+=`<div class="kpi-grid">
+   ${kpi('Recorded sales*',money(sales),'Sample sales volume','Total illustrative sales value for the selected branches, period and service type. Demo data only — not live measurements.')}
+   ${kpi('Orders*',nfmt(orders),'Orders in scope','Number of sample orders attributed to the current branch, period and service selection.')}
+   ${kpi('Average order value*',money(orders?sales/orders:0),'Sales ÷ orders','Illustrative average spend per order across the selected scope.')}
+   ${kpi('Profile views*',nfmt(views),'Listing activity','Sample listing views recorded for the current scope. Tap any tile to see its definition.')}
+ </div>`;
+ html+=`<div class="card">${cardHead('Restaurant health','Core operating indicators together.')}${statRows([{label:'Table turnover',note:'Estimated turns per table',value:dec(turnover,1)+'×'},{label:'Menu contribution margin',note:'Illustrative margin mix',value:percent(margin)},{label:'Meal-service sentiment',note:'Guest feedback score',value:dec(sentiment,1)+' / 5'}])}</div>`;
+ const serviceMix=['dineIn','takeout','delivery','event'].map(key=>({label:SERVICE_LABELS[key],value:bs.reduce((s,b)=>s+b.sales*(b.share[key]||0)*periodFactor(),0)}));
+ html+=`<div class="card">${cardHead('Sales by service','Compare dine-in, takeout, delivery and private events.')}${barRows(serviceMix.map(x=>({...x,display:money(x.value)})),Math.max(...serviceMix.map(x=>x.value),1))}</div>`;
+ html+=sectionTitle('Priority attention');let a='';
+ const highCong=bs.filter(b=>b.congestion>=80),lowSla=bs.filter(b=>b.replySla<70);
+ if(highCong.length)a+=alertCard('warning','Peak congestion risk',`${highCong.map(b=>b.name).join(', ')} show elevated kitchen load.`,'Review orders','orders');
+ if(lowSla.length)a+=alertCard('danger','Feedback response SLA',`${lowSla.map(b=>b.name).join(', ')} have a low sample SLA.`,'Open reviews','reviews');
+ a+=alertCard('info','Menu photo coverage',`${MENU_ITEMS.filter(i=>!i.photo).length} example dishes lack photos.`,'Review menu','menu');
+ html+=`<div class="card"><div class="alert-list">${a}</div></div>`;
+ return html;
+}
+function renderDeliveries(){
+ const rows=DELIVERIES.map(d=>`<tr><td><div class="table-title">${esc(d.id)}</div><div class="table-sub">${esc(d.customer)} · ${esc(d.town)}</div></td><td>${esc(d.items)}</td><td class="num">${esc(d.window)}</td><td>${d.driver?esc(d.driver):badge('Unassigned','warn')}</td><td class="num">${money(d.fee)}</td><td>${badge(d.status,d.status==='delivered'?'good':d.status==='new'?'warn':'info')}</td></tr>`).join('');
+ return pageHeader('Deliveries','Dispatch board for the selected branches.')+
+  `<div class="kpi-grid">
+    ${kpi('Active deliveries',DELIVERIES.filter(d=>d.status!=='delivered').length,'In progress','Deliveries that are new or dispatched and still need attention.')}
+    ${kpi('Unassigned',DELIVERIES.filter(d=>!d.driver).length,'Need a driver','Deliveries with no driver assigned yet.')}
+    ${kpi('Completed',DELIVERIES.filter(d=>d.status==='delivered').length,'Delivered','Deliveries marked as delivered in this view.')}
+    ${kpi('Avg delivery fee',money(DELIVERIES.reduce((s,d)=>s+d.fee,0)/DELIVERIES.length),'Sample fee','Average illustrative delivery fee across the queue.')}
+   </div>`+
+  `<div class="card">${cardHead('Dispatch queue','Assign drivers, dispatch, or mark delivered.')}<div class="table-wrap"><table><thead><tr><th>Delivery</th><th>Items</th><th class="num">Window</th><th>Driver</th><th class="num">Fee</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function renderOrders(){
+ const rows=ORDERS.map(o=>`<tr><td><div class="table-title">${esc(o.id)}</div><div class="table-sub">${esc(o.created)}</div></td><td>${esc(o.customer)}</td><td>${esc(o.items)}</td><td class="num">${money(o.total)}</td><td>${esc(o.mode)}</td><td>${badge(o.status,o.status==='new'?'warn':o.status==='delivered'?'good':o.status==='cancelled'?'bad':'info')}</td></tr>`).join('');
+ return pageHeader('Orders','Order queue and status at a glance.')+
+  `<div class="kpi-grid">
+    ${kpi('Orders',ORDERS.length,'In this view','Total sample orders shown in this queue.')}
+    ${kpi('New',ORDERS.filter(o=>o.status==='new').length,'Awaiting acceptance','Orders that still need to be accepted.')}
+    ${kpi('Preparing',ORDERS.filter(o=>o.status==='preparing').length,'In kitchen','Orders currently being prepared.')}
+    ${kpi('Value',money(ORDERS.reduce((s,o)=>s+o.total,0)),'Sample total','Illustrative total value of the orders listed here.')}
+   </div>`+
+  `<div class="card">${cardHead('Order queue','Status tracking per order.')}<div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th class="num">Total</th><th>Mode</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function renderMenu(){
+ const bs=serviceSelectedBranches();if(!bs.length)return pageHeader('Menu')+zeroState();
+ const menuRows=MENU_ITEMS.map(i=>{const m=i.price-i.cost;return `<tr><td><div class="table-title">${esc(i.name)}</div><div class="table-sub">${esc(i.category)}</div>${!i.photo?badge('Photo needed','warn'):''}</td><td class="num">${nfmt(i.views*periodFactor())}</td><td class="num">${nfmt(i.saves*periodFactor())}</td><td class="num">${nfmt(i.orders*periodFactor())}</td><td class="num">${percent(m/i.price*100)}</td><td>${badge(i.tag,i.tag.includes('Photo')||i.tag.includes('review')?'warn':i.tag.includes('margin')?'good':'info')}</td></tr>`}).join('');
+ return pageHeader('Menu & pricing','Item performance across the selected scope.')+
+  `<div class="kpi-grid">
+    ${kpi('Menu items',MENU_ITEMS.length,'Listed items','Number of sample dishes currently listed.')}
+    ${kpi('Missing photos',MENU_ITEMS.filter(i=>!i.photo).length,'Need imagery','Items without a published photo — these reduce conversion.')}
+    ${kpi('Total views*',nfmt(MENU_ITEMS.reduce((s,i)=>s+i.views*periodFactor(),0)),'Sample views','Illustrative menu views for the selected scope.')}
+    ${kpi('Total saves*',nfmt(MENU_ITEMS.reduce((s,i)=>s+i.saves*periodFactor(),0)),'Sample saves','Illustrative menu saves for the selected scope.')}
+   </div>`+
+  `<div class="card">${cardHead('Item performance matrix','Views, saves, orders and contribution margin.')}<div class="table-wrap"><table><thead><tr><th>Menu item</th><th class="num">Views*</th><th class="num">Saves*</th><th class="num">Orders*</th><th class="num">Margin*</th><th>Signal</th></tr></thead><tbody>${menuRows}</tbody></table></div></div>`;
+}
+function renderBeverages(){
+ const rows=BEVERAGES.map(b=>`<tr><td><div class="table-title">${esc(b.name)}</div><div class="table-sub">${esc(b.category)}${b.isAlcohol?' · 18+ alcohol':''}</div></td><td class="num">${money(b.price)}</td><td class="num">${money(b.cost)}</td><td class="num">${percent((b.price-b.cost)/b.price*100)}</td><td class="num">${nfmt(b.stock)}</td><td>${b.stock<30?badge('Low stock','warn'):badge('In stock','good')}</td></tr>`).join('');
+ return pageHeader('Beverages','Drinks catalog, pricing and stock.')+
+  `<div class="kpi-grid">
+    ${kpi('Beverage items',BEVERAGES.length,'Listed drinks','All drinks currently in the catalog.')}
+    ${kpi('Alcohol items',BEVERAGES.filter(b=>b.isAlcohol).length,'18+ restricted','Items that require age-restricted serving.')}
+    ${kpi('Avg margin',percent(BEVERAGES.reduce((s,b)=>s+(b.price-b.cost)/b.price*100,0)/BEVERAGES.length),'Across drinks','Average illustrative margin across the beverage list.')}
+    ${kpi('Low stock',BEVERAGES.filter(b=>b.stock<30).length,'Need restock','Drinks below the sample low-stock threshold.')}
+   </div>`+
+  `<div class="card">${cardHead('Beverage catalog','All drinks with price, cost, margin and stock.')}<div class="table-wrap"><table><thead><tr><th>Beverage</th><th class="num">Price</th><th class="num">Cost</th><th class="num">Margin</th><th class="num">Stock</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function renderEvents(){
+ const rows=EVENTS.map(e=>`<tr><td><div class="table-title">${esc(e.title)}</div><div class="table-sub">${esc(e.date)} · ${esc(e.time)}</div></td><td class="num">${e.capacity}</td><td class="num">${e.booked}</td><td class="num">${percent(e.booked/e.capacity*100)}</td><td class="num">${money(e.price)}</td><td>${badge(e.status,e.status==='On sale'?'good':'neutral')}</td></tr>`).join('');
+ return pageHeader('Events','Ticketed events and private dining.')+
+  `<div class="kpi-grid">
+    ${kpi('Events',EVENTS.length,'Total','All sample events in the calendar.')}
+    ${kpi('On sale',EVENTS.filter(e=>e.status==='On sale').length,'Live','Events currently selling tickets.')}
+    ${kpi('Total booked',EVENTS.reduce((s,e)=>s+e.booked,0),'Seats','Seats booked across all events.')}
+    ${kpi('Total capacity',EVENTS.reduce((s,e)=>s+e.capacity,0),'Seats','Combined seat capacity of all events.')}
+   </div>`+
+  `<div class="card">${cardHead('Event calendar','Capacity, bookings and ticket price.')}<div class="table-wrap"><table><thead><tr><th>Event</th><th class="num">Capacity</th><th class="num">Booked</th><th class="num">Fill</th><th class="num">Price</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function renderReservations(){
+ const rows=RESERVATIONS.map(r=>`<tr><td>${esc(r.guest)}</td><td>${esc(r.date)}</td><td>${esc(r.time)}</td><td class="num">${r.guests}</td><td class="num">${money(r.deposit)}</td><td>${badge(r.status,r.status==='confirmed'?'good':'warn')}</td></tr>`).join('');
+ return pageHeader('Reservations','Table booking requests.')+
+  `<div class="kpi-grid">
+    ${kpi('Reservations',RESERVATIONS.length,'Total','All booking requests in this view.')}
+    ${kpi('Confirmed',RESERVATIONS.filter(r=>r.status==='confirmed').length,'Approved','Bookings that have been confirmed.')}
+    ${kpi('Pending',RESERVATIONS.filter(r=>r.status==='pending').length,'Awaiting','Requests still waiting for a decision.')}
+    ${kpi('Total guests',RESERVATIONS.reduce((s,r)=>s+r.guests,0),'Across bookings','Combined guest count across all bookings.')}
+   </div>`+
+  `<div class="card">${cardHead('Reservation requests','Guest, date, time and deposit.')}<div class="table-wrap"><table><thead><tr><th>Guest</th><th>Date</th><th>Time</th><th class="num">Guests</th><th class="num">Deposit</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function renderGallery(){
+ const tiles=GALLERY.map(g=>`<div class="card" style="margin:0"><div style="aspect-ratio:4/3;background:#ECEEF1;border-radius:5px;display:grid;place-items:center;color:var(--muted);font-size:13px;font-weight:800">${esc(g.alt)}</div><div class="table-title" style="margin-top:9px">${esc(g.caption)}</div></div>`).join('');
+ return pageHeader('Gallery','Public photos of the restaurant and dishes.')+
+  `<div class="kpi-grid">
+    ${kpi('Photos',GALLERY.length,'Published','Published gallery photos for this business.')}
+    ${kpi('Captioned',GALLERY.filter(g=>g.caption).length,'With caption','Photos that include a caption.')}
+    ${kpi('Missing alt',GALLERY.filter(g=>!g.alt).length,'Accessibility','Photos missing alternative text.')}
+    ${kpi('Groups',1,'Default','Gallery groups in use.')}
+   </div>`+
+  `<div class="card">${cardHead('Photo grid','All published gallery images.')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">${tiles}</div></div>`;
+}
+function renderStaff(){
+ const rows=STAFF.map(s=>`<tr><td><div class="table-title">${esc(s.name)}</div></td><td>${esc(s.role)}</td><td>${esc(s.shift)}</td><td>${badge(s.status,s.status==='active'?'good':'neutral')}</td></tr>`).join('');
+ return pageHeader('Staff','Team members assigned to this business.')+
+  `<div class="kpi-grid">
+    ${kpi('Active staff',STAFF.filter(s=>s.status==='active').length,'Currently active','Staff records currently marked active.')}
+    ${kpi('Roles',new Set(STAFF.map(s=>s.role)).size,'Unique roles','Distinct roles across the team.')}
+    ${kpi('Shifts',new Set(STAFF.map(s=>s.shift)).size,'Shift types','Distinct shift patterns in use.')}
+    ${kpi('Total',STAFF.length,'All records','All staff records for this business.')}
+   </div>`+
+  `<div class="card">${cardHead('Staff list','Name, role, shift and status.')}<div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Shift</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function renderUsers(){
+ const rows=USERS.map(u=>`<tr><td><div class="table-title">${esc(u.name)}</div></td><td>${esc(u.whatsapp)}</td><td>${esc(u.roles)}</td><td>${badge(u.status,u.status==='active'?'good':'neutral')}</td></tr>`).join('');
+ return pageHeader('Users & roles','Account access provisioned for this business.')+
+  `<div class="card">${cardHead('Linked accounts','WhatsApp identity, roles and status.')}<div class="table-wrap"><table><thead><tr><th>Name</th><th>WhatsApp</th><th>Roles</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div><p class="card-subtitle">Access should be provisioned by matching the staff member's WhatsApp identity; do not create duplicate user records.</p></div>`;
+}
+function renderReviews(){
+ const avg=(REVIEWS.reduce((s,r)=>s+r.stars,0)/REVIEWS.length).toFixed(1);
+ const list=REVIEWS.map(r=>`<div class="card" style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><div class="table-title">${esc(r.customer)}</div><div class="table-sub">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)} · ${esc(r.date)}</div></div>${r.reply?badge('Replied','good'):badge('Awaiting reply','warn')}</div><p style="font-size:14px;color:var(--ink2);line-height:1.4;margin:8px 0 0">${esc(r.text)}</p>${r.reply?`<p style="font-size:14px;color:var(--muted);line-height:1.4;margin:6px 0 0"><b>Reply:</b> ${esc(r.reply)}</p>`:''}</div>`).join('');
+ return pageHeader('Reviews','Customer feedback and replies.')+
+  `<div class="kpi-grid">
+    ${kpi('Reviews',REVIEWS.length,'Total','All sample guest reviews in this view.')}
+    ${kpi('Average rating',avg,'Out of 5','Mean star rating across the listed reviews.')}
+    ${kpi('Replies',REVIEWS.filter(r=>r.reply).length,'With reply','Reviews that already have a reply.')}
+    ${kpi('Awaiting',REVIEWS.filter(r=>!r.reply).length,'Needs response','Reviews that still need a reply.')}
+   </div>`+list;
+}
+function renderReports(){
+ const totalSales=ORDERS.reduce((s,o)=>s+o.total,0);
+ return pageHeader('Reports','Summary and export for the current scope.')+
+  `<div class="kpi-grid">
+    ${kpi('Orders',ORDERS.length,'All recorded','All sample orders recorded in this view.')}
+    ${kpi('Value logged',money(totalSales),'Not a payment processor','Illustrative value of logged orders — this dashboard is not a payment processor.')}
+    ${kpi('Delivered',ORDERS.filter(o=>o.status==='delivered').length,'Completed','Orders marked delivered.')}
+    ${kpi('Cancelled',ORDERS.filter(o=>o.status==='cancelled').length,'Dropped','Orders that were cancelled.')}
+   </div>`+
+  `<div class="card">${cardHead('Export')}<p class="card-subtitle">Download a CSV summary for the current branch selection, period and service.</p><div class="button-row"><button id="exportCsv" class="btn primary full" type="button">Download CSV report</button></div></div>`+
+  `<div class="card">${cardHead('Order status breakdown')}<div class="table-wrap"><table><thead><tr><th>Status</th><th class="num">Count</th></tr></thead><tbody>${['new','preparing','ready','delivered','cancelled'].map(s=>`<tr><td>${esc(s)}</td><td class="num">${ORDERS.filter(o=>o.status===s).length}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+function renderBillings(){
+ const plan='Starter', setup='Pending';
+ return pageHeader('Billings','Plan, setup fee and invoice history.')+
+  `<div class="kpi-grid">
+    ${kpi('Plan',plan,'Current plan','Subscription plan currently assigned to this business.')}
+    ${kpi('Setup fee',setup,'Awaiting confirmation','Platform ops must confirm the setup fee before publishing.')}
+    ${kpi('Invoices',0,'Issued','Invoices issued to this business so far.')}
+    ${kpi('Next invoice','—','No date set','The next invoice date has not been scheduled yet.')}
+   </div>`+
+  `<div class="card">${cardHead('Billing status')}${statRows([{label:'Setup fee',note:'Platform ops must confirm payment before publishing.',value:badge('Pending','warn')},{label:'Subscription',note:'Billed monthly for the selected plan.',value:badge('Active','good')},{label:'Payment method',note:'No card on file yet.',value:badge('None','neutral')}])}<div class="button-row"><button class="btn secondary full" type="button">Open billing manager</button></div></div>`+
+  `<div class="card">${cardHead('Invoice history')}<div class="empty-state">No invoices have been issued for this business yet.</div></div>`;
+}
+function renderSettings(){
+ return pageHeader('Settings','Business identity and publishing controls.')+
+  `<div class="card">${cardHead('Business profile')}${statRows([{label:'Display name',note:'Shown across the dashboard and listing.',value:esc(businessName)},{label:'Branches',note:'Locations included in this workspace.',value:String(BRANCHES.length)},{label:'Publishing status',note:'Live or draft.',value:badge('Ready','good')}])}<div class="button-row"><button class="btn secondary full" type="button">Edit profile</button></div></div>`+
+  `<div class="card">${cardHead('Publishing')}<p class="card-subtitle">Publishing is blocked until profile, WhatsApp contact and setup fee confirmation are complete.</p><div class="button-row"><button class="btn primary full" type="button">Publish business</button></div></div>`;
+}
+
+const RENDERERS={overview:renderOverview,deliveries:renderDeliveries,orders:renderOrders,menu:renderMenu,beverages:renderBeverages,events:renderEvents,reservations:renderReservations,gallery:renderGallery,staff:renderStaff,users:renderUsers,reviews:renderReviews,reports:renderReports,billings:renderBillings,settings:renderSettings};
+
+function renderWorkspace(){
+ const host=$('#workspace');host.innerHTML=RENDERERS[activeTab]();
+ $$('#bottomRail .rail-tab').forEach(btn=>{const on=btn.dataset.tab===activeTab;btn.classList.toggle('active',on);btn.setAttribute('aria-selected',String(on));btn.tabIndex=on?0:-1});
+ updateFilterUI();
+ if(filterOpen)positionFilterDim();
+}
+function updateFilterUI(){
+ const bs=branches(),num=selectedIds.length;
+ $('#branchControlLabel').textContent=num===BRANCHES.length?'All branches':num===1?bs[0].name:`${num} branches`;
+ $('#branchControlSub').textContent=bs.length?bs.map(b=>b.name).join(', '):'No branches selected';
+ const dl=periodLabel();
+ $('#dateRange').querySelector('.filter-label').textContent=dl;
+ $('#serviceType').querySelector('.filter-label').textContent=SERVICE_LABELS[service];
+ const active=[];
+ if(num!==BRANCHES.length)active.push(`${num} ${num===1?'branch':'branches'}`);
+ if(period!=='30')active.push(dl);
+ if(service!=='all')active.push(SERVICE_LABELS[service]);
+ $('#filterAccordionMeta').textContent=active.length?active.join(' · '):'All branches · Last 30 days';
+ $('#clearFilters').hidden=(num===BRANCHES.length&&period==='30'&&service==='all');
+}
+
+/* ── Filter accordion + workspace dim ── */
+function positionFilterDim(){
+ const shell=$('#shell'),fs=$('#filterAccordion'),rail=$('#bottomRail'),dim=$('#filterDim');
+ const shellRect=shell.getBoundingClientRect(),fsRect=fs.getBoundingClientRect(),railRect=rail.getBoundingClientRect();
+ dim.style.top=(fsRect.bottom-shellRect.top)+'px';
+ dim.style.bottom=(shellRect.bottom-railRect.top)+'px';
+}
+function setFilterOpen(open){
+ filterOpen=open;
+ $('#filterToggle').setAttribute('aria-expanded',String(open));
+ $('#filterAccordionBody').hidden=!open;
+ const dim=$('#filterDim');
+ if(open){positionFilterDim();dim.classList.add('show');dim.setAttribute('aria-hidden','false')}
+ else{dim.classList.remove('show');dim.setAttribute('aria-hidden','true')}
+}
+
+/* ── Branch sheet ── */
+function renderBranchOptions(){
+ const q=($('#branchSearchInput').value||'').trim().toLowerCase();
+ const list=BRANCHES.filter(b=>(b.name+' '+b.area+' '+b.type).toLowerCase().includes(q));
+ $('#branchOptions').innerHTML=list.length?list.map(b=>`<label class="branch-option"><input type="checkbox" data-branch-check="${esc(b.id)}" ${draftIds.includes(b.id)?'checked':''}><span class="branch-option-main"><span class="branch-option-name">${esc(b.name)}</span><span class="branch-option-location">${esc(b.area)}</span></span></label>`).join(''):`<div class="empty-state">No matching branch. Try another name or area.</div>`;
+ updateApplyBtn();
+}
+function updateApplyBtn(){
+ const btn=$('#applyBranches');
+ if(draftIds.length){btn.hidden=false;btn.textContent='View '+draftIds.length}
+ else{btn.hidden=true;btn.textContent='View 0'}
+}
+function openBranchSheet(){
+ draftIds=[...selectedIds];
+ $('#branchSearchInput').value='';
+ renderBranchOptions();
+ $('#branchScrim').classList.add('open');
+ $('#branchScrim').setAttribute('aria-hidden','false');
+ $('#branchPicker').setAttribute('aria-expanded','true');
+ setTimeout(()=>$('#branchSearchInput').focus(),150);
+}
+function closeBranchSheet(){
+ $('#branchScrim').classList.remove('open');
+ $('#branchScrim').setAttribute('aria-hidden','true');
+ $('#branchPicker').setAttribute('aria-expanded','false');
+ $('#branchPicker').focus();
+}
+
+/* ── Date popup ── */
+const DATE_PRESETS=[
+ ['today','Today'],['yesterday','Yesterday'],['7','Last 7 days'],['30','Last 30 days'],
+ ['3m','Last 3 months'],['4m','Last 4 months'],['6m','Last 6 months'],['9m','Last 9 months'],['1y','Last 1 year']
+];
+function renderDatePopup(){
+ const wrap=$('#datePresets');
+ wrap.innerHTML=DATE_PRESETS.map(([key,label])=>`<button type="button" class="date-preset ${period===key?'active':''}" data-preset="${key}">${label}</button>`).join('');
+ const rows=$('#specificDateRows');
+ if(!customDraftDates.length){customDraftDates=[{checked:false,year:new Date().getFullYear(),month:1,day:1}]}
+ rows.innerHTML=customDraftDates.map((d,i)=>`
+  <div class="date-row" data-row="${i}">
+    <input type="checkbox" data-check ${d.checked?'checked':''}>
+    <input type="number" data-year min="2000" max="2100" value="${d.year||''}" placeholder="YYYY">
+    <select data-month>${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,idx)=>`<option value="${idx+1}" ${Number(d.month)===idx+1?'selected':''}>${m}</option>`).join('')}</select>
+    <input type="number" data-day min="1" max="31" value="${d.day||''}" placeholder="DD">
+    <div class="date-actions"><button type="button" data-add title="Add a row below">+</button><button type="button" data-remove title="Remove this row">−</button></div>
+  </div>`).join('');
+}
+function openDatePopup(){
+ customDraftDates=customDates.length?customDates.map(d=>({...d})):[{checked:false,year:new Date().getFullYear(),month:new Date().getMonth()+1,day:new Date().getDate()}];
+ renderDatePopup();
+ $('#dateScrim').classList.add('open');
+ $('#dateScrim').setAttribute('aria-hidden','false');
+}
+function closeDatePopup(){
+ $('#dateScrim').classList.remove('open');
+ $('#dateScrim').setAttribute('aria-hidden','true');
+ $('#dateRange').focus();
+}
+function collectDateDraft(){
+ const rows=$$('#specificDateRows .date-row');
+ customDraftDates=rows.map(r=>({
+  checked:r.querySelector('[data-check]').checked,
+  year:Number(r.querySelector('[data-year]').value)||0,
+  month:Number(r.querySelector('[data-month]').value)||1,
+  day:Number(r.querySelector('[data-day]').value)||0
+ }));
+}
+
+/* ── Service popup ── */
+function renderServicePopup(){
+ const opts=['all','dineIn','takeout','delivery','event'];
+ $('#serviceOptions').innerHTML=opts.map(k=>`<button type="button" class="service-option ${service===k?'active':''}" data-service="${k}">${SERVICE_LABELS[k]}</button>`).join('');
+}
+function openServicePopup(){
+ renderServicePopup();
+ $('#serviceScrim').classList.add('open');
+ $('#serviceScrim').setAttribute('aria-hidden','false');
+}
+function closeServicePopup(){
+ $('#serviceScrim').classList.remove('open');
+ $('#serviceScrim').setAttribute('aria-hidden','true');
+ $('#serviceType').focus();
+}
+
+/* ── CSV ── */
+function csvCell(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}
+function downloadCsv(){
+ const rows=[['EatOuts Restaurant Dashboard — illustrative demo report'],['Business',businessName],['Scope',selectedScope()],['Period',periodLabel()],['Service',SERVICE_LABELS[service]],['Data status','Illustrative demo data — not live measurements'],[],['Branch','Area','Sample sales','Sample orders','Average order value','Table turnover','Kitchen ticket minutes','Menu margin','Search impressions','WhatsApp clicks']];
+ serviceSelectedBranches().forEach(b=>{const sales=branchSales(b),orders=branchOrders(b);rows.push([b.name,b.area,Math.round(sales),Math.round(orders),orders?Math.round(sales/orders):0,b.turnover,b.ticket,b.margin,Math.round(b.search*periodFactor()*serviceShare(b)),Math.round(b.whatsapp*periodFactor()*serviceShare(b))])});
+ const csv=rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+ const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='eatouts-restaurant-demo-report.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast('CSV report downloaded');
+}
+
+/* ── Tab switching ── */
+function setTab(tab){
+ if(!RENDERERS[tab])return;
+ activeTab=tab;renderWorkspace();$('#workspace').scrollTop=0;
+ const btn=$(`#bottomRail [data-tab="${tab}"]`);
+ if(btn){const rail=$('#bottomRail');const left=btn.offsetLeft,right=left+btn.offsetWidth,vl=rail.scrollLeft,vr=vl+rail.clientWidth;if(left<vl||right>vr)btn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})}
+}
+
+/* ── Events ── */
+function bindEvents(){
+ // Filter accordion
+ $('#filterToggle').addEventListener('click',()=>setFilterOpen(!filterOpen));
+ $('#filterDim').addEventListener('click',()=>setFilterOpen(false));
+ window.addEventListener('resize',()=>{if(filterOpen)positionFilterDim()});
+
+ // Branch sheet
+ $('#branchPicker').addEventListener('click',openBranchSheet);
+ $('#branchSearchInput').addEventListener('input',renderBranchOptions);
+ $('#branchSearch').addEventListener('click',()=>{draftIds=BRANCHES.map(b=>b.id);renderBranchOptions()});
+ $('#clearBranchSelection').addEventListener('click',()=>{draftIds=[];renderBranchOptions()});
+ $('#branchOptions').addEventListener('change',e=>{
+  const cb=e.target.closest('[data-branch-check]');if(!cb)return;
+  if(cb.checked){if(!draftIds.includes(cb.dataset.branchCheck))draftIds.push(cb.dataset.branchCheck)}
+  else draftIds=draftIds.filter(id=>id!==cb.dataset.branchCheck);
+  renderBranchOptions();
+ });
+ $('#applyBranches').addEventListener('click',()=>{
+  selectedIds=BRANCHES.map(b=>b.id).filter(id=>draftIds.includes(id));
+  closeBranchSheet();renderWorkspace();
+  toast(selectedIds.length?`Showing ${selectedIds.length} ${selectedIds.length===1?'branch':'branches'}`:'Choose a branch to populate the dashboard');
+ });
+ $('#branchScrim').addEventListener('click',e=>{if(e.target===$('#branchScrim'))closeBranchSheet()});
+
+ // Date popup
+ $('#dateRange').addEventListener('click',openDatePopup);
+ $('#datePresets').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-preset]');if(!btn)return;
+  period=btn.dataset.preset;customDates=[];customDraftDates=[];
+  $('#dateScrim').classList.remove('open');$('#dateScrim').setAttribute('aria-hidden','true');
+  renderWorkspace();
+ });
+ $('#addSpecificDate').addEventListener('click',()=>{
+  collectDateDraft();
+  customDraftDates.push({checked:false,year:new Date().getFullYear(),month:new Date().getMonth()+1,day:new Date().getDate()});
+  renderDatePopup();
+ });
+ $('#specificDateRows').addEventListener('click',e=>{
+  const add=e.target.closest('[data-add]'),rm=e.target.closest('[data-remove]');
+  if(add){collectDateDraft();customDraftDates.push({checked:false,year:new Date().getFullYear(),month:new Date().getMonth()+1,day:new Date().getDate()});renderDatePopup()}
+  if(rm){const row=e.target.closest('.date-row');const idx=Number(row.dataset.row);collectDateDraft();customDraftDates.splice(idx,1);if(!customDraftDates.length)customDraftDates=[{checked:false,year:new Date().getFullYear(),month:new Date().getMonth()+1,day:new Date().getDate()}];renderDatePopup()}
+ });
+ $('#applyDate').addEventListener('click',()=>{
+  collectDateDraft();
+  const picked=customDraftDates.filter(d=>d.checked&&d.year>=2000&&d.month>=1&&d.day>=1);
+  if(!picked.length){toast('Tick at least one specific date');return}
+  customDates=picked;period='custom';
+  closeDatePopup();renderWorkspace();
+ });
+ $$('[data-close-date]').forEach(b=>b.addEventListener('click',closeDatePopup));
+ $('#dateScrim').addEventListener('click',e=>{if(e.target===$('#dateScrim'))closeDatePopup()});
+
+ // Service popup
+ $('#serviceType').addEventListener('click',openServicePopup);
+ $('#serviceOptions').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-service]');if(!btn)return;
+  service=btn.dataset.service;
+  closeServicePopup();renderWorkspace();
+ });
+ $$('[data-close-service]').forEach(b=>b.addEventListener('click',closeServicePopup));
+ $('#serviceScrim').addEventListener('click',e=>{if(e.target===$('#serviceScrim'))closeServicePopup()});
+
+ // KPI popup
+ $$('[data-close-kpi]').forEach(b=>b.addEventListener('click',closeKpiPopup));
+ $('#kpiScrim').addEventListener('click',e=>{if(e.target===$('#kpiScrim'))closeKpiPopup()});
+
+ // Reset
+ $('#clearFilters').addEventListener('click',()=>{
+  selectedIds=BRANCHES.map(b=>b.id);period='30';service='all';customDates=[];customDraftDates=[];
+  renderWorkspace();toast('Filters reset');
+ });
+
+ // Bottom rail
+ $('#bottomRail').addEventListener('click',e=>{const btn=e.target.closest('[data-tab]');if(btn)setTab(btn.dataset.tab)});
+
+ // Workspace delegation
+ $('#workspace').addEventListener('click',e=>{
+  const kp=e.target.closest('[data-kpi]');
+  if(kp){openKpiPopup(kp.dataset.kpi);return}
+  const go=e.target.closest('[data-goto]');if(go){setTab(go.dataset.goto);return}
+  if(e.target.closest('#exportCsv')){downloadCsv();return}
+ });
+
+ // Escape closes any popup
+ document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if($('#branchScrim').classList.contains('open'))closeBranchSheet();
+  else if($('#dateScrim').classList.contains('open'))closeDatePopup();
+  else if($('#serviceScrim').classList.contains('open'))closeServicePopup();
+  else if($('#kpiScrim').classList.contains('open'))closeKpiPopup();
+  else if(filterOpen)setFilterOpen(false);
+ });
+}
+
+function start(){
+ loadSavedProfile();
+ $('#restaurantName').textContent=businessName;
+ if(businessLogo){$('#restaurantLogo').src=businessLogo;$('#restaurantLogo').hidden=false;$('#logoFallback').hidden=true}
+ else{$('#logoFallback').textContent=(businessName||'R').charAt(0).toUpperCase()}
+ bindEvents();
+ renderWorkspace();
+}
+start();
+})();
+</script>
+</body>
+</html>

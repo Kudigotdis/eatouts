@@ -27,8 +27,23 @@
     'absinthe', 'ouzo', 'schnapps', 'grappa', 'vermouth'
   ];
 
-  var WORD_SET = {};
-  ALCOHOL_WORDS.forEach(function (w) { WORD_SET[w] = true; });
+  /* Named drinks that are alcohol even when the generic word is absent.
+     Keep identical to functions/api/_promo-rules.js. */
+  var ALCOHOL_BRANDS = [
+    'st louis', 'savanna', 'hunters dry', 'castle lite', 'castle lager',
+    'windhoek', 'heineken', 'bernini', 'carling', 'corona', 'guinness',
+    'baileys', 'jack daniels', 'jagermeister', 'jagerbomb',
+    'fitch & leedes', 'fitch and leedes'
+  ];
+
+  /* Phrases that cancel a nearby alcohol word. Keep identical to the
+     server copy and to js/eatouts-promo-rules.js. */
+  var ALCOHOL_NEGATIONS = [
+    'non-alcoholic', 'non alcoholic', 'nonalcoholic', 'no alcohol',
+    'without alcohol', 'alcohol-free', 'alcohol free', 'zero alcohol',
+    'mocktail', 'mocktails', 'virgin mojito', 'virgin margarita',
+    'virgin pina colada', 'virgin martini', 'virgin daiquiri'
+  ];
 
   /* "Fizzy Drinks" and "Iced Tea" are drinks, but not alcohol: the
      catalogue's own subtypes decide that before any text is read. */
@@ -45,6 +60,13 @@
 
   function text(v) { return String(v == null ? '' : v).toLowerCase(); }
 
+  function negationHit(prefix) {
+    for (var i = 0; i < ALCOHOL_NEGATIONS.length; i++) {
+      if (prefix.indexOf(ALCOHOL_NEGATIONS[i]) !== -1) return true;
+    }
+    return false;
+  }
+
   /* Does this string name an alcoholic drink? */
   function mentionsAlcohol(value) {
     var t = text(value);
@@ -52,10 +74,22 @@
     /* "platter without beer" is food, so drop the negated tail */
     t = t.replace(/\bwithout\b[\s\S]*/g, ' ');
     if (!t) return false;
-    for (var i = 0; i < ALCOHOL_WORDS.length; i++) {
+
+    var i, idx, prefix;
+    for (i = 0; i < ALCOHOL_WORDS.length; i++) {
       var w = ALCOHOL_WORDS[i];
       var re = new RegExp('(^|[^a-z])' + w + '([^a-z]|$)');
-      if (re.test(t)) return true;
+      var m = re.exec(t);
+      if (!m) continue;
+      idx = m.index + m[1].length;
+      prefix = t.slice(Math.max(0, idx - 32), idx);
+      if (!negationHit(prefix)) return true;
+    }
+    for (i = 0; i < ALCOHOL_BRANDS.length; i++) {
+      idx = t.indexOf(ALCOHOL_BRANDS[i]);
+      if (idx === -1) continue;
+      prefix = t.slice(Math.max(0, idx - 32), idx);
+      if (!negationHit(prefix)) return true;
     }
     return false;
   }
@@ -70,6 +104,7 @@
     var v = p.ageRestricted;
     if (v === undefined) v = p.age_restricted;
     if (v === undefined) v = p.ageRestrictedFlag;
+    if (v === undefined && p.audience !== undefined) v = p.audience === '18plus' || p.audience === '18+';
     if (v === true || v === 1 || v === '1' || v === 'true') return true;
     return false;
   }
@@ -157,6 +192,8 @@
 
   window.EatoutsAge = {
     ALCOHOL_WORDS: ALCOHOL_WORDS,
+    ALCOHOL_BRANDS: ALCOHOL_BRANDS,
+    ALCOHOL_NEGATIONS: ALCOHOL_NEGATIONS,
     NON_ALCOHOL_SUBTYPES: NON_ALCOHOL_SUBTYPES,
     mentionsAlcohol: mentionsAlcohol,
     isAgeRestrictedPromo: isAgeRestrictedPromo,

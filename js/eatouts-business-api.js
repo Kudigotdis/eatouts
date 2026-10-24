@@ -102,7 +102,17 @@
   function create(business) {
     var b = business || {};
     var name = b.name || (b.identity && b.identity.name) || '';
-    return api('/business/mine', { method: 'POST', body: { name: name } });
+    /* The type is the key the hub uses to route to a dashboard, so it has
+       to reach the server with the business - not stay on the device. */
+    var body = { name: name };
+    if (b.type) body.type = b.type;
+    if (b.logoRef || b.logo) body.logoRef = b.logoRef || b.logo;
+    if (b.coverRef || b.cover) body.coverRef = b.coverRef || b.cover;
+    if (b.town) body.town = b.town;
+    if (b.area) body.area = b.area;
+    if (b.district) body.district = b.district;
+    if (b.description) body.description = b.description;
+    return api('/business/mine', { method: 'POST', body: body });
   }
 
   /* ---------- claim ---------- */
@@ -376,6 +386,7 @@
   function promoToServer(p) {
     p = p || {};
     return {
+      id: p.serverId || p.id || undefined,
       title: p.title || 'Untitled promo',
       image: p.image || null,
       type: p.type || null,
@@ -393,7 +404,19 @@
       actionJson: p.action || null,
       sponsor: p.sponsor || null,
       terms: p.terms || null,
-      status: p.status || 'active',
+      /* 0014 - the listing shape. `status` is deliberately omitted: the
+         server always writes a draft and only an admin publish sets
+         active=1. */
+      category: p.category || null,
+      subtype: p.subtype || null,
+      promoFamily: p.promoFamily || null,
+      contentFormat: p.contentFormat || 'offer',
+      mechanic: p.mechanic || null,
+      audience: p.audience || 'everyone',
+      brand: p.brand || null,
+      ctaType: p.ctaType || (p.action && p.action.type) || null,
+      ctaUrl: p.ctaUrl || (p.action && p.action.url) || null,
+      crossPostEvent: !!p.crossPostEvent,
       /* The operator's own 18+ switch on the promo. */
       ageRestricted: !!p.ageRestricted
     };
@@ -401,6 +424,13 @@
 
   function promoFromServer(s) {
     s = s || {};
+    function arr(v) {
+      if (Array.isArray(v)) return v;
+      if (typeof v === 'string' && v) {
+        try { var x = JSON.parse(v); return Array.isArray(x) ? x : []; } catch (e) { return []; }
+      }
+      return [];
+    }
     return {
       id: s.id,
       serverId: s.id,
@@ -416,23 +446,50 @@
       endDate: s.endDate || '',
       endTime: s.endTime || '',
       recurring: !!s.recurring,
-      days: Array.isArray(s.daysJson) ? s.daysJson : [],
-      linkedMenuItems: Array.isArray(s.linkedMenuItemsJson) ? s.linkedMenuItemsJson : [],
+      days: arr(s.daysJson),
+      linkedMenuItems: arr(s.linkedMenuItemsJson),
       action: s.actionJson || null,
       sponsor: s.sponsor || '',
       terms: s.terms || '',
-      status: s.status || 'active',
+      status: s.status || 'draft',
       /* The operator's own 18+ switch on the promo. */
       ageRestricted: !!s.ageRestricted,
+      /* 0014 */
+      category: s.category || '',
+      subtype: s.subtype || '',
+      promoFamily: s.promoFamily || '',
+      contentFormat: s.contentFormat || 'offer',
+      mechanic: s.mechanic || '',
+      audience: s.audience || 'everyone',
+      brand: s.brand || '',
+      billableDays: s.billableDays != null ? s.billableDays : 1,
+      quotaMonth: s.quotaMonth || null,
+      submissionId: s.submissionId || null,
+      paymentStatus: s.paymentStatus || 'not_required',
+      invoiceId: s.invoiceId || null,
+      feeCharged: s.feeCharged != null ? s.feeCharged : 0,
+      currency: s.currency || 'BWP',
+      ctaType: s.ctaType || '',
+      ctaUrl: s.ctaUrl || '',
+      crossPostEvent: !!s.crossPostEvent,
+      submittedAt: s.submittedAt || null,
+      publishedAt: s.publishedAt || null,
       createdAt: s.createdAt || Date.now(),
       updatedAt: s.updatedAt || null
     };
   }
 
-  /* local promo shape (promo-onboarding) -> queue submission body. */
+  /* local promo shape (promo-onboarding) -> queue submission body.
+     The server computes and locks the fee; `fee` is only a display
+     estimate for the customer path. */
   function promoSubmit(rid, body) {
     return api('/customer/promo-submissions', {
       method: 'POST', body: Object.assign({ restaurantId: rid }, body || {})
+    });
+  }
+  function promoCancel(rid, submissionId, note) {
+    return api('/customer/promo-submissions?restaurantId=' + encodeURIComponent(rid), {
+      method: 'PATCH', body: { id: submissionId, action: 'cancel', note: note || '' }
     });
   }
   function promoToSubmission(p, restaurant) {
@@ -441,17 +498,18 @@
     var name = (restaurant.identity && restaurant.identity.name) || restaurant.name || '';
     var when = [p.startDate, p.startTime].filter(Boolean).join(' ');
     if (p.endDate) when += (when ? ' – ' : '') + p.endDate + (p.endTime ? ' ' + p.endTime : '');
-    return {
-      eventRef: p.id,
+    var out = {
+      eventRef: p.serverId || p.id,
       title: p.title || 'Promo',
       venueName: name || null,
       whenText: when || null,
       summary: p.description || null,
       imageRef: p.image || null,
-      fee: 50,
       currency: 'BWP',
       payload: p
     };
+    if (p.estimateFee != null) out.fee = p.estimateFee;
+    return out;
   }
 
   /* local menu shape (menu-onboarding) <-> server item/category */
@@ -661,6 +719,7 @@ window.EatoutsBusinessApi = {
     promoToServer: promoToServer,
     promoFromServer: promoFromServer,
     promoSubmit: promoSubmit,
+    promoCancel: promoCancel,
     promoToSubmission: promoToSubmission,
     businessProfilesGet: businessProfilesGet,
     businessProfilesCreate: businessProfilesCreate,
