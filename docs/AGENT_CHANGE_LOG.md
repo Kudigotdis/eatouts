@@ -16,6 +16,35 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 
+### [2026-10-24 23:52:52] - [Agent: Cline] - [COMMITTED]
+- Task: Cleanup Stage B - archive Tier 1 local junk, delete Tier 2 tracked junk, harden .gitignore
+- Files changed:
+  - Deleted (17, git rm - recoverable from history): td_out.txt, build-output.txt, build-output2.txt,
+    catalog-output.txt, final-test-output.txt, final2.txt, test-output.txt, integration_file.txt,
+    check-page-titles.cjs, check-page-titles2.cjs, check-page-titles3.cjs, cleanup-temp.cjs,
+    find-page-titles-end.cjs, td_find.cjs, td_find.js, td_find.mjs, fix_venue_about_v2.py
+  - .gitignore (+19 lines)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: Stage B
+- Push: pending
+- Notes:
+  Tier 1 (20 files, 473.5 KB) moved byte-for-byte to _archive_local/tier1/ preserving structure:
+    _trash/ (13), SORT THIS/ (3), _headers.bak (1), venue-about.html.bak.20261020-* (3).
+    Nothing deleted; the source folders are now empty. _archive_local/ is gitignored.
+  Tier 2 (17 files, 1775.6 KB = 1.73 MB) removed with `git rm`. Pre-deletion checks:
+    - All 17 absent from copy-static.mjs => never deployed.
+    - Zero code references for 16 of them. `integration_file.txt` has 11 hits, but every one is a
+      PROSE CITATION in a comment ("See integration_file.txt 12"), never a file read - it is a spec
+      doc, not a data input. Because 11 comments still cite it, a copy was preserved to
+      _archive_local/tier2/integration_file.txt before removal.
+  .gitignore gained 12 patterns: _archive_local/, td_out.txt, td_find.*, build-output*.txt,
+  *-output.txt, final*.txt, integration_file.txt, check-page-titles*.cjs, find-page-titles-end.cjs,
+  cleanup-temp.cjs, fix_venue_about*.py, *.bak.*. Line 24 (`fix*.js`) deliberately LEFT UNCHANGED.
+  Verification (the payoff of the determinism fix): after `npm run build`, `git diff --no-index`
+  between dist/ and the C:\tmp\dist-before baseline exited 0 - dist is byte-identical (2055 = 2055
+  files). Cleanup changed zero shipped bytes. Build produced NO churn.
+- Errors: None
+
 ### [2026-10-24 23:48:56] - [Agent: Cline] - [COMMITTED]
 - Task: Make the build deterministic (stop pre-existing generated-file churn at source)
 - Files changed:
