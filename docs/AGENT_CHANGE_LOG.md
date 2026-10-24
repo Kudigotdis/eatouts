@@ -16,6 +16,45 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 
+### [2026-10-25 00:42:19] - [Agent: Cline] - [COMMITTED]
+- Task: venue-about.html copy change - accordion header "Options" -> "Menu"; "Promos" button -> "Promos Gallery"
+- Files changed:
+  - venue-about.html (2 lines: L679 <summary> text, L1234 #optPromos label)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: bb60ed4
+- Push: bb60ed4 + this changelog commit -> origin/main on 2026-10-25 (UTC)
+- Notes:
+  User request: on data-page="venue-about" rename the class="acc" accordion header "Options" to "Menu",
+  then change "Promos" to "Promos Gallery" within that collapsed accordion.
+  AMBIGUITY RESOLVED BY USER: the page contains the word "Promos" twice - the Promos accordion header
+  (<summary>Promos</summary>, L660, wraps #promoCarousel) and the #optPromos button rendered inside the
+  Options accordion (#optList, L1234). User chose the BUTTON only. L660 is therefore deliberately
+  UNTOUCHED - it still reads "Promos".
+  Scope: copy only. data-opt values (town,area,menu,promos), element ids (#optList/#optMenu/#optPromos),
+  the click handler and the CSS are all unchanged, so behaviour is identical. The change ships as-is:
+  venue-about.html is already in the deploy list (copy-static.mjs L49) and dist/ is gitignored (.gitignore L36).
+  No CSS change needed: .acc > summary (L211-219) is a flex row with no white-space:nowrap, no ellipsis,
+  no fixed width and no ::after chevron, so the longer "Promos Gallery" cannot clip.
+  Verification:
+    - git diff: 1 file, +2/-2 - only the two intended lines.
+    - CRLF preserved: 0 bare LF, 1459 lines, no EOF change (diff = exactly 2 hunks).
+    - node tests/venue-about-options.js -> PASSED (34 checks, exit 0).
+    - node tests/venue-about-menu.js    -> PASSED (7 checks, exit 0).
+    - npm test -> 55 passed, 2 failed (inventory.js, login.js).
+  PRE-EXISTING FAILURES RE-PROVEN (not regressions): `git stash push -- venue-about.html` returned the
+  tree to clean HEAD, and re-running just those two suites reproduced the SAME 3 failing checks -
+  "PAGE_INVENTORY.md lists all SPA screens -- 30 vs 31", "the About page links to operator-businesses.html",
+  "the About page no longer has the inline operator form". Restored with `git stash pop`; venue-about.html
+  SHA256 back to C79DB0998BBD2EC552296291AF1E86CF18DF2F99848D659EDACA012BDED6FFFD, stash list empty.
+  KNOWN STALE ARTIFACTS (left on purpose, no code impact): tests/venue-about-options.js L5 comment still
+  says 'renders a grey "Options" accordion'; HTML_CATALOG.md L1052 and scripts/html_catalog.meta.json keep
+  the historical "Options accordion" wording. All are comments/dated records - no assertion reads the
+  label text, so no suite can break. Not rewritten (minimal diff).
+  REVIEW NOTE (flagged to user, proceeding as asked): the accordion now reads "Menu" as a header while
+  also containing a #optMenu button labelled "Menu", and it still holds the Town/Area pickers.
+- Errors: None
+
+
 ### [2026-10-24 23:54:02] - [Agent: Cline] - [COMMITTED]
 - Task: Cleanup Stage C - archive the 4 superseded design folders to _archive_local/tier3/
 - Files changed:
