@@ -44,6 +44,20 @@ export async function requireBusiness(context, restaurantId, minRole) {
   return { session: c.session, userId: c.userId, env: c.env, db: c.db, restaurantId: rid, role: m.role, membership: m };
 }
 
+/** Enforce that the signed-in user owns this business_profiles row.
+    Mirrors the ownership check the POST/PATCH/DELETE handlers apply: a
+    missing id and somebody else's id both read as 404 not_found, so the
+    endpoint never confirms that another tenant's business exists. */
+export async function requireBusinessOwner(c, businessId) {
+  var id = String(businessId || '').trim();
+  if (!id) return { error: json({ ok: false, error: 'business_id_required' }, 400) };
+  var row = await c.db.prepare(
+    'SELECT id FROM business_profiles WHERE id = ? AND user_id = ?'
+  ).bind(id, c.userId).first();
+  if (!row) return { error: json({ ok: false, error: 'not_found' }, 404) };
+  return { businessId: row.id };
+}
+
 /** URL-safe slug from a business name. */
 export function slugify(name) {
   return String(name || '')
