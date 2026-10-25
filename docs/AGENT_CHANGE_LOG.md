@@ -463,3 +463,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: the venue-aware rule assumed the venue was the last argument, so commit 4's new template/context args made 11 venue-aware calls look unvenueed. Rule now matches the venue as the 2nd argument, plus a new check that every call passes a template id (15 sites). node tests/wa.js PASSED.
 - Errors: None
 
+
+### [2026-10-25 06:15:00] - [Agent: Cline] - [COMMITTED]
+- Task: Ship remediation - close the two pre-existing test failures and push
+- Files changed: .gitignore, index.html, CHANGELOG-remediation.md
+- Commits: 4126329 (.gitignore: ignore backup-pre-*.sql), 6e80117 (index.html: About Operator -> operator-businesses.html link + remove inline operator sign-in screen)
+- Push: PENDING (push follows)
+- Notes: One root cause closed both failures - index.html still had the inline operator sign-in (renderOperatorLogin / about-operator-login / id="opWhats") that plan .kilo/plans/eatouts-promo-listing-p9-p13.md Phase P9 had slated for removal in favour of operator-businesses.html. Removed the screen end-to-end (PAGE_TITLES entry, pageRef case, renderScreen dispatch, renderOperatorLogin + banner, 5 handlers, onLogin flag); button -> link. inventory.js now 30 vs 30 (no PAGE_INVENTORY.md edit needed); login.js link present + opWhats gone. backup-pre-0014-20261025-030848.sql ignored via new .gitignore rule (left on disk). scripts/seeds/restaurants.sql (regen timestamp churn) reverted to HEAD. Full suite: 57 passed, 0 failed (was 55/2).
+- Errors: None
+

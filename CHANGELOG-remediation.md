@@ -88,3 +88,15 @@ Each entry is one atomic commit, verified against the file as it existed at edit
 - **Relevant suites all green:** `smoke`, `dashboard`, `demo-seed`, `delivery`, `checkout-delivery`, `wa`, `contracts`, `business-profiles`.
 
 
+
+## Commit 11 — Ship: close the two pre-existing failures
+
+- **Root cause (shared):** `index.html` still carried the inline operator sign-in surface (`renderOperatorLogin` + the `about-operator-login` SPA screen + `id="opWhats"`), which the plan `.kilo/plans/eatouts-promo-listing-p9-p13.md` (Phase P9) had slated for replacement by a link to the already-built `operator-businesses.html`. One change closes **both** failures, so they were committed together (splitting would have left the Operator button dispatching a removed handler).
+- **`index.html`** (commit `6e80117`):
+  - About → Settings "Operator" row is now `<a href="operator-businesses.html">Operator</a>` (was `data-act="openOperatorLogin"`).
+  - Removed the `about-operator-login` screen end-to-end: `PAGE_TITLES` entry, `pageRef()` case, `renderScreen()` dispatch, `renderOperatorLogin()` (and its `/* PAGE: about-operator-login */` banner), the `openOperatorLogin`/`backFromOperatorLogin`/`openUniversalLogin`/`doOperatorLogin`/`doOperatorDemo` handlers, and the `onLogin` shell flag that hid the tab bar.
+  - `state.operatorView` remains as a harmless vestigial field (always `"about"`).
+- **`inventory.js`** fixed: removing the banner drops the SPA screen count to 30, matching `PAGE_INVENTORY.md` (30 vs 30 — no doc edit needed). **`login.js`** fixed: `href="operator-businesses.html"` present, `id="opWhats"` gone.
+- **`.gitignore`** (commit `4126329`): added `backup-pre-*.sql` so the D1 backup `backup-pre-0014-20261025-030848.sql` is ignored (left on disk, not staged, not deleted). `scripts/seeds/restaurants.sql` had regen timestamp churn in the working tree; reverted to HEAD (not part of the ship).
+- **Verification:** `node tests/run-all.js` → **57 passed, 0 failed** (was 55/2). `login.js` 30/0, `inventory.js` 19 checks/30 screens, plus `smoke`, `dashboard`, `checkout-delivery`, `about`, `demo-seed` all green.
+
