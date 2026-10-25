@@ -5,7 +5,7 @@
    DELETE /api/business/services?id=          ->  delete service
    ============================================================ */
 import { json, readJson, now, uid } from './../_shared.js';
-import { requireSession, str, numOrNull } from './../_business.js';
+import { requireSession, requireBusinessOwner, str, numOrNull } from './../_business.js';
 
 function idOf(context) {
   return new URL(context.request.url).searchParams.get('id');
@@ -21,6 +21,10 @@ export async function onRequestGet(context) {
 
   var businessId = bidOf(context);
   if (!businessId) return json({ ok: false, error: 'business_id_required' }, 400);
+
+  /* Verify ownership: the same guard the POST/PATCH/DELETE handlers apply. */
+  var owner = await requireBusinessOwner(c, businessId);
+  if (owner.error) return owner.error;
 
   var rows = await c.db.prepare(
     'SELECT * FROM business_services WHERE business_id = ? ORDER BY order_index'
