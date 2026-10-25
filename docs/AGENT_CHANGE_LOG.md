@@ -376,3 +376,11 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: None
 
 
+
+### [2026-10-25 03:12:31] - [Agent: Cline] - [COMMITTED]
+- Task: Remediation commit 1 - role-scope Quotes/Bookings tabs (audit finding: gated by business type only)
+- Files changed: operator-dashboard1.html
+- Commit: PENDING
+- Push: PENDING
+- Notes: Added isCommercialOwner (isOwner + supplier/lodge_owner roles); quotes now requires supplier|caterer type AND commercial owner, bookings requires supplier|lodge type AND commercial owner. Platform roles unchanged. Role strings verified against js/eatouts-roles.js MATRIX.
+- Errors: None
