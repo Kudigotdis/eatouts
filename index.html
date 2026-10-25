@@ -3961,6 +3961,83 @@ function readOrder(){try{const raw=localStorage.getItem(ORDER_KEY);return raw?JS
 function writeOrder(obj){try{localStorage.setItem(ORDER_KEY,JSON.stringify(obj));return true;}catch(e){return false;}}
 function clearOrder(){try{localStorage.removeItem(ORDER_KEY);}catch(e){}}
 
+/* ================================================================
+   ORDER BRIDGE (customer side)
+   eatouts_order_v1 is only a hand-off draft. The operator workspaces
+   read eatouts_manager_v1.orders (canonical) and merge
+   eatouts_order_v1_history (legacy append-only log) on top, so a sent
+   order must land in BOTH or it stays invisible to the business.
+   Writes are deduped by id/orderId and the draft is dropped only
+   after both writes succeed.
+   ================================================================ */
+function bridgeBusinessId(rid){
+  let store={};try{store=JSON.parse(localStorage.getItem("eatouts_manager_v1")||"{}")||{};}catch(e){store={};}
+  const buses=Array.isArray(store.businesses)?store.businesses:[];
+  const want=String(rid||"");
+  const slugOf=function(b){return String((b&&(b.slug||(b.identity&&b.identity.slug)))||"");};
+  const hit=buses.filter(function(b){return String((b&&b.restaurantId)||"")===want||slugOf(b)===want;})[0];
+  if(hit)return hit.id;
+  const rest=buses.filter(function(b){return String((b&&b.type)||"")==="restaurant";})[0];
+  return rest?rest.id:(rid||"biz-restaurant");
+}
+function currentOrderDraft(){
+  const saved=readOrder();
+  if(saved)return saved;
+  return {
+    v:1,source:"menu",savedAt:Date.now(),
+    restaurant:orderRestaurant(),
+    contact:{name:state.orderName,phone:state.orderContact,notes:state.orderNotes},
+    items:orderItemsFromCart(),subtotal:cartTotal(),delivery:null
+  };
+}
+function bridgeDraftOrder(source){
+  const draft=currentOrderDraft();
+  if(!draft)return false;
+  try{
+    const d=new Date();
+    const p=function(n){return String(n).length<2?("0"+n):String(n);};
+    const items=(draft.items||[]).map(function(x){
+      let n=String((x&&x.name)||"Item");
+      if(x&&x.size)n+=" ("+x.size+")";
+      if(x&&x.qty>1)n+=" x"+x.qty;
+      return n;
+    });
+    const fee=(draft.delivery&&Number(draft.delivery.fee))||0;
+    const order={
+      /* stable per draft, so a retried send cannot create a duplicate */
+      id:"EO-"+String(draft.savedAt||Date.now()),
+      businessId:bridgeBusinessId(draft.restaurant&&(draft.restaurant.id||draft.restaurant.slug)),
+      customer:((draft.contact&&draft.contact.name)||"").trim()||"Delivery customer",
+      items:items,
+      total:Number(draft.subtotal||0)+fee,
+      status:"new",
+      created:d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes()),
+      delivery:draft.delivery?(draft.delivery.mode||"Delivery"):"Pickup",
+      source:"whatsapp",
+      restaurantId:(draft.restaurant&&draft.restaurant.id)||null,
+      restaurant:{id:(draft.restaurant&&draft.restaurant.id)||null,name:(draft.restaurant&&draft.restaurant.name)||"",whatsapp:(draft.restaurant&&draft.restaurant.whatsapp)||"",meta:(draft.restaurant&&draft.restaurant.meta)||""},
+      meta:{subtotal:Number(draft.subtotal||0),deliveryFee:fee,notes:(draft.contact&&draft.contact.notes)||"",source:source||draft.source||"menu"}
+    };
+    let store={};try{store=JSON.parse(localStorage.getItem("eatouts_manager_v1")||"{}")||{};}catch(e){store={};}
+    if(!Array.isArray(store.orders))store.orders=[];
+    if(!store.orders.some(function(o){return String((o&&o.id)||"")===String(order.id);}))store.orders.unshift(order);
+    localStorage.setItem("eatouts_manager_v1",JSON.stringify(store));
+    let hist=[];try{const raw=JSON.parse(localStorage.getItem("eatouts_order_v1_history")||"[]");if(Array.isArray(raw))hist=raw;}catch(e){hist=[];}
+    if(!hist.some(function(o){return String((o&&o.id)||(o&&o.orderId)||"")===String(order.id);}))hist.unshift(order);
+    localStorage.setItem("eatouts_order_v1_history",JSON.stringify(hist));
+    /* EatoutsMgrDB caches its state at boot, so an already-loaded instance
+       would overwrite the order on its next save(). Keep it in sync. */
+    if(window.EatoutsMgrDB&&typeof EatoutsMgrDB.get==="function"){
+      const live=EatoutsMgrDB.get();
+      if(!Array.isArray(live.orders))live.orders=[];
+      if(!live.orders.some(function(o){return String((o&&o.id)||"")===String(order.id);}))live.orders.unshift(order);
+      if(typeof EatoutsMgrDB.save==="function")EatoutsMgrDB.save();
+    }
+    clearOrder();
+    return true;
+  }catch(e){return false;}
+}
+
 /* The restaurant the customer is ordering from, in a plain shape the
    standalone page can render without the bridge/database. */
 function orderRestaurant(){
@@ -9472,6 +9549,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     if(!state.orderName.trim()||!state.orderContact.trim()){
       alert("Please enter your name and contact number.");return;
     }
+    bridgeDraftOrder("menu");
     notifyFieldOrder(curRestaurant());
     window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_split_bill","act=waSplitRestaurant");
     return;
@@ -9493,6 +9571,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     if(notesEl)state.orderNotes=notesEl.value;
     if(!state.orderName.trim()||!state.orderContact.trim()){alert("Please enter your name and contact number.");return;}
     if(cartTotal()<=0){alert("Your cart is empty.");return;}
+    bridgeDraftOrder("menu");
     notifyFieldOrder(curRestaurant());
     window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_checkout","act=waOrder");
     return;

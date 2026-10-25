@@ -36,3 +36,13 @@ Each entry is one atomic commit, verified against the file as it existed at edit
 - **Verification:** `Select-String` for `waLink(` → 16 refs = 1 definition + 15 call sites, every call now carries a template argument (no 2-arg calls remain); inline script extracted → `node --check` SYNTAX OK; `node tests/run-all.js` → same 2 pre-existing failures, no new ones.
 
 
+
+## Commit 5 — Send WhatsApp orders into the store the operator reads
+
+- **Problem:** `eatouts_order_v1` was only a hand-off draft for `customer-delivery.html`. The operator workspaces read `eatouts_manager_v1.orders` (canonical) and merge `eatouts_order_v1_history` on top (`operator-dashboard1.html:26`), so a WhatsApp order left the customer site as a draft and never reached the business.
+- **`index.html:3973`** — `bridgeBusinessId(rid)` maps the customer-side venue (`restaurant.id`/slug) to the manager business id via `businessId = b.restaurantId || b.slug` match; falls back to the first `type:"restaurant"` business, then to the raw id.
+- **`index.html:3993`** — `bridgeDraftOrder(source)` builds one order (`id:"EO-"+draft.savedAt`, `businessId`, `customer` from the checkout name, item lines with size/qty, `total` = subtotal + delivery fee, `status:"new"`, `created` in local wall-clock `YYYY-MM-DD HH:MM`, `delivery`, `source:"whatsapp"`, `restaurantId`, `restaurant{...}`, `meta{subtotal,deliveryFee,notes}`), unshifts it into `eatouts_manager_v1.orders` **and** `eatouts_order_v1_history`, deduped by id in both, then refreshes an already-loaded `EatoutsMgrDB` instance (it caches its state at boot and would otherwise overwrite the order on its next `save()`). `clearOrder()` runs only after both writes land; the whole body is wrapped in `try{}catch{}` so a bad store can never block the WhatsApp hand-off.
+- **Wired at both hand-offs:** split bill `index.html:9552`, checkout `index.html:9574` — both call `bridgeDraftOrder("menu")` before `notifyFieldOrder()`/`waLink()`.
+- **Verification:** jsdom boot of `index.html` with every local `<script src>` inlined, a restaurant business in `eatouts_manager_v1`, and a saved draft → 12/12 checks pass: bridge returns `true`; exactly one canonical order with `businessId:"biz-restaurant"`; total `115` (100 + 15 delivery); same id in both stores; draft cleared; duplicate send does not duplicate the order; a fresh boot of `js/eatouts-manager-db.js` over the resulting store lists the order (what the operator page sees); no window errors.
+- **Not covered:** the runtime browser click-through (place a real order in the UI). The bridge itself is verified; WhatsApp navigation is unchanged.
+

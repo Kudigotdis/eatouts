@@ -409,3 +409,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: waLink(text,venue,template,context,venueId) now calls EatoutsAnalytics.track("wa.click",{template,venueId,context}) inside try/catch before returning the wa.me URL; js/eatouts-analytics.js added to the page (it was never loaded here); all 15 call sites pass a template id. Verified: 16 waLink refs = 1 definition + 15 tagged calls, inline script node --check OK, tests/run-all.js unchanged (2 pre-existing failures).
 - Errors: None
 
+
+### [2026-10-25 04:38:20] - [Agent: Cline] - [COMMITTED]
+- Task: Remediation commit 5 - bridge customer WhatsApp orders into eatouts_manager_v1.orders (+ legacy history)
+- Files changed: index.html, CHANGELOG-remediation.md
+- Commit: PENDING
+- Push: PENDING
+- Notes: Added bridgeBusinessId() (slug/restaurantId -> manager business id, fallback first restaurant business) and bridgeDraftOrder(source) writing one deduped order into eatouts_manager_v1.orders and eatouts_order_v1_history, syncing an already-loaded EatoutsMgrDB instance, clearing the draft only after both writes; wired before notifyFieldOrder at split-bill (:9552) and checkout (:9574). Verified with a jsdom boot of index.html: 12/12 checks incl. fresh operator boot listing the order; no window errors.
+- Errors: None
+
