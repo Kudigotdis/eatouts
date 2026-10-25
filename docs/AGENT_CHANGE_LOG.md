@@ -583,3 +583,13 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: two `wrangler d1 execute --local` calls issued in parallel collided with
   "Failed to get session commit token: internal error"; local D1 commands must be run one at a time.
 
+
+### [2026-10-25 05:33:40] - [Agent: Cline] - [COMMITTED]
+- Task: Record the push of the live-route verification entry
+- Files changed: docs/AGENT_CHANGE_LOG.md (this record only)
+- Commit: 195e339 (live-route verification entry)
+- Push: 80be862..195e339 origin/main (fast-forward), PUSH_EXIT=0; HEAD == origin/main == 195e339
+- Notes: Docs only. No product code was touched in this session; D1 (canonical type slug), D2 (normaliseType silent
+  default) and D3 (one definition of money) remain undecided and unedited.
+- Errors: None
+
