@@ -445,3 +445,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: DB.reset() now runs only after window.confirm() returns true; the check fails closed when confirm is unavailable and declining falls through to the idempotent merge (no data loss). Verified with jsdom: 11/11 checks incl. Cancel keeps a real order + 40 demo rows, OK wipes and re-seeds, no prompt without the parameter.
 - Errors: None
 
+
+### [2026-10-25 05:31:10] - [Agent: Cline] - [COMMITTED]
+- Task: Remediation commit 9 - align tests/wa.js with the templated waLink signature
+- Files changed: tests/wa.js, CHANGELOG-remediation.md
+- Commit: PENDING
+- Push: PENDING
+- Notes: the venue-aware rule assumed the venue was the last argument, so commit 4's new template/context args made 11 venue-aware calls look unvenueed. Rule now matches the venue as the 2nd argument, plus a new check that every call passes a template id (15 sites). node tests/wa.js PASSED.
+- Errors: None
+

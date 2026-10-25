@@ -75,15 +75,19 @@ const linkVenue = w.waLink('hello', { whatsapp: '26771111111' });
   const src = fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8');
   const lines = src.split(/\r?\n/);
   const flagged = [];
+  const untagged = [];
   lines.forEach((l, i) => {
     if (/function waLink/.test(l)) return;
     if (!/(?<!function\s)waLink\(/.test(l)) return;
     const ctx = lines.slice(Math.max(0, i - 14), i + 1).join('\n');
     const flagshipIntended = /act==="waPoetry"|act==="waFeatEvent"|act==="waAbout"|act==="bevSendWaGeneric"|function renderAboutSocialRow/.test(ctx);
-    const venueAware = /,\s*(r|f&&f\.restaurant|evInfo\.restaurant|curRestaurant\(\))\s*\)/.test(l);
+    const venueAware = /,\s*(r|f&&f\.restaurant|evInfo\.restaurant|curRestaurant\(\))\s*[,)]/.test(l);
     if (!flagshipIntended && !venueAware) flagged.push('line ' + (i + 1) + ': ' + l.trim().slice(0, 90));
+    /* every hand-off must name its template, so wa.click rows stay attributable */
+    if (!/waLink\(.*,\s*['"][a-z_]+['"]\s*,/.test(l)) untagged.push('line ' + (i + 1) + ': ' + l.trim().slice(0, 90));
   });
   check('every waLink call is venue-aware or intentionally flagship', flagged.length === 0, flagged.join(' | '));
+  check('every waLink call passes a template id', untagged.length === 0, untagged.join(' | '));
 
   console.log('');
   if (fails) { console.log('WA TEST FAILED: ' + fails + ' failure(s)'); process.exit(1); }

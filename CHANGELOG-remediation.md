@@ -72,3 +72,11 @@ Each entry is one atomic commit, verified against the file as it existed at edit
 - **`js/eatouts-manager-seed.js:14-15`** — the file header now says the reset asks for confirmation first.
 - **Verification (jsdom, 11/11):** no prompt and no wipe without the parameter; `?demo=reset` prompts exactly once and the copy names the irreversibility; **Cancel keeps a real order and the 40 demo rows**; **OK removes the real order and re-seeds the 40 demo rows** (marker back to `3`); an already-current store returns early without prompting.
 
+
+## Commit 9 — Keep `tests/wa.js` in step with the templated `waLink`
+
+- **Problem:** `tests/wa.js` asserted that every call site passes a venue and read it with `/,\s*(r|…)\s*\)/` — i.e. the venue had to be the **last** argument. Commit 4 added the template/context arguments, so eleven legitimate, venue-aware calls stopped matching and the suite failed.
+- **`tests/wa.js:83`** — the rule is now "the venue is the **second** argument": `/,\s*(r|f&&f\.restaurant|evInfo\.restaurant|curRestaurant\(\))\s*[,)]/`. The flagship allow-list is unchanged.
+- **`tests/wa.js:86-90`** — new companion check: *every* `waLink` call must pass a template id (`waLink(..., 'template', ...)`), which is the contract commit 4 introduced (attributable `wa.click` rows).
+- **Verification:** `node tests/wa.js` → **WA TEST PASSED**, including "every waLink call is venue-aware or intentionally flagship" and "every waLink call passes a template id" (15 call sites).
+
