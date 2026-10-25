@@ -396,6 +396,20 @@ setTimeout(() => {
   check('deleteVenue removes the store record', M.find('businesses', 've-t-del') == null);
   check('deleteVenue removes the directory row', !dirRow(del));
 
+  /* ======================== D1: a field-written venue lands canonical ======================== */
+  console.log('\n-- legacy spelling written by the field --');
+  ['bottle_store', 'liquor_store', 'food_truck'].forEach((legacy) => {
+    const id = 've-t-d1-' + legacy.replace(/_/g, '-');
+    const v = F.normaliseVenue({ id: id, name: 'Legacy ' + legacy, type: legacy });
+    M.upsert('businesses', v);
+    const back = F.venueById(id);
+    check('field-written ' + legacy + ' is stored canonical',
+      v.business_type === (legacy === 'food_truck' ? 'foodtruck' : 'bottlestore') &&
+      back && back.business_type === v.business_type && back.type === v.business_type,
+      back && back.business_type);
+    M.remove('businesses', id);
+  });
+
   /* ======================== summary ======================== */
   check('no window errors during the run', errors.length === 0, errors.slice(0, 3).join(' | '));
 

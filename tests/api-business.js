@@ -33,7 +33,8 @@ function fakeDB(seed) {
     invites: [], menu_categories: [], menu_items: [],
     gallery_groups: [], gallery_images: [], events: [],
     business_links: [], claims: [],
-    business_profiles: [], business_contacts: [], business_users: [], business_services: []
+    business_profiles: [], business_contacts: [], business_users: [], business_services: [],
+    favourites: []
   };
   Object.keys(seed || {}).forEach((t) => { db[t] = seed[t].slice(); });
 
@@ -345,6 +346,19 @@ function fakeDB(seed) {
       return mode === 'all' ? rows : (rows[0] || null);
     }
 
+    /* /api/me: the customer row + the onboarding favourite counts */
+    if (s.startsWith('SELECT * FROM users WHERE id = ?')) {
+      return first(db.users.find((u) => u.id === args[0]));
+    }
+    if (s.startsWith('SELECT type, COUNT(*) AS n FROM favourites WHERE user_id = ?')) {
+      const acc = {};
+      db.favourites.filter((f) => f.user_id === args[0]).forEach((f) => {
+        acc[f.type] = (acc[f.type] || 0) + 1;
+      });
+      const rows = Object.keys(acc).map((t) => ({ type: t, n: acc[t] }));
+      return mode === 'all' ? rows : (rows[0] || null);
+    }
+
     if (s.startsWith('DELETE FROM favourites WHERE type = ? AND ref_id = ?')) {
       return { changes: 0 };
     }
@@ -404,6 +418,7 @@ function ctx(env, opts) {
   const contacts = await import(pathToFileURL(path.join(base, 'business', 'contacts.js')).href);
   const teamUsers = await import(pathToFileURL(path.join(base, 'business', 'users.js')).href);
   const services = await import(pathToFileURL(path.join(base, 'business', 'services.js')).href);
+  const me = await import(pathToFileURL(path.join(base, 'me.js')).href);
 
   /* ---- pure helpers ---- */
   check('roleRank orders roles', biz.roleRank('owner') > biz.roleRank('manager') &&
@@ -773,6 +788,41 @@ function ctx(env, opts) {
   /* ---- admin bypass ---- */
   r = await profile.onRequestGet(ctx(env, { token: 'admin', url: 'https://eatouts.test/api/business/profile?restaurant=rest_2' }));
   check('admin bypasses membership', r.status === 200, r.status);
+
+  /* ---- D1: /api/me onboarding counts every bottle-store spelling ---- */
+  /* A migrated row ('bottlestore'), a pre-0015 row ('bottle_store') and an older
+     'liquor_store' row all have to count, and a single user can hold more than
+     one spelling at once (the GROUP BY splits them). */
+  const addFavs = (user, type, n) => {
+    for (let i = 0; i < n; i++) {
+      env.DB._db.favourites.push({ id: 'fav_' + user + '_' + type + '_' + i, user_id: user, type: type, ref_id: 'r' + i });
+    }
+  };
+
+  addFavs('usr_owner', 'restaurant', 5);
+  addFavs('usr_owner', 'bottlestore', 1);
+  r = await me.onRequestGet(ctx(env, { token: 'owner', url: 'https://eatouts.test/api/me' }));
+  j = await r.json();
+  check('me: canonical bottlestore counts as the bottle-store pick',
+    j.user && j.user.onboarding && j.user.onboarding.bottleStore === 1, JSON.stringify(j.user && j.user.onboarding));
+  check('me: 5 restaurants + 1 bottlestore completes onboarding',
+    j.user.onboarding.complete === true && j.user.onboardingStatus === 'complete');
+
+  addFavs('usr_stranger', 'restaurant', 5);
+  addFavs('usr_stranger', 'bottle_store', 1);
+  addFavs('usr_stranger', 'liquor_store', 1);
+  r = await me.onRequestGet(ctx(env, { token: 'stranger', url: 'https://eatouts.test/api/me' }));
+  j = await r.json();
+  check('me: legacy bottle_store + liquor_store rows still count',
+    j.user.onboarding.bottleStore === 2, JSON.stringify(j.user.onboarding));
+  check('me: legacy rows still complete onboarding', j.user.onboarding.complete === true);
+
+  addFavs('usr_menu', 'restaurant', 5);
+  addFavs('usr_menu', 'promo', 2);
+  r = await me.onRequestGet(ctx(env, { token: 'menu', url: 'https://eatouts.test/api/me' }));
+  j = await r.json();
+  check('me: promo favourites are not a bottle store',
+    j.user.onboarding.bottleStore === 0 && j.user.onboarding.complete === false, JSON.stringify(j.user.onboarding));
 
   console.log('');
   console.log(fails ? (fails + ' FAILED') : (checks + ' checks passed'));

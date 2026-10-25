@@ -695,3 +695,28 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: None. `git diff --stat` prints LF->CRLF warnings for all five files (pre-existing repo behaviour, Windows
   autocrlf), not a content change.
 
+
+### [2026-10-25 08:36:00] - [Agent: Cline] - [D1 COMMIT 4/7: regression tests] - [COMMITTED]
+- Task: D1 step 4 - lock the commit-3 behaviour in the suites, tests only (no product code in this commit).
+- Files changed:
+  - tests/api-business.js (+41/-1: `favourites: []` on the fake-D1 store, two fake SQL handlers -
+    `SELECT * FROM users WHERE id = ?` and the onboarding `SELECT type, COUNT(*) AS n FROM favourites ... GROUP BY type`
+    mirroring D1 semantics - an `me.js` import, and 5 checks)
+  - tests/field.js (+14: a legacy-spelling write block before the summary, 3 checks)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Verified:
+  node tests/api-business.js -> 111 checks passed (106 + 5).
+  node tests/field.js -> 145/145 checks passed (142 + 3).
+  What the new checks actually pin down:
+    me: 'bottlestore' (migrated) counts as the bottle-store pick, 5 restaurants + 1 bottlestore => complete
+    me: 'bottle_store' (pre-0015) AND 'liquor_store' (older) on the SAME user => bottleStore 2, still complete
+        - this is the assertion that keeps the `+=` accumulator honest; with `=` it reads 1 and fails
+    me: 5 restaurants + 2 'promo' favourites => bottleStore 0, complete false (the type allowlist is closed)
+    field: a venue written with type 'bottle_store' / 'liquor_store' / 'food_truck' is stored and read back as
+        bottlestore / bottlestore / foodtruck - the field module never persists a legacy spelling
+  Why the fake SQL handlers were added rather than mocked: fakeDB throws 'unhandled SQL' on anything it does not
+  model, so the moment me.js changes its query this suite fails loudly instead of silently returning an empty result.
+- Notes: the field block writes its three venues with ids ve-t-d1-* and M.remove()s them before the summary, so the
+  25-venue seed assertions and the directory-mirror counts above it are unaffected.
+- Errors: None.
+
