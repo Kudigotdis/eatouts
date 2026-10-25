@@ -7,7 +7,9 @@
    - the business record is filled field-by-field without overwriting values;
    - the demo modules (menu, beverage, promos, events, gallery) only populate a
      module that is still empty;
-   - a version marker on the store prevents re-merging on every page load.
+   - a version marker on the store prevents re-merging on every page load;
+   - demo order timestamps are re-anchored to the seed moment (newest = five
+     minutes ago) so "Orders today" is meaningful on the day the demo is seeded.
 
    Add "?demo=reset" to the URL to reset the store and re-seed from scratch. */
 (function () {
@@ -17,7 +19,7 @@
   var DEMO = window.EATOUTS_DEMO;
   if (!DEMO || typeof DEMO !== 'object') return;
 
-  var VERSION = 2;
+  var VERSION = 3;
   var BIZ_ID = 'biz-restaurant';
   var reset = /[?&]demo=reset\b/.test(String((window.location && window.location.search) || ''));
 
@@ -32,6 +34,65 @@
     Object.keys(OBSOLETE).forEach(function (collection) {
       OBSOLETE[collection].forEach(function (id) { if (DB.find(collection, id)) DB.remove(collection, id); });
     });
+  }
+
+  /* ---- Demo order dates -------------------------------------------------
+     The generated dataset ships with frozen dates ("2026-10-10 07:12"), so a
+     store seeded weeks ago shows nothing under "Orders today". Re-anchor the
+     ledger to the seed moment instead: the newest demo order becomes five
+     minutes ago and the older ones keep their spacing. Dates are written in
+     Africa/Gaborone, the same zone operator-dashboard1.html uses to decide
+     what "today" is. */
+  var GABORONE = 'Africa/Gaborone';
+  function gaboroneFormatter() {
+    try {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: GABORONE, year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+      });
+    } catch (e) { return null; }
+  }
+  var DATE_FMT = gaboroneFormatter();
+
+  function stamp(ms) {
+    if (!DATE_FMT) return new Date(ms).toISOString().slice(0, 16).replace('T', ' ');
+    var p = {};
+    DATE_FMT.formatToParts(new Date(ms)).forEach(function (x) { p[x.type] = x.value; });
+    return p.year + '-' + p.month + '-' + p.day + ' ' + p.hour + ':' + p.minute;
+  }
+
+  function parseDemoDate(v) {
+    var t = Date.parse(String(v || '').replace(' ', 'T'));
+    return isFinite(t) ? t : null;
+  }
+
+  /* Rewrites DEMO.orders[].created in place; returns the {from,to} map so the
+     same shift can be applied to copies already sitting in the store. */
+  function anchorDemoOrders() {
+    var list = Array.isArray(DEMO.orders) ? DEMO.orders : [];
+    var times = list.map(function (o) { return parseDemoDate(o && o.created); });
+    var newest = null;
+    times.forEach(function (t) { if (t != null && (newest == null || t > newest)) newest = t; });
+    if (newest == null) return null;
+    var shift = Date.now() - 5 * 60000 - newest;
+    var moved = {};
+    list.forEach(function (o, i) {
+      if (!o || times[i] == null) return;
+      var from = String(o.created || '');
+      o.created = stamp(times[i] + shift);
+      if (o.id != null) moved[String(o.id)] = { from: from, to: o.created };
+    });
+    return moved;
+  }
+
+  function reanchorStored(moved) {
+    if (!moved) return;
+    var touched = false;
+    DB.collection('orders').forEach(function (o) {
+      var m = o && o.id != null ? moved[String(o.id)] : null;
+      if (m && String(o.created || '') === m.from) { o.created = m.to; touched = true; }
+    });
+    if (touched) save();
   }
 
   /* Rename the pre-2.0 generic demo owner to the named demo owner. */
@@ -117,11 +178,14 @@
   prune();
   refreshOwner();
 
+  var moved = anchorDemoOrders();
+
   ['users', 'staff', 'orders', 'deliveries', 'reservations', 'reviews', 'invoices',
    'feedback', 'notifications', 'favourites', 'addresses', 'verification', 'disputes']
     .forEach(function (k) { mergeArray(k, DEMO[k]); });
 
   mergeArray('customerOrders', DEMO.customerOrders, 'orders');
+  reanchorStored(moved);
 
   mergeBusiness();
   mergeSettings(DEMO.settings);

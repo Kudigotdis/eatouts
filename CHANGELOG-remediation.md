@@ -46,3 +46,13 @@ Each entry is one atomic commit, verified against the file as it existed at edit
 - **Verification:** jsdom boot of `index.html` with every local `<script src>` inlined, a restaurant business in `eatouts_manager_v1`, and a saved draft → 12/12 checks pass: bridge returns `true`; exactly one canonical order with `businessId:"biz-restaurant"`; total `115` (100 + 15 delivery); same id in both stores; draft cleared; duplicate send does not duplicate the order; a fresh boot of `js/eatouts-manager-db.js` over the resulting store lists the order (what the operator page sees); no window errors.
 - **Not covered:** the runtime browser click-through (place a real order in the UI). The bridge itself is verified; WhatsApp navigation is unchanged.
 
+
+## Commit 6 — Anchor demo order dates to the seed moment
+
+- **Problem:** the generated demo ledger shipped frozen dates (`"2026-10-10 07:12"`), so `operator-dashboard1.html:46-49` ("Orders today", computed against `Africa/Gaborone`) showed `0` the day the demo was seeded.
+- **`js/eatouts-manager-seed.js:37-94`** — added `anchorDemoOrders()`: parses the dataset's `created` values, shifts them so the newest becomes *five minutes ago*, and writes every value back in `Africa/Gaborone` wall-clock (`YYYY-MM-DD HH:MM`) with `Intl.DateTimeFormat`, i.e. the exact zone the operator page uses to decide what "today" is. Ordering and spacing are preserved; nothing lands in the future.
+- **`reanchorStored(moved)`** — applies the same shift to demo orders already sitting in `eatouts_manager_v1.orders`, but only where the stored `created` still equals the frozen dataset value, so a user-edited timestamp is never overwritten.
+- **`js/eatouts-manager-seed.js:20`** — `VERSION` 2 → 3 so an already-seeded store re-runs once and picks up the re-anchor (the version marker still prevents re-merging on every load).
+- **Verification (jsdom, three stores):** 10/10 checks — 40/40 demo orders seeded; **"Orders today" = 6 on 2026-10-25**; newest demo order 5 minutes old; no future timestamps; gaps between the newest orders unchanged (whole minutes); a legacy `demoSeed:2` store holding the frozen dates is re-anchored to today; a store with a hand-edited `created` keeps it. `tests/demo-seed.js:221` locked the old marker (`demoSeed === 2`) — updated to `3`; that suite is green again.
+- **Limitation:** the anchor is taken at seed time, so the demo shows "today" only on the day it was seeded (and on any later `?demo=reset`). The four hard-coded rows in `js/eatouts-manager-db.js:30-35` (`EO-1001…EO-1004`, dated `2026-10-11`) are untouched — they are the module's own seed, not the demo dataset.
+

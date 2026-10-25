@@ -418,3 +418,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: Added bridgeBusinessId() (slug/restaurantId -> manager business id, fallback first restaurant business) and bridgeDraftOrder(source) writing one deduped order into eatouts_manager_v1.orders and eatouts_order_v1_history, syncing an already-loaded EatoutsMgrDB instance, clearing the draft only after both writes; wired before notifyFieldOrder at split-bill (:9552) and checkout (:9574). Verified with a jsdom boot of index.html: 12/12 checks incl. fresh operator boot listing the order; no window errors.
 - Errors: None
 
+
+### [2026-10-25 04:47:36] - [Agent: Cline] - [COMMITTED]
+- Task: Remediation commit 6 - re-anchor demo order timestamps to the seed moment so "Orders today" is non-zero
+- Files changed: js/eatouts-manager-seed.js, tests/demo-seed.js, CHANGELOG-remediation.md
+- Commit: PENDING
+- Push: PENDING
+- Notes: anchorDemoOrders() shifts DEMO.orders[].created so the newest is 5 minutes ago, formatted in Africa/Gaborone (same zone as operator-dashboard1.html:46); reanchorStored() migrates copies already in eatouts_manager_v1.orders only when created still equals the frozen dataset value; VERSION 2 -> 3.Verified with jsdom (3 stores): Orders today = 6 on 2026-10-25, no future stamps, spacing kept, legacy store migrated, hand-edited date preserved. tests/demo-seed.js version marker expectation updated 2 -> 3 (suite green).
+- Errors: None
+

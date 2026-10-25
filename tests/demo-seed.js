@@ -218,7 +218,7 @@ check('staff manager exposes the five tabs',
   /\["roster","attendance","tips","performance","payroll"\]/.test(staffMgr) &&
   staffMgr.includes('data-tab=') && staffMgr.includes('renderAttendance') && staffMgr.includes('renderPayroll'));
 
-check('version marker set', DB.get().demoSeed === 2, DB.get().demoSeed);
+check('version marker set', DB.get().demoSeed === 3, DB.get().demoSeed);
 
 /* live auth: an investor demo login resolves and routes to analytics */
 try {
