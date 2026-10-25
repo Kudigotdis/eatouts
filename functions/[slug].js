@@ -13,6 +13,9 @@
    Resolution (D1 only):
      1) restaurants table   -> kind: restaurant
      2) business_links      -> kind: bottle_store | catering
+   business_links.type is matched against the canonical slugs (bottlestore,
+   foodtruck) and their legacy spellings (bottle_store, liquor_store,
+   food_truck); the emitted kind keeps the client's existing vocabulary.
    Case-insensitive fallback on business_links.slug.
    ============================================================ */
 import { json } from './api/_shared.js';
@@ -72,8 +75,13 @@ async function assetExists(env, request) {
   return false;
 }
 
+/* Rows written before migration 0015 still say bottle_store / liquor_store /
+   food_truck, so every spelling is accepted here. The emitted kind is NOT
+   changed: the client renders 'bottle_store' | 'catering' | 'restaurant'. */
 function kindForType(type) {
-  if (type === 'bottle_store') return 'bottle_store';
+  if (type === 'bottlestore' || type === 'bottle_store' ||
+      type === 'bottle-store' || type === 'liquor_store') return 'bottle_store';
+  if (type === 'foodtruck' || type === 'food_truck' || type === 'food-truck') return 'foodtruck';
   if (type === 'supplier') return 'catering';
   return type || 'restaurant';
 }

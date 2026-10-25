@@ -653,3 +653,45 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   the test was red before it was green, not that it never broke.
 - Errors: None (git LF->CRLF warnings only, pre-existing repo behaviour).
 
+
+### [2026-10-25 08:20:00] - [Agent: Cline] - [D1 COMMIT 3/7: consumers] - [COMMITTED]
+- Task: D1 step 3 - teach every runtime consumer that reads or writes a business type to accept the canonical slugs
+  (bottlestore / foodtruck) while still resolving every legacy spelling. Five files, 35 insertions / 8 deletions.
+- Files changed:
+  - functions/[slug].js (kindForType: +bottlestore/bottle_store/bottle-store/liquor_store -> 'bottle_store',
+    +foodtruck/food_truck/food-truck -> 'foodtruck'; header comment at :80 says the client vocabulary is unchanged)
+  - functions/api/me.js:16-23 (onboardingState: bottlestore counted with bottle_store/bottle-store/liquor_store,
+    accumulator is `+=` because one user can hold rows under several spellings and the GROUP BY splits them)
+  - functions/api/business/link.js:14-24 (TYPES map now an accept-alias -> canonical-slug map) + :49-51
+    (`TYPES[type]` lookup and `if (!type) return invalid_type`, so an unknown spelling still 400s)
+  - js/eatouts-business-signup.js:107-113 (linkTypeOf: same alias set, returns canonical)
+  - eatouts-customer-signup.html:1364 (onboarding favourite writes type:'bottlestore' instead of 'bottle_store')
+- Verified:
+  node --check clean on me.js, link.js, eatouts-business-signup.js and - because [slug].js is ESM -
+  `Get-Content -LiteralPath 'functions/[slug].js' -Raw | node --check --input-type=module` (a plain `node --check` on a
+  .js ESM file fails on its own `import` statement and would have "passed" a file it never parsed; the bracket in the
+  filename also needs -LiteralPath, PowerShell treats [slug] as a wildcard and silently checks nothing otherwise).
+  Targeted suites: node tests/venue-slug.js -> 31 checks passed; node tests/router.js -> 72 checks passed;
+  node tests/venue-slug-integration.js -> all integration checks passed. The last two matter most because their
+  fixtures still carry type:'bottle_store' (tests/router.js:62, tests/venue-slug.js:35) and tests/venue-slug.js:138
+  still asserts meta.kind === 'bottle_store' - they are the regression proof that the alias path, not just the new
+  spelling, is live.
+  Full suite: node tests/run-all.js -> 57 passed, 0 failed.
+- Grep sweep of what is DELIBERATELY left as legacy spelling (recorded so a future reader does not "fix" them):
+  - functions/[slug].js:83 and venue-about.html:882 still EMIT kind 'bottle_store'. Only the accepted input widened;
+    the client renders 'bottle_store' | 'catering' | 'restaurant' today, and changing what the page receives is a
+    different change with its own blast radius (index.html card renderers).
+  - tests/router.js:62, tests/venue-slug.js:35, tests/field.js:336 keep legacy fixtures on purpose - they are the
+    "old rows still resolve" assertions.
+  - bottle-store-onboarding.html:1544 posts type:'liquor_store'; that is a shipped alias and link.js maps it, so it
+    stays until that page is rewritten for other reasons.
+  - js/eatouts-field.js:741-742 seeds by 'liquor_store'/'food_truck' prefixes; aliases resolve them.
+  - assets/data/business_types.js:76-95 keeps its own alias map (bottle-store, liquorStore, foodTruck, ...); it is the
+    client-side normaliser that runs before any API call, so it is upstream of everything here.
+- Not changed, on purpose: link.js/me.js do not accept the camelCase spellings (liquorStore, foodTruck) that
+  business_types.js and eatouts-field.js do. Grep proves nothing POSTs camelCase - those two files are the only
+  occurrences outside the data file - and business_types.js normalises before the request is built, so adding them to
+  the server maps would be two aliases with no producer. Supplier stays split exactly as commit 1 recorded it.
+- Errors: None. `git diff --stat` prints LF->CRLF warnings for all five files (pre-existing repo behaviour, Windows
+  autocrlf), not a content change.
+

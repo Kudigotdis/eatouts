@@ -13,9 +13,14 @@ async function onboardingState(env, userId) {
       'SELECT type, COUNT(*) AS n FROM favourites WHERE user_id = ? GROUP BY type'
     ).bind(userId).all();
     var rows = (res && res.results) || [];
+    /* Both spellings, permanently: a row written before migration 0015 still
+       says bottle_store / liquor_store, and a client page cached from before
+       the rename still writes bottle_store. += because a single user can hold
+       rows under more than one spelling (the GROUP BY splits them). */
     rows.forEach(function (x) {
       if (x.type === 'restaurant') restaurants = x.n;
-      else if (x.type === 'bottle_store') bottleStore = x.n;
+      else if (x.type === 'bottlestore' || x.type === 'bottle_store' ||
+               x.type === 'bottle-store' || x.type === 'liquor_store') bottleStore += x.n;
     });
   } catch (e) { /* missing table / no backend: treat as not started */ }
   var complete = restaurants >= 5 && bottleStore >= 1;

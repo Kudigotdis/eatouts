@@ -11,7 +11,17 @@ import { json, readJson, now } from './../_shared.js';
 import { requireSession, normalizeSlug, slugReason, countryOf, getRegistry, linkOut } from './../_links.js';
 import { grantClaimMembership } from './../_business.js';
 
-var TYPES = { restaurant: 1, bottle_store: 1, supplier: 1 };
+/* Accept every spelling a client has ever shipped, store the canonical slug.
+   `bottle_store` and `supplier` are the pre-D1 names; `supplier` is kept (the
+   field enum's `event_supplier` is the alias) because business_links rows and
+   business_types.js both call it supplier - see migrations/0015 header. */
+var TYPES = {
+  restaurant: 'restaurant',
+  bottlestore: 'bottlestore', bottle_store: 'bottlestore', 'bottle-store': 'bottlestore',
+  liquor_store: 'bottlestore', 'liquor-store': 'bottlestore',
+  foodtruck: 'foodtruck', food_truck: 'foodtruck', 'food-truck': 'foodtruck',
+  supplier: 'supplier', event_supplier: 'supplier'
+};
 
 export async function onRequestGet(context) {
   var env = context.env;
@@ -36,9 +46,9 @@ export async function onRequestPost(context) {
 
   var b = await readJson(context.request);
   var cc = countryOf(b.country);
-  var type = String(b.type || '').trim();
+  var type = TYPES[String(b.type || '').trim()];
   var refId = String(b.refId || b.ref_id || '').trim();
-  if (!TYPES[type]) return json({ ok: false, error: 'invalid_type' }, 400);
+  if (!type) return json({ ok: false, error: 'invalid_type' }, 400);
   if (!refId) return json({ ok: false, error: 'refId is required' }, 400);
 
   var raw = b.slug;

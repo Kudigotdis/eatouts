@@ -104,9 +104,13 @@
 
   var SL = window.EatoutsSlug;
   function slugOf(v) { return SL ? SL.normalize((v && (v.custom_slug || v.name)) || '') : ''; }
+  /* The field enum speaks canonical slugs now (bottlestore / foodtruck); the
+     legacy spellings stay accepted so a cached page still posts a valid type.
+     'supplier' is the D1 name for the field enum's event_supplier (deferred). */
   function linkTypeOf(t) {
-    if (t === 'liquor_store') return 'bottle_store';
-    if (t === 'event_supplier') return 'supplier';
+    if (t === 'bottlestore' || t === 'bottle_store' || t === 'bottle-store' || t === 'liquor_store') return 'bottlestore';
+    if (t === 'foodtruck' || t === 'food_truck' || t === 'food-truck') return 'foodtruck';
+    if (t === 'event_supplier' || t === 'supplier') return 'supplier';
     return 'restaurant';
   }
   var checkTimer = null;
