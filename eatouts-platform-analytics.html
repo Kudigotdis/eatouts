@@ -551,7 +551,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var d        = EatoutsMgrDB.get();
   var orders   = Array.isArray(d.orders) ? d.orders : [];
   var bizList  = Array.isArray(d.businesses) ? d.businesses : [];
-  var gmv      = orders.reduce(function(s,x){ return s + Number(x.total || 0); }, 0);
+  var gmv      = EatoutsAnalytics.sumMoney(orders, 'total');
   var avgOrder = orders.length ? gmv / orders.length : 0;
 
   /* Businesses grouped by town */

@@ -886,7 +886,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var feedback   = getFeedback();
     var events     = readKey('eatouts_analytics_events_v1');
     var businesses = getVenues();
-    var totalValue = orders.reduce(function(n,o){ return n + Number(o.total || o.grandTotal || 0); }, 0);
+    var totalValue = EatoutsAnalytics.sumMoney(orders, 'total', 'grandTotal');
 
     var metrics =
       '<div class="metric-grid">' +

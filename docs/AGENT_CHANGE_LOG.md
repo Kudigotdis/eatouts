@@ -750,3 +750,42 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   venueTypeLabel stays null-safe (FIELD_TYPES[null] is undefined -> falls back to the raw string).
 - Errors: None.
 
+
+### [2026-10-25 09:25:00] - [Agent: Cline] - [D3 COMMIT 6/7: one definition of money] - [COMMITTED]
+- Task: D3 - give the dashboards one money coercion + one money sum, and delete the four hand-rolled reduce()s that
+  could produce NaN or string concatenation.
+- Files changed:
+  - js/eatouts-analytics.js:117-134 (`money(v)`: null/'' -> 0, isFinite guard -> never NaN/Infinity; `sumMoney(list,
+    field, alt)`: non-array -> 0, skips falsy rows, uses `alt` only when the primary field is missing/blank) and
+    :190-191 (both exported). `sum()` at :113 DELIBERATELY untouched.
+  - analytics-manager.html:3 (`g=o.reduce((s,x)=>s+x.total,0)` -> `EatoutsAnalytics.sumMoney(o,"total")`)
+  - operator-dashboard1.html:47 (today's takings -> `sumMoney(todayOrders,"total","grandTotal")`)
+  - eatouts-staff-admin1.html:889 (totalValue -> `sumMoney(orders, 'total', 'grandTotal')`)
+  - eatouts-platform-analytics.html:554 (gmv -> `sumMoney(orders, 'total')`)
+  - tests/money.js (new, 33 checks) + tests/run-all.js:77-78 (registered after promo-pricing.js)
+- Verified:
+  node --check js/eatouts-analytics.js -> clean. node tests/money.js -> 33 checks passed.
+  Full suite: node tests/run-all.js -> 58 passed, 0 failed (57 + money.js).
+  What each replacement fixes, measured not assumed:
+    analytics-manager.html: `s + x.total` with a numeric-string total CONCATENATED ('1050'), and the first non-numeric
+      total made the whole GMV 'NaN'. EO.money() then rendered 'BWP NaN'. sumMoney + money() -> 0 for garbage.
+    operator-dashboard1 / staff-admin1 / platform-analytics: `Number(x.total || x.grandTotal || 0)` was already guarded
+      against undefined, but not against a non-numeric string ('n/a' -> NaN -> the whole total NaN). `||` also treated a
+      legitimate 0 total as missing. money() fixes both.
+  The alt-column rule is the interesting one and it is pinned by two tests: `total` wins whenever it is present (even a
+  legitimate 0), `grandTotal` is used only when `total` is null/''; a garbage `total` does NOT fall through to
+  `grandTotal` - falling through would silently pick a different number instead of surfacing bad data as 0.
+- Naming, recorded because it is confusing on purpose: `EatoutsAnalytics.money()` COERCES (returns a Number) and
+  `EO.money()` (js/eatouts-manager.js:7) FORMATS (returns 'BWP 12.00'). They are different jobs with the same word, so
+  analytics-manager.html uses both on the same line: sumMoney() to add, EO.money() to print. js/eatouts-brand-kit.js:351
+  has a third money() that formats; out of D3 scope, untouched.
+- Not touched, on purpose: `sum()` (js/eatouts-analytics.js:113) is used for non-price fields (review stars) and keeps
+  `Number(x[field] || 0)`; tests/money.js asserts it still sums plain fields so a later "unify everything" pass cannot
+  quietly reroute star averages through money().
+- Follow-up noted, not fixed: operator-dashboard1.html:94 (`renderReports`) still reduce()s `total || grandTotal` for its
+  own report total. It is the same pattern but a different widget; D3 named four sites and this was not one of them.
+  Left for a decision rather than folded in silently.
+- Errors: the first `node tests/money.js` run failed 1/33 - my own assertion expected 22 where the implementation
+  correctly returns 20 (a garbage `total` does not fall through to `grandTotal`). The assertion was wrong, not the code;
+  it is now split into the two cases it was conflating.
+

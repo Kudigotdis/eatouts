@@ -74,7 +74,8 @@ const SUITES = [
   'login.js',
   'password-reset.js',
   'age-gate.js',
-  'promo-pricing.js'
+  'promo-pricing.js',
+  'money.js'
 ];
 
 function pad(n, width) {

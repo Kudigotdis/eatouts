@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  function renderOverview(){
   const o=orders(),d=deliveries(),pending=o.filter(x=>['new','pending'].includes(String(x.status).toLowerCase())).length,preparing=o.filter(x=>['preparing','accepted'].includes(String(x.status).toLowerCase())).length;
   const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Gaborone',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-  const todayOrders=o.filter(x=>String(x.created||x.placedAt||'').slice(0,10)===today),totalToday=todayOrders.reduce((n,x)=>n+Number(x.total||x.grandTotal||0),0);
+  const todayOrders=o.filter(x=>String(x.created||x.placedAt||'').slice(0,10)===today),totalToday=EatoutsAnalytics.sumMoney(todayOrders,"total","grandTotal");
   const incoming=d.filter(x=>!['delivered','cancelled','complete'].includes(String(x.status).toLowerCase())).length,fb=EatoutsFeedback.all().filter(x=>x.businessId===biz.id&&!['resolved','closed'].includes(x.status)).length;
   const metrics='<div class="grid3">'+EO.metric('Orders today',todayOrders.length,'all order modes')+EO.metric('Revenue logged',EO.money(totalToday),'off-platform recorded value')+EO.metric('Pending orders',pending,'awaiting acceptance')+EO.metric('Orders in progress',preparing,'accepted / preparing')+EO.metric('Deliveries active',incoming,'not yet completed')+EO.metric('Open feedback',fb,'about this business')+'</div>';
   let attention='';

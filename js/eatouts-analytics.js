@@ -114,6 +114,25 @@
     return list.reduce(function (n, x) { return n + Number(x[field] || 0); }, 0);
   }
 
+  /** One price, or 0. Number('abc') is NaN, so the isFinite guard is what
+      keeps NaN or Infinity out of a cash total. Number('') is 0 already. */
+  function money(v) {
+    if (v == null || v === '') return 0;
+    var n = Number(v);
+    return isFinite(n) ? n : 0;
+  }
+
+  /** Sum of a price column across records. `alt` covers the older rows that
+      stored the same amount as grandTotal. Never returns NaN. */
+  function sumMoney(list, field, alt) {
+    return (Array.isArray(list) ? list : []).reduce(function (n, x) {
+      if (!x) return n;
+      var v = x[field];
+      if ((v == null || v === '') && alt) v = x[alt];
+      return n + money(v);
+    }, 0);
+  }
+
   /** Real, business-scoped aggregates from stored records. */
   function businessMetrics(businessId) {
     var id = businessId || currentBusinessId();
@@ -168,6 +187,8 @@
     clear: clear,
     countBy: countBy,
     sum: sum,
+    money: money,
+    sumMoney: sumMoney,
     businessMetrics: businessMetrics,
     platformMetrics: platformMetrics
   };
