@@ -91,7 +91,7 @@ setTimeout(() => {
   /* ======================== enums + constants ======================== */
   console.log('\n-- enums + constants --');
   check('five business types only', Object.keys(F.FIELD_TYPES).length === 5);
-  ['restaurant', 'liquor_store', 'event_supplier', 'food_truck', 'caterer'].forEach(t =>
+  ['restaurant', 'bottlestore', 'event_supplier', 'foodtruck', 'caterer'].forEach(t =>
     check('FIELD_TYPES has ' + t, !!F.FIELD_TYPES[t]));
   check('ESCALATE_DAYS is 7', F.ESCALATE_DAYS === 7);
   check('RISK_DAYS is 20', F.RISK_DAYS === 20);
@@ -104,10 +104,12 @@ setTimeout(() => {
 
   /* ======================== normaliseType ======================== */
   console.log('\n-- normaliseType --');
-  check('bottlestore -> liquor_store', F.normaliseType('bottlestore') === 'liquor_store');
-  check('bottle_store -> liquor_store', F.normaliseType('bottle_store') === 'liquor_store');
-  check('foodtruck -> food_truck', F.normaliseType('foodtruck') === 'food_truck');
-  check('food-truck -> food_truck', F.normaliseType('food-truck') === 'food_truck');
+  check('bottlestore stays bottlestore', F.normaliseType('bottlestore') === 'bottlestore');
+  check('bottle_store -> bottlestore', F.normaliseType('bottle_store') === 'bottlestore');
+  check('liquor_store -> bottlestore', F.normaliseType('liquor_store') === 'bottlestore');
+  check('foodtruck stays foodtruck', F.normaliseType('foodtruck') === 'foodtruck');
+  check('food-truck -> foodtruck', F.normaliseType('food-truck') === 'foodtruck');
+  check('food_truck -> foodtruck', F.normaliseType('food_truck') === 'foodtruck');
   check('supplier -> event_supplier', F.normaliseType('supplier') === 'event_supplier');
   check('unknown -> restaurant', F.normaliseType('banana') === 'restaurant');
 
@@ -122,9 +124,11 @@ setTimeout(() => {
   /* ======================== normaliseVenue keeps type ======================== */
   console.log('\n-- normaliseVenue type preservation --');
   check('raw business_type wins over fallback',
-    F.normaliseVenue({ business_type: 'food_truck', type: 'restaurant' }, 'caterer').business_type === 'food_truck');
+    F.normaliseVenue({ business_type: 'foodtruck', type: 'restaurant' }, 'caterer').business_type === 'foodtruck');
+  check('legacy raw business_type canonicalises',
+    F.normaliseVenue({ business_type: 'food_truck' }, 'restaurant').business_type === 'foodtruck');
   check('raw type used when business_type absent',
-    F.normaliseVenue({ type: 'liquor_store' }, 'restaurant').business_type === 'liquor_store');
+    F.normaliseVenue({ type: 'liquor_store' }, 'restaurant').business_type === 'bottlestore');
   check('fallback type used when raw has none',
     F.normaliseVenue({}, 'caterer').business_type === 'caterer');
   check('type mirrors business_type',
@@ -139,7 +143,7 @@ setTimeout(() => {
   const byType = {};
   seed.forEach(v => { byType[v.business_type] = (byType[v.business_type] || 0) + 1; });
   check('5 per type', JSON.stringify(byType) === JSON.stringify({
-    restaurant: 5, liquor_store: 5, event_supplier: 5, food_truck: 5, caterer: 5
+    restaurant: 5, bottlestore: 5, event_supplier: 5, foodtruck: 5, caterer: 5
   }), JSON.stringify(byType));
   const lostSeed = seed.filter(v => v.closed_outcome === 'closed_lost');
   check('lost seed rows are archived + closed_lost',

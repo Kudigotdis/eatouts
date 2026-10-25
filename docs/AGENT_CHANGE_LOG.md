@@ -593,3 +593,30 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   default) and D3 (one definition of money) remain undecided and unedited.
 - Errors: None
 
+
+### [2026-10-25 07:50:20] - [Agent: Cline] - [D1 COMMIT 1/7: catalog] - [COMMITTED]
+- Task: D1 step 1 - make the field enum use the canonical slugs bottlestore and foodtruck. Supplier DEFERRED by human decision
+  (option A): business_links holds 315 `supplier` rows and 0 `event_supplier`, and `supplier` is canonical in
+  business_types.js (which drives onboarding/dashboard routing), link.js:14, [slug].js:77 and _business.js:178. Only this enum
+  says `event_supplier`, so flipping it would be a 315-row guess. Not touched in commits 1-4; recorded, not fixed.
+- Files changed:
+  - js/eatouts-field.js (header "locked rules" line 18-19; FIELD_TYPES keys liquor_store->bottlestore, food_truck->foodtruck;
+    a 4-line comment above FIELD_TYPES naming the supplier split; normaliseType alias branches expanded)
+  - migrations/0004_business_links.sql:27 (column comment bottle_store -> bottlestore)
+  - tests/field.js (4 assertion clusters moved to the new canonical values; 3 new alias assertions)
+- Verified:
+  FIELD_TYPES = { restaurant, bottlestore, event_supplier, foodtruck, caterer } (5 keys, unchanged count).
+  Alias branches must sit ABOVE the FIELD_TYPES[t] lookup or legacy venues would now fall through to the unknown-type path, so
+  the branches were EXPANDED, not just re-pointed: liquor_store / liquor-store / liquorStore were added (they used to resolve via
+  the FIELD_TYPES key that no longer exists), and food_truck / foodTruck likewise. Every old spelling still resolves:
+    normaliseType('bottle_store') -> 'bottlestore'   normaliseType('liquor_store') -> 'bottlestore'
+    normaliseType('food_truck')   -> 'foodtruck'     normaliseType('food-truck')  -> 'foodtruck'
+    normaliseType('supplier')     -> 'event_supplier' (unchanged)
+  Tests: node --check clean on both files; node tests/field.js -> 142/142 checks passed (was 137/139 before the alias additions).
+  FIELD_SEED still emits 5 per type because it normalises through normaliseVenue (eatouts-field.js:767-769).
+- Correction found while editing (C1 was incomplete, now closed): tests/field.js had FOUR clusters tied to the old canonical
+  values, not three. The missed one was :94, the `FIELD_TYPES has <type>` loop, which surfaced as
+  "FAIL FIELD_TYPES has liquor_store / has food_truck" on the first run. Fixed in this commit; noted here so the record shows
+  the test was red before it was green, not that it never broke.
+- Errors: None (git LF->CRLF warnings only, pre-existing repo behaviour).
+

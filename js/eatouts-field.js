@@ -15,8 +15,9 @@
    rejected / closed_lost venues disappear.
 
    Locked business rules (do not change without the user):
-   - Five types only: restaurant | liquor_store | event_supplier
-     | food_truck | caterer
+   - Five types only: restaurant | bottlestore | event_supplier
+     | foodtruck | caterer   (canonical slugs; every older spelling
+     stays a permanent alias in normaliseType() below)
    - Full setup fee, one payment: P300 first branch + P100 per
      extra branch (P500 first branch after escalation + P100 each).
    - Fee timeline starts on "Start onboarding" (fee_due_at = day 7).
@@ -32,11 +33,15 @@
 
   /* ---------- enums (locked) ---------- */
 
+  /* Keys are canonical slugs (bottlestore, foodtruck). Supplier is the one
+     deferred divergence: this enum says 'event_supplier' while D1
+     business_links, business_types.js, link.js and [slug].js all say
+     'supplier'. normaliseType() bridges them until a human decides. */
   var FIELD_TYPES = {
     restaurant: { label: 'Restaurant' },
-    liquor_store: { label: 'Liquor store' },
+    bottlestore: { label: 'Liquor store' },
     event_supplier: { label: 'Event supplier' },
-    food_truck: { label: 'Food truck' },
+    foodtruck: { label: 'Food truck' },
     caterer: { label: 'Caterer' }
   };
 
@@ -114,10 +119,15 @@
     return t ? t.label : String(type || 'business');
   }
 
+  /* Canonical slugs only. Every legacy spelling below stays a permanent
+     alias: stored venues, seeds and older pages still write liquor_store,
+     bottle_store, bottle-store, food_truck and food-truck. */
   function normaliseType(type) {
     var t = String(type || '');
-    if (t === 'bottlestore' || t === 'bottle_store' || t === 'bottle-store') return 'liquor_store';
-    if (t === 'foodtruck' || t === 'food-truck') return 'food_truck';
+    if (t === 'bottlestore' || t === 'bottle_store' || t === 'bottle-store' ||
+        t === 'liquor_store' || t === 'liquor-store' || t === 'liquorStore') return 'bottlestore';
+    if (t === 'foodtruck' || t === 'food_truck' || t === 'food-truck' ||
+        t === 'foodTruck') return 'foodtruck';
     if (t === 'supplier') return 'event_supplier';
     if (FIELD_TYPES[t]) return t;
     return 'restaurant';

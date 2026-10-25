@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS business_links (
   id           TEXT PRIMARY KEY,
   country_code TEXT NOT NULL DEFAULT 'bw',
   slug         TEXT NOT NULL,             -- canonical lowercase, [a-z0-9.]
-  type         TEXT NOT NULL,             -- restaurant | bottle_store | supplier
+  type         TEXT NOT NULL,             -- restaurant | bottlestore | supplier
   ref_id       TEXT NOT NULL,             -- rest_<slug> | <store/brand id> | <supplier id>
   display_slug TEXT,                      -- owner-preferred capitalization (display only)
   name         TEXT,
