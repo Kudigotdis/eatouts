@@ -190,7 +190,7 @@ function main() {
   try { bottle = loadWindowGlobal(BOTTLE_JS, 'EATOUTS_BOTTLE_STORES'); } catch (e) {}
   if (bottle && Array.isArray(bottle.brands)) {
     bottle.brands.forEach((b) => {
-      push('bottle_store', b.slug || b.brandKey, b.name, [b.towns && b.towns[0]]);
+      push('bottlestore', b.slug || b.brandKey, b.name, [b.towns && b.towns[0]]);
     });
   }
 

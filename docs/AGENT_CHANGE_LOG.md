@@ -594,6 +594,39 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: None
 
 
+
+### [2026-10-25 07:56:43] - [Agent: Cline] - [D1 COMMIT 2/7: data] - [COMMITTED]
+- Task: D1 step 2 - rewrite stored spellings to the canonical slugs and re-emit the generated link artifacts.
+- Files changed:
+  - migrations/0015_canonical_business_types.sql (new, 72 lines) - 4 scoped UPDATEs (business_links + favourites, x bottlestore +
+    foodtruck), all `WHERE type IN (<old>, <new>)` so re-running is a no-op; header records the WHY, the supplier deferral, the
+    "ship code before --remote apply" ordering, and the rollback-as-comment decision.
+  - scripts/build_link_registry.mjs:193 ('bottle_store' -> 'bottlestore') - MOVED HERE from the original commit-3 list. Reason: the
+    seed SQL and link_registry.json are generated, so commit 2 cannot emit new-spelling data while its own generator still says
+    `bottle_store`. Leaving it for commit 3 would have made commit 2 verify nothing.
+  - scripts/seeds/business_links.sql (regenerated) - 47 rows changed type; 838 rows before and after.
+  - assets/data/link_registry.json (regenerated) - 47 entries changed type; 838 slugs, identical slug set, 0 added, 0 removed.
+- Verified (probe rows, local D1, then cleaned up):
+  BEFORE  business_links: bottle_store=1, food_truck=1, liquor_store=1, supplier=1
+  BEFORE  favourites    : bottle_store=1, food_truck=1, promo=1
+  AFTER   business_links: bottlestore=2,      foodtruck=1,         supplier=1   <- 4 rows in, 4 rows out, supplier untouched
+  AFTER   favourites    : bottlestore=1,      foodtruck=1,         promo=1      <- ?type=promo survived, as the WHERE clause intends
+  Row-level: bottle_store:rt-bottle -> bottlestore:rt-bottle, liquor_store:rt-liquor -> bottlestore:rt-liquor,
+  food_truck:rt-truck -> foodtruck:rt-truck, supplier:rt-supp untouched.
+  Idempotency: replayed `wrangler d1 execute --file migrations/0015...` after the tracked apply -> "5 commands executed", counts
+  identical (bottlestore=2, foodtruck=1, supplier=1). No double-mapping, no drift.
+  Cleanup: DELETE favourites (fav_rt%), users (usr_rt_probe), business_links (blk_rt%) - probe user needed because
+  favourites.user_id is FK-constrained, which is why the first INSERT attempt failed with FOREIGN KEY constraint failed.
+  Artifacts: `npm run link-registry` -> "wrote 838 links ({restaurant:476, bottlestore:47, supplier:315})". HEAD-vs-worktree
+  line diff for business_links.sql: onlyOld=47 onlyNew=47, every pair differing exactly at `bottle_store` -> `bottlestore`
+  (codepoints e,_,s,t -> e,s,t,o). link_registry.json: 47 type-only changes, 0 other fields, sameSlugSet=true.
+- Note on diff size: business_links.sql shows 838 lines changed, not 47. That is by design - the generator derives created_at from a
+  content hash ("content-derived epoch (was Date.now()) - deterministic; changes iff inputs change", build_link_registry.mjs:226-231),
+  so editing any input re-stamps every row. Verified the timestamps are the only other change by stripping the trailing
+  `, <ts>, <ts>);` from both revisions and diffing again.
+- Errors: first favourites probe INSERT failed (FOREIGN KEY constraint failed) because no such user existed; added users row
+  usr_rt_probe and retried. Rolled back with the probe cleanup above.
+
 ### [2026-10-25 07:50:20] - [Agent: Cline] - [D1 COMMIT 1/7: catalog] - [COMMITTED]
 - Task: D1 step 1 - make the field enum use the canonical slugs bottlestore and foodtruck. Supplier DEFERRED by human decision
   (option A): business_links holds 315 `supplier` rows and 0 `event_supplier`, and `supplier` is canonical in
