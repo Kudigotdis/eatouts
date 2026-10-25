@@ -33,7 +33,7 @@ function fakeDB(seed) {
     invites: [], menu_categories: [], menu_items: [],
     gallery_groups: [], gallery_images: [], events: [],
     business_links: [], claims: [],
-    business_profiles: [], business_contacts: [], business_users: []
+    business_profiles: [], business_contacts: [], business_users: [], business_services: []
   };
   Object.keys(seed || {}).forEach((t) => { db[t] = seed[t].slice(); });
 
@@ -340,6 +340,10 @@ function fakeDB(seed) {
       const rows = db.business_users.filter((x) => x.business_id === args[0]);
       return mode === 'all' ? rows : (rows[0] || null);
     }
+    if (s.startsWith('SELECT * FROM business_services WHERE business_id = ?')) {
+      const rows = db.business_services.filter((x) => x.business_id === args[0]);
+      return mode === 'all' ? rows : (rows[0] || null);
+    }
 
     if (s.startsWith('DELETE FROM favourites WHERE type = ? AND ref_id = ?')) {
       return { changes: 0 };
@@ -399,6 +403,7 @@ function ctx(env, opts) {
   const eventId = await import(pathToFileURL(path.join(base, 'business', 'events', '[id].js')).href);
   const contacts = await import(pathToFileURL(path.join(base, 'business', 'contacts.js')).href);
   const teamUsers = await import(pathToFileURL(path.join(base, 'business', 'users.js')).href);
+  const services = await import(pathToFileURL(path.join(base, 'business', 'services.js')).href);
 
   /* ---- pure helpers ---- */
   check('roleRank orders roles', biz.roleRank('owner') > biz.roleRank('manager') &&
@@ -452,6 +457,10 @@ function ctx(env, opts) {
     business_users: [
       { id: 'bu_own', business_id: 'biz_own', name: 'Owner One', email: 'owner@x.co', role: 'owner', whatsapp: '26770000001' },
       { id: 'bu_other', business_id: 'biz_other', name: 'Other One', email: 'other@x.co', role: 'owner', whatsapp: '26770000003' }
+    ],
+    business_services: [
+      { id: 'svc_own', business_id: 'biz_own', name: 'Braai Platter', description: 'Meat for two', price: 250, pricing_type: 'fixed', whatsapp_contact_id: 'cnt_own', active: 1, order_index: 0 },
+      { id: 'svc_other', business_id: 'biz_other', name: 'Private Tasting', description: 'Secret menu', price: 900, pricing_type: 'per_person', whatsapp_contact_id: 'cnt_other', active: 1, order_index: 0 }
     ]
   };
   const sessions = {
@@ -539,6 +548,21 @@ function ctx(env, opts) {
 
   r = await teamUsers.onRequestGet(ctx(env, { url: 'https://x/api/business/users?business_id=biz_own' }));
   check('users: no session -> 401', r.status === 401, r.status);
+
+  /* ---- services: cross-tenant read is refused ---- */
+  r = await services.onRequestGet(ctx(env, { token: 'owner', url: 'https://x/api/business/services?business_id=biz_own' }));
+  j = await r.json();
+  check('services: own business -> 200', r.status === 200 && j.services.length === 1 && j.services[0].name === 'Braai Platter', 'status=' + r.status + ' ' + JSON.stringify(j));
+
+  r = await services.onRequestGet(ctx(env, { token: 'owner', url: 'https://x/api/business/services?business_id=biz_other' }));
+  j = await r.json();
+  check('services: other tenant -> 404 not_found', r.status === 404 && j.error === 'not_found', 'status=' + r.status + ' ' + JSON.stringify(j));
+
+  r = await services.onRequestGet(ctx(env, { token: 'stranger', url: 'https://x/api/business/services?business_id=biz_own' }));
+  check('services: signed-in non-owner -> 404', r.status === 404, r.status);
+
+  r = await services.onRequestGet(ctx(env, { url: 'https://x/api/business/services?business_id=biz_own' }));
+  check('services: no session -> 401', r.status === 401, r.status);
 
   /* ---- staff ---- */
   r = await staff.onRequestGet(ctx(env, { token: 'owner', url: 'https://eatouts.test/api/business/staff?restaurant=rest_1' }));
