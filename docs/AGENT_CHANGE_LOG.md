@@ -400,3 +400,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Push: PENDING
 - Notes: Order schema has no stage timestamps so SLA timings were removed rather than computed. freeDaysUsed derived from activeDays of promos without feeCharged, capped at 3 (INCLUDED_PROMO_DAYS_PER_MONTH). node --check passed on all 7 files; X of 3 grep = 0.
 - Errors: None
+
+### [2026-10-25 04:05:11] - [Agent: Cline] - [COMMITTED]
+- Task: Remediation commit 4 - instrument every WhatsApp hand-off (wa.click) on the customer site
+- Files changed: index.html, CHANGELOG-remediation.md
+- Commit: PENDING
+- Push: PENDING
+- Notes: waLink(text,venue,template,context,venueId) now calls EatoutsAnalytics.track("wa.click",{template,venueId,context}) inside try/catch before returning the wa.me URL; js/eatouts-analytics.js added to the page (it was never loaded here); all 15 call sites pass a template id. Verified: 16 waLink refs = 1 definition + 15 tagged calls, inline script node --check OK, tests/run-all.js unchanged (2 pre-existing failures).
+- Errors: None
+

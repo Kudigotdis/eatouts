@@ -882,6 +882,7 @@ a.dlg-btn{text-decoration:none}
 <script src="js/eatouts-content.js"></script>
 <script src="js/eatouts-slug.js"></script>
 <script src="js/eatouts-router.js"></script>
+<script src="js/eatouts-analytics.js"></script>
 
 <script>
 /* ================================================================
@@ -3722,7 +3723,18 @@ function resolveVenueWhatsapp(venue){
   }
   return fallback;
 }
-function waLink(text,venue){return "https://wa.me/"+resolveVenueWhatsapp(venue)+"?text="+encodeURIComponent(text);}
+function waLink(text,venue,template,context,venueId){
+  /* Every WhatsApp hand-off is the only engagement signal we can see today,
+     so log it before navigating. WhatsApp remains order *intent*, not the
+     system of record (the record is the local order collection). */
+  try{
+    if(window.EatoutsAnalytics&&typeof EatoutsAnalytics.track==="function"){
+      var vid=venueId||(venue&&typeof venue==="object"&&(venue.id||venue.slug))||"";
+      EatoutsAnalytics.track("wa.click",{template:template||"untagged",venueId:vid,context:context||""});
+    }
+  }catch(e){}
+  return "https://wa.me/"+resolveVenueWhatsapp(venue)+"?text="+encodeURIComponent(text);
+}
 
 /* ---------- Customer favourites + share actions (dual-mode) ----------
    Saved through window.EatoutsCustomer (server when signed in, localStorage
@@ -6073,7 +6085,7 @@ function renderAboutSocialRow(){
   let row='<div class="social-row">';
   row+=socialSlot("instagram","https://www.instagram.com/theyellowgiraffebw/");
   row+=socialSlot("facebook","https://www.facebook.com/p/The-Yellow-Giraffe-BW-61557884870901/");
-  row+=socialSlot("whatsapp",waLink("*WHATSAPP ENQUIRY — EatOuts*\n\nHi! I would like to know more about EatOuts and the venues available."));
+  row+=socialSlot("whatsapp",waLink("*WHATSAPP ENQUIRY — EatOuts*\n\nHi! I would like to know more about EatOuts and the venues available.",null,"site_enquiry","footer_social"));
   row+=socialSlot("tiktok","");
   row+=socialSlot("twitter","");
   row+=socialSlot("youtube","");
@@ -8968,7 +8980,7 @@ document.addEventListener("click",function(e){
       if(extras.length)msg+="Extras:\n"+extras.join("\n")+"\n";
       msg+="Estimated Total: P"+total.toFixed(2)+"\n\nPlease confirm seat availability.";
     }
-    window.location.href=waLink(msg,f&&f.restaurant);
+    window.location.href=waLink(msg,f&&f.restaurant,"promo_booking","act=waPromo");
     return;
   }
   if(act==="waGallery"){
@@ -8985,7 +8997,7 @@ document.addEventListener("click",function(e){
     const active=bottleActiveBranch(brand);
     const r=(active&&active.phones&&active.phones[0])||null;
     const msg="*BOTTLE STORE ENQUIRY*\n"+brand.name+(active?("\n"+(active.address||active.town||"")):"")+"\n\nHi, I'd like to ask about availability, pricing and delivery.";
-    window.location.href=waLink(msg,r);
+    window.location.href=waLink(msg,r,"bottle_store_enquiry","act=waBottleStore",(active&&(active.id||active.slug))||brand.slug);
     return;
   }
   /* Information icon on a bottle-store card: leave for that store's standalone
@@ -9004,7 +9016,7 @@ document.addEventListener("click",function(e){
       "Tagline: "+POETRY.tag+"\nTickets: "+seats+"\n\n"+
       "Standard/Early Bird P100 | Door P150 | Students P50 | Double P150\n\n"+
       "Please confirm availability and how to pay.";
-    window.location.href=waLink(msg);
+    window.location.href=waLink(msg,null,"poetry_reservation","act=waPoetry");
     return;
   }
   if(act==="waFeatEvent"){
@@ -9018,7 +9030,7 @@ document.addEventListener("click",function(e){
     if(ev.tickets&&ev.tickets.length) msg+="Tickets: "+ev.tickets.map(function(x){return x.label+" "+x.price;}).join(" | ")+"\n";
     if(ev.outlets&&ev.outlets.length) msg+="Tickets from: "+ev.outlets.join(", ")+"\n";
     msg+="\nPlease share more details and how to book.";
-    window.location.href=waLink(msg);
+    window.location.href=waLink(msg,null,"featured_event_enquiry","act=waFeatEvent",ev.id||ev.slug);
     return;
   }
   if(act==="waEvent"){
@@ -9038,7 +9050,7 @@ document.addEventListener("click",function(e){
     const day=evInfo.day || (evInfo.event.day || "Today");
     const venueName=(evInfo.restaurant && evInfo.restaurant.name) || (PROFILE && PROFILE.name) || "EatOuts";
     const msg="*EVENT INQUIRY*\nEvent: "+(evInfo.event.name || evInfo.event.title || "Event")+"\nVenue: "+venueName+"\nDay: "+day+"\nTime: "+(evInfo.event.time || "TBC")+"\n\nPlease share more details.";
-    window.location.href=waLink(msg,evInfo.restaurant);
+    window.location.href=waLink(msg,evInfo.restaurant,"event_enquiry","act=waEvent");
     return;
   }
   if(act==="pickTown"){
@@ -9177,9 +9189,9 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     state.restLocPicker=null;render();return;
   }
   if(act==="backRestPromo"){if(state.restaurantView){state.restaurantView.view="promos";state.restaurantView.promoId=null;}render();return;}
-  if(act==="waVenue"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const venueType=document.getElementById("venueType")||{};const venueDate=document.getElementById("venueDate")||{};const venuePax=document.getElementById("venuePax")||{};const venueNotes=document.getElementById("venueNotes")||{};const msg="*VENUE BOOKING INQUIRY*\nVenue: "+venue+"\nEvent Type: "+(venueType.value||"TBC")+"\nDate: "+(venueDate.value||"TBC")+"\nGuests: "+(venuePax.value||"TBC")+"\nNotes: "+(venueNotes.value||"N/A");window.location.href=waLink(msg,r);return;}
-  if(act==="waRestPromo"){const r=hasBridge()?EatoutsBridge.byId(id):null;const promo=(r && EatoutsBridge.bundleOf(r.id)) ? ((function(){for(const d in EatoutsBridge.bundleOf(r.id).promos){const found=(EatoutsBridge.bundleOf(r.id).promos[d]||[]).find(x=>x.id===t.getAttribute("data-promo"));if(found)return found;}return null;})()) : null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const p=promo||{};const msg="*PROMO ENQUIRY*\nVenue: "+venue+"\nPromo: "+(p.title||"Promo")+"\nPrice: P"+(p.price||0)+"\nValid: "+(p.valid||"TBC")+"\n\nPlease confirm availability.";window.location.href=waLink(msg,r);return;}
-  if(act==="waRestAbout"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const msg="*VENUE INQUIRY*\nVenue: "+venue+"\n\nHi! I'd like to know more about this location.";window.location.href=waLink(msg,r);return;}
+  if(act==="waVenue"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const venueType=document.getElementById("venueType")||{};const venueDate=document.getElementById("venueDate")||{};const venuePax=document.getElementById("venuePax")||{};const venueNotes=document.getElementById("venueNotes")||{};const msg="*VENUE BOOKING INQUIRY*\nVenue: "+venue+"\nEvent Type: "+(venueType.value||"TBC")+"\nDate: "+(venueDate.value||"TBC")+"\nGuests: "+(venuePax.value||"TBC")+"\nNotes: "+(venueNotes.value||"N/A");window.location.href=waLink(msg,r,"venue_booking","act=waVenue");return;}
+  if(act==="waRestPromo"){const r=hasBridge()?EatoutsBridge.byId(id):null;const promo=(r && EatoutsBridge.bundleOf(r.id)) ? ((function(){for(const d in EatoutsBridge.bundleOf(r.id).promos){const found=(EatoutsBridge.bundleOf(r.id).promos[d]||[]).find(x=>x.id===t.getAttribute("data-promo"));if(found)return found;}return null;})()) : null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const p=promo||{};const msg="*PROMO ENQUIRY*\nVenue: "+venue+"\nPromo: "+(p.title||"Promo")+"\nPrice: P"+(p.price||0)+"\nValid: "+(p.valid||"TBC")+"\n\nPlease confirm availability.";window.location.href=waLink(msg,r,"promo_enquiry","act=waRestPromo");return;}
+  if(act==="waRestAbout"){const r=hasBridge()?EatoutsBridge.byId(id):null;const venue=(r&&r.name)||(PROFILE&&PROFILE.name)||"EatOuts";const msg="*VENUE INQUIRY*\nVenue: "+venue+"\n\nHi! I'd like to know more about this location.";window.location.href=waLink(msg,r,"venue_about","act=waRestAbout");return;}
   if(act==="openRestTownPicker"){
     state.restTownPicker=!state.restTownPicker;state.restAreaPicker=false;state.restTypePicker=false;
     state.restTypeDraft=state.restTypes.slice();state.restTypeSearch="";renderControlBar();return;
@@ -9328,7 +9340,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     const r=(active&&active.phones&&active.phones[0])||null;
     const where=[(active&&active.address),(active&&active.town)].filter(Boolean).join(", ");
     const msg="*CATERING ENQUIRY*\n"+brand.name+(where?("\n"+where):"")+"\n\nHi, I'd like to ask about your catering services, pricing and availability.";
-    window.location.href=waLink(msg,r);
+    window.location.href=waLink(msg,r,"catering_enquiry","act=waCatering",(active&&(active.id||active.slug))||brand.slug);
     return;
   }
   /* BAKERY DIRECTORY */
@@ -9342,7 +9354,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     const r={whatsapp:num};
     const where=[b.address,b.area,b.town].filter(Boolean).join(", ");
     const msg="*BAKERY ENQUIRY*\n"+b.name+(where?("\n"+where):"")+"\n\nHi, I'd like to ask about your products, pricing and availability.";
-    window.location.href=waLink(msg,r);
+    window.location.href=waLink(msg,r,"bakery_enquiry","act=waBakery",b.id||b.slug);
     return;
   }
   if(act==="openBottleTownFilter"){state.bottleTownFilter=!state.bottleTownFilter;state.bottleAreaFilter=false;state.bevTypePicker=false;renderControlBar();return;}
@@ -9371,7 +9383,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     return;
   }
   if(act==="bevSendWaGeneric"){
-    window.location.href=waLink(bevOrderText(),'26771829765');return;
+    window.location.href=waLink(bevOrderText(),'26771829765',"beverage_order","act=bevSendWaGeneric");return;
   }
   if(act==="bevShareWa"){
     window.location.href=waShareLink(bevOrderText());return;
@@ -9461,7 +9473,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
       alert("Please enter your name and contact number.");return;
     }
     notifyFieldOrder(curRestaurant());
-    window.location.href=waLink(buildFullBillMessage(),curRestaurant());
+    window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_split_bill","act=waSplitRestaurant");
     return;
   }
   if(act==="waSplitPerson"){
@@ -9482,7 +9494,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     if(!state.orderName.trim()||!state.orderContact.trim()){alert("Please enter your name and contact number.");return;}
     if(cartTotal()<=0){alert("Your cart is empty.");return;}
     notifyFieldOrder(curRestaurant());
-    window.location.href=waLink(buildFullBillMessage(),curRestaurant());
+    window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_checkout","act=waOrder");
     return;
   }
 
@@ -9615,7 +9627,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
   }
   if(act==="waAbout"){
     const msg="*INQUIRY — EatOuts*\n\nHi! I'd like to know more about EatOuts and the venues available.";
-    window.location.href=waLink(msg);
+    window.location.href=waLink(msg,null,"about_enquiry","act=waAbout");
     return;
   }
 });

@@ -28,3 +28,11 @@ Each entry is one atomic commit, verified against the file as it existed at edit
 - **`dashboards/eatouts-restaurant-dashboard.html`:** fixed the dead render path — `renderPromos()` targeted `#promosSection`, which did not exist in the markup (the other five dashboards already had it). Added `<div id="promosSection"></div>` inside `<main class="scroll">`.
 - **Verification:** `Select-String` for `X of 3` across `dashboards/*.html` → 0 hits; `freeDaysUsed` present in all six; `node --check` on all seven files' inline scripts → SYNTAX OK; `analytics-manager.html` grep for `Real aggregates|Acceptance SLA|Kitchen preparation time|Dispatch/delivery time` → 0 hits.
 
+## Commit 4 — Track every WhatsApp hand-off
+
+- **`index.html:3726`** — `waLink(text,venue)` → `waLink(text,venue,template,context,venueId)`; logs `EatoutsAnalytics.track("wa.click",{template,venueId,context})` **before** returning the `wa.me` URL. Wrapped in `try{}catch{}` so a missing analytics module can never block navigation. `venueId` prefers the explicit override (needed where the venue argument is only a phone string), then `venue.id || venue.slug`.
+- **`index.html:885`** — added `<script src="js/eatouts-analytics.js"></script>` (the module was **not** loaded on the customer site before this commit; only one page — `js/eatouts-manager.js:135` — ever called `track`).
+- **All 15 call sites now pass a template id:** `site_enquiry` (footer social slot), `promo_booking` (`act=waPromo`), `bottle_store_enquiry`, `poetry_reservation`, `featured_event_enquiry`, `event_enquiry`, `venue_booking`, `promo_enquiry`, `venue_about`, `catering_enquiry`, `bakery_enquiry`, `beverage_order`, `order_split_bill`, `order_checkout`, `about_enquiry`.
+- **Verification:** `Select-String` for `waLink(` → 16 refs = 1 definition + 15 call sites, every call now carries a template argument (no 2-arg calls remain); inline script extracted → `node --check` SYNTAX OK; `node tests/run-all.js` → same 2 pre-existing failures, no new ones.
+
+
