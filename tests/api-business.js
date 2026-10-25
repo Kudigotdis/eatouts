@@ -32,7 +32,8 @@ function fakeDB(seed) {
     restaurants: [], memberships: [], users: [],
     invites: [], menu_categories: [], menu_items: [],
     gallery_groups: [], gallery_images: [], events: [],
-    business_links: [], claims: []
+    business_links: [], claims: [],
+    business_profiles: [], business_contacts: [], business_users: []
   };
   Object.keys(seed || {}).forEach((t) => { db[t] = seed[t].slice(); });
 
@@ -322,6 +323,24 @@ function fakeDB(seed) {
       return null;
     }
 
+    /* business_profiles ownership lookup (contacts/users GET guard) */
+    if (s.startsWith('SELECT id FROM business_profiles WHERE id = ? AND user_id = ?')) {
+      return first(db.business_profiles.find((x) => x.id === args[0] && x.user_id === args[1]));
+    }
+    if (s.startsWith('SELECT * FROM business_profiles WHERE id = ?')) {
+      return first(db.business_profiles.find((x) => x.id === args[0]));
+    }
+
+    /* business contacts + team members */
+    if (s.startsWith('SELECT * FROM business_contacts WHERE business_id = ?')) {
+      const rows = db.business_contacts.filter((x) => x.business_id === args[0]);
+      return mode === 'all' ? rows : (rows[0] || null);
+    }
+    if (s.startsWith('SELECT * FROM business_users WHERE business_id = ?')) {
+      const rows = db.business_users.filter((x) => x.business_id === args[0]);
+      return mode === 'all' ? rows : (rows[0] || null);
+    }
+
     if (s.startsWith('DELETE FROM favourites WHERE type = ? AND ref_id = ?')) {
       return { changes: 0 };
     }
@@ -378,6 +397,8 @@ function ctx(env, opts) {
   const giId = await import(pathToFileURL(path.join(base, 'business', 'gallery', 'images', '[id].js')).href);
   const events = await import(pathToFileURL(path.join(base, 'business', 'events.js')).href);
   const eventId = await import(pathToFileURL(path.join(base, 'business', 'events', '[id].js')).href);
+  const contacts = await import(pathToFileURL(path.join(base, 'business', 'contacts.js')).href);
+  const teamUsers = await import(pathToFileURL(path.join(base, 'business', 'users.js')).href);
 
   /* ---- pure helpers ---- */
   check('roleRank orders roles', biz.roleRank('owner') > biz.roleRank('manager') &&
@@ -419,6 +440,18 @@ function ctx(env, opts) {
     memberships: [
       { id: 'mem_owner1', user_id: 'usr_owner', restaurant_id: 'rest_1', role: 'owner', status: 'active', created_at: 1 },
       { id: 'mem_mark1', user_id: 'usr_mark', restaurant_id: 'rest_1', role: 'marketing_manager', status: 'active', created_at: 2 }
+    ],
+    business_profiles: [
+      { id: 'biz_own', user_id: 'usr_owner', slug: 'the-yard', name: 'The Yard', status: 'published' },
+      { id: 'biz_other', user_id: 'usr_other', slug: 'bar-one', name: 'Bar One', status: 'published' }
+    ],
+    business_contacts: [
+      { id: 'cnt_own', business_id: 'biz_own', title: 'Owner', country_code: '+267', number: '70000001', purpose: 'Bookings', primary: 1, whatsapp: 1, active: 1, order_index: 0 },
+      { id: 'cnt_other', business_id: 'biz_other', title: 'Secret', country_code: '+267', number: '70009999', purpose: 'Private', primary: 1, whatsapp: 1, active: 1, order_index: 0 }
+    ],
+    business_users: [
+      { id: 'bu_own', business_id: 'biz_own', name: 'Owner One', email: 'owner@x.co', role: 'owner', whatsapp: '26770000001' },
+      { id: 'bu_other', business_id: 'biz_other', name: 'Other One', email: 'other@x.co', role: 'owner', whatsapp: '26770000003' }
     ]
   };
   const sessions = {
@@ -474,6 +507,38 @@ function ctx(env, opts) {
   check('non-member profile -> 403', r.status === 403, r.status);
   r = await profile.onRequestGet(ctx(env, { token: 'owner', url: 'https://eatouts.test/api/business/profile?restaurant=rest_2' }));
   check('owner of other venue -> 403', r.status === 403, r.status);
+
+  /* ---- contacts / users: cross-tenant reads are refused ---- */
+  r = await contacts.onRequestGet(ctx(env, { token: 'owner', url: 'https://x/api/business/contacts?business_id=biz_own' }));
+  j = await r.json();
+  check('contacts: own business -> 200', r.status === 200 && j.contacts.length === 1 && j.contacts[0].number === '70000001', 'status=' + r.status + ' ' + JSON.stringify(j));
+
+  r = await contacts.onRequestGet(ctx(env, { token: 'owner', url: 'https://x/api/business/contacts?business_id=biz_other' }));
+  j = await r.json();
+  check('contacts: other tenant -> 404 not_found', r.status === 404 && j.error === 'not_found', 'status=' + r.status + ' ' + JSON.stringify(j));
+
+  r = await contacts.onRequestGet(ctx(env, { token: 'stranger', url: 'https://x/api/business/contacts?business_id=biz_own' }));
+  check('contacts: signed-in non-owner -> 404', r.status === 404, r.status);
+
+  r = await contacts.onRequestGet(ctx(env, { url: 'https://x/api/business/contacts?business_id=biz_own' }));
+  check('contacts: no session -> 401', r.status === 401, r.status);
+
+  r = await contacts.onRequestGet(ctx(env, { token: 'owner', url: 'https://x/api/business/contacts' }));
+  check('contacts: no business_id -> 400', r.status === 400, r.status);
+
+  r = await teamUsers.onRequestGet(ctx(env, { token: 'owner', url: 'https://x/api/business/users?business_id=biz_own' }));
+  j = await r.json();
+  check('users: own business -> 200', r.status === 200 && j.users.length === 1 && j.users[0].email === 'owner@x.co', 'status=' + r.status + ' ' + JSON.stringify(j));
+
+  r = await teamUsers.onRequestGet(ctx(env, { token: 'owner', url: 'https://x/api/business/users?business_id=biz_other' }));
+  j = await r.json();
+  check('users: other tenant -> 404 not_found', r.status === 404 && j.error === 'not_found', 'status=' + r.status + ' ' + JSON.stringify(j));
+
+  r = await teamUsers.onRequestGet(ctx(env, { token: 'stranger', url: 'https://x/api/business/users?business_id=biz_other' }));
+  check('users: signed-in non-owner -> 404', r.status === 404, r.status);
+
+  r = await teamUsers.onRequestGet(ctx(env, { url: 'https://x/api/business/users?business_id=biz_own' }));
+  check('users: no session -> 401', r.status === 401, r.status);
 
   /* ---- staff ---- */
   r = await staff.onRequestGet(ctx(env, { token: 'owner', url: 'https://eatouts.test/api/business/staff?restaurant=rest_1' }));
