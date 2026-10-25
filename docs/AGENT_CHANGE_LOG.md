@@ -505,3 +505,41 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   which folded contacts.js into the helper commit. Recovered with git reset 81e61ab (mixed, nothing
   pushed yet) and re-ran the four commits sequentially - history is now one file per commit.
 
+
+### [2026-10-25 07:11:45] - [Agent: Cline] - [COMMITTED]
+- Task: Close the cross-tenant read in GET /api/business/services, and correct the earlier entry that also named GET /api/business/profiles as a leak
+- Files changed:
+  - functions/api/business/services.js (+5/-1: requireBusinessOwner import + guard in onRequestGet)
+  - tests/api-business.js (+25/-1: business_services fake-D1 table, two seed rows, 4 regression checks)
+  - docs/AGENT_CHANGE_LOG.md (this entry; the earlier entry's claim at :496 is DELIBERATELY left untouched)
+- Commits: 663a45f (services GET guard), fde7f61 (regression checks), this entry (docs)
+- Push: PENDING
+- Notes:
+  RETRACTION FIRST. The contacts/users entry says business/services.js GET and business/profiles.js GET
+  "have the same shape (session only + business_id from the query)". Half of that is false.
+  business/profiles.js was read end to end: onRequestGet resolves membership inline at :58-61
+  (SELECT ... FROM business_profiles WHERE id = ? AND user_id = ?; 404 when no row) before it fetches
+  anything, so it is guarded exactly like requireBusinessOwner. It is not a hole and never was.
+  How the wrong claim happened: the route files were swept with a regex for requireBusinessOwner /
+  requireMembership calls. An inline owner SELECT does not match that pattern, so a guarded handler and an
+  unguarded one score the same under grep. A pattern match is not a read; the correction was made by
+  opening the files, not by re-running a better regex.
+  Corrections are appended, never edited into the old entry: the wrong claim stays visible with the
+  retraction underneath it, so the log keeps its history instead of quietly rewriting it. :496 is
+  untouched on purpose.
+  THE OTHER HALF WAS RIGHT. services.js GET called requireSession only, then ran
+  SELECT * FROM business_services WHERE business_id = ? on whatever id the caller passed, so any signed-in
+  user could list another venue's service names, descriptions and prices. Fix is the guard the
+  POST/PATCH/DELETE handlers in the same file already used: requireBusinessOwner(c, businessId) right after
+  the blank-id check. Contract unchanged: no session 401, blank business_id 400 business_id_required,
+  foreign or unknown id 404 not_found (404 rather than 403 so the route never confirms another tenant's id).
+  RE-AUDIT, BY READING. All 12 route files that export onRequestGet were opened and read in full -
+  contacts, events, gallery, link, menu, mine, profile, profiles, promos, services, staff, users - plus the
+  [id]-suffixed sub-routes that only carry PATCH/DELETE. Every GET resolves membership (requireMembership,
+  requireBusinessOwner, requireMenuManager, or an inline owner SELECT) before its own SELECT. services.js
+  was the only unguarded read in the route; no other handler needed a change.
+  Verified: node tests/api-business.js -> 106 checks passed (102 + 4 new: own business 200 with the row,
+  other tenant 404 not_found, signed-in non-owner 404, no session 401). node tests/run-all.js ->
+  57 passed, 0 failed.
+- Errors: None
+
