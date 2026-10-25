@@ -543,3 +543,43 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   57 passed, 0 failed.
 - Errors: None
 
+
+### [2026-10-25 05:31:12] - [Agent: Cline] - [VERIFIED] [COMMITTED]
+- Task: Close the one open claim from the services GET entry - "no live wrangler dev request was made" - by exercising the guard on a running route. No product code changed.
+- Files changed:
+  - docs/AGENT_CHANGE_LOG.md (this entry only)
+- Verified:
+  Environment: wrangler 4.148.0 on PATH (project pins ^4.151.0 in devDependencies; no node_modules/.bin, so npx resolved the global
+  binary). wrangler.toml binds DB -> D1 eatouts and OPS_KV, and [vars] sets ENV = "development", so /api/auth/dev-login is live.
+  Documented dev command is `npx wrangler pages dev dist` (package.json: preview / pages:dev); dist/ already built (2055 files), and
+  Pages reads ./functions from the source tree, so the route under test is the working copy, not a stale bundle.
+  Local state before the run: .wrangler/state/v3 D1 already had the full schema (business_profiles, business_services, users, ...)
+  but 0 rows in each of the three tables used here - a clean slate, nothing of the user's to overwrite.
+  Seeded for the run, via a temp .sql in %TEMP% (never inside the repo): users usr_rt_a / usr_rt_b, business_profiles biz_own
+  (usr_rt_a) and biz_other (usr_rt_b), business_services svc_own (biz_own) and svc_other (biz_other, price 99.9).
+  Server: npx wrangler pages dev dist --port 8788 --ip 127.0.0.1; GET /api/health -> 200
+  {"ok":true,"env":"development","bindings":{"db":true,"kv":true,...}} after 3s.
+  Session: POST /api/auth/dev-login {"email":"ambitious450@gmail.com"} -> 200 {"ok":true,"user":{"id":"usr_rt_a",...}}.
+  Requests, run twice - once through Invoke-WebRequest with a cookie session, once through curl.exe with a cookie jar; identical results:
+    GET /api/business/services?business_id=biz_own    -> 200 {"ok":true,"services":[{svc_own...}]}      (harness: 200)
+    GET /api/business/services?business_id=biz_other  -> 404 {"ok":false,"error":"not_found"}          (harness: 404)
+    GET /api/business/services?business_id=           -> 400 {"ok":false,"error":"business_id_required"} (harness: 400)
+    GET /api/business/services (no session)           -> 401 {"ok":false,"error":"not_authenticated"}   (harness: 401)
+    GET /api/business/services?business_id=biz_nope   -> 404 {"ok":false,"error":"not_found"}          (unknown id, same as foreign)
+  svc_other / price 99.9 appears in no response body. The live route behaves identically to the fake-D1 harness on all four cases.
+  ADMIN FLAG DOES NOT BYPASS THIS GUARD - worth recording. The single email in DEV_LOGIN_EMAILS is also the single email in
+  ADMIN_EMAILS, so the session in this run was an admin session (isAdmin:true), and it still got 404 on biz_other.
+  That is correct, not a bug: requireBusinessOwner (_business.js:51-59) is a plain
+  SELECT id FROM business_profiles WHERE id = ? AND user_id = ? with no admin branch, unlike requireBusiness, which
+  deliberately reports admins as 'owner'. So the observed 404 holds for admin and non-admin sessions alike, since the isAdmin
+  flag is never consulted on this path. Nothing changed here - noted so a future reader does not "fix" the missing bypass.
+  Teardown: taskkill /PID <cmd> /T /F, port 8788 no longer listening, no workerd/wrangler processes left. Seeded rows deleted and
+  counts confirmed back to profiles 0 / services 0 / users 0, so local D1 is as it was found. One local KV session row remains in
+  the gitignored .wrangler/state/v3 - harmless, expires like any session.
+- Not done, on purpose:
+  Phase 2 wrote the one-page decision brief for D1 (canonical business-type slug), D2 (normaliseType() silent 'restaurant'
+  default) and D3 (one definition of money) and delivered it in-session. Zero files touched for D1/D2/D3, nothing committed for
+  them: all three are waiting on a human pick, not on an agent. This entry is the only commit from the session.
+- Errors: two `wrangler d1 execute --local` calls issued in parallel collided with
+  "Failed to get session commit token: internal error"; local D1 commands must be run one at a time.
+
