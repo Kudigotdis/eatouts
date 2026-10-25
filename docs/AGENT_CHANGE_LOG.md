@@ -720,3 +720,33 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   25-venue seed assertions and the directory-mirror counts above it are unaffected.
 - Errors: None.
 
+
+### [2026-10-25 09:02:00] - [Agent: Cline] - [D2 COMMIT 5/7: normaliseType] - [COMMITTED]
+- Task: D2 - remove the silent 'restaurant' default from normaliseType() and stop guessing at the rows it used to swallow.
+- Files changed:
+  - js/eatouts-field.js:130-139 (normaliseType returns null for an unknown type, comment explains why)
+  - js/eatouts-field.js:143-147 (venueDefaults keeps an untracked type verbatim: `normaliseType(type) || String(type || '')`)
+  - js/eatouts-field.js:203-209 (normaliseVenue does the same for raw.business_type || raw.type || fallback)
+  - js/eatouts-field.js:240-262 (allVenues() filters on the presence of `b.type || b.business_type` instead of on
+    normaliseType()'s old always-truthy result, and pushes the unclassifiable rows into `_skipped`; new exported
+    `skippedVenues()` returns a copy)
+  - tests/field.js:114-115 (banana -> null, '' / undefined -> null), :139-142 (an untracked type is kept verbatim),
+    :168-186 (bakery survives allVenues, is not a restaurant, is not in fieldVenues; a typeless row is skipped and
+    reported; skippedVenues resets)
+- Verified:
+  node --check clean on both files. node tests/field.js -> 152/152 checks passed (145 + 7).
+  Full suite: node tests/run-all.js -> 57 passed, 0 failed.
+  What actually changes in behaviour:
+    F.normaliseType('bakery')        'restaurant' -> null      (callers decide, the module no longer lies)
+    F.venueDefaults('bakery')        business_type 'restaurant' -> 'bakery'
+    F.normaliseVenue({type:'bakery'}) business_type 'restaurant' -> 'bakery'
+    allVenues() row with no type     silently 'restaurant' -> left out, returned by skippedVenues()
+  Why this is the fix and not a rename: normaliseType's old fallthrough meant a bakery or an event supplier row
+  read through the field stack came back as a restaurant, so it was counted in the restaurant buckets and rendered
+  with the restaurant label. Four call sites read the return value - venueTypeLabel (:123), venueDefaults (:146),
+  normaliseVenue (:207) and the old allVenues filter (:253) - and every one of them was updated in this commit;
+  there is no fifth caller (git grep normaliseType, 2026-10-25).
+- Not touched, on purpose: functions/api/upload.js:34 has its own unrelated normaliseType() for content types.
+  venueTypeLabel stays null-safe (FIELD_TYPES[null] is undefined -> falls back to the raw string).
+- Errors: None.
+

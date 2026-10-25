@@ -121,7 +121,12 @@
 
   /* Canonical slugs only. Every legacy spelling below stays a permanent
      alias: stored venues, seeds and older pages still write liquor_store,
-     bottle_store, bottle-store, food_truck and food-truck. */
+     bottle_store, bottle-store, food_truck and food-truck.
+     An unknown type returns null - NOT 'restaurant'. A silent restaurant
+     default is how a bakery or a supplier listing used to be counted and
+     rendered as a restaurant in the field views. Callers keep the raw
+     string instead (venueDefaults/normaliseVenue) or skip the row and
+     report it (allVenues/skippedVenues). */
   function normaliseType(type) {
     var t = String(type || '');
     if (t === 'bottlestore' || t === 'bottle_store' || t === 'bottle-store' ||
@@ -130,13 +135,15 @@
         t === 'foodTruck') return 'foodtruck';
     if (t === 'supplier') return 'event_supplier';
     if (FIELD_TYPES[t]) return t;
-    return 'restaurant';
+    return null;
   }
 
   /* ---------- venue shape (T3/T4/T5 data model) ---------- */
 
   function venueDefaults(type) {
-    var t = normaliseType(type);
+    /* A type this module does not track is kept verbatim rather than coerced:
+       'bakery' stays 'bakery' so the row keeps meaning when it is read back. */
+    var t = normaliseType(type) || String(type || '');
     return {
       id: 've-' + now().toString(36),
       name: '',
@@ -194,7 +201,10 @@
 
   function normaliseVenue(raw, type) {
     var v = Object.assign(venueDefaults(type), clone(raw || {}));
-    v.business_type = normaliseType((raw && (raw.business_type || raw.type)) || type);
+    /* Known types land on the canonical slug; anything else keeps its own
+       spelling (see normaliseType above). */
+    var rawType = (raw && (raw.business_type || raw.type)) || type;
+    v.business_type = normaliseType(rawType) || String(rawType || '');
     v.type = v.business_type;
     if (String(v.id) === '' || v.id == null) v.id = 've-' + now().toString(36);
     v.slug = String(v.slug || slugOf(v.name, v.id));
@@ -228,13 +238,27 @@
 
   /* ---------- reads ---------- */
 
+  /* Rows allVenues() could not classify (no type stored at all). Reported,
+     never guessed: they used to be relabelled 'restaurant' and then showed up
+     in the restaurant counts. Reset on every allVenues() call. */
+  var _skipped = [];
+
   function allVenues() {
     var d = db();
+    _skipped = [];
     if (!d) return [];
-    return d.collection('businesses')
-      .filter(function (b) { return b && b.id && normaliseType(b.type || b.business_type); })
-      .map(function (b) { return normaliseVenue(b); });
+    var out = [];
+    d.collection('businesses').forEach(function (b) {
+      if (!b || !b.id) return;
+      var raw = b.type || b.business_type;
+      if (!String(raw || '').trim()) { _skipped.push(b); return; }
+      out.push(normaliseVenue(b));
+    });
+    return out;
   }
+
+  /* The rows the last allVenues()/fieldVenues() call refused to classify. */
+  function skippedVenues() { return _skipped.slice(); }
 
   function venueById(id) {
     if (!id) return null;
@@ -905,6 +929,7 @@
     statusBuckets: statusBuckets,
 
     allVenues: allVenues,
+    skippedVenues: skippedVenues,
     venueById: venueById,
     fieldVenues: fieldVenues,
 

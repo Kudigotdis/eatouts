@@ -111,7 +111,8 @@ setTimeout(() => {
   check('food-truck -> foodtruck', F.normaliseType('food-truck') === 'foodtruck');
   check('food_truck -> foodtruck', F.normaliseType('food_truck') === 'foodtruck');
   check('supplier -> event_supplier', F.normaliseType('supplier') === 'event_supplier');
-  check('unknown -> restaurant', F.normaliseType('banana') === 'restaurant');
+  check('unknown -> null, no silent restaurant default', F.normaliseType('banana') === null);
+  check('empty -> null', F.normaliseType('') === null && F.normaliseType(undefined) === null);
 
   /* ======================== fee math ======================== */
   console.log('\n-- fee math --');
@@ -135,6 +136,10 @@ setTimeout(() => {
     F.normaliseVenue({ type: 'event_supplier' }, 'restaurant').type === 'event_supplier');
   check('defaults object keeps its type',
     F.normaliseVenue(F.venueDefaults('event_supplier')).business_type === 'event_supplier');
+  check('an untracked type is kept verbatim, not coerced',
+    F.normaliseVenue({ type: 'bakery' }, 'restaurant').business_type === 'bakery' &&
+    F.venueDefaults('bakery').business_type === 'bakery' &&
+    F.venueDefaults('bakery').type === 'bakery');
 
   /* ======================== seed ======================== */
   console.log('\n-- FIELD_SEED --');
@@ -159,6 +164,25 @@ setTimeout(() => {
   check('seedFieldVenues is idempotent', F.seedFieldVenues().added === 0);
   const stored = F.fieldVenues();
   check('fieldVenues sees the 25 seeded venues', stored.length === 25, 'got ' + stored.length);
+
+  /* ======================== D2: no silent restaurant default ======================== */
+  console.log('\n-- unknown / untracked types --');
+  M.upsert('businesses', { id: 've-t-bakery', name: 'Corner Bakehouse', type: 'bakery' });
+  M.upsert('businesses', { id: 've-t-notype', name: 'Ghost Listing' });
+  const all = F.allVenues();
+  const bakery = all.find(v => v.id === 've-t-bakery');
+  check('a bakery listing survives allVenues() with its own type',
+    !!bakery && bakery.business_type === 'bakery', bakery && bakery.business_type);
+  check('a bakery is not counted as a restaurant', !all.some(v => v.id === 've-t-bakery' && v.business_type === 'restaurant'));
+  check('fieldVenues still shows only the 5 tracked types',
+    !F.fieldVenues().some(v => v.id === 've-t-bakery' || v.id === 've-t-notype'));
+  check('a typeless row is skipped, not guessed',
+    !all.some(v => v.id === 've-t-notype') &&
+    JSON.stringify(F.skippedVenues().map(v => v.id)) === JSON.stringify(['ve-t-notype']),
+    JSON.stringify(F.skippedVenues().map(v => v.id)));
+  M.remove('businesses', 've-t-bakery');
+  M.remove('businesses', 've-t-notype');
+  check('skippedVenues resets on the next read', F.allVenues() && F.skippedVenues().length === 0);
 
   /* ======================== bucket rules ======================== */
   console.log('\n-- status buckets --');
