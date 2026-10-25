@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Venue About "Menu" accordion — town/area pickers, Menu & Promos.
+ * Venue About options accordion — town/area pickers, Menu & Promos.
  *
- * venue-about.html renders a grey "Menu" accordion (inside <details>)
+ * venue-about.html renders the grey options accordion (inside <details>)
  * with four identifiable buttons:
  *   #optTown   — floating "Select Town" popup (single town shown inline)
  *   #optArea   — floating "Select Area" popup, gated on a town being chosen
@@ -70,6 +70,21 @@ function click(el) {
   const opts = qa('#optList [data-opt]').map(b => b.getAttribute('data-opt'));
   check('KFC: four identifiable option buttons', opts.join(',') === 'town,area,menu,promos', opts.join(','));
   check('KFC: no generic .lead prefixes remain', qa('#optList .lead').length === 0);
+  /* Label lock — this is the page's public copy and it was swapped on purpose
+     (fa26579): the accordion header names the GROUP (it also holds the Town/Area
+     pickers), while the #optMenu button is the plain action. If either label is
+     ever renamed intentionally, update these two expectations in the same commit. */
+  const optAcc = q('#optList') && q('#optList').closest('details.acc');
+  const optHead = optAcc && optAcc.querySelector('summary');
+  check('KFC: accordion header reads "Menu Options"',
+    ((optHead || {}).textContent || '').trim() === 'Menu Options',
+    optHead && optHead.textContent.trim());
+  check('KFC: #optMenu value reads "Menu"',
+    ((q('#optMenu .val') || {}).textContent || '').trim() === 'Menu',
+    q('#optMenu .val') && q('#optMenu .val').textContent.trim());
+  check('KFC: header is NOT the bare action word "Menu"',
+    ((optHead || {}).textContent || '').trim() !== 'Menu');
+
   check('KFC: buttons centred',
     /center/.test((doc.defaultView.getComputedStyle(q('#optTown')).justifyContent) || ''),
     q('#optTown') && doc.defaultView.getComputedStyle(q('#optTown')).justifyContent);

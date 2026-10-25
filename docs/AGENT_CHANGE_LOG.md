@@ -16,6 +16,43 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 
+### [2026-10-25 02:05:00] - [Agent: Cline] - [COMMITTED]
+- Task: venue-about - lock the two visible labels (header "Menu Options", #optMenu button "Menu") so they cannot drift
+- Files changed:
+  - tests/venue-about-options.js (header comments L3/L5 + 3 new assertions after L72)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+  - venue-about.html: DELIBERATELY UNTOUCHED (git diff -- venue-about.html is empty)
+- Commit: this commit (entry folded into the same commit; resolve with `git log -1 --format=%h`)
+- Push: PENDING at write time -> single push after verification
+- Notes:
+  Why: the user asked to "make sure" the labels stay as swapped in fa26579 - <summary>Menu Options</summary>
+  for the group header (it also holds the Town/Area pickers) and <span class="val">Menu</span> for the
+  #optMenu button. A promise is not a guard, so the requirement is now enforced by the suite instead of by
+  memory: if either string changes, tests/venue-about-options.js fails.
+  Change: 3 assertions added to the KFC block, anchored on DOM structure not on copy order -
+    q('#optList').closest('details.acc').querySelector('summary').textContent === 'Menu Options'
+    q('#optMenu .val').textContent === 'Menu'
+    header !== 'Menu' (explicit anti-regression on the pre-fa26579 wiring)
+  The two stale header comments (L3/L5 said "Menu" accordion while the header reads "Menu Options") were
+  de-labelled to "options accordion" - the file is already named venue-about-options.js and the id is
+  #optList, so those comments can no longer go stale on the next copy tweak. The lock is now the single
+  place that names the copy, and it says to update it in the same commit as any intentional rename.
+  Verified:
+    - node tests/venue-about-options.js -> EXIT=0, 36 checks, 0 FAIL (was 33 checks before the 3 locks)
+    - node tests/venue-about-menu.js    -> EXIT=0, 7 checks, 0 FAIL
+    - git diff --quiet -- venue-about.html -> exit 0 (no drift; the file is byte-identical to fa26579)
+    - tests/venue-about-options.js: 0 bare LF (CRLF preserved on the inserted lines)
+  Not done (proposed and deliberately skipped, see the prior session's notes):
+    - No CSS change for the wider header: .acc > summary has no nowrap/ellipsis/fixed height, and
+      "Operating Hours" (15 chars) already ships in the same rule, so 12-char "Menu Options" can only wrap.
+    - HTML_CATALOG.md / scripts/html_catalog.meta.json still describe the section as "Options" (they omit
+      Hosting + Settings too). Fixing them means editing meta.json and running `npm run catalog`; left out of
+      this commit to keep it a reviewable one-file diff.
+    - Older ledger entries still describe the pre-swap label states. They are dated records of what was true
+      at those commits, so they were NOT rewritten.
+  Errors: none.
+
+
 ### [2026-10-25 01:28:49] - [Agent: Cline] - [COMMITTED]
 - Task: venue-about - swap the two "Menu" labels (accordion header <-> #optMenu button)
 - Files changed:
