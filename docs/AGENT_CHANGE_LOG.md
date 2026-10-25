@@ -22,8 +22,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - tests/venue-about-options.js (header comments L3/L5 + 3 new assertions after L72)
   - docs/AGENT_CHANGE_LOG.md (this entry)
   - venue-about.html: DELIBERATELY UNTOUCHED (git diff -- venue-about.html is empty)
-- Commit: this commit (entry folded into the same commit; resolve with `git log -1 --format=%h`)
-- Push: PENDING at write time -> single push after verification
+- Commit: e3949f0 (entry folded into the same commit)
+- Push: single push, fa26579..e3949f0 -> origin/main (fast-forward), PUSH_EXIT=0
 - Notes:
   Why: the user asked to "make sure" the labels stay as swapped in fa26579 - <summary>Menu Options</summary>
   for the group header (it also holds the Town/Area pickers) and <span class="val">Menu</span> for the
@@ -42,6 +42,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
     - node tests/venue-about-menu.js    -> EXIT=0, 7 checks, 0 FAIL
     - git diff --quiet -- venue-about.html -> exit 0 (no drift; the file is byte-identical to fa26579)
     - tests/venue-about-options.js: 0 bare LF (CRLF preserved on the inserted lines)
+    - node tests/run-all.js -> 55 passed, 2 failed. Both failures are PRE-EXISTING and unrelated:
+      inventory.js (PAGE_INVENTORY.md lists 30 SPA screens vs 31 expected) and login.js (About page
+      operator-businesses.html link + inline operator form). Neither suite references anything this
+      commit touched (Select-String for venue-about-options / AGENT_CHANGE_LOG / "Menu Options" across
+      both files: no hits), and PAGE_INVENTORY.md was last changed 2026-10-24 (c94c144) - before this
+      work started. Left untouched on purpose: repairing them is a separate task.
   Not done (proposed and deliberately skipped, see the prior session's notes):
     - No CSS change for the wider header: .acc > summary has no nowrap/ellipsis/fixed height, and
       "Operating Hours" (15 chars) already ships in the same rule, so 12-char "Menu Options" can only wrap.
