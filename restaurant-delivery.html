@@ -217,12 +217,14 @@ function bdDrivers(){
 }
 
 var incoming=[];
+var DEMO_SNAPSHOT=false;
 try{
   var raw=safeGet('eatouts_delivery_orders_v1');
   if(raw){ var parsed=JSON.parse(raw); if(Array.isArray(parsed)) incoming=parsed; }
 }catch(e){ incoming=[]; }
 if(!incoming.length){
   incoming=bdOrders();
+  DEMO_SNAPSHOT=incoming.length>0;
   incoming.forEach(function(o){
     if(STATE.slots[o.window]) STATE.slots[o.window].accepted+=1;
   });
@@ -238,9 +240,18 @@ function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'
 function money(n){return 'P'+(Number(n)||0).toFixed(2)}
 function toast(m){var t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('on')},2000)}
 
+function renderDemoBanner(){
+  if(!DEMO_SNAPSHOT) return '';
+  return '<div style="margin:12px 14px;padding:11px 13px;border-radius:12px;background:#fdf7e6;border:1px solid #efe2b8;font-size:12px;line-height:1.45;color:#6b5a1f">'+
+    '<b>Sample data.</b> No delivery orders are stored on this device yet, so this page is showing the demo snapshot '+
+    '('+incoming.length+' scheduled orders, fixed dates). Live orders replace it as soon as they are recorded.'+
+  '</div>';
+}
+
 function render(){
   var focused=STATE.focused?STATE.orders.filter(function(o){return o.ref===STATE.focused})[0]:(incoming[0]||null);
   document.getElementById('scroll').innerHTML=
+    renderDemoBanner()+
     renderRestaurant()+
     renderFocused(focused)+
     renderOverview()+

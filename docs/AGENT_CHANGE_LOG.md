@@ -427,3 +427,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: anchorDemoOrders() shifts DEMO.orders[].created so the newest is 5 minutes ago, formatted in Africa/Gaborone (same zone as operator-dashboard1.html:46); reanchorStored() migrates copies already in eatouts_manager_v1.orders only when created still equals the frozen dataset value; VERSION 2 -> 3.Verified with jsdom (3 stores): Orders today = 6 on 2026-10-25, no future stamps, spacing kept, legacy store migrated, hand-edited date preserved. tests/demo-seed.js version marker expectation updated 2 -> 3 (suite green).
 - Errors: None
 
+
+### [2026-10-25 05:05:12] - [Agent: Cline] - [COMMITTED]
+- Task: Remediation commit 7 - label the delivery-page demo fallback as sample data; align business_types module id with the reviews collection
+- Files changed: assets/data/business_types.js, restaurant-delivery.html, CHANGELOG-remediation.md
+- Commit: PENDING
+- Push: PENDING
+- Notes: module id 'review' -> 'reviews' in all seven business types (matches EatoutsDB.collection('reviews'); type.modules has no consumer). restaurant-delivery.html gains DEMO_SNAPSHOT (set only in the bdOrders() fallback branch) and renderDemoBanner() explaining that the 50-order snapshot is sample data with fixed dates; fallback kept. Verified with jsdom (scripts inlined): 6/6 checks incl. banner hidden when stored orders exist; node --check business_types.js OK; tests/delivery.js, tests/business-profiles.js, tests/demo-seed.js pass.
+- Errors: None
+

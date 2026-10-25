@@ -21,49 +21,49 @@
       label: 'Restaurant',
       icon: '🍽',
       description: 'Dine-in, takeaway or delivery venue.',
-      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'character', 'amenities', 'menuTags', 'capacity', 'payments', 'reservations', 'hostingServices', 'staff', 'users', 'menu', 'beverage', 'promos', 'events', 'gallery', 'billing', 'review'],
+      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'character', 'amenities', 'menuTags', 'capacity', 'payments', 'reservations', 'hostingServices', 'staff', 'users', 'menu', 'beverage', 'promos', 'events', 'gallery', 'billing', 'reviews'],
       roles: ['biz_owner', 'biz_admin', 'manager', 'chef', 'cashier', 'server', 'bartender', 'delivery_driver']
     },
     bottlestore: {
       label: 'Bottle Store',
       icon: '🍾',
       description: 'Liquor store, no dine-in.',
-      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'payments', 'staff', 'users', 'menu', 'beverage', 'promos', 'gallery', 'billing', 'review'],
+      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'payments', 'staff', 'users', 'menu', 'beverage', 'promos', 'gallery', 'billing', 'reviews'],
       roles: ['biz_owner', 'biz_admin', 'manager', 'cashier', 'stock_manager']
     },
     caterer: {
       label: 'Caterer',
       icon: '🥘',
       description: 'Event catering and food service.',
-      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'capacity', 'payments', 'reservations', 'hostingServices', 'staff', 'users', 'menu', 'promos', 'events', 'gallery', 'billing', 'review'],
+      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'capacity', 'payments', 'reservations', 'hostingServices', 'staff', 'users', 'menu', 'promos', 'events', 'gallery', 'billing', 'reviews'],
       roles: ['biz_owner', 'biz_admin', 'manager', 'chef', 'event_coordinator', 'server']
     },
     lodge: {
       label: 'Lodge / Hotel',
       icon: '🏨',
       description: 'Rooms plus dining and events.',
-      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'character', 'amenities', 'capacity', 'payments', 'reservations', 'hostingServices', 'staff', 'users', 'menu', 'beverage', 'rooms', 'promos', 'events', 'gallery', 'billing', 'review'],
+      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'character', 'amenities', 'capacity', 'payments', 'reservations', 'hostingServices', 'staff', 'users', 'menu', 'beverage', 'rooms', 'promos', 'events', 'gallery', 'billing', 'reviews'],
       roles: ['biz_owner', 'biz_admin', 'manager', 'reception', 'housekeeping', 'chef']
     },
     bakery: {
       label: 'Bakery / Pastry',
       icon: '🥐',
       description: 'Baked goods, no events.',
-      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'payments', 'staff', 'users', 'menu', 'gallery', 'billing', 'review'],
+      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'payments', 'staff', 'users', 'menu', 'gallery', 'billing', 'reviews'],
       roles: ['biz_owner', 'biz_admin', 'manager', 'baker', 'cashier']
     },
     foodtruck: {
       label: 'Food Truck',
       icon: '🚚',
       description: 'Rotating location, not a fixed address.',
-      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'payments', 'staff', 'users', 'menu', 'beverage', 'promos', 'schedule', 'gallery', 'billing', 'review'],
+      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'payments', 'staff', 'users', 'menu', 'beverage', 'promos', 'schedule', 'gallery', 'billing', 'reviews'],
       roles: ['biz_owner', 'biz_admin', 'manager', 'cook', 'cashier', 'schedule_manager']
     },
     supplier: {
       label: 'Event Supplier',
       icon: '📦',
       description: 'MC, decor, security, AV, entertainment.',
-      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'payments', 'staff', 'users', 'services', 'portfolio', 'gallery', 'billing', 'review'],
+      modules: ['identity', 'location', 'contacts', 'socials', 'hours', 'payments', 'staff', 'users', 'services', 'portfolio', 'gallery', 'billing', 'reviews'],
       roles: ['biz_owner', 'biz_admin', 'manager', 'event_coordinator']
     }
   };
