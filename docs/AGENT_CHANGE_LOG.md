@@ -472,3 +472,36 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: One root cause closed both failures - index.html still had the inline operator sign-in (renderOperatorLogin / about-operator-login / id="opWhats") that plan .kilo/plans/eatouts-promo-listing-p9-p13.md Phase P9 had slated for removal in favour of operator-businesses.html. Removed the screen end-to-end (PAGE_TITLES entry, pageRef case, renderScreen dispatch, renderOperatorLogin + banner, 5 handlers, onLogin flag); button -> link. inventory.js now 30 vs 30 (no PAGE_INVENTORY.md edit needed); login.js link present + opWhats gone. backup-pre-0014-20261025-030848.sql ignored via new .gitignore rule (left on disk). scripts/seeds/restaurants.sql (regen timestamp churn) reverted to HEAD. Full suite: 57 passed, 0 failed (was 55/2).
 - Errors: None
 
+
+### [2026-10-25 05:53:48] - [Agent: Cline] - [COMMITTED]
+- Task: Close the cross-tenant read in GET /api/business/contacts and GET /api/business/users
+- Files changed:
+  - functions/api/_business.js (new requireBusinessOwner helper, +14)
+  - functions/api/business/contacts.js (+5/-1: import + guard in onRequestGet)
+  - functions/api/business/users.js (+5/-1: import + guard in onRequestGet)
+  - tests/api-business.js (+66/-1: 9 regression checks + 3 fake-D1 tables + 3 SELECT shapes)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commits: 9894be8 (helper), 5065b5e (contacts GET), 8088509 (users GET), b404a9b (tests)
+- Push: PENDING (push follows)
+- Notes:
+  Vulnerability: both GET handlers called requireSession only, then trusted the business_id query
+  param, so any signed-in user could list another tenant's rows - contacts (phone numbers, titles) and
+  team users (names, emails, whatsapp). The POST/PATCH/DELETE handlers in the same files already
+  required ownership, so this was a read-only hole in an otherwise guarded route.
+  Fix: extracted requireBusinessOwner(c, businessId) into _business.js - one SELECT id FROM
+  business_profiles WHERE id = ? AND user_id = ? - and called it right after requireSession in both
+  GETs. Response contract: blank id 400 business_id_required (unchanged), foreign id 404 not_found,
+  unknown id 404 not_found. 404 for both cases on purpose: a 403 would confirm that another tenant's
+  business id exists. Shape is { businessId } | { error: Response } to match requireSession/requireBusiness.
+  Not done on purpose: business/services.js GET and business/profiles.js GET have the same shape (session
+  only + business_id from the query) and return a foreign tenant's services / full profile. Out of scope
+  for this task and left untouched - recorded as the follow-up list instead of being silently widened.
+  Verified: node tests/api-business.js - 102 checks passed, including the 9 new ones (own 200, other
+  tenant 404 not_found, signed-in non-owner 404, no session 401, no business_id 400, for both endpoints).
+  node tests/run-all.js - 57 passed, 0 failed. Note: an earlier full run reported intake8.js failing;
+  it passed standalone and on the re-run, so it is an intermittent jsdom boot flake, not a regression
+  (no API handler is involved in that test).
+- Errors: the first commit attempt ran the four git commands in parallel and hit .git/index.lock,
+  which folded contacts.js into the helper commit. Recovered with git reset 81e61ab (mixed, nothing
+  pushed yet) and re-ran the four commits sequentially - history is now one file per commit.
+
