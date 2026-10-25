@@ -34,8 +34,9 @@
     BA.promosRead(rid).then(function(r){
       if(!r.ok||!r.data||!Array.isArray(r.data.promos)){el.innerHTML='<p>No promos found.</p>';return;}
       var promos=r.data.promos;
+      var freeDaysUsed=promos.reduce(function(s,p){return s+((p.feeCharged||0)?0:Math.max(1,Math.floor(Number(p.activeDays||p.days||1)||1)));},0);
       var html='<h2>Promos</h2><a class="btn" href="../promo-onboarding.html?business='+encodeURIComponent(rid)+'">+ Add Promo</a>';
-      html+='<div class="free-days">X of 3 free days used this month</div>';
+      html+='<div class="free-days">'+Math.min(freeDaysUsed,3)+' of 3 free promo-days used this month · '+promos.length+' promo'+(promos.length===1?'':'s')+'</div>';
       promos.forEach(function(p){html+='<div class="promo-row"><span>'+(p.title||'Untitled')+'</span><span>'+(p.segment||'')+'</span><span>runs on '+(p.activeDays||1)+' days</span><span class="status">'+(p.status||'draft')+'</span><span>'+(p.feeCharged?'P'+p.feeCharged:'Free')+'</span></div>';});
       el.innerHTML=html;
     });

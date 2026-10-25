@@ -392,3 +392,11 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Push: PENDING
 - Notes: deriveAnalytics() removed; localCounts() added; This month/Today/Top menu items/WhatsApp activity/billing summary now show only local record counts with honest copy; report JS takes counts instead of A; promo/event fake view counters removed. Verified node --check + node tests/dashboard.js PASSED.
 - Errors: None
+
+### [2026-10-25 03:26:40] - [Agent: Cline] - [COMMITTED]
+- Task: Remediation commit 3 - remove 'Real aggregates' claim + static SLA items; replace 'X of 3 free days' with real promo counts; fix dead promosSection render path
+- Files changed: analytics-manager.html, CHANGELOG-remediation.md, dashboards/eatouts-bakery-dashboard.html, dashboards/eatouts-bottle-store-dashboard.html, dashboards/eatouts-caterer-dashboard.html, dashboards/eatouts-event-supplier-dashboard.html, dashboards/eatouts-mobile-kitchen-dashboard.html, dashboards/eatouts-restaurant-dashboard.html
+- Commit: PENDING
+- Push: PENDING
+- Notes: Order schema has no stage timestamps so SLA timings were removed rather than computed. freeDaysUsed derived from activeDays of promos without feeCharged, capped at 3 (INCLUDED_PROMO_DAYS_PER_MONTH). node --check passed on all 7 files; X of 3 grep = 0.
+- Errors: None
