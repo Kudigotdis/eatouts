@@ -105,41 +105,18 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 const DB=dbLoad()||{restaurant:{identity:{name:'Untitled restaurant',status:'draft'},location:{city:'',area:''},contacts:[],socials:[],operatingHours:{weekly:[],customSchedules:[]},character:{options:[]},amenities:{options:[]},menuTags:{options:[]},capacity:[],payments:[],reservations:{},reservationServices:[],serviceStaff:[],users:[]},menuCategories:[],menuItems:[],promos:[],events:[],performers:[],galleryGroups:[],settings:{currencySymbol:'P'}};
 const money=v=>DB.settings.currencySymbol+(Number(v)||0).toFixed(2);
 
-/* ========== ANALYTICS SIMULATION ==========
-   For the prototype, we read counts from the local DB and
-   derive lightweight "engagement" numbers from content volume.
-   These will later be replaced by the analytics events emitted
-   by the customer-facing index.html.
-   ============================================ */
-function deriveAnalytics(){
-  const r=DB.restaurant||{};
+/* ========== LOCAL COUNTS (no engagement tracking yet) ==========
+   Views, clicks and WhatsApp hand-offs are not recorded anywhere,
+   so this dashboard only counts records the owner actually created.
+   Do not add an engagement number here until a real event source
+   exists (see the offline:true note in js/eatouts-analytics.js).
+   ============================================================ */
+function localCounts(){
   const menuItems=(DB.menuItems||[]);
   const promos=(DB.promos||[]);
   const events=(DB.events||[]);
-  const groups=(DB.galleryGroups||[]);
-  const imgs=groups.reduce((s,g)=>s+(g.images||[]).length,0);
-  /* Deterministic pseudo-random derived from content counts,
-     so numbers feel alive but stable across reloads. */
-  const seed=menuItems.length*7+promos.length*11+events.length*13+imgs*3+17;
-  const rand=(n)=>{const x=Math.sin(seed*n)*10000;return Math.floor((x-Math.floor(x))*1000);};
-  return {
-    profileViews: 800+rand(1)%4200,
-    menuViews: 400+rand(2)%2600,
-    whatsapp: 40+rand(3)%380,
-    reservations: 6+rand(4)%90,
-    promoInteractions: promos.length*40+rand(5)%300,
-    eventInteractions: events.length*60+rand(6)%260,
-    menuBreakdown: menuItems.slice(0,5).map((it,i)=>({name:it.name,views:200+rand(10+i)%900})).sort((a,b)=>b.views-a.views),
-    whatsappTypes: [
-      {type:'Orders',v:Math.floor((40+rand(20)%180))},
-      {type:'Reservations',v:Math.floor((20+rand(21)%80))},
-      {type:'Delivery',v:Math.floor((10+rand(22)%60))},
-      {type:'Pickup',v:Math.floor((8+rand(23)%40))},
-      {type:'Event RSVP',v:Math.floor((5+rand(24)%30))},
-      {type:'Catering',v:Math.floor((2+rand(25)%12))},
-      {type:'Enquiries',v:Math.floor((10+rand(26)%40))}
-    ]
-  };
+  const imgs=(DB.galleryGroups||[]).reduce((s,g)=>s+((g.images||[]).length),0);
+  return {menuItems:menuItems.length,promos:promos.length,events:events.length,galleryImages:imgs};
 }
 
 /* ========== COMPLETENESS ========== */
@@ -257,18 +234,17 @@ function exportVenue(){
 }
 
 /* ========== REPORTS (local, no backend) ==========
-   Weekly/monthly report built from the same deriveAnalytics()
-   aggregate shown on the dashboard. Rendered in an on-screen
-   panel, downloadable as CSV and printable. No server call. */
-function reportData(kind,A,name){
+   Weekly/monthly report built from the local record counts only.
+   Rendered in an on-screen panel, downloadable as CSV and printed.
+   No server call and no engagement estimate. */
+function reportData(kind,counts,name){
   const period=kind==='monthly'?'Last 30 days':'Last 7 days';
-  const rows=[['Profile views',A.profileViews],['Menu views',A.menuViews],['WhatsApp actions',A.whatsapp],['Reservation requests',A.reservations]];
-  if(kind==='monthly'){rows.push(['Promo interactions',A.promoInteractions]);rows.push(['Event interactions',A.eventInteractions]);}
-  return {kind:kind,title:(kind==='monthly'?'Monthly':'Weekly')+' report',name:name||'Restaurant',period:period,rows:rows,breakdown:(A.menuBreakdown||[]).slice(0,5),whatsappTypes:A.whatsappTypes||[],generated:new Date()};
+  const rows=[['Menu items',counts.menuItems],['Promos',counts.promos],['Events',counts.events],['Gallery images',counts.galleryImages]];
+  return {kind:kind,title:(kind==='monthly'?'Monthly':'Weekly')+' report',name:name||'Restaurant',period:period,rows:rows,generated:new Date()};
 }
 function reportRow(label,val){return '<tr><td style="padding:8px 4px;border-bottom:1px solid #ece7db">'+esc(label)+'</td><td style="padding:8px 4px;border-bottom:1px solid #ece7db;text-align:right;font-weight:800">'+Number(val||0).toLocaleString()+'</td></tr>';}
-function reportHTML(kind,A,name){
-  const d=reportData(kind,A,name);
+function reportHTML(kind,counts,name){
+  const d=reportData(kind,counts,name);
   let h='<div style="font-family:Inter,system-ui,sans-serif;color:#1a1a1a">'
     +'<div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e">Eatouts '+d.title+'</div>'
     +'<h2 style="margin:6px 0 2px;font-size:18px;font-weight:900">'+esc(d.name)+'</h2>'
@@ -276,57 +252,46 @@ function reportHTML(kind,A,name){
     +'<table style="width:100%;border-collapse:collapse;margin-top:12px"><tbody>';
   d.rows.forEach(function(r){h+=reportRow(r[0],r[1]);});
   h+='</tbody></table>';
-  if(kind!=='monthly'&&d.breakdown.length){
-    h+='<div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;margin:16px 0 4px">Top menu items</div><table style="width:100%;border-collapse:collapse"><tbody>';
-    d.breakdown.forEach(function(m){h+=reportRow(m.name,m.views);});
-    h+='</tbody></table>';
-  }
-  if(kind==='monthly'&&d.whatsappTypes.length){
-    h+='<div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;margin:16px 0 4px">WhatsApp action types</div><table style="width:100%;border-collapse:collapse"><tbody>';
-    d.whatsappTypes.forEach(function(w){h+=reportRow(w.type,w.v);});
-    h+='</tbody></table>';
-  }
-  h+='<div style="font-size:11px;color:#8a8170;margin-top:14px">Generated from your local Eatouts data. Live analytics arrive with the analytics engine.</div></div>';
+  h+='<div style="font-size:11px;color:#8a8170;margin-top:14px">Generated from records saved on this device. Views, WhatsApp clicks and order volume are not recorded yet, so they are not reported.</div></div>';
   return h;
 }
-function reportCSV(kind,A,name){
-  const d=reportData(kind,A,name);
+function reportCSV(kind,counts,name){
+  const d=reportData(kind,counts,name);
   const cell=function(v){const s=String(v==null?'':v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
   const lines=[['Eatouts '+d.title],['Business',d.name],['Period',d.period],['Generated',d.generated.toISOString()],[],['Metric','Value']];
   d.rows.forEach(function(r){lines.push([r[0],r[1]]);});
-  if(kind!=='monthly'&&d.breakdown.length){lines.push([]);lines.push(['Top menu items','Views']);d.breakdown.forEach(function(m){lines.push([m.name,m.views]);});}
-  if(kind==='monthly'&&d.whatsappTypes.length){lines.push([]);lines.push(['WhatsApp action type','Count']);d.whatsappTypes.forEach(function(w){lines.push([w.type,w.v]);});}
+  lines.push([]);lines.push(['Note','Counts of records saved on this device. Engagement is not recorded yet.']);
   return '\ufeff'+lines.map(function(row){return row.map(cell).join(',');}).join('\r\n');
 }
-function downloadReport(kind,A,name){
+function downloadReport(kind,counts,name){
   try{
-    const blob=new Blob([reportCSV(kind,A,name)],{type:'text/csv;charset=utf-8;'});
+    const blob=new Blob([reportCSV(kind,counts,name)],{type:'text/csv;charset=utf-8;'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=url;a.download='eatouts_'+kind+'_report.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
     URL.revokeObjectURL(url);toast('Report downloaded');
   }catch(e){toast('Download unavailable on this device');}
 }
-function printReport(kind,A,name){
+function printReport(kind,counts,name){
   try{
     const frame=document.createElement('iframe');
     frame.setAttribute('aria-hidden','true');
     frame.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
     document.body.appendChild(frame);
     const w=frame.contentWindow;if(!w)return;
-    w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Eatouts '+reportData(kind,A,name).title+'</title></head><body style="margin:24px">'+reportHTML(kind,A,name)+'</body></html>');w.document.close();
+    w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Eatouts '+reportData(kind,counts,name).title+'</title></head><body style="margin:24px">'+reportHTML(kind,counts,name)+'</body></html>');w.document.close();
     const run=function(){try{if(typeof w.print==='function')w.print();}catch(e){}setTimeout(function(){frame.remove();},600);};
     if(w.document.readyState==='complete')run();else frame.onload=run;
   }catch(e){toast('Print unavailable on this device');}
 }
 function closeReport(){const s=document.getElementById('reportScrim');if(s)s.remove();document.removeEventListener('keydown',onReportKey);}
 function onReportKey(e){if(e.key==='Escape')closeReport();}
-function showReport(kind,A,name){
+function showReport(kind,counts,name){
   closeReport();
   const scrim=document.createElement('div');
   scrim.id='reportScrim';
   scrim.style.cssText='position:fixed;inset:0;background:rgba(10,10,10,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center;overflow:auto';
   scrim.innerHTML='<div id="reportPanel" style="background:#fff;width:100%;max-width:520px;max-height:90vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 18px 22px;box-shadow:0 -12px 40px rgba(0,0,0,.28)">'
-    +reportHTML(kind,A,name)
+    +reportHTML(kind,counts,name)
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">'
     +'<button id="repCsv" type="button" style="border:1px solid #ece7db;border-radius:12px;padding:12px;font:inherit;font-weight:800;background:#1a1a1a;color:#fff;cursor:pointer">Download CSV</button>'
     +'<button id="repPrint" type="button" style="border:1px solid #ece7db;border-radius:12px;padding:12px;font:inherit;font-weight:800;background:#fff;color:#1a1a1a;cursor:pointer">Print</button>'
@@ -336,14 +301,14 @@ function showReport(kind,A,name){
   document.body.appendChild(scrim);
   scrim.addEventListener('click',function(e){if(e.target===scrim)closeReport();});
   document.addEventListener('keydown',onReportKey);
-  document.getElementById('repCsv').onclick=function(){downloadReport(kind,A,name);};
-  document.getElementById('repPrint').onclick=function(){printReport(kind,A,name);};
+  document.getElementById('repCsv').onclick=function(){downloadReport(kind,counts,name);};
+  document.getElementById('repPrint').onclick=function(){printReport(kind,counts,name);};
   document.getElementById('repClose').onclick=closeReport;
 }
 
 function render(){
   const r=DB.restaurant||{};const id=r.identity||{};
-  const A=deriveAnalytics();
+  const counts=localCounts();
   const C=completeness();
   const miss=missingSuggestions();
   const live=id.status==='published';
@@ -388,11 +353,8 @@ function render(){
   </div>
 
   <div class="section-h">This month</div>
-  <div class="stat-grid">
-    <div class="stat"><div class="lbl">Profile Views</div><div class="val">${A.profileViews.toLocaleString()}</div><div class="sub">+18% vs last month</div></div>
-    <div class="stat"><div class="lbl">Menu Views</div><div class="val">${A.menuViews.toLocaleString()}</div><div class="sub">+24% vs last month</div></div>
-    <div class="stat"><div class="lbl">WhatsApp Actions</div><div class="val">${A.whatsapp.toLocaleString()}</div><div class="sub">+11% vs last month</div></div>
-    <div class="stat"><div class="lbl">Reservation Requests</div><div class="val">${A.reservations.toLocaleString()}</div><div class="sub">+31% vs last month</div></div>
+  <div class="card">
+    <div class="hint" style="line-height:1.5">Local records only — not yet connected to customer events. Profile views, menu views, WhatsApp taps and reservation requests are not recorded anywhere yet, so this dashboard does not report them.</div>
   </div>
 
   <div class="section-h">Quick actions</div>
@@ -403,38 +365,25 @@ function render(){
     <a class="action-btn" href="gallery-onboarding.html"><div class="ttl">+ Gallery</div><div class="sub">Upload images</div></a>
   </div>
 
-  <div class="section-h">Today</div>
-  <div class="stat-grid">
-    <div class="stat"><div class="lbl">Profile Views</div><div class="val">${Math.floor(A.profileViews/30)}</div></div>
-    <div class="stat"><div class="lbl">Menu Views</div><div class="val">${Math.floor(A.menuViews/28)}</div></div>
-    <div class="stat"><div class="lbl">WhatsApp</div><div class="val">${Math.floor(A.whatsapp/22)}</div></div>
-    <div class="stat"><div class="lbl">Reservations</div><div class="val">${Math.max(1,Math.floor(A.reservations/12))}</div></div>
-  </div>
-
-  <div class="section-h">Top menu items</div>
+  <div class="section-h">Performance</div>
   <div class="card">
-    ${A.menuBreakdown.length?A.menuBreakdown.map(m=>{
-      const max=A.menuBreakdown[0].views;
-      return `<div class="bar-row"><div class="nm">${esc(m.name)}</div><div class="bar"><i style="width:${Math.round(m.views/max*100)}%"></i></div><div class="v">${m.views}</div></div>`;
-    }).join(''):'<div class="hint">Add menu items to see this.</div>'}
-  </div>
-
-  <div class="section-h">WhatsApp activity</div>
-  <div class="card">
-    <table>
-      <tr><th>Type</th><th>Count</th></tr>
-      ${A.whatsappTypes.map(w=>`<tr><td>${esc(w.type)}</td><td><b>${w.v}</b></td></tr>`).join('')}
-    </table>
+    <div class="hint" style="margin-bottom:10px">Counts of records saved on this device. No engagement data is available yet.</div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;font-size:12.5px">
+      <div><b>${counts.menuItems}</b><div class="hint">Menu items</div></div>
+      <div><b>${counts.promos}</b><div class="hint">Promos</div></div>
+      <div><b>${counts.events}</b><div class="hint">Events</div></div>
+      <div><b>${counts.galleryImages}</b><div class="hint">Gallery images</div></div>
+    </div>
   </div>
 
   <div class="section-h">Active promos</div>
   <div class="card">
-    ${(DB.promos||[]).length?(DB.promos||[]).slice(0,3).map(p=>`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border)"><div><b>${esc(p.title||'Untitled')}</b><div class="hint">${money(p.promoPrice)}${p.originalPrice?' → was '+money(p.originalPrice):''}</div></div><div style="font-size:12px;color:var(--muted)">${(40+((p.title||'x').length*7))%260} views</div></div>`).join(''):'<div class="hint">No promos yet. <a href="promo-onboarding.html">Create one →</a></div>'}
+    ${(DB.promos||[]).length?(DB.promos||[]).slice(0,3).map(p=>`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border)"><div><b>${esc(p.title||'Untitled')}</b><div class="hint">${money(p.promoPrice)}${p.originalPrice?' → was '+money(p.originalPrice):''}</div></div></div>`).join(''):'<div class="hint">No promos yet. <a href="promo-onboarding.html">Create one →</a></div>'}
   </div>
 
   <div class="section-h">Upcoming events</div>
   <div class="card">
-    ${(DB.events||[]).length?(DB.events||[]).slice(0,3).map(e=>`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border)"><div><b>${esc(e.name||'Untitled')}</b><div class="hint">${esc(e.startDate||'')}${e.startTime?' · '+esc(e.startTime):''}</div></div><div style="font-size:12px;color:var(--muted)">${(30+((e.name||'x').length*11))%220} views</div></div>`).join(''):'<div class="hint">No events yet. <a href="event-onboarding.html">Create one →</a></div>'}
+    ${(DB.events||[]).length?(DB.events||[]).slice(0,3).map(e=>`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border)"><div><b>${esc(e.name||'Untitled')}</b><div class="hint">${esc(e.startDate||'')}${e.startTime?' · '+esc(e.startTime):''}</div></div></div>`).join(''):'<div class="hint">No events yet. <a href="event-onboarding.html">Create one →</a></div>'}
   </div>
 
   <div class="section-h">Billing</div>
@@ -450,14 +399,14 @@ function render(){
       </div>
       <button class="btn btn-ghost" id="btnChangePlan">Manage Subscription</button>
     </div>
-    <div class="hint" style="margin-top:14px">Your month at a glance</div>
+    <div class="hint" style="margin-top:14px">Your records at a glance</div>
     <div style="margin-top:8px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:12.5px">
-      <div><b>${A.profileViews.toLocaleString()}</b><div class="hint">Restaurant views</div></div>
-      <div><b>${A.menuViews.toLocaleString()}</b><div class="hint">Menu views</div></div>
-      <div><b>${A.whatsapp.toLocaleString()}</b><div class="hint">WhatsApp actions</div></div>
-      <div><b>${A.reservations.toLocaleString()}</b><div class="hint">Reservation requests</div></div>
+      <div><b>${counts.menuItems}</b><div class="hint">Menu items</div></div>
+      <div><b>${counts.promos}</b><div class="hint">Promos</div></div>
+      <div><b>${counts.events}</b><div class="hint">Events</div></div>
+      <div><b>${counts.galleryImages}</b><div class="hint">Gallery images</div></div>
     </div>
-    <div style="margin-top:12px;font-weight:800;font-size:13px;color:var(--muted-2)">Eatouts helped generate ${A.whatsapp.toLocaleString()} customer actions this month.</div>
+    <div style="margin-top:12px;font-size:12px;color:var(--muted-2)">Customer engagement is not tracked yet, so no action count is shown.</div>
   </div>
 
   <div class="section-h">Reports</div>
@@ -469,8 +418,8 @@ function render(){
   `;
   document.getElementById('app').innerHTML=h;
 
-  document.getElementById('btnWeekly').onclick=()=>showReport('weekly',A,id.name);
-  document.getElementById('btnMonthly').onclick=()=>showReport('monthly',A,id.name);
+  document.getElementById('btnWeekly').onclick=()=>showReport('weekly',counts,id.name);
+  document.getElementById('btnMonthly').onclick=()=>showReport('monthly',counts,id.name);
   document.getElementById('btnChangePlan').onclick=()=>{
     const next={starter:'growth',growth:'pro',pro:'starter'}[plan];
     DB.settings=DB.settings||{};DB.settings.plan=next;dbSave(DB);

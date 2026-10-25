@@ -384,3 +384,11 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Push: PENDING
 - Notes: Added isCommercialOwner (isOwner + supplier/lodge_owner roles); quotes now requires supplier|caterer type AND commercial owner, bookings requires supplier|lodge type AND commercial owner. Platform roles unchanged. Role strings verified against js/eatouts-roles.js MATRIX.
 - Errors: None
+
+### [2026-10-25 03:16:02] - [Agent: Cline] - [COMMITTED]
+- Task: Remediation commit 2 - delete fabricated analytics (Math.sin engagement generator + hard-coded deltas)
+- Files changed: restaurant-dashboard.html, CHANGELOG-remediation.md
+- Commit: PENDING
+- Push: PENDING
+- Notes: deriveAnalytics() removed; localCounts() added; This month/Today/Top menu items/WhatsApp activity/billing summary now show only local record counts with honest copy; report JS takes counts instead of A; promo/event fake view counters removed. Verified node --check + node tests/dashboard.js PASSED.
+- Errors: None
