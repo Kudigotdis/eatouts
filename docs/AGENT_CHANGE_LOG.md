@@ -446,6 +446,15 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: None
 
 
+
+### [2026-10-25 05:55:02] - [Agent: Cline] - [COMMITTED]
+- Task: Full-suite verification of the remediation work (commits 1-9)
+- Files changed: none (verification only)
+- Commit: n/a (record only)
+- Push: PENDING (9 commits ahead of origin/main)
+- Notes: `node tests/run-all.js` -> 55 passed, 2 failed. The two failures are pre-existing and unrelated to this work: (1) inventory.js "PAGE_INVENTORY.md lists all SPA screens -- 30 vs 31" (doc drift; no SPA screen was added/removed and PAGE_INVENTORY.md was not touched by any of the 9 commits); (2) login.js "About page links to operator-businesses.html" + "no inline operator form" (index.html still contains id="opWhats" and no operator-businesses.html href — verified both conditions also fail at origin/main 372f6b9, i.e. pre-existing). My index.html edits only shifted line numbers (8707 vs 8618). Untracked backup-pre-0014-20261025-030848.sql left untracked (D1 migration backup, out of scope).
+- Errors: None
+
 ### [2026-10-25 05:31:10] - [Agent: Cline] - [COMMITTED]
 - Task: Remediation commit 9 - align tests/wa.js with the templated waLink signature
 - Files changed: tests/wa.js, CHANGELOG-remediation.md

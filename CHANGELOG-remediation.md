@@ -80,3 +80,11 @@ Each entry is one atomic commit, verified against the file as it existed at edit
 - **`tests/wa.js:86-90`** — new companion check: *every* `waLink` call must pass a template id (`waLink(..., 'template', ...)`), which is the contract commit 4 introduced (attributable `wa.click` rows).
 - **Verification:** `node tests/wa.js` → **WA TEST PASSED**, including "every waLink call is venue-aware or intentionally flagship" and "every waLink call passes a template id" (15 call sites).
 
+## Commit 10 — Full-suite verification (record)
+
+- **Result:** `node tests/run-all.js` → **55 passed, 2 failed**. Both failures are **pre-existing** and untouched by this remediation:
+  - **`inventory.js`** — "PAGE_INVENTORY.md lists all SPA screens — 30 vs 31" (doc drift; no SPA screen was added/removed and `PAGE_INVENTORY.md` was not modified by any remediation commit).
+  - **`login.js`** — "the About page links to operator-businesses.html" and "the About page no longer has the inline operator form" (`index.html` still contains `id="opWhats"` and no `operator-businesses.html` href — both conditions also fail at `origin/main` `372f6b9`, so they are pre-existing; the remediation's `index.html` edits only shifted line numbers).
+- **Relevant suites all green:** `smoke`, `dashboard`, `demo-seed`, `delivery`, `checkout-delivery`, `wa`, `contracts`, `business-profiles`.
+
+
