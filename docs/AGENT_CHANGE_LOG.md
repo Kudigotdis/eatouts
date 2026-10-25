@@ -789,3 +789,35 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   correctly returns 20 (a garbage `total` does not fall through to `grandTotal`). The assertion was wrong, not the code;
   it is now split into the two cases it was conflating.
 
+
+### [2026-10-25 09:33:00] - [Agent: Cline] - [D1/D2/D3 COMMIT 7/7: push + verify] - [COMMITTED]
+- Task: close the D1/D2/D3 run - one full-suite pass, one push, and a head-to-head of local and remote.
+- Files changed: docs/AGENT_CHANGE_LOG.md (this record only)
+- Commits in this run (all on main, in order):
+  6ebc948 feat(field): canonical bottlestore/foodtruck slugs; supplier deferred          (D1 1/7, catalog)
+  a74076f feat(db): migrate bottle_store/food_truck rows to bottlestore/foodtruck        (D1 2/7, data)
+  88fe549 feat(types): consumers accept bottlestore/foodtruck plus every legacy alias    (D1 3/7, consumers)
+  a099aa4 test(types): pin the D1 canonical slugs at /api/me and in field writes         (D1 4/7, tests)
+  3b604f3 fix(field): normaliseType returns null, no silent restaurant default           (D2 5/7)
+  7517b9b feat(analytics): one money() and sumMoney(), four inline reduces retired       (D3 6/7)
+  this commit                                                                            (7/7, record)
+- Verified:
+  node tests/run-all.js -> 58 passed, 0 failed (the 57 that existed before this run plus the new tests/money.js).
+  every commit above was tested before it was made; each ledger entry records the suite output as it was seen, not
+  after the fact.
+  Push: 65f32fb..7517b9b main -> main, PUSH_EXIT=0. git rev-parse HEAD and git rev-parse origin/main both return
+  7517b9b7f1a64fab91a29df8a50fc8ae0538e95c. git status --short empty immediately before and after the push.
+- NOT run, on purpose: no `wrangler d1 migrations apply` against any remote. migrations/0015_canonical_business_types.sql
+  is committed and was probed against local D1 only (commit 2 entry). Applying it to production is a separate,
+  human-triggered step - the file is idempotent (UPDATE ... WHERE type = 'bottle_store'), but a live migration is not
+  something this run gets to do unattended.
+- Open, on purpose (recorded, not fixed):
+  1. supplier vs event_supplier stays split (human option A). 315 `supplier` rows in business_links, 0 `event_supplier`;
+     js/eatouts-field.js still maps supplier -> event_supplier on read. Unifying it is a data decision.
+  2. operator-dashboard1.html:94 (renderReports) still reduce()s `total || grandTotal`. Same shape as the four sites D3
+     retired, but it was not one of the four named sites.
+  3. functions/[slug].js and venue-about.html still EMIT kind 'bottle_store' to the client. D1 widened the accepted
+     input only; changing what the page receives is its own change with its own consumers.
+- Errors: None in this commit. The only failure in the whole run was self-inflicted and is already recorded under
+  commit 6 (a wrong test expectation, fixed in the test not in the code).
+
