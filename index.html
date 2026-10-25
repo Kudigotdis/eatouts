@@ -6192,14 +6192,6 @@ function renderNav(){
   Array.prototype.forEach.call(nav.children,function(b){
     b.classList.toggle("on", b.getAttribute("data-tab")===state.tab);
   });
-  /* Operator sign-in is a focused portrait task - hide the tab bar
-     while it is open, and the filter bar that belongs to other tabs */
-  const onLogin=(state.tab==="about"&&state.operatorView==="login");
-  nav.style.display=onLogin?"none":"";
-  if(onLogin){
-    document.getElementById("cbar").classList.remove("on");
-    document.getElementById("filter-bar").classList.remove("on");
-  }
   measureNav();
 }
 
@@ -6426,8 +6418,7 @@ const PAGE_TITLES={
   "gallery-photo":"Gallery · Photo",
   "about-main":"About",
   "about-restaurant-gallery":"Gallery (restaurant)",
-  "about-legal":"Legal",
-  "about-operator-login":"Operator Sign in"
+  "about-legal":"Legal"
 };
 /* The live instance behind the active screen (venue/category/promo/store).
    renderViewport() mirrors this onto .screen as data-page-ref so DevTools
@@ -6459,7 +6450,6 @@ function pageRef(){
     case "reserve-events":           return [state.reserveCat,state.reserveGroup].filter(Boolean).join("/");
     case "reserve-providers":        return [state.reserveCat,state.reserveGroup,state.reserveSub].filter(Boolean).join("/");
     case "about-legal":              return state.legalView||"";
-    case "about-operator-login":     return state.operatorView||"";
     case "about-restaurant-gallery": return state.aboutView||"";
     default:                         return "";
   }
@@ -6574,7 +6564,6 @@ function renderScreen(){
   }
   if(state.tab==="about"){
     if(state.legalView)return page("about-legal",renderLegalDoc(state.legalView));
-    if(state.operatorView==="login")return page("about-operator-login",renderOperatorLogin());
     if(state.aboutView==="gallery")return page("about-restaurant-gallery",renderRestaurantGallery());
     return page("about-main",renderAbout());
   }
@@ -8611,7 +8600,7 @@ function renderAbout(){
       '<button class="setrow" data-act="openTerms">Terms of Service</button>'+
       '<button class="setrow" data-act="openPrivacy">Privacy Policy</button>'+
       '<a class="setrow" href="eatouts_feedback.html">Feedback</a>'+
-      '<button class="setrow" data-act="openOperatorLogin">Operator</button>'+
+      '<a class="setrow" href="operator-businesses.html">Operator</a>'+
       '<details class="setacc">'+
         '<summary class="setrow">List Business</summary>'+
         '<div class="acc-wrap"><div class="acc-in">'+
@@ -8672,66 +8661,6 @@ function renderLegalDoc(type){
       h+='<p class="legal-para">'+esc(p)+'</p>';
     });
   });
-  h+='</div><div style="height:34px"></div></div>';
-  return h;
-}
-
-/* ================================================================
-   OPERATOR LOGIN
-   Reached from About Us. Stays inside the portrait shell - no
-   sidebar, no separate page. On success it hands off to the
-   owner console, which is guarded by js/eatouts-auth.js.
-   ============================================================ */
-/* PAGE: about-operator-login — Operator Sign in */
-function renderOperatorLogin(){
-  const demo=window.EatoutsAuth&&EatoutsAuth.demoCredentials;
-  const insecure=!(window.EatoutsAuth&&EatoutsAuth.secureContextAvailable());
-
-  let h='<div class="scroll">';
-  h+='<div class="about-hero">'+
-    '<img class="about-logo" src="'+IMG.eatoutsLogo+'" alt="EatOuts">'+
-    '<div style="text-align:center"><h2>Operator Sign in</h2>'+
-    '<p>Manage your restaurant profile, menu, promotions<br>and events.</p></div></div>';
-
-  h+='<div class="pad">';
-
-  if(insecure){
-    h+='<div class="kv" style="border-color:#e0c9c9;background:#fdf6f6;border-radius:10px;padding:11px 12px;margin-bottom:14px">'+
-      '<span class="v" style="color:#8a3a3a">Sign-in needs <b>http://127.0.0.1</b>. '+
-      'Start <b>run-eatouts.bat</b> and open the address it prints. '+
-      'Password hashing is unavailable on <b>file://</b>.</span></div>';
-  }
-
-  h+='<div class="subh">Sign in</div>';
-  h+='<div class="fld"><label>WhatsApp number</label>'+
-    '<input id="opWhats" type="tel" inputmode="tel" autocomplete="tel" placeholder="'+
-    esc(demo?demo.whatsapp:"267")+'" value="'+(demo?esc(demo.whatsapp):"")+'"></div>';
-
-  h+='<div class="fld"><label>Username</label>'+
-    '<input id="opUser" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="'+
-    esc(demo&&demo.username?demo.username:"your username")+'" value="'+(demo&&demo.username?esc(demo.username):"")+'"></div>';
-
-  h+='<div class="fld"><label>Password</label>'+
-    '<input id="opPass" type="password" autocomplete="current-password" placeholder="'+
-    esc(demo?demo.password:"")+'" value="'+(demo?esc(demo.password):"")+'"></div>';
-
-  h+='<div id="opErr" style="display:none;color:#8a3a3a;font-size:12px;font-weight:700;margin:-2px 0 10px"></div>';
-
-  h+='<button class="btn primary full" data-act="doOperatorLogin"'+(insecure?" disabled":"")+'>Log in</button>';
-
-  /* Demo is a real feature: one tap into The Yellow Giraffe */
-  h+='<div class="subh" style="margin-top:22px">Or preview as</div>';
-  h+='<button class="btn primary full" data-act="doOperatorDemo">Demo &mdash; The Yellow Giraffe</button>';
-  h+='<p style="font-size:11px;color:#a89a7e;text-align:center;margin:9px 0 0;line-height:1.5">'+
-    'Opens the owner console as The Yellow Giraffe so you can view and change its information. '+
-    'Credentials above are <b>'+esc(demo?demo.whatsapp:"0")+'</b> / <b>'+esc(demo&&demo.username?demo.username:"0")+'</b> / <b>'+esc(demo?demo.password:"0")+'</b> &mdash; still a demo.</p>';
-
-  h+='<div class="subh" style="margin-top:22px">Business, supplier &amp; admin</div>';
-  h+='<button class="btn ghost full" data-act="openUniversalLogin">Universal sign-in (WhatsApp + username + password)</button>';
-  h+='<p style="font-size:11px;color:#a89a7e;text-align:center;margin:9px 0 0;line-height:1.5">'+
-    'Sign in as a customer, business manager, supplier or platform admin.</p>';
-
-  h+='<div style="margin-top:20px"><button class="btn ghost full" data-act="backFromOperatorLogin">Back to About Us</button></div>';
   h+='</div><div style="height:34px"></div></div>';
   return h;
 }
@@ -9651,59 +9580,6 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
   if(act==="openPrivacy"){state.legalView="privacy";render();return;}
   if(act==="backLegal"){state.legalView=null;render();return;}
 
-  /* OPERATOR LOGIN */
-  if(act==="openOperatorLogin"){
-    if(state.tab!=="about"){state.tab="about";state.aboutView="main";}
-    state.operatorView="login";render();return;
-  }
-  if(act==="backFromOperatorLogin"){state.operatorView="about";state.aboutView="main";render();return;}
-  if(act==="openUniversalLogin"){location.href="eatouts-login.html?next="+encodeURIComponent("index.html");return;}
-  if(act==="doOperatorLogin"){
-    const wEl=document.getElementById("opWhats"), uEl=document.getElementById("opUser"), pEl=document.getElementById("opPass");
-    const errEl=document.getElementById("opErr");
-    const show=(msg)=>{if(errEl){errEl.textContent=msg;errEl.style.display="block";}};
-    const whats=wEl?wEl.value.trim():"", user=uEl?uEl.value.trim():"", pass=pEl?pEl.value:"";
-    /* All three identifiers are mandatory. */
-    if(!whats){show("Enter your WhatsApp number.");if(wEl)wEl.focus();return;}
-    if(!user){show("Enter your username.");if(uEl)uEl.focus();return;}
-    if(!pass){show("Enter your password.");if(pEl)pEl.focus();return;}
-    if(!window.EatoutsAuth){show("Sign-in is unavailable.");return;}
-    const go=(res)=>{
-      if(res&&res.ok){
-        const route=(res.route)||(res.user&&window.EatoutsAuth&&EatoutsAuth.routeFor?EatoutsAuth.routeFor(res.user):"")||"operator-dashboard1.html";
-        location.href=route;return;
-      }
-      show((res&&(res.message||res.error))||"Sign-in failed.");
-      if(pEl){pEl.value="";pEl.focus();}
-    };
-    setTimeout(function(){
-      /* One sign-in surface: the account API, which matches all three. */
-      const C=window.EatoutsCustomer;
-      if(C&&typeof C.login==="function"){
-        C.login({username:user,whatsapp:whats,password:pass}).then(function(res){
-          if(res&&res.ok){go(res);return;}
-          /* No server account for these details: fall back to the local
-             operator records (the seeded demo owner). */
-          if(res&&(res.error==="notfound"||res.error==="backend_not_configured")){
-            EatoutsAuth.login(whats,pass,user).then(go).catch(function(){show("Sign-in failed. Check the console.");});
-            return;
-          }
-          go(res);
-        }).catch(function(){show("Sign-in failed. Check the console.");});
-        return;
-      }
-      EatoutsAuth.login(whats,pass,user).then(go).catch(function(){show("Sign-in failed. Check the console.");});
-    },30);
-    return;
-  }
-  if(act==="doOperatorDemo"){
-    if(!window.EatoutsAuth){alert("Sign-in is unavailable.");return;}
-    EatoutsAuth.loginDemo().then(function(res){
-      if(res.ok){location.href=(res.user&&EatoutsAuth.routeFor)?EatoutsAuth.routeFor(res.user):"operator-dashboard1.html";return;}
-      alert(res.message||"Demo login failed.");
-    });
-    return;
-  }
   if(act==="waAbout"){
     const msg="*INQUIRY — EatOuts*\n\nHi! I'd like to know more about EatOuts and the venues available.";
     window.location.href=waLink(msg,null,"about_enquiry","act=waAbout");
