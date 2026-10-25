@@ -64,3 +64,11 @@ Each entry is one atomic commit, verified against the file as it existed at edit
 - **`restaurant-delivery.html:243-249,254`** — new `renderDemoBanner()` prepends a "**Sample data.** No delivery orders are stored on this device yet, so this page is showing the demo snapshot (N scheduled orders, fixed dates). Live orders replace it as soon as they are recorded." notice to `render()`. The fallback itself is kept: the page still demonstrates a populated board, but it now says so.
 - **Verification (jsdom, scripts inlined):** 6/6 checks — banner present with an empty store, names the fixed-date caveat, snapshot still renders behind it; banner absent when `eatouts_delivery_orders_v1` holds an order; the stored order is what renders; the demo counts do not leak into the live view. `node --check assets/data/business_types.js` OK; `tests/delivery.js`, `tests/business-profiles.js` and `tests/demo-seed.js` all pass.
 
+
+## Commit 8 — Ask before `?demo=reset` destroys the store
+
+- **Problem:** `?demo=reset` called `DB.reset()` straight away — a bare URL parameter silently deleted every order, menu, promo, staff record and setting on the device, with no way back.
+- **`js/eatouts-manager-seed.js:173-187`** — the wipe is now behind `window.confirm()`: *"Reset the EatOuts demo data on this device? … It deletes every order, menu item, promo, staff record and setting stored here, then re-seeds the demo dataset. It cannot be undone."* The prompt is wrapped in `try{}catch{}` and **fails closed** (no `confirm` available → no wipe). Declining does not abort the page: it falls through to the normal idempotent merge, so the demo is still topped up and **nothing is deleted**.
+- **`js/eatouts-manager-seed.js:14-15`** — the file header now says the reset asks for confirmation first.
+- **Verification (jsdom, 11/11):** no prompt and no wipe without the parameter; `?demo=reset` prompts exactly once and the copy names the irreversibility; **Cancel keeps a real order and the 40 demo rows**; **OK removes the real order and re-seeds the 40 demo rows** (marker back to `3`); an already-current store returns early without prompting.
+

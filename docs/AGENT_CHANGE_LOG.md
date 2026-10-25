@@ -436,3 +436,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: module id 'review' -> 'reviews' in all seven business types (matches EatoutsDB.collection('reviews'); type.modules has no consumer). restaurant-delivery.html gains DEMO_SNAPSHOT (set only in the bdOrders() fallback branch) and renderDemoBanner() explaining that the 50-order snapshot is sample data with fixed dates; fallback kept. Verified with jsdom (scripts inlined): 6/6 checks incl. banner hidden when stored orders exist; node --check business_types.js OK; tests/delivery.js, tests/business-profiles.js, tests/demo-seed.js pass.
 - Errors: None
 
+
+### [2026-10-25 05:21:44] - [Agent: Cline] - [COMMITTED]
+- Task: Remediation commit 8 - confirm before ?demo=reset wipes the device store
+- Files changed: js/eatouts-manager-seed.js, CHANGELOG-remediation.md
+- Commit: PENDING
+- Push: PENDING
+- Notes: DB.reset() now runs only after window.confirm() returns true; the check fails closed when confirm is unavailable and declining falls through to the idempotent merge (no data loss). Verified with jsdom: 11/11 checks incl. Cancel keeps a real order + 40 demo rows, OK wipes and re-seeds, no prompt without the parameter.
+- Errors: None
+

@@ -11,7 +11,8 @@
    - demo order timestamps are re-anchored to the seed moment (newest = five
      minutes ago) so "Orders today" is meaningful on the day the demo is seeded.
 
-   Add "?demo=reset" to the URL to reset the store and re-seed from scratch. */
+   Add "?demo=reset" to the URL to reset the store and re-seed from scratch
+   (the page asks for confirmation first; declining keeps the current data). */
 (function () {
   'use strict';
   var DB = window.EatoutsMgrDB;
@@ -171,8 +172,20 @@
   if (!reset && s && s.demoSeed === VERSION) return;
 
   if (reset && typeof DB.reset === 'function') {
-    DB.reset();
-    s = state();
+    /* ?demo=reset deletes everything on this device, so ask first. Declining
+       falls through to the normal idempotent merge (nothing is destroyed). */
+    var confirmed = false;
+    try {
+      confirmed = typeof window.confirm === 'function' && window.confirm(
+        'Reset the EatOuts demo data on this device?\n\n' +
+        'This deletes every order, menu item, promo, staff record and setting stored here, ' +
+        'then re-seeds the demo dataset. It cannot be undone.'
+      );
+    } catch (e) { confirmed = false; }
+    if (confirmed) {
+      DB.reset();
+      s = state();
+    }
   }
 
   prune();
