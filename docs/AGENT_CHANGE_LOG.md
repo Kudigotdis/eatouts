@@ -513,7 +513,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - tests/api-business.js (+25/-1: business_services fake-D1 table, two seed rows, 4 regression checks)
   - docs/AGENT_CHANGE_LOG.md (this entry; the earlier entry's claim at :496 is DELIBERATELY left untouched)
 - Commits: 663a45f (services GET guard), fde7f61 (regression checks), this entry (docs)
-- Push: PENDING
+- Push: fc769fa..origin/main (fast-forward), PUSH_EXIT=0 - this docs record rides the same push
 - Notes:
   RETRACTION FIRST. The contacts/users entry says business/services.js GET and business/profiles.js GET
   "have the same shape (session only + business_id from the query)". Half of that is false.
