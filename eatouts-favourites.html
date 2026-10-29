@@ -494,8 +494,9 @@
     inset:0;
     background:rgba(15,15,18,.55);
     z-index:100;
-    align-items:flex-end;
+    align-items:center;
     justify-content:center;
+    padding:16px;
     animation:fade .18s ease;
   }
   #fdbs.on{display:flex}
@@ -504,8 +505,9 @@
   .fdbsheet{
     background:#fff;
     width:100%;
-    max-height:86vh;
-    border-radius:20px 20px 0 0;
+    max-width:420px;
+    max-height:80dvh;
+    border-radius:16px;
     display:flex;
     flex-direction:column;
     overflow:hidden;
@@ -1239,6 +1241,9 @@ document.addEventListener("DOMContentLoaded", function () {
   /* ============================================================
      SHEET CLICK DELEGATION
      ============================================================ */
+  document.addEventListener('keydown', function(e){
+    if((e.key === 'Escape' || e.keyCode === 27) && document.getElementById('fdbs').classList.contains('on')){ ov = null; renderSheet(); }
+  });
   document.getElementById('fdbs').addEventListener('click', function(e){
     /* Backdrop click */
     if (e.target === this){ ov = null; renderSheet(); return; }

@@ -67,8 +67,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   function orderDetail(o){
     const items=Array.isArray(o.items)?o.items:[];
     const lines=[['Mode',o.delivery||o.mode],['Method',o.method||o.orderMethod]].filter(x=>x[1]);
-    const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:rgba(10,10,10,.5);z-index:1000;display:flex;align-items:flex-end;justify-content:center';
-    d.innerHTML=`<div style="background:#fff;width:100%;max-width:560px;max-height:90vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 18px 10px">
+    const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:rgba(10,10,10,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px';
+    d.innerHTML=`<div style="background:#fff;width:100%;max-width:420px;max-height:80dvh;overflow:auto;border-radius:16px;padding:18px 18px 10px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px"><div style="font-weight:900;font-size:16px">Order ${esc(o.id||'')} <span class="status ${esc(o.status||'new')}" style="margin-left:6px">${esc(o.status||'new')}</span></div><button type="button" style="border:1px solid #ddd;background:#f7f4ec;border-radius:8px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer" data-close>Close</button></div>
       <p style="margin:4px 0;font-size:13px"><strong>Customer:</strong> ${esc(o.customer||o.customerName||'Guest')}</p>
       ${o.whatsapp||o.customerWhatsapp?`<p style="margin:4px 0;font-size:13px"><strong>WhatsApp:</strong> ${esc(o.whatsapp||o.customerWhatsapp)}</p>`:''}

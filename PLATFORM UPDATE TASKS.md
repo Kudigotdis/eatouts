@@ -148,7 +148,7 @@ bottom nav where the page is part of the app shell.
 |---|---|---|---|---|
 | 0.1 | G1 | Kill visible scrollbars (all pages) — ✅ **DONE 2026-10-29** | M | all root `*.html`, `index.html`, `assets/eatouts-manager.css` |
 | 0.2 | G2 | Remove accordion indicators — ✅ **DONE 2026-10-30** | S | `eatout_event_builder.html`, `intake.html`, `eatouts-suppliers.html`, `get-started.html` |
-| 0.3 | G3 | Floating-popup standard (plain `X`, no beige circle) | M | `index.html`, `eatout_event_builder.html`, `customer-delivery.html`, all sheet pages |
+| 0.3 | G3 | Floating-popup standard (plain `X`, no beige circle) — ✅ **DONE 2026-10-30** | M | 17 pages + `tests/builder-suppliers.js` |
 | 0.4 | G4 | 90px thumbnail standard | M | `index.html`, `venue-about.html`, `eatouts-suppliers.html`, `designer-services.html`, `reserve-*` |
 | 0.5 | G5 | Doc/ledger baseline + verification pipeline green | S | docs + `scripts/` |
 
@@ -703,7 +703,9 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 |---|---|---|---|---|---|
 | 2026-10-29 | — | PLAN | `PLATFORM UPDATE TASKS.md` | n/a | (this commit) |
 | 2026-10-29 | G1 | DONE | 48 root `*.html`, `assets/eatouts-manager.css`, `eatouts-login.html`, `operator-businesses.html` | `html-catalog` ✔ · `appshell` ✔ · `smoke` ✔ · `inventory` ✔ (81 pre-existing warnings) · 0 pages without a scrollbar rule | `9f040e4` |
-| 2026-10-30 | G2 | DONE | `eatout_event_builder.html`, `eatouts-suppliers.html`, `intake.html`, `get-started.html` | `builder-preview` ✔ · `intake8` ✔ · grep for `▾ ▸ ▲ ▼ .chev cat-chev content:"+"` → 0 in app files | (this commit) |
+
+| 2026-10-30 | G2 | DONE | `eatout_event_builder.html`, `eatouts-suppliers.html`, `intake.html`, `get-started.html` | `builder-preview` PASSED, `intake8` PASSED, grep for chevrons and content:"+" returns 0 in app files | `8d4f1a3` |
+| 2026-10-30 | G3 | DONE | 17 pages (sheets/modals centred, `.fpop-x`), `tests/builder-suppliers.js` | `popups` PASSED, `builder-suppliers` PASSED, `builder-preview` PASSED, `intake8` PASSED, `delivery` PASSED, `checkout-delivery` PASSED, `about` PASSED, `venue-about-options` PASSED, `html-catalog` PASSED, `appshell` PASSED, `smoke` PASSED; 0 `.fpop-close` outside `dist/` | (this commit) |
 
 ### Per-task completion template
 

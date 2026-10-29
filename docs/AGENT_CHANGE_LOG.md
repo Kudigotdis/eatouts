@@ -844,3 +844,18 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: `node tests/builder-preview.js` -> PASSED; `node tests/intake8.js` -> PASSED; grep for the chevron glyphs and class="chev"|cat-chev|\.chev|content:"+"` -> 0 hits in root `*.html` and `js/*.js`.
 - NOT verified: no visual browser pass. `tests/_inline2.js` is a test fixture that still contains a chevron; it is not shipped and was left untouched.
 - Scope: qty steppers (`&minus;` buttons in index.html) were intentionally kept - they are quantity controls, not accordion indicators.
+
+### [2026-10-30 00:18:09] - [Agent: Big Pickle] - [G3: floating popups] - [COMMITTED]
+- Task: Phase 0 / G3 of PLATFORM UPDATE TASKS.md - every sheet/modal floats centred with equal side gaps, closes on outside tap and Escape, and no beige circular close button remains.
+- Files changed (17 pages + 1 test):
+  - eatout_event_builder.html - scrim centred + 16px padding, .fpop 420px/80dvh/16px, .fpop-close -> .fpop-x (plain X), Escape handler.
+  - customer-delivery, driver-delivery, restaurant-delivery, eatouts_feedback - .sheet-scrim centred, .sheet 420px/80dvh/16px.
+  - intake, gallery-onboarding, menu-onboarding, event-onboarding, promo-onboarding, caterer-onboarding, eatouts-blog - .modal-scrim centred + padding, .modal 420px/80dvh/16px.
+  - eatouts-suppliers - .scrim centred, .sheet 420px/80dvh/16px.
+  - eatouts-favourites - #fdbs centred, .fdbsheet 420px/80dvh/16px, Escape handler.
+  - operator-dashboard1, restaurant-dashboard - inline order/report sheets centred.
+  - Escape handlers added to intake, gallery-onboarding, menu-onboarding, promo-onboarding, event-onboarding, eatouts-suppliers, eatouts_feedback, driver-delivery, restaurant-delivery, eatouts-blog, eatouts-favourites.
+  - tests/builder-suppliers.js - closes the popup via .fpop-x.
+- Deliberate exception: index.html .fpop is an anchored popover (header menu / month picker), not a modal sheet. It already floats with equal 16px side insets and was left unchanged. Flagged for user review.
+- Verified: popups, builder-suppliers, builder-preview, intake8, delivery, checkout-delivery, about, venue-about-options, html-catalog, appshell, smoke -> all PASSED; grep -> 0 .fpop-close outside dist/.
+- NOT verified: no visual browser pass. staging/package/*.html are tracked copies and were not regenerated (they are not build output).

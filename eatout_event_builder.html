@@ -534,17 +534,16 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 
 /* ---------- MODALS / FLOATING ---------- */
 .fpop-scrim{position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:55;
-  display:flex;align-items:flex-end;justify-content:center;
+  display:flex;align-items:center;justify-content:center;padding:16px;
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .18s ease}
-@media(min-width:520px){.fpop-scrim{align-items:center;padding:20px}}
-.fpop{background:#fff;width:100%;max-width:460px;max-height:86vh;border-radius:20px 20px 0 0;
+@media(min-width:520px){.fpop-scrim{padding:20px}}
+.fpop{background:#fff;width:100%;max-width:420px;max-height:80dvh;border-radius:16px;
   display:flex;flex-direction:column;overflow:hidden;animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
-@media(min-width:520px){.fpop{border-radius:20px}}
 .fpop-hdr{padding:14px 18px;border-bottom:1px solid var(--border-soft);
   display:flex;align-items:center;gap:10px;flex:0 0 auto}
 .fpop-hdr h3{margin:0;font-size:14px;font-weight:900;flex:1}
-.fpop-close{width:30px;height:30px;border-radius:50%;background:var(--surface);
-  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;
+.fpop-x{width:30px;height:30px;background:transparent;
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;
   color:var(--muted)}
 .fpop-search{padding:10px 14px;flex:0 0 auto;border-bottom:1px solid var(--border-soft)}
 .fpop-search input{width:100%;min-height:42px;padding:10px 13px;background:var(--surface);
@@ -1973,7 +1972,7 @@ function renderFlyerAddMenu(){
     '<div class="flyer-menu-panel" data-stop="1">'+
       '<div class="flyer-menu-hdr">'+
         '<h3>Event Images</h3>'+
-        '<button class="fpop-close" data-act="closeFlyerMenu" aria-label="Close">×</button>'+
+        '<button class="fpop-x" data-act="closeFlyerMenu" aria-label="Close">×</button>'+
       '</div>'+
       '<div class="flyer-menu-hint">The first image is your main flyer. Swipe sideways — tap an image for options, or scroll to the end to add more.</div>'+
       '<div class="flyer-menu-track">'+
@@ -1995,7 +1994,7 @@ function renderFlyerItemMenu(){
     '<div class="prompt-panel" data-stop="1">'+
       '<div class="fpop-hdr">'+
         '<h3>Image options</h3>'+
-        '<button class="fpop-close" data-act="closeFlyerItemMenu" aria-label="Close">×</button>'+
+        '<button class="fpop-x" data-act="closeFlyerItemMenu" aria-label="Close">×</button>'+
       '</div>'+
       '<div class="prompt-foot" style="flex-direction:column;gap:9px">'+
         (canMain?'<button class="btn ghost full" data-act="flyerItemMakeMain">Make main</button>':'')+
@@ -2025,7 +2024,7 @@ function renderTitleEdit(){
     '<div class="title-edit-panel" data-stop="1">'+
       '<div class="fpop-hdr">'+
         '<h3>Event Title & Description</h3>'+
-        '<button class="fpop-close" data-act="closeTitleEdit" aria-label="Close">×</button>'+
+        '<button class="fpop-x" data-act="closeTitleEdit" aria-label="Close">×</button>'+
       '</div>'+
       '<div class="title-edit-body">'+
         '<div class="field">'+
@@ -2278,7 +2277,7 @@ function renderMenuPage(){
           '<h3>'+esc(STATE.venue.name)+'</h3>'+
           '<div class="mp-sub">'+pang+' '+esc(menuPageLabel(catKey))+' · '+(p.view==="summary"?"Order Summary":"select your items")+'</div>'+
         '</div>'+
-        '<button class="fpop-close" data-act="closeMenuPage" aria-label="Close">×</button>'+
+        '<button class="fpop-x" data-act="closeMenuPage" aria-label="Close">×</button>'+
       '</div>'+
       body+
     '</div>'+
@@ -2513,7 +2512,7 @@ function renderSupplierTypeMenu(){
     '<div class="fpop" data-stop="1">'+
       '<div class="fpop-hdr">'+
         '<h3>Supplier Directory</h3>'+
-        '<button class="fpop-close" data-act="closeSupplierTypeMenu" aria-label="Close">×</button>'+
+        '<button class="fpop-x" data-act="closeSupplierTypeMenu" aria-label="Close">×</button>'+
       '</div>'+
       '<div class="fpop-search">'+
         '<input type="text" id="stmSearch" placeholder="Search suppliers…" value="'+esc(p.search)+'">'+
@@ -3073,7 +3072,7 @@ function renderPrompt(){
     '<div class="prompt-panel" data-stop="1">'+
       '<div class="fpop-hdr">'+
         '<h3>'+esc(p.title||"Add")+'</h3>'+
-        '<button class="fpop-close" data-act="closePrompt" aria-label="Close">×</button>'+
+        '<button class="fpop-x" data-act="closePrompt" aria-label="Close">×</button>'+
       '</div>'+
       '<div class="prompt-body">'+fields+'</div>'+
       '<div class="prompt-foot" style="flex-wrap:wrap">'+
@@ -3106,7 +3105,7 @@ function renderLinkPicker(){
     '<div class="prompt-panel" data-stop="1">'+
       '<div class="fpop-hdr">'+
         '<h3>Add Link</h3>'+
-        '<button class="fpop-close" data-act="closeLinkPicker" aria-label="Close">×</button>'+
+        '<button class="fpop-x" data-act="closeLinkPicker" aria-label="Close">×</button>'+
       '</div>'+
       '<div class="link-icon-grid">'+grid+'</div>'+
     '</div>'+
@@ -3336,6 +3335,16 @@ function refreshSupCustom(btn,field,idx){
   scheduleSave();
 }
 let _flyerDrag=null;
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Escape"&&e.keyCode!==27) return;
+  if(!(STATE.flyerMenuOpen||STATE.flyerItemMenu.open||STATE.titleEditOpen||STATE.supplierTypeMenu.open||STATE.prompt.open||STATE.linkPicker.open||STATE.menuPage.open||STATE.supplierProfile.open||STATE.venueLogoOpen||STATE.supPhotoOpen)) return;
+  STATE.flyerMenuOpen=false;STATE.flyerItemMenu.open=false;STATE.titleEditOpen=false;
+  STATE.supplierTypeMenu.open=false;STATE.prompt.open=false;STATE.linkPicker.open=false;
+  STATE.menuPage={open:false,cat:"food",view:"items"};
+  STATE.supplierProfile={open:false,id:null,cat:"",items:{}};
+  STATE.venueLogoOpen=false;STATE.supPhotoOpen=false;STATE.supPhotoSrc="";
+  render();
+});
 document.addEventListener("click",function(e){
   // bottom-nav tabs return to the main app on the matching tab
   const navTab=e.target.closest(".nav-btn[data-tab]");

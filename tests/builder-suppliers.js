@@ -120,7 +120,7 @@ function draftWith(venueId, suppliers) {
   check('demo-rate note removed', !doc.querySelector('.fpop-note'));
 
   /* ---------- reopen via in-group Add (pre-selected category) ---------- */
-  click(w, doc.querySelector('.fpop-close'));
+  click(w, doc.querySelector('.fpop-x'));
   click(w, doc.querySelector('[data-sec="suppliers"] .sup-group .sup-add-btn'));
   const openCat = doc.querySelector('.stm-cat.open');
   check('in-group Add opens that category expanded', openCat && /event planning/i.test(openCat.querySelector('.stm-cat-name').textContent), openCat && openCat.querySelector('.stm-cat-name').textContent);
