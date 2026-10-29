@@ -156,7 +156,7 @@ bottom nav where the page is part of the app shell.
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
 | 1 | T01 | 1 | Promo text → 16px — ✅ **DONE 2026-10-30** | S |
-| 2 | T10 | 10 | `reserve-cats` white gap above `.phead` | S |
+| 2 | T10 | 10 | `reserve-cats` white gap above `.phead` — ✅ **DONE 2026-10-30** | S |
 | 3 | T19 | 19 | `about-legal` text → 16px | S |
 | 4 | T02 | 2 | `bev-toggle` white highlighter + 15% inactive | S |
 | 5 | T14 | 14 | `eatouts-business-signup` appbar → standard header | S |
@@ -255,10 +255,13 @@ bottom nav where the page is part of the app shell.
 - [ ] No layout overflow at 360px; text wraps, no horizontal scroll (G1). *(structural: chip rows are `flex-wrap:wrap`, body copy wraps; **needs a device pass** — jsdom does not lay out)*
 - [x] Unfocused feed unchanged. *(off-tab computed: `.phl li` 12px, `.pprice` 15px, `.pmeta` 11px; scoping is `#shell.promos-tab` only)*
 
-#### T10 — `reserve-cats` gap above `.phead` (user task 10) · S
-**Files:** `index.html` (`renderReserveCats`, ~8070; `.crumb`/`.phead` CSS ~553-562).
-**Steps:** remove the margin/padding that creates the white strip between `.crumb` and `.phead` on `data-page="reserve-cats"` (scope the fix to that renderer, not globally).
+#### T10 — `reserve-cats` gap above `.phead` (user task 10) · S — ✅ **DONE 2026-10-30**
+**Files:** `index.html` (`renderReserveCats`, ~8095; `.crumb`/`.phead` CSS 578–585).
+**Cause:** `.scroll` has no padding, so the inline `margin-top:12px` on that one `.phead` rendered as a white strip between the app bar and the grey band.
+**Fix:** dropped the inline `margin-top` in `renderReserveCats` only.
 **Done when** no white gap below the crumb; other pages' `.phead` unchanged.
+- [x] `reserve-cats` `.phead` computed `margin-top:0`, `padding-top:20px`, and it is the first element in `.scroll`.
+- [x] `reserve-groups` / `reserve-events` / `reserve-venue` keep their `padding-top:20px;margin-top:12px` (source check).
 
 #### T19 — `about-legal` text 16px (user task 19) · S
 **Files:** `index.html` CSS `:469-470`, renderer `:8646-8665`.
@@ -708,8 +711,10 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-30 | G4 | DONE | 19 pages (list/card thumbs 90px, `sup-profile-avatar` + `prompt-thumb` 150px) | 38 suites PASSED (incl. `html-catalog`, `inventory`, `smoke`, `appshell`, all `builder-*`, `beverages`, `blog`, `designer-services`, `venue-about-*`, `business-*`, `onboarding-bridge`); no sub-90 thumb left outside `_archive_local`/`dist`/`staging` | `7b90571` |
 | 2026-10-30 | G5 | DONE | `HTML_CATALOG.md` (regenerated), `PLATFORM UPDATE TASKS.md` (G4 hash filled in) | `npm run catalog` → 69 pages / 1093 lines; `html-catalog` PASSED (9 checks, 69 pages); `npm run inventory` PASSED (10 checks, 87 warnings — 86 pre-existing stale line refs, accepted as baseline); all 58 suites PASSED in 4 batches | (this commit) |
 | 2026-10-30 | T01 | DONE | `index.html` (new `.pmeta` class + scoped 16px block after `.ecard`), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 18/18 (`#shell.promos-tab` body copy = 16px, off-tab 12/15/11px unchanged, `h3` 17px); 14 suites PASSED, 0 failures (`smoke`, `checks`, `promocats`, `popups`, `appshell`, `customer`, `gallery`, `restloc`, `money`, `contracts`, `router`, `content`, `age-gate`, `beverages`); `html-catalog` PASSED · `inventory` PASSED (87 warnings). Not verified: 360px device pass | (this commit) |
+| 2026-10-30 | T10 | DONE | `index.html` (`renderReserveCats` — inline `margin-top` removed), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 6/6 (`.phead` margin-top 0, padding-top 20px, first child of `.scroll`); 12 suites PASSED, 0 failures (`customer`, `checks`, `smoke`, `appshell`, `popups`, `contracts`, `money`, `promocats`, `gallery`, `restloc`, `router`, `field`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
 
 ### Per-task completion template
+
 
 ```
 ### <ID> — <title> — DONE <date>

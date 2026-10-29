@@ -8094,7 +8094,9 @@ function buildPersonMessage(p){
 /* PAGE: reserve-cats — Plan Event */
 function renderReserveCats(){
   let h='<div class="scroll">';
-  h+='<div class="phead" style="margin-top:12px"><h2>Plan Event</h2></div>';
+  /* no margin-top here: .scroll has no padding, so any top margin renders as a
+     white strip between the app bar and the grey .phead band (T10) */
+  h+='<div class="phead"><h2>Plan Event</h2></div>';
   RESERVE.forEach(c=>{
     h+='<button class="cat-row evcat" data-act="openResCat" data-id="'+c.id+'">'+
       '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div></div></button>';

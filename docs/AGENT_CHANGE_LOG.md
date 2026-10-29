@@ -890,3 +890,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: ad-hoc jsdom probe (temp file, not committed) - 18/18 - promos-tab `.pbody` / `p` / `.mdesc` / `li` / `.phl li` / `.pprice` / `.pwas` / `.pmeta` / `.chip` / `.ctr .lbl` / `.pl-copy` / `.pl-btn` / `.promo-venue-name` all compute 16px; with the class removed the same nodes compute 12px / 15px / 11px, proving the scope; 14 suites PASSED with 0 failures (smoke, checks, promocats, popups, appshell, customer, gallery, restloc, money, contracts, router, content, age-gate, beverages); html-catalog PASSED (9 checks, 69 pages); inventory PASSED (10 checks, 87 warnings).
 - NOT verified: no 360px/390px/430px device or browser pass - jsdom does not lay out, so text wrapping/overflow on the expanded promo card still needs an eyeball.
 
+
+### [2026-10-30 09:05:00] - [Agent: Cline] - [T10: reserve-cats .phead gap] - [COMMITTED]
+- Task: user task 10 - remove the white strip above the "Plan Event" band on the reserve category page.
+- Files changed: index.html (`renderReserveCats` - inline `margin-top:12px` on `.phead` removed, comment added explaining why), HTML_CATALOG.md (regenerated), PLATFORM UPDATE TASKS.md.
+- Cause: `.scroll` (index.html:68) is `background:#fff` with no padding, so a top margin on the first child paints as a white band above the grey `.phead`.
+- Scope: one renderer only - `reserve-groups`, `reserve-events` and `reserve-venue` still carry `padding-top:20px;margin-top:12px` (they sit under a `.crumb`), and the `.phead` rule itself was not touched.
+- Verified: ad-hoc jsdom probe (temp, not committed) 6/6 - `.phead` computed `margin-top:0`, `padding-top:20px`, first element of `.scroll`, category rows still render; 12 suites PASSED 0 failures (customer, checks, smoke, appshell, popups, contracts, money, promocats, gallery, restloc, router, field); html-catalog PASSED; inventory PASSED (87 warnings).
+- NOT verified: no visual/browser pass at 360px.
+
