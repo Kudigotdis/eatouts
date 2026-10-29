@@ -150,7 +150,7 @@ bottom nav where the page is part of the app shell.
 | 0.2 | G2 | Remove accordion indicators — ✅ **DONE 2026-10-30** | S | `eatout_event_builder.html`, `intake.html`, `eatouts-suppliers.html`, `get-started.html` |
 | 0.3 | G3 | Floating-popup standard (plain `X`, no beige circle) — ✅ **DONE 2026-10-30** | M | 17 pages + `tests/builder-suppliers.js` |
 | 0.4 | G4 | 90px thumbnail standard — ✅ **DONE 2026-10-30** | M | 19 pages |
-| 0.5 | G5 | Doc/ledger baseline + verification pipeline green | S | docs + `scripts/` |
+| 0.5 | G5 | Doc/ledger baseline + verification pipeline green — ✅ **DONE 2026-10-30** | S | docs + `scripts/` |
 
 ### Phase 1 — Quick wins
 | # | ID | User task | Task | Size |
@@ -703,10 +703,10 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 |---|---|---|---|---|---|
 | 2026-10-29 | — | PLAN | `PLATFORM UPDATE TASKS.md` | n/a | (this commit) |
 | 2026-10-29 | G1 | DONE | 48 root `*.html`, `assets/eatouts-manager.css`, `eatouts-login.html`, `operator-businesses.html` | `html-catalog` ✔ · `appshell` ✔ · `smoke` ✔ · `inventory` ✔ (81 pre-existing warnings) · 0 pages without a scrollbar rule | `9f040e4` |
-
 | 2026-10-30 | G2 | DONE | `eatout_event_builder.html`, `eatouts-suppliers.html`, `intake.html`, `get-started.html` | `builder-preview` PASSED, `intake8` PASSED, grep for chevrons and content:"+" returns 0 in app files | `8d4f1a3` |
 | 2026-10-30 | G3 | DONE | 17 pages (sheets/modals centred, `.fpop-x`), `tests/builder-suppliers.js` | `popups` PASSED, `builder-suppliers` PASSED, `builder-preview` PASSED, `intake8` PASSED, `delivery` PASSED, `checkout-delivery` PASSED, `about` PASSED, `venue-about-options` PASSED, `html-catalog` PASSED, `appshell` PASSED, `smoke` PASSED; 0 `.fpop-close` outside `dist/` | `1352a26` |
-| 2026-10-30 | G4 | DONE | 19 pages (list/card thumbs 90px, `sup-profile-avatar` + `prompt-thumb` 150px) | 38 suites PASSED (incl. `html-catalog`, `inventory`, `smoke`, `appshell`, all `builder-*`, `beverages`, `blog`, `designer-services`, `venue-about-*`, `business-*`, `onboarding-bridge`); no sub-90 thumb left outside `_archive_local`/`dist`/`staging` | (this commit) |
+| 2026-10-30 | G4 | DONE | 19 pages (list/card thumbs 90px, `sup-profile-avatar` + `prompt-thumb` 150px) | 38 suites PASSED (incl. `html-catalog`, `inventory`, `smoke`, `appshell`, all `builder-*`, `beverages`, `blog`, `designer-services`, `venue-about-*`, `business-*`, `onboarding-bridge`); no sub-90 thumb left outside `_archive_local`/`dist`/`staging` | `7b90571` |
+| 2026-10-30 | G5 | DONE | `HTML_CATALOG.md` (regenerated), `PLATFORM UPDATE TASKS.md` (G4 hash filled in) | `npm run catalog` → 69 pages / 1093 lines; `html-catalog` PASSED (9 checks, 69 pages); `npm run inventory` PASSED (10 checks, 87 warnings — 86 pre-existing stale line refs, accepted as baseline); all 58 suites PASSED in 4 batches | (this commit) |
 
 ### Per-task completion template
 
