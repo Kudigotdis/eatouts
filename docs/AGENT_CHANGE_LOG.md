@@ -859,3 +859,17 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Deliberate exception: index.html .fpop is an anchored popover (header menu / month picker), not a modal sheet. It already floats with equal 16px side insets and was left unchanged. Flagged for user review.
 - Verified: popups, builder-suppliers, builder-preview, intake8, delivery, checkout-delivery, about, venue-about-options, html-catalog, appshell, smoke -> all PASSED; grep -> 0 .fpop-close outside dist/.
 - NOT verified: no visual browser pass. staging/package/*.html are tracked copies and were not regenerated (they are not build output).
+### [2026-10-30 00:34:24] - [Agent: Big Pickle] - [G4: 90px thumbnails] - [COMMITTED]
+- Task: Phase 0 / G4 of PLATFORM UPDATE TASKS.md - standard content thumbnail is 90x90 square with rounded corners; 150px only where a task specifies.
+- Files changed (18 pages):
+  - index.html - .mthumb 54->90, .bev-item .mthumb 54->90, .co-thumb 52->90, .rthumb 54->90, .rthumb .eo-thumb 54->90.
+  - eatout_event_builder.html - .venue-card-thumb 56->90, .sup-slot-thumb 44->90, .menu-item-thumb 44->90, .pit-thumb 52->90; .sup-profile-avatar 96->150, .prompt-thumb 96->150 (specified 150px).
+  - eatouts-suppliers.html - .pf-thumb 64->90.
+  - designer-services.html - designerAvatarHtml(d, 56) -> 90.
+  - menu-onboarding.html - .item-row .thumb 44->90.
+  - eatouts-blog.html - .admin-post-thumb 54->90.
+  - eatouts-checkout-summary, eatouts-addresses, blog-creator-dashboard, delivery-manager, eatouts-admin-dashboard, eatouts-events - .sec-thumb 48->90.
+  - caterer / bakery / bottle-store / mobile-kitchen / restaurant / supplier-onboarding - .branch-editor-head .thumb 62->90, .image-preview 84->90 and 66->90, .gallery-record grid 66px->90px.
+- Deliberately unchanged (D3): venue-about .promo-thumb (carousel keeps layout size), designer-services .mosaic cells (decorative), brand marks, caterer .branch-card .thumb (compact branch-selector chip, not a content thumb), and the _archive_local / staging copies.
+- Verified: 38 suites PASSED (html-catalog, inventory, smoke, appshell, all builder-*, beverages, blog, designer-services, venue-about-menu/options, business-*, onboarding-bridge, router, contracts, and more); no sub-90 content thumb remains outside _archive_local/dist/staging.
+- NOT verified: no visual browser pass at 360/390/430px widths.

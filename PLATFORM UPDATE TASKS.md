@@ -149,7 +149,7 @@ bottom nav where the page is part of the app shell.
 | 0.1 | G1 | Kill visible scrollbars (all pages) — ✅ **DONE 2026-10-29** | M | all root `*.html`, `index.html`, `assets/eatouts-manager.css` |
 | 0.2 | G2 | Remove accordion indicators — ✅ **DONE 2026-10-30** | S | `eatout_event_builder.html`, `intake.html`, `eatouts-suppliers.html`, `get-started.html` |
 | 0.3 | G3 | Floating-popup standard (plain `X`, no beige circle) — ✅ **DONE 2026-10-30** | M | 17 pages + `tests/builder-suppliers.js` |
-| 0.4 | G4 | 90px thumbnail standard | M | `index.html`, `venue-about.html`, `eatouts-suppliers.html`, `designer-services.html`, `reserve-*` |
+| 0.4 | G4 | 90px thumbnail standard — ✅ **DONE 2026-10-30** | M | 19 pages |
 | 0.5 | G5 | Doc/ledger baseline + verification pipeline green | S | docs + `scripts/` |
 
 ### Phase 1 — Quick wins
@@ -688,7 +688,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 
 | ID | Task | Question | Recommended default |
 |---|---|---|---|
-| **D3** | G4 | "All thumbnails 90px" — does that include **menu item thumbs** (currently 54px) and gallery grid cells? | Yes for list/card thumbs; galleries keep their layout sizes. |
+| **D3** | G4 | "All thumbnails 90px" — does that include **menu item thumbs** (currently 54px) and gallery grid cells? | Yes for list/card thumbs; galleries keep their layout sizes. *(Applied 2026-10-30: list/card thumbs → 90px, `sup-profile-avatar`/`prompt-thumb` → 150px, carousels/mosaics untouched.)* |
 | **D5** | T06 | The brief ends mid-sentence: *"When user opens"* — what should happen when a user opens an Order Group? | Open a group detail listing its summaries. |
 | **D6** | T18 | The brief says only "activate" under `eatouts-suppliers` — activate what? | The page's save/publish flow (currently gated). |
 | **D7** | T16 | Need the **Botswana WhatsApp Channel URL/number**. | Placeholder until provided. |
@@ -705,7 +705,8 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-29 | G1 | DONE | 48 root `*.html`, `assets/eatouts-manager.css`, `eatouts-login.html`, `operator-businesses.html` | `html-catalog` ✔ · `appshell` ✔ · `smoke` ✔ · `inventory` ✔ (81 pre-existing warnings) · 0 pages without a scrollbar rule | `9f040e4` |
 
 | 2026-10-30 | G2 | DONE | `eatout_event_builder.html`, `eatouts-suppliers.html`, `intake.html`, `get-started.html` | `builder-preview` PASSED, `intake8` PASSED, grep for chevrons and content:"+" returns 0 in app files | `8d4f1a3` |
-| 2026-10-30 | G3 | DONE | 17 pages (sheets/modals centred, `.fpop-x`), `tests/builder-suppliers.js` | `popups` PASSED, `builder-suppliers` PASSED, `builder-preview` PASSED, `intake8` PASSED, `delivery` PASSED, `checkout-delivery` PASSED, `about` PASSED, `venue-about-options` PASSED, `html-catalog` PASSED, `appshell` PASSED, `smoke` PASSED; 0 `.fpop-close` outside `dist/` | (this commit) |
+| 2026-10-30 | G3 | DONE | 17 pages (sheets/modals centred, `.fpop-x`), `tests/builder-suppliers.js` | `popups` PASSED, `builder-suppliers` PASSED, `builder-preview` PASSED, `intake8` PASSED, `delivery` PASSED, `checkout-delivery` PASSED, `about` PASSED, `venue-about-options` PASSED, `html-catalog` PASSED, `appshell` PASSED, `smoke` PASSED; 0 `.fpop-close` outside `dist/` | `1352a26` |
+| 2026-10-30 | G4 | DONE | 19 pages (list/card thumbs 90px, `sup-profile-avatar` + `prompt-thumb` 150px) | 38 suites PASSED (incl. `html-catalog`, `inventory`, `smoke`, `appshell`, all `builder-*`, `beverages`, `blog`, `designer-services`, `venue-about-*`, `business-*`, `onboarding-bridge`); no sub-90 thumb left outside `_archive_local`/`dist`/`staging` | (this commit) |
 
 ### Per-task completion template
 
