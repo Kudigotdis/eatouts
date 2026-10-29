@@ -907,3 +907,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: ad-hoc jsdom probe (temp, not committed) 7/7 - both classes compute 16px with the new line heights, renderer still emits both classes, no `font-size:13px` legal rule remains, global `::-webkit-scrollbar` hide still present; 6 suites PASSED 0 failures (customer, checks, smoke, content, about, appshell); html-catalog PASSED; inventory PASSED (87 warnings).
 - NOT verified: no visual/browser pass at 360px.
 
+
+### [2026-10-30 09:40:00] - [Agent: Cline] - [T02: bev-toggle thumb + inactive opacity] - [COMMITTED]
+- Task: user task 2 - drop the white highlighter behind the active Restaurants/Catering/Bakery/Beverages tab, wash the inactive tabs down to 15%.
+- Files changed: index.html (`.bev-toggle-thumb` background `#fff` -> `transparent`; `.bev-toggle-btn` `font-weight:700` -> `500` and `opacity:.15`; `:active` now resets `opacity:1`; transitions gained `opacity`), HTML_CATALOG.md (regenerated), PLATFORM UPDATE TASKS.md.
+- Decision: the plan allowed deleting the thumb or making it transparent. Chose transparent because `tests/beverages.js:57` asserts `.bev-toggle-thumb` exists and `tests/bakery-directory.js:96,123` assert `setBevToggleThumb()`; deleting the element would have required edits to 3 files for no visual gain.
+- Active state is now weight + opacity only (500 vs 700, .15 vs 1); colour is unchanged for both, so the strip keeps its blue palette.
+- Verified: ad-hoc jsdom probe (temp, not committed) 8/8 - thumb transparent, inactive .15/500, active 1/700, no white thumb rule left, renderer still emits the thumb, `.on` still set; 6 suites PASSED 0 failures (beverages, bakery-directory, customer, checks, smoke, appshell); html-catalog PASSED; inventory PASSED (87 warnings).
+- NOT verified: no visual/browser pass - 15% may read too faint on a real panel, worth a device look at 360px.
+

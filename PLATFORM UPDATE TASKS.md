@@ -158,7 +158,7 @@ bottom nav where the page is part of the app shell.
 | 1 | T01 | 1 | Promo text → 16px — ✅ **DONE 2026-10-30** | S |
 | 2 | T10 | 10 | `reserve-cats` white gap above `.phead` — ✅ **DONE 2026-10-30** | S |
 | 3 | T19 | 19 | `about-legal` text → 16px — ✅ **DONE 2026-10-30** | S |
-| 4 | T02 | 2 | `bev-toggle` white highlighter + 15% inactive | S |
+| 4 | T02 | 2 | `bev-toggle` white highlighter + 15% inactive — ✅ **DONE 2026-10-30** | S |
 | 5 | T14 | 14 | `eatouts-business-signup` appbar → standard header | S |
 | 6 | T20 | 20 | `operator-businesses` topbar → standard header | S |
 
@@ -271,13 +271,16 @@ bottom nav where the page is part of the app shell.
 - [x] renderer still emits `.legal-sec` + `.legal-para`; no `font-size:13px` legal rule remains.
 - [x] global `::-webkit-scrollbar{width:0;height:0;display:none}` (index.html:24) still hides the bar.
 
-#### T02 — `bev-toggle` white highlighter + 15% inactive (user task 2) · S
-**Files:** `index.html` CSS `:290-299` (`renderRestaurantsPager` ~5244).
+#### T02 — `bev-toggle` white highlighter + 15% inactive (user task 2) · S — ✅ **DONE 2026-10-30**
+**Files:** `index.html` CSS `:315-324` (`renderRestaurantsPager` `:5269-5283`).
 **Steps**
-1. Remove the white "thumb" highlight on `.bev-toggle-btn.on` — either delete `.bev-toggle-thumb` rendering or set it transparent when the `food` variant is active. The `on` state must be communicated by text weight/colour only.
-2. Inactive buttons → `opacity:.15`.
-3. Keep the active one at full opacity and readable.
+1. Remove the white "thumb" highlight on `.bev-toggle-btn.on` — took the "set it transparent" branch (`.bev-toggle-thumb{background:transparent}`) because `tests/beverages.js:57` and `tests/bakery-directory.js:96,123` assert the element and `setBevToggleThumb()` still exist; deleting the span would have meant touching 3 files. The `on` state is now carried by weight (`500` → `700`) plus opacity alone.
+2. Inactive buttons → `opacity:.15` (base rule), `transition:color .2s,opacity .2s`.
+3. Active stays `opacity:1`; `:active` press also goes to `opacity:1` so a tap on a 15% tab is not invisible.
 **Done when** no white pill/highlighter behind the active button; inactive pages are 15% opacity; `aria-selected` still correct.
+- [x] thumb computes `background: transparent` (no white rule left in the file).
+- [x] inactive tabs compute `opacity .15` / `font-weight 500`; active tab `opacity 1` / `font-weight 700`.
+- [x] `beverages` + `bakery-directory` suites still pass (thumb element, `setBevToggleThumb`, `aria-selected` intact).
 
 #### T14 — `eatouts-business-signup` header (user task 14) · S
 **Files:** `eatouts-business-signup.html:557-562` (`.appbar` with `.dot` "E").
@@ -717,6 +720,8 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-30 | T10 | DONE | `index.html` (`renderReserveCats` — inline `margin-top` removed), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 6/6 (`.phead` margin-top 0, padding-top 20px, first child of `.scroll`); 12 suites PASSED, 0 failures (`customer`, `checks`, `smoke`, `appshell`, `popups`, `contracts`, `money`, `promocats`, `gallery`, `restloc`, `router`, `field`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
 
 | 2026-10-30 | T19 | DONE | `index.html` (`.legal-sec`/`.legal-para` → 16px), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 7/7 (`.legal-sec` 16px/1.45, `.legal-para` 16px/1.6, renderer still emits both classes, no 13px legal rule, global scrollbar still hidden); 6 suites PASSED, 0 failures (`customer`, `checks`, `smoke`, `content`, `about`, `appshell`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
+
+| 2026-10-30 | T02 | DONE | `index.html` (`.bev-toggle-thumb` transparent, `.bev-toggle-btn` 500 weight + `.15` opacity), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 8/8 (thumb transparent, inactive `.15`/`500`, active `1`/`700`, `.on` + `aria-selected` intact); 6 suites PASSED, 0 failures (`beverages`, `bakery-directory`, `customer`, `checks`, `smoke`, `appshell`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
 
 ### Per-task completion template
 
