@@ -821,3 +821,19 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: None in this commit. The only failure in the whole run was self-inflicted and is already recorded under
   commit 6 (a wrong test expectation, fixed in the test not in the code).
 
+
+### [2026-10-27 01:47:40] - [Agent: TierMux] - [Status: COMMITTED]
+- Task: Update EatOuts_Directory_Subscription_Agreement.docx per Directory_Subscription_Agreement_Update.txt (onboarding fees by category, monthly subscription from 1 Jan 2027, P50/promo, remove Direct Customer Relationship & Zero Commission, email in 3.3, subscriber categories, schedule A fees).
+- Files changed: docs/EatOuts_Directory_Subscription_Agreement.docx
+- Commit: PENDING
+- Push: PENDING
+- Notes: Rewrote clause 2 (onboarding + monthly + promo), added 1.4 categories, removed old 2.2, renumbered operational boundaries to 2.4, updated 1.1/1.2, schedule A fees row + business category row, 3.3 email. Verified docx opens with python-docx.
+- Errors: None
+
+### [2026-10-29 23:57:51] - [Agent: Big Pickle] - [G1: no visible scrollbars] - [COMMITTED]
+- Task: Phase 0 / G1 of `PLATFORM UPDATE TASKS.md` - remove every visible scrollbar in the project.
+- Files changed: 48 root `*.html` (global `::-webkit-scrollbar` + `*{scrollbar-width:none}`), `assets/eatouts-manager.css` (same rules; covers manager pages that have no inline `<style>`), `eatouts-login.html` (body lock + `height:100dvh`), `operator-businesses.html` (body lock + `height:100dvh`), `PLATFORM UPDATE TASKS.md` (new plan).
+- Verified: `node tests/html-catalog.js` -> 9 checks, 69 pages, PASSED; `node tests/appshell.js` -> PASSED; `node tests/smoke.js` -> PASSED; `npm run inventory` -> PASSED (10 checks, 82 warnings, all pre-existing stale line numbers); audit script -> 0 root pages without a scrollbar rule.
+- NOT verified: no visual browser pass (CSS-level change). The full `npm test` run exceeded a 5-minute window and was not completed for this commit; the three suites above were run individually.
+- Errors: one transient `pwsh.dll` launch error from the shell tool; retried successfully.
+- Note: this commit also carries a pre-existing uncommitted ledger entry dated 2026-10-27 (TierMux, docx task) that was already in the working tree. The docx it references remains untracked and was not touched.

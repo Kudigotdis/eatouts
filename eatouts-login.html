@@ -9,6 +9,9 @@
 <title>Sign in · EatOuts</title>
 <link rel="stylesheet" href="assets/eatouts-manager.css">
 <style>
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+
 :root{
   --ink:#171719; --ink2:#35353B; --muted:#5E626B; --faint:#8A8F99;
   --paper:#F4F5F7; --card:#fff; --line:#E2E5EA; --line2:#F0F1F3;
@@ -19,7 +22,7 @@
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{height:100%;margin:0}
+html,body{height:100%;margin:0;overflow:hidden}
 body{
   font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   background:#E8EAEE;color:var(--ink);font-size:17px;line-height:1.55;
@@ -31,7 +34,7 @@ button{cursor:pointer}
 
 /* ---------- shell ---------- */
 #app-shell{
-  width:100%;max-width:520px;min-height:100vh;min-height:100dvh;margin:0 auto;
+  width:100%;max-width:520px;height:100dvh;margin:0 auto;
   background:var(--paper);display:flex;flex-direction:column;
   box-shadow:0 0 60px rgba(20,20,25,.12);position:relative;overflow:hidden;
 }
@@ -216,7 +219,7 @@ button{cursor:pointer}
 
 @media(min-width:560px){
   body{display:flex;align-items:center;justify-content:center;padding:20px 0}
-  #app-shell{min-height:0;border-radius:9px}
+  #app-shell{height:calc(100dvh - 40px);border-radius:9px}
 }
 @media(prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
