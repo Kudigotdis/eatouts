@@ -159,7 +159,7 @@ bottom nav where the page is part of the app shell.
 | 2 | T10 | 10 | `reserve-cats` white gap above `.phead` — ✅ **DONE 2026-10-30** | S |
 | 3 | T19 | 19 | `about-legal` text → 16px — ✅ **DONE 2026-10-30** | S |
 | 4 | T02 | 2 | `bev-toggle` white highlighter + 15% inactive — ✅ **DONE 2026-10-30** | S |
-| 5 | T14 | 14 | `eatouts-business-signup` appbar → standard header | S |
+| 5 | T14 | 14 | `eatouts-business-signup` appbar → standard header — ✅ **DONE 2026-10-30** | S |
 | 6 | T20 | 20 | `operator-businesses` topbar → standard header | S |
 
 ### Phase 2 — Mechanical / multi-file
@@ -282,17 +282,22 @@ bottom nav where the page is part of the app shell.
 - [x] inactive tabs compute `opacity .15` / `font-weight 500`; active tab `opacity 1` / `font-weight 700`.
 - [x] `beverages` + `bakery-directory` suites still pass (thumb element, `setBevToggleThumb`, `aria-selected` intact).
 
-#### T14 — `eatouts-business-signup` header (user task 14) · S
-**Files:** `eatouts-business-signup.html:557-562` (`.appbar` with `.dot` "E").
-**Steps:** replace `.appbar` block with the standard header markup:
+#### T14 — `eatouts-business-signup` header (user task 14) · S — ✅ **DONE 2026-10-30**
+**Files:** `eatouts-business-signup.html` CSS `:58-79`, markup `:545-549`.
+**Steps:** replaced the `.appbar` block with the standard header markup:
 ```html
 <header id="hdr" data-act="closePickers">
   <button class="brand-mark" type="button" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
   <div class="hdr-right"><span class="hdr-chip" style="display: none;">Offline</span></div>
 </header>
 ```
-Keep the page's existing CSS variables; add the header rules from `venue-about.html` (already standard).
+CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-mark` 34px logo box, `.hdr-right`, `.hdr-chip`). Old `.appbar` and `.brand-mark .dot` rules deleted outright — nothing else referenced them.
 **Done when** header matches the standard block exactly, logo loads, no `hdr-chip` visible, page content starts below it without gap.
+- [x] one `<header>`, `id="hdr"`, `data-act="closePickers"`, brand `<button type="button">` + `assets/logo/EatOuts_Logo.png` (file present).
+- [x] `.hdr-chip` computes `display:none`.
+- [x] no `.appbar` rule or `.dot` badge left in the file.
+- ⚠️ Behaviour change: the old brand mark linked to `index.html#promos`; the standard block is a button, so the page no longer has that home link (matches the other pages).
+- ⚠️ `data-act="closePickers"` is inert on this page (no `data-act` dispatcher) — kept for markup parity.
 
 #### T20 — `operator-businesses` header (user task 20) · S
 **Files:** `operator-businesses.html:69-74`.
@@ -722,6 +727,8 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-30 | T19 | DONE | `index.html` (`.legal-sec`/`.legal-para` → 16px), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 7/7 (`.legal-sec` 16px/1.45, `.legal-para` 16px/1.6, renderer still emits both classes, no 13px legal rule, global scrollbar still hidden); 6 suites PASSED, 0 failures (`customer`, `checks`, `smoke`, `content`, `about`, `appshell`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
 
 | 2026-10-30 | T02 | DONE | `index.html` (`.bev-toggle-thumb` transparent, `.bev-toggle-btn` 500 weight + `.15` opacity), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 8/8 (thumb transparent, inactive `.15`/`500`, active `1`/`700`, `.on` + `aria-selected` intact); 6 suites PASSED, 0 failures (`beverages`, `bakery-directory`, `customer`, `checks`, `smoke`, `appshell`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
+
+| 2026-10-30 | T14 | DONE | `eatouts-business-signup.html` (standard `#hdr` + logo button, old `.appbar`/`.dot` rules removed), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 12/12 (single `#hdr`, `data-act`, `type=button`, `aria-label`, logo src/alt + file present, `.hdr-chip` `display:none`, no `.appbar`/`.dot` left); 8 suites PASSED, 0 failures (`business-auth`, `business-profiles`, `api-auth-flow`, `onboarding-bridge`, `customer`, `about`, `smoke`, `appshell`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
 
 ### Per-task completion template
 

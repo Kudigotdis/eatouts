@@ -916,3 +916,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: ad-hoc jsdom probe (temp, not committed) 8/8 - thumb transparent, inactive .15/500, active 1/700, no white thumb rule left, renderer still emits the thumb, `.on` still set; 6 suites PASSED 0 failures (beverages, bakery-directory, customer, checks, smoke, appshell); html-catalog PASSED; inventory PASSED (87 warnings).
 - NOT verified: no visual/browser pass - 15% may read too faint on a real panel, worth a device look at 360px.
 
+
+### [2026-10-30 09:55:00] - [Agent: Cline] - [T14: business-signup standard header] - [COMMITTED]
+- Task: user task 14 - the business signup landing page still used the old `.appbar` with an "E" dot badge.
+- Files changed: eatouts-business-signup.html (`.appbar` + `.brand-mark` + `.brand-mark .dot` CSS replaced by the `venue-about.html:63-67` header block; markup replaced by the standard `<header id="hdr" data-act="closePickers">`), HTML_CATALOG.md (regenerated), PLATFORM UPDATE TASKS.md.
+- Deletions proved safe by grep: no remaining `.appbar` selector, no `class="dot"`, no JS hooking either.
+- Behaviour change logged in the plan doc: the brand mark used to be an `<a href="index.html#promos">`; it is now the standard `<button>`, so this page loses that home link, matching the rest of the app.
+- Verified: ad-hoc jsdom probe (temp, not committed) 12/12 - single header, id/data-act/type/aria-label/img src+alt correct, logo file present, `.hdr-chip` computes `display:none`, no appbar/dot leftovers, 58px header rule intact; 8 suites PASSED 0 failures (business-auth, business-profiles, api-auth-flow, onboarding-bridge, customer, about, smoke, appshell); html-catalog PASSED; inventory PASSED (87 warnings).
+- NOT verified: no visual/browser pass - vertical rhythm between the new white header and the `.content-sheet` card should be eyeballed at 360px.
+

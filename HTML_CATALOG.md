@@ -27,11 +27,11 @@ and `HTML_PAGES.md` the longer capability narrative.
 |-------|-------|------|-------|
 | Public & customer surfaces | 14 | 884 KB | 17586 |
 | Restaurant operator back-office | 9 | 605 KB | 8119 |
-| Manager / auth / platform admin (staged package) | 38 | 1262 KB | 25578 |
+| Manager / auth / platform admin (staged package) | 38 | 1263 KB | 25561 |
 | Delivery flows | 3 | 130 KB | 2237 |
 | Internal ops & billing | 3 | 154 KB | 2759 |
 | Developer harness | 2 | 226 KB | 4652 |
-| **Total** | **69** | **3259 KB** | **60931** |
+| **Total** | **69** | **3259 KB** | **60914** |
 
 Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
@@ -60,7 +60,7 @@ Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 | 15 | `restaurant-dashboard.html` | operator-onboarding | Owner dashboard: status, completeness, simulated analytics, billing and downloadable/printable reports. | Operator back-office â†’ Dashboard tab. | yes | `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 26 KB / 437 lines |
 | 16 | `eatouts-login.html` | manager-admin | Universal WhatsApp + PIN sign-in; routes the user by role. | Direct link; also index.html â†’ About â†’ Operator Sign in â†’ Universal sign-in. | - | — | 37 KB / 949 lines |
 | 17 | `eatouts-customer-signup.html` | manager-admin | Customer account creation: name, 10+ gate, required email, live town/area lookup, username + WhatsApp + password login, WhatsApp confirmation and favourite picks. | eatouts-login.html "Create an account"; the About Us guest popup (Sign Up); the index.html guest feature popup (Create Account). | - | — | 69 KB / 1517 lines |
-| 18 | `eatouts-business-signup.html` | manager-admin | Business-type chooser for new businesses; each card opens that type’s own onboarding form. | eatouts-login.html / marketing links. | - | — | 31 KB / 950 lines |
+| 18 | `eatouts-business-signup.html` | manager-admin | Business-type chooser for new businesses; each card opens that type’s own onboarding form. | eatouts-login.html / marketing links. | - | — | 32 KB / 933 lines |
 | 19 | `bottle-store-onboarding.html` | manager-admin | Bottle & liquor store setup: brand and outlets, stock, tastings, delivery and the Hosting Services block. | eatouts-business-signup.html → Bottle store; the operator dashboard. | - | — | 117 KB / 1633 lines |
 | 20 | `caterer-onboarding.html` | manager-admin | Caterer setup: shared brand settings plus a branch manager (each branch keeps its own address, service area, packages, add-ons, tastings, equipment, staffing and offers). | eatouts-business-signup.html → Caterer; the operator dashboard. | - | — | 149 KB / 2163 lines |
 | 21 | `lodge-onboarding.html` | manager-admin | Lodge setup: property details, rooms, amenities, rates and booking rules. | eatouts-business-signup.html → Lodge; the operator dashboard. | - | — | 32 KB / 1096 lines |
@@ -481,7 +481,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 31 KB / 950 lines (32117 bytes)
+- **Size:** 32 KB / 933 lines (32387 bytes)
 - **Loads:** —
 - **Notes:** Owners can claim a custom /bw/<slug> link (/api/links/check, /api/business/link); claiming a real listing also calls /api/business/claim. Account creation establishes a server session via js/eatouts-business-auth.js (/api/auth/signup type=business + /api/auth/verify), with a local-account fallback offline.
 

@@ -55,27 +55,12 @@
     position:relative;
   }
 
-  .appbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:14px 18px 6px;
-    position:sticky;
-    top:0;
-    z-index:20;
-    background:var(--brand-bg);
-  }
-  .brand-mark{
-    display:flex;align-items:center;gap:9px;
-    text-decoration:none;
-    font-weight:800;color:var(--ink);font-size:15px;letter-spacing:-.2px;
-  }
-  .brand-mark .dot{
-    width:26px;height:26px;border-radius:50%;
-    background:var(--ink);color:#f3ead8;
-    display:flex;align-items:center;justify-content:center;
-    font-size:12px;font-weight:900;letter-spacing:-.5px;
-  }
+  /* ── STANDARD HEADER ── */
+  #hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#ffffff;border-bottom:1px solid #ece7db;position:sticky;top:0;z-index:58;padding-top:env(safe-area-inset-top)}
+  .brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden;padding:0;margin:0}
+  .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+  .hdr-right{margin-left:auto}
+  .hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;border:1px solid #ece7db;border-radius:20px;padding:4px 9px;background:#faf8f2}
 
   /* ── CONTENT SHEET — 16px gaps on both sides, always ── */
   .content-sheet{
@@ -557,11 +542,9 @@
 
 <div class="app">
 
-  <header class="appbar">
-    <a class="brand-mark" href="index.html#promos" aria-label="EatOuts home">
-      <span class="dot">E</span>
-      <span>EatOuts</span>
-    </a>
+  <header id="hdr" data-act="closePickers">
+    <button class="brand-mark" type="button" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
+    <div class="hdr-right"><span class="hdr-chip" style="display: none;">Offline</span></div>
   </header>
 
   <div class="content-sheet">
