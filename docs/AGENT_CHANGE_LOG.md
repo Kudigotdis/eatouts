@@ -899,3 +899,11 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: ad-hoc jsdom probe (temp, not committed) 6/6 - `.phead` computed `margin-top:0`, `padding-top:20px`, first element of `.scroll`, category rows still render; 12 suites PASSED 0 failures (customer, checks, smoke, appshell, popups, contracts, money, promocats, gallery, restloc, router, field); html-catalog PASSED; inventory PASSED (87 warnings).
 - NOT verified: no visual/browser pass at 360px.
 
+
+### [2026-10-30 09:20:00] - [Agent: Cline] - [T19: about-legal 16px] - [COMMITTED]
+- Task: user task 19 - legal document reader text must be 16px.
+- Files changed: index.html (`.legal-sec` 13px -> 16px/1.45, `.legal-para` 13px -> 16px/1.6; section margins 4->6px and 8->10px for breathing room), HTML_CATALOG.md (regenerated), PLATFORM UPDATE TASKS.md.
+- Scope: `.legal-sec` / `.legal-para` are used only by `renderLegalDoc` (index.html:8686-8688), so no other page is affected. `.phead h2` title size untouched.
+- Verified: ad-hoc jsdom probe (temp, not committed) 7/7 - both classes compute 16px with the new line heights, renderer still emits both classes, no `font-size:13px` legal rule remains, global `::-webkit-scrollbar` hide still present; 6 suites PASSED 0 failures (customer, checks, smoke, content, about, appshell); html-catalog PASSED; inventory PASSED (87 warnings).
+- NOT verified: no visual/browser pass at 360px.
+

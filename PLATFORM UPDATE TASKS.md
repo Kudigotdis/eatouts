@@ -157,7 +157,7 @@ bottom nav where the page is part of the app shell.
 |---|---|---|---|---|
 | 1 | T01 | 1 | Promo text → 16px — ✅ **DONE 2026-10-30** | S |
 | 2 | T10 | 10 | `reserve-cats` white gap above `.phead` — ✅ **DONE 2026-10-30** | S |
-| 3 | T19 | 19 | `about-legal` text → 16px | S |
+| 3 | T19 | 19 | `about-legal` text → 16px — ✅ **DONE 2026-10-30** | S |
 | 4 | T02 | 2 | `bev-toggle` white highlighter + 15% inactive | S |
 | 5 | T14 | 14 | `eatouts-business-signup` appbar → standard header | S |
 | 6 | T20 | 20 | `operator-businesses` topbar → standard header | S |
@@ -263,10 +263,13 @@ bottom nav where the page is part of the app shell.
 - [x] `reserve-cats` `.phead` computed `margin-top:0`, `padding-top:20px`, and it is the first element in `.scroll`.
 - [x] `reserve-groups` / `reserve-events` / `reserve-venue` keep their `padding-top:20px;margin-top:12px` (source check).
 
-#### T19 — `about-legal` text 16px (user task 19) · S
-**Files:** `index.html` CSS `:469-470`, renderer `:8646-8665`.
-**Steps:** `.legal-sec{font-size:16px}` and `.legal-para{font-size:16px;line-height:1.6}`; check headings scale proportionally.
+#### T19 — `about-legal` text 16px (user task 19) · S — ✅ **DONE 2026-10-30**
+**Files:** `index.html` CSS `:494-495`, renderer `renderLegalDoc` `:8673-8693`.
+**Steps:** `.legal-sec{font-size:16px;line-height:1.45}` and `.legal-para{font-size:16px;line-height:1.6}` (section margins nudged 4→6px / 8→10px so the bigger type does not look cramped); no other page uses those two classes, so the change is effectively local to the legal reader.
 **Done when** every legal paragraph and section heading computes to ≥16px; long docs still scroll inside `.scroll` with no visible bar.
+- [x] `.legal-sec` → `16px/1.45`, `.legal-para` → `16px/1.6` (computed, jsdom).
+- [x] renderer still emits `.legal-sec` + `.legal-para`; no `font-size:13px` legal rule remains.
+- [x] global `::-webkit-scrollbar{width:0;height:0;display:none}` (index.html:24) still hides the bar.
 
 #### T02 — `bev-toggle` white highlighter + 15% inactive (user task 2) · S
 **Files:** `index.html` CSS `:290-299` (`renderRestaurantsPager` ~5244).
@@ -712,6 +715,8 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-30 | G5 | DONE | `HTML_CATALOG.md` (regenerated), `PLATFORM UPDATE TASKS.md` (G4 hash filled in) | `npm run catalog` → 69 pages / 1093 lines; `html-catalog` PASSED (9 checks, 69 pages); `npm run inventory` PASSED (10 checks, 87 warnings — 86 pre-existing stale line refs, accepted as baseline); all 58 suites PASSED in 4 batches | (this commit) |
 | 2026-10-30 | T01 | DONE | `index.html` (new `.pmeta` class + scoped 16px block after `.ecard`), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 18/18 (`#shell.promos-tab` body copy = 16px, off-tab 12/15/11px unchanged, `h3` 17px); 14 suites PASSED, 0 failures (`smoke`, `checks`, `promocats`, `popups`, `appshell`, `customer`, `gallery`, `restloc`, `money`, `contracts`, `router`, `content`, `age-gate`, `beverages`); `html-catalog` PASSED · `inventory` PASSED (87 warnings). Not verified: 360px device pass | (this commit) |
 | 2026-10-30 | T10 | DONE | `index.html` (`renderReserveCats` — inline `margin-top` removed), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 6/6 (`.phead` margin-top 0, padding-top 20px, first child of `.scroll`); 12 suites PASSED, 0 failures (`customer`, `checks`, `smoke`, `appshell`, `popups`, `contracts`, `money`, `promocats`, `gallery`, `restloc`, `router`, `field`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
+
+| 2026-10-30 | T19 | DONE | `index.html` (`.legal-sec`/`.legal-para` → 16px), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 7/7 (`.legal-sec` 16px/1.45, `.legal-para` 16px/1.6, renderer still emits both classes, no 13px legal rule, global scrollbar still hidden); 6 suites PASSED, 0 failures (`customer`, `checks`, `smoke`, `content`, `about`, `appshell`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
 
 ### Per-task completion template
 
