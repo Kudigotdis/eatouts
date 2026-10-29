@@ -160,7 +160,7 @@ bottom nav where the page is part of the app shell.
 | 3 | T19 | 19 | `about-legal` text → 16px — ✅ **DONE 2026-10-30** | S |
 | 4 | T02 | 2 | `bev-toggle` white highlighter + 15% inactive — ✅ **DONE 2026-10-30** | S |
 | 5 | T14 | 14 | `eatouts-business-signup` appbar → standard header — ✅ **DONE 2026-10-30** | S |
-| 6 | T20 | 20 | `operator-businesses` topbar → standard header | S |
+| 6 | T20 | 20 | `operator-businesses` topbar → standard header — ✅ **DONE 2026-10-30** | S |
 
 ### Phase 2 — Mechanical / multi-file
 | # | ID | User task | Task | Size |
@@ -299,10 +299,16 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - ⚠️ Behaviour change: the old brand mark linked to `index.html#promos`; the standard block is a button, so the page no longer has that home link (matches the other pages).
 - ⚠️ `data-act="closePickers"` is inert on this page (no `data-act` dispatcher) — kept for markup parity.
 
-#### T20 — `operator-businesses` header (user task 20) · S
-**Files:** `operator-businesses.html:69-74`.
-**Steps:** replace `.topbar` + `.brand-info`/`brand-name` with the standard header. Move "My businesses" into the page body (`page-head`) — it already has a `.page-title`, so delete the duplicate.
+#### T20 — `operator-businesses` header (user task 20) · S — ✅ **DONE 2026-10-30**
+**Files:** `operator-businesses.html` CSS `:21-25`, markup `:72-79`, `theme-color` `:7`.
+**Steps:** replaced the dark `.topbar` + `.brand-info`/`.brand-name` with the standard `#hdr` block; the page title now lives only in the body `page-head`.
 **Done when** standard header present, no duplicated title, list still loads.
+- [x] one `<header id="hdr" data-act="closePickers">` with the logo `<button>` + hidden `.hdr-chip`; `.topbar` / `.brand-info` / `.brand-name` rules deleted (grep: zero hits).
+- [x] exactly one `<h1>` on the page, text "My businesses", inside `.page-head`; the header carries no heading.
+- [x] `theme-color` moved `#171719` → `#ffffff` so the browser chrome matches the now-white header.
+- [x] body title renamed "Businesses" → "My businesses" (the header's title had to land somewhere; keeps the page name identical to `<title>`).
+- [x] `.scroll` keeps its own `padding:14px 12px 22px`, so the list starts right under the header with no dead band.
+- ⚠️ The old brand mark linked to `index.html#promos`; the standard block is a button, so that shortcut is gone (same as T14).
 
 ---
 
@@ -729,6 +735,8 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-30 | T02 | DONE | `index.html` (`.bev-toggle-thumb` transparent, `.bev-toggle-btn` 500 weight + `.15` opacity), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 8/8 (thumb transparent, inactive `.15`/`500`, active `1`/`700`, `.on` + `aria-selected` intact); 6 suites PASSED, 0 failures (`beverages`, `bakery-directory`, `customer`, `checks`, `smoke`, `appshell`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
 
 | 2026-10-30 | T14 | DONE | `eatouts-business-signup.html` (standard `#hdr` + logo button, old `.appbar`/`.dot` rules removed), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 12/12 (single `#hdr`, `data-act`, `type=button`, `aria-label`, logo src/alt + file present, `.hdr-chip` `display:none`, no `.appbar`/`.dot` left); 8 suites PASSED, 0 failures (`business-auth`, `business-profiles`, `api-auth-flow`, `onboarding-bridge`, `customer`, `about`, `smoke`, `appshell`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
+
+| 2026-10-30 | T20 | DONE | `operator-businesses.html` (standard `#hdr`, body `h1` "My businesses", white `theme-color`, old `.topbar` rules removed), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 15/15 (single `#hdr`, logo + hidden chip, one `h1` in `.page-head`, header has no heading, no `.topbar`/`.brand-*` rules); 8 suites PASSED, 0 failures (`login`, `business-auth`, `business-profiles`, `customer`, `smoke`, `appshell`, `checks`, `api-business`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
 
 ### Per-task completion template
 

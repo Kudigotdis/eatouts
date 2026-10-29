@@ -26,12 +26,12 @@ and `HTML_PAGES.md` the longer capability narrative.
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
 | Public & customer surfaces | 14 | 884 KB | 17586 |
-| Restaurant operator back-office | 9 | 605 KB | 8119 |
+| Restaurant operator back-office | 9 | 605 KB | 8117 |
 | Manager / auth / platform admin (staged package) | 38 | 1263 KB | 25561 |
 | Delivery flows | 3 | 130 KB | 2237 |
 | Internal ops & billing | 3 | 154 KB | 2759 |
 | Developer harness | 2 | 226 KB | 4652 |
-| **Total** | **69** | **3259 KB** | **60914** |
+| **Total** | **69** | **3260 KB** | **60912** |
 
 Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
@@ -111,7 +111,7 @@ Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 | 66 | `venue-about.html` | public-customer | Data-driven standalone venue About page: renders ANY resolved business's About surface (logo, hero, status, social row, Options, Operating Hours, Venue, Promos, Ambience, Amenities, Menu Tags) from the resolved business alone — no hardcoded venue values, section visibility driven only by present data. | Open directly; pick a business with ?link=<slug> (e.g. venue-about.html?link=nandos) or #<slug> (e.g. venue-about.html#nandos). No slug or an unresolvable slug hands straight back to the directory (location.replace('index.html#restaurants')) — there is no placeholder screen. | - | — | 60 KB / 1463 lines |
 | 67 | `bakery-onboarding.html` | operator-onboarding | Bakery setup: brand identity, outlets, product range, café/seating capability and the Hosting Services block. | eatouts-business-signup.html → Bakery; the operator dashboard. | - | — | 127 KB / 1705 lines |
 | 68 | `mobile-kitchen-onboarding.html` | operator-onboarding | Mobile kitchen setup: units, service locations, grab-and-go menu, throughput and the Hosting Services block. | eatouts-business-signup.html → Mobile Kitchen; the operator dashboard. | - | — | 113 KB / 1188 lines |
-| 69 | `operator-businesses.html` | operator-onboarding | Business hub: lists the operator's businesses as profile cards and routes each to its type-specific dashboard after sign-in. | index.html → About Us → Operator; or direct URL. | - | `eatouts_active_business_v2` `eatouts_businesses_v1` | 16 KB / 333 lines |
+| 69 | `operator-businesses.html` | operator-onboarding | Business hub: lists the operator's businesses as profile cards and routes each to its type-specific dashboard after sign-in. | index.html → About Us → Operator; or direct URL. | - | `eatouts_active_business_v2` `eatouts_businesses_v1` | 16 KB / 331 lines |
 
 ## 3. Navigation map
 
@@ -440,7 +440,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_active_business_v2` `eatouts_businesses_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 16 KB / 333 lines (16537 bytes)
+- **Size:** 16 KB / 331 lines (16801 bytes)
 - **Loads:** `assets/data/business_types.js`, `js/eatouts-auth.js`, `js/eatouts-business-api.js`, `js/eatouts-customer.js`
 - **Notes:** New page created as part of P9 business hub workstream. Replaces the in-app operator login page.
 

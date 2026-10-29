@@ -925,3 +925,11 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: ad-hoc jsdom probe (temp, not committed) 12/12 - single header, id/data-act/type/aria-label/img src+alt correct, logo file present, `.hdr-chip` computes `display:none`, no appbar/dot leftovers, 58px header rule intact; 8 suites PASSED 0 failures (business-auth, business-profiles, api-auth-flow, onboarding-bridge, customer, about, smoke, appshell); html-catalog PASSED; inventory PASSED (87 warnings).
 - NOT verified: no visual/browser pass - vertical rhythm between the new white header and the `.content-sheet` card should be eyeballed at 360px.
 
+
+### [2026-10-30 10:10:00] - [Agent: Cline] - [T20: operator-businesses standard header] - [COMMITTED]
+- Task: user task 20 - the operator businesses hub still opened with the dark `.topbar` and duplicated its title in the header.
+- Files changed: operator-businesses.html (`theme-color` `#171719` -> `#ffffff`; `.topbar`/`.brand-info`/`.brand-name` CSS replaced by the standard `#hdr` block; header markup replaced; body `.page-title` renamed "Businesses" -> "My businesses" and promoted from `h2` to `h1` since the header no longer owns the page heading), HTML_CATALOG.md (regenerated), PLATFORM UPDATE TASKS.md.
+- Deletions proved safe by grep: no `.topbar`, `.brand-info` or `.brand-name` selector, attribute or JS reference remains.
+- Verified: ad-hoc jsdom probe (temp, not committed) 15/15 - single `#hdr`, logo src/alt + file present, chip `display:none`, exactly one `h1` reading "My businesses" inside `.page-head`, header carries no heading, no old rules, 58px header rule intact, white theme-color; 8 suites PASSED 0 failures (login, business-auth, business-profiles, customer, smoke, appshell, checks, api-business - the last covers the businesses list API); html-catalog PASSED; inventory PASSED (87 warnings).
+- NOT verified: no visual/browser pass - the white header on the `#E7E9ED` body shell should be eyeballed at 360px.
+
