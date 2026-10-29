@@ -837,3 +837,10 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - NOT verified: no visual browser pass (CSS-level change). The full `npm test` run exceeded a 5-minute window and was not completed for this commit; the three suites above were run individually.
 - Errors: one transient `pwsh.dll` launch error from the shell tool; retried successfully.
 - Note: this commit also carries a pre-existing uncommitted ledger entry dated 2026-10-27 (TierMux, docx task) that was already in the working tree. The docx it references remains untracked and was not touched.
+
+### [2026-10-30 00:01:43] - [Agent: Big Pickle] - [G2: remove accordion indicators] - [COMMITTED]
+- Task: Phase 0 / G2 of `PLATFORM UPDATE TASKS.md` - no `^`, `v`, up/down arrows, `+`, `-` accordion indicators anywhere.
+- Files changed: `eatout_event_builder.html` (Preview Visibility chevron + its rotate CSS), `intake.html` (section chevron + its rotate CSS), `eatouts-suppliers.html` (`.cat-chev` + its rotate CSS), `get-started.html` (FAQ `::after` plus/minus marker).
+- Verified: `node tests/builder-preview.js` -> PASSED; `node tests/intake8.js` -> PASSED; grep for the chevron glyphs and class="chev"|cat-chev|\.chev|content:"+"` -> 0 hits in root `*.html` and `js/*.js`.
+- NOT verified: no visual browser pass. `tests/_inline2.js` is a test fixture that still contains a chevron; it is not shipped and was left untouched.
+- Scope: qty steppers (`&minus;` buttons in index.html) were intentionally kept - they are quantity controls, not accordion indicators.

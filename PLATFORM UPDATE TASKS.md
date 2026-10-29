@@ -147,7 +147,7 @@ bottom nav where the page is part of the app shell.
 | # | ID | Task | Size | Files |
 |---|---|---|---|---|
 | 0.1 | G1 | Kill visible scrollbars (all pages) — ✅ **DONE 2026-10-29** | M | all root `*.html`, `index.html`, `assets/eatouts-manager.css` |
-| 0.2 | G2 | Remove accordion indicators | S | `eatout_event_builder.html`, `intake.html`, `eatouts-suppliers.html` |
+| 0.2 | G2 | Remove accordion indicators — ✅ **DONE 2026-10-30** | S | `eatout_event_builder.html`, `intake.html`, `eatouts-suppliers.html`, `get-started.html` |
 | 0.3 | G3 | Floating-popup standard (plain `X`, no beige circle) | M | `index.html`, `eatout_event_builder.html`, `customer-delivery.html`, all sheet pages |
 | 0.4 | G4 | 90px thumbnail standard | M | `index.html`, `venue-about.html`, `eatouts-suppliers.html`, `designer-services.html`, `reserve-*` |
 | 0.5 | G5 | Doc/ledger baseline + verification pipeline green | S | docs + `scripts/` |
@@ -702,7 +702,8 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | Date | ID | Status | Files touched | Verification | Commit |
 |---|---|---|---|---|---|
 | 2026-10-29 | — | PLAN | `PLATFORM UPDATE TASKS.md` | n/a | (this commit) |
-| 2026-10-29 | G1 | DONE | 48 root `*.html`, `assets/eatouts-manager.css`, `eatouts-login.html`, `operator-businesses.html` | `html-catalog` ✔ · `appshell` ✔ · `smoke` ✔ · `inventory` ✔ (81 pre-existing warnings) · 0 pages without a scrollbar rule | (this commit) |
+| 2026-10-29 | G1 | DONE | 48 root `*.html`, `assets/eatouts-manager.css`, `eatouts-login.html`, `operator-businesses.html` | `html-catalog` ✔ · `appshell` ✔ · `smoke` ✔ · `inventory` ✔ (81 pre-existing warnings) · 0 pages without a scrollbar rule | `9f040e4` |
+| 2026-10-30 | G2 | DONE | `eatout_event_builder.html`, `eatouts-suppliers.html`, `intake.html`, `get-started.html` | `builder-preview` ✔ · `intake8` ✔ · grep for `▾ ▸ ▲ ▼ .chev cat-chev content:"+"` → 0 in app files | (this commit) |
 
 ### Per-task completion template
 
