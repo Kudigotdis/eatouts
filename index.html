@@ -187,6 +187,8 @@ img{display:block;max-width:100%}
 .phl li{font-size:12px;color:#5c5547;line-height:1.5;padding:7px 0 7px 14px;position:relative;border-bottom:1px solid #f4efe4}
 .phl li:last-child{border-bottom:0}
 .phl li::before{content:"";position:absolute;left:0;top:14px;width:5px;height:5px;border-radius:50%;background:#1a1a1a}
+/* card meta line (venue · day · validity) — size is raised to 16px inside the promos tab, see T01 block below */
+.pmeta{font-size:11px;color:#a89a7e;font-weight:700;letter-spacing:.03em;margin:-4px 0 10px}
 
 /* ---------- EVENT CARD (ACCORDION) ---------- */
 .ecard{margin:12px 14px;border-radius:16px;overflow:hidden;background:#ffffff;border:1px solid #ece7db;box-shadow:0 2px 8px -4px rgba(0,0,0,.06)}
@@ -198,6 +200,29 @@ img{display:block;max-width:100%}
 /* image drives card height: full width, full height, nothing cropped */
 .ecard .pimg{aspect-ratio:auto;display:block}
 .ecard .pimg>img{position:relative;inset:auto;width:100%;height:auto;object-fit:cover;display:block}
+
+/* ---------- PROMO BODY TEXT 16px (T01) — promos tab only ---------- */
+/* headings (.phead-btn h3, .subh, .pl-tag) keep their own sizes; everything
+   that reads as body copy is 16px so the expanded promo card is legible */
+#shell.promos-tab .pcard .pbody,
+#shell.promos-tab .ecard .pbody,
+#shell.promos-tab .promo-venue-card{font-size:16px}
+#shell.promos-tab .pbody p,
+#shell.promos-tab .pbody .mdesc{font-size:16px;line-height:1.55}
+#shell.promos-tab .pbody li,
+#shell.promos-tab .phl li{font-size:16px;line-height:1.5}
+#shell.promos-tab .pbody .pprice,
+#shell.promos-tab .pbody .pprice.pcat,
+#shell.promos-tab .pbody .pprice .pwas{font-size:16px}
+#shell.promos-tab .pbody .pmeta{font-size:16px}
+#shell.promos-tab .pbody .chip{font-size:16px}
+#shell.promos-tab .pbody .ctr .lbl,
+#shell.promos-tab .pbody .ctr .lbl em{font-size:16px}
+#shell.promos-tab .pbody .btn{font-size:16px}
+#shell.promos-tab .pl-title,
+#shell.promos-tab .pl-copy,
+#shell.promos-tab .pl-btn{font-size:16px}
+#shell.promos-tab .promo-venue-name{font-size:16px}
 
 /* ---------- ACCORDION (smooth collapse/expand) ---------- */
 .acc-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
@@ -6616,7 +6641,7 @@ function renderFeaturedCard(ev){
   let inner='<div class="pbody">';
   inner+='<div class="phead-btn" style="cursor:default">'+
     '<h3>'+esc(ev.title)+'</h3>'+
-    (ev.tagline?'<div style="font-size:12px;font-weight:700;color:#a89a7e;letter-spacing:.02em">'+esc(ev.tagline)+'</div>':'')+
+    (ev.tagline?'<div class="pmeta" style="margin:0">'+esc(ev.tagline)+'</div>':'')+
     '</div>';
 
   inner+=featChipRow([ev.dateLabel,ev.venue,ev.presenter]);
@@ -6709,7 +6734,7 @@ function renderPromoCard(p,dayIdx,idx,r){
       ? '<div class="pprice">'+fmt(p.price)+' <span class="pwas">'+fmt(p.was)+'</span></div>'
       : '<div class="pprice pcat">'+esc(promoCategoryLabel(promoCategoryOf(p)))+(p.subtype?' · '+esc(p.subtype):'')+'</div>')+
     '</button>';
-  inner+='<div style="font-size:11px;color:#a89a7e;font-weight:700;letter-spacing:.03em;margin:-4px 0 10px">'+
+  inner+='<div class="pmeta">'+
     esc(venue)+' &middot; '+esc(DAY_NAMES[dayIdx])+' &middot; '+esc(p.valid)+'</div>';
   inner+=hasItems
     ? '<ul class="phl">'+p.items.slice(0,5).map(function(it){return '<li>'+esc(it)+'</li>';}).join("")+'</ul>'
@@ -6960,7 +6985,7 @@ function renderPromoDetail(){
     venueCard+
     '<div class="pbody">'+
     '<h3 style="margin:0 0 6px;font-size:19px;font-weight:900;line-height:1.2;color:#1a1a1a">'+esc(p.title)+'</h3>'+
-    '<div style="font-size:11.5px;color:#a89a7e;font-weight:700;margin-bottom:10px">'+esc(venue)+' &middot; '+esc(day)+' &middot; '+esc(p.valid||"")+'</div>'+
+    '<div class="pmeta" style="margin:0 0 10px">'+esc(venue)+' &middot; '+esc(day)+' &middot; '+esc(p.valid||"")+'</div>'+
     (hasPrice
       ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
         '<span class="chip g">'+fmt(p.price)+'</span>'+

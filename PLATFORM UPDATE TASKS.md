@@ -155,7 +155,7 @@ bottom nav where the page is part of the app shell.
 ### Phase 1 — Quick wins
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
-| 1 | T01 | 1 | Promo text → 16px | S |
+| 1 | T01 | 1 | Promo text → 16px — ✅ **DONE 2026-10-30** | S |
 | 2 | T10 | 10 | `reserve-cats` white gap above `.phead` | S |
 | 3 | T19 | 19 | `about-legal` text → 16px | S |
 | 4 | T02 | 2 | `bev-toggle` white highlighter + 15% inactive | S |
@@ -242,7 +242,7 @@ bottom nav where the page is part of the app shell.
 
 ### Phase 1 — Quick wins
 
-#### T01 — Promo text 16px (user task 1) · S
+#### T01 — Promo text 16px (user task 1) · S — ✅ **DONE 2026-10-30**
 **Files:** `index.html` (CSS only).
 **Current:** promo cards are `.pcard`/`.ecard` with `.pbody`; body copy sits at 11–13.5px (`index.html:171-200`, `.phead-btn h3` 17px, `.pprice`, `.phl`, meta line 11px).
 **Steps**
@@ -251,9 +251,9 @@ bottom nav where the page is part of the app shell.
    plus explicit 16px on `.pbody p`, `.pbody li`, `.phl li`, `.pprice`, the meta line, and the CTA.
 2. Do **not** shrink headings; let them stay ≥17px.
 **Done when**
-- [ ] In the focused promo view every body line computes to 16px.
-- [ ] No layout overflow at 360px; text wraps, no horizontal scroll (G1).
-- [ ] Unfocused feed unchanged.
+- [x] In the focused promo view every body line computes to 16px. *(probe: `feed .pbody`, `.phl li`, `.pprice`, `.pwas`, `.pmeta`, `.mdesc`, `.chip`, `.ctr .lbl`, `.pl-copy`, `.pl-btn`, detail `.pbody`/`.promo-venue-name` — all 16px)*
+- [ ] No layout overflow at 360px; text wraps, no horizontal scroll (G1). *(structural: chip rows are `flex-wrap:wrap`, body copy wraps; **needs a device pass** — jsdom does not lay out)*
+- [x] Unfocused feed unchanged. *(off-tab computed: `.phl li` 12px, `.pprice` 15px, `.pmeta` 11px; scoping is `#shell.promos-tab` only)*
 
 #### T10 — `reserve-cats` gap above `.phead` (user task 10) · S
 **Files:** `index.html` (`renderReserveCats`, ~8070; `.crumb`/`.phead` CSS ~553-562).
@@ -707,6 +707,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-30 | G3 | DONE | 17 pages (sheets/modals centred, `.fpop-x`), `tests/builder-suppliers.js` | `popups` PASSED, `builder-suppliers` PASSED, `builder-preview` PASSED, `intake8` PASSED, `delivery` PASSED, `checkout-delivery` PASSED, `about` PASSED, `venue-about-options` PASSED, `html-catalog` PASSED, `appshell` PASSED, `smoke` PASSED; 0 `.fpop-close` outside `dist/` | `1352a26` |
 | 2026-10-30 | G4 | DONE | 19 pages (list/card thumbs 90px, `sup-profile-avatar` + `prompt-thumb` 150px) | 38 suites PASSED (incl. `html-catalog`, `inventory`, `smoke`, `appshell`, all `builder-*`, `beverages`, `blog`, `designer-services`, `venue-about-*`, `business-*`, `onboarding-bridge`); no sub-90 thumb left outside `_archive_local`/`dist`/`staging` | `7b90571` |
 | 2026-10-30 | G5 | DONE | `HTML_CATALOG.md` (regenerated), `PLATFORM UPDATE TASKS.md` (G4 hash filled in) | `npm run catalog` → 69 pages / 1093 lines; `html-catalog` PASSED (9 checks, 69 pages); `npm run inventory` PASSED (10 checks, 87 warnings — 86 pre-existing stale line refs, accepted as baseline); all 58 suites PASSED in 4 batches | (this commit) |
+| 2026-10-30 | T01 | DONE | `index.html` (new `.pmeta` class + scoped 16px block after `.ecard`), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 18/18 (`#shell.promos-tab` body copy = 16px, off-tab 12/15/11px unchanged, `h3` 17px); 14 suites PASSED, 0 failures (`smoke`, `checks`, `promocats`, `popups`, `appshell`, `customer`, `gallery`, `restloc`, `money`, `contracts`, `router`, `content`, `age-gate`, `beverages`); `html-catalog` PASSED · `inventory` PASSED (87 warnings). Not verified: 360px device pass | (this commit) |
 
 ### Per-task completion template
 
