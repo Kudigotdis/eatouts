@@ -583,6 +583,12 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 .phead{width:100vw;box-sizing:border-box;margin-left:calc(-50vw + 50%);margin-right:calc(-50vw + 50%);padding:20px 16px 16px;text-align:center;border-radius:0;background-color:rgba(211,211,211,.2)}
 .phead h2{margin:0 0 4px;font-size:28px;line-height:1.2;font-weight:900;letter-spacing:-.01em;color:#1a1a1a}
 .phead p{margin:0;font-size:15px;font-weight:700;color:#a89a7e;line-height:1.5}
+/* Reserve drill-down bands sit flush under the crumb and use a 2% black
+   tint instead of the default 20% grey (T11). Scoped by screen id so the
+   promos / menu / venue pages keep the base tint. */
+#shell .screen[data-page="reserve-groups"] .phead,
+#shell .screen[data-page="reserve-events"] .phead,
+#shell .screen[data-page="reserve-providers"] .phead{background-color:rgba(0,0,0,.02)}
 .menu-view .phead{padding-top:8px;padding-bottom:8px}
 .menu-view .phead h2{margin-bottom:0}
 .empty{padding:44px 20px;text-align:center;color:#a89a7e;font-size:12.5px;line-height:1.6}
@@ -8111,7 +8117,7 @@ function renderReserveGroups(){
   if(!cat)return '<div class="empty">Category not found.</div>';
   let h='<div class="scroll">';
   h+='<div class="crumb"><button data-act="backResCats">Reserve</button><span class="sep">/</span><span class="cur">'+esc(cat.name)+'</span></div>';
-  h+='<div class="phead" style="padding-top:20px;margin-top:12px"><h2>'+esc(cat.name)+'</h2></div>';
+  h+='<div class="phead" style="padding-top:20px"><h2>'+esc(cat.name)+'</h2></div>';
   cat.groups.forEach(function(g){
     h+='<button class="lrow" data-act="openResGroup" data-id="'+esc(g.name)+'">'+
       '<div class="ln">'+esc(g.name)+'</div></button>';
@@ -8128,7 +8134,7 @@ function renderReserveEvents(){
   if(!cat||!grp)return '<div class="empty">Not found.</div>';
   let h='<div class="scroll">';
   h+='<div class="crumb"><button data-act="backResGroups">'+esc(cat.name)+'</button><span class="sep">/</span><span class="cur">'+esc(grp.name)+'</span></div>';
-  h+='<div class="phead" style="padding-top:20px;margin-top:12px"><h2>'+esc(grp.name)+'</h2></div>';
+  h+='<div class="phead" style="padding-top:20px"><h2>'+esc(grp.name)+'</h2></div>';
   grp.events.forEach(function(e){
     h+='<button class="lrow" data-act="openResSub" data-id="'+esc(e.id)+'">'+
       '<div class="ln">'+esc(e.name)+(e.description?'<div class="ld">'+esc(e.description)+'</div>':'')+
@@ -8178,7 +8184,7 @@ function renderReserveProviders(){
 
   let h='<div class="scroll">';
   h+='<div class="crumb"><button data-act="backResProviders">'+esc(ev.name)+'</button><span class="sep">/</span><span class="cur">Venues</span></div>';
-  h+='<div class="phead" style="padding-top:20px;margin-top:12px"><h2>Choose a venue</h2><p>'
+  h+='<div class="phead" style="padding-top:20px"><h2>Choose a venue</h2><p>'
     +ordered.length+' venue'+(ordered.length===1?'':'s')
     +' for '+esc(ev.name)+'</p></div>';
   h+='<div class="pad" style="padding-top:0">';

@@ -165,7 +165,7 @@ bottom nav where the page is part of the app shell.
 ### Phase 2 — Mechanical / multi-file
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
-| 7 | T11 | 11 | `reserve-events/providers/groups` phead + 90px `rthumb` | S/M |
+| 7 | T11 | 11 | `reserve-events/providers/groups` phead + 90px `rthumb` — ✅ **DONE 2026-10-30** | S/M |
 | 8 | T17 | 17 | Blog cleanup (10 removals + move search box) | M |
 | 9 | T15 | 15 | 7 onboarding pages → standard header (drop `draft-pill`) | M |
 | 10 | T16 | 16 | `about-main` WhatsApp Channel per region | M |
@@ -261,7 +261,7 @@ bottom nav where the page is part of the app shell.
 **Fix:** dropped the inline `margin-top` in `renderReserveCats` only.
 **Done when** no white gap below the crumb; other pages' `.phead` unchanged.
 - [x] `reserve-cats` `.phead` computed `margin-top:0`, `padding-top:20px`, and it is the first element in `.scroll`.
-- [x] `reserve-groups` / `reserve-events` / `reserve-venue` keep their `padding-top:20px;margin-top:12px` (source check).
+- [x] `reserve-groups` / `reserve-events` / `reserve-venue` kept their `padding-top:20px;margin-top:12px` at the time of T10 (source check). *(superseded by T11, which removed that inline `margin-top` from groups/events/providers)*
 
 #### T19 — `about-legal` text 16px (user task 19) · S — ✅ **DONE 2026-10-30**
 **Files:** `index.html` CSS `:494-495`, renderer `renderLegalDoc` `:8673-8693`.
@@ -314,12 +314,16 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 2 — Mechanical / multi-file
 
-#### T11 — Reserve pages (user task 11) · S/M
+#### T11 — Reserve pages (user task 11) · S/M — ✅ **DONE 2026-10-30**
 **Files:** `index.html` (`renderReserveEvents`, `renderReserveProviders`, `renderReserveGroups`, ~8070-8300; `.phead` ~553-562; `.rthumb` CSS).
 **Steps**
 1. `reserve-events`, `reserve-providers`, `reserve-groups`: `.phead` background `rgba(0,0,0,.02)`; remove the gap between `.crumb` and `.phead` (same technique as T10, scoped).
 2. `reserve-providers`: every `.rrow .rthumb` → 90×90, square, rounded, `object-fit:cover` (G4).
 **Done when** all three pheads are 2% grey with no gap; provider thumbs compute to 90px; no other page affected.
+- [x] `reserve-groups`, `reserve-events`, `reserve-providers` `.phead` compute `background-color:rgba(0,0,0,0.02)` and `margin-top:0px`, each sitting directly after `.crumb`. *(probe)*
+- [x] Scoped by `#shell .screen[data-page="…"]`; `reserve-cats` still computes `rgba(211,211,211,0.2)`, promos/menu untouched. *(probe)*
+- [x] Every `.rrow .rthumb` on the provider page computes 90×90 (radius 15px, `overflow:hidden`, inner `.eo-thumb` 90px) — already delivered by G4, verified here rather than re-declared.
+- [ ] Visual check of the 2% band against the 4% crumb at 390px — **needs a device pass**.
 
 #### T17 — Blog cleanup (user task 17) · M
 **Files:** `eatouts-blog.html`.
