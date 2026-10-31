@@ -152,11 +152,11 @@ profile, the customer directory row and an `eatouts.venue.v1` submission.
 
 
 
-## eatouts-blog.html - blog + local admin (484 lines)
+## eatouts-blog.html - blog + local admin (453 lines)
 
 **Purpose:** public blog feed with per-post pages and a local authoring tool.
 
-**Can do** - feed + tag/search filtering (shareable `#tag-` hash and `?post=` deep links with OG tags), post view, admin create/edit/delete, **version history** (snapshot / restore), image upload via the shared compressor. Stores to `eatouts_blog_v1` (with a `history{}` map; history is shed before a save can exceed the 4 MB browser budget).
+**Can do** - feed + search filtering (search box sits above the bottom nav; shareable `#tag-` hash and `?post=` deep links with OG tags), post view, admin create/edit/delete, **version history** (snapshot / restore), image upload via the shared compressor. Stores to `eatouts_blog_v1` (with a `history{}` map; history is shed before a save can exceed the 4 MB browser budget).
 
 **Cannot do** - No server/CMS; posts live in this browser only (export the feed JSON to publish).
 

@@ -38,7 +38,7 @@ only reads; it never rewrites this file. It warns on line drift.
 | 4 | `one-pager.html` | Static sales one-pager for prospects. | Direct link | `PAGE: EatOuts — Pitch One-Pager` | 650 |
 | 5 | `partner-terms.html` | Static partner/merchant terms. | Direct link | `PAGE: Merchant Terms` | 188 |
 | 6 | `404.html` | Custom not-found page with rotating Mophutsi quotes. | Served automatically | `PAGE: 404 — Page Not Here` | 232 |
-| 7 | `eatouts-blog.html` | Blog feed with per-post pages + on-device authoring. | Direct / home links | `PAGE: Blog` | 491 |
+| 7 | `eatouts-blog.html` | Blog feed with per-post pages + on-device authoring. | Direct / home links | `PAGE: Blog` | 453 |
 | 8 | `eatouts-suppliers.html` | Supplier directory + self-onboarding and sign-in. | Direct link | `PAGE: Suppliers` | 1,780 |
 | 9 | `eatouts_feedback.html` | Multi-step feedback form → WhatsApp to support. | About → Settings → Feedback | `PAGE: Send feedback` | 834 |
 | 10 | `eatouts-about.html` | Public About EatOuts page (standalone). | About → Settings → About EatOuts | `PAGE: About` | 92 |

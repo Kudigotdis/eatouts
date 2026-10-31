@@ -942,3 +942,11 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: ad-hoc jsdom probe (temp, not committed) 16/16 - all three pheads compute `rgba(0,0,0,0.02)`, all three `margin-top` `0px`, each `.phead` is immediately after `.crumb`, `reserve-cats` still `rgba(211,211,211,0.2)`, provider rows render with every `.rthumb` exactly 90x90 (radius 15px, overflow hidden, inner `.eo-thumb` 90px), no `phead` inline `margin-top` left anywhere; 7 suites PASSED 0 failures (appshell, promocats, venue-slug, business-client, business-profiles, business-promos, onboarding-bridge); html-catalog PASSED.
 - NOT verified: no visual/browser pass - the 2% band vs the 4% crumb above it is a very small step, worth one look at 390px.
 
+
+### [2026-10-31 09:20:00] - [Agent: Big Pickle] - [T17: blog cleanup] - [COMMITTED]
+- Task: user task 17 - strip the blog's chip/tag/decoration layer and move the search box down above the bottom nav.
+- Files changed: eatouts-blog.html (removed `.hdr-chip`/`.hdr-back`/`.page` CSS + markup, `.tag-strip`/`.tag-pill`, `.tl-card-foot`/`.tl-card-tags`/`.tl-card-tag`, `.post-tags`/`.post-tag`, `.blk-heading`, both timeline `::before` rules; deleted the `copyLink` button and the stale header comment; `.search-wrap` moved out of `#viewport` to sit above `#bottomNav` as `flex:0 0 auto`, not sticky), js/eatouts-blog.js (removed `paintHeader`, the `heading` block type + renderer, the tag-strip builder, card tags/foot, post tags, `copyLink` handling), tests/blog.js (the tag-pill test became `timeline renders no tag strip`).
+- Behaviour kept: `#tag-` hash deep links still boot the tag filter and `?post=` OG tags are untouched; the search input lives outside the viewport now, so the page-shell listeners keep it in sync across re-renders.
+- Verified: `node tests/blog.js` 23/23 PASSED; `npm run catalog`; `npm run inventory`; full `npm test`.
+- NOT verified: no visual/browser pass - the new bottom search bar should be eyeballed at 360px against the bottom nav safe area.
+

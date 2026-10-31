@@ -74,21 +74,8 @@ async function main() {
   check('back() restores document.title', d2.window.document.title.indexOf(first.title) === -1,
     d2.window.document.title);
 
-  /* ---------- 3. tag pills write #tag- deep links ---------- */
-  const pill = a.doc.querySelector('[data-act="pickTag"][data-tag]:not([data-tag=""])');
-  if (pill) {
-    const tag = pill.getAttribute('data-tag');
-    pill.dispatchEvent(new a.window.MouseEvent('click', { bubbles: true, cancelable: true }));
-    check('pickTag sets #tag- hash', (a.window.location.hash || '').indexOf('#tag-') === 0,
-      'hash=' + a.window.location.hash);
-    check('activeTag matches pill', B._state().activeTag === tag,
-      B._state().activeTag + ' vs ' + tag);
-    const clear = a.doc.querySelector('[data-act="pickTag"][data-tag=""]');
-    clear.dispatchEvent(new a.window.MouseEvent('click', { bubbles: true, cancelable: true }));
-    check('All-posts clears the hash', !a.window.location.hash, 'hash=' + a.window.location.hash);
-  } else {
-    check('tag pill available for hash test', false, 'no pickTag pill in timeline');
-  }
+  /* ---------- 3. no tag strip in the timeline (T17) ---------- */
+  check('timeline renders no tag strip', !a.doc.querySelector('.tag-strip, [data-act="pickTag"]'));
 
   /* boot straight from a #tag- hash */
   const tagSlug = (first.tags && first.tags[0]) ? first.tags[0].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : '';

@@ -51,7 +51,7 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | eatout_event_builder.html | staff/experimental | no | none (legacy builder) | STUB/DEMO | 197K/4104 | esc ✔ | 0 |
 | eatouts-addresses.html | customers | guard | EatoutsMgrDB | FULL | 4.8K/9 | esc ✔ / confirm ✔ / audit ✔ | 0 |
 | eatouts-admin-dashboard.html | platform admin | guard | EatoutsMgrDB | FULL | 2.2K/1 | — / audit — | 0 |
-| eatouts-blog.html | readers + local admin | no (on-device key) | `eatouts_blog_v1` + cache | FULL | 28K/492 | — | 0 |
+| eatouts-blog.html | readers + local admin | no (on-device key) | `eatouts_blog_v1` + cache | FULL | 25K/453 | — | 0 |
 | eatouts-business-signup.html | new business | no | EatoutsMgrDB | FULL | 24K/502 | — | 0 |
 | eatouts-customer-signup.html | customers | no | `eatouts.customer-signup.v4` | FULL | 69K/1406 | esc ✔ / audit — | 1 |
 | eatouts-disputes.html | platform admin/ops | guard | EatoutsMgrDB | FULL | 1.7K/2 | esc ✔ / audit — | 0 |

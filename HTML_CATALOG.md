@@ -3,7 +3,7 @@
 > **Auto-generated — do not edit by hand.** Edit `scripts/html_catalog.meta.json`,
 > then run `npm run catalog` (regenerates this file) and `npm test` (guards parity).
 >
-> Generated: 2026-10-30 · Source scan of the project-root `*.html` files.
+> Generated: 2026-10-31 · Source scan of the project-root `*.html` files.
 
 The numbered, always-current index of every page in the project root: what it is
 for, who uses it, how you reach and operate it, and where it stores data. It is
@@ -25,13 +25,13 @@ and `HTML_PAGES.md` the longer capability narrative.
 
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
-| Public & customer surfaces | 14 | 884 KB | 17592 |
+| Public & customer surfaces | 14 | 881 KB | 17553 |
 | Restaurant operator back-office | 9 | 605 KB | 8117 |
 | Manager / auth / platform admin (staged package) | 38 | 1263 KB | 25561 |
 | Delivery flows | 3 | 130 KB | 2237 |
 | Internal ops & billing | 3 | 154 KB | 2759 |
 | Developer harness | 2 | 226 KB | 4652 |
-| **Total** | **69** | **3260 KB** | **60918** |
+| **Total** | **69** | **3257 KB** | **60879** |
 
 Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
@@ -49,7 +49,7 @@ Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 | 4 | `one-pager.html` | public-customer | Static sales one-pager for prospects. | Direct link. | - | — | 17 KB / 653 lines |
 | 5 | `partner-terms.html` | public-customer | Static partner/merchant terms. | Direct link. | - | — | 15 KB / 191 lines |
 | 6 | `404.html` | public-customer | Custom not-found page served by Cloudflare Pages from the build root. | Served automatically on a missing route. | - | — | 9 KB / 235 lines |
-| 7 | `eatouts-blog.html` | public-customer | Public blog feed with per-post pages and an on-device authoring tool with version history. | Direct / home links. | - | `EatoutsDB`→`eatouts_db_v2` | 28 KB / 492 lines |
+| 7 | `eatouts-blog.html` | public-customer | Public blog feed with per-post pages and an on-device authoring tool with version history. | Direct / home links. | - | `EatoutsDB`→`eatouts_db_v2` | 25 KB / 453 lines |
 | 8 | `eatouts-suppliers.html` | public-customer | Supplier directory plus on-device supplier self-onboarding and sign-in. | Direct link. | - | `eatouts_supplier_draft_v1` `eatouts_supplier_session_v1` `eatouts_suppliers_v1` | 93 KB / 1778 lines |
 | 9 | `eatouts_feedback.html` | public-customer | Multi-step feedback form that queues submissions and composes a WhatsApp message to support. | About tab â†’ Settings accordion â†’ Feedback row. | - | `eatouts_feedback_queue_v1` | 40 KB / 834 lines |
 | 10 | `restaurant-onboarding.html` | operator-onboarding | Restaurant setup: brand identity, branches/outlets, venue spaces, menu, promotions and the Hosting Services block. | eatouts-business-signup.html → Restaurant; the operator dashboard. | yes | — | 125 KB / 577 lines |
@@ -226,11 +226,11 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Purpose:** Public blog feed with per-post pages and an on-device authoring tool with version history.
 - **Audience:** Readers (+ local blog admin)
 - **Reach it:** Direct / home links.
-- **How you use it:** Read posts, filter by tag/search, share ?post= deep links; admin create/edit/delete with snapshot/restore history.
+- **How you use it:** Read posts, search the feed, share ?post= deep links; admin create/edit/delete with snapshot/restore history.
 - **Auth:** open · **Status:** FULL
 - **Store:** `EatoutsDB`→`eatouts_db_v2`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 28 KB / 492 lines (28462 bytes)
+- **Size:** 25 KB / 453 lines (25491 bytes)
 - **Loads:** `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-brand.js`, `js/eatouts-blog.js`
 - **Notes:** Local admin is an on-device key, not EatoutsAuth. Posts export as JSON to publish; no cloud sync.
 
@@ -1044,6 +1044,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 
 ## 5. Change log
 
+- **2026-10-31** — T17 blog cleanup: removed the header chip/back/page labels, every ::before pseudo-content, the tag strip and tag pills, card tags/foot, post tags, the copy-link button and block headings. The search box now sits above the bottom nav instead of sticky at the top of the timeline. tests/blog.js asserts the tag strip is gone.
 - **2026-10-22** — One sign-in surface, a working password reset and the age policy. eatouts-login.html is now the only way in: WhatsApp number + username + password, all three, with a "Forgot password?" flow that mails a reset link (functions/api/_mail.js sends through Resend, or Brevo when that key is set; from EatOuts <info@eatouts.site>). The reset link lands back on eatouts-login.html?reset_token=..., the token lives 30 minutes and works once, and every other session for that account is signed out (migrations/0011_password_reset.sql). Every sign-in prompt in the app now points at that page with ?next= so people land back where they were; the About tab operator form was hardened to the same three credentials. Age policy: 10+ to hold an account, 18+ for the promos that sell alcohol - js/eatouts-age.js and functions/api/_promo-rules.js hold the same word list (tests/age-gate.js asserts they match), the venue bundle drops flagged promos for anyone under 18, the promos timeline shows a locked "18+ only" card, and the operator can flag any promo themselves (migrations/0012_promo_age_restriction.sql). eatouts_user_onboarding.html was retired (the caterer setup form now lives in caterer-onboarding.html) and the customer account page is eatouts-customer-signup.html. New suites: tests/login.js, tests/password-reset.js, tests/age-gate.js.
 - **2026-10-21** — About tab guest card alert now offers three CTAs on a single row - Sign In (primary, eatouts-login.html), Sign Up (eatouts-customer-signup.html) and Later (dismiss); "Not Now" is gone and the row is styled to never wrap. The customer account page moved to eatouts-customer-signup.html (the old hyphenated path 301s there) so eatouts_user_onboarding.html could hold the caterer setup form; every customer sign-up entry point (login page, About guest popup, index.html guest feature popup, the unverified-user route in functions/api/auth/login.js) now points at the new page.
 - **2026-10-21** — Onboarding pages now publish for real. The six business forms (restaurant, mobile kitchen, bottle store, caterer, bakery, event supplier) share js/eatouts-onboarding-bridge.js: live town/area lookup from botswana_locations.js, mall/shopping-centre lookup from assets/data/botswana_shopping_malls_and_shopping_centres.js, a Hosting Services section (capacity spaces + hostable event types from assets/data/event_types.js + booking rules) and a Save & publish action that writes the D1 business profile (business_profiles.hosting_json, new migration 0010) and the local customer directory, then exports an eatouts.venue.v1 submission for the build-time merge. business-onboarding1.html was retired — every link now points at the matching per-type form (assets/data/business_types.js gained EatoutsBusinessTypes.onboardingPage). eatouts_user_onboarding.html was rebuilt as the real customer account page (18+ gate, live town/area, /api/auth/signup + /api/auth/verify, favourites) and eatouts-user-onboarding.html is now a redirect. scripts/merge_submissions.py carries place/capacity/hosting into the runtime directory and rewrites directory_runtime_data.js; npm run build now merges the owner submissions after the directory build so they survive.

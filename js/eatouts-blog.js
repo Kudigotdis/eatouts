@@ -24,7 +24,6 @@
   var STORE_BYTES_LIMIT = 4 * 1024 * 1024; /* drop history before failing saves */
 
   var BLOCK_TYPES = [
-    { type:'heading',    name:'Heading',     icon:'H' },
     { type:'subheading', name:'Sub-heading', icon:'h' },
     { type:'text',       name:'Text',        icon:'¶' },
     { type:'image',      name:'Image',       icon:'🖼' },
@@ -374,8 +373,6 @@
      ============================================================ */
   function renderBlock(b){
     switch (b.type) {
-      case 'heading':
-        return '<h2 class="blk-heading">' + formatInline(b.text) + '</h2>';
       case 'subheading':
         return '<h3 class="blk-subheading">' + formatInline(b.text) + '</h3>';
       case 'text':
@@ -462,29 +459,11 @@
       });
     }
 
-    /* Tag strip */
-    var tagCounts = {};
-    publishedPosts().forEach(function(p){
-      (p.tags||[]).forEach(function(t){ tagCounts[t] = (tagCounts[t]||0) + 1; });
-    });
-    var topTags = Object.keys(tagCounts).sort(function(a,b){ return tagCounts[b]-tagCounts[a]; }).slice(0, 20);
+    /* Search lives in the page shell now (above the bottom nav), so the
+       timeline renders no search box and no tag strip. */
 
     var h = '';
     h += '<div class="scroll">';
-    h += '<div class="search-wrap">';
-    h += '<div class="search-box">';
-    h += '<input id="blogSearch" type="search" placeholder="Search posts… or #tag" value="' + esc(state.search) + '">';
-    h += '<button class="search-clear' + (state.search?' on':'') + '" data-act="clearSearch" aria-label="Clear">×</button>';
-    h += '</div>';
-    if (topTags.length) {
-      h += '<div class="tag-strip">';
-      h += '<button class="tag-pill' + (!tag?' on':'') + '" data-act="pickTag" data-tag="">All posts</button>';
-      topTags.forEach(function(t){
-        h += '<button class="tag-pill hash' + (tag===t?' on':'') + '" data-act="pickTag" data-tag="' + esc(t) + '">' + esc(t) + '</button>';
-      });
-      h += '</div>';
-    }
-    h += '</div>';
 
     if (!posts.length) {
       if (state.search || tag) {
@@ -504,14 +483,6 @@
         h += '<div class="tl-card-date">' + esc(formatDate(p.publishedAt||p.createdAt)) + '</div>';
         h += '<h2 class="tl-card-title">' + esc(p.title||'Untitled') + '</h2>';
         if (p.subtitle) h += '<p class="tl-card-sub">' + esc(p.subtitle) + '</p>';
-        if ((p.tags||[]).length) {
-          h += '<div class="tl-card-tags">';
-          (p.tags||[]).slice(0,4).forEach(function(t){
-            h += '<span class="tl-card-tag">#' + esc(t) + '</span>';
-          });
-          h += '</div>';
-        }
-        h += '<div class="tl-card-foot"><span>' + readTime(p) + ' min read</span><span class="tl-card-read">Read more →</span></div>';
         h += '</div>';
         h += '</button>';
         h += '</div>';
@@ -537,18 +508,11 @@
     h += '<div class="post-meta"><span>' + esc(formatDate(post.publishedAt||post.createdAt)) + '</span><span>' + readTime(post) + ' min read</span></div>';
     h += '<h1 class="post-title">' + esc(post.title||'Untitled') + '</h1>';
     if (post.subtitle) h += '<p class="post-subtitle">' + esc(post.subtitle) + '</p>';
-    if ((post.tags||[]).length) {
-      h += '<div class="post-tags">';
-      post.tags.forEach(function(t){
-        h += '<button class="post-tag" data-act="tagJump" data-tag="' + esc(t) + '">#' + esc(t) + '</button>';
-      });
-      h += '</div>';
-    }
     h += '</div>';
     h += '<div class="post-body">' + renderBlocks(post.blocks) + '</div>';
     h += '<div class="post-actions">';
+    h += '<button class="btn ghost" data-act="blogHome">← All posts</button>';
     h += '<button class="btn wa" data-act="sharePost" data-slug="' + esc(post.slug) + '">Share on WhatsApp</button>';
-    h += '<button class="btn ghost" data-act="copyLink" data-slug="' + esc(post.slug) + '">Copy link</button>';
     h += '</div>';
     h += '</div></div>';
     return h;
@@ -752,21 +716,6 @@
   }
 
   /* ============================================================
-     HEADER
-     ============================================================ */
-  function paintHeader(){
-    var back = document.getElementById('hdrBack');
-    var page = document.getElementById('hdrPage');
-    if (back) back.style.display = (state.view === 'timeline' ? 'none' : '');
-    if (page) {
-      page.textContent = state.view === 'timeline' ? 'Blog'
-        : state.view === 'post' ? 'Post'
-        : state.view === 'admin-list' ? 'Admin'
-        : 'Edit post';
-    }
-  }
-
-  /* ============================================================
      RENDER
      ============================================================ */
   function render(){
@@ -793,7 +742,6 @@
 
     if (state.previewOpen) mountPreview();
     renderBar();
-    paintHeader();
     bindInputs();
   }
 
@@ -983,7 +931,6 @@
       setTagHash(state.activeTag);
       return;
     }
-    if (act === 'pickTag') { state.activeTag = el.getAttribute('data-tag') || ''; render(); setTagHash(state.activeTag); return; }
     if (act === 'clearSearch') { state.search = ''; state.activeTag = ''; render(); setTagHash(''); return; }
 
     /* Sharing */
@@ -1006,20 +953,6 @@
       window.location.href = 'https://wa.me/?text=' + encodeURIComponent(msg);
       return;
     }
-    if (act === 'copyLink') {
-      var cs = el.getAttribute('data-slug');
-      var curl = postUrl(cs);
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(curl).then(function(){ toast('Link copied'); });
-      } else {
-        var ta = document.createElement('textarea');
-        ta.value = curl; document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); toast('Link copied'); } catch(e){}
-        ta.remove();
-      }
-      return;
-    }
-
     /* Admin entry */
     if (act === 'blogAdmin' || act === 'adminList') {
       state.view = 'admin-list';

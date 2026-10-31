@@ -2,7 +2,7 @@
 
 > **Status:** PLAN (not yet executed)
 > **Created:** 2026-10-29
-> **Scope:** 22 major platform tasks + 5 global standards
+> **Scope:** 28 major platform tasks + 5 global standards
 > **Rule:** One task at a time, easiest → hardest, verified before moving on.
 
 ---
@@ -166,7 +166,7 @@ bottom nav where the page is part of the app shell.
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
 | 7 | T11 | 11 | `reserve-events/providers/groups` phead + 90px `rthumb` — ✅ **DONE 2026-10-30** | S/M |
-| 8 | T17 | 17 | Blog cleanup (10 removals + move search box) | M |
+| 8 | T17 | 17 | Blog cleanup (10 removals + move search box) — ✅ **DONE 2026-10-31** | M |
 | 9 | T15 | 15 | 7 onboarding pages → standard header (drop `draft-pill`) | M |
 | 10 | T16 | 16 | `about-main` WhatsApp Channel per region | M |
 
@@ -193,6 +193,16 @@ bottom nav where the page is part of the app shell.
 | 20 | T13 | 13 | `Created_Event.html` view-only page (needs T12) | L |
 | 21 | T21 | 21 | `designer-services` catalogue + galleries + requests | XL |
 | 22 | T22 | 22 | Multi-region architecture + `EatOuts-Region.html` | XL |
+
+### Phase 6 — UI polish (new, 2026-10-30)
+| # | ID | User task | Task | Size |
+|---|---|---|---|---|
+| 23 | T23 | — | `promos-feed` `.cal` → light grey 3% background | S |
+| 24 | T24 | — | `reserve-cats` `.cat-name` → 20px | S |
+| 25 | T25 | — | `restaurants-pager` `bev-toggle` equal spacing + 40% inactive opacity | S |
+| 26 | T26 | — | `gallery-grid` search button → `search_icon` image | S |
+| 27 | T27 | — | Remove promo tag/chip rows (all promos) | S |
+| 28 | T28 | — | `gallery-grid` `gal-cell` full-height (not square), 3 across, infinite scroll | S/M |
 
 ---
 
@@ -325,8 +335,8 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] Every `.rrow .rthumb` on the provider page computes 90×90 (radius 15px, `overflow:hidden`, inner `.eo-thumb` 90px) — already delivered by G4, verified here rather than re-declared.
 - [ ] Visual check of the 2% band against the 4% crumb at 390px — **needs a device pass**.
 
-#### T17 — Blog cleanup (user task 17) · M
-**Files:** `eatouts-blog.html`.
+#### T17 — Blog cleanup (user task 17) · M — ✅ **DONE 2026-10-31**
+**Files:** `eatouts-blog.html`, `js/eatouts-blog.js`, `tests/blog.js`.
 **Steps (exact removals)**
 1. `.hdr-chip` (markup + CSS `:57-59`).
 2. All `::before` pseudo-content (`.hdr-back::before :61`, `.tag-pill.hash::before :121`, `.timeline::before :125`, and any others).
@@ -338,6 +348,12 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 8. `.tag-strip`.
 9. Move `.search-box` to the bottom of the page, directly above the `bottom` nav; keep it sticky-free.
 **Done when** grep for each removed class returns zero in the file; page still renders, search still filters; no `::before` content in CSS; no visible scrollbar.
+- [x] zero hits for `hdr-chip`, `hdr-back`/`hdrBack`, `hdrPage`, `tl-card-foot`, `tl-card-tags`, `post-tags`/`post-tag`, `copyLink`, `blk-heading`, `tag-strip`, `tag-pill` in `eatouts-blog.html` + `js/eatouts-blog.js`; no `::before` content left.
+- [x] `heading` block type + its renderer removed from `js/eatouts-blog.js` (only `subheading` remains).
+- [x] `.search-wrap` is now `flex:0 0 auto` above `#bottomNav`, not sticky, and lives outside `#viewport` so it survives re-renders.
+- [x] `tests/blog.js` asserts `timeline renders no tag strip`; `#tag-` hash deep-link boot still passes.
+- [x] `node tests/blog.js` → 23/23 PASSED.
+- [ ] Device pass at 360/390/430px — **needs a device pass** (jsdom does not lay out).
 
 #### T15 — Onboarding headers (user task 15) · M
 **Files:** `restaurant-onboarding.html`, `caterer-onboarding.html`, `bakery-onboarding.html`,
@@ -625,6 +641,66 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 6. Register the new page in `copy-static.mjs`, catalog meta, `PAGE_INVENTORY.md`, `HTML_PAGES.md`; add `js/eatouts-regions.js` + the moved JS to `copy-static.mjs` (js/ folder is copied wholesale — verify).
 **Done when** `SYNC REGION TASK/` is empty/removed, the region row appears above About EatOuts, the selector page works, non-BW regions show the coming-soon popup, and all data still loads for Botswana.
 
+
+
+---
+
+### Phase 6 — UI polish
+
+#### T23 — `promos-feed` `.cal` light grey 3% background (user task) · S
+**Files:** `index.html` CSS `.cal` rule `:132` (and `#shell.promos-tab.promo-focus .cal` at `:43`).
+**Current:** `.cal{...;background:#ffffff;...}` renders a solid white band behind the week calendar.
+**Steps**
+1. Change the `.cal` background to a 3% light grey: `background:rgba(0,0,0,.03)` (or `rgba(128,128,128,.03)`). Keep the border/shadow/padding.
+2. Confirm the focused-promo mode (`#shell.promos-tab.promo-focus .cal{display:none}`) is unaffected.
+**Done when** `.cal` computes a 3%-opacity light-grey background on `promos-feed`; no other page's calendar/strip changes.
+
+#### T24 — `reserve-cats` `.cat-name` 20px (user task) · S
+**Files:** `index.html` CSS `.cat-name` `:251`, `.cat-row.evcat .cat-name` `:258`; renderer `renderReserveCats` `:8100-8112`.
+**Current:** base `.cat-name` is 24px and the `.evcat` variant overrides to 30px, so reserve-cats category names render at 30px.
+**Steps**
+1. Scope a 20px rule to the reserve-cats screen: `#shell .screen[data-page="reserve-cats"] .cat-name{font-size:20px}` (override the `.evcat` 30px).
+2. Do not change the base `.cat-name` (used elsewhere) or other reserve pages.
+**Done when** every `.cat-name` on `reserve-cats` computes to 20px; `reserve-groups`/`reserve-events` unaffected.
+
+#### T25 — `restaurants-pager` `bev-toggle` equal spacing + 40% inactive opacity (user task) · S
+**Files:** `index.html` CSS `.bev-toggle*` `:315-324`; renderer `renderRestaurantsPager` `:5275-5288`.
+**Current:** inactive buttons sit at `opacity:.15` (T02) and the first/last buttons are pushed to the edges via `:first-of-type`/`:last-of-type` `justify-content:flex-start/end`, so the four tabs are not evenly spaced.
+**Steps**
+1. Make all four `.bev-toggle-btn` evenly distributed: remove/neutralise the `:first-of-type`/`:last-of-type` justify overrides so every button uses `justify-content:center` (or set them all to `center`), keeping `flex:1 1 0`.
+2. Raise inactive opacity from `.15` to `.4` on this toggle (`opacity:.4` for `.bev-toggle-btn` base; active/`:active` stay `opacity:1`). *(Supersedes T02's 15% requirement for this toggle.)*
+3. Keep `aria-selected`, the sliding thumb, and `setBevToggleThumb()` intact (tests `beverages.js`, `bakery-directory.js`).
+**Done when** the four tabs have equal gaps/widths and inactive tabs compute `opacity:.4`; active tab `opacity:1`; thumb still tracks.
+
+#### T26 — `gallery-grid` search button → `search_icon` image (user task) · S
+**Files:** `index.html` control-bar builder `:6379-6385` (the `openSearch` button); `assets/icons/search_icon.webp`.
+**Current:** the search affordance is `<button class="cbtn ic" data-act="openSearch" ...>` rendering the inline `ICON.search` SVG.
+**Steps**
+1. Replace that button's inner content with an `<img src="assets/icons/search_icon.webp" alt="Search">` (keep `data-act="openSearch"`, `aria-label="Search"`, and the `.cbtn ic` classes so the dispatcher still fires).
+2. Size the image to ~18-20px (CSS or inline) and keep it vertically centred in the 40px bar.
+3. Verify `openSearch` still opens the search input and `closeSearch` still works.
+**Done when** the gallery control bar shows the `search_icon` image instead of the SVG glyph and search open/close still functions.
+
+#### T27 — Remove promo tag/chip rows (all promos) (user task) · S
+**Files:** `index.html` — five inline chip-row divs at `:6055`, `:6637` (`featChipRow`), `:6996`, `:7001`, `:7058` (all `style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"`).
+**Current:** every promo/event card renders a row of `.chip` tags (price/was/save, category/subtype, venue/time/sponsor, featured-event chips) inside that div.
+**Steps**
+1. Remove the chip-row `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">...</div>` (and its `.chip` children) from all five sites, including the `featChipRow` helper (delete the helper or make it return `""`).
+2. Keep the rest of each card (title, meta, description, includes, gallery/links, CTA) intact; tidy any now-orphaned spacing.
+3. Confirm no other `.chip` usage breaks (chips may still be used elsewhere).
+**Done when** grep for `display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px` returns 0 in `index.html`; promo/event cards still render with title + body; no JS errors.
+
+#### T28 — `gallery-grid` `gal-cell` full-height (not square) (user task) · S/M
+**Files:** `index.html` CSS `.gal-grid`/`.gal-cell` `:395-398`; renderer `renderGalleryGrid` `:8335-8351` and `galleryLoadMore` `:8352-8368`.
+**Current:** `.gal-cell{aspect-ratio:1;...}` forces every thumbnail to a square, cropping tall images.
+**Steps**
+1. Drop the square constraint: remove `aspect-ratio:1` from `.gal-cell` (and the matching `height:100%` crop on `.gal-cell>img`), so each cell sizes to the image's natural aspect ratio (full height visible). Keep `object-fit:cover` only if a max-height is desired; otherwise use `object-fit:contain`/natural height.
+2. Keep the grid at 3 columns: `.gal-grid{grid-template-columns:repeat(3,1fr)}` unchanged.
+3. Keep infinite scroll working: `IntersectionObserver` sentinel + `galleryLoadMore` (30 per chunk) unchanged; verify `armGalleryScroll` still arms after the layout change.
+4. Add a reasonable `max-height` (e.g. 40vh) and `overflow:hidden` so a single very tall image cannot blow up the grid, while still showing full height up to that cap.
+**Done when** thumbnails are no longer squares, images show full height, grid stays 3-across, infinite scroll still loads more chunks, no layout overflow at 360px.
+
+
 ---
 
 ## 5. Verification
@@ -741,6 +817,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-30 | T14 | DONE | `eatouts-business-signup.html` (standard `#hdr` + logo button, old `.appbar`/`.dot` rules removed), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 12/12 (single `#hdr`, `data-act`, `type=button`, `aria-label`, logo src/alt + file present, `.hdr-chip` `display:none`, no `.appbar`/`.dot` left); 8 suites PASSED, 0 failures (`business-auth`, `business-profiles`, `api-auth-flow`, `onboarding-bridge`, `customer`, `about`, `smoke`, `appshell`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
 
 | 2026-10-30 | T20 | DONE | `operator-businesses.html` (standard `#hdr`, body `h1` "My businesses", white `theme-color`, old `.topbar` rules removed), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 15/15 (single `#hdr`, logo + hidden chip, one `h1` in `.page-head`, header has no heading, no `.topbar`/`.brand-*` rules); 8 suites PASSED, 0 failures (`login`, `business-auth`, `business-profiles`, `customer`, `smoke`, `appshell`, `checks`, `api-business`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
+| 2026-10-31 | T17 | DONE | `eatouts-blog.html`, `js/eatouts-blog.js`, `tests/blog.js` (tag-strip test → absence check), `HTML_PAGES.md`, `HTML_ASSESSMENT.md`, `PAGE_INVENTORY.md`, `scripts/html_catalog.meta.json`, `HTML_CATALOG.md` | `tests/blog.js` 23/23 PASSED; `npm run catalog` ✔ · `npm run inventory` ✔ · full `npm test` ✔; grep for `hdr-chip`/`hdr-back`/`tl-card-*`/`post-tags`/`copyLink`/`blk-heading`/`tag-strip` = 0 | (this commit) |
 
 ### Per-task completion template
 
