@@ -43,6 +43,9 @@ img{display:block;max-width:100%}
 .hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
   color:var(--muted-2);border:1px solid var(--border);border-radius:20px;padding:4px 9px;
   background:var(--surface);transition:all .15s}
+/* T06: orders counter in the header right slot */
+.ord-count{border:0;background:transparent;padding:4px 6px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:.02em;color:#b9b1a2;cursor:pointer}
+.ord-count[hidden]{display:none}
 
 /* ---------- VENUE BAR ---------- */
 #venue-bar{flex:0 0 auto;background:#fff;border-bottom:1px solid var(--border);
@@ -854,7 +857,7 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 <div id="shell">
   <header id="hdr">
     <a class="brand-mark" href="index.html#promos" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
-    <div class="hdr-right"><span class="hdr-chip">Offline</span></div>
+    <div class="hdr-right"><button class="ord-count" type="button" id="ordCount" data-act="ordersCount" aria-label="Your orders" hidden>0</button><span class="hdr-chip">Offline</span></div>
   </header>
   <div id="venue-bar"></div>
   <div id="viewport">
@@ -4204,5 +4207,6 @@ function buildShareMessage(){
   window.addEventListener("beforeunload",saveDraft);
 })();
 </script>
+<script src="js/eatouts-orders-badge.js"></script>
 </body>
 </html>

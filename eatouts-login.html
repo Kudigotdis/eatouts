@@ -44,6 +44,9 @@ button{cursor:pointer}
 
 .brand-subtitle{font-size:11.5px;color:#AEB1B8;letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
 .secure-pill{margin-left:0;border:1px solid #cfe9d8;background:#eefaf2;color:#16794a;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:5px 9px;border-radius:3px}
+/* T06: orders counter in the header right slot */
+.ord-count{border:0;background:transparent;padding:4px 6px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:.02em;color:#b9b1a2;cursor:pointer}
+.ord-count[hidden]{display:none}
 .scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
 
@@ -228,7 +231,7 @@ button{cursor:pointer}
 
   <header id="hdr" data-act="closePickers">
     <a class="brand-mark" href="index.html#promos" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
-    <div class="hdr-right"><span id="brandSub" hidden>Sign in</span><span class="secure-pill">Secure</span><span class="hdr-chip" style="display:none;">Offline</span></div>
+    <div class="hdr-right"><button class="ord-count" type="button" id="ordCount" data-act="ordersCount" aria-label="Your orders" hidden>0</button><span id="brandSub" hidden>Sign in</span><span class="secure-pill">Secure</span><span class="hdr-chip" style="display:none;">Offline</span></div>
   </header>
 
   <div class="scroll" id="scroll">
@@ -935,5 +938,6 @@ if (resetToken){
 
 })();
 </script>
+<script src="js/eatouts-orders-badge.js"></script>
 </body>
 </html>

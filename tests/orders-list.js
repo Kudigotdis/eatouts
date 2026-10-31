@@ -96,6 +96,37 @@ setTimeout(() => {
     empty && empty.textContent);
   check('counter hidden for a browser', counter.hasAttribute('hidden'));
 
+  /* T06b: the counter widget on the #hdr pages that carry a customer session */
+  const BADGE_PAGES = ['index.html', 'eatout_event_builder.html', 'eatouts-login.html', 'operator-businesses.html'];
+  BADGE_PAGES.forEach(file => {
+    const src = fs.readFileSync(path.join(APP_DIR, file), 'utf8');
+    check(file + ' has the orders counter slot', /id="ordCount"[^>]*data-act="ordersCount"/.test(src));
+    check(file + ' loads the orders badge', src.includes('js/eatouts-orders-badge.js'));
+  });
+
+  /* the badge itself: hidden for browsers, count for signed-in users */
+  const badgeHtml = '<!doctype html><body><header id="hdr"><div class="hdr-right">' +
+    '<button id="ordCount" data-act="ordersCount" hidden>0</button></div></header></body>';
+  const badgeSrc = fs.readFileSync(path.join(APP_DIR, 'js', 'eatouts-orders-badge.js'), 'utf8');
+  let fakeUser = null;
+  const badgeDom = new JSDOM(badgeHtml.replace('</body>', '<script>' + badgeSrc + '</script></body>'), {
+    url: 'http://localhost/x.html', runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: vc,
+    beforeParse(win) {
+      win.EatoutsCustomer = {
+        getUser: function () { return fakeUser; },
+        summaries: { list: function () { return [{ id: 'a' }, { id: 'b' }]; } },
+        refresh: function () { },
+        reloadLocal: function () { }
+      };
+    }
+  });
+  const bw = badgeDom.window, bel = bw.document.getElementById('ordCount');
+  check('badge stays hidden for a browser', bel.hasAttribute('hidden'));
+  fakeUser = { id: 'u1' };
+  bw.EatoutsOrdersBadge.paint();
+  check('badge shows the count when signed in', !bel.hasAttribute('hidden') && bel.textContent === '2',
+    bel.textContent);
+
   console.log('\nwindow errors: ' + errors.length);
   errors.slice(0, 5).forEach(e => console.log('  ' + e.split('\n')[0]));
   console.log('\n' + checks + ' checks, ' + fails + ' failed');

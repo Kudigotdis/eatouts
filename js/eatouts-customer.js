@@ -552,9 +552,10 @@
     addresses: { list: addrList, pull: addrPull, save: addrSave, remove: addrRemove },
     upload: uploadFile,
     uploadPhoto: uploadPhoto,
-    /* T06: re-read the local store (used by the header orders counter when
-       another tab / page writes summaries). */
-    refresh: function () { applyLocal(); return state; },
+    /* T06: re-read the local store without a network round-trip (the header
+       orders counter uses it when another tab / page writes summaries).
+       Note: `refresh` above is the async server pull - do not merge the two. */
+    reloadLocal: function () { applyLocal(); emit(); return state; },
     onChange: function (fn) {
       if (typeof window === 'undefined' || !window.addEventListener) return;
       window.addEventListener(EVENT, function (e) { fn(e.detail); });

@@ -202,10 +202,10 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;backgrou
   render();
   if (S && S.onChange) S.onChange(render);
   /* another tab / page wrote the store - reload it, then repaint */
-  window.addEventListener('storage', function () { if (S && S.refresh) S.refresh(); render(); });
+  window.addEventListener('storage', function () { if (S && S.reloadLocal) S.reloadLocal(); render(); });
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) return;
-    if (S && S.refresh) S.refresh();
+    if (S && S.reloadLocal) S.reloadLocal();
     render();
   });
 })();
