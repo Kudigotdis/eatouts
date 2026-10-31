@@ -100,7 +100,7 @@ for (const file of Object.keys(MODES)) {
 
   if (mode === 'merchant') {
     check(file + ' keeps its own tabs', /class="tabs"/.test(s));
-    check(file + ' has a hdr-chip page label', /class="hdr-chip"/.test(s));
+    check(file + ' has a header right slot', /class="hdr-right"|class="hdr-chip"/.test(s));
     check(file + ' does not add an appnav', !/class="appnav"/.test(s));
     continue;
   }

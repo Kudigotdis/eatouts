@@ -40,9 +40,6 @@ img{display:block;max-width:100%}
 .brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden}
 .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-.hdr-chip{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted-2);border:1px solid var(--border);border-radius:20px;padding:4px 9px;
-  background:var(--surface);transition:all .15s}
 /* T06: orders counter in the header right slot */
 .ord-count{border:0;background:transparent;padding:4px 6px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:.02em;color:#b9b1a2;cursor:pointer}
 .ord-count[hidden]{display:none}
@@ -857,7 +854,7 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 <div id="shell">
   <header id="hdr">
     <a class="brand-mark" href="index.html#promos" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
-    <div class="hdr-right"><button class="ord-count" type="button" id="ordCount" data-act="ordersCount" aria-label="Your orders" hidden>0</button><span class="hdr-chip">Offline</span></div>
+    <div class="hdr-right"><button class="ord-count" type="button" id="ordCount" data-act="ordersCount" aria-label="Your orders" hidden>0</button></div>
   </header>
   <div id="venue-bar"></div>
   <div id="viewport">
@@ -4175,13 +4172,7 @@ function buildShareMessage(){
     return;
   }
   render();
-  /* Connectivity chip - shown only when offline (matches index.html) */
-  var netChip=document.querySelector(".hdr-chip");
-  function refreshNetChip(){if(netChip)netChip.style.display=navigator.onLine?"none":"";}
-  window.addEventListener("online",refreshNetChip);
-  window.addEventListener("offline",refreshNetChip);
-  refreshNetChip();
-  window.addEventListener("resize",function(){measureCalc();measureNav();measureFlyerTrack();});
+    window.addEventListener("resize",function(){measureCalc();measureNav();measureFlyerTrack();});
   document.addEventListener("pointerdown",function(e){
     const track=e.target.closest?e.target.closest(".flyer-track"):null;
     _flyerDrag=track?{scrollLeft:track.scrollLeft}:null;

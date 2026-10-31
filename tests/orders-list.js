@@ -104,6 +104,12 @@ setTimeout(() => {
     check(file + ' loads the orders badge', src.includes('js/eatouts-orders-badge.js'));
   });
 
+  /* T06c: no page-label chip survives inside an #hdr block */
+  const hdrPages = fs.readdirSync(APP_DIR).filter(f => f.endsWith('.html'))
+    .filter(f => /id="hdr"/.test(fs.readFileSync(path.join(APP_DIR, f), 'utf8')));
+  const dirty = hdrPages.filter(f => /hdr-chip/.test(fs.readFileSync(path.join(APP_DIR, f), 'utf8')));
+  check('every #hdr page is free of .hdr-chip', dirty.length === 0, dirty.join(','));
+
   /* the badge itself: hidden for browsers, count for signed-in users */
   const badgeHtml = '<!doctype html><body><header id="hdr"><div class="hdr-right">' +
     '<button id="ordCount" data-act="ordersCount" hidden>0</button></div></header></body>';
