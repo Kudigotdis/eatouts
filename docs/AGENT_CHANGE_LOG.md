@@ -1069,3 +1069,9 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Deviation to flag: `driver-delivery` is the one page where a chip carried state, so it survives under a non-`hdr-` class rather than being deleted.
 - Still chip-bearing (out of T06 scope - shared `.topbar` from `js/eatouts-manager.js:110`, not `id="hdr"`): 32 admin/merchant pages. That is T08b territory.
 - Verified: full `node tests/run-all.js` -> **59 passed, 0 failed**; `node tests/delivery.js` PASSED; `node tests/venue-about-menu.js` / `venue-about-options.js` PASSED; `node tests/inventory.js` PASSED; `npm run catalog` 70 pages / 1,114 lines.
+
+### [2026-11-01 01:05:00] - [Agent: Cline] - [T06 close-out: docs, task tick, catalog] - [COMMITTED]
+- Task: final T06 bookkeeping after T06a/T06b/T06c.
+- Files: `PLATFORM UPDATE TASKS.md` (queue row 16 ticked + T06 checklist/verification block), `docs/AGENT_CHANGE_LOG.md`.
+- Tick wording: T06 marked DONE 2026-11-01 with the caveat that the `.hdr-chip` sweep covered the 15 `id="hdr"` pages and the 32 `.topbar` pages wait on T08b. Device pass left unticked (jsdom cannot lay out).
+- Verified: `node tests/run-all.js` -> 59 suites passed, 0 failed (log captured to %TEMP%\eo-runall.txt); `npm run catalog` 70 pages / 1,114 lines; `node tests/orders-list.js` 26 checks / 0 failed.

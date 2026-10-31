@@ -182,7 +182,7 @@ bottom nav where the page is part of the app shell.
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
 | 15 | T04 | 4 | `venue-checkout` redesign — ✅ **DONE 2026-10-31** | L |
-| 16 | T06 | 6 | Orders badge + `Orders-List.html` (needs T04) | L |
+| 16 | T06 | 6 | Orders badge + `Orders-List.html` (needs T04) — ✅ **DONE 2026-11-01** (`.hdr-chip` swept from all 15 `#hdr` pages; 32 `.topbar` pages wait on T08b) | L |
 | 17 | T05 | 5 | `customer-delivery` redesign | L |
 | 18 | T18 | 18 | `eatouts-suppliers` rework (steps 1–7) | L |
 
@@ -516,6 +516,13 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 5. Register in `copy-static.mjs`, `scripts/html_catalog.meta.json`, `PAGE_INVENTORY.md`, `HTML_PAGES.md`.
 **Done when** browsers see nothing, logged-in users see the count, the count matches the store, the list groups and opens summaries, docs/tests green.
 **Open:** the brief's last sentence ("When user opens …") is truncated — see D5.
+
+- [x] `Orders-List.html` created (T06a, `05930ea`) — group headers by `orderRef||venueName`, Order Summary Cards with a 90px thumb on the right, tap → `eatouts-checkout-summary.html?id=…`, empty state, `data-page="Orders-List"`.
+- [x] Counter widget (T06b, `9b07f11`) — `js/eatouts-orders-badge.js` paints `#ordCount` on the four `#hdr` pages that load `js/eatouts-customer.js`; hidden for browsers; repaints on `eatouts:customer-changed`, `storage` and `visibilitychange` via `EatoutsCustomer.reloadLocal()`.
+- [x] `.hdr-chip` gone from every `id="hdr"` block (T06c, `46e4573` / `76dd282` / `8e4f28a`).
+- [x] Verified: `npm test` ✔ (**59 suites passed, 0 failed**) · `npm run inventory` ✔ (19 checks, 70 pages) · `npm run catalog` ✔ (70 pages) · `tests/orders-list.js` 26 checks.
+- [ ] Device pass at 360/390/430px — the counter's 13px light-grey number and the delivery pages' right slot are unchecked visually.
+- Note: 32 admin/merchant pages still render `.hdr-chip` from the shared `.topbar` (`js/eatouts-manager.js:110`) — those are not `id="hdr"` blocks, so the sweep lands with **T08b**.
 
 #### T05 — `customer-delivery` redesign (user task 5) · L
 **Files:** `customer-delivery.html` — CSS `:25-26, :42-60, :68-82`, markup `:149-151`, renderers `renderMethod :549`, `renderDestination :616`, `renderRecipient :681`, `renderPayment :690`, `renderReview :~751`, `renderWhatsApp :827`, `barPrimary` ~`:116`.
