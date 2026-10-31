@@ -963,3 +963,16 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: ad-hoc jsdom probe 25/25 (temp, not committed); `npm test` 58 passed / 0 failed; `npm run catalog` (69 pages, 1095 lines); `npm run inventory` PASSED (86 warnings); `node tests/smoke.js` PASSED; `node tests/customer.js` PASSED.
 - NOT verified: no device/browser pass. T23's 3% band and T28's natural-height grid should be eyeballed at 360/390px; the 40vh cap may leave ragged row bottoms by design.
 
+
+### [2026-10-31 11:40:00] - [Agent: Big Pickle] - [T15: onboarding headers] - [COMMITTED]
+- Task: standardise the header on the 7 onboarding pages (`PLATFORM UPDATE TASKS.md` T15).
+- Files changed: restaurant-onboarding.html, caterer-onboarding.html, bakery-onboarding.html, bottle-store-onboarding.html, mobile-kitchen-onboarding.html, supplier-onboarding.html, eatouts-login.html, PLATFORM UPDATE TASKS.md, HTML_ASSESSMENT.md, PAGE_INVENTORY.md, scripts/html_catalog.meta.json, HTML_CATALOG.md.
+- Each page: dark `<header class="topbar">` replaced by the standard `<header id="hdr" data-act="closePickers">` (logo anchor to `index.html#promos`, `.hdr-right`, hidden `.hdr-chip`); `.topbar`/`.topbar-row`/`.brand`/`.brand-title`/`.brand-subtitle` (login keeps it)/`.draft-pill` CSS deleted; old orange `.brand-mark` square replaced by the 34px logo mark.
+- Setup completeness: kept the same IDs, moved into a new light `.progress-strip` under the header; `.progress-row`/`strong`/`.progress-track` re-coloured from the dark palette to #8a7d64 / #c84513 / #e8e2d4.
+- Draft mode pill: markup and CSS gone. `#saveIndicator` survives as a hidden sink because the autosave JS writes to it unconditionally — removing the element outright would throw. Autosave is now silent (no visible "Saved locally" feedback).
+- login: keeps `#brandSub` (hidden; JS still swaps its text per view) and the `Secure` pill, re-coloured light; `18+` pill on bottle-store kept and re-coloured.
+- G1: `html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}` on all 7; every `#shell`/`#app-shell` already used `height:100dvh`.
+- Deviation: the standard block uses an `<a class="brand-mark" href="index.html#promos">` rather than the `<button>` used by T14, because `tests/appshell.js` requires a logo anchor with that href on merchant pages (`restaurant-onboarding.html`).
+- Verified: static probe (15 checks × 6 pages + login, incl. no `.topbar`, one `#hdr`, theme-color white, document lock); jsdom runtime probe 62/62 with 0 window errors (all 7 pages boot, `#hdr` 58px white, progress text updates, no `.topbar` in the DOM); `npm test` 58 passed / 0 failed; `npm run catalog` (69 pages, 1096 lines); `npm run inventory` PASSED (79 warnings).
+- NOT verified: no device/browser pass. The white header now sits directly above the still-dark `.intro` hero and the dark merchant `.tabs` strip on the five onboarding pages — that contrast needs a look at 360px. Forms were not submitted end-to-end (jsdom only proves the scripts run without errors).
+

@@ -167,7 +167,7 @@ bottom nav where the page is part of the app shell.
 |---|---|---|---|---|
 | 7 | T11 | 11 | `reserve-events/providers/groups` phead + 90px `rthumb` — ✅ **DONE 2026-10-30** | S/M |
 | 8 | T17 | 17 | Blog cleanup (10 removals + move search box) — ✅ **DONE 2026-10-31** | M |
-| 9 | T15 | 15 | 7 onboarding pages → standard header (drop `draft-pill`) | M |
+| 9 | T15 | 15 | 7 onboarding pages → standard header (drop `draft-pill`) — ✅ **DONE 2026-10-31** | M |
 | 10 | T16 | 16 | `about-main` WhatsApp Channel per region | M |
 
 ### Phase 3 — Interaction
@@ -355,7 +355,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] `node tests/blog.js` → 23/23 PASSED.
 - [ ] Device pass at 360/390/430px — **needs a device pass** (jsdom does not lay out).
 
-#### T15 — Onboarding headers (user task 15) · M
+#### T15 — Onboarding headers (user task 15) · M — ✅ **DONE 2026-10-31**
 **Files:** `restaurant-onboarding.html`, `caterer-onboarding.html`, `bakery-onboarding.html`,
 `bottle-store-onboarding.html`, `mobile-kitchen-onboarding.html`,
 `supplier-onboarding.html`, `eatouts-login.html`.
@@ -365,6 +365,15 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 3. Because these topbars are dark, re-map the header colours to the light standard and re-check contrast for the page's step indicator.
 4. `eatouts-login`: apply the G1 fix here specifically (document scrollbar bug).
 **Done when** all 7 pages use the identical header, no `draft-pill`, no scrollbar on login, forms still submit.
+- [x] All 7 pages use the same `#hdr` block: logo link to `index.html#promos`, `hdr-right` with the hidden `.hdr-chip`; `.topbar`/`.topbar-row`/`.brand`/`.brand-title` CSS deleted.
+- [x] `.draft-pill` markup + CSS gone; `#saveIndicator` survives as a hidden sink so the autosave JS keeps writing to it (autosave stays silent).
+- [x] Setup-completeness bar kept, moved into a light `.progress-strip` under the header (same `#progressText`/`#progressFill` IDs).
+- [x] `theme-color` → `#ffffff`; the bottle-store `18+` and login `Secure` pills re-coloured for white.
+- [x] G1: `html,body{…overflow:hidden;overscroll-behavior:none}` on all 7 (login already had `overflow:hidden`); every shell already uses `height:100dvh`.
+- [x] `login` keeps `#brandSub` (hidden; JS still sets it per view) and its `Secure` pill.
+- [x] Runtime probe 62/62: jsdom boots all 7 pages with 0 window errors, `#hdr` 58px white, progress text updates, no `.topbar` in the DOM.
+- [x] `tests/appshell.js` merchant assertions still pass (`class="hdr-chip"`, own `.tabs`, logo anchor); full `npm test` 58/58.
+- [ ] Device pass — **needs a device/browser look** at the new white header over the dark `.intro` and the dark merchant `.tabs` strip on the five onboarding pages.
 
 #### T16 — About → WhatsApp Channel (user task 16) · M
 **Files:** `index.html` (`EATOUTS_WHATSAPP_CHANNEL_URL=''` at `:8521`, setrow at `:8597`, `renderAbout` `:8563`).
@@ -842,6 +851,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-31 | T26 | DONE | `index.html` search button → `<img class="cbtn-ico-img" src="assets/icons/search_icon.webp">` + `.cbtn.ic .cbtn-ico-img` rule, `assets/icons/search_icon.webp` (new) | probe — img 18×18, `openSearch`/`closeSearch` still work; full `npm test` 58/58 | (this commit) |
 | 2026-10-31 | T27 | DONE | `index.html` four chip rows removed; `featChipRow` now emits plain `.ctr` rows (content kept) | probe — 0 hits for the flex/gap signature, no `.chip` in featured card or promo detail; `tests/smoke.js` PASSED; full `npm test` 58/58 | (this commit) |
 | 2026-10-31 | T28 | DONE | `index.html` `.gal-cell` no `aspect-ratio`, `max-height:40vh`, `img height:auto`, `.gal-grid{align-items:start}` | probe — cell/img capped at 40vh, img height auto, grid `repeat(3,1fr)`; `tests/customer.js` infinite scroll PASSED; full `npm test` 58/58 | (this commit) |
+| 2026-10-31 | T15 | DONE | 7 pages — `restaurant-onboarding.html`, `caterer-onboarding.html`, `bakery-onboarding.html`, `bottle-store-onboarding.html`, `mobile-kitchen-onboarding.html`, `supplier-onboarding.html`, `eatouts-login.html` (standard `#hdr`, no `.topbar`/`.draft-pill`, light `.progress-strip`, document lock) | static probe 15/15 × 6 + login; jsdom runtime probe 62/62 (0 window errors); `tests/appshell.js` merchant asserts PASSED; full `npm test` 58/58 | (this commit) |
 
 ### Per-task completion template
 

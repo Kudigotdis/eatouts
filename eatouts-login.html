@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#171719">
+<meta name="theme-color" content="#ffffff">
 <meta name="color-scheme" content="light">
 <title>Sign in · EatOuts</title>
 <link rel="stylesheet" href="assets/eatouts-manager.css">
@@ -22,7 +22,7 @@
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{height:100%;margin:0;overflow:hidden}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
 body{
   font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   background:#E8EAEE;color:var(--ink);font-size:17px;line-height:1.55;
@@ -38,16 +38,12 @@ button{cursor:pointer}
   background:var(--paper);display:flex;flex-direction:column;
   box-shadow:0 0 60px rgba(20,20,25,.12);position:relative;overflow:hidden;
 }
-.topbar{flex:0 0 auto;background:#171719;color:#fff;padding:calc(13px + env(safe-area-inset-top)) 18px 14px}
-.topbar-row{display:flex;align-items:center;gap:11px}
-.brand-mark{height:36px;width:36px;display:grid;place-items:center;background:var(--orange);color:#fff;font-weight:900;font-size:19px;border-radius:7px;letter-spacing:-.02em;flex:0 0 auto}
-.brand-title{font-size:18px;font-weight:850;letter-spacing:-.03em;line-height:1.2}
+
+
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#ffffff;border-bottom:1px solid #ece7db;position:sticky;top:0;z-index:58;padding-top:env(safe-area-inset-top)}.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden;padding:0;margin:0}.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+
 .brand-subtitle{font-size:11.5px;color:#AEB1B8;letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
-.secure-pill{
-  margin-left:auto;border:1px solid #44444A;background:#242428;color:#FF9A70;
-  font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
-  padding:5px 9px;border-radius:3px;
-}
+.secure-pill{margin-left:0;border:1px solid #cfe9d8;background:#eefaf2;color:#16794a;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:5px 9px;border-radius:3px}
 .scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
 
@@ -230,15 +226,9 @@ button{cursor:pointer}
 <body data-page="eatouts-login">
 <div id="app-shell">
 
-  <header class="topbar">
-    <div class="topbar-row">
-      <div class="brand-mark">E</div>
-      <div>
-        <div class="brand-title">EatOuts</div>
-        <div class="brand-subtitle" id="brandSub">Sign in</div>
-      </div>
-      <span class="secure-pill">Secure</span>
-    </div>
+  <header id="hdr" data-act="closePickers">
+    <a class="brand-mark" href="index.html#promos" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a>
+    <div class="hdr-right"><span id="brandSub" hidden>Sign in</span><span class="secure-pill">Secure</span><span class="hdr-chip" style="display:none;">Offline</span></div>
   </header>
 
   <div class="scroll" id="scroll">

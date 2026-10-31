@@ -36,13 +36,13 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 |------|----------|------|--------------|--------|------|------------------------|-------|
 | 404.html | visitors | no | — | FULL (static) | 3.5K/69 | — | 0 |
 | analytics-manager.html | biz owner/admin | guard | EatoutsMgrDB `eatouts_manager_v1` | PARTIAL | 1.8K/2 | esc — / pager — / confirm — / audit — | 0 |
-| bakery-onboarding.html | bakery owner | auth | `eatouts.bakery-onboarding.v1` + root `eatouts_db_v2` | FULL | 127K/1701 | esc ✔ / audit — | 0 |
+| bakery-onboarding.html | bakery owner | auth | `eatouts.bakery-onboarding.v1` + root `eatouts_db_v2` | FULL | 127K/1705 | esc ✔ / audit — | 0 |
 | billing-manager.html | biz owner | guard | EatoutsMgrDB | FULL | 2.2K/2 | esc ✔ / audit ✔ | 0 |
 | blog-creator-dashboard.html | platform author | guard | EatoutsMgrDB + blog stores | FULL | 2.2K/2 | esc ✔ / pager — / audit — | 0 |
 | booking-manager.html | supplier/lodge | guard | EatoutsMgrDB | FULL | 1.5K/2 | esc ✔ / pager — / audit — | 0 |
-| bottle-store-onboarding.html | bottle store owner | auth | `eatouts.bottle-store-onboarding.v1` + root `eatouts_db_v2` | FULL | 117K/1629 | esc ✔ / audit — | 0 |
+| bottle-store-onboarding.html | bottle store owner | auth | `eatouts.bottle-store-onboarding.v1` + root `eatouts_db_v2` | FULL | 117K/1632 | esc ✔ / audit — | 0 |
 | brand-kit-admin.html | platform admin/ops | guard | `eatouts_designers_v1` + `eatouts_services_v1` / `eatouts_jobs_v1` / `eatouts_audit_log_v1` | FULL | 66K/723 | — | 0 |
-| caterer-onboarding.html | caterer owner | auth | `eatouts.caterer-onboarding.v1` + root `eatouts_db_v2` | FULL | 149K/2053 | esc ✔ / audit — | 0 |
+| caterer-onboarding.html | caterer owner | auth | `eatouts.caterer-onboarding.v1` + root `eatouts_db_v2` | FULL | 149K/2163 | esc ✔ / audit — | 0 |
 | customer-delivery.html | customers | no | `eatouts_order_v1`, read `eatouts_active_session_v2` | FULL | 53K/954 | esc ✔ / audit — | 0 |
 | delivery-manager.html | biz owner/admin | guard | EatoutsMgrDB | FULL | 2.7K/2 | esc ✔ / pager — / audit — | 0 |
 | designer-dashboard.html | designers | no (local picker) | `eatouts_designer_session_v1` + brand-kit stores | FULL | 18K/322 | — | 0 |
@@ -57,7 +57,7 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | eatouts-disputes.html | platform admin/ops | guard | EatoutsMgrDB | FULL | 1.7K/2 | esc ✔ / audit — | 0 |
 | eatouts-event-planner.html | event hosts | no | `eatouts_event_planner_v1` | FULL | 67K/1365 | esc ✔ | 0 |
 | eatouts-favourites.html | customers | guard | EatoutsMgrDB | FULL | 1.5K/1 | esc ✔ / confirm ✔ / audit ✔ | 0 |
-| eatouts-login.html | all | n/a | EatoutsMgrDB + auth | FULL | 37K/836 | — | 0 |
+| eatouts-login.html | all | n/a | EatoutsMgrDB + auth | FULL | 37K/939 | — | 0 |
 | eatouts-notifications.html | platform admin | guard | EatoutsMgrDB | FULL | 2.1K/2 | esc ✔ / audit — | 0 |
 | eatouts-orders.html | customers | guard | EatoutsMgrDB | FULL | 1.4K/1 | esc ✔ / pager ✔ / audit ✔ | 0 |
 | eatouts-platform-analytics.html | platform admin/analyst | guard | EatoutsMgrDB + analytics | FULL | 1.7K/2 | esc ✔ | 0 |
@@ -78,7 +78,7 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | invoice.html | operator/ops | auth | `eatouts_ops_v1` | FULL | 21K/394 | esc ✔ | 0 |
 | lodge-onboarding.html | lodge owner | n/a | `eatouts.lodge-onboarding.v2` + root `eatouts_db_v2` | FULL | 32K/1093 | esc ✔ / audit — | 0 |
 | menu-onboarding.html | restaurant owner | auth | root `eatouts_db_v2` | FULL | 23K/371 | esc ✔ | 0 |
-| mobile-kitchen-onboarding.html | mobile kitchen owner | auth | `eatouts.mobile-kitchen-onboarding.v1` + root `eatouts_db_v2` | FULL | 113K/1184 | esc ✔ / audit — | 0 |
+| mobile-kitchen-onboarding.html | mobile kitchen owner | auth | `eatouts.mobile-kitchen-onboarding.v1` + root `eatouts_db_v2` | FULL | 113K/1188 | esc ✔ / audit — | 0 |
 | one-pager.html | sales/prospects | no | — (static) | FULL | 8.4K/156 | — | 0 |
 | operator-dashboard1.html | linked biz owner/admin | guard | adapter + `eatouts_order_v1` + `eatouts_ops_v1` + `eatouts_delivery_orders_v1` | FULL | 40K/81 | esc ✔ / audit ✔ | 0 |
 | ops-console.html | internal ops | auth | `eatouts_ops_v1` | FULL | 22K/405 | esc ✔ | 0 |
@@ -90,11 +90,11 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | reservation-manager.html | biz owner/admin | guard | EatoutsMgrDB | FULL | 2.4K/2 | esc ✔ / audit ✔ | 0 |
 | restaurant-dashboard.html | restaurant owner | auth | root `eatouts_db_v2` + `eatouts_ops_v1` | FULL | 24K/403 | esc ✔ / audit — | 0 |
 | restaurant-delivery.html | restaurant dispatch | no (demo) | `eatouts_delivery_orders_v1` | STUB/DEMO | 42K/701 | esc ✔ | 0 |
-| restaurant-onboarding.html | restaurant owner | auth | `eatouts.restaurant-onboarding.v2` + root `eatouts_db_v2` | FULL | 125K/573 | esc ✔ / audit — | 0 |
+| restaurant-onboarding.html | restaurant owner | auth | `eatouts.restaurant-onboarding.v2` + root `eatouts_db_v2` | FULL | 125K/578 | esc ✔ / audit — | 0 |
 | room-manager.html | lodge owners | guard | EatoutsMgrDB | FULL | 2.3K/2 | esc ✔ / audit ✔ | 0 |
 | seed-demo.html | developer harness | no | `eatouts_db_v2` | STUB/DEMO | 22K/440 | esc ✔ | 0 |
 | staff-manager.html | biz owner/admin/manager | guard | EatoutsMgrDB | FULL | 5.1K/5 | esc ✔ / confirm ✔ / audit ✔ | 0 |
-| supplier-onboarding.html | event supplier owner | auth | `eatouts.event-supplier-onboarding.v1` + root `eatouts_db_v2` | FULL | 129K/1233 | esc ✔ / audit — | 0 |
+| supplier-onboarding.html | event supplier owner | auth | `eatouts.event-supplier-onboarding.v1` + root `eatouts_db_v2` | FULL | 130K/1237 | esc ✔ / audit — | 0 |
 
 > Note on scroll markers: many "—" entries are cosmetic (read-mostly pages). The
 > ones that matter for safety are the write paths listed in §4. The single
