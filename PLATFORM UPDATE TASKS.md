@@ -174,6 +174,7 @@ bottom nav where the page is part of the app shell.
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
 | 11 | T08 | 8 | Activate `brand-mark` + Back History popup — ⚠️ **PARTIAL 2026-10-31** (SPA popup done; header sweep split to T08b) | M |
+| 11b | T08b | 8 | Header sweep — standard `#hdr` on the 36 `.topbar` pages + `js/eatouts-back-history.js` for standalone pages | L |
 | 12 | T03 | 3 | `ritem` focus, scroll lock, 25% dim others — ✅ **DONE 2026-10-31** | M |
 | 13 | T09 | 9 | `venue-about` promo thumb → gallery + "Add to Order" | M |
 | 14 | T07 | 7 | Standardised Filter Bar on 4 screens — ✅ **DONE 2026-10-31** (food + bottle store; catering/bakery blocked on data) | M |
@@ -408,13 +409,27 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] Entries carry a whitelisted state snapshot (`tab`, `restPanel`, open venue + its view, promo ids, gallery view, reserve breadcrumb, operator view) so a tap restores the actual SPA screen — the app has no hash router to replay one.
 - [x] Labels: `Promos` / `Promo details`, `Restaurants` / `Catering` / `Bakeries` / `Beverages`, `"<venue> · Menu|Promos|About"`, `Reservations`, `Gallery`, `About Us`; relative time `now / Nm / Nh / Nd`.
 - [x] Empty state: "No recent pages yet."
-- [ ] **T08b — header sweep** (48 pages) + converting `brand-mark` to a button outside the SPA. Needs the app-page list and a rewrite of the appshell logo assertion; out of scope for a single minimal diff.
+- [ ] **T08b — header sweep** — split into its own brief below: 36 `.topbar` pages + `js/eatouts-back-history.js` for standalone pages.
 - [ ] Device pass — popup shadow, row rhythm and the blur scrim at 360px.
 
 **Notes**
 - **Behaviour change:** on the SPA the logo no longer resets to the Promos home (that stays on the Promos nav tab). Standalone pages keep `<a class="brand-mark" href="index.html#promos">` until T08b, so they still go home.
 - No new file: the feature is one self-contained block in `index.html` (the brief's optional `js/eatouts-back-history.js` wasn't needed while only the SPA records).
 - Standalone-page recording (`pagehide` + `location.pathname`) is not wired yet — entries in `sessionStorage` will mix SPA snapshots and URLs once T08b lands, and `restoreHistory()` already handles an entry with `href` by navigating.
+
+#### T08b — Header sweep (user task 8, part 2) · L
+**Why this is separate:** T08 shipped the popup on the SPA only. **36** root pages still build their own `class="topbar"` / `.topbar-row` header, **22** carry an `id="hdr"` variant, and `js/eatouts-manager.js:110` still injects a `.hdr-chip` into **32** of them. This is step 1 of T08 and step 1 of both **T18** and **T21** ("standard header (T08)"), so it lands before them.
+**Files:** `js/eatouts-manager.js` (`:110` topbar builder), the 36 `.topbar` pages, new **`js/eatouts-back-history.js`**, `copy-static.mjs`, `tests/appshell.js`, `tests/orders-list.js`.
+**Steps**
+1. Replace the `.topbar` builder in `js/eatouts-manager.js:110` with the standard light header block (`#hdr` + `.brand-mark` + `.hdr-right`) so the 32 admin/merchant pages inherit it. No `.hdr-chip` anywhere.
+2. On every standalone page `brand-mark` becomes `<button type="button" aria-label="EatOuts home" data-act="backHistory">` — no more `<a href="index.html#promos">`.
+3. New `js/eatouts-back-history.js` (the standalone half of T08):
+   - on `pagehide`, record `{href:location.pathname, title, ts}` into `sessionStorage` key `eatouts.history.v1` (same key and shape the SPA already writes, newest first, deduped, capped at 5);
+   - render the same centred `.hist-wrap` / `.hist-pop` dialog (blur scrim, plain `X`, outside-tap + `Escape` close, empty state "No recent pages yet.");
+   - an entry carrying an `href` navigates; an entry carrying an SPA snapshot sends the user to `index.html`, where `restoreHistory()` replays it.
+4. Load the script on every swept page. `copy-static.mjs` copies `js/` wholesale, so only the `src` tags need adding.
+5. Tests: `tests/appshell.js` merchant logo assertion becomes the `data-act="backHistory"` button; add a sweep check (in `tests/appshell.js` or `tests/orders-list.js`) asserting no `class="topbar"`, no `topbar-row` and no `hdr-chip` in any root `*.html`.
+**Done when** every app page has the identical header, the logo opens Back History on every page (≤5 entries, mixing SPA screens and standalone pages), and `Select-String -Pattern 'topbar|hdr-chip' *.html` returns nothing.
 
 #### T03 — `ritem` focus + scroll lock + dim (user task 3) · M — ✅ **DONE 2026-10-31**
 **Files:** `index.html` — `syncRestAccordions` `:4476-4486`, `renderRestaurantRow` `:5630-5640`, `toggleRestaurant` handler `:9146`, `state.restaurantOpen` `:3621`, CSS `.ritem` ~`:640-658`.
@@ -849,6 +864,47 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 
 **Resolved 2026-10-29 (D2):** the 24 offers above are authoritative — the "30" figure is dropped. Do **not** re-add legacy services to reach 30.
 
+### 6a. T21 — current seed → §6 mapping (prepared 2026-11-01)
+
+`js/eatouts-services-seed.js` holds **29** services in 8 categories; §6 wants **24**. The renames/merges/removals are listed here so the seed edit is a lookup, not a judgement call.
+
+| Seed id | Now | §6 # | Becomes | Action |
+|---|---|---|---|---|
+| `svc_brand_kit` | Brand Kit P350 | 1 | Brand Kit P350 | keep |
+| `svc_brand_kit_plus` | Brand Kit Plus P500 | 2 | Brand Kit Plus P500 | keep |
+| `svc_brand_guidelines` | Brand Guidelines P900 | 3 | Brand Guidelines **P2,500** | price |
+| `svc_promo_single` | Single promo card P80 | 4 | Simple Promo Card (Single Event Flyer) **P120** | rename + price |
+| `svc_event_flyer` | Single event flyer P120 | 4 | — | merge into #4 |
+| `svc_print_poster` | Poster (A2/A1) P240 | 5 | Promo Print Poster (A5 + A1) **P200** | rename + price |
+| `svc_promo_pack5` | Pack of 5 promo cards P300 | 6 | Promo Pack A (5 Promo Cards) **P500** | rename + price |
+| `svc_promo_pack10` | Pack of 10 promo cards P550 | 7 | Promo Pack B (10 Promo Cards) **P800** | rename + price |
+| `svc_story_pack10` | Story pack (10 stories) P450 | 8-10 | Story Pack A P400 · B P600 · C P900 | 1 → 3 new |
+| `svc_event_pack` | Event pack P280 | 11 | Event Pack **P300** | rename + price |
+| `svc_menu_full` | Full menu design P700 | 12 | Menu Design A (no print PDF) P700 | rename |
+| `svc_menu_photo` | Menu + photo layout P1200 | 13 | Menu Design B (with print PDF) P1,200 | rename |
+| — | — | 14 | Menu Design C (print PDF + photoshoot) **P2,000** | new |
+| `svc_print_cards` | Business cards P200 | 15 | Business Cards P200 | keep |
+| `svc_print_shopfront` | Shopfront sign design P800 | 16 | Shopfront Sign Design P800 | keep |
+| `svc_print_vehicle` | Vehicle wrap P1500 | 17 | Vehicle Wrap P1,500 | keep |
+| `svc_social_monthly` | Monthly social pack P1200 | 18 | Monthly Social Pack P1,200 | keep |
+| `svc_pack_bag` | Takeaway bag design P500 | 19 | Takeaway Bag Design P500 | keep |
+| `svc_pack_system` | Full packaging system **P1800** | 20 | Full Packaging Design **P550** | ⚠️ **D8 conflict — confirm** |
+| `svc_motion_promo` | Animated promo (5-10s) P400 | 21 | Animated Promo (5-10s) **P200** | price |
+| — | — | 22-23 | Animated Promo Pack A P500 · Pack B P1,000 | 2 new |
+| `svc_motion_logo` | Logo animation P500 | 24 | Logo Animation (5-10s) P500 | keep |
+| `svc_logo_cleanup` | Logo clean-up P250 | — | — | **remove** (not in §6) |
+| `svc_promo_retainer` | Monthly promo retainer P500 | — | — | **remove** (not in §6) |
+| `svc_event_programme` | Event programme / brochure P350 | — | — | ⚠️ no §6 home — confirm |
+| `svc_menu_refresh` | Menu refresh P400 | — | — | ⚠️ no §6 home — confirm |
+| `svc_print_flyer_a5` | A5 flyer P180 | — | — | **remove** (§6 "Removed") |
+| `svc_print_table_tent` | Table tent / menu stand P220 | — | — | **remove** (§6 "Removed") |
+| `svc_social_weekly` | Weekly social pack P350 | — | — | **remove** (§6 "Removed") |
+| `svc_social_banners` | Profile banner set P280 | — | — | **remove** (§6 "Removed") |
+| `svc_motion_teaser` | Event teaser reel P800 | — | — | **remove** (§6 "Removed") |
+| `svc_motion_social` | Full social video P1200 | — | — | **remove** (not in §6) |
+
+**Tests that move with the seed:** `tests/designer-services.js:57` asserts `cards.length === 30` (the page renders one more card than the seed's 29 — confirm during the build) and `:66` asserts the first service is `Logo clean-up`. Both must become 24 and the new #1.
+
 ---
 
 ## 7. Open decisions (need your answer before the affected task)
@@ -857,17 +913,18 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 - **D1 — popup close:** the beige circular `.fpop-close` is removed; a **plain `X` glyph** (`.fpop-x`, transparent, no circle) may remain, and outside-tap / `Escape` always closes.
 - **D2 — catalogue count:** the **24 listed offers** are authoritative (see §6).
 - **D4 — orders page:** create a **new `Orders-List.html`**, reusing the existing summaries store in `js/eatouts-customer.js`.
+- **D5 — orders group detail:** closed 2026-11-01 by the T06 build. An Order Group is the venue section on `Orders-List.html` that lists its summaries, and tapping a summary opens `eatouts-checkout-summary.html?id=<summary id>`. No separate group screen was added.
+- **D9 — T15 headers:** closed by execution 2026-10-31 — all 7 onboarding pages were converted to the light standard header (see T15).
 
 **Still open**
 
 | ID | Task | Question | Recommended default |
 |---|---|---|---|
 | **D3** | G4 | "All thumbnails 90px" — does that include **menu item thumbs** (currently 54px) and gallery grid cells? | Yes for list/card thumbs; galleries keep their layout sizes. *(Applied 2026-10-30: list/card thumbs → 90px, `sup-profile-avatar`/`prompt-thumb` → 150px, carousels/mosaics untouched.)* |
-| **D5** | T06 | The brief ends mid-sentence: *"When user opens"* — what should happen when a user opens an Order Group? | Open a group detail listing its summaries. |
 | **D6** | T18 | The brief says only "activate" under `eatouts-suppliers` — activate what? | The page's save/publish flow (currently gated). |
 | **D7** | T16 | Need the **Botswana WhatsApp Channel URL/number**. | Placeholder until provided. |
-| **D8** | T21 | Prices missing for 8 offers (see §6 "confirm"). Keep current prices? | Keep current prices. |
-| **D9** | T15 | Onboarding topbars are dark; standard header is light. Confirm the visual change is intended. | Convert to the light standard header. |
+| **D8** | T21 | Prices missing for 8 offers (see §6 "confirm"). One conflict: §6 says keep **P550** for Full Packaging Design but the seed has **P1800**; §6 also has no home for Menu refresh (P400) and Event programme (P350). | Keep current prices, set Packaging to **P550**, drop Menu refresh + Event programme. |
+| **D10** | T09 | `venue-about.html` is a standalone page and `state.cart` lives in `index.html` memory only, so "Add to Order" has no cart to write to. **A** persist the cart (`eatouts_cart_v1`, mirrored on every mutation, hydrated on boot) · **B** hash hand-off (`index.html#restaurants&addPromo=<id>`) · **C** append to the `eatouts_order_v1` hand-off draft. | **A** — it also makes the cart survive a reload. |
 
 ---
 

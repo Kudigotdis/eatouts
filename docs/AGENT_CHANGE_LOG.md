@@ -1075,3 +1075,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Files: `PLATFORM UPDATE TASKS.md` (queue row 16 ticked + T06 checklist/verification block), `docs/AGENT_CHANGE_LOG.md`.
 - Tick wording: T06 marked DONE 2026-11-01 with the caveat that the `.hdr-chip` sweep covered the 15 `id="hdr"` pages and the 32 `.topbar` pages wait on T08b. Device pass left unticked (jsdom cannot lay out).
 - Verified: `node tests/run-all.js` -> 59 suites passed, 0 failed (log captured to %TEMP%\eo-runall.txt); `npm run catalog` 70 pages / 1,114 lines; `node tests/orders-list.js` 26 checks / 0 failed.
+
+### [2026-11-01 09:12:00] - [Agent: Cline] - [Step 0 docs prep: T08b brief, decision close-out, seed -> offer map] - [COMMITTED]
+- Task: unblock the remaining queue (T08b, T16, T09, T05, T18, T12, T13, T21, T22) with documentation only; no app code touched.
+- Files: `PLATFORM UPDATE TASKS.md`, `docs/AGENT_CHANGE_LOG.md`.
+- Change 1: new `#### T08b - Header sweep` brief inserted after T08 (36 `.topbar` pages + 22 `id="hdr"` variants + the 32 `hdr-chip` pages injected by `js/eatouts-manager.js:110`; new `js/eatouts-back-history.js`; `brand-mark` -> `<button data-act="backHistory">`; sweep test asserting no `topbar`/`hdr-chip`). Queue row 11b added; the T08 checklist bullet now points at the brief instead of the old "(48 pages)" note.
+- Change 2: decisions - D5 closed against the shipped T06 build (an Order Group is the venue section on `Orders-List.html`; tapping a summary opens `eatouts-checkout-summary.html?id=<id>`), D9 closed (T15 converted all 7 onboarding headers), D8 rewritten with the P550-vs-P1800 conflict and the Menu refresh / Event programme orphans, and new D10 opened for T09 (default A: persist `eatouts_cart_v1`).
+- Change 3: new `### 6a` seed -> §6 mapping table (29 seed services -> 24 offers, with renames, merges, removals, and the two `tests/designer-services.js` assertions that move: `:57` count 30 -> 24, `:66` first service).
+- Verified: `node tests/html-catalog.js` -> 9 checks, 70 pages, PASSED (docs-only change, page count unchanged).
+- Not verified: nothing runtime - this commit is documentation only. D6/D7/D8/D10 still need the user's answers before T18/T16/T21/T09 can be closed.
