@@ -38,6 +38,7 @@ const SUITES = [
   'delivery.js',
   'checkout-delivery.js',
   'orders-list.js',
+  'back-history.js',
   'promocats.js',
   'builder-suppliers.js',
   'builder-preview.js',

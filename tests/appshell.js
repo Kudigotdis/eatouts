@@ -5,7 +5,7 @@
  * Verifies that every page now matches the index.html shell standard:
  *   - zero brand-gold tokens (--gold | c9a84c | b59437 | 201,168,76)
  *   - a 460px #shell wrapper (blog excepted — it owns its layout)
- *   - logo header linking to index.html#promos
+ *   - logo header: the T08b history trigger (button) or the index.html#promos link
  *   - bottom navigation to the index tabs (promos/restaurants/reserve/gallery/about)
  *   - merchant admin pages keep their own .tabs (no extra bottom nav)
  *
@@ -77,8 +77,9 @@ for (const file of Object.keys(MODES)) {
   const hasShell = s.includes('<div id="shell">');
   if (mode !== 'blog') check(file + ' has a #shell wrapper', hasShell);
 
-  const logoAnchor = /<a[^>]*class="brand(?:-mark)?"[^>]*href="index\.html#promos"/.test(s);
-  check(file + ' logo header links to index.html#promos', logoAnchor);
+  const logoHit = /<a[^>]*class="brand(?:-mark)?"[^>]*href="index\.html#promos"/.test(s) ||
+    /<button[^>]*class="brand-mark"[^>]*data-act="backHistory"/.test(s);
+  check(file + ' logo header is the standard brand mark', logoHit);
 
   if (mode === 'blog') {
     check(file + ' has bottom navigation', /class="bottom-nav"/.test(s));
@@ -94,7 +95,8 @@ for (const file of Object.keys(MODES)) {
   }
 
   if (mode === 'tool') {
-    check(file + ' links to index.html#promos', /index\.html#promos/.test(s));
+    check(file + ' keeps a route back to the app',
+      /index\.html#promos/.test(s) || /data-act="backHistory"/.test(s));
     continue;
   }
 

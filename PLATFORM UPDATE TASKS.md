@@ -429,6 +429,13 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
    - an entry carrying an `href` navigates; an entry carrying an SPA snapshot sends the user to `index.html`, where `restoreHistory()` replays it.
 4. Load the script on every swept page. `copy-static.mjs` copies `js/` wholesale, so only the `src` tags need adding.
 5. Tests: `tests/appshell.js` merchant logo assertion becomes the `data-act="backHistory"` button; add a sweep check (in `tests/appshell.js` or `tests/orders-list.js`) asserting no `class="topbar"`, no `topbar-row` and no `hdr-chip` in any root `*.html`.
+**Progress 2026-11-01 (standard-header half)** — 19 pages converted, `js/eatouts-back-history.js` shipped:
+- [x] `brand-mark` is a `<button type="button" data-act="backHistory">` on all 19 standard-header pages (13 anchors swapped, 4 existing buttons tagged, 2 decorative divs promoted).
+- [x] `js/eatouts-back-history.js`: records `{href,label,t}` on load and on `pagehide` into `eatouts.history.v1` (deduped by href, capped at 5), renders the same `.hist-wrap` / `.hist-pop` dialog (scrim + `Escape` close, empty state "No recent pages yet."), and sends SPA snapshot entries to `index.html#<tab>`.
+- [x] `copy-static.mjs` copies `js/` wholesale, so the new file ships without a config change; the tag goes before `</body>`.
+- [x] `tests/back-history.js` (27 checks) + the `tests/appshell.js` logo assertion retargeted + registered in `tests/run-all.js`.
+- [ ] **Step 1 still open:** the 36 `.topbar` pages (dark bar, `.topbar-row`; several carry a progress strip, search row or tabs) are untouched — restyling them to the light `#hdr` changes their look, so it needs a decision.
+
 **Done when** every app page has the identical header, the logo opens Back History on every page (≤5 entries, mixing SPA screens and standalone pages), and `Select-String -Pattern 'topbar|hdr-chip' *.html` returns nothing.
 
 #### T03 — `ritem` focus + scroll lock + dim (user task 3) · M — ✅ **DONE 2026-10-31**
