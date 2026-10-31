@@ -1029,3 +1029,13 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Left untouched (pre-existing working tree, not this task): `assets/images/services/logo_cleanup.png` deleted + untracked `logo_cleanup.jpg`, `SYNC REGION TASK/`, `docs/Directory_Subscription_Agreement*`.
 
 
+
+### [2026-10-31 23:58:00] - [Agent: Cline] - [T06a: Orders-List.html] - [COMMITTED]
+- Task: `PLATFORM UPDATE TASKS.md` T06 steps 4-5 - the orders list page itself (header counter + `.hdr-chip` sweep follow in T06b/T06c).
+- Files: `Orders-List.html` (new), `js/eatouts-customer.js` (new public `refresh()`), `tests/orders-list.js` (new), `tests/run-all.js` (suite registered), `copy-static.mjs` (FILES), `scripts/html_catalog.meta.json` (page 70), `PAGE_INVENTORY.md`, `HTML_PAGES.md`, `HTML_CATALOG.md` (regenerated), `docs/AGENT_CHANGE_LOG.md`.
+- Page: standard `#hdr` (`.brand-mark` button + `.hdr-right` orders counter) and `.appnav`; 3% grey `.pad`; **Order Groups** keyed by `orderRef || venueName`; **Order Summary Cards** with the 90px thumb on the RIGHT and title + item count/total on the left; tap -> `eatouts-checkout-summary.html?id=...`; empty state (Sign in when logged out, else the Save Order hint) + Browse promos.
+- Store: added `refresh()` to the `EatoutsCustomer` API (re-runs the existing `applyLocal()`), so the counter and the list reload when another tab or page writes `eatouts_customer_v1`. The page calls it on `storage` and on `visibilitychange` before repainting.
+- Deviation 1: the brief's card line 2 is "# from # places". Our saved summaries are single-venue snapshots, so the group header carries the order count ("2 orders") and the card line reads "<n> items - P#.##". There is no multi-place order group in the store yet.
+- Deviation 2: `tests/inventory.js` requires `data-page` to equal the filename (`Orders-List`), so the slug is `data-page="Orders-List"` rather than the brief's `orders-list`. The filename stays `Orders-List.html`.
+- Verified: `node tests/orders-list.js` 15 checks / 0 failed / 0 window errors; `node tests/inventory.js` PASSED (19 checks, 70 pages, 31 screens); `node tests/html-catalog.js` PASSED (9 checks, 70 pages); `node tests/appshell.js` PASSED; `npm run catalog` 70 pages / 1,114 lines. Full `npm test` runs in the T06 close-out commit.
+- NOT verified: no device pass (jsdom does not lay out) - the 90px right thumb and the group rhythm at 360px.

@@ -1,0 +1,214 @@
+<!doctype html>
+<!-- PAGE: Orders List -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Orders List · EatOuts</title>
+<style>
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --ink:#1a1a1a;
+  --mute:#8a8170;
+  --line:#f1ece1;
+  --paper:#f4f2ec;
+}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:#fff;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+#shell{max-width:460px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative;background:#fff}
+
+/* standard header (T08) - the right slot is the orders counter (T06) */
+#hdr{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;position:relative;z-index:20}
+.brand-mark{border:0;background:transparent;padding:0;width:34px;height:34px;border-radius:10px;overflow:hidden;
+  display:grid;place-items:center;cursor:pointer}
+.brand-mark img{width:100%;height:100%;object-fit:contain}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.ord-count{border:0;background:transparent;padding:4px 6px;font-family:inherit;font-size:14px;font-weight:800;
+  letter-spacing:.02em;color:#b9b1a2;cursor:pointer}
+.ord-count[hidden]{display:none}
+
+.scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.phead{padding:4px 16px 12px;background:#fff}
+.phead h1{margin:0;font-size:26px;font-weight:900;letter-spacing:-.02em}
+.phead p{margin:6px 0 0;font-size:13px;font-weight:600;color:var(--mute)}
+.pad{background:rgba(0,0,0,.03);padding:12px 14px 26px;min-height:100%}
+
+.grp{margin:0 0 16px}
+.grp-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 2px 8px}
+.grp-name{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#a89a7e}
+.grp-meta{font-size:11.5px;font-weight:800;color:var(--mute)}
+
+/* Order Summary Card - 90px thumb on the RIGHT, text on the left */
+.osum-card{display:flex;align-items:center;gap:12px;width:100%;padding:12px;margin:0 0 9px;background:#fff;
+  border:1px solid var(--line);border-radius:14px;text-align:left;font-family:inherit;cursor:pointer}
+.osum-info{flex:1 1 auto;min-width:0}
+.osum-name{font-size:16px;font-weight:900;color:var(--ink);line-height:1.25}
+.osum-sub{margin-top:3px;font-size:11.5px;font-weight:800;color:var(--mute)}
+.osum-thumb{flex:0 0 90px;width:90px;height:90px;border-radius:14px;overflow:hidden;background:var(--paper);
+  display:grid;place-items:center;font-size:24px;font-weight:900;color:#c9c1b1}
+.osum-thumb img{width:100%;height:100%;object-fit:cover}
+
+.empty{margin:24px 4px 0;text-align:center;font-size:13px;font-weight:700;color:var(--mute);line-height:1.6}
+.empty a{color:#1f8a53;font-weight:800;text-decoration:none}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px;font-family:inherit;font-size:15px;
+  font-weight:800;cursor:pointer;margin-top:14px;text-align:center;text-decoration:none}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+
+.appnav{flex:0 0 auto;display:flex;align-items:center;justify-content:space-around;background:#fff;
+  border-top:1px solid var(--line);padding:9px 4px calc(9px + env(safe-area-inset-bottom))}
+.appnav a{display:grid;justify-items:center;gap:3px;font-size:10px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;color:#a89a7e;text-decoration:none}
+</style>
+</head>
+
+<body data-page="Orders-List">
+<div id="shell">
+
+  <header id="hdr">
+    <button class="brand-mark" type="button" aria-label="EatOuts home" data-act="home">
+      <img src="assets/logo/EatOuts_Logo.png" alt="EatOuts">
+    </button>
+    <div class="hdr-right">
+      <button class="ord-count" type="button" id="ordCount" aria-label="Your orders" data-act="ordersCount" hidden>0</button>
+    </div>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <div class="phead">
+      <h1>Orders</h1>
+      <p>Every summary you saved, grouped by the place it came from.</p>
+    </div>
+    <main class="pad" id="app"></main>
+  </div>
+
+  <nav class="appnav">
+    <a href="index.html#promos">Promos</a>
+    <a href="index.html#restaurants">Restaurants</a>
+    <a href="index.html#reserve">Reserve</a>
+    <a href="index.html#gallery">Gallery</a>
+    <a href="index.html#about">About</a>
+  </nav>
+
+</div>
+
+<script src="js/eatouts-customer.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var S = window.EatoutsCustomer;
+  var app = document.getElementById('app');
+  var countEl = document.getElementById('ordCount');
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function money(v) { return 'P' + (Number(v) || 0).toFixed(2); }
+  function rows() {
+    var list = (S && S.summaries && S.summaries.list) ? S.summaries.list() : [];
+    return list.slice().sort(function (a, b) { return (b.created_at || 0) - (a.created_at || 0); });
+  }
+  function signedIn() { return !!(S && S.getUser && S.getUser()); }
+  function itemCount(s) {
+    if (typeof s.itemCount === 'number') return s.itemCount;
+    var items = (s.payload && s.payload.items) || [];
+    return items.reduce(function (n, it) { return n + (Number(it && it.qty) || 0); }, 0) || items.length;
+  }
+  function when(ts) {
+    if (!ts) return '';
+    var d = new Date(ts);
+    if (isNaN(d.getTime())) return '';
+    var diff = Date.now() - d.getTime();
+    if (diff < 60000) return 'just now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+    if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  }
+
+  /* Order Groups: one group per place. The store is already newest-first, so
+     pushing in list order keeps the newest summary at the top of its group. */
+  function groups(list) {
+    var out = [], byKey = {};
+    list.forEach(function (s) {
+      var name = s.venueName || (s.payload && s.payload.venueName) || 'Order';
+      var key = String(s.orderRef || name);
+      if (!byKey[key]) { byKey[key] = { key: key, name: name, logo: s.venueLogo || null, items: [] }; out.push(byKey[key]); }
+      if (!byKey[key].logo && s.venueLogo) byKey[key].logo = s.venueLogo;
+      byKey[key].items.push(s);
+    });
+    return out;
+  }
+
+  function cardHtml(s, groupLogo) {
+    var n = itemCount(s);
+    var logo = s.venueLogo || groupLogo || null;
+    var thumb = logo
+      ? '<img src="' + esc(logo) + '" alt="">'
+      : esc((s.venueName || 'O').charAt(0).toUpperCase());
+    var title = 'Summary · ' + (when(s.created_at) || 'saved');
+    return '<button class="osum-card" type="button" data-open="' + esc(s.id || '') + '">' +
+      '<span class="osum-info">' +
+        '<span class="osum-name">' + esc(title) + '</span>' +
+        '<span class="osum-sub">' + n + ' item' + (n === 1 ? '' : 's') + ' · ' + money(s.total) + '</span>' +
+      '</span>' +
+      '<span class="osum-thumb">' + thumb + '</span>' +
+      '</button>';
+  }
+
+
+
+  function render() {
+    var list = rows();
+    countEl.hidden = !signedIn();
+    countEl.textContent = String(list.length);
+
+    if (!list.length) {
+      app.innerHTML = '<div class="empty">' +
+        (signedIn()
+          ? 'No orders yet.<br>Tap <b>Save Order</b> at a checkout and it lands here.'
+          : 'Sign in to see the orders you have saved.<br>' +
+            '<a href="eatouts-login.html?next=Orders-List.html">Sign in</a>') +
+        '</div>' +
+        '<a class="btn ghost" href="index.html#promos">Browse promos</a>';
+      return;
+    }
+
+    app.innerHTML = groups(list).map(function (g) {
+      return '<section class="grp">' +
+        '<div class="grp-head">' +
+          '<span class="grp-name">' + esc(g.name) + '</span>' +
+          '<span class="grp-meta">' + g.items.length + ' order' + (g.items.length === 1 ? '' : 's') + '</span>' +
+        '</div>' +
+        g.items.map(function (s) { return cardHtml(s, g.logo); }).join('') +
+        '</section>';
+    }).join('');
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('[data-act],[data-open]') : null;
+    if (!t) return;
+    if (t.getAttribute('data-act') === 'home') { location.href = 'index.html#promos'; return; }
+    if (t.getAttribute('data-act') === 'ordersCount') { document.getElementById('scroll').scrollTo(0, 0); return; }
+    var id = t.getAttribute('data-open');
+    if (id) location.href = 'eatouts-checkout-summary.html?id=' + encodeURIComponent(id);
+  });
+
+  render();
+  if (S && S.onChange) S.onChange(render);
+  /* another tab / page wrote the store - reload it, then repaint */
+  window.addEventListener('storage', function () { if (S && S.refresh) S.refresh(); render(); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) return;
+    if (S && S.refresh) S.refresh();
+    render();
+  });
+})();
+</script>
+</body>
+</html>

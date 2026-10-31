@@ -142,6 +142,9 @@ only reads; it never rewrites this file. It warns on line drift.
 |---|------|-----------|------------------|-------------|--------|
 | 67 | `bakery-onboarding.html` | Bakery setup — brand, outlets, products, café/seating and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Bakery; operator dashboard | `PAGE: Bakery onboarding` | 1,705 |
 | 68 | `mobile-kitchen-onboarding.html` | Mobile kitchen setup — units, service locations, grab-and-go menu, throughput and Hosting Services; publishes to the D1 profile and the customer directory. | business-signup → Mobile Kitchen; operator dashboard | `PAGE: Mobile kitchen onboarding` | 1,188 |
+| 70 | `Orders-List.html` | Saved orders (T06) — every kept checkout summary grouped by place, 90px thumb on the right. | header orders counter (signed-in) / direct URL | `PAGE: Orders List` | 1 |
+
+
 ---
 
 # Part 2 — Screens Within index.html (SPA)

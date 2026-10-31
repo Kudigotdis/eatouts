@@ -286,6 +286,7 @@ onboarding screens use the centred `.login` card with a platform logo header.
 | `eatouts-notifications.html` | platform admin | Segment notifications |
 | `eatouts-settings.html` | platform admin | Platform configuration |
 | `eatouts-favourites.html` / `eatouts-orders.html` / `eatouts-profile.html` / `eatouts-addresses.html` | customer | Account surfaces |
+| `Orders-List.html` | customer | Saved orders, grouped by place (90px thumb on the right); header counter (T06) |
 
 ### Spec workspaces (recovered `*1` pages)
 

@@ -552,6 +552,9 @@
     addresses: { list: addrList, pull: addrPull, save: addrSave, remove: addrRemove },
     upload: uploadFile,
     uploadPhoto: uploadPhoto,
+    /* T06: re-read the local store (used by the header orders counter when
+       another tab / page writes summaries). */
+    refresh: function () { applyLocal(); return state; },
     onChange: function (fn) {
       if (typeof window === 'undefined' || !window.addEventListener) return;
       window.addEventListener(EVENT, function (e) { fn(e.detail); });
