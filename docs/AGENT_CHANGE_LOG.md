@@ -1061,3 +1061,11 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Files: `bakery-onboarding.html`, `bottle-store-onboarding.html`, `caterer-onboarding.html`, `mobile-kitchen-onboarding.html`, `supplier-onboarding.html`, `restaurant-onboarding.html`.
 - Change: each `#hdr` right slot kept its working content (`#saveIndicator`, and the `18+` pill on bottle stores); only the hidden `Offline` chip and the `restaurant-onboarding` `.hdr-chip` CSS rule went. No JS read these chips.
 - Verified: `node tests/appshell.js` PASSED; `node tests/inventory.js` PASSED (19 checks, 70 pages, 31 screens); `node tests/smoke.js` PASSED; `node tests/orders-list.js` sweep check green.
+
+### [2026-11-01 00:56:00] - [Agent: Cline] - [T06c batch 3: .hdr-chip removed from the delivery, venue and sign-up headers] - [COMMITTED]
+- Task: T06 step 1, batch 3 of 3 - the last five `#hdr` pages. Every `id="hdr"` block in the app is now chip-free.
+- Files: `customer-delivery.html`, `driver-delivery.html`, `restaurant-delivery.html`, `venue-about.html`, `eatouts-business-signup.html`, `HTML_CATALOG.md` (regenerated).
+- Change: `customer-delivery`, `restaurant-delivery`, `venue-about` and `eatouts-business-signup` lost the label chip plus the `.hdr-right` wrapper (nothing else lived in it). `driver-delivery` kept its working duty indicator - the static `Driver` label went and `#dutyChip` was re-classed `.hdr-chip ok` -> `.duty-chip ok` (same declarations under the new name) so `:440`'s `chip.textContent=STATE.duty` still drives it. `.hdr-chip` CSS rules removed from all five.
+- Deviation to flag: `driver-delivery` is the one page where a chip carried state, so it survives under a non-`hdr-` class rather than being deleted.
+- Still chip-bearing (out of T06 scope - shared `.topbar` from `js/eatouts-manager.js:110`, not `id="hdr"`): 32 admin/merchant pages. That is T08b territory.
+- Verified: full `node tests/run-all.js` -> **59 passed, 0 failed**; `node tests/delivery.js` PASSED; `node tests/venue-about-menu.js` / `venue-about-options.js` PASSED; `node tests/inventory.js` PASSED; `npm run catalog` 70 pages / 1,114 lines.
