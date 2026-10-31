@@ -176,7 +176,7 @@ bottom nav where the page is part of the app shell.
 | 11 | T08 | 8 | Activate `brand-mark` + Back History popup (all headers) | M |
 | 12 | T03 | 3 | `ritem` focus, scroll lock, 25% dim others — ✅ **DONE 2026-10-31** | M |
 | 13 | T09 | 9 | `venue-about` promo thumb → gallery + "Add to Order" | M |
-| 14 | T07 | 7 | Standardised Filter Bar on 4 screens | M |
+| 14 | T07 | 7 | Standardised Filter Bar on 4 screens — ✅ **DONE 2026-10-31** (food + bottle store; catering/bakery blocked on data) | M |
 
 ### Phase 4 — Structural redesigns
 | # | ID | User task | Task | Size |
@@ -429,7 +429,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 4. "Add to Order" writes the promo as a cart line (promo id, title, price) and returns to the venue/checkout with a toast.
 **Done when** the gallery opens with dots + swipe, outside-tap closes, Add to Order adds exactly one line and the cart badge/total update.
 
-#### T07 — Standardised Filter Bar (user task 7) · M
+#### T07 — Standardised Filter Bar (user task 7) · M — ✅ **DONE 2026-10-31** (food + bottle store; catering/bakery blocked on data — see notes)
 **Files:** `index.html` — `#cbar` `:855`, `renderRestaurants` `:5195`, `renderRestaurantsPager` `:5244`, `renderCatering`/`renderBakeries`/`renderBeverages`, `#cbar` builder `:6289-6328`, `restFilterOpen` toggle `:8782`, `.rest-filter-controls`/`.cbtn` CSS, `.town-pop`/`.town-scroll`/`.az-rail`/`.loc-count` CSS ~`:608-635`.
 **Steps**
 1. Build one reusable `renderFilterBar({searchId, placeholder, townAct, areaAct, typeLabel})` producing `id="cbar" class="rest-filter-controls"` with the two rows from the brief.
@@ -441,6 +441,17 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 7. `.town-scroll` gets even top/bottom padding inside `.fpop.town-pop.rest-town-pop` (fix cropped last row).
 8. `.az-rail` background `rgba(0,0,0,.03)`.
 **Done when** all 4 screens show the same bar, search actually filters, labels correct, 16px centred buttons, no `loc-count`, no cropped town list, rail tinted, no visible scrollbars.
+- [x] One `renderFilterBar(cfg)` builder (`searchId`, `placeholder`, `query`, `townAct`/`townLabel`/`townOpen`, `areaAct`…, `typeAct`…), used by the food directory and the bottle-store directory. Emits the search row + Town | Area | Cuisine/Type row.
+- [x] Toggle unchanged: 2nd tap on the active Restaurants nav opens/hides (`state.restFilterOpen` for food, `state.bevFilterOpen` for beverages).
+- [x] Live search wired for the food directory (`#restSearch` → `state.restQuery` → `filteredRestaurants()` via the existing `restaurantNameMatches()`); bottle stores already had `#bottleSearch`. Empty state kept, search text + caret survive the re-render.
+- [x] Labels: food `All Cuisines` / one cuisine / `N Cuisines`, beverages `Type` / one type / `N Types`.
+- [x] `.rest-filter-row .cbtn` and `.align-right` are now `text-align:center`; `.rest-filter-controls .rest-filter-row .cbtn` is `16px`.
+- [x] `.loc-all .loc-count` removed from all six "All" rows (promo town, restaurant town, bottle town, gallery restaurant/town/area). Per-row badges untouched.
+- [x] `.town-scroll` already had even `8px` top/bottom padding; it now also hides its scrollbar (`scrollbar-width:none` + `::-webkit-scrollbar{display:none}`).
+- [x] `.az-rail` background `rgba(0,0,0,.03)`.
+- [x] `tests/beverages.js` updated to the new spec (was asserting 18px / left / right-aligned).
+- [ ] **Deviation — catering + bakery bars stay hidden.** Neither directory has town/area/type filter data (`cateringBrands()` has no per-brand type; `bakeryBrands()` has only name/town/area), so a standardised bar there would render dead buttons. `state.cateringQuery` is already reserved for the day that data lands. Needs a data decision, not a CSS one.
+- [ ] Device pass — 16px centred labels and the tinted rail at 360px.
 
 ---
 
@@ -859,6 +870,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-31 | T28 | DONE | `index.html` `.gal-cell` no `aspect-ratio`, `max-height:40vh`, `img height:auto`, `.gal-grid{align-items:start}` | probe — cell/img capped at 40vh, img height auto, grid `repeat(3,1fr)`; `tests/customer.js` infinite scroll PASSED; full `npm test` 58/58 | (this commit) |
 | 2026-10-31 | T15 | DONE | 7 pages — `restaurant-onboarding.html`, `caterer-onboarding.html`, `bakery-onboarding.html`, `bottle-store-onboarding.html`, `mobile-kitchen-onboarding.html`, `supplier-onboarding.html`, `eatouts-login.html` (standard `#hdr`, no `.topbar`/`.draft-pill`, light `.progress-strip`, document lock) | static probe 15/15 × 6 + login; jsdom runtime probe 62/62 (0 window errors); `tests/appshell.js` merchant asserts PASSED; full `npm test` 58/58 | (this commit) |
 | 2026-10-31 | T03 | DONE | `index.html` — `syncRestAccordions` now sets `.scroll.has-open` + `body.ritem-locked` and centres the opened row; CSS `.scroll.has-open .ritem:not(.open){opacity:.25;pointer-events:none}` and `body.ritem-locked .scroll{overflow:hidden;touch-action:none}`; `render()` re-derives the state | probe 23/23 (open/close/restore/reopen/navigate-away); full `npm test` 58/58; `npm run inventory` PASSED (79 warnings) | (this commit) |
+| 2026-10-31 | T07 | DONE (partial) | `index.html` — shared `renderFilterBar()` (search row + Town \| Area \| Cuisine/Type) for food + bottle stores; `state.restQuery` + `#restSearch` live filtering; 16px centred `.cbtn`; `.loc-all .loc-count` removed (6 rows); `.town-scroll` scrollbar hidden; `.az-rail` `rgba(0,0,0,.03)`; `tests/beverages.js` updated to the new spec | probe 30/30 (builder, labels, search narrow/empty/clear, town badges, bottle + gallery All rows, no window errors); full `npm test` 58/58; `npm run inventory` PASSED (79 warnings) | (this commit) |
 
 ### Per-task completion template
 

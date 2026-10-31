@@ -987,3 +987,16 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: `%TEMP%\opencode\probe-t03.js` 23/23 (open sets `.open`/`has-open`/`ritem-locked` and calls `scrollIntoView` once; sibling computes opacity 0.25 + pointer-events none; close restores; reopen scrolls again; Promos tab leaves no lock or `.has-open`); `npm test` 58 passed / 0 failed; `npm run inventory` PASSED (79 warnings); `npm run catalog` (69 pages, 1097 lines).
 - NOT verified: no phone pass. The smooth centring, the 0.25 dim and the "list cannot scroll while open" feel should be checked on a real long list at 360px.
 
+
+### [2026-10-31 13:05:00] - [Agent: Big Pickle] - [T07: standardised filter bar] - [COMMITTED]
+- Task: one filter bar across the directory screens (`PLATFORM UPDATE TASKS.md` T07).
+- Files changed: index.html, tests/beverages.js, PLATFORM UPDATE TASKS.md, FEATURES.md, HTML_ASSESSMENT.md, scripts/html_catalog.meta.json, HTML_CATALOG.md.
+- New `renderFilterBar(cfg)` emits `<div class="rest-filter-controls">` with a search row and a `Town | Area | Cuisine/Type` row; the food branch and the bottle-store branch both call it (previously two hand-written blocks with different layouts).
+- Food directory gained a real live search: new `state.restQuery`, `#restSearch` handler mirrors the `#bottleSearch` pattern (capture caret, `render()`, restore focus + caret), `filteredRestaurants()` filters through the existing `restaurantNameMatches()`, and `_restList.sig` + `cbarKey()` include the query.
+- CSS: `.rest-filter-row .cbtn` and `.align-right` are centred, `.rest-filter-controls .rest-filter-row .cbtn` is 16px, `.town-scroll` hides its scrollbar, `.az-rail` background is `rgba(0,0,0,.03)`.
+- Removed `<span class="loc-count">` from all six `.loc-all` "All" rows (promo town, restaurant town, bottle town, gallery restaurant/town/area). Town/area row badges are untouched.
+- Scope deviation: catering and bakery panels keep their bar hidden. Neither has town/area/type filter data (`cateringBrands()` exposes no type, `bakeryBrands()` only name/town/area), so enabling the standard bar there would show buttons that do nothing. `state.cateringQuery` remains reserved for when that data lands. This is a data decision, not a CSS one.
+- Tests updated: `tests/beverages.js` asserted the old design (18px labels, All Towns left, Type right). Those four checks now assert 16px + centred, matching T07 step 5. No other assertions changed.
+- Verified: `%TEMP%\opencode\probe-t07.js` 30/30 (shared builder; bar hidden then 2nd-tap open; 12px padding; three 16px centred buttons; search narrows 1..n, nonsense shows `.empty`, clearing restores; All row badge-free with town badges intact; even 8px town-scroll padding; bottle bar + labels; gallery All row; zero window errors); `npm test` 58 passed / 0 failed; `npm run inventory` PASSED (79 warnings); `npm run catalog` (69 pages, 1098 lines).
+- NOT verified: no device pass. The 16px centred labels, the tinted A-Z rail and the longer "All Cuisines" label at 360px should be eyeballed. Food search is synchronous (like the existing bottle search) rather than the brief's ~120ms debounce — the list re-render is cheap and debouncing would fight caret restoration.
+

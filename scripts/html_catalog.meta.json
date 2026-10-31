@@ -60,7 +60,7 @@
       "purpose": "Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content.",
       "audience": "Customers (+ operator sign-in entry)",
       "entry": "Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in.",
-      "interactions": "Search and filter by town/area; open a venue and switch tabs; a directory row centres, holds the list still and dims the others until it is closed; favourite + WhatsApp icon rows on promo/event cards; the promo detail shows a venue card and a Back to Promos row; tap WhatsApp order/reserve intents; About â†’ Operator Sign in / demo login.",
+      "interactions": "Search and filter by town/area; open a venue and switch tabs; a directory row centres, holds the list still and dims the others until it is closed; the filter bar (2nd Restaurants tap) pairs a live search box with Town | Area | Cuisine/Type; favourite + WhatsApp icon rows on promo/event cards; the promo detail shows a venue card and a Back to Promos row; tap WhatsApp order/reserve intents; About â†’ Operator Sign in / demo login.",
       "auth": false,
       "status": "FULL",
       "notes": "Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only. On venue open the app hydrates that venue's canonical D1 content via window.EatoutsContent (js/eatouts-content.js), merging profile/menu/gallery/promos/events into the local store before re-rendering; an unreachable backend leaves the imported-directory path untouched."
@@ -883,6 +883,10 @@
     }
   ],
   "changelog": [
+    {
+      "date": "2026-10-31",
+      "note": "T07 standardised filter bar: the food and bottle-store directories now share one builder - a live search row above Town | Area | Cuisine/Type. Food search really filters the list (empty state kept), filter labels are 16px and centred, the browse counts are gone from every \"All\" row, the town list hides its scrollbar and the A-Z rail is a subtle grey tint."
+    },
     {
       "date": "2026-10-31",
       "note": "T03 restaurant-row focus: opening a directory row centres it with a smooth scroll, locks the list scroll (and the page) while it is open, and dims every other row to 25% with taps disabled; closing, switching tabs or navigating away restores the list and never leaves the lock behind."

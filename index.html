@@ -411,13 +411,13 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .csearch input{flex:1;background:none;border:0;outline:none;padding:10px 0;font-size:13px;color:#1a1a1a}
 .csearch input::placeholder{color:#b5a888}
 .rest-filter-row{display:flex;gap:8px;padding:0 12px 8px}
-.rest-filter-row .cbtn{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap}
-.rest-filter-row .cbtn.align-right{text-align:right}
+.rest-filter-row .cbtn{flex:1;min-width:0;overflow:hidden;text-align:center;text-overflow:ellipsis;white-space:nowrap}
+.rest-filter-row .cbtn.align-right{text-align:center}
 /* Bottle + restaurant filter bars: 12px breathing room above the first row
-   (search / town) and 18px button labels. Scoped to .rest-filter-controls so
-   the reserve venue town row (a bare .rest-filter-row) is untouched. */
+   (search / town) and 16px centred button labels. Scoped to
+   .rest-filter-controls so the reserve venue town row is untouched. */
 .rest-filter-controls{padding-top:12px}
-.rest-filter-controls .rest-filter-row .cbtn{font-size:18px}
+.rest-filter-controls .rest-filter-row .cbtn{font-size:16px}
 .rest-filter-controls .rest-filter-row .cbtn.align-center{text-align:center}
 /* cbar slides up from the bottom when a filter bar is toggled open */
 #cbar.on{animation:cbarUp .18s ease-out}
@@ -657,8 +657,9 @@ img[src*="heart_inactive_icon"]{opacity:.5}
    rail + bubble; overflow:hidden clips them. The scroller moves to an inner
    .town-scroll so the rail stays put while the list scrolls. */
 .fpop.town-pop{display:flex;flex-direction:column;overflow:hidden;padding:0}
-.town-scroll{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:8px 36px 8px 8px}
-.az-rail{position:absolute;top:8px;right:4px;bottom:8px;width:24px;display:flex;flex-direction:column;align-items:stretch;justify-content:center;padding:4px 0;border-radius:12px;background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 1px 6px rgba(15,23,42,.06);overflow:hidden;scrollbar-width:none;-ms-overflow-style:none;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;z-index:5}
+.town-scroll{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:8px 36px 8px 8px;scrollbar-width:none;-ms-overflow-style:none}
+.town-scroll::-webkit-scrollbar{display:none;width:0;height:0}
+.az-rail{position:absolute;top:8px;right:4px;bottom:8px;width:24px;display:flex;flex-direction:column;align-items:stretch;justify-content:center;padding:4px 0;border-radius:12px;background:rgba(0,0,0,.03);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 1px 6px rgba(15,23,42,.06);overflow:hidden;scrollbar-width:none;-ms-overflow-style:none;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;z-index:5}
 .az-rail::-webkit-scrollbar{display:none;width:0;height:0}
 .az-rail .az-letter{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;padding:0;border:0;background:transparent;font-family:inherit;font-size:10px;font-weight:700;line-height:1;color:#64748b;border-radius:999px;cursor:pointer;transition:background .12s ease,color .12s ease}
 .az-rail .az-letter:active{background:rgba(15,23,42,.08)}
@@ -3672,6 +3673,7 @@ profilePhoto:null,
   restDistrictName:"",
   restArea:"All",
   restTypes:[],
+  restQuery:"",
   restTownPicker:false,
   restAreaPicker:false,
   restTypePicker:false,
@@ -4814,7 +4816,7 @@ function renderPromoFilterBar(){
     h+='<div class="fpop-scrim" data-act="closePickers"></div>';
     h+='<div class="fpop town-pop" role="listbox">';
     h+='<div class="town-scroll">';
-    h+='<button class="loc-all'+(state.promoTown==="All"?" on":"")+'" data-act="pickTown" data-town="All" role="option" aria-selected="'+(state.promoTown==="All")+'"><span class="lbl">All Towns</span><span class="loc-count">'+restaurants.length+'</span></button>';
+    h+='<button class="loc-all'+(state.promoTown==="All"?" on":"")+'" data-act="pickTown" data-town="All" role="option" aria-selected="'+(state.promoTown==="All")+'"><span class="lbl">All Towns</span></button>';
     const districts={};
     towns.forEach(function(t){(districts[t.districtName]=districts[t.districtName]||[]).push(t);});
     Object.keys(districts).sort().forEach(function(districtName){
@@ -4959,7 +4961,9 @@ function renderMenuLocked(r){
   return h;
 }
 function filteredRestaurants(){
-  const rows=restaurantBaseRows();
+  let rows=restaurantBaseRows();
+  const q=state.restQuery.trim().toLowerCase();
+  if(q)rows=rows.filter(function(r){return restaurantNameMatches(r,q);});
   if(!state.restTypes.length)return rows;
   return rows.filter(function(r){return state.restTypes.some(function(type){return restaurantMatchesType(r,type);});});
 }
@@ -5061,7 +5065,7 @@ function renderRestaurantTownPicker(){
   let h='<div class="fpop-scrim" data-act="closeRestTownPicker"></div><div class="fpop town-pop rest-town-pop" role="listbox" aria-label="Choose town or city">';
   h+='<div class="rest-type-top" style="border-bottom: 1px solid #ece7db; padding-bottom: 10px; margin-bottom: 10px;"><div class="csearch"><input id="restTownSearch" type="search" placeholder="Search towns..." value="'+esc(state.restTownSearch)+'" aria-label="Search towns"></div></div>';
   h+='<div class="town-scroll">';
-  if(!query) h+='<button class="loc-all'+(state.restTown==="All"?" on":"")+'" data-act="pickRestTown" data-town="All" role="option" aria-selected="'+(state.restTown==="All")+'"><span class="lbl">All Towns</span><span class="loc-count">'+restaurantCountAt("All","","","All")+'</span></button>';
+  if(!query) h+='<button class="loc-all'+(state.restTown==="All"?" on":"")+'" data-act="pickRestTown" data-town="All" role="option" aria-selected="'+(state.restTown==="All")+'"><span class="lbl">All Towns</span></button>';
   Object.keys(groups).sort().forEach(function(name){
     h+='<div class="loc-district">'+esc(name)+'</div>';
     groups[name].forEach(function(t){
@@ -5244,7 +5248,7 @@ function renderRestaurants(){
   const rowsLen=filteredRestaurants().length;
   const allLen=allRestaurants().length;
   const sig=[dbEventRev,state.restTown,state.restDistrict,state.restDistrictName,state.restArea,
-    state.restTypes.join("|"),state.restaurantOpen||"",rowsLen,allLen,
+    state.restTypes.join("|"),state.restQuery,state.restaurantOpen||"",rowsLen,allLen,
     JSON.stringify(state.restBranchOf),JSON.stringify(state.restLocPicker)].join("~");
   if(sig===_restList.sig) return _restList.html;
   _restList.sig=sig;
@@ -5883,7 +5887,7 @@ function renderBottleTownFilter(){
   const towns=api?api.towns():[];
   let h='<div class="fpop-scrim" data-act="closeBottleTownFilter"></div><div class="fpop town-pop rest-town-pop" role="listbox" aria-label="Choose town">';
   h+='<div class="town-scroll">';
-  h+='<button class="loc-all'+(state.bottleTown==="All"?" on":"")+'" data-act="pickBottleTown" data-town="All" role="option" aria-selected="'+(state.bottleTown==="All")+'"><span class="lbl">All Towns</span><span class="loc-count">'+(api?api.offeringStores({}).length:0)+'</span></button>';
+  h+='<button class="loc-all'+(state.bottleTown==="All"?" on":"")+'" data-act="pickBottleTown" data-town="All" role="option" aria-selected="'+(state.bottleTown==="All")+'"><span class="lbl">All Towns</span></button>';
   towns.forEach(function(t){
     const selected=state.bottleTown===t;
     h+='<button class="loc-town-main'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickBottleTown" data-town="'+esc(t)+'"><span class="lbl">'+esc(t)+'</span><span class="loc-count">'+bottleStoreCount(t,"All")+'</span></button>';
@@ -6273,7 +6277,7 @@ function cbarKey(){
     state.restPanel,state.bevCheckout,(state.bevView&&state.bevView.id)||"",
     restaurantTypeDataRev,state.filterOpen,
     state.restTown,state.restDistrict,state.restDistrictName,state.restArea,
-    state.restTypes.join(","),state.restTownPicker,state.restAreaPicker,state.restTypePicker,
+    state.restTypes.join(","),state.restQuery,state.restTownPicker,state.restAreaPicker,state.restTypePicker,
     state.restTypeSearch,state.restTypeDraft.join(","),
     state.restFilterOpen,
     state.bevFilterOpen,state.bevTypePicker,state.bevTypeSearch,
@@ -6284,6 +6288,20 @@ function cbarKey(){
     state.searchOpen,state.gallerySearch,state.galleryFilter,
     state.galRest,state.galTown,state.galArea,state.galPopup,
     state.galLocMode,state.galRestSearch].join("~");
+}
+/* T07 — one filter bar for the food and bottle-store directories: a search
+   row, then Town | Area | Cuisine/Type with every label the same size and
+   centred. Popups are appended by the caller. */
+function renderFilterBar(cfg){
+  let h='<div class="rest-filter-controls">';
+  h+='<div class="cbar2 rest-filter-row">'+
+    '<div class="csearch"><input id="'+cfg.searchId+'" type="search" placeholder="'+esc(cfg.placeholder)+'" value="'+esc(cfg.query||"")+'" aria-label="'+esc(cfg.placeholder)+'"></div></div>';
+  h+='<div class="cbar2 rest-filter-row">'+
+    '<button class="cbtn" data-act="'+cfg.townAct+'" aria-haspopup="listbox" aria-expanded="'+(cfg.townOpen?'true':'false')+'"><span>'+esc(cfg.townLabel)+'</span></button>'+
+    '<button class="cbtn align-center" data-act="'+cfg.areaAct+'" aria-haspopup="listbox" aria-expanded="'+(cfg.areaOpen?'true':'false')+'"><span>'+esc(cfg.areaLabel)+'</span></button>'+
+    '<button class="cbtn align-right" data-act="'+cfg.typeAct+'" aria-haspopup="dialog" aria-expanded="'+(cfg.typeOpen?'true':'false')+'"><span>'+esc(cfg.typeLabel)+'</span></button></div>';
+  h+='</div>';
+  return h;
 }
 function renderControlBar(){
   renderControlBarInner();
@@ -6331,14 +6349,12 @@ function renderControlBarInner(){
       const bevAreaLabel=state.bottleArea==="All"?"All Areas":state.bottleArea;
       const bevNames=bevTypeOptionNames(state.bevTypes);
       const bevTypeLabel=!state.bevTypes.length?"Type":state.bevTypes.length===1?bevNames[0]:state.bevTypes.length+" Types";
-      let bh='<div class="rest-filter-controls">';
-      bh+='<div class="cbar2 rest-filter-row" style="justify-content: center;">'+
-        '<div class="csearch" style="flex:1"><input id="bottleSearch" type="search" placeholder="Search bottle stores…" value="'+esc(state.bottleQuery)+'" aria-label="Search bottle stores"></div></div>';
-      bh+='<div class="cbar2 rest-filter-row" style="justify-content: space-between;">'+
-        '<button class="cbtn" data-act="openBottleTownFilter" aria-haspopup="listbox" aria-expanded="'+(state.bottleTownFilter?'true':'false')+'"><span>'+esc(bevTownLabel)+'</span></button>'+
-        '<button class="cbtn align-center" data-act="openBottleAreaFilter" aria-haspopup="listbox" aria-expanded="'+(state.bottleAreaFilter?'true':'false')+'"><span>'+esc(bevAreaLabel)+'</span></button>'+
-        '<button class="cbtn align-right" data-act="openBevaergeTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.bevTypePicker?'true':'false')+'"><span>'+esc(bevTypeLabel)+'</span></button></div>';
-      bh+='</div>';
+      let bh=renderFilterBar({
+        searchId:"bottleSearch", placeholder:"Search bottle stores…", query:state.bottleQuery,
+        townAct:"openBottleTownFilter", townLabel:bevTownLabel, townOpen:state.bottleTownFilter,
+        areaAct:"openBottleAreaFilter", areaLabel:bevAreaLabel, areaOpen:state.bottleAreaFilter,
+        typeAct:"openBevaergeTypePicker", typeLabel:bevTypeLabel, typeOpen:state.bevTypePicker
+      });
       if(state.bottleTownFilter)bh+=renderBottleTownFilter();
       if(state.bottleAreaFilter)bh+=renderBottleAreaFilter();
       if(state.bevTypePicker)bh+=renderBevTypePicker();
@@ -6359,13 +6375,12 @@ function renderControlBarInner(){
     const townLabel=state.restTown==="All"?"All Towns":state.restTown+((state.restDistrictName&&state.restDistrictName!==state.restTown)?" · "+state.restDistrictName:"");
     const areaLabel=state.restArea==="All"?"All Areas":state.restArea;
     const typeLabel=!state.restTypes.length?"All Cuisines":state.restTypes.length===1?state.restTypes[0]:state.restTypes.length+" Cuisines";
-    let h='<div class="rest-filter-controls">';
-    h+='<div class="cbar2 rest-filter-row town-row" style="justify-content: center;">'+
-      '<button class="cbtn" data-act="openRestTownPicker" aria-haspopup="listbox" aria-expanded="'+(state.restTownPicker?'true':'false')+'"><span>'+esc(townLabel)+'</span></button></div>';
-    h+='<div class="cbar2 rest-filter-row" style="justify-content: space-between;">'+
-      '<button class="cbtn align-center" data-act="openRestAreaPicker" aria-haspopup="listbox" aria-expanded="'+(state.restAreaPicker?'true':'false')+'"><span>'+esc(areaLabel)+'</span></button>'+
-      '<button class="cbtn align-right" data-act="openRestaurantTypePicker" aria-haspopup="dialog" aria-expanded="'+(state.restTypePicker?'true':'false')+'"><span>'+esc(typeLabel)+'</span></button></div>';
-    h+='</div>';
+    let h=renderFilterBar({
+      searchId:"restSearch", placeholder:"Search restaurants…", query:state.restQuery,
+      townAct:"openRestTownPicker", townLabel:townLabel, townOpen:state.restTownPicker,
+      areaAct:"openRestAreaPicker", areaLabel:areaLabel, areaOpen:state.restAreaPicker,
+      typeAct:"openRestaurantTypePicker", typeLabel:typeLabel, typeOpen:state.restTypePicker
+    });
     if(state.restTownPicker)h+=renderRestaurantTownPicker();
     if(state.restAreaPicker)h+=renderRestaurantAreaPicker();
     if(state.restTypePicker)h+=renderRestaurantTypePicker();
@@ -8291,7 +8306,7 @@ function renderGalleryRestPicker(){
   if(mode==="rest"){
     if(!q){
       h+='<button class="loc-all'+(state.galRest==="All"?" on":"")+'" data-act="pickGalRest" data-id="All" role="option" aria-selected="'+(state.galRest==="All")+'">'+
-        '<span>All restaurants</span><span class="loc-count">'+galleryCountAt("All","All")+'</span></button>';
+        '<span>All restaurants</span></button>';
     }
     let shown=0;
     galleryRestaurants().forEach(function(r){
@@ -8304,7 +8319,7 @@ function renderGalleryRestPicker(){
     if(!shown)h+='<div class="fpop-note">No restaurants match.</div>';
   }else if(mode==="town"){
     if(!q)h+='<button class="loc-all'+(state.galTown==="All"?" on":"")+'" data-act="pickGalTown" data-town="All" role="option" aria-selected="'+(state.galTown==="All")+'">'+
-      '<span>All towns</span><span class="loc-count">'+galleryCountAt("All","All")+'</span></button>';
+      '<span>All towns</span></button>';
     let shown=0;
     galleryTownOptions().forEach(function(t){
       if(q&&normalizeRestType(t).indexOf(q)===-1)return;
@@ -8316,7 +8331,7 @@ function renderGalleryRestPicker(){
     if(!shown)h+='<div class="fpop-note">No towns match.</div>';
   }else{
     if(!q)h+='<button class="loc-all'+(state.galArea==="All"?" on":"")+'" data-act="pickGalArea" data-area="All" role="option" aria-selected="'+(state.galArea==="All")+'">'+
-      '<span>All Areas</span><span class="loc-count">'+galleryCountAt(state.galTown,"All")+'</span></button>';
+      '<span>All Areas</span></button>';
     let shown=0;
     galleryAreaOptions().forEach(function(a){
       if(q&&normalizeRestType(a).indexOf(q)===-1)return;
@@ -9815,6 +9830,16 @@ document.addEventListener("input",function(e){
     const input=document.getElementById("bottleSearch");
     if(input){input.focus();input.setSelectionRange(start,start);}
     state.bottleQuery=inputValue;
+    return;
+  }
+  if(e.target.id==="restSearch"){
+    state.restQuery=e.target.value;
+    const inputValue=state.restQuery;
+    const start=e.target.selectionStart;
+    render();
+    const input=document.getElementById("restSearch");
+    if(input){input.focus();input.setSelectionRange(start,start);}
+    state.restQuery=inputValue;
     return;
   }
   if(e.target.id==="promoSubtypeSearch"){

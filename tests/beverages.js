@@ -303,17 +303,17 @@ setTimeout(() => {
     controls ? window.getComputedStyle(controls).paddingTop : 'none');
   check('filter bar shows a Type button',
     !!typeBtn && typeBtn.textContent.trim() === 'Type', typeBtn ? typeBtn.textContent.trim() : 'none');
-  check('filter button labels are 18px',
-    !!typeBtn && window.getComputedStyle(typeBtn.querySelector('span')).fontSize === '18px',
+  check('filter button labels are 16px',
+    !!typeBtn && window.getComputedStyle(typeBtn.querySelector('span')).fontSize === '16px',
     typeBtn ? window.getComputedStyle(typeBtn.querySelector('span')).fontSize : 'none');
-  check('All Towns stays left-aligned',
-    !!townBtn && window.getComputedStyle(townBtn).textAlign === 'left',
+  check('All Towns is centred',
+    !!townBtn && window.getComputedStyle(townBtn).textAlign === 'center',
     townBtn ? window.getComputedStyle(townBtn).textAlign : 'none');
   check('All Areas is centred',
     !!areaBtn && window.getComputedStyle(areaBtn).textAlign === 'center',
     areaBtn ? window.getComputedStyle(areaBtn).textAlign : 'none');
-  check('Type button is right-aligned',
-    !!typeBtn && window.getComputedStyle(typeBtn).textAlign === 'right',
+  check('Type button is centred',
+    !!typeBtn && window.getComputedStyle(typeBtn).textAlign === 'center',
     typeBtn ? window.getComputedStyle(typeBtn).textAlign : 'none');
   click(cbarEl.querySelector('[data-act="openBevaergeTypePicker"]'));
   check('type picker opens with grouped options',
