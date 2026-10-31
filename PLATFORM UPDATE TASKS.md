@@ -181,7 +181,7 @@ bottom nav where the page is part of the app shell.
 ### Phase 4 — Structural redesigns
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
-| 15 | T04 | 4 | `venue-checkout` redesign | L |
+| 15 | T04 | 4 | `venue-checkout` redesign — ✅ **DONE 2026-10-31** | L |
 | 16 | T06 | 6 | Orders badge + `Orders-List.html` (needs T04) | L |
 | 17 | T05 | 5 | `customer-delivery` redesign | L |
 | 18 | T18 | 18 | `eatouts-suppliers` rework (steps 1–7) | L |
@@ -468,7 +468,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 4 — Structural redesigns
 
-#### T04 — `venue-checkout` redesign (user task 4) · L
+#### T04 — `venue-checkout` redesign (user task 4) · L — ✅ **DONE 2026-10-31**
 **Files:** `index.html` — `renderCheckout` `:7776-7970`, `.crumb`/`.phead` CSS `:553-562`, `.co-*` CSS `:333-353`, `renderCheckoutSplit` `:7971`.
 **Steps (map 1:1 to the brief)**
 1. Replace `.crumb` with the single text "Order Summary".
@@ -487,6 +487,18 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
     - "Send to <Place name>" → uses the venue's provided WhatsApp number;
     - "Send to Contact" → device contacts; account-only, browser → sign-up popup.
 **Done when** every bullet above is visibly true, totals are live, popups are floating, and the sent message matches the review screen.
+
+**Done 2026-10-31 — all 11 bullets shipped in `index.html`:**
+- [x] 1–3: single crumb `Order Summary`, `.osum-card` (90px logo, name, live "N items for P#"), `.co-edit` gone from `.co-main`.
+- [x] 4–5: `.pad`/`.scroll` at `rgba(0,0,0,.03)`; `.co-steprow` right-aligned on its own row under `.co-main`.
+- [x] 6: `openSplit` gated on `aboutUser()` → `summarySignup()` floating popup for browsers.
+- [x] 7: live totals — `syncCart()` patches every `[data-cototal]` (items/fee/grand) plus line totals and `[data-osumcount]`.
+- [x] 8: `saveSummary` (account-gated) + `deleteSummary` confirm popup → `deleteSummaryConfirm` clears cart/split/delivery.
+- [x] 9: `goDelivery` interactive + `.co-dl` compact summary line (type · area · fee) when details exist.
+- [x] 10: **WhatsApp Review** — new SPA screen `venue-checkout-review` (`PAGE: venue-checkout-review — WhatsApp Review`, `renderCheckoutReview()`) previews `buildFullBillMessage()` verbatim; button sits in `.co-wa-row` beside **Send via WhatsApp**.
+- [x] 11: `waOrder` opens the floating **recipient choice** — `waSendVenue` (venue WhatsApp number, `waLink(...,"order_checkout","act=waOrder")`) and `waSendContact` (sign-up popup for browsers, else `waShareLink()` contact picker). `bridgeDraftOrder()` + `notifyFieldOrder()` still fire before the popup.
+- [x] Verified: `npm run inventory` ✔ (31 screens) · `npm run catalog` ✔ · `npm test` ✔ — `tests/checkout-delivery.js` grew 5 checks for the review screen + recipient choice.
+- [ ] Device pass at 360/390/430px (jsdom does not lay out).
 
 #### T06 — Orders badge + `Orders-List.html` (user task 6) · L
 **Depends on:** T04 (Order Summary Card), T08 (uniform header).
@@ -882,6 +894,8 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-31 | T15 | DONE | 7 pages — `restaurant-onboarding.html`, `caterer-onboarding.html`, `bakery-onboarding.html`, `bottle-store-onboarding.html`, `mobile-kitchen-onboarding.html`, `supplier-onboarding.html`, `eatouts-login.html` (standard `#hdr`, no `.topbar`/`.draft-pill`, light `.progress-strip`, document lock) | static probe 15/15 × 6 + login; jsdom runtime probe 62/62 (0 window errors); `tests/appshell.js` merchant asserts PASSED; full `npm test` 58/58 | (this commit) |
 | 2026-10-31 | T03 | DONE | `index.html` — `syncRestAccordions` now sets `.scroll.has-open` + `body.ritem-locked` and centres the opened row; CSS `.scroll.has-open .ritem:not(.open){opacity:.25;pointer-events:none}` and `body.ritem-locked .scroll{overflow:hidden;touch-action:none}`; `render()` re-derives the state | probe 23/23 (open/close/restore/reopen/navigate-away); full `npm test` 58/58; `npm run inventory` PASSED (79 warnings) | (this commit) |
 | 2026-10-31 | T07 | DONE (partial) | `index.html` — shared `renderFilterBar()` (search row + Town \| Area \| Cuisine/Type) for food + bottle stores; `state.restQuery` + `#restSearch` live filtering; 16px centred `.cbtn`; `.loc-all .loc-count` removed (6 rows); `.town-scroll` scrollbar hidden; `.az-rail` `rgba(0,0,0,.03)`; `tests/beverages.js` updated to the new spec | probe 30/30 (builder, labels, search narrow/empty/clear, town badges, bottle + gallery All rows, no window errors); full `npm test` 58/58; `npm run inventory` PASSED (79 warnings) | (this commit) |
+| 2026-10-31 | T04 | DONE | `index.html` — `.osum-card` Order Summary Card (90px logo, live "N items for P#"), single `Order Summary` crumb, `.co-steprow`, 3% grey `.pad`/`.scroll`, live `[data-cototal]` patched by `syncCart()`, `.co-dl` delivery line, `saveSummary` / `deleteSummary`, `openSplit` + Save gated on `aboutUser()` via `summarySignup()`, **new screen** `venue-checkout-review` (`renderCheckoutReview()`, banner + `PAGE_TITLES` + `pageRef`), `.co-wa-row` with **WhatsApp Review**, `waOrder` → floating recipient popup (`waSendVenue` / `waSendContact`); `tests/checkout-delivery.js` (+5 checks); `PAGE_INVENTORY.md`, `FEATURES.md` | full `npm test` 58/58 (`checkout-delivery` 5 new checks PASSED); `npm run inventory` PASSED (19 checks, 31 screens); `npm run catalog` ✔ | (this commit) |
+
 | 2026-10-31 | T08 | DONE (SPA half) | `index.html` — Back History: `eatouts.history.v1` in `sessionStorage` (newest first, deduped by screen key, capped at 5), `recordHistory()` called from `render()`, whitelisted state snapshot per entry, centred `.hist-wrap`/`.hist-pop` dialog (scrim, no `.fpop-close`, empty state), logo tap now `openBackHistory()` instead of the old home reset, `data-act="gotoHistory"` restores the SPA screen | probe 25/25 (boot entry, tab + venue-view recording, labels, relative time, open/restore/scrim-close, 5-entry cap, dedupe, empty state, no window errors); full `npm test` 58/58; `npm run inventory` PASSED (79 warnings); `npm run catalog` 69 pages/1,098 lines | (this commit) |
 
 ### Per-task completion template

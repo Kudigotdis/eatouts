@@ -194,6 +194,20 @@ setTimeout(() => {
   check('deliverySummaryLine() reflects the chosen delivery', !!line && line.indexOf('"fee":40') > -1, line);
   check('deliverySummaryLine() reads Deliver Now', !!line && line.indexOf('Deliver Now') > -1, line);
 
+  // T04 step 10 — WhatsApp Review screen (preview of the exact message)
+  check('checkout offers a WhatsApp Review button', /data-act="openWaReview"/.test(idxHtml));
+  const reviewHtml = idxEval('renderCheckoutReview()');
+  check('review screen previews the WhatsApp message', String(reviewHtml).indexOf('wa-review-body') > -1);
+  check('review screen can go back', String(reviewHtml).indexOf('data-act="backFromWaReview"') > -1);
+  check('checkoutView + checkoutReview renders the review page',
+    idxHtml.indexOf('? page("venue-checkout-review",renderCheckoutReview())') > -1);
+
+  // T04 step 11 — sending asks where it goes (venue number or a phone contact)
+  check('waOrder wires the recipient choice',
+    idxHtml.indexOf('act:"waSendVenue"') > -1 &&
+      idxHtml.indexOf('act:"waSendContact"') > -1 &&
+      idxHtml.indexOf('"order_checkout"') > -1);
+
   console.log('\nwindow errors: ' + errors.length);
   errors.slice(0, 10).forEach(e => console.log('  ' + e.split('\n')[0]));
   console.log(fails === 0 && errors.length === 0 ? '\nCHECKOUT-DELIVERY TEST PASSED' : '\nCHECKOUT-DELIVERY TEST FAILED (' + fails + ' checks)');

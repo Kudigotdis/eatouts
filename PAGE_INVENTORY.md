@@ -189,6 +189,7 @@ one-liner, e.g. `PAGE: venue-menu-item — Menu · Item  [rest_pizza-perfect:bur
 | Menu Item | Items in a category with steppers + cart | `state.menuCat` set | `renderMenuCategory()` | `PAGE: venue-menu-item — Menu · Item` | 7047 |
 | Checkout / Order Summary | Review cart + delivery + send | `state.checkoutView` truthy | `renderCheckout()` | `PAGE: venue-checkout — Checkout` | 7130 |
 | Split the Bill | People + item assignment | `state.splitOpen` truthy | `renderCheckoutSplit()` | `PAGE: venue-checkout-split — Split the Bill` | 7325 |
+| WhatsApp Review | Read-only preview of the exact WhatsApp message before it is sent | `state.checkoutView && state.checkoutReview` | `renderCheckoutReview()` | `PAGE: venue-checkout-review — WhatsApp Review` | 7983 |
 | Book Venue | Enquiry form → WhatsApp | `rv.view === "venue"` | `renderRestaurantVenue(r)` | `PAGE: venue-book — Book Venue` | 5425 |
 | Venue Promos | That venue's own promotions | `rv.view === "promos"` | `renderRestaurantPromos(r)` | `PAGE: venue-promos — Promos` | 5441 |
 | Venue Promo Detail | Deep-link to a specific promo | `rv.view === "promo"` | `renderRestaurantPromoDetail(r, promoId)` | `PAGE: venue-promo-detail — Promo` | 5464 |

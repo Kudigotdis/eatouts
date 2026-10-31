@@ -73,7 +73,11 @@ From the directory, tap **Menu**, **Book Venue**, **Promos** or **About**:
 
 - Build an order from a venue's menu — each restaurant keeps its **own basket**, so switching venues never mixes orders.
 - Add quantities, sizes and extras as you go; a floating cart badge keeps track.
-- At checkout: your **name, contact number and notes**, a live order total, then **Send via WhatsApp** straight to the restaurant.
+- At checkout the **Order Summary** card carries the venue's 90px logo, its name and a live "**N items for P#.##**" line, over a 3% grey page.
+- Every figure is live: item steppers, extras and delivery all recalculate the subtotal, fee and grand total in place.
+- Your **name, contact number and notes**, then **Send via WhatsApp** — which first asks **where** the order should go: straight to the venue's number, or to a contact saved on your phone (account required; browsers get a sign-up popup).
+- **WhatsApp Review** sits beside the send button and shows the exact message — venue, items, extras, split, delivery — before anything leaves the app.
+- **Save Order** (account required) keeps the summary under About → Summaries; **Delete Summary** clears the cart behind a "This cannot be undone" confirm.
 - **Split the Bill** turns one order into a group checkout:
   - **Add everyone's name**, then assign each item's servings per person with +/− steppers.
   - Live **per-person totals** update as you assign, with any unassigned items clearly separated.

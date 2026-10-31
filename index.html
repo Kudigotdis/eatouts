@@ -367,7 +367,6 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .co-name em{font-style:normal;font-weight:700;color:#1a1a1a}
 .co-sub{font-size:10.5px;color:#1a1a1a;font-weight:800}
 .co-meta{font-size:10px;color:#a89a7e;font-weight:700}
-.co-edit{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#1a1a1a;flex:0 0 auto}
 .co-step{flex:0 0 auto}
 .co-open{border-top:1px solid #f1ece1;padding:11px 12px;background:#ffffff}
 .co-desc{margin:0 0 10px;font-size:11.5px;line-height:1.55;color:#5c5546}
@@ -376,6 +375,29 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .co-none{font-size:10.5px;color:#a89a7e;font-weight:700;padding:2px 0}
 .co-foot{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#a89a7e;margin-top:10px;padding-top:9px;border-top:1px solid #f4efe4}
 .co-foot b{font-size:13px;letter-spacing:-.01em;color:#1a1a1a}
+/* T04 — checkout: 3% grey page, Order Summary Card, step on its own row */
+#shell .screen[data-page="venue-checkout"] .scroll,
+#shell .screen[data-page="venue-checkout"] .pad{background:rgba(0,0,0,.03)}
+#shell .screen[data-page="venue-checkout-review"] .scroll,
+#shell .screen[data-page="venue-checkout-review"] .pad{background:rgba(0,0,0,.03)}
+.osum-card{display:flex;align-items:center;gap:12px;padding:12px;margin:0 0 12px;background:#fff;border:1px solid #f1ece1;border-radius:14px}
+.osum-name{font-size:16px;font-weight:900;color:#1a1a1a;line-height:1.25}
+.osum-sub{margin-top:3px;font-size:11.5px;font-weight:800;color:#1a1a1a}
+#shell .screen[data-page="venue-checkout"] .co-row{padding-bottom:6px}
+.co-steprow{display:flex;justify-content:flex-end;padding:0 10px 9px;background:#faf8f2}
+.co-dlrow{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;color:#8a8170}
+.co-dlrow b{color:#1a1a1a}
+.co-dl{text-align:center;font-size:11px;font-weight:700;color:#8a8170;margin:-3px 0 9px}
+.co-dl b{color:#1a1a1a}
+.co-actions{display:flex;gap:9px;margin-top:9px}
+.co-actions .btn{flex:1}
+.co-del{color:#a8332a;border-color:#eccfc9}
+.btn.is-locked{opacity:.45}
+.co-wa-row{display:flex;gap:9px}
+.co-wa-row .btn{flex:1}
+.wa-review{background:#fff;border:1px solid #f1ece1;border-radius:14px;padding:14px;margin:0 0 12px}
+.wa-review-title{margin:0 0 9px;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#a89a7e}
+.wa-review-body{margin:0;font-size:13px;line-height:1.6;color:#1a1a1a;white-space:pre-wrap;word-break:break-word}
 
 /* ---------- FORMS ---------- */
 .fld{margin-bottom:11px}
@@ -3615,6 +3637,7 @@ const state = {
   preview:null,
   cart:{},
   checkoutView:false,
+  checkoutReview:false,
   checkoutOpen:null,
   orderName:"",
   orderContact:"",
@@ -4633,6 +4656,16 @@ function syncCart(){
   const n=cartCount(), tot=cartTotal();
   const cs=vp.querySelector("[data-cartcount]");
   if(cs) cs.textContent=fmt(tot)+" for "+n+" item"+(n===1?"":"s");
+  /* T04: the Order Summary Card count and the live totals recalc on every +/- */
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-osumcount]"),function(el){
+    el.textContent=n+" item"+(n===1?"":"s")+" for "+fmt(tot);
+  });
+  const dl=deliverySummaryLine();
+  const fee=dl?(Number(dl.fee)||0):0;
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-cototal]"),function(el){
+    const k=el.getAttribute("data-cototal");
+    el.textContent=fmt(k==="fee"?fee:(k==="grand"?tot+fee:tot));
+  });
   Array.prototype.forEach.call(vp.querySelectorAll("[data-act='openCheckout']"),function(b){
     if(tot>0) b.removeAttribute("disabled"); else b.setAttribute("disabled","");
   });
@@ -6011,7 +6044,9 @@ function renderRestaurantSubView(){
     if(listingLocked(r)) return page("venue-locked",renderMenuLocked(r));
     /* renderMenuCategory supplies its own scroll + restaurant card */
     if(state.splitOpen) return page("venue-checkout-split",renderCheckoutSplit());
-    if(state.checkoutView) return page("venue-checkout",renderCheckout());
+    if(state.checkoutView) return state.checkoutReview
+      ? page("venue-checkout-review",renderCheckoutReview())
+      : page("venue-checkout",renderCheckout());
     if(state.menuCat){
       if(curMenu().some(function(c){return c.id===state.menuCat;}))
         return page("venue-menu-item",renderMenuCategory());
@@ -6472,6 +6507,7 @@ const PAGE_TITLES={
   "venue-menu-item":"Menu · Item",
   "venue-checkout":"Checkout",
   "venue-checkout-split":"Split the Bill",
+  "venue-checkout-review":"WhatsApp Review",
 
   "venue-promos":"Promos",
   "venue-promo-detail":"Promo",
@@ -6509,6 +6545,7 @@ function pageRef(){
     case "venue-menu":
     case "venue-checkout":
     case "venue-checkout-split":
+    case "venue-checkout-review":
     case "venue-book":
     case "venue-promos":
 
@@ -7830,6 +7867,12 @@ function renderAboutPreview(){
   return '<div class="about-rev" data-act="aboutClosePreview"><div class="about-rev-img">'+inner+'</div><button class="about-rev-close" data-act="aboutClosePreview">&times;</button></div>';
 }
 
+/* T04: account-only checkout actions share one floating sign-up popup. */
+function summarySignup(title,message){
+  state.cardAlert={icon:"\uD83D\uDD12",title:title,message:message,
+    actions:[{label:"Sign Up",primary:true,href:"eatouts-customer-signup.html"}]};
+  render();
+}
 /* PAGE: venue-checkout — Checkout */
 function renderCheckout(){
   clearEmptyCart();
@@ -7843,32 +7886,40 @@ function renderCheckout(){
   });
   const total=cartTotal();
   const restName=curRestaurantName();
+  const acct=!!aboutUser();
+  const logo=restLogo(curRestaurant())||"assets/logo/EatOuts_Logo.png";
   let h='<div class="scroll">';
-  h+='<div class="crumb"><button data-act="backFromCheckout">'+esc(restName)+'</button><span class="cur">Checkout</span></div>';
-  h+='<div class="phead" style="padding-top:12px"><h2>Order Summary</h2><p>'+esc(restName)+' &middot; review your items and send your order via WhatsApp</p></div>';
+  h+='<div class="crumb"><span class="cur">Order Summary</span></div>';
   if(!lines.length){
     h+='<div class="empty">Your cart is empty.</div>';
     h+='<div class="pad"><button class="btn ghost full" data-act="backFromCheckout">Back</button></div>';
   } else {
     h+='<div class="pad" style="padding-top:12px">';
+    /* T04 — Order Summary Card: 90px venue logo, name, live "# items for P#" */
+    h+='<div class="osum-card">'+
+       '<div class="co-thumb">'+imgTag(logo,restName)+'</div>'+
+       '<div class="co-info">'+
+         '<div class="osum-name">'+esc(restName)+'</div>'+
+         '<div class="osum-sub" data-osumcount>'+cartCount()+' item'+(cartCount()===1?"":"s")+' for '+fmt(total)+'</div>'+
+       '</div></div>';
     lines.forEach(function(l){
       const key=l.itemId+":"+l.sizeIdx;
       const open=state.checkoutOpen===key;
       const exN=Object.keys(l.extras).filter(ei=>l.extras[ei]>0).length;
       h+='<div class="co-item">';
       h+='<div class="co-row">';
-      h+='<button class="co-main" data-act="toggleCheckoutRow" data-key="'+key+'">'+
+      h+='<button class="co-main" data-act="toggleCheckoutRow" data-key="'+key+'" aria-expanded="'+(open?"true":"false")+'">'+
          '<div class="co-thumb">'+imgTag(menuPhoto(l.name,l.itemId-1),l.name)+'</div>'+
          '<div class="co-info">'+
            '<div class="co-name">'+esc(l.name)+(l.size?' <em>('+esc(l.size)+')</em>':'')+'</div>'+
            '<div class="co-sub">'+fmt(cartLineTotal(l.itemId,l.sizeIdx))+'</div>'+
            (exN?'<div class="co-meta">+ '+exN+' extra'+(exN===1?"":"s")+'</div>':'')+
-         '</div><span class="co-edit">'+(open?"Close":"Details")+'</span></button>';
-      h+='<div class="co-step"><div class="stp">'+
+         '</div></button>';
+      h+='</div>';
+      h+='<div class="co-steprow"><div class="stp">'+
          '<button data-act="szMinus" data-id="'+l.itemId+'" data-si="'+l.sizeIdx+'">&minus;</button>'+
          '<span class="val" data-qkey="'+key+'">'+l.qty+'</span>'+
          '<button data-act="szPlus" data-id="'+l.itemId+'" data-si="'+l.sizeIdx+'">+</button></div></div>';
-      h+='</div>';
       if(open){
         h+='<div class="co-open">';
         if(l.desc) h+='<p class="co-desc">'+esc(l.desc)+'</p>';
@@ -7890,10 +7941,10 @@ function renderCheckout(){
     });
     h+='</div>';
     const foodDelivery=deliverySummaryLine();
-    h+='<div class="tbar" style="margin:12px 14px"><span class="tl">'+(foodDelivery?'Subtotal':'Total')+'</span><span class="tv">'+fmt(total)+'</span></div>';
+    h+='<div class="tbar" style="margin:12px 14px"><span class="tl">'+(foodDelivery?'Subtotal':'Total')+'</span><span class="tv" data-cototal="items">'+fmt(total)+'</span></div>';
     if(foodDelivery){
-      h+='<div class="pad" style="padding-top:0"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;color:#8a8170"><span>Delivery · '+esc(foodDelivery.label)+(foodDelivery.area?' · '+esc(foodDelivery.area):'')+'</span><b style="color:#1a1a1a">'+fmt(foodDelivery.fee)+'</b></div></div>';
-      h+='<div class="tbar" style="margin:0 14px 12px"><span class="tl">Grand Total</span><span class="tv">'+fmt(total+foodDelivery.fee)+'</span></div>';
+      h+='<div class="pad" style="padding-top:0"><div class="co-dlrow"><span>Delivery · '+esc(foodDelivery.label)+(foodDelivery.area?' · '+esc(foodDelivery.area):'')+'</span><b data-cototal="fee">'+fmt(foodDelivery.fee)+'</b></div></div>';
+      h+='<div class="tbar" style="margin:0 14px 12px"><span class="tl">Grand Total</span><span class="tv" data-cototal="grand">'+fmt(total+foodDelivery.fee)+'</span></div>';
     }
     /* split-the-bill entry point + a compact preview once names exist */
     h+='<div class="pad" style="padding-top:0">';
@@ -7906,7 +7957,7 @@ function renderCheckout(){
       if(un>0.005) h+='<div class="sp-row muted"><span>Unassigned</span><b>'+fmt(un)+'</b></div>';
       h+='</div>';
     }
-    h+='<button class="btn full" data-act="openSplit">Split the Bill'+
+    h+='<button class="btn full'+(acct?'':' is-locked')+'" data-act="openSplit" aria-disabled="'+(acct?'false':'true')+'">Split the Bill'+
        (state.splitPeople.length?' <span style="color:#a89a7e;font-weight:700;margin-left:4px">· '+state.splitPeople.length+' '+(state.splitPeople.length===1?'person':'people')+'</span>':'')+
        '</button>';
     h+='</div>';
@@ -7915,11 +7966,37 @@ function renderCheckout(){
     h+='<div class="fld"><label>Contact Number</label><input id="orderContact" type="tel" placeholder="e.g. +267 71 234 567" value="'+esc(state.orderContact)+'"></div>';
     h+='<div class="fld"><label>Notes</label><textarea id="orderNotes" rows="3" placeholder="e.g. extra spicy, pickup time, table number">'+esc(state.orderNotes)+'</textarea></div>';
     h+='<button class="btn full" style="margin-bottom:9px" data-act="goDelivery">'+(foodDelivery?'Edit delivery':'Add Delivery Details')+'</button>';
+    if(foodDelivery) h+='<div class="co-dl">'+esc(foodDelivery.label)+(foodDelivery.area?' · '+esc(foodDelivery.area):'')+' · <b>'+fmt(foodDelivery.fee)+'</b></div>';
     h+='<button class="btn ghost full" style="margin-bottom:9px" data-act="backFromCheckout">Back</button>';
-    h+='<button class="btn wa full" data-act="waOrder">Send via WhatsApp</button>';
+    h+='<div class="co-wa-row">'+
+       '<button class="btn wa" data-act="waOrder">Send via WhatsApp</button>'+
+       '<button class="btn ghost" data-act="openWaReview">WhatsApp Review</button>'+
+       '</div>';
+    h+='<div class="co-actions">'+
+       '<button class="btn ghost'+(acct?'':' is-locked')+'" data-act="saveSummary" aria-disabled="'+(acct?'false':'true')+'">Save Order</button>'+
+       '<button class="btn ghost co-del" data-act="deleteSummary">Delete Summary</button>'+
+       '</div>';
     h+='</div>';
   }
   h+='<div style="height:24px"></div></div>';
+  return h;
+}
+
+/* PAGE: venue-checkout-review — WhatsApp Review */
+/* T04 step 10: the exact text that `waOrder` will send, before it is sent. */
+function renderCheckoutReview(){
+  const restName=curRestaurantName();
+  const msg=buildFullBillMessage();
+  let h='<div class="scroll">';
+  h+='<div class="crumb"><button data-act="backFromWaReview">Order Summary</button>'+
+     '<span class="sep">/</span><span class="cur">WhatsApp</span></div>';
+  h+='<div class="pad" style="padding-top:12px">';
+  h+='<div class="wa-review">'+
+     '<p class="wa-review-title">Sending to '+esc(restName)+'</p>'+
+     '<div class="wa-review-body">'+esc(msg)+'</div></div>';
+  h+='<button class="btn wa full" style="margin-bottom:9px" data-act="waOrder">Send via WhatsApp</button>';
+  h+='<button class="btn ghost full" data-act="backFromWaReview">Back</button>';
+  h+='</div><div style="height:24px"></div></div>';
   return h;
 }
 
@@ -9623,13 +9700,47 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
   if(act==="szMinus"){const si=parseInt(t.getAttribute("data-si"),10);const nid=parseInt(id,10);const l=cartLine(nid,si);l.qty=Math.max(0,(l.qty||0)-1);if(!l.qty&&!Object.keys(l.extras||{}).length)delete state.cart[cartKey(nid,si)];syncCart();return;}
   if(act==="exPlus"){const ei=parseInt(t.getAttribute("data-ei"),10);const si=t.hasAttribute("data-si")?parseInt(t.getAttribute("data-si"),10):0;const nid=parseInt(id,10);const l=cartLine(nid,si);if(!l.extras)l.extras={};l.extras[ei]=(l.extras[ei]||0)+1;syncCart();return;}
   if(act==="exMinus"){const ei=parseInt(t.getAttribute("data-ei"),10);const si=t.hasAttribute("data-si")?parseInt(t.getAttribute("data-si"),10):0;const nid=parseInt(id,10);const l=cartLine(nid,si);if(!l.extras)l.extras={};l.extras[ei]=Math.max(0,(l.extras[ei]||0)-1);if(!l.qty&&!Object.keys(l.extras).length)delete state.cart[cartKey(nid,si)];syncCart();return;}
-  if(act==="openCheckout"){if(cartTotal()<=0)return;state.checkoutView=true;render();return;}
-  if(act==="backFromCheckout"){state.checkoutView=false;state.checkoutOpen=null;state.splitOpen=false;render();return;}
+  if(act==="openCheckout"){if(cartTotal()<=0)return;state.checkoutView=true;state.checkoutReview=false;render();return;}
+  if(act==="backFromCheckout"){state.checkoutView=false;state.checkoutReview=false;state.checkoutOpen=null;state.splitOpen=false;render();return;}
   if(act==="goDelivery"){goDelivery("menu");return;}
   if(act==="toggleCheckoutRow"){const k=t.getAttribute("data-key");state.checkoutOpen=(state.checkoutOpen===k?null:k);render();return;}
 
   /* SPLIT THE BILL */
-  if(act==="openSplit"){state.splitOpen=true;render();return;}
+  if(act==="openSplit"){
+    if(!aboutUser()){summarySignup("Split the bill with an account","Create a free EatOuts account to split this bill between friends and send each person their share.");return;}
+    state.splitOpen=true;render();return;
+  }
+  if(act==="saveSummary"){
+    if(!aboutUser()){summarySignup("Save this order","Create a free EatOuts account to save this order and come back to it any time.");return;}
+    const s=favStore();
+    const lines=checkoutLines();
+    const venue=curRestaurantName();
+    if(s&&s.summaries){
+      s.summaries.add({
+        orderRef:activeRestId(),
+        venueName:venue,
+        venueLogo:restLogo(curRestaurant())||null,
+        itemCount:cartCount(),
+        total:cartTotal(),
+        source:"menu",
+        payload:{items:lines.map(function(l){return {name:l.name,price:l.price,qty:l.qty,size:l.size,total:l.total};}),total:cartTotal(),venueName:venue}
+      });
+    }
+    state.cardAlert={icon:"✓",title:"Summary saved",message:"Find it under About → Summaries, ready when you are."};
+    render();return;
+  }
+  if(act==="deleteSummary"){
+    state.cardAlert={icon:"!",title:"Delete this summary?",message:"This cannot be undone.",
+      actions:[{label:"Delete",primary:true,act:"deleteSummaryConfirm"}]};
+    render();return;
+  }
+  if(act==="deleteSummaryConfirm"){
+    state.cart={};
+    state.splitPeople=[];state.splitOpen=false;state.checkoutOpen=null;state.checkoutView=false;state.checkoutReview=false;
+    state.delivery=null;state.cardAlert=null;
+    state.orderName="";state.orderContact="";state.orderNotes="";
+    render();return;
+  }
   if(act==="backFromSplit"){state.splitOpen=false;render();return;}
   if(act==="addSplitPerson"){
     const el=document.getElementById("splitNewName");
@@ -9690,9 +9801,41 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     if(cartTotal()<=0){alert("Your cart is empty.");return;}
     bridgeDraftOrder("menu");
     notifyFieldOrder(curRestaurant());
+    /* T04 step 11: sending is a choice - the venue's number, or a contact on
+       this phone. The draft order is already bridged/notified above. */
+    state.cardAlert={icon:"\u2709",title:"Send this order",message:"Choose where this order should go.",
+      actions:[
+        {label:"Send to "+curRestaurantName(),act:"waSendVenue",primary:true},
+        {label:"Send to Contact",act:"waSendContact"}
+      ]};
+    render();return;
+  }
+  if(act==="waSendVenue"){
+    state.cardAlert=null;
     window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_checkout","act=waOrder");
     return;
   }
+  if(act==="waSendContact"){
+    if(!aboutUser()){
+      summarySignup("Send to a contact","Create a free EatOuts account to send this order to a contact saved on your phone.");
+      return;
+    }
+    state.cardAlert=null;
+    window.location.href=waShareLink(buildFullBillMessage());
+    return;
+  }
+  if(act==="openWaReview"){
+    const nameEl=document.getElementById("orderName");
+    const contactEl=document.getElementById("orderContact");
+    const notesEl=document.getElementById("orderNotes");
+    if(nameEl)state.orderName=nameEl.value;
+    if(contactEl)state.orderContact=contactEl.value;
+    if(notesEl)state.orderNotes=notesEl.value;
+    if(!state.orderName.trim()||!state.orderContact.trim()){alert("Please enter your name and contact number.");return;}
+    if(cartTotal()<=0){alert("Your cart is empty.");return;}
+    state.checkoutReview=true;render();return;
+  }
+  if(act==="backFromWaReview"){state.checkoutReview=false;render();return;}
 
   /* RESERVE */
   if(act==="openResCat"){state.reserveCat=id;state.reserveGroup=null;state.reserveSub=null;render();return;}

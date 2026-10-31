@@ -25,13 +25,13 @@ and `HTML_PAGES.md` the longer capability narrative.
 
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
-| Public & customer surfaces | 14 | 889 KB | 17719 |
+| Public & customer surfaces | 14 | 896 KB | 17860 |
 | Restaurant operator back-office | 9 | 605 KB | 8118 |
 | Manager / auth / platform admin (staged package) | 38 | 1263 KB | 25550 |
 | Delivery flows | 3 | 130 KB | 2237 |
 | Internal ops & billing | 3 | 154 KB | 2759 |
 | Developer harness | 2 | 226 KB | 4652 |
-| **Total** | **69** | **3265 KB** | **61035** |
+| **Total** | **69** | **3272 KB** | **61176** |
 
 Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
@@ -43,7 +43,7 @@ Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
 | # | File | Group | Purpose | How you reach it | Auth | Store keys | Size |
 |---|------|-------|---------|------------------|------|-----------|------|
-| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 514 KB / 10199 lines |
+| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 521 KB / 10340 lines |
 | 2 | `get-started.html` | public-customer | Marketing landing that explains the operator offer and links into the intake and pricing flows. | Direct / marketing links. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 186 lines |
 | 3 | `pricing.html` | public-customer | Public pricing page; reads and can persist the shared plan prices. | Marketing links; get-started.html. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 246 lines |
 | 4 | `one-pager.html` | public-customer | Static sales one-pager for prospects. | Direct link. | - | — | 17 KB / 653 lines |
@@ -151,8 +151,8 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **How you use it:** Search and filter by town/area; open a venue and switch tabs; a directory row centres, holds the list still and dims the others until it is closed; the filter bar (2nd Restaurants tap) pairs a live search box with Town | Area | Cuisine/Type; favourite + WhatsApp icon rows on promo/event cards; the promo detail shows a venue card and a Back to Promos row; tap WhatsApp order/reserve intents; About â†’ Operator Sign in / demo login; tapping the EatOuts logo opens a centred Back History popup listing the last five screens (title + relative time, one tap restores the screen, Escape or an outside tap closes).
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1`
-- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 6
-- **Size:** 514 KB / 10199 lines (525912 bytes)
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 8
+- **Size:** 521 KB / 10340 lines (533201 bytes)
 - **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `assets/data/CateringServicesDatabase.js?v=20261021`, `assets/data/bakery_services_database.js?v=20261021`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-catering.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-age.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-content.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`, `js/eatouts-analytics.js`
 - **Notes:** Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only. On venue open the app hydrates that venue's canonical D1 content via window.EatoutsContent (js/eatouts-content.js), merging profile/menu/gallery/promos/events into the local store before re-rendering; an unreachable backend leaves the imported-directory path untouched.
 
@@ -1044,6 +1044,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 
 ## 5. Change log
 
+- **2026-10-31** — T04 venue-checkout redesign (SPA): checkout is now an Order Summary - one 'Order Summary' crumb over a 3% grey page, a card with the venue's 90px logo, its name and a live 'N items for P#' line, each item's stepper on its own row, and totals (subtotal, delivery fee, grand total) that update in place as quantities, extras or delivery details change. Save Order (account only) writes the summary under About > Summaries; Delete Summary asks for confirmation and clears the cart. Split the Bill and Save Order show a floating sign-up popup for browsers. 'Send via WhatsApp' now asks where the order should go - straight to the venue's number, or to a contact saved on this phone (sign-up popup for browsers) - and a new WhatsApp Review screen (venue-checkout-review) previews the exact message before anything is sent. The draft order is still bridged and the venue is still notified first.
 - **2026-10-31** — T08 Back History (SPA): tapping the EatOuts logo no longer jumps home - it opens a centred popup with the last five screens visited (page title + relative time, newest first, capped at five). Entries are stored in sessionStorage and carry a small state snapshot, so one tap restores the exact screen (tab, directory panel, open venue and its Menu/Promos/About view, promo, gallery view, reservation step). Escape or an outside tap closes it. The header sweep across the remaining standalone pages is still open (T08b).
 - **2026-10-31** — T07 standardised filter bar: the food and bottle-store directories now share one builder - a live search row above Town | Area | Cuisine/Type. Food search really filters the list (empty state kept), filter labels are 16px and centred, the browse counts are gone from every "All" row, the town list hides its scrollbar and the A-Z rail is a subtle grey tint.
 - **2026-10-31** — T03 restaurant-row focus: opening a directory row centres it with a smooth scroll, locks the list scroll (and the page) while it is open, and dims every other row to 25% with taps disabled; closing, switching tabs or navigating away restores the list and never leaves the lock behind.
