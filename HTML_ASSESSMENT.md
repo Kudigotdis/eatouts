@@ -73,7 +73,7 @@ of `alert()` calls (placeholders/simulated UI). "Size" is raw KB / lines
 | food-truck-schedule1.html | food truck owner | guard | adapter + EatoutsMgrDB | FULL | 19K/37 | esc ✔ / audit ✔ | 0 |
 | gallery-onboarding.html | restaurant owner | auth | root `eatouts_db_v2` | FULL | 15K/242 | esc ✔ | 0 |
 | get-started.html | prospective owners | no | reads `eatouts_db_v2` settings | FULL | 13K/184 | — | 0 |
-| index.html | customers | no | root `eatouts_db_v2` + `eatouts_order_v1` | FULL | 506K/10017 | esc ✔ | 5 (validation) |
+| index.html | customers | no | root `eatouts_db_v2` + `eatouts_order_v1` | FULL | 507K/10036 | esc ✔ | 5 (validation) |
 | intake.html | operator/concierge | auth | `eatouts_ops_v1` + `eatouts_intake_draft_v1` | FULL | 69K/1154 | esc ✔ | 0 |
 | invoice.html | operator/ops | auth | `eatouts_ops_v1` | FULL | 21K/394 | esc ✔ | 0 |
 | lodge-onboarding.html | lodge owner | n/a | `eatouts.lodge-onboarding.v2` + root `eatouts_db_v2` | FULL | 32K/1093 | esc ✔ / audit — | 0 |

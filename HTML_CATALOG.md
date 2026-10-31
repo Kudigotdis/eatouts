@@ -25,13 +25,13 @@ and `HTML_PAGES.md` the longer capability narrative.
 
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
-| Public & customer surfaces | 14 | 881 KB | 17537 |
+| Public & customer surfaces | 14 | 882 KB | 17556 |
 | Restaurant operator back-office | 9 | 605 KB | 8118 |
 | Manager / auth / platform admin (staged package) | 38 | 1263 KB | 25550 |
 | Delivery flows | 3 | 130 KB | 2237 |
 | Internal ops & billing | 3 | 154 KB | 2759 |
 | Developer harness | 2 | 226 KB | 4652 |
-| **Total** | **69** | **3257 KB** | **60853** |
+| **Total** | **69** | **3258 KB** | **60872** |
 
 Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
@@ -43,7 +43,7 @@ Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
 | # | File | Group | Purpose | How you reach it | Auth | Store keys | Size |
 |---|------|-------|---------|------------------|------|-----------|------|
-| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 506 KB / 10017 lines |
+| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 507 KB / 10036 lines |
 | 2 | `get-started.html` | public-customer | Marketing landing that explains the operator offer and links into the intake and pricing flows. | Direct / marketing links. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 186 lines |
 | 3 | `pricing.html` | public-customer | Public pricing page; reads and can persist the shared plan prices. | Marketing links; get-started.html. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 246 lines |
 | 4 | `one-pager.html` | public-customer | Static sales one-pager for prospects. | Direct link. | - | — | 17 KB / 653 lines |
@@ -148,11 +148,11 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Purpose:** Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content.
 - **Audience:** Customers (+ operator sign-in entry)
 - **Reach it:** Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in.
-- **How you use it:** Search and filter by town/area; open a venue and switch tabs; favourite + WhatsApp icon rows on promo/event cards; the promo detail shows a venue card and a Back to Promos row; tap WhatsApp order/reserve intents; About â†’ Operator Sign in / demo login.
+- **How you use it:** Search and filter by town/area; open a venue and switch tabs; a directory row centres, holds the list still and dims the others until it is closed; favourite + WhatsApp icon rows on promo/event cards; the promo detail shows a venue card and a Back to Promos row; tap WhatsApp order/reserve intents; About â†’ Operator Sign in / demo login.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 6
-- **Size:** 506 KB / 10017 lines (517787 bytes)
+- **Size:** 507 KB / 10036 lines (518879 bytes)
 - **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `assets/data/CateringServicesDatabase.js?v=20261021`, `assets/data/bakery_services_database.js?v=20261021`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-catering.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-age.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-content.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`, `js/eatouts-analytics.js`
 - **Notes:** Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only. On venue open the app hydrates that venue's canonical D1 content via window.EatoutsContent (js/eatouts-content.js), merging profile/menu/gallery/promos/events into the local store before re-rendering; an unreachable backend leaves the imported-directory path untouched.
 
@@ -1044,6 +1044,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 
 ## 5. Change log
 
+- **2026-10-31** — T03 restaurant-row focus: opening a directory row centres it with a smooth scroll, locks the list scroll (and the page) while it is open, and dims every other row to 25% with taps disabled; closing, switching tabs or navigating away restores the list and never leaves the lock behind.
 - **2026-10-31** — T15 onboarding headers: restaurant-, caterer-, bakery-, bottle-store-, mobile-kitchen- and supplier-onboarding plus eatouts-login drop their dark .topbar for the standard white #hdr (logo link home, hidden .hdr-chip), the Draft mode pill is gone, the setup-completeness bar moved to a light .progress-strip under the header, the 18+ / Secure pills were re-coloured for white, and every page now locks the document (html,body overflow:hidden + overscroll-behavior:none) so no page scrollbar appears.
 - **2026-10-31** — Phase 6 UI polish: the Promos week calendar sits on a 3% grey band; Plan Event category names read at 20px; the Restaurants/Beverages toggle is evenly spaced with 40% inactive tabs; the gallery search button uses assets/icons/search_icon.webp; promo and event detail pages drop their tag/chip rows (ticketing, sponsor and hashtag lists stay as plain rows); gallery thumbnails keep their natural height (capped at 40vh) in the 3-across grid.
 - **2026-10-31** — T17 blog cleanup: removed the header chip/back/page labels, every ::before pseudo-content, the tag strip and tag pills, card tags/foot, post tags, the copy-link button and block headings. The search box now sits above the bottom nav instead of sticky at the top of the timeline. tests/blog.js asserts the tag strip is gone.

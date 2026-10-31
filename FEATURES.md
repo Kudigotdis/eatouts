@@ -29,7 +29,7 @@ EatOuts is a mobile-first restaurant discovery app for Botswana. It brings toget
 - **Filter by town, district and area** with live venue counts shown inside every filter.
 - **Filter by cuisine or type** (multi-select) — combo filters, like "Gaborone + steakhouse", work instantly.
 - **Curated ordering**: the 12 featured venues lead, followed by venues with real logos, then the rest — so the best-known places surface first.
-- **Tap any venue** to expand quick actions without leaving the list.
+- **Tap any venue** to expand quick actions without leaving the list - the open row centres itself, the page holds still and the other rows fade to 25% until you close it.
 
 ## Beverages & Liquors
 

@@ -174,7 +174,7 @@ bottom nav where the page is part of the app shell.
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
 | 11 | T08 | 8 | Activate `brand-mark` + Back History popup (all headers) | M |
-| 12 | T03 | 3 | `ritem` focus, scroll lock, 25% dim others | M |
+| 12 | T03 | 3 | `ritem` focus, scroll lock, 25% dim others — ✅ **DONE 2026-10-31** | M |
 | 13 | T09 | 9 | `venue-about` promo thumb → gallery + "Add to Order" | M |
 | 14 | T07 | 7 | Standardised Filter Bar on 4 screens | M |
 
@@ -405,7 +405,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [ ] Tapping an entry navigates there; outside tap closes.
 - [ ] No `.fpop-close` inside it.
 
-#### T03 — `ritem` focus + scroll lock + dim (user task 3) · M
+#### T03 — `ritem` focus + scroll lock + dim (user task 3) · M — ✅ **DONE 2026-10-31**
 **Files:** `index.html` — `syncRestAccordions` `:4476-4486`, `renderRestaurantRow` `:5630-5640`, `toggleRestaurant` handler `:9146`, `state.restaurantOpen` `:3621`, CSS `.ritem` ~`:640-658`.
 **Steps**
 1. On open: `scrollIntoView({block:'center',behavior:'smooth'})` on the `.ritem.open`.
@@ -413,6 +413,12 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 3. Dim all sibling `.ritem` to `opacity:.25` via a container class `.list.has-open .ritem:not(.open){opacity:.25;pointer-events:none}`; restore on close.
 4. Cleanup on tab change / page navigation (`state.restaurantOpen=null` paths at `:5617`, `:8802`, `:8947`).
 **Done when** tapping a row centres it, page cannot scroll until closed, others are 25% and non-tappable; closing restores everything; no stuck lock after navigating away.
+- [x] Open: `scrollIntoView({block:"center",behavior:"smooth"})` on the opened `.ritem`, only when the open id changes (no re-scroll on unrelated renders).
+- [x] `body.ritem-locked .scroll{overflow:hidden;touch-action:none}` added next to `.ritem`; removed on close.
+- [x] `.scroll.has-open .ritem:not(.open){opacity:.25;pointer-events:none}`, `.has-open` set on the open row's own `.scroll` (the restaurant list only — catering/bakery/beverage panels are untouched).
+- [x] Cleanup is centralised: all three paths run `closeAllRitemAccordions()`/`render()`, and `render()` now calls `syncRestAccordions()`, so a navigation always re-derives the lock (and clears it when no `.ritem` is open).
+- [x] Probe: 23/23 — open sets `.open`/`has-open`/`ritem-locked` + one `scrollIntoView`, sibling computes `opacity .25` / `pointer-events none`; close restores; reopening scrolls again; Promos tab leaves no lock.
+- [ ] Device pass — **needs a phone look** at the smooth centring and the 0.25 dim on a long list.
 
 #### T09 — Promo thumb → Add to Order (user task 9) · M
 **Files:** `venue-about.html` (`.promo-thumb` CSS `:352-363`, markup `:663-673`, carousel JS), `index.html` cart API (`state.cart`, `cartKeys`, `cartTotal`).
@@ -852,6 +858,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-31 | T27 | DONE | `index.html` four chip rows removed; `featChipRow` now emits plain `.ctr` rows (content kept) | probe — 0 hits for the flex/gap signature, no `.chip` in featured card or promo detail; `tests/smoke.js` PASSED; full `npm test` 58/58 | (this commit) |
 | 2026-10-31 | T28 | DONE | `index.html` `.gal-cell` no `aspect-ratio`, `max-height:40vh`, `img height:auto`, `.gal-grid{align-items:start}` | probe — cell/img capped at 40vh, img height auto, grid `repeat(3,1fr)`; `tests/customer.js` infinite scroll PASSED; full `npm test` 58/58 | (this commit) |
 | 2026-10-31 | T15 | DONE | 7 pages — `restaurant-onboarding.html`, `caterer-onboarding.html`, `bakery-onboarding.html`, `bottle-store-onboarding.html`, `mobile-kitchen-onboarding.html`, `supplier-onboarding.html`, `eatouts-login.html` (standard `#hdr`, no `.topbar`/`.draft-pill`, light `.progress-strip`, document lock) | static probe 15/15 × 6 + login; jsdom runtime probe 62/62 (0 window errors); `tests/appshell.js` merchant asserts PASSED; full `npm test` 58/58 | (this commit) |
+| 2026-10-31 | T03 | DONE | `index.html` — `syncRestAccordions` now sets `.scroll.has-open` + `body.ritem-locked` and centres the opened row; CSS `.scroll.has-open .ritem:not(.open){opacity:.25;pointer-events:none}` and `body.ritem-locked .scroll{overflow:hidden;touch-action:none}`; `render()` re-derives the state | probe 23/23 (open/close/restore/reopen/navigate-away); full `npm test` 58/58; `npm run inventory` PASSED (79 warnings) | (this commit) |
 
 ### Per-task completion template
 

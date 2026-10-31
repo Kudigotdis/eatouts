@@ -976,3 +976,14 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: static probe (15 checks × 6 pages + login, incl. no `.topbar`, one `#hdr`, theme-color white, document lock); jsdom runtime probe 62/62 with 0 window errors (all 7 pages boot, `#hdr` 58px white, progress text updates, no `.topbar` in the DOM); `npm test` 58 passed / 0 failed; `npm run catalog` (69 pages, 1096 lines); `npm run inventory` PASSED (79 warnings).
 - NOT verified: no device/browser pass. The white header now sits directly above the still-dark `.intro` hero and the dark merchant `.tabs` strip on the five onboarding pages — that contrast needs a look at 360px. Forms were not submitted end-to-end (jsdom only proves the scripts run without errors).
 
+
+### [2026-10-31 12:35:00] - [Agent: Big Pickle] - [T03: restaurant row focus + scroll lock + dim] - [COMMITTED]
+- Task: `ritem` focus, scroll lock and 25% dim (`PLATFORM UPDATE TASKS.md` T03).
+- Files changed: index.html, PLATFORM UPDATE TASKS.md, FEATURES.md, HTML_ASSESSMENT.md, scripts/html_catalog.meta.json, HTML_CATALOG.md.
+- CSS: `.ritem` transition gains `opacity .18s ease`; new `.scroll.has-open .ritem:not(.open){opacity:.25;pointer-events:none}` and `body.ritem-locked .scroll{overflow:hidden;touch-action:none}`.
+- JS: `syncRestAccordions()` now tracks the open element, clears `.has-open` from every list, toggles `body.ritem-locked`, adds `.has-open` to the open row's own `.scroll`, and calls `scrollIntoView({block:"center",behavior:"smooth"})` only when the open id changes (new module-level `restAccFocused`). Guarded with `if(openEl.scrollIntoView)` because jsdom has no implementation.
+- Cleanup: `render()` now calls `syncRestAccordions()` after `renderViewport()`, so every navigation re-derives the lock from the DOM and clears it when no row is open. `closeAllRitemAccordions()` already routes through the same function.
+- Scope note: the dim class goes on the open restaurant's own `.scroll`, so the catering / bakery / beverages panels that sit in sibling `.bevpage` containers are untouched.
+- Verified: `%TEMP%\opencode\probe-t03.js` 23/23 (open sets `.open`/`has-open`/`ritem-locked` and calls `scrollIntoView` once; sibling computes opacity 0.25 + pointer-events none; close restores; reopen scrolls again; Promos tab leaves no lock or `.has-open`); `npm test` 58 passed / 0 failed; `npm run inventory` PASSED (79 warnings); `npm run catalog` (69 pages, 1097 lines).
+- NOT verified: no phone pass. The smooth centring, the 0.25 dim and the "list cannot scroll while open" feel should be checked on a real long list at 360px.
+
