@@ -1055,3 +1055,9 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Change: dropped the `.hdr-chip` CSS rule and the `Offline` span from the four `#hdr` pages that carry the orders counter, so the right slot holds only `#ordCount`. Deleted the now-dead `netChip` / `refreshNetChip` connectivity block in `index.html` and `eatout_event_builder.html` (its only target was the removed chip).
 - Tests: `tests/appshell.js` merchant assertion was `has a hdr-chip page label` - now `has a header right slot` (`class="hdr-right"` or `class="hdr-chip"`), because the merchant pages still use the shared `.topbar` until T08b. `tests/orders-list.js` gained a sweep check: every page containing `id="hdr"` must be free of `hdr-chip` (26 checks).
 - Verified: `node tests/orders-list.js` 26 checks / 0 failed; `node tests/appshell.js` PASSED; `node tests/checkout-delivery.js` PASSED; `node tests/login.js` 30 checks / 0 failures; `node tests/delivery.js` PASSED; `node tests/smoke.js` PASSED.
+
+### [2026-11-01 00:52:00] - [Agent: Cline] - [T06c batch 2: .hdr-chip removed from the six onboarding headers] - [COMMITTED]
+- Task: T06 step 1, batch 2 of 3 - the `#hdr` onboarding pages.
+- Files: `bakery-onboarding.html`, `bottle-store-onboarding.html`, `caterer-onboarding.html`, `mobile-kitchen-onboarding.html`, `supplier-onboarding.html`, `restaurant-onboarding.html`.
+- Change: each `#hdr` right slot kept its working content (`#saveIndicator`, and the `18+` pill on bottle stores); only the hidden `Offline` chip and the `restaurant-onboarding` `.hdr-chip` CSS rule went. No JS read these chips.
+- Verified: `node tests/appshell.js` PASSED; `node tests/inventory.js` PASSED (19 checks, 70 pages, 31 screens); `node tests/smoke.js` PASSED; `node tests/orders-list.js` sweep check green.
