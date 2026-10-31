@@ -60,7 +60,7 @@
       "purpose": "Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content.",
       "audience": "Customers (+ operator sign-in entry)",
       "entry": "Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in.",
-      "interactions": "Search and filter by town/area; open a venue and switch tabs; a directory row centres, holds the list still and dims the others until it is closed; the filter bar (2nd Restaurants tap) pairs a live search box with Town | Area | Cuisine/Type; favourite + WhatsApp icon rows on promo/event cards; the promo detail shows a venue card and a Back to Promos row; tap WhatsApp order/reserve intents; About â†’ Operator Sign in / demo login.",
+      "interactions": "Search and filter by town/area; open a venue and switch tabs; a directory row centres, holds the list still and dims the others until it is closed; the filter bar (2nd Restaurants tap) pairs a live search box with Town | Area | Cuisine/Type; favourite + WhatsApp icon rows on promo/event cards; the promo detail shows a venue card and a Back to Promos row; tap WhatsApp order/reserve intents; About â†’ Operator Sign in / demo login; tapping the EatOuts logo opens a centred Back History popup listing the last five screens (title + relative time, one tap restores the screen, Escape or an outside tap closes).",
       "auth": false,
       "status": "FULL",
       "notes": "Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only. On venue open the app hydrates that venue's canonical D1 content via window.EatoutsContent (js/eatouts-content.js), merging profile/menu/gallery/promos/events into the local store before re-rendering; an unreachable backend leaves the imported-directory path untouched."
@@ -883,6 +883,10 @@
     }
   ],
   "changelog": [
+    {
+      "date": "2026-10-31",
+      "note": "T08 Back History (SPA): tapping the EatOuts logo no longer jumps home - it opens a centred popup with the last five screens visited (page title + relative time, newest first, capped at five). Entries are stored in sessionStorage and carry a small state snapshot, so one tap restores the exact screen (tab, directory panel, open venue and its Menu/Promos/About view, promo, gallery view, reservation step). Escape or an outside tap closes it. The header sweep across the remaining standalone pages is still open (T08b)."
+    },
     {
       "date": "2026-10-31",
       "note": "T07 standardised filter bar: the food and bottle-store directories now share one builder - a live search row above Town | Area | Cuisine/Type. Food search really filters the list (empty state kept), filter labels are 16px and centred, the browse counts are gone from every \"All\" row, the town list hides its scrollbar and the A-Z rail is a subtle grey tint."

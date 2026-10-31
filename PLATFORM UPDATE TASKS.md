@@ -173,7 +173,7 @@ bottom nav where the page is part of the app shell.
 ### Phase 3 — Interaction
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
-| 11 | T08 | 8 | Activate `brand-mark` + Back History popup (all headers) | M |
+| 11 | T08 | 8 | Activate `brand-mark` + Back History popup — ⚠️ **PARTIAL 2026-10-31** (SPA popup done; header sweep split to T08b) | M |
 | 12 | T03 | 3 | `ritem` focus, scroll lock, 25% dim others — ✅ **DONE 2026-10-31** | M |
 | 13 | T09 | 9 | `venue-about` promo thumb → gallery + "Add to Order" | M |
 | 14 | T07 | 7 | Standardised Filter Bar on 4 screens — ✅ **DONE 2026-10-31** (food + bottle store; catering/bakery blocked on data) | M |
@@ -389,7 +389,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 3 — Interaction
 
-#### T08 — `brand-mark` + Back History (user task 8) · M
+#### T08 — `brand-mark` + Back History (user task 8) · M — ⚠️ **PARTIAL 2026-10-31** (SPA popup shipped; header sweep pending — see notes)
 **Files:** every page with `id="hdr"`; new shared component in `index.html` + a small `js/eatouts-back-history.js` (or inline per page — prefer one JS file added to `copy-static.mjs`).
 **Steps**
 1. Standardise every header to the exact block (see T14). Sweep: `grep -l '<header id="hdr"'` must equal the set of app pages; convert `topbar`, `appbar`, `topbar-row` variants (T14/T15/T20 do the first ones).
@@ -400,10 +400,21 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
    - empty state: "No recent pages yet."
 4. On the SPA, history entries are `data-page` slugs; on standalone pages, `location.pathname`.
 **Done when**
-- [ ] Every app page has the identical header.
-- [ ] Tapping the logo opens the centred Back History popup with ≤5 entries.
-- [ ] Tapping an entry navigates there; outside tap closes.
-- [ ] No `.fpop-close` inside it.
+- [ ] Every app page has the identical header. **Not done** — 48 of the 69 pages still use `.topbar` / `.appbar` / `.topbar-row`, and `tests/appshell.js:80` still requires `<a class="brand-mark" href="index.html#promos">` on the merchant pages, so converting those logos to buttons is a separate decision. Split out as **T08b**.
+- [x] Tapping the logo opens the centred Back History popup with ≤5 entries — on the SPA (`index.html`); the logo there was already a `<button>`.
+- [x] Tapping an entry navigates there; outside tap closes.
+- [x] No `.fpop-close` inside it.
+- [x] `sessionStorage` key `eatouts.history.v1`, newest first, deduped by screen key, capped at 5.
+- [x] Entries carry a whitelisted state snapshot (`tab`, `restPanel`, open venue + its view, promo ids, gallery view, reserve breadcrumb, operator view) so a tap restores the actual SPA screen — the app has no hash router to replay one.
+- [x] Labels: `Promos` / `Promo details`, `Restaurants` / `Catering` / `Bakeries` / `Beverages`, `"<venue> · Menu|Promos|About"`, `Reservations`, `Gallery`, `About Us`; relative time `now / Nm / Nh / Nd`.
+- [x] Empty state: "No recent pages yet."
+- [ ] **T08b — header sweep** (48 pages) + converting `brand-mark` to a button outside the SPA. Needs the app-page list and a rewrite of the appshell logo assertion; out of scope for a single minimal diff.
+- [ ] Device pass — popup shadow, row rhythm and the blur scrim at 360px.
+
+**Notes**
+- **Behaviour change:** on the SPA the logo no longer resets to the Promos home (that stays on the Promos nav tab). Standalone pages keep `<a class="brand-mark" href="index.html#promos">` until T08b, so they still go home.
+- No new file: the feature is one self-contained block in `index.html` (the brief's optional `js/eatouts-back-history.js` wasn't needed while only the SPA records).
+- Standalone-page recording (`pagehide` + `location.pathname`) is not wired yet — entries in `sessionStorage` will mix SPA snapshots and URLs once T08b lands, and `restoreHistory()` already handles an entry with `href` by navigating.
 
 #### T03 — `ritem` focus + scroll lock + dim (user task 3) · M — ✅ **DONE 2026-10-31**
 **Files:** `index.html` — `syncRestAccordions` `:4476-4486`, `renderRestaurantRow` `:5630-5640`, `toggleRestaurant` handler `:9146`, `state.restaurantOpen` `:3621`, CSS `.ritem` ~`:640-658`.
@@ -871,6 +882,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-31 | T15 | DONE | 7 pages — `restaurant-onboarding.html`, `caterer-onboarding.html`, `bakery-onboarding.html`, `bottle-store-onboarding.html`, `mobile-kitchen-onboarding.html`, `supplier-onboarding.html`, `eatouts-login.html` (standard `#hdr`, no `.topbar`/`.draft-pill`, light `.progress-strip`, document lock) | static probe 15/15 × 6 + login; jsdom runtime probe 62/62 (0 window errors); `tests/appshell.js` merchant asserts PASSED; full `npm test` 58/58 | (this commit) |
 | 2026-10-31 | T03 | DONE | `index.html` — `syncRestAccordions` now sets `.scroll.has-open` + `body.ritem-locked` and centres the opened row; CSS `.scroll.has-open .ritem:not(.open){opacity:.25;pointer-events:none}` and `body.ritem-locked .scroll{overflow:hidden;touch-action:none}`; `render()` re-derives the state | probe 23/23 (open/close/restore/reopen/navigate-away); full `npm test` 58/58; `npm run inventory` PASSED (79 warnings) | (this commit) |
 | 2026-10-31 | T07 | DONE (partial) | `index.html` — shared `renderFilterBar()` (search row + Town \| Area \| Cuisine/Type) for food + bottle stores; `state.restQuery` + `#restSearch` live filtering; 16px centred `.cbtn`; `.loc-all .loc-count` removed (6 rows); `.town-scroll` scrollbar hidden; `.az-rail` `rgba(0,0,0,.03)`; `tests/beverages.js` updated to the new spec | probe 30/30 (builder, labels, search narrow/empty/clear, town badges, bottle + gallery All rows, no window errors); full `npm test` 58/58; `npm run inventory` PASSED (79 warnings) | (this commit) |
+| 2026-10-31 | T08 | DONE (SPA half) | `index.html` — Back History: `eatouts.history.v1` in `sessionStorage` (newest first, deduped by screen key, capped at 5), `recordHistory()` called from `render()`, whitelisted state snapshot per entry, centred `.hist-wrap`/`.hist-pop` dialog (scrim, no `.fpop-close`, empty state), logo tap now `openBackHistory()` instead of the old home reset, `data-act="gotoHistory"` restores the SPA screen | probe 25/25 (boot entry, tab + venue-view recording, labels, relative time, open/restore/scrim-close, 5-entry cap, dedupe, empty state, no window errors); full `npm test` 58/58; `npm run inventory` PASSED (79 warnings); `npm run catalog` 69 pages/1,098 lines | (this commit) |
 
 ### Per-task completion template
 

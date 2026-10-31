@@ -131,3 +131,4 @@ A dedicated organiser (`eatouts-event-planner.html`) that turns a booking inquir
 - **Mobile-first, portrait-first** phone shell with a clean 5-button navigation bar.
 - **Local-first and offline-friendly**: the entire directory, menus, promos and gallery ship with the app — fast load, works on file servers, no account needed.
 - **Keyboard-friendly conveniences**: Escape closes filters, Enter adds a split-the-bill name, and live-search keeps your cursor where you typed.
+- **Back History on the logo**: tapping the EatOuts logo opens a centred popup with the last five screens you visited — page title plus relative time — and one tap takes you back. Escape or an outside tap closes it.

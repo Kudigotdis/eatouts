@@ -680,6 +680,17 @@ img[src*="heart_inactive_icon"]{opacity:.5}
    and the page holds still until the accordion is closed. */
 .scroll.has-open .ritem:not(.open){opacity:.25;pointer-events:none}
 body.ritem-locked .scroll{overflow:hidden;touch-action:none}
+/* T08 — Back History popup, opened from the logo. */
+.hist-wrap{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px}
+.hist-scrim{position:absolute;inset:0;background:rgba(20,18,12,.28);-webkit-backdrop-filter:blur(10px) saturate(1.2);backdrop-filter:blur(10px) saturate(1.2)}
+.hist-pop{position:relative;width:100%;max-width:360px;max-height:min(70vh,420px);overflow:auto;overscroll-behavior:contain;background:#fff;border:1px solid #ece7db;border-radius:14px;box-shadow:0 24px 60px rgba(16,24,40,.18)}
+.hist-pop h3{margin:0;padding:14px 16px 10px;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#a89a7e}
+.hist-row{display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;border:0;border-bottom:1px solid #f4efe4;background:#fff;text-align:left;font:inherit;cursor:pointer}
+.hist-row:last-child{border-bottom:0}
+.hist-row:active{background:#faf8f2}
+.hist-row .lab{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:700;color:#1a1a1a}
+.hist-row .ago{flex:0 0 auto;font-size:11px;font-weight:800;color:#a89a7e}
+.hist-empty{padding:18px 16px;font-size:12.5px;color:#a89a7e;text-align:center}
 .rrow{display:flex;align-items:center;gap:13px;padding:13px 14px;background:#ffffff;border-bottom:0;width:100%;cursor:pointer;text-align:left;font:inherit;color:inherit;border-top:0;border-left:0;border-right:0;-webkit-tap-highlight-color:transparent}
 .rrow:active{background:#fafbfc}
 .venuemenu{background:#f4f1ea;border:1px solid #ece7db;border-radius:14px;overflow:hidden;margin:8px auto 16px;max-width:370px}
@@ -3634,6 +3645,7 @@ profilePhoto:null,
   galLocMode:"rest",
   galRestSearch:"",
   filterOpen:false,
+  historyOpen:false,
   searchOpen:false,
   aboutView:"main",
   aboutSettingsOpen:false,
@@ -8776,6 +8788,134 @@ function hydrateVenueContent(id){
   }).catch(function(){});
 }
 
+/* ================================================================
+   BACK HISTORY (T08) - the logo opens the last five screens visited.
+   Entries live in sessionStorage so a reload keeps them; each entry
+   carries a whitelisted state snapshot so a tap can restore the SPA
+   screen instead of just a hash.
+   ================================================================ */
+const HIST_KEY="eatouts.history.v1";
+const HIST_MAX=5;
+let histLastKey=null;
+function histRead(){
+  try{const a=JSON.parse(window.sessionStorage.getItem(HIST_KEY)||"[]");return Array.isArray(a)?a:[];}
+  catch(e){return [];}
+}
+function histWrite(list){
+  try{window.sessionStorage.setItem(HIST_KEY,JSON.stringify(list.slice(0,HIST_MAX)));}catch(e){}
+}
+function histSnap(){
+  return {
+    tab:state.tab,restPanel:state.restPanel,
+    restaurantOpen:state.restaurantOpen||null,
+    restaurantView:state.restaurantView?JSON.parse(JSON.stringify(state.restaurantView)):null,
+    promoId:state.promoId||null,promoView:state.promoView,
+    promoGalleryId:state.promoGalleryId||null,promoExpanded:state.promoExpanded||null,
+    galleryView:state.galleryView,
+    reserveCat:state.reserveCat||null,reserveGroup:state.reserveGroup||null,reserveSub:state.reserveSub||null,
+    operatorView:state.operatorView||"about"
+  };
+}
+function histKey(){
+  const s=histSnap();
+  return [s.tab,s.restPanel,s.restaurantOpen||"",
+    s.restaurantView?(s.restaurantView.id+"."+s.restaurantView.view):"",
+    s.promoId||"",s.promoGalleryId||"",s.galleryView||"",
+    s.reserveCat||"",s.reserveSub||"",s.operatorView||""].join("~");
+}
+function histVenueName(){
+  const id=state.restaurantOpen;
+  if(!id)return "";
+  try{
+    const rows=restaurantBaseRows();
+    for(let i=0;i<rows.length;i++){
+      if((rows[i].brandKey||canonicalSlugKey(rows[i].slug))===id)return rows[i].name||"";
+    }
+  }catch(e){}
+  return "";
+}
+function histLabel(){
+  if(state.tab==="restaurants"){
+    if(state.restaurantView){
+      const name=histVenueName();
+      const view=state.restaurantView.view==="promos"?"Promos":state.restaurantView.view==="about"?"About":"Menu";
+      return (name?name+" · ":"")+view;
+    }
+    const panel={food:"Restaurants",catering:"Catering",bakery:"Bakeries",beverages:"Beverages"}[state.restPanel];
+    return panel||"Restaurants";
+  }
+  if(state.tab==="promos")return state.promoId?"Promo details":"Promos";
+  if(state.tab==="reserve")return state.reserveSub?"Reservation details":"Reservations";
+  if(state.tab==="gallery")return "Gallery";
+  if(state.tab==="about")return "About Us";
+  return "EatOuts";
+}
+function histAgo(t){
+  const d=Math.max(0,Date.now()-(Number(t)||0));
+  if(d<60000)return "now";
+  if(d<3600000)return Math.floor(d/60000)+"m";
+  if(d<86400000)return Math.floor(d/3600000)+"h";
+  return Math.floor(d/86400000)+"d";
+}
+function recordHistory(){
+  if(state.historyOpen)return;
+  const key=histKey();
+  const list=histRead();
+  if(key===histLastKey&&list.length){list[0].t=Date.now();histWrite(list);return;}
+  histLastKey=key;
+  const rest=list.filter(function(e){return e.key!==key;});
+  rest.unshift({key:key,label:histLabel(),snap:histSnap(),t:Date.now()});
+  histWrite(rest);
+}
+function renderBackHistory(){
+  let el=document.getElementById("hist-pop");
+  if(!state.historyOpen){if(el)el.remove();return;}
+  if(!el){el=document.createElement("div");el.id="hist-pop";document.body.appendChild(el);}
+  const list=histRead().slice(0,HIST_MAX);
+  let h='<div class="hist-wrap"><div class="hist-scrim" data-act="closeBackHistory"></div>'+
+    '<div class="hist-pop" role="dialog" aria-label="Back History"><h3>Recent pages</h3>';
+  if(!list.length)h+='<div class="hist-empty">No recent pages yet.</div>';
+  list.forEach(function(e,i){
+    h+='<button class="hist-row" data-act="gotoHistory" data-i="'+i+'">'+
+      '<span class="lab">'+esc(e.label||"EatOuts")+'</span>'+
+      '<span class="ago">'+histAgo(e.t)+'</span></button>';
+  });
+  h+='</div></div>';
+  el.innerHTML=h;
+}
+function openBackHistory(){state.historyOpen=true;render();}
+function restoreHistory(entry){
+  state.historyOpen=false;
+  if(!entry){render();return;}
+  const s=entry.snap;
+  if(!s){if(entry.href)window.location.href=entry.href;else render();return;}
+  state.tab=s.tab||"promos";
+  state.restPanel=s.restPanel||"food";
+  state.restaurantOpen=s.restaurantOpen||null;
+  state.restaurantView=s.restaurantView?JSON.parse(JSON.stringify(s.restaurantView)):null;
+  state.promoId=s.promoId||null;
+  state.promoView=s.promoView||"feed";
+  state.promoGalleryId=s.promoGalleryId||null;
+  state.promoExpanded=s.promoExpanded||null;
+  state.galleryView=s.galleryView||"grid";
+  state.reserveCat=s.reserveCat||null;
+  state.reserveGroup=s.reserveGroup||null;
+  state.reserveSub=s.reserveSub||null;
+  state.operatorView=s.operatorView||"about";
+  /* close anything transient before the screen comes back */
+  closeAllRitemAccordions();
+  state.promoFilterOpen=state.restFilterOpen=state.bevFilterOpen=false;
+  state.promoTownPicker=state.promoAreaPicker=state.promoTypePicker=false;
+  state.restTownPicker=state.restAreaPicker=state.restTypePicker=false;
+  state.bottleTownFilter=state.bottleAreaFilter=false;
+  state.bevTypePicker=false;
+  state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;
+  state.filterOpen=false;state.galPopup=false;state.searchOpen=false;
+  state.restLocPicker=null;state.restNotice=null;
+  if(state.restaurantView&&hasBridge())EatoutsBridge.setActive(state.restaurantView.id);
+  render();
+}
+
 function render(){
   bootEatoutsBridge();
   if(!state.promoWeekStart) state.promoWeekStart = startOfWeek(new Date());
@@ -8784,6 +8924,8 @@ function render(){
   /* A navigation re-creates the list, so the row focus/lock is re-applied
      from state - and cleared when the open row is no longer on screen. */
   syncRestAccordions();
+  recordHistory();
+  renderBackHistory();
   if(state.tab==="gallery" && state.galleryView!=="photo") setTimeout(armGalleryScroll,0);
   setTimeout(armTownRails,0);
 }
@@ -8792,22 +8934,17 @@ function render(){
    EVENT HANDLING
    ================================================================ */
 document.addEventListener("click",function(e){
-  /* Header logo returns to the Promos home, resetting any open popup / filter. */
-  const homeTap=e.target.closest(".brand-mark");
-  if(homeTap){
-    state.promoTownPicker=state.promoAreaPicker=state.promoTypePicker=false;
-    state.promoFilterOpen=state.bevFilterOpen=state.restFilterOpen=false;
-    if(!(state.tab==="promos" && state.promoView==="feed" && !state.promoId && !state.promoGalleryId && !state.promoExpanded)){
-      state.tab="promos"; state.promoView="feed";
-      state.promoId=null; state.promoGalleryId=null; state.promoExpanded=null;
-      state.restPanel="food"; state.operatorView="about"; state.preview=null;
-      try{history.replaceState(null,"","#promos");}catch(e){}
-      render();
-      return;
-    }
-    renderControlBar();
+  /* T08: Back History popup opened from the logo. */
+  if(e.target.closest('[data-act="closeBackHistory"]')){state.historyOpen=false;render();return;}
+  const histGo=e.target.closest('[data-act="gotoHistory"]');
+  if(histGo){
+    const list=histRead();
+    restoreHistory(list[Number(histGo.getAttribute("data-i"))||0]);
     return;
   }
+  /* Header logo opens the last five screens visited. */
+  const homeTap=e.target.closest(".brand-mark");
+  if(homeTap){openBackHistory();return;}
   const nav=e.target.closest("[data-tab]");
   if(nav){
     const nextTab=nav.getAttribute("data-tab");
@@ -9667,7 +9804,8 @@ document.addEventListener("keydown",function(e){
     return;
   }
   if(e.key==="Escape"||e.keyCode===27){
-    if(state.aboutPreview){state.aboutPreview=null;render();}
+    if(state.historyOpen){state.historyOpen=false;render();}
+    else if(state.aboutPreview){state.aboutPreview=null;render();}
     else if(state.about){aboutBack();}
     else if(state.promoMonthPicker){state.promoMonthPicker=false;render();}
     else if(state.promoWeekPicker){state.promoWeekPicker=false;state.promoWeekExpanded=null;render();}
