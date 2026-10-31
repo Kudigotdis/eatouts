@@ -58,6 +58,7 @@ From the directory, tap **Menu**, **Book Venue**, **Promos** or **About**:
 ## Daily Promos & Events
 
 - A **promo feed organised by day**, every entry showing the deal, what's included, the price, the "was" price and your saving.
+- Promo and event **detail pages** show title, meta, description, includes and actions without the old tag/chip rows; the featured-event ticketing, sponsor and hashtag lists read as plain rows.
 - **Bar & bottle promos** (`assets/data/beverage-and-bar-promotions.json`, 23 brand-led offers with their own artwork) run in the same feed. They are not tied to one venue, so they follow you whichever town is selected. The source module (`assets/data/source/beverage_and_bar_promotions.js`) is rewritten by the build with the same artwork and drink styles, so the two can never drift apart.
 - **Type filter in four segments — All · Combos · Food · Beverages** — tap a segment, or **swipe the popup left/right** (arrow keys work too). Tapping **All** closes the popup and clears every tick.
 - **Tick lists depend on the segment**: Combos and Food list the restaurant **cuisines**, Beverages lists one fixed drink list — Beverages, Spirits, Beers, Brandy, Champagne, Ciders, Cold Drinks, Red Wines, Fizzy Drinks, Fruit Juices, Gin, Tequila, Rum, Vodka — and All shows cuisines plus drinks together. Promos that mix food and drink are filed under **Combos**, and a platter served "without beer" still counts as food.

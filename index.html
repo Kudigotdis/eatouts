@@ -129,7 +129,7 @@ img{display:block;max-width:100%}
 .tile-ico.lg{font-size:52px;opacity:.42}
 
 /* ---------- CALENDAR (STICKY) ---------- */
-.cal{flex:0 0 auto;background:#ffffff;border-bottom:1px solid #ece7db;padding:11px 0 10px;position:relative;z-index:5;box-shadow:0 4px 10px -8px rgba(0,0,0,.12)}
+.cal{flex:0 0 auto;background:rgba(0,0,0,.03);border-bottom:1px solid #ece7db;padding:11px 0 10px;position:relative;z-index:5;box-shadow:0 4px 10px -8px rgba(0,0,0,.12)}
 .cal-title{padding:0 16px 10px;font-size:14px;letter-spacing:.17em;text-transform:uppercase;color:#a89a7e;font-weight:800;display:flex;align-items:baseline;justify-content:space-between}
 .cal-title-btn{font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;font-weight:inherit;padding:0;background:none;border:0;cursor:pointer;min-height:28px}
 .cal-title-btn:active{color:#1a1a1a}
@@ -256,6 +256,8 @@ img{display:block;max-width:100%}
 .cat-row.evcat{padding:22px 16px;gap:0}
 .cat-row.evcat .minfo{text-align:center}
 .cat-row.evcat .cat-name{font-size:30px}
+/* T24: the Plan Event category list reads at 20px, not the 30px .evcat size. */
+#shell .screen[data-page="reserve-cats"] .cat-name{font-size:20px}
 
 .mitem{border-bottom:1px solid #f1ece1;background:#ffffff}
 .mrow{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%}
@@ -317,9 +319,7 @@ img{display:block;max-width:100%}
 .bev-toggle.catering .bev-toggle-thumb{transform:translateX(100%)}
 .bev-toggle.bakery .bev-toggle-thumb{transform:translateX(200%)}
 .bev-toggle.bev .bev-toggle-thumb{transform:translateX(300%)}
-.bev-toggle-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;background:transparent;border:0;padding:9px 15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:11.5px;font-weight:500;line-height:normal;letter-spacing:.06em;text-transform:uppercase;color:#7e93ad;opacity:.15;cursor:pointer;transition:color .2s,opacity .2s}
-.bev-toggle-btn:first-of-type{justify-content:flex-start}
-.bev-toggle-btn:last-of-type{justify-content:flex-end}
+.bev-toggle-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;background:transparent;border:0;padding:9px 15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:11.5px;font-weight:500;line-height:normal;letter-spacing:.06em;text-transform:uppercase;color:#7e93ad;opacity:.4;cursor:pointer;transition:color .2s,opacity .2s}
 .bev-toggle-btn:active{color:#1a1a1a;opacity:1}
 .bev-toggle-btn.on{color:#7e93ad;font-weight:700;opacity:1}
 /* Horizontal pager: page 1 = Restaurants list, page 2 = Beverages. Native
@@ -392,10 +392,10 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .resback{flex:0 0 auto;background:#ffffff;border-top:1px solid #f1ece1;padding:10px 14px 12px}
 
 /* ---------- GALLERY ---------- */
-.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:0 0 2px;background:#ffffff}
-.gal-cell{position:relative;aspect-ratio:1;overflow:hidden;background:#f4efe4;border:0;padding:0;display:block}
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);align-items:start;gap:2px;padding:0 0 2px;background:#ffffff}
+.gal-cell{position:relative;max-height:40vh;overflow:hidden;background:#f4efe4;border:0;padding:0;display:block}
 .gal-cell .tile-ico{font-size:30px}
-.gal-cell>img{width:100%;height:100%;object-fit:cover;display:block}
+.gal-cell>img{width:100%;height:auto;max-height:40vh;object-fit:cover;display:block}
 
 /* ---------- CONTROL BAR (GALLERY) ---------- */
 .cbar2{display:flex;align-items:center;gap:8px;padding:10px 12px}
@@ -404,6 +404,7 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .cbtn:active{background:#f4efe4}
 .cbtn.ic{padding:9px 11px;display:flex;align-items:center;justify-content:center;background:#0a0a0a;border-color:#0a0a0a;color:#ffffff}
 .cbtn.ic svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cbtn.ic .cbtn-ico-img{width:18px;height:18px;object-fit:contain;display:block}
 .cbtn.ic:active{background:#222}
 .cbtn.ic.on{background:#0a0a0a;border-color:#0a0a0a;color:#ffffff}
 .csearch{flex:1;display:flex;align-items:center;gap:8px;background:#faf8f2;border:1px solid #ece7db;border-radius:10px;padding:0 12px}
@@ -6052,9 +6053,6 @@ function renderRestaurantPromoDetail(r,promoId){
   h+='<div class="pcard" style="margin-top:0"><div class="pimg" style="aspect-ratio:16/10">'+imgTag(foodImg(hash(p.id)),p.title)+'</div>'+
      '<div class="pbody"><h3 style="margin:0 0 6px;font-size:19px;font-weight:900;line-height:1.2;color:#1a1a1a">'+esc(p.title)+'</h3>'+
      '<div style="font-size:11.5px;color:#a89a7e;font-weight:700;margin-bottom:10px">'+esc(r.name)+' · '+esc(found.day)+' · '+esc(p.valid||"")+'</div>'+
-     '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
-       '<span class="chip g">'+fmt(p.price)+'</span><span class="chip">was '+fmt(p.was)+'</span>'+
-       '<span class="chip">Save '+fmt(p.save)+'</span></div>'+
      '<p class="mdesc">'+esc(p.desc||"")+'</p>';
   if(p.items&&p.items.length){
     h+='<div class="subh">Includes</div>'+p.items.map(function(it){return '<div class="ctr"><div class="lbl">'+esc(it)+'</div></div>';}).join("");
@@ -6382,7 +6380,7 @@ function renderControlBarInner(){
     '<button class="cbtn gal-val" data-act="cycleFilter" aria-label="Gallery View Filter" aria-haspopup="listbox" aria-expanded="'+(state.filterOpen?"true":"false")+'">'+
       esc(state.galleryFilter==="All"?"Gallery":state.galleryFilter)+'</button>'+
     '<div style="flex:1"></div>'+
-    '<button class="cbtn ic" data-act="openSearch" aria-label="Search">'+ICON.search+'</button></div>';
+    '<button class="cbtn ic" data-act="openSearch" aria-label="Search"><img class="cbtn-ico-img" src="assets/icons/search_icon.webp" alt="Search"></button></div>';
   if(state.filterOpen){
     h+='<div class="fpop-scrim" data-act="closeFilter"></div>';
     h+='<div class="fpop" role="listbox" aria-label="Gallery View Filter">'+GALLERY_CATS.map(function(c){
@@ -6633,9 +6631,10 @@ function featuredEventById(id){
   return null;
 }
 function featChipRow(list){
+  /* T27: chip rows are gone, but Ticketing & Outlets / Sponsors / Tags stay
+     as plain rows so the information is not lost. */
   if(!list||!list.length) return "";
-  return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
-    list.map(function(c){return '<span class="chip">'+esc(c)+'</span>';}).join("")+'</div>';
+  return list.map(function(c){return '<div class="ctr"><div class="lbl">'+esc(c)+'</div></div>';}).join("");
 }
 function featSection(label,html){
   return html?'<div class="subh" style="margin-top:14px">'+esc(label)+'</div>'+html:'';
@@ -6992,16 +6991,6 @@ function renderPromoDetail(){
     '<div class="pbody">'+
     '<h3 style="margin:0 0 6px;font-size:19px;font-weight:900;line-height:1.2;color:#1a1a1a">'+esc(p.title)+'</h3>'+
     '<div class="pmeta" style="margin:0 0 10px">'+esc(venue)+' &middot; '+esc(day)+' &middot; '+esc(p.valid||"")+'</div>'+
-    (hasPrice
-      ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
-        '<span class="chip g">'+fmt(p.price)+'</span>'+
-        '<span class="chip">was '+fmt(p.was)+'</span>'+
-        '<span class="chip">Save '+fmt(p.save)+'</span>'+
-        '</div>'
-      : '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
-        '<span class="chip g">'+esc(promoCategoryLabel(promoCategoryOf(p)))+'</span>'+
-        (p.subtype?'<span class="chip">'+esc(p.subtype)+'</span>':'')+
-        '</div>')+
     '<p class="mdesc">'+esc(p.desc||"")+'</p>'+
     (hasItems?'<div class="subh">Includes</div>'+
       p.items.map(function(it){return '<div class="ctr"><div class="lbl">'+esc(it)+'</div></div>';}).join(""):'')+
@@ -7055,11 +7044,6 @@ function renderPromoLink(){
     '<div class="pimg" style="aspect-ratio:16/10">'+imgTag(eventImage(dayIdx),ev.name)+'</div>'+
     '<div class="pbody">'+
     '<h3 style="margin:0 0 6px;font-size:17px;font-weight:900;color:#1a1a1a">'+esc(ev.name)+'</h3>'+
-    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
-    '<span class="chip g">'+esc(venue)+'</span>'+
-    '<span class="chip">'+esc(ev.time)+'</span>'+
-    '<span class="chip">Sponsored by '+esc(ev.sponsor)+'</span>'+
-    '</div>'+
     '<p class="mdesc">'+esc(ev.desc)+'</p>'+
     '<div class="subh">Highlights</div>'+
     '<ul class="phl">'+(ev.highlights||[]).map(function(h){return '<li>'+esc(h)+'</li>';}).join("")+'</ul>'+

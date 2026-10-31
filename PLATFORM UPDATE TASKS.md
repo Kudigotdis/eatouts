@@ -197,12 +197,12 @@ bottom nav where the page is part of the app shell.
 ### Phase 6 — UI polish (new, 2026-10-30)
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
-| 23 | T23 | — | `promos-feed` `.cal` → light grey 3% background | S |
-| 24 | T24 | — | `reserve-cats` `.cat-name` → 20px | S |
-| 25 | T25 | — | `restaurants-pager` `bev-toggle` equal spacing + 40% inactive opacity | S |
-| 26 | T26 | — | `gallery-grid` search button → `search_icon` image | S |
-| 27 | T27 | — | Remove promo tag/chip rows (all promos) | S |
-| 28 | T28 | — | `gallery-grid` `gal-cell` full-height (not square), 3 across, infinite scroll | S/M |
+| 23 | T23 | — | `promos-feed` `.cal` → light grey 3% background — ✅ **DONE 2026-10-31** | S |
+| 24 | T24 | — | `reserve-cats` `.cat-name` → 20px — ✅ **DONE 2026-10-31** | S |
+| 25 | T25 | — | `restaurants-pager` `bev-toggle` equal spacing + 40% inactive opacity — ✅ **DONE 2026-10-31** | S |
+| 26 | T26 | — | `gallery-grid` search button → `search_icon` image — ✅ **DONE 2026-10-31** | S |
+| 27 | T27 | — | Remove promo tag/chip rows (all promos) — ✅ **DONE 2026-10-31** | S |
+| 28 | T28 | — | `gallery-grid` `gal-cell` full-height (not square), 3 across, infinite scroll — ✅ **DONE 2026-10-31** | S/M |
 
 ---
 
@@ -647,23 +647,28 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 6 — UI polish
 
-#### T23 — `promos-feed` `.cal` light grey 3% background (user task) · S
+#### T23 — `promos-feed` `.cal` light grey 3% background (user task) · S — ✅ **DONE 2026-10-31**
 **Files:** `index.html` CSS `.cal` rule `:132` (and `#shell.promos-tab.promo-focus .cal` at `:43`).
 **Current:** `.cal{...;background:#ffffff;...}` renders a solid white band behind the week calendar.
 **Steps**
 1. Change the `.cal` background to a 3% light grey: `background:rgba(0,0,0,.03)` (or `rgba(128,128,128,.03)`). Keep the border/shadow/padding.
 2. Confirm the focused-promo mode (`#shell.promos-tab.promo-focus .cal{display:none}`) is unaffected.
 **Done when** `.cal` computes a 3%-opacity light-grey background on `promos-feed`; no other page's calendar/strip changes.
+- [x] `.cal` background is `rgba(0,0,0,.03)`; border/shadow/padding untouched.
+- [x] `#shell.promos-tab.promo-focus .cal{display:none}` still hides it in focused-promo mode.
+- [x] Probe: `.cal` computes `rgba(0, 0, 0, 0.03)` at boot on the Promos tab.
 
-#### T24 — `reserve-cats` `.cat-name` 20px (user task) · S
+#### T24 — `reserve-cats` `.cat-name` 20px (user task) · S — ✅ **DONE 2026-10-31**
 **Files:** `index.html` CSS `.cat-name` `:251`, `.cat-row.evcat .cat-name` `:258`; renderer `renderReserveCats` `:8100-8112`.
 **Current:** base `.cat-name` is 24px and the `.evcat` variant overrides to 30px, so reserve-cats category names render at 30px.
 **Steps**
 1. Scope a 20px rule to the reserve-cats screen: `#shell .screen[data-page="reserve-cats"] .cat-name{font-size:20px}` (override the `.evcat` 30px).
 2. Do not change the base `.cat-name` (used elsewhere) or other reserve pages.
 **Done when** every `.cat-name` on `reserve-cats` computes to 20px; `reserve-groups`/`reserve-events` unaffected.
+- [x] `#shell .screen[data-page="reserve-cats"] .cat-name{font-size:20px}` added after the `.evcat` 30px rule.
+- [x] Probe: `reserve-cats` computes 20px, `reserve-groups` still computes 30px; base `.cat-name` untouched.
 
-#### T25 — `restaurants-pager` `bev-toggle` equal spacing + 40% inactive opacity (user task) · S
+#### T25 — `restaurants-pager` `bev-toggle` equal spacing + 40% inactive opacity (user task) · S — ✅ **DONE 2026-10-31**
 **Files:** `index.html` CSS `.bev-toggle*` `:315-324`; renderer `renderRestaurantsPager` `:5275-5288`.
 **Current:** inactive buttons sit at `opacity:.15` (T02) and the first/last buttons are pushed to the edges via `:first-of-type`/`:last-of-type` `justify-content:flex-start/end`, so the four tabs are not evenly spaced.
 **Steps**
@@ -671,8 +676,11 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 2. Raise inactive opacity from `.15` to `.4` on this toggle (`opacity:.4` for `.bev-toggle-btn` base; active/`:active` stay `opacity:1`). *(Supersedes T02's 15% requirement for this toggle.)*
 3. Keep `aria-selected`, the sliding thumb, and `setBevToggleThumb()` intact (tests `beverages.js`, `bakery-directory.js`).
 **Done when** the four tabs have equal gaps/widths and inactive tabs compute `opacity:.4`; active tab `opacity:1`; thumb still tracks.
+- [x] `:first-of-type`/`:last-of-type` justify overrides deleted; all four use `justify-content:center`.
+- [x] Base `opacity:.4`; `.on`/`:active` stay `opacity:1`.
+- [x] Probe: first and last compute `justify-content:center`, inactive `0.4`, active `1`; `setBevToggleThumb()` and `aria-selected` untouched.
 
-#### T26 — `gallery-grid` search button → `search_icon` image (user task) · S
+#### T26 — `gallery-grid` search button → `search_icon` image (user task) · S — ✅ **DONE 2026-10-31**
 **Files:** `index.html` control-bar builder `:6379-6385` (the `openSearch` button); `assets/icons/search_icon.webp`.
 **Current:** the search affordance is `<button class="cbtn ic" data-act="openSearch" ...>` rendering the inline `ICON.search` SVG.
 **Steps**
@@ -680,8 +688,11 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 2. Size the image to ~18-20px (CSS or inline) and keep it vertically centred in the 40px bar.
 3. Verify `openSearch` still opens the search input and `closeSearch` still works.
 **Done when** the gallery control bar shows the `search_icon` image instead of the SVG glyph and search open/close still functions.
+- [x] Button inner HTML is `<img class="cbtn-ico-img" src="assets/icons/search_icon.webp" alt="Search">`; `data-act`/`aria-label`/`.cbtn ic` kept.
+- [x] `.cbtn.ic .cbtn-ico-img{width:18px;height:18px;object-fit:contain;display:block}`.
+- [x] Probe: img renders at 18×18, `openSearch` opens `#gsearch`, `closeSearch` closes it; `assets/icons/search_icon.webp` committed.
 
-#### T27 — Remove promo tag/chip rows (all promos) (user task) · S
+#### T27 — Remove promo tag/chip rows (all promos) (user task) · S — ✅ **DONE 2026-10-31**
 **Files:** `index.html` — five inline chip-row divs at `:6055`, `:6637` (`featChipRow`), `:6996`, `:7001`, `:7058` (all `style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"`).
 **Current:** every promo/event card renders a row of `.chip` tags (price/was/save, category/subtype, venue/time/sponsor, featured-event chips) inside that div.
 **Steps**
@@ -689,8 +700,11 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 2. Keep the rest of each card (title, meta, description, includes, gallery/links, CTA) intact; tidy any now-orphaned spacing.
 3. Confirm no other `.chip` usage breaks (chips may still be used elsewhere).
 **Done when** grep for `display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px` returns 0 in `index.html`; promo/event cards still render with title + body; no JS errors.
+- [x] All four inline chip rows removed (restaurant promo detail, promos-feed detail, event lineup detail) — 0 hits for the flex/gap signature.
+- [x] `featChipRow` no longer emits `.chip` spans: the featured-event **Ticketing & Outlets / Sponsors & Partners / Tags** lists render as plain `.ctr` rows, so the content and `smoke.js` assertions survive (deviation from the brief's "return `\"\"`" — deleting them would drop real event info).
+- [x] Probe: featured card + promo detail contain no `<span class="chip`; `node tests/smoke.js` PASSED.
 
-#### T28 — `gallery-grid` `gal-cell` full-height (not square) (user task) · S/M
+#### T28 — `gallery-grid` `gal-cell` full-height (not square) (user task) · S/M — ✅ **DONE 2026-10-31**
 **Files:** `index.html` CSS `.gal-grid`/`.gal-cell` `:395-398`; renderer `renderGalleryGrid` `:8335-8351` and `galleryLoadMore` `:8352-8368`.
 **Current:** `.gal-cell{aspect-ratio:1;...}` forces every thumbnail to a square, cropping tall images.
 **Steps**
@@ -699,6 +713,10 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 3. Keep infinite scroll working: `IntersectionObserver` sentinel + `galleryLoadMore` (30 per chunk) unchanged; verify `armGalleryScroll` still arms after the layout change.
 4. Add a reasonable `max-height` (e.g. 40vh) and `overflow:hidden` so a single very tall image cannot blow up the grid, while still showing full height up to that cap.
 **Done when** thumbnails are no longer squares, images show full height, grid stays 3-across, infinite scroll still loads more chunks, no layout overflow at 360px.
+- [x] `aspect-ratio:1` removed; `.gal-cell` gets `max-height:40vh` + `overflow:hidden`; `img` is `height:auto;max-height:40vh`.
+- [x] `.gal-grid` stays `repeat(3,1fr)` and gets `align-items:start` so a shorter image does not stretch its cell.
+- [x] Probe: no square ratio, 40vh cap on cell and img, img `height:auto`, grid rule unchanged; `tests/customer.js` (gallery load-more/infinite scroll) PASSED.
+- [ ] Device pass at 360px — **needs a device pass** (jsdom does not lay out).
 
 
 ---
@@ -818,6 +836,12 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 
 | 2026-10-30 | T20 | DONE | `operator-businesses.html` (standard `#hdr`, body `h1` "My businesses", white `theme-color`, old `.topbar` rules removed), `HTML_CATALOG.md` (regenerated) | ad-hoc jsdom probe 15/15 (single `#hdr`, logo + hidden chip, one `h1` in `.page-head`, header has no heading, no `.topbar`/`.brand-*` rules); 8 suites PASSED, 0 failures (`login`, `business-auth`, `business-profiles`, `customer`, `smoke`, `appshell`, `checks`, `api-business`); `html-catalog` PASSED · `inventory` PASSED (87 warnings) | (this commit) |
 | 2026-10-31 | T17 | DONE | `eatouts-blog.html`, `js/eatouts-blog.js`, `tests/blog.js` (tag-strip test → absence check), `HTML_PAGES.md`, `HTML_ASSESSMENT.md`, `PAGE_INVENTORY.md`, `scripts/html_catalog.meta.json`, `HTML_CATALOG.md` | `tests/blog.js` 23/23 PASSED; `npm run catalog` ✔ · `npm run inventory` ✔ · full `npm test` ✔; grep for `hdr-chip`/`hdr-back`/`tl-card-*`/`post-tags`/`copyLink`/`blk-heading`/`tag-strip` = 0 | (this commit) |
+| 2026-10-31 | T23 | DONE | `index.html` `.cal` background `rgba(0,0,0,.03)` | ad-hoc jsdom probe (25 checks, phase 6 batch) — `.cal` computes `rgba(0, 0, 0, 0.03)`; promo-focus hide rule intact; full `npm test` 58/58 | (this commit) |
+| 2026-10-31 | T24 | DONE | `index.html` `#shell .screen[data-page="reserve-cats"] .cat-name{font-size:20px}` | probe — reserve-cats 20px, reserve-groups 30px; full `npm test` 58/58 | (this commit) |
+| 2026-10-31 | T25 | DONE | `index.html` `.bev-toggle-btn` `opacity:.4`, `:first-of-type`/`:last-of-type` justify overrides deleted | probe — four buttons, first/last `justify-content:center`, inactive `0.4`, active `1`; full `npm test` 58/58 | (this commit) |
+| 2026-10-31 | T26 | DONE | `index.html` search button → `<img class="cbtn-ico-img" src="assets/icons/search_icon.webp">` + `.cbtn.ic .cbtn-ico-img` rule, `assets/icons/search_icon.webp` (new) | probe — img 18×18, `openSearch`/`closeSearch` still work; full `npm test` 58/58 | (this commit) |
+| 2026-10-31 | T27 | DONE | `index.html` four chip rows removed; `featChipRow` now emits plain `.ctr` rows (content kept) | probe — 0 hits for the flex/gap signature, no `.chip` in featured card or promo detail; `tests/smoke.js` PASSED; full `npm test` 58/58 | (this commit) |
+| 2026-10-31 | T28 | DONE | `index.html` `.gal-cell` no `aspect-ratio`, `max-height:40vh`, `img height:auto`, `.gal-grid{align-items:start}` | probe — cell/img capped at 40vh, img height auto, grid `repeat(3,1fr)`; `tests/customer.js` infinite scroll PASSED; full `npm test` 58/58 | (this commit) |
 
 ### Per-task completion template
 

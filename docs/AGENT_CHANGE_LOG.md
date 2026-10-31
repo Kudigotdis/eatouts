@@ -950,3 +950,16 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: `node tests/blog.js` 23/23 PASSED; `npm run catalog`; `npm run inventory`; full `npm test`.
 - NOT verified: no visual/browser pass - the new bottom search bar should be eyeballed at 360px against the bottom nav safe area.
 
+
+### [2026-10-31 10:05:00] - [Agent: Big Pickle] - [T23-T28: Phase 6 UI polish] - [COMMITTED]
+- Task: the six Phase 6 quick wins from `PLATFORM UPDATE TASKS.md`.
+- Files changed: index.html (only), assets/icons/search_icon.webp (new), PLATFORM UPDATE TASKS.md, FEATURES.md, HTML_ASSESSMENT.md, scripts/html_catalog.meta.json, HTML_CATALOG.md.
+- T23: `.cal` background `#ffffff` -> `rgba(0,0,0,.03)`.
+- T24: new `#shell .screen[data-page="reserve-cats"] .cat-name{font-size:20px}` after the `.evcat` 30px rule.
+- T25: `.bev-toggle-btn` base `opacity:.15` -> `.4`; deleted the `:first-of-type`/`:last-of-type` justify overrides so the four tabs are evenly spaced.
+- T26: the gallery search button now renders `<img class="cbtn-ico-img" src="assets/icons/search_icon.webp" alt="Search">`; new `.cbtn.ic .cbtn-ico-img{18x18, contain}` rule; icon is a warm-grey glyph (avg rgb 178,169,152) on the black button, visible without a filter.
+- T27: removed the four inline chip-row divs (restaurant promo detail, promos-feed detail, event lineup detail). **Deviation:** `featChipRow` now returns plain `.ctr`/`.lbl` rows instead of `""`, because blanking it dropped the featured-event ticketing/sponsor/hashtag content and broke 5 `tests/smoke.js` assertions. Chip rows are gone; the information is not.
+- T28: `.gal-cell` loses `aspect-ratio:1`, gains `max-height:40vh` + `overflow:hidden`; `.gal-cell>img` is `width:100%;height:auto;max-height:40vh;object-fit:cover`; `.gal-grid` gains `align-items:start` so short images do not stretch their cell. Infinite scroll untouched.
+- Verified: ad-hoc jsdom probe 25/25 (temp, not committed); `npm test` 58 passed / 0 failed; `npm run catalog` (69 pages, 1095 lines); `npm run inventory` PASSED (86 warnings); `node tests/smoke.js` PASSED; `node tests/customer.js` PASSED.
+- NOT verified: no device/browser pass. T23's 3% band and T28's natural-height grid should be eyeballed at 360/390px; the 40vh cap may leave ragged row bottoms by design.
+

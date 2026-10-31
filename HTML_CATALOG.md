@@ -25,13 +25,13 @@ and `HTML_PAGES.md` the longer capability narrative.
 
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
-| Public & customer surfaces | 14 | 881 KB | 17553 |
+| Public & customer surfaces | 14 | 881 KB | 17537 |
 | Restaurant operator back-office | 9 | 605 KB | 8117 |
 | Manager / auth / platform admin (staged package) | 38 | 1263 KB | 25561 |
 | Delivery flows | 3 | 130 KB | 2237 |
 | Internal ops & billing | 3 | 154 KB | 2759 |
 | Developer harness | 2 | 226 KB | 4652 |
-| **Total** | **69** | **3257 KB** | **60879** |
+| **Total** | **69** | **3256 KB** | **60863** |
 
 Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
@@ -43,7 +43,7 @@ Status: 64 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
 | # | File | Group | Purpose | How you reach it | Auth | Store keys | Size |
 |---|------|-------|---------|------------------|------|-----------|------|
-| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 506 KB / 10033 lines |
+| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 506 KB / 10017 lines |
 | 2 | `get-started.html` | public-customer | Marketing landing that explains the operator offer and links into the intake and pricing flows. | Direct / marketing links. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 186 lines |
 | 3 | `pricing.html` | public-customer | Public pricing page; reads and can persist the shared plan prices. | Marketing links; get-started.html. | - | `EatoutsDB`→`eatouts_db_v2` | 13 KB / 246 lines |
 | 4 | `one-pager.html` | public-customer | Static sales one-pager for prospects. | Direct link. | - | — | 17 KB / 653 lines |
@@ -152,7 +152,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 6
-- **Size:** 506 KB / 10033 lines (518553 bytes)
+- **Size:** 506 KB / 10017 lines (517787 bytes)
 - **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `assets/data/CateringServicesDatabase.js?v=20261021`, `assets/data/bakery_services_database.js?v=20261021`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-catering.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-age.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-content.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`, `js/eatouts-analytics.js`
 - **Notes:** Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only. On venue open the app hydrates that venue's canonical D1 content via window.EatoutsContent (js/eatouts-content.js), merging profile/menu/gallery/promos/events into the local store before re-rendering; an unreachable backend leaves the imported-directory path untouched.
 
@@ -1044,6 +1044,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 
 ## 5. Change log
 
+- **2026-10-31** — Phase 6 UI polish: the Promos week calendar sits on a 3% grey band; Plan Event category names read at 20px; the Restaurants/Beverages toggle is evenly spaced with 40% inactive tabs; the gallery search button uses assets/icons/search_icon.webp; promo and event detail pages drop their tag/chip rows (ticketing, sponsor and hashtag lists stay as plain rows); gallery thumbnails keep their natural height (capped at 40vh) in the 3-across grid.
 - **2026-10-31** — T17 blog cleanup: removed the header chip/back/page labels, every ::before pseudo-content, the tag strip and tag pills, card tags/foot, post tags, the copy-link button and block headings. The search box now sits above the bottom nav instead of sticky at the top of the timeline. tests/blog.js asserts the tag strip is gone.
 - **2026-10-22** — One sign-in surface, a working password reset and the age policy. eatouts-login.html is now the only way in: WhatsApp number + username + password, all three, with a "Forgot password?" flow that mails a reset link (functions/api/_mail.js sends through Resend, or Brevo when that key is set; from EatOuts <info@eatouts.site>). The reset link lands back on eatouts-login.html?reset_token=..., the token lives 30 minutes and works once, and every other session for that account is signed out (migrations/0011_password_reset.sql). Every sign-in prompt in the app now points at that page with ?next= so people land back where they were; the About tab operator form was hardened to the same three credentials. Age policy: 10+ to hold an account, 18+ for the promos that sell alcohol - js/eatouts-age.js and functions/api/_promo-rules.js hold the same word list (tests/age-gate.js asserts they match), the venue bundle drops flagged promos for anyone under 18, the promos timeline shows a locked "18+ only" card, and the operator can flag any promo themselves (migrations/0012_promo_age_restriction.sql). eatouts_user_onboarding.html was retired (the caterer setup form now lives in caterer-onboarding.html) and the customer account page is eatouts-customer-signup.html. New suites: tests/login.js, tests/password-reset.js, tests/age-gate.js.
 - **2026-10-21** — About tab guest card alert now offers three CTAs on a single row - Sign In (primary, eatouts-login.html), Sign Up (eatouts-customer-signup.html) and Later (dismiss); "Not Now" is gone and the row is styled to never wrap. The customer account page moved to eatouts-customer-signup.html (the old hyphenated path 301s there) so eatouts_user_onboarding.html could hold the caterer setup form; every customer sign-up entry point (login page, About guest popup, index.html guest feature popup, the unverified-user route in functions/api/auth/login.js) now points at the new page.
