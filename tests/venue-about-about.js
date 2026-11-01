@@ -99,6 +99,9 @@ function factValues(doc) {
   check('OB: About sits ABOVE Settings in DOM order', after(btn, acc));
   check('OB: About button starts collapsed', btn.getAttribute('aria-expanded') === 'false' && !q('#logoOverlay.about-open'));
   check('OB: button is wired to the panel', btn.getAttribute('aria-controls') === 'aboutPanel' && !!q('#aboutPanel'));
+  check('OB: button label is just "About"', text(btn).trim() === 'About', text(btn));
+  check('OB: button has no caret and no sub-label',
+    !q('#aboutBtn .about-caret') && !q('#aboutBtn small'));
 
   click(q('#logoBtn'));
   check('OB: tapping the logo opens the overlay', !!q('#logoOverlay.open'));
@@ -116,16 +119,20 @@ function factValues(doc) {
   check('OB: curated paragraphs render',
     doc.querySelectorAll('#aboutPanelBody .about-p').length >= 4,
     doc.querySelectorAll('#aboutPanelBody .about-p').length);
-  check('OB: location fact comes from the curated entry',
-    factValues(doc).some(v => /Airport Junction/.test(v)), factValues(doc).join(' | '));
-  check('OB: address fact renders', factValues(doc).some(v => /Shop 45A/.test(v)), factValues(doc).join(' | '));
-  check('OB: phone fact renders', factValues(doc).some(v => /\+267 390 9933/.test(v)), factValues(doc).join(' | '));
-  check('OB: opening hours render as day/time rows',
+  check('OB: opening hours still render as day/time rows',
     factLabels(doc).indexOf('Mon – Thu') > -1 && factValues(doc).some(v => /11:00 – 21:00/.test(v)),
     factLabels(doc).join(' | '));
-  check('OB: highlights render as chips',
-    doc.querySelectorAll('#aboutPanelBody .about-chip').length >= 5,
+  check('OB: no Location / Address / Phone / Email rows',
+    ['Location', 'Address', 'Phone', 'Email'].every(l => factLabels(doc).indexOf(l) === -1),
+    factLabels(doc).join(' | '));
+  check('OB: the curated address and phone are gone from the card',
+    !factValues(doc).some(v => /Shop 45A|\+267 390 9933/.test(v)), factValues(doc).join(' | '));
+  check('OB: highlight chips are gone',
+    doc.querySelectorAll('#aboutPanelBody .about-chip').length === 0,
     doc.querySelectorAll('#aboutPanelBody .about-chip').length);
+  check('OB: "Updated" footer is gone',
+    doc.querySelectorAll('#aboutPanelBody .about-foot').length === 0,
+    doc.querySelectorAll('#aboutPanelBody .about-foot').length);
   check('OB: nothing renders as "undefined"', !/undefined|null/.test(text(body)));
 
   click(btn);
@@ -167,10 +174,9 @@ function factValues(doc) {
   check('BK: title renders', /Bukhara/.test(text(q('#aboutPanelBody .about-title'))), text(q('#aboutPanelBody .about-title')));
   check('BK: cuisine eyebrow renders',
     /Grills/.test(text(q('#aboutPanelBody .about-eyebrow'))), text(q('#aboutPanelBody .about-eyebrow')));
-  check('BK: address renders', factValues(doc).some(v => /Shop No\. 44/.test(v)), factValues(doc).join(' | '));
-  check('BK: both published numbers render in one row',
-    factValues(doc).some(v => /\+267 396 0630/.test(v) && /\+267 74 340 800/.test(v)), factValues(doc).join(' | '));
-  check('BK: email renders', factValues(doc).some(v => /info@bukharacafe\.com/.test(v)), factValues(doc).join(' | '));
+  check('BK: address / phone / email rows are gone',
+    !factValues(doc).some(v => /Shop No\. 44|\+267 396 0630|\+267 74 340 800|info@bukharacafe\.com/.test(v)),
+    factValues(doc).join(' | '));
   check('BK: weekend hours render', factValues(doc).some(v => /07:00 – 22:30/.test(v)), factLabels(doc).join(' | '));
   const link = q('#aboutPanelBody .about-v a');
   check('BK: website renders as an external link',
@@ -197,8 +203,8 @@ function checkZorz(slug, label) {
   check(label + ': curated about copy renders',
     doc.querySelectorAll('#aboutPanelBody .about-p').length >= 3,
     doc.querySelectorAll('#aboutPanelBody .about-p').length);
-  check(label + ': phone renders', factValues(doc).some(v => /\+267 77 853 309/.test(v)), factValues(doc).join(' | '));
-  check(label + ': email renders', factValues(doc).some(v => /info@zorz\.co\.bw/.test(v)), factValues(doc).join(' | '));
+  check(label + ': phone and email rows are gone',
+    !factValues(doc).some(v => /\+267 77 853 309|info@zorz\.co\.bw/.test(v)), factValues(doc).join(' | '));
   check(label + ': no hours row is invented',
     !factLabels(doc).some(l => /mon|tue|wed|thu|fri|sat|sun|hours/i.test(l)), factLabels(doc).join(' | '));
   check(label + ': no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '));

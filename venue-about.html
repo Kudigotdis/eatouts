@@ -541,9 +541,6 @@
     transition:background .15s ease;
   }
   .about-btn:hover{background:rgba(255,255,255,.14)}
-  .about-btn small{color:rgba(255,255,255,.55);font-weight:500;font-size:12px;margin-left:10px}
-  .about-btn .about-caret{transition:transform .25s ease;font-size:12px;color:rgba(255,255,255,.65)}
-  .logo-overlay.about-open .about-btn .about-caret{transform:rotate(180deg)}
 
   /* Logo rides up (still visible) and the white card drops in below it. */
   .logo-overlay.about-open{
@@ -585,12 +582,6 @@
   }
   .about-v{flex:1;min-width:0;color:var(--ink);font-weight:600;word-break:break-word}
   .about-v a{color:var(--ink);text-decoration:underline}
-  .about-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-  .about-chip{
-    background:#f6f2ea;border:1px solid #e8e1d4;border-radius:999px;
-    padding:6px 11px;font-size:12px;font-weight:600;color:#5a5348;
-  }
-  .about-foot{margin:14px 0 0;font-size:11px;color:#a89a7e;font-weight:600}
 
   /* ── FLOATING POPUP ── */
   .popup-scrim{
@@ -921,10 +912,7 @@
 <div class="logo-overlay" id="logoOverlay" role="dialog" aria-modal="true" aria-label="Logo settings">
   <button class="logo-overlay-close" id="logoOverlayClose" aria-label="Close">&times;</button>
   <img class="logo-large" id="logoLarge" alt="Enlarged logo">
-  <button class="about-btn" id="aboutBtn" type="button" aria-expanded="false" aria-controls="aboutPanel">
-    <span class="about-btn-main">About <small>Business info</small></span>
-    <span class="about-caret" aria-hidden="true">&#9662;</span>
-  </button>
+  <button class="about-btn" id="aboutBtn" type="button" aria-expanded="false" aria-controls="aboutPanel">About</button>
   <div class="about-panel" id="aboutPanel" role="region" aria-label="About this business">
     <div class="about-inner"><div class="about-scroll" id="aboutPanelBody"></div></div>
   </div>
@@ -1858,26 +1846,13 @@
   }
 
   function aboutFacts(e) {
-    var rec = biz.record || {}, br = biz.branch || {};
+    var rec = biz.record || {};
     var rows = [];
     function add(label, value, href) {
       var v = String(value || '').trim();
       if (v) rows.push({ label: label, value: v, href: href || '' });
     }
-    var loc = [e.area || rec.area || br.area, e.town || rec.town || br.town].filter(Boolean).join(' \u00b7 ');
-    add('Location', loc);
-    add('Address', e.address || rec.address || br.address || (rec.addresses && rec.addresses[0]));
     (e.hours || []).forEach(function (h) { if (h && h.day) add(h.day, h.time); });
-    var phones = [];
-    if (e.phone) phones.push(e.phone);
-    if (e.phone2) phones.push(e.phone2);
-    if (!phones.length) {
-      (rec.contacts || []).forEach(function (c) {
-        if (c && c.value && /phone|call|tel/i.test(c.label || '')) phones.push(String(c.value));
-      });
-      (br.phones || []).forEach(function (p) { if (p) phones.push(String(p)); });
-    }
-    add('Phone', phones.join(' \u00b7 '));
     var wa = e.whatsapp || '';
     if (!wa) {
       (rec.contacts || []).forEach(function (c) {
@@ -1885,7 +1860,6 @@
       });
     }
     add('WhatsApp', wa);
-    add('Email', e.email || (br.emails && br.emails[0]) || rec.email);
     var url = String(e.website || rec.website || '');
     add('Website', url.replace(/^https?:\/\//i, '').replace(/\/$/, ''), /^https?:\/\//i.test(url) ? url : '');
     add('Price range', e.priceRange);
@@ -1913,13 +1887,6 @@
       });
       html += '</div>';
     }
-    var chips = e.highlights || [];
-    if (chips.length) {
-      html += '<div class="about-chips">' + chips.map(function (c) {
-        return '<span class="about-chip">' + aboutEsc(c) + '</span>';
-      }).join('') + '</div>';
-    }
-    if (e.updated) html += '<p class="about-foot">Updated ' + aboutEsc(e.updated) + '</p>';
     aboutScroll.innerHTML = html;
     aboutScroll.setAttribute('data-rendered', '1');
   }
