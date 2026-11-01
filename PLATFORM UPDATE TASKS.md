@@ -148,7 +148,7 @@ bottom nav where the page is part of the app shell.
 |---|---|---|---|---|
 | 0.1 | G1 | Kill visible scrollbars (all pages) — ✅ **DONE 2026-10-29** | M | all root `*.html`, `index.html`, `assets/eatouts-manager.css` |
 | 0.2 | G2 | Remove accordion indicators — ✅ **DONE 2026-10-30** | S | `eatout_event_builder.html`, `intake.html`, `eatouts-suppliers.html`, `get-started.html` |
-| 0.3 | G3 | Floating-popup standard (plain `X`, no beige circle) — ✅ **DONE 2026-10-30** | M | 17 pages + `tests/builder-suppliers.js` |
+| 0.3 | G3 | Floating-popup standard (plain `X`, no beige circle) — ✅ **DONE 2026-10-30**; residual bottom sheets cleared 2026-11-01 (B1) | M | 17 pages + `tests/builder-suppliers.js` + 5 onboarding pages |
 | 0.4 | G4 | 90px thumbnail standard — ✅ **DONE 2026-10-30** | M | 19 pages |
 | 0.5 | G5 | Doc/ledger baseline + verification pipeline green — ✅ **DONE 2026-10-30** | S | docs + `scripts/` |
 
@@ -168,7 +168,7 @@ bottom nav where the page is part of the app shell.
 | 7 | T11 | 11 | `reserve-events/providers/groups` phead + 90px `rthumb` — ✅ **DONE 2026-10-30** | S/M |
 | 8 | T17 | 17 | Blog cleanup (10 removals + move search box) — ✅ **DONE 2026-10-31** | M |
 | 9 | T15 | 15 | 7 onboarding pages → standard header (drop `draft-pill`) — ✅ **DONE 2026-10-31** | M |
-| 10 | T16 | 16 | `about-main` WhatsApp Channel per region | M |
+| 10 | T16 | 16 | `about-main` WhatsApp Channel per region — ✅ **DONE 2026-11-01** (D7 closed: no channel exists yet) | M |
 
 ### Phase 3 — Interaction
 | # | ID | User task | Task | Size |
@@ -376,20 +376,22 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] `tests/appshell.js` merchant assertions still pass (`class="hdr-chip"`, own `.tabs`, logo anchor); full `npm test` 58/58.
 - [ ] Device pass — **needs a device/browser look** at the new white header over the dark `.intro` and the dark merchant `.tabs` strip on the five onboarding pages.
 
-#### T16 — About → WhatsApp Channel (user task 16) · M — ⚠️ **WIRED 2026-11-01** (Botswana URL still needed — see D7)
+#### T16 — About → WhatsApp Channel (user task 16) · M — ✅ **DONE 2026-11-01** (D7 closed: no channel exists yet)
 **Files:** `index.html` (`EATOUTS_WHATSAPP_CHANNEL_URL=''` at `:8521`, setrow at `:8597`, `renderAbout` `:8563`).
 **Current:** the URL constant is empty, so the row is a dead link.
 **Steps**
 1. Replace the single constant with a region map:
    `const WHATSAPP_CHANNELS={BW:'https://whatsapp.com/channel/<id>', ZA:'', ZW:'', MW:'', KE:''}` keyed off the active region (see T22).
 2. Row opens the channel for the active region in a new tab; if the region has no channel yet, show the standard floating "coming soon" popup.
-3. Needs the Botswana channel URL/number from you (D7).
+3. ~~Needs the Botswana channel URL/number from you (D7).~~ **D7 resolved
+   2026-11-01: no channel exists yet**, so the coming-soon popup is the correct
+   shipped behaviour rather than a placeholder. Nothing to add until it exists.
 **Done when** tapping the row opens the correct channel for Botswana; unknown region shows the popup.
 - [x] **Region map:** the single `EATOUTS_WHATSAPP_CHANNEL_URL` constant is gone; `index.html` now holds `const WHATSAPP_CHANNELS={BW:'',ZA:'',ZW:'',MW:'',KE:''}`, `const ACTIVE_REGION='BW'` and `whatsappChannelUrl()` (= `WHATSAPP_CHANNELS[ACTIVE_REGION]||''`).
 - [x] **Row:** renders `<a class="setrow" href="…" target="_blank" rel="noopener noreferrer">WhatsApp Channel</a>` when the active region has a channel, and otherwise a `<button class="setrow" data-act="showRestNotice" data-notice="The EatOuts WhatsApp Channel is coming soon.">` that raises the standard floating `.rest-notice` popup. No dead link ships.
 - [x] `tests/about.js` — 8 new checks: row present, never an empty href, the five regions in order, `ACTIVE_REGION==='BW'`, empty URL while unset, the coming-soon notice text on tap, a configured BW URL turning the row into a `_blank` / `noopener noreferrer` link, and the shipped state staying unset. `node tests/about.js` → ABOUT TEST PASSED.
-- [ ] 🔴 **D7 — the Botswana channel URL is still missing.** Drop it into `WHATSAPP_CHANNELS.BW` and the row goes live with no other change; nothing else needs editing.
-- [ ] `ACTIVE_REGION` becomes dynamic in T22 (the region picker); the other four regions stay on the coming-soon popup until they get channels.
+- [x] **D7 closed 2026-11-01** — no channel exists yet, so the coming-soon popup is the correct shipped state, not a placeholder bug. When the channel is created, drop the URL into `WHATSAPP_CHANNELS.BW` and the row becomes the outbound link with no other edit (`tests/about.js` already asserts both branches).
+- [ ] → **handed to T22:** `ACTIVE_REGION` is hard-coded `'BW'`; the region picker makes it dynamic. Tracked there, not here.
 
 ---
 
@@ -834,19 +836,39 @@ no `.fpop-close` in the repo; thumbnails 90px (or the specified 150px).
 
 **Audit helpers (read-only, PowerShell):**
 
+> **Corrected 2026-11-01 (B2).** The original helper only looked for the rule
+> **inline in the page**, so it reported the 9 admin manager pages as failures
+> even though they hide the bar through `assets/eatouts-manager.css:34-35`.
+> A gate that can never be green is worse than no gate — the helper now resolves
+> linked `assets/*.css` too. Likewise the old `align-items:flex-end` scan caught
+> badge/checkbox flex columns; it is now scoped to popup selectors.
+
 ```powershell
-# pages missing scrollbar hiding
-Get-ChildItem -Filter *.html -File |
-  Where-Object { -not ((Get-Content -Raw $_ ) -match 'scrollbar-width:\s*none') } |
-  Select-Object -ExpandProperty Name
+# 1. pages where neither the page NOR its linked CSS hides the scrollbar
+Get-ChildItem -Filter *.html -File | Where-Object {
+  $h    = Get-Content -Raw $_
+  $css  = @([regex]::Matches($h,'href="(assets/[^"]+\.css)"') | ForEach-Object { $_.Groups[1].Value })
+  $hides = ($h -match 'scrollbar-width:\s*none') -or
+           (@($css | Where-Object { (Get-Content -Raw $_) -match 'scrollbar-width:\s*none' }).Count -gt 0)
+  -not $hides
+} | Select-Object -ExpandProperty Name          # must print nothing
 
-# bottom-attached sheets
+# 2. bottom-attached popups (scrim/panel anchored to the bottom edge)
 Get-ChildItem -Filter *.html -File |
-  Select-String -Pattern 'align-items:\s*flex-end' |
-  Select-Object Filename, LineNumber
+  Select-String -Pattern '(modal-backdrop|fpop)[^}]*align-items:\s*flex-end' |
+  Select-Object Filename, LineNumber            # must print nothing
 
-# leftover close buttons / indicators
+# 3. leftover close buttons / indicators
 Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="chev"|cat-chev|▾|▸'
+                                                # must print nothing
+
+# 4. ADVISORY ONLY — squared top corners = possible bottom sheet.
+#    Expected to be noisy: toasts, `.action-bar` and page `.sheet` backgrounds
+#    also match. Triage only `.modal` / `.fpop` / `*-panel` hits. Baseline after
+#    B1: ~30 hits, of which the live ones are `customer-delivery.html .drp-search`
+#    (T05) and `eatout_event_builder.html .menu-page-panel` (T12).
+Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]{1,24}\s0\s0[;}]' |
+  Select-Object Filename, LineNumber
 ```
 
 ---
@@ -935,6 +957,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 - **D4 — orders page:** create a **new `Orders-List.html`**, reusing the existing summaries store in `js/eatouts-customer.js`.
 - **D5 — orders group detail:** closed 2026-11-01 by the T06 build. An Order Group is the venue section on `Orders-List.html` that lists its summaries, and tapping a summary opens `eatouts-checkout-summary.html?id=<summary id>`. No separate group screen was added.
 - **D9 — T15 headers:** closed by execution 2026-10-31 — all 7 onboarding pages were converted to the light standard header (see T15).
+- **D7 — Botswana WhatsApp Channel:** closed 2026-11-01 — **no channel exists yet.** The coming-soon popup is the intended shipped state; `WHATSAPP_CHANNELS.BW` stays empty until the channel is created, then a one-line edit turns the row into a live link.
 
 **Still open**
 
@@ -942,7 +965,6 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 |---|---|---|---|
 | **D3** | G4 | "All thumbnails 90px" — does that include **menu item thumbs** (currently 54px) and gallery grid cells? | Yes for list/card thumbs; galleries keep their layout sizes. *(Applied 2026-10-30: list/card thumbs → 90px, `sup-profile-avatar`/`prompt-thumb` → 150px, carousels/mosaics untouched.)* |
 | **D6** | T18 | The brief says only "activate" under `eatouts-suppliers` — activate what? | The page's save/publish flow (currently gated). |
-| **D7** | T16 | Need the **Botswana WhatsApp Channel URL/number**. | Placeholder until provided. |
 | **D8** | T21 | Prices missing for 8 offers (see §6 "confirm"). One conflict: §6 says keep **P550** for Full Packaging Design but the seed has **P1800**; §6 also has no home for Menu refresh (P400) and Event programme (P350). | Keep current prices, set Packaging to **P550**, drop Menu refresh + Event programme. |
 | **D10** | T09 | `venue-about.html` is a standalone page and `state.cart` lives in `index.html` memory only, so "Add to Order" has no cart to write to. **A** persist the cart (`eatouts_cart_v1`, mirrored on every mutation, hydrated on boot) · **B** hash hand-off (`index.html#restaurants&addPromo=<id>`) · **C** append to the `eatouts_order_v1` hand-off draft. | **A** — it also makes the cart survive a reload. |
 
@@ -981,6 +1003,10 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 | 2026-10-31 | T04 | DONE | `index.html` — `.osum-card` Order Summary Card (90px logo, live "N items for P#"), single `Order Summary` crumb, `.co-steprow`, 3% grey `.pad`/`.scroll`, live `[data-cototal]` patched by `syncCart()`, `.co-dl` delivery line, `saveSummary` / `deleteSummary`, `openSplit` + Save gated on `aboutUser()` via `summarySignup()`, **new screen** `venue-checkout-review` (`renderCheckoutReview()`, banner + `PAGE_TITLES` + `pageRef`), `.co-wa-row` with **WhatsApp Review**, `waOrder` → floating recipient popup (`waSendVenue` / `waSendContact`); `tests/checkout-delivery.js` (+5 checks); `PAGE_INVENTORY.md`, `FEATURES.md` | full `npm test` 58/58 (`checkout-delivery` 5 new checks PASSED); `npm run inventory` PASSED (19 checks, 31 screens); `npm run catalog` ✔ | (this commit) |
 
 | 2026-10-31 | T08 | DONE (SPA half) | `index.html` — Back History: `eatouts.history.v1` in `sessionStorage` (newest first, deduped by screen key, capped at 5), `recordHistory()` called from `render()`, whitelisted state snapshot per entry, centred `.hist-wrap`/`.hist-pop` dialog (scrim, no `.fpop-close`, empty state), logo tap now `openBackHistory()` instead of the old home reset, `data-act="gotoHistory"` restores the SPA screen | probe 25/25 (boot entry, tab + venue-view recording, labels, relative time, open/restore/scrim-close, 5-entry cap, dedupe, empty state, no window errors); full `npm test` 58/58; `npm run inventory` PASSED (79 warnings); `npm run catalog` 69 pages/1,098 lines | (this commit) |
+
+| 2026-11-01 | T16 | DONE (closed by D7) | `PLATFORM UPDATE TASKS.md` only — code shipped in `6fb0e52` | D7 resolved: **no WhatsApp channel exists yet**, so the coming-soon popup is the intended shipped state. `tests/about.js` already asserts both branches | (this commit) |
+| 2026-11-01 | B1 | DONE | `bakery-`, `bottle-store-`, `mobile-kitchen-`, `restaurant-`, `supplier-onboarding.html` — `.modal-backdrop` `align-items:flex-end` → `center` + `padding:20px`, `.modal` `max-width:420px`, `max-height:80dvh`, `border-radius:9px` (no more `9px 9px 0 0`), desktop `90dvh` override aligned to `80dvh` | audit 2 (`(modal-backdrop\|fpop)…flex-end`) prints nothing; full `npm test` **60 passed, 0 failed** | (this commit) |
+| 2026-11-01 | B2 | DONE | `PLATFORM UPDATE TASKS.md` §5 — audit 1 now resolves linked `assets/*.css` (was reporting 9 false positives on the manager pages, which hide the bar via `eatouts-manager.css:34-35`); audit 2 scoped to popup selectors; audit 4 added as advisory | audit 1 prints nothing (verified); audits 2 + 3 print nothing; audit 4 → ~30 advisory hits, live ones owned by T05/T12 | (this commit) |
 
 ### Per-task completion template
 

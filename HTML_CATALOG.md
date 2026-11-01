@@ -25,13 +25,13 @@ and `HTML_PAGES.md` the longer capability narrative.
 
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
-| Public & customer surfaces | 15 | 910 KB | 18089 |
+| Public & customer surfaces | 15 | 910 KB | 18098 |
 | Restaurant operator back-office | 9 | 609 KB | 8114 |
 | Manager / auth / platform admin (staged package) | 38 | 1275 KB | 25325 |
 | Delivery flows | 3 | 130 KB | 2230 |
 | Internal ops & billing | 3 | 156 KB | 2777 |
 | Developer harness | 2 | 226 KB | 4652 |
-| **Total** | **70** | **3304 KB** | **61187** |
+| **Total** | **70** | **3304 KB** | **61196** |
 
 Status: 65 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
@@ -43,7 +43,7 @@ Status: 65 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
 | # | File | Group | Purpose | How you reach it | Auth | Store keys | Size |
 |---|------|-------|---------|------------------|------|-----------|------|
-| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 521 KB / 10338 lines |
+| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 521 KB / 10347 lines |
 | 2 | `get-started.html` | public-customer | Marketing landing that explains the operator offer and links into the intake and pricing flows. | Direct / marketing links. | - | `EatoutsDB`→`eatouts_db_v2` | 14 KB / 190 lines |
 | 3 | `pricing.html` | public-customer | Public pricing page; reads and can persist the shared plan prices. | Marketing links; get-started.html. | - | `EatoutsDB`→`eatouts_db_v2` | 14 KB / 249 lines |
 | 4 | `one-pager.html` | public-customer | Static sales one-pager for prospects. | Direct link. | - | — | 18 KB / 638 lines |
@@ -153,7 +153,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 8
-- **Size:** 521 KB / 10338 lines (533229 bytes)
+- **Size:** 521 KB / 10347 lines (533899 bytes)
 - **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `assets/data/CateringServicesDatabase.js?v=20261021`, `assets/data/bakery_services_database.js?v=20261021`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-catering.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-age.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-content.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`, `js/eatouts-analytics.js`, `js/eatouts-orders-badge.js`
 - **Notes:** Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only. On venue open the app hydrates that venue's canonical D1 content via window.EatoutsContent (js/eatouts-content.js), merging profile/menu/gallery/promos/events into the local store before re-rendering; an unreachable backend leaves the imported-directory path untouched.
 
@@ -350,7 +350,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** gated · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 125 KB / 578 lines (127649 bytes)
+- **Size:** 125 KB / 578 lines (127634 bytes)
 - **Loads:** `js/eatouts-image-compressor.js`, `js/eatouts-video-validator.js`, `js/eatouts-upload.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`, `js/eatouts-back-history.js`
 - **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory). Logo/cover uploads POST to /api/upload (Supabase) with a data-URL fallback.
 
@@ -428,7 +428,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 127 KB / 1706 lines (129914 bytes)
+- **Size:** 127 KB / 1706 lines (129899 bytes)
 - **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`, `js/eatouts-back-history.js`
 - **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory).
 
@@ -441,7 +441,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 113 KB / 1189 lines (115996 bytes)
+- **Size:** 113 KB / 1189 lines (115981 bytes)
 - **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`, `js/eatouts-back-history.js`
 - **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory).
 
@@ -508,7 +508,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 117 KB / 1633 lines (120185 bytes)
+- **Size:** 117 KB / 1633 lines (120170 bytes)
 - **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`, `js/eatouts-back-history.js`
 - **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory).
 
@@ -547,7 +547,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 130 KB / 1238 lines (132830 bytes)
+- **Size:** 130 KB / 1238 lines (132815 bytes)
 - **Loads:** `botswana_locations.js`, `js/eatouts-locations.js`, `assets/data/botswana_shopping_malls_and_shopping_centres.js`, `assets/data/event_types.js`, `js/eatouts-db.js`, `js/eatouts-business-api.js`, `js/eatouts-pricing-source.js`, `js/eatouts-onboarding-bridge.js`, `js/eatouts-back-history.js`
 - **Notes:** Uses the shared js/eatouts-onboarding-bridge.js (live town/area + place lookup, Hosting Services, publish to the D1 profile and the customer directory). Supersedes the older 2 474-line supplier page.
 
