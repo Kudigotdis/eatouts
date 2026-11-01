@@ -2,16 +2,20 @@
 /**
  * Venue About — "About" button + white info card inside the logo overlay.
  *
- * The overlay (#logoOverlay) now stacks three things: the enlarged logo, an
- * #aboutBtn and the <details id="settingsAcc"> accordion. Tapping About pushes
- * the logo up (logo-overlay.about-open) and reveals #aboutPanel — a white card
- * whose content comes from assets/data/venue_about_info.js and falls back to
- * the directory/branch record for venues without curated copy.
+ * The overlay (#logoOverlay) stacks the enlarged logo, #aboutBtn and the
+ * <details id="settingsAcc"> accordion. Tapping About pushes the logo up
+ * (logo-overlay.about-open) and reveals #aboutPanel — a white card whose copy
+ * comes from assets/data/venue_about_info.js, falling back to the
+ * directory/branch record for venues without curated text.
+ *
+ * The card is copy-only by design: .about-eyebrow, .about-title and .about-p.
+ * Contact facts (numbers, website, socials) live in the social row, and hours
+ * stay in the Operating Hours accordion, so nothing is duplicated in the card.
  *
  * Covered here:
  *   - button sits above Settings in DOM order and toggles aria-expanded
- *   - the panel really is white, and carries the curated copy
- *   - Ocean Basket / Bukhara / Zorz render their published facts
+ *   - the panel really is white and carries only copy blocks
+ *   - curated phone / website / socials drive the social-row icons
  *   - Zorz resolves through the overlay entry (?link=zors AND ?link=zorz)
  *   - a venue with no curated entry (KFC) still renders a sane card
  *   - every venue kind (bakery, bottle store, catering) renders without error
@@ -77,14 +81,13 @@ function openAbout(doc) {
   return doc.getElementById('aboutPanelBody');
 }
 
-function factLabels(doc) {
-  return Array.prototype.slice.call(doc.querySelectorAll('#aboutPanelBody .about-k'))
-    .map(el => text(el).trim());
+/* Classes of the white card's direct children, in document order. */
+function cardClasses(doc) {
+  const body = doc.getElementById('aboutPanelBody');
+  return Array.prototype.slice.call(body.children).map(el => el.className);
 }
-function factValues(doc) {
-  return Array.prototype.slice.call(doc.querySelectorAll('#aboutPanelBody .about-v'))
-    .map(el => text(el).trim());
-}
+/* The only blocks the card is allowed to hold. */
+function copyOnly(cls) { return /^about-(eyebrow|title|p)$/.test(cls); }
 
 /* ---------- Ocean Basket: placement, toggle, curated copy ---------- */
 (function () {
@@ -115,28 +118,29 @@ function factValues(doc) {
   check('OB: panel is inside the logo overlay', !!(q('#logoOverlay') && q('#logoOverlay').contains(q('#aboutPanel'))));
 
   check('OB: title renders', /Ocean Basket/.test(text(q('#aboutPanelBody .about-title'))), text(q('#aboutPanelBody .about-title')));
-  check('OB: curated tagline renders', /ocean to pan/i.test(text(q('#aboutPanelBody .about-tagline'))), text(q('#aboutPanelBody .about-tagline')));
   check('OB: curated paragraphs render',
     doc.querySelectorAll('#aboutPanelBody .about-p').length >= 4,
     doc.querySelectorAll('#aboutPanelBody .about-p').length);
-  check('OB: opening hours still render as day/time rows',
-    factLabels(doc).indexOf('Mon – Thu') > -1 && factValues(doc).some(v => /11:00 – 21:00/.test(v)),
-    factLabels(doc).join(' | '));
-  check('OB: no Location / Address / Phone / Email rows',
-    ['Location', 'Address', 'Phone', 'Email'].every(l => factLabels(doc).indexOf(l) === -1),
-    factLabels(doc).join(' | '));
-  check('OB: the curated address and phone are gone from the card',
-    !factValues(doc).some(v => /Shop 45A|\+267 390 9933/.test(v)), factValues(doc).join(' | '));
-  check('OB: highlight chips are gone',
-    doc.querySelectorAll('#aboutPanelBody .about-chip').length === 0,
-    doc.querySelectorAll('#aboutPanelBody .about-chip').length);
-  check('OB: "Updated" footer is gone',
-    doc.querySelectorAll('#aboutPanelBody .about-foot').length === 0,
-    doc.querySelectorAll('#aboutPanelBody .about-foot').length);
+  const classes = cardClasses(doc);
+  check('OB: card holds only eyebrow / title / paragraph blocks',
+    classes.length >= 3 && classes.every(copyOnly), classes.join(' | '));
+  check('OB: Settings is hidden while the card is open',
+    w.getComputedStyle(acc).display === 'none', w.getComputedStyle(acc).display);
+  check('OB: tagline and fact rows are gone from the card',
+    !q('#aboutPanelBody .about-tagline') && !q('#aboutPanelBody .about-facts') &&
+    !q('#aboutPanelBody .about-k') && !q('#aboutPanelBody .about-v'),
+    text(body));
+  check('OB: curated phone lights the Call icon',
+    !!q('.social-row a[aria-label="Call"]'));
+  check('OB: Operating Hours accordion is still on the page',
+    doc.querySelectorAll('.acc-hours .hours__row').length > 0,
+    doc.querySelectorAll('.acc-hours .hours__row').length);
   check('OB: nothing renders as "undefined"', !/undefined|null/.test(text(body)));
 
   click(btn);
   check('OB: second tap folds the card away', !q('#logoOverlay.about-open') && btn.getAttribute('aria-expanded') === 'false');
+  check('OB: Settings returns once the card folds away',
+    w.getComputedStyle(acc).display !== 'none', w.getComputedStyle(acc).display);
   check('OB: overlay itself stays open', !!q('#logoOverlay.open'));
 
   openAbout(doc);
@@ -174,14 +178,19 @@ function factValues(doc) {
   check('BK: title renders', /Bukhara/.test(text(q('#aboutPanelBody .about-title'))), text(q('#aboutPanelBody .about-title')));
   check('BK: cuisine eyebrow renders',
     /Grills/.test(text(q('#aboutPanelBody .about-eyebrow'))), text(q('#aboutPanelBody .about-eyebrow')));
-  check('BK: address / phone / email rows are gone',
-    !factValues(doc).some(v => /Shop No\. 44|\+267 396 0630|\+267 74 340 800|info@bukharacafe\.com/.test(v)),
-    factValues(doc).join(' | '));
-  check('BK: weekend hours render', factValues(doc).some(v => /07:00 – 22:30/.test(v)), factLabels(doc).join(' | '));
-  const link = q('#aboutPanelBody .about-v a');
-  check('BK: website renders as an external link',
-    !!link && /^https:\/\/bukharacafe\.com/.test(link.getAttribute('href')) && link.getAttribute('rel') === 'noopener',
-    link && link.getAttribute('href'));
+  check('BK: card holds only eyebrow / title / paragraph blocks',
+    cardClasses(doc).every(copyOnly), cardClasses(doc).join(' | '));
+  check('BK: address and phone no longer sit in the card',
+    !/Shop No\. 44|\+267 396 0630/.test(text(q('#aboutPanelBody'))), text(q('#aboutPanelBody')));
+  const web = q('.social-row a[aria-label="Website"]');
+  check('BK: curated website drives the Website icon',
+    !!web && /^https:\/\/bukharacafe\.com/.test(web.getAttribute('href')) && web.getAttribute('rel') === 'noopener',
+    web && web.getAttribute('href'));
+  const callIco = q('.social-row a[aria-label="Call"]');
+  check('BK: curated phones light the Call icon',
+    !!callIco && /^tel:/.test(callIco.getAttribute('href')), callIco && callIco.getAttribute('href'));
+  check('BK: curated instagram / facebook light their icons',
+    !!q('.social-row a[aria-label="Instagram"]') && !!q('.social-row a[aria-label="Facebook"]'));
   check('BK: no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '));
   dom.window.close();
 })();
@@ -203,10 +212,12 @@ function checkZorz(slug, label) {
   check(label + ': curated about copy renders',
     doc.querySelectorAll('#aboutPanelBody .about-p').length >= 3,
     doc.querySelectorAll('#aboutPanelBody .about-p').length);
-  check(label + ': phone and email rows are gone',
-    !factValues(doc).some(v => /\+267 77 853 309|info@zorz\.co\.bw/.test(v)), factValues(doc).join(' | '));
-  check(label + ': no hours row is invented',
-    !factLabels(doc).some(l => /mon|tue|wed|thu|fri|sat|sun|hours/i.test(l)), factLabels(doc).join(' | '));
+  check(label + ': card holds only eyebrow / title / paragraph blocks',
+    cardClasses(doc).every(copyOnly), cardClasses(doc).join(' | '));
+  check(label + ': phone and email are not in the card',
+    !/\+267 77 853 309|info@zorz\.co\.bw/.test(text(q('#aboutPanelBody'))));
+  check(label + ': no hours row is invented in the card',
+    !doc.querySelector('#aboutPanelBody .about-k'));
   check(label + ': no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '));
   dom.window.close();
 }
@@ -227,6 +238,8 @@ function checkFallback(slug, label, expectedName) {
     doc.querySelectorAll('#aboutPanelBody .about-p').length);
   check(label + ': kind eyebrow falls back to the venue type',
     !!text(q('#aboutPanelBody .about-eyebrow')), text(q('#aboutPanelBody .about-eyebrow')));
+  check(label + ': card is copy-only',
+    cardClasses(doc).every(copyOnly), cardClasses(doc).join(' | '));
   check(label + ': never prints "undefined"',
     !/undefined|null/.test(text(q('#aboutPanelBody'))));
   check(label + ': no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '));

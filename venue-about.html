@@ -546,8 +546,14 @@
   .logo-overlay.about-open{
     justify-content:flex-start;
     padding-top:calc(24px + env(safe-area-inset-top));
-    gap:16px;
+    gap:10px;
   }
+  /* The collapsed card is 0px tall but still a flex item, so it used to eat
+     two 28px gaps between About and Settings. Pull its box out of that space
+     (margins only, so the open/close transition keeps animating). */
+  .logo-overlay:not(.about-open) .about-panel{margin:-20px 0}
+  /* One panel at a time: while About is open the Settings accordion is hidden. */
+  .logo-overlay.about-open .settings-acc{display:none}
   .logo-overlay.about-open .logo-large{
     width:min(120px, 32vw);height:min(120px, 32vw);border-radius:14px;
   }
@@ -569,19 +575,7 @@
     color:#a89a7e;margin-bottom:6px;
   }
   .about-title{font-size:19px;font-weight:800;line-height:1.25;margin:0 0 6px;color:var(--ink)}
-  .about-tagline{font-size:13.5px;font-weight:600;color:#6b6459;margin:0 0 12px;line-height:1.45}
   .about-p{font-size:13.5px;line-height:1.55;color:var(--ink-2);margin:0 0 10px}
-  .about-facts{
-    border-top:1px solid #efeae1;margin-top:14px;padding-top:12px;
-    display:flex;flex-direction:column;gap:8px;
-  }
-  .about-fact{display:flex;gap:12px;align-items:flex-start;font-size:13px}
-  .about-k{
-    flex:0 0 86px;color:#8d8577;font-weight:700;font-size:11px;
-    text-transform:uppercase;letter-spacing:.03em;padding-top:2px;
-  }
-  .about-v{flex:1;min-width:0;color:var(--ink);font-weight:600;word-break:break-word}
-  .about-v a{color:var(--ink);text-decoration:underline}
 
   /* ── FLOATING POPUP ── */
   .popup-scrim{
@@ -1151,6 +1145,9 @@
   }
 
   /* ---- Build CONTACTS from resolved business ---- */
+  /* Owner-published copy (assets/data/venue_about_info.js) — the same entry the
+     About card reads, so phone / WhatsApp / website / socials agree everywhere. */
+  var curated = aboutEntry(biz.slug) || {};
   var contacts = (biz.record && biz.record.contacts) || [];
   var branchPhones = (biz.branch && biz.branch.phones) || [];
   var C = { wa: [], call: [], loc: [] };
@@ -1165,6 +1162,18 @@
     var s = String(n);
     if (!C.wa.some(function (x) { return x.number === s; })) C.wa.push({ label: lbl, number: s });
     if (!C.call.some(function (x) { return x.number === s; })) C.call.push({ label: lbl, number: s });
+  });
+  /* Curated numbers feed the same pools, so the WhatsApp / Call icons carry the
+     published numbers as well (deduped by digits). */
+  [[curated.whatsapp, 'WhatsApp'], [curated.phone, 'Phone'], [curated.phone2, 'Phone 2']].forEach(function (pair) {
+    var num = String(pair[0] || '').trim();
+    if (!num) return;
+    var digits = num.replace(/[^0-9]/g, '');
+    var known = function (list) {
+      return list.some(function (x) { return String(x.number).replace(/[^0-9]/g, '') === digits; });
+    };
+    if (!known(C.wa)) C.wa.push({ label: pair[1], number: num });
+    if (!known(C.call)) C.call.push({ label: pair[1], number: num });
   });
   var town = (biz.record && biz.record.town) || (biz.branch && biz.branch.town) || '';
   var area = (biz.record && biz.record.area) || (biz.branch && biz.branch.area) || '';
@@ -1186,7 +1195,7 @@
   /* ---- Social row ---- */
   var socialRow = document.getElementById('socialRow');
   if (socialRow) {
-    var socials = (biz.record && biz.record.socials) || [];
+    var socials = (curated.socials || []).concat((biz.record && biz.record.socials) || []);
     function socialUrl(platform) {
       for (var i = 0; i < socials.length; i++) {
         var s = socials[i];
@@ -1200,7 +1209,7 @@
       else if (channel === 'call') { on = C.call.length > 0; href = on ? 'tel:' + String(C.call[0].number).replace(/[^0-9+]/g, '') : '#'; }
       else if (channel === 'location') { on = C.loc.length > 0; href = on ? C.loc[0].url : '#'; }
       else if (channel === 'share' || channel === 'rate') { on = true; href = '#'; }
-      else { var u = socialUrl(channel) || (channel === 'website' ? (biz.record && biz.record.website) : null); on = !!u; href = u || '#'; }
+      else { var u = socialUrl(channel) || (channel === 'website' ? (curated.website || (biz.record && biz.record.website)) : null); on = !!u; href = u || '#'; }
       var src = on ? onSrc : offSrc;
       var tag = on
         ? '<a class="social-ico on" href="' + href + '" target="_blank" rel="noopener" aria-label="' + label + '"><img src="' + src + '" alt="' + label + '"></a>'
@@ -1799,9 +1808,11 @@
   if (logoOverlay) logoOverlay.addEventListener('click', function (e) { if (e.target === logoOverlay) closeLogoOverlay(); });
 
   /* ---- About panel (logo overlay) ----
-     Content comes from window.EATOUTS_VENUE_ABOUT (curated, keyed by slug with
-     aliases) and falls back to whatever the directory/branch record carries, so
-     every venue kind shows something and nothing is invented. */
+     Copy comes from window.EATOUTS_VENUE_ABOUT (curated, keyed by slug with
+     aliases) with a directory/branch fallback, so every venue kind shows a
+     title and at least one paragraph and nothing is invented. The card holds
+     copy only (eyebrow / title / paragraphs); numbers, sites and socials live
+     in the social row and the page's own sections. */
   var aboutBtn = document.getElementById('aboutBtn');
   var aboutScroll = document.getElementById('aboutPanelBody');
   var settingsAcc = document.getElementById('settingsAcc');
@@ -1845,48 +1856,14 @@
     return [biz.name + (kinds.length ? ' \u2014 ' + kinds.join(' \u00b7 ') : '') + (place ? ' in ' + place + '.' : '.')];
   }
 
-  function aboutFacts(e) {
-    var rec = biz.record || {};
-    var rows = [];
-    function add(label, value, href) {
-      var v = String(value || '').trim();
-      if (v) rows.push({ label: label, value: v, href: href || '' });
-    }
-    (e.hours || []).forEach(function (h) { if (h && h.day) add(h.day, h.time); });
-    var wa = e.whatsapp || '';
-    if (!wa) {
-      (rec.contacts || []).forEach(function (c) {
-        if (!wa && c && c.value && /whatsapp/i.test(c.label || '')) wa = String(c.value);
-      });
-    }
-    add('WhatsApp', wa);
-    var url = String(e.website || rec.website || '');
-    add('Website', url.replace(/^https?:\/\//i, '').replace(/\/$/, ''), /^https?:\/\//i.test(url) ? url : '');
-    add('Price range', e.priceRange);
-    add('Services', (e.services || []).join(' \u00b7 '));
-    add('Established', e.established);
-    return rows;
-  }
-
+  /* The card is copy-only by design: eyebrow, title, paragraphs. Everything
+     factual (numbers, hours, site) belongs in the page's own sections and the
+     social row, which read from the same curated entry. */
   function renderAbout() {
     if (!aboutScroll || aboutScroll.getAttribute('data-rendered') === '1') return;
-    var e = aboutEntry(biz.slug) || {};
-    var html = '<div class="about-eyebrow">' + aboutEsc(e.cuisine || aboutKindLabel()) + '</div>'
-      + '<h2 class="about-title">' + aboutEsc(e.name || biz.name) + '</h2>';
-    if (e.tagline) html += '<p class="about-tagline">' + aboutEsc(e.tagline) + '</p>';
-    aboutParagraphs(e).forEach(function (p) { html += '<p class="about-p">' + aboutEsc(p) + '</p>'; });
-    var rows = aboutFacts(e);
-    if (rows.length) {
-      html += '<div class="about-facts">';
-      rows.forEach(function (r) {
-        var v = r.href
-          ? '<a href="' + aboutEsc(r.href) + '" target="_blank" rel="noopener">' + aboutEsc(r.value) + '</a>'
-          : aboutEsc(r.value);
-        html += '<div class="about-fact"><span class="about-k">' + aboutEsc(r.label) + '</span>'
-          + '<span class="about-v">' + v + '</span></div>';
-      });
-      html += '</div>';
-    }
+    var html = '<div class="about-eyebrow">' + aboutEsc(curated.cuisine || aboutKindLabel()) + '</div>'
+      + '<h2 class="about-title">' + aboutEsc(curated.name || biz.name) + '</h2>';
+    aboutParagraphs(curated).forEach(function (p) { html += '<p class="about-p">' + aboutEsc(p) + '</p>'; });
     aboutScroll.innerHTML = html;
     aboutScroll.setAttribute('data-rendered', '1');
   }
