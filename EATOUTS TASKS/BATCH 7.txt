@@ -1,0 +1,164 @@
+## 1. PLAN
+
+Already stated. Executing: emit the single new file, then the PowerShell commands to stage, commit, and push it in isolation.
+
+## 2. PATCH
+
+### NEW `js/eatouts-regions.js`
+
+```js
+/* EatOuts region registry (T22).
+ *
+ * The single source of truth for which country the app is running in.
+ * Botswana (BW) is the only active region today; ZA/ZW/MW/KE are listed so
+ * the selector can show them, but they stay inactive until their data lands.
+ *
+ * Nothing here activates a region on its own: setActiveRegion() refuses any
+ * region not flagged active, and getActiveRegion() falls back to BW if the
+ * stored value is missing, unknown, or belongs to an inactive region.
+ *
+ * Persisted under localStorage 'eatouts.region.v1'.
+ *
+ * No existing page loads this file yet — the index.html wiring, the
+ * EatOuts-Region.html selector, and the data-gating pass land after
+ * T09 / T13 / T21 are merged onto main.
+ */
+(function(){
+  "use strict";
+
+  var STORE_KEY    = "eatouts.region.v1";
+  var DEFAULT_CODE = "BW";
+
+  var REGIONS = [
+    { code:"BW", name:"Botswana",     currency:"BWP", active:true,  locale:"en-BW",
+      locations:"botswana_locations.js", whatsappChannel:"" },
+    { code:"ZA", name:"South Africa", currency:"ZAR", active:false },
+    { code:"ZW", name:"Zimbabwe",     currency:"USD", active:false },
+    { code:"MW", name:"Malawi",       currency:"MWK", active:false },
+    { code:"KE", name:"Kenya",        currency:"KES", active:false }
+  ];
+  window.EATOUTS_REGIONS = REGIONS;
+
+  function byCode(code){
+    var up = String(code || "").toUpperCase();
+    for (var i = 0; i < REGIONS.length; i++) {
+      if (REGIONS[i].code === up) return REGIONS[i];
+    }
+    return null;
+  }
+
+  function isActive(code){
+    var r = byCode(code);
+    return !!(r && r.active);
+  }
+
+  function getActiveRegion(){
+    var code = null;
+    try { code = localStorage.getItem(STORE_KEY); } catch (e) {}
+    if (code && isActive(code)) return byCode(code);
+    return byCode(DEFAULT_CODE);
+  }
+
+  function setActiveRegion(code){
+    var up = String(code || "").toUpperCase();
+    if (!isActive(up)) return false;
+    try { localStorage.setItem(STORE_KEY, up); } catch (e) { return false; }
+    return true;
+  }
+
+  window.EatoutsRegions = {
+    all: REGIONS.slice.bind(REGIONS),
+    get: byCode,
+    isActive: isActive,
+    getActiveRegion: getActiveRegion,
+    setActiveRegion: setActiveRegion,
+    DEFAULT_CODE: DEFAULT_CODE,
+    STORE_KEY: STORE_KEY
+  };
+})();
+```
+
+## 3. GIT INSTRUCTIONS (Windows PowerShell)
+
+Run these from the repository root, one step at a time, and stop if any step fails.
+
+```powershell
+# 1. Sanity-check the file parses
+node --check js/eatouts-regions.js
+$LASTEXITCODE   # must print 0
+
+# 2. Confirm exactly one file is going into this commit
+git status --short js/eatouts-regions.js
+# must show:  ?? js/eatouts-regions.js
+
+# 3. Stage ONLY the new registry (nothing else, even if the worktree is dirty)
+git add -- js/eatouts-regions.js
+
+# 4. Confirm the staged set
+git diff --cached --name-only
+# must list only:  js/eatouts-regions.js
+
+# 5. Commit
+git commit -m "[Agent] T22 step 2 (additive): add js/eatouts-regions.js - BW active, ZA/ZW/MW/KE inactive; no consumer wired yet"
+
+# 6. Push
+git push
+$LASTEXITCODE   # must print 0
+
+# 7. Head-to-head
+git rev-parse HEAD
+git rev-parse origin/main
+# both must print the same SHA
+git status --short
+# must print nothing
+```
+
+Append the standard ledger entry to `docs/AGENT_CHANGE_LOG.md` **in this same commit** (amend before push) so the change is not orphaned in the shared history:
+
+```
+### [2026-11-01 HH:MM:SS] - [Agent: Cline] - [T22 step 2 (additive) - js/eatouts-regions.js] - [COMMITTED]
+- Task: Add the region registry in isolation, per Q1 sequencing (T22 paused until T09/T13/T21 land).
+- Files changed: js/eatouts-regions.js (new), docs/AGENT_CHANGE_LOG.md
+- Commit: <sha after commit>
+- Push: <pushed ref>
+- Notes:
+  * window.EATOUTS_REGIONS with BW active + ZA/ZW/MW/KE inactive, matching
+    PLATFORM UPDATE TASKS.md §T22 step 2 exactly.
+  * window.EatoutsRegions exposes getActiveRegion / setActiveRegion / isActive.
+    setActiveRegion refuses any non-active code; getActiveRegion falls back
+    to BW if the stored value is missing, unknown, or inactive.
+  * Persisted under localStorage 'eatouts.region.v1'.
+  * Nothing loads this file yet — index.html, EatOuts-Region.html, the data
+    gating pass, catalog/inventory, and tests/eatouts-regions.js all wait on
+    the T09/T13/T21 merge.
+- Verified:
+  * node --check js/eatouts-regions.js -> exit 0.
+  * npm run inventory / npm run catalog / npm test NOT run: docs-only and one
+    inert JS file with no consumers, no catalog or inventory row changed,
+    and no test suite touches it. Will be fully verified when index.html
+    wiring lands.
+- Errors: None.
+```
+
+## 4. VERIFICATION
+
+**I have made this change but I cannot verify it from here.** Please run these and paste the tails:
+
+```powershell
+node --check js/eatouts-regions.js
+npm run inventory
+npm run catalog
+npm test
+```
+
+Expected:
+- `node --check` prints nothing and exits 0.
+- `npm run inventory` and `npm run catalog` are unchanged (no page added).
+- `npm test` tail should read `60 passed, 0 failed` — unchanged from the T06/T08b baseline. `tests/eatouts-regions.js` is **not** registered yet, per Q2/Q3.
+
+## 5. NOTES
+
+- **Nothing consumes this file yet.** Landing it now is safe *because* it's inert: no `index.html` change, no page load, no runtime effect. That's exactly why it can jump the T09/T13/T21 queue without creating a merge hazard later.
+- **`SYNC REGION TASK/` untouched** — the folder is still on disk. Deleting it is part of the full T22 pass; that commit will also move the four JS files into `js/`, move `Country-Flag-Icons/*` into `assets/flags/`, and land `EatOuts-Region.html`.
+- **`tests/back-history.js` untouched** — the `55 → 57` bump waits for T13 (`Created_Event.html`) so the count lands correct in one edit.
+- **Full T22 remains `TODO`** in `PLATFORM UPDATE TASKS.md`. I have not flipped the status. When T09/T13/T21 merge, that commit will pick up: `index.html` script tag + `ACTIVE_REGION` removal + `.setrow` above "About EatOuts"; `EatOuts-Region.html`; `copy-static.mjs`; `scripts/html_catalog.meta.json`; `HTML_PAGES.md` / `FEATURES.md` / `PAGE_INVENTORY.md` / `HTML_CATALOG.md`; `tests/back-history.js` (55 → 57); `tests/eatouts-regions.js` (new) + `tests/run-all.js` registration; and the data gating pass.

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en-ZW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="TrackHype">
+  <script>
+    if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+  </script>
+  <link rel="icon" type="image/webp" href="Assets/logos/TrackHype Logo Design Badge.webp">
+  <link rel="apple-touch-icon" href="Assets/logos/TrackHype-Logo-192.png">
+  <title>Select Region — TrackHype</title>
+
+  <meta property="og:title" content="Select Region - TrackHype">
+  <meta property="og:description" content="Choose your region to load the right charts, artists and content.">
+  <meta property="og:image" content="Assets/logos/TrackHype Logo Design Badge.webp">
+  <meta property="og:url" content="https://trackhype.github.io/trackhype/region-selector.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="trackhype.css">
+  <style>
+    .rs-kicker{font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--th-primary-dark)}
+    .rs-title{font-size:24px;font-weight:900;color:var(--th-text);margin-top:4px}
+    .rs-sub{font-size:13px;color:var(--th-muted);margin-top:6px;line-height:1.6}
+    .rs-search{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--th-primary);border:0;border-radius:var(--th-radius);padding:12px;cursor:pointer;color:#fff}
+    .rs-search img{width:22px;height:22px;filter:brightness(0) invert(1)}
+    .rs-search-input{margin-top:14px;display:block;width:100%;background:var(--th-bg);border:1px solid var(--th-border);border-radius:var(--th-radius);padding:11px 12px;font-size:14px;color:var(--th-text);outline:none}
+    .rs-search-input:focus{border-color:var(--th-primary)}
+    .rs-search[hidden],.rs-search-input[hidden]{display:none!important}
+    .rs-group{margin-top:18px}
+    .rs-group-title{font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--th-faint);margin-bottom:10px;padding:0 2px}
+    .rs-list{display:flex;flex-direction:column;gap:8px}
+    .rs-item{display:flex;align-items:center;gap:12px;width:100%;background:var(--th-bg);border:1px solid var(--th-border);border-radius:var(--th-radius-sm);padding:12px;cursor:pointer;text-align:left;transition:box-shadow .15s ease,transform .05s ease}
+    .rs-item:active{transform:scale(.99)}
+    .rs-flag{flex:none;width:48px;height:32px;border-radius:1px;object-fit:cover;border:1px solid var(--th-border-soft);background:var(--th-grey-2)}
+    .rs-name{font-weight:800;font-size:14px;color:var(--th-text)}
+    .rs-current{margin-top:14px;display:flex;align-items:center;gap:12px;background:var(--th-bg);border:1px solid var(--th-primary);box-shadow:0 0 0 1px var(--th-primary);border-radius:var(--th-radius-sm);padding:12px}
+    .rs-demo{display:flex;align-items:center;gap:12px;width:100%;background:#f97316;border:1px solid #f97316;border-radius:var(--th-radius-sm);padding:12px;cursor:pointer;text-align:left;transition:box-shadow .15s ease,transform .05s ease;color:#fff}
+    .rs-demo:active{transform:scale(.99)}
+    .rs-demo[aria-pressed="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px #f97316}
+    .rs-demo .rs-name{color:#fff}
+    .rs-demo-label{flex:none;font-weight:900;font-size:15px;letter-spacing:.5px;text-transform:uppercase}
+    .rs-demo-note{flex:1}
+    .rs-demo-check{display:none;flex:none;font-weight:900;font-size:11px;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.28);border-radius:999px;padding:3px 8px}
+    .rs-demo[aria-pressed="true"] .rs-demo-check{display:inline-block}
+    /* Markets in the ISO country list that have no generated genre
+       directory yet (dependencies, overseas territories). Listed for
+       completeness, but visibly inactive so selecting one can never
+       render another country's charts. */
+    .rs-item.is-unsupported{opacity:.45;cursor:not-allowed;background:var(--th-grey-1)}
+    .rs-item.is-unsupported:hover{box-shadow:none;border-color:var(--th-border-soft)}
+    .rs-soon{flex:none;margin-left:auto;font-weight:900;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--th-muted);border:1px solid var(--th-border);border-radius:999px;padding:2px 8px}
+    .rs-item.is-unsupported .rs-name{flex:1}
+  </style>
+</head>
+<body data-active-nav="menu.html">
+
+  <header class="th-header" data-app-header>
+    <div class="th-header-inner">
+      <a class="th-brand" href="index.html">
+        <img class="th-logo-badge" src="Assets/logos/TrackHype Logo Design Badge.webp" alt="TrackHype">
+        <img class="th-logo-text" src="Assets/logos/track-hype-text-logo.webp" alt="TrackHype">
+      </a>
+    </div>
+  </header>
+
+  <main class="th-app">
+    <div class="th-shell">
+
+      <div>
+        <div class="rs-kicker">Region</div>
+        <h1 class="rs-title">Select Region</h1>
+        <p class="rs-sub">Pick your country. Your region adjusts the charts, artists and content that load into the app.</p>
+
+        <button id="rsSearchBtn" class="rs-search" type="button" aria-label="Search countries">
+          <img src="Assets/icons/search_icon.svg" alt="Search countries">
+        </button>
+        <input id="regionSearch" class="rs-search-input" type="search" placeholder="Search countries…" autocomplete="off" aria-label="Search countries" hidden>
+      </div>
+
+      <div id="regionCurrent"></div>
+
+      <div id="regionGroups"></div>
+
+    </div>
+  </main>
+
+  <script src="demo-playlist.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/tracker.js"></script>
+  <script src="trackhype.js"></script>
+  <script src="js/territory-registry.js"></script>
+  <script src="js/territories.js"></script>
+  <script src="countries-data.js"></script>
+  <script>
+    function escText(s){
+      return (window.esc && TrackHype && TrackHype.esc) ? TrackHype.esc(s) : String(s);
+    }
+
+    var byCode = {};
+    COUNTRIES.forEach(function(c){ byCode[c.code] = c; });
+
+    /* Which picker entries actually have a generated genre directory.
+       countries-data.js is an ISO-style list that also contains
+       dependencies and overseas territories (Bermuda, Puerto Rico,
+       Hong Kong, Reunion, ...). Those have no row in the 196-country
+       registry, so selecting one used to render ZIMBABWE's charts under
+       the chosen country's name. They stay listed but are marked and
+       non-selectable, so nothing silently shows the wrong market. */
+    var SUPPORTED = null;
+    function supportedCodes(){
+      if(SUPPORTED){ return SUPPORTED; }
+      SUPPORTED = {};
+      var list = (window.TrackHype && TrackHype.getTerritories) ? TrackHype.getTerritories() : null;
+      if(list && list.length){
+        list.forEach(function(t){ SUPPORTED[String(t.code || "").toLowerCase()] = true; });
+      }else{
+        /* Registry not loaded on this page: assume everything is fine
+           rather than greying out the entire list. */
+        COUNTRIES.forEach(function(c){ SUPPORTED[String(c.code).toLowerCase()] = true; });
+      }
+      return SUPPORTED;
+    }
+    function isSupported(c){
+      return !!supportedCodes()[String(c.code).toLowerCase()];
+    }
+
+    function findSADC(){
+      return SADC.map(function(code){
+        var c = byCode[code.toUpperCase()] || byCode[code.toLowerCase()];
+        return c;
+      }).filter(Boolean);
+    }
+
+    function demoItemHtml(active){
+      return '<button type="button" class="rs-item rs-demo" data-demo="1" aria-pressed="' + (active ? "true" : "false") + '">'
+        + '<span class="rs-demo-label">Demo</span>'
+        + '<span class="rs-name rs-demo-note">Browse all charts, artists and playlists right now.</span>'
+        + '<span class="rs-demo-check">On</span>'
+        + '</button>';
+    }
+
+    function itemHtml(c){
+      var ok = isSupported(c);
+      return '<button type="button" class="rs-item' + (ok ? '' : ' is-unsupported') + '" data-code="' + c.code + '"'
+        + (ok ? '' : ' aria-disabled="true" title="No genre directory for this market yet"') + '>'
+        + '<img class="rs-flag" src="Country-Flag-Icons/' + c.code + '.png" alt="' + escText(c.name) + '" loading="lazy">'
+        + '<span class="rs-name">' + escText(c.name) + '</span>'
+        + (ok ? '' : '<span class="rs-soon">Soon</span>')
+        + '</button>';
+    }
+
+    function filterCountries(q){
+      if(!q){ return COUNTRIES; }
+      var t = q.toLowerCase();
+      return COUNTRIES.filter(function(c){
+        return c.name.toLowerCase().indexOf(t) !== -1 || c.code.toLowerCase().indexOf(t) !== -1;
+      });
+    }
+
+    function currentViewInfo(){
+      if(TrackHype && TrackHype.currentView){
+        return TrackHype.currentView();
+      }
+      return { mode:"demo", code:"DEMO", name:"Browser" };
+    }
+
+    function renderCurrent(){
+      var v = currentViewInfo();
+      var host = document.getElementById("regionCurrent");
+      if(v && v.mode === "demo"){
+        host.innerHTML = '<div class="rs-current">'
+          + '<span class="rs-name" style="font-weight:900;letter-spacing:.5px">Demo</span>'
+          + '<span class="rs-name">Browser - explore the full showcase before creating an account.</span>'
+          + '</div>';
+        return;
+      }
+      var code = v && v.code ? v.code.toLowerCase() : "zw";
+      var matched = byCode[code] || byCode["zw"];
+      var name = matched ? matched.name : (v ? v.name : "Zimbabwe");
+      var flagFile = matched ? matched.code : "zw";
+      var demoActive = document.getElementById("rsDemo") || null;
+      host.innerHTML =
+        '<div class="rs-current">'
+        + '<img class="rs-flag" src="Country-Flag-Icons/' + flagFile + '.png" alt="' + escText(name) + '" loading="lazy">'
+        + '<span class="rs-name">' + escText(name) + '</span>'
+        + '</div>';
+    }
+
+    function render(q){
+      var v = currentViewInfo();
+      var demoActive = !!(v && v.mode === "demo");
+      renderCurrent();
+      var host = document.getElementById("regionGroups");
+      var list = filterCountries(q);
+      var sadcCodes = SADC.map(function(c){ return c; });
+      var featured = list.filter(function(c){ return sadcCodes.indexOf(c.code.toUpperCase()) !== -1; });
+      var rest = list.filter(function(c){ return sadcCodes.indexOf(c.code.toUpperCase()) === -1; });
+
+      var html = "";
+      if(q){ featured = []; rest = list; } // when searching, show single flat list
+      html += '<div class="rs-group"><div class="rs-group-title">Browser Mode</div><div class="rs-list">'
+        + demoItemHtml(demoActive)
+        + '</div></div>';
+      if(featured.length){
+        html += '<div class="rs-group"><div class="rs-group-title">SADC Spotlight</div><div class="rs-list">'
+          + featured.map(function(c){ return itemHtml(c); }).join("")
+          + '</div></div>';
+      }
+      if(rest.length){
+        html += '<div class="rs-group"><div class="rs-group-title">' + (q ? 'Results' : 'All Countries') + '</div><div class="rs-list">'
+          + rest.map(function(c){ return itemHtml(c); }).join("")
+          + '</div></div>';
+      }
+      host.innerHTML = html;
+    }
+
+    function bindEvents(){
+      document.getElementById("regionGroups").addEventListener("click", function(ev){
+        var btn = ev.target.closest(".rs-item");
+        if(!btn){ return; }
+        if(btn.dataset.demo){
+          if(TrackHype && TrackHype.setView){ TrackHype.setView({ mode:"demo" }); }
+          if(TrackHype && TrackHype.toast){ TrackHype.toast("Browsing the TrackHype Demo"); }
+          render("");
+          history.back();
+          return;
+        }
+        var c = byCode[btn.dataset.code];
+        if(!c){ return; }
+        if(!isSupported(c)){
+          if(TrackHype && TrackHype.toast){
+            TrackHype.toast(c.name + " is not on TrackHype yet");
+          }
+          return;
+        }
+        if(TrackHype && TrackHype.setView){
+          TrackHype.setView({ mode:"region", region:{ name: c.name, code: c.code.toUpperCase(), flag: c.code + ".png" } });
+        }
+        if(TrackHype && TrackHype.toast){ TrackHype.toast("Region set to " + c.name); }
+        history.back();
+      });
+
+      document.getElementById("rsSearchBtn").addEventListener("click", function(){
+        this.hidden = true;
+        var input = document.getElementById("regionSearch");
+        input.hidden = false;
+        input.focus();
+      });
+
+      document.getElementById("regionSearch").addEventListener("input", function(){
+        render(this.value.trim());
+      });
+    }
+
+    render("");
+    bindEvents();
+  </script>
+</body>
+</html>

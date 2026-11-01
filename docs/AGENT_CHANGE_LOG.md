@@ -1208,3 +1208,14 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Not verified: visual weight of the bar at 360px (jsdom does not lay out) — the expanded bar is 3 rows instead of 7, so it is strictly shorter.
 - Note: untracked `EATOUTS TASKS/`, `SYNC REGION TASK/`, `assets/images/services/logo_cleanup.jpg`, `docs/Directory_Subscription_Agreement*` stayed out of this commit.
 
+
+### [2026-11-01 13:33:10] - [Agent: Cline] - [T22 pre-requisite — track SYNC REGION TASK/ before the move] - [COMMITTED]
+- Task: clear the blocking pre-requisite the delegation pack calls out for T22 ("SYNC REGION TASK/ is UNTRACKED — commit it before moving anything; if it is wiped mid-move the region inputs are gone permanently"). Nothing was moved or edited in this commit — this is purely getting the source material under version control.
+- **Added (268 files, no modifications to any tracked file):**
+  - `SYNC REGION TASK/` — 261 files: `countries-data.js`, `territories.js`, `territory-registry.js`, `countries_mobile_networks.js`, `eatouts-region-selector.html`, and 256 flag PNGs under `Country-Flag-Icons/`. Inventory matches the pack's verified count exactly.
+  - `EATOUTS TASKS/` — the 6 `BATCH *.txt` hand-off specs (BATCH 1/2/3/4/5/7) that `docs/AI-DELEGATION-PACK.md` and Appendix C reference. Tracking them means a future session can read the original briefs instead of trusting a summary.
+  - `assets/images/services/logo_cleanup.jpg` — the only existing service image; T21 builds the rest of the placeholder set beside it.
+- Deliberately left untracked: `docs/Directory_Subscription_Agreement_Update.txt` and `docs/EatOuts_Directory_Subscription_Agreement.docx` — commercial documents unrelated to any of the seven tasks, so they stay out of the engineering history.
+- No code, test or doc logic changed; no line of `*.html`, `js/` or `tests/` was touched. `npm test` is unaffected (still **60 passed, 0 failed** at HEAD `beb282a`).
+- Not verified: nothing to verify — additive assets only. The T22 move itself (files → `js/` and `assets/flags/`, folder deleted) remains part of Appendix C phase K.
+

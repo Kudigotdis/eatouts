@@ -1,0 +1,101 @@
+## PLAN (12.1 — VENUE BAR)
+
+- **Files:** `eatout_event_builder.html` only (CSS block + `renderVenueBar()` JS).
+- **CSS:** `.venue-bar-expand` gets `font-size:16px`; `.venue-kv` `font-size:12px` → `16px`; delete the now-unused `.venue-bar-expand h4` rule; `.title-edit-panel` converted from bottom-sheet (`max-width:460px; max-height:88vh; border-radius:20px 20px 0 0`) to G3 floating (`max-width:420px; max-height:80dvh; border-radius:16px`); drop the `@media(min-width:520px)` override.
+- **JS:** in `renderVenueBar()` remove the `<h4>Venue Provider</h4>`, the `Name` row, the `From` row (the "P0.00" row), the `Spaces` row, and the `Selected` row. Keep `Location`, `Capacity`, `For Event Type`.
+- **Edge cases:** none. All removed rows are pure display; no handler depends on them. `.title-edit-panel` has no JS size assumptions.
+- **Verification:** `npm run inventory` ; `npm run catalog` ; `npm test`. No test file asserts on any removed selector/text, so builder-* suites are unaffected.
+
+## ASSUMPTIONS
+
+- A1: `"Name, from P0.00"` maps to the existing `Name` and `From` rows inside `.venue-bar-expand` (there is no literal `"Name, from P0.00"` string in the source; the source has separate `Name` and `From` rows, and `From` renders `fmt(v.fromPrice)` — which is `P0.00` when unset). Removing both is the literal reading.
+- A2: "All text 16px" applies to `.venue-kv` only (the h4 is being removed, and no other text lives inside `.venue-bar-expand`).
+- A3: `.title-edit-panel` is only rendered via `renderTitleEdit()`; nothing else references it.
+- A4: No test in the repo asserts on `.venue-bar-expand h4`, `Name`/`From`/`Spaces`/`Selected` labels, or `.title-edit-panel` dimensions (grep across `tests/builder-*.js` — clean).
+
+No blocking questions.
+
+## DIFF — `eatout_event_builder.html`
+
+### CSS — venue bar (around line 78–83 in the current file)
+
+```diff
+--- a/eatout_event_builder.html
++++ b/eatout_event_builder.html
+@@ -78,13 +78,10 @@
+-.venue-bar-expand{border-top:1px solid var(--border-soft);padding:12px 14px;
+-  background:var(--surface);display:none}
+-.venue-bar-expand.open{display:block;animation:fadeIn .18s ease}
+-.venue-bar-expand h4{margin:0 0 8px;font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+-  color:var(--muted-2);font-weight:800}
++.venue-bar-expand{border-top:1px solid var(--border-soft);padding:12px 14px;
++  background:var(--surface);display:none;font-size:16px}
++.venue-bar-expand.open{display:block;animation:fadeIn .18s ease}
+ .venue-kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;
+-  border-bottom:1px solid var(--border-soft);font-size:12px}
++  border-bottom:1px solid var(--border-soft);font-size:16px}
+ .venue-kv:last-child{border-bottom:0}
+ .venue-kv .k{color:var(--muted);font-weight:700}
+ .venue-kv .v{color:var(--text);font-weight:700;text-align:right;max-width:60%}
+```
+
+### CSS — title-edit panel (around line 1974)
+
+```diff
+--- a/eatout_event_builder.html
++++ b/eatout_event_builder.html
+@@ -1974,9 +1974,8 @@
+-.title-edit-panel{background:#fff;width:100%;max-width:460px;max-height:88vh;
+-  border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;
+-  animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+-@media(min-width:520px){.title-edit-panel{border-radius:20px}}
++.title-edit-panel{background:#fff;width:100%;max-width:420px;max-height:80dvh;
++  border-radius:16px;display:flex;flex-direction:column;overflow:hidden;
++  animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
+ .title-edit-body{padding:16px 18px;flex:1 1 auto;overflow-y:auto}
+```
+
+### JS — `renderVenueBar()` expanded block
+
+```diff
+--- a/eatout_event_builder.html
++++ b/eatout_event_builder.html
+@@ -1062,15 +1062,9 @@
+   let expanded='';
+   if(STATE.venueBarExpanded){
+     expanded='<div class="venue-bar-expand open">'+
+-      '<h4>Venue Provider</h4>'+
+-      '<div class="venue-kv"><span class="k">Name</span><span class="v">'+esc(v.name)+'</span></div>'+
+       '<div class="venue-kv"><span class="k">Location</span><span class="v">'+esc(v.city||"")+(v.area?" · "+esc(v.area):"")+'</span></div>'+
+       '<div class="venue-kv"><span class="k">Capacity</span><span class="v">Up to '+esc(v.capacity||"—")+' guests</span></div>'+
+-      '<div class="venue-kv"><span class="k">From</span><span class="v">'+fmt(v.fromPrice||0)+'</span></div>'+
+       '<div class="venue-kv"><span class="k">For Event Type</span><span class="v" style="color:var(--muted-2);font-weight:900">'+esc(typeName)+'</span></div>'+
+-      '<div class="venue-kv"><span class="k">Spaces</span><span class="v">'+(v.spaces||[]).length+' available</span></div>'+
+-      '<div class="venue-kv"><span class="k">Selected</span><span class="v">'+STATE.venueSpaces.length+' space'+(STATE.venueSpaces.length===1?"":"s")+'</span></div>'+
+     '</div>';
+   }
+```
+
+That is the full 12.1 change. Nothing else touched.
+
+## VERIFICATION
+
+```powershell
+npm run inventory ; npm run catalog ; npm test
+```
+
+**What I can state from the diff (not from a live run):**
+
+- No test file under `tests/builder-*.js` asserts on `.venue-bar-expand h4`, the `Name`/`From`/`Spaces`/`Selected` kv rows, or `.title-edit-panel` dimensions (checked by reading all five suites). Those suites assert on `.prompt-panel`, `.sup-*`, `.pit-*`, `.schedule-day`, `.audience-card`, and guests — none of which this commit touches.
+- `npm run inventory` scans page titles / `data-page` / banner markers — unchanged.
+- `npm run catalog` regenerates `HTML_CATALOG.md` — page count unchanged (70 pages), only a line-count diff from CSS row deletions.
+- `npm test` runs all 60 suites; the only ones that could conceivably touch `eatout_event_builder.html` are the five `builder-*` suites, and none of them reference the removed selectors.
+
+**I cannot execute these commands from this response, so I am not claiming they passed — please run them and paste the tail. Based on the diff analysis, the expected tail is `60 passed, 0 failed`.**
+
+## NOTES
+
+- **Tradeoffs:** None. The change is display-only; removed rows carried no state used elsewhere (`v.name`, `v.fromPrice`, `v.spaces.length`, `STATE.venueSpaces.length` are all still read by other renderers).
+- **Not verified:** visual — the 16px kv rows and centred `.title-edit-panel` at 360px still need a device pass (jsdom does not lay out). No `.fpop-close` exists in this file (already `.fpop-x`), so G3's close-glyph rule is already satisfied for both popups this sub-area touches.
+- **Sub-area boundary:** this commit is **12.1 only**. Per "one sub-area per commit; stop and hand back after 12.9", 12.2 (Schedule) through 12.9 (Share + Save) remain as their own commits. 12.2 is the next one.
+- **Also in scope for other sub-areas but not touched here** (deliberately, per "minimal diff"): the other bottom-sheet-styled panels in this file — `.menu-page-panel` (owned by 12.4 suppliers), `.flyer-menu-panel` (12.4), `.sup-profile-panel` (12.4), `.prompt-panel` (12.3 / 12.6 / 12.7 / 12.8). Those will be converted to G3 floating in their own commits. Leaving them bottom-sheet in 12.1 is correct: they are not part of the 12.1 brief.
