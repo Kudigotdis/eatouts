@@ -626,7 +626,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 **Files:** `eatout_event_builder.html` (single file, ~4.2k lines), `js/eatouts-events*` if present.
 **Sub-tasks (do in this order, verify each)**
 
-**12.1 Venue bar** — `.venue-bar-expand.open` (`:63-66`)
+**12.1 Venue bar** — `.venue-bar-expand.open` (`:63-66`) — ✅ **DONE 2026-11-01**
 - all text 16px;
 - remove: "Venue Provider", "Name, from P0.00", "Spaces", "Selected";
 - `.title-edit-panel` → floating popup (G3).

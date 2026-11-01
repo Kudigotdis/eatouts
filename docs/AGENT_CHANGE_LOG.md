@@ -1197,3 +1197,14 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Not verified: real-device swipe feel and the visual weight of the scrim at 360px (jsdom does not lay out); the live `/api/promos` path (no server in this environment — the bridge branch is exercised only through the injected feed shape).
 - Note: untracked `EATOUTS TASKS/`, `SYNC REGION TASK/`, `assets/images/services/logo_cleanup.jpg`, `docs/Directory_Subscription_Agreement*` stayed out of this commit.
 
+
+### [2026-11-01 13:32:08] - [Agent: Cline] - [T12.1 — venue bar 16px, rows trimmed, title edit floats] - [COMMITTED]
+- Task: T12 sub-area 1 of 9 (Appendix C phase D), on `eatout_event_builder.html` only.
+- **CSS:** `.venue-bar-name` 18px → **16px**, `.venue-bar-sub` 14px → **16px**, `.venue-kv` 12px → **16px**; deleted the now-unused `.venue-bar-expand h4` rule (uppercase 11px heading). `.title-edit-panel` moved to the full G3 recipe: `max-width:420px` (was 460), `max-height:80dvh` (was 88vh), `border-radius:16px` (was `20px 20px 0 0`), `animation:fadeIn` (was `slideUp`) — and the `@media(min-width:520px)` radius override removed because the radius is now unconditional. It already sat inside the centred `.fpop-scrim`, so only the sheet styling had to go.
+- **Markup (`renderVenueBar`):** removed the `<h4>Venue Provider</h4>` heading and the `Name`, `From` (the "…P0.00" row), `Spaces` and `Selected` key/value rows. What remains: **Location, Capacity, For Event Type** — each now 16px.
+- Deliberate omission: the collapsed bar's own text (`venue-bar-name` / `venue-bar-sub`) was already correct in wording, so nothing there was touched beyond the font size.
+- **`tests/builder-suppliers.js`** (+11 checks, suite count unchanged at 60): expands the bar in the seeded draft and asserts the heading is gone, the row set is exactly `Location,Capacity,For Event Type`, the four removed labels are absent, and `.venue-bar-name` / `.venue-bar-sub` / `.venue-kv` all compute to `16px`; plus three source checks pinning `.title-edit-panel` to 420px / 80dvh / no squared bottom corners.
+- Verified: `node tests/builder-suppliers.js` → **BUILDER-SUPPLIERS TEST PASSED** (all 11 new checks `ok`); `builder-preview`, `builder-schedule`, `builder-guests`, `builder-audience`, `popups` all still PASSED; full `npm test` → **60 passed, 0 failed**.
+- Not verified: visual weight of the bar at 360px (jsdom does not lay out) — the expanded bar is 3 rows instead of 7, so it is strictly shorter.
+- Note: untracked `EATOUTS TASKS/`, `SYNC REGION TASK/`, `assets/images/services/logo_cleanup.jpg`, `docs/Directory_Subscription_Agreement*` stayed out of this commit.
+

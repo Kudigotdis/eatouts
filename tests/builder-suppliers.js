@@ -205,6 +205,24 @@ function draftWith(venueId, suppliers) {
   check('legacy draft bucket renders under its old label', b.doc.querySelector('[data-sec="suppliers"] .sup-group') && legacyLabel && /Saved supplier types/i.test(b.doc.querySelector('[data-sec="suppliers"] .sup-group .sup-group-name').textContent), legacyLabel && legacyLabel.textContent);
   check('legacy supplier slot resolves via findSupplier fallback', legacySlot && legacySlot.textContent.trim() === 'Kalahari Feasts', legacySlot && legacySlot.textContent.trim());
 
+  /* ---------- T12.1 venue bar: 16px text, trimmed rows, floating title edit ---------- */
+  click(w, doc.querySelector('[data-act="toggleVenueBar"]'));
+  const vbar = doc.querySelector('#venue-bar');
+  check('T12.1: venue bar expands', !!doc.querySelector('#venue-bar .venue-bar-expand.open'));
+  check('T12.1: no "Venue Provider" heading', !/Venue Provider/.test(vbar.textContent || ''), (vbar.textContent || '').slice(0, 110));
+  const kvKeys = Array.prototype.slice.call(doc.querySelectorAll('#venue-bar .venue-kv .k')).map(k => k.textContent.trim());
+  check('T12.1: rows are Location / Capacity / For Event Type', kvKeys.join(',') === 'Location,Capacity,For Event Type', kvKeys.join(','));
+  check('T12.1: Name / From / Spaces / Selected removed', !/(^|,)(Name|From|Spaces|Selected)(,|$)/.test(kvKeys.join(',')), kvKeys.join(','));
+  const fs2 = el => w.getComputedStyle(el).fontSize;
+  check('T12.1: venue name is 16px', fs2(doc.querySelector('.venue-bar-name')) === '16px', fs2(doc.querySelector('.venue-bar-name')));
+  check('T12.1: venue sub is 16px', fs2(doc.querySelector('.venue-bar-sub')) === '16px', fs2(doc.querySelector('.venue-bar-sub')));
+  check('T12.1: .venue-kv is 16px', fs2(doc.querySelector('.venue-kv')) === '16px', fs2(doc.querySelector('.venue-kv')));
+
+  const builderSrc = fs.readFileSync(path.join(APP_DIR, 'eatout_event_builder.html'), 'utf8');
+  check('T12.1: .title-edit-panel capped at 420px', /\.title-edit-panel\{[^}]*max-width:420px/.test(builderSrc));
+  check('T12.1: .title-edit-panel capped at 80dvh', /\.title-edit-panel\{[^}]*max-height:80dvh/.test(builderSrc));
+  check('T12.1: .title-edit-panel has no squared bottom corners', !/\.title-edit-panel\{[^}]*border-radius:20px 20px 0 0/.test(builderSrc));
+
   console.log('');
   if (fails) console.log('FAILED: ' + fails + ' check(s)');
   else console.log('BUILDER-SUPPLIERS TEST PASSED');
