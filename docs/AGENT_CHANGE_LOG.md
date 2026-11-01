@@ -16,7 +16,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 
-### [2026-11-01 20:28:42] - [Agent: Cline] - [IN_PROGRESS]
+### [2026-11-01 20:28:42] - [Agent: Cline] - [COMMITTED]
 - Task: venue-about - add an "About" button above Settings in the logo overlay that pushes the logo up and reveals a white business-info card
 - Files changed:
   - venue-about.html (CSS +62, markup +7, JS +150: #aboutBtn, #aboutPanel, aboutEntry/aboutFacts/aboutParagraphs/renderAbout/setAbout/closeLogoOverlay, resolve() overlay-only identity, close paths wired)
@@ -24,8 +24,9 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - tests/venue-about-about.js (new suite) + tests/run-all.js (1 line in SUITES)
   - assets/logo/ZORZ_logo.webp (new asset, referenced by the Zorz entry)
   - docs/AGENT_CHANGE_LOG.md (this entry)
-- Commit: PENDING
-- Push: PENDING
+- Commit: cc3b1db (feature commit; this entry rides in the follow-up ledger commit)
+- Push: single push cc3b1db + ledger commit -> origin/main (fast-forward). index.html hunks and the two untracked
+  docs/Directory_Subscription_Agreement* files were deliberately left out of scope.
 - Notes:
   Why: the logo overlay stack was logo -> Settings only; the user wanted business details reachable from there for every venue kind.
   Design: .about-btn sits above <details id="settingsAcc">; .about-panel is a white card animated with the page's existing
