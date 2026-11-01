@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Search - EatOuts</title>
+<link rel="icon" type="image/png" href="assets/logo/EatOuts_Badge.png">
+<link rel="apple-touch-icon" href="assets/logo/EatOuts_Badge.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#f0ece2}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#1a1a1a;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+button,input{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;text-align:left}
+img{display:block;max-width:100%}
+
+#shell{position:fixed;inset:0;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:#ffffff;box-shadow:0 0 80px rgba(0,0,0,.08);overflow:hidden}
+@media(min-width:520px){#shell{border-left:1px solid #e8e3d8;border-right:1px solid #e8e3d8}}
+
+/* ---------- HEADER (search input row) ---------- */
+#hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:8px;padding:0 12px;background:#ffffff;border-bottom:1px solid #ece7db;padding-top:env(safe-area-inset-top);position:relative;z-index:10}
+.search-wrap{flex:1;display:flex;align-items:center;gap:8px;background:#faf8f2;border:1px solid #ece7db;border-radius:12px;padding:0 12px;min-height:40px;min-width:0}
+.search-wrap input{flex:1;background:none;border:0;outline:none;padding:10px 0;font-size:15px;color:#1a1a1a;min-width:0}
+.search-wrap input::placeholder{color:#b5a888}
+.clear-btn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#a89a7e;background:none;border:0;cursor:pointer;border-radius:50%;flex:0 0 auto;padding:0;line-height:1}
+.clear-btn:active{background:#f4efe4}
+
+/* ---------- FILTER BAR ---------- */
+#filterBar{flex:0 0 auto;display:flex;gap:8px;padding:10px 12px;background:#ffffff;border-bottom:1px solid #ece7db;overflow-x:auto}
+.filter-btn{flex:1;min-width:0;padding:9px 10px;background:#faf8f2;border:1px solid #ece7db;border-radius:10px;font-size:13px;font-weight:800;color:#3a3324;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;letter-spacing:.01em;transition:background .15s}
+.filter-btn.on{background:#0d0d0d;border-color:#0d0d0d;color:#ffffff}
+.filter-btn:active{background:#f4efe4}
+.filter-btn.on:active{background:#222}
+
+/* ---------- RESULTS ---------- */
+#results{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#ffffff}
+
+/* ---------- BOTTOM NAV ---------- */
+#nav{flex:0 0 auto;position:relative;display:flex;background:#0a0a0a;border-top:1px solid #1a1a1a;padding-bottom:env(safe-area-inset-bottom);z-index:50}
+.nav-btn{flex:1;padding:16px 2px 15px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.42);transition:color .18s}
+.nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+.nav-btn.on{color:#ffffff}
+.nav-btn.on svg{transform:translateY(-1px);filter:drop-shadow(0 0 8px rgba(255,255,255,.35))}
+.nav-btn:active{color:rgba(255,255,255,.75)}
+.result-count{padding:10px 14px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;background:rgba(0,0,0,.02);border-bottom:1px solid #ece7db;position:sticky;top:0;z-index:2;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.result{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #f4efe4;background:#ffffff;width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit;border-left:0;border-right:0;border-top:0;-webkit-tap-highlight-color:transparent}
+.result:active{background:#faf8f2}
+.result-thumb{width:56px;height:56px;flex:0 0 auto;border-radius:10px;overflow:hidden;background:#f4efe4;display:flex;align-items:center;justify-content:center;border:1px solid #ece7db}
+.result-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.result-thumb .placeholder{font-size:22px;font-weight:900;color:#a89a7e;line-height:1}
+.result-info{flex:1;min-width:0}
+.result-name{font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.01em}
+.result-meta{font-size:12px;color:#8e8e8e;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.result-badge{display:inline-block;font-size:9.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#8a7a55;background:#faf8f2;border:1px solid #ece7db;border-radius:999px;padding:2px 8px;margin-top:4px}
+.result-arrow{font-size:22px;color:#c8bda6;font-weight:700;flex:0 0 auto;line-height:1;padding-left:4px}
+
+/* ---------- EMPTY / LOADING ---------- */
+.empty{padding:60px 24px;text-align:center;color:#a89a7e;font-size:14px;line-height:1.5}
+.empty-title{font-size:17px;font-weight:900;color:#1a1a1a;margin-bottom:8px;letter-spacing:-.01em}
+.empty p{margin:0;color:#8a8170}
+
+/* ---------- FILTER POPUP ---------- */
+.pop-scrim{position:fixed;inset:0;z-index:40;background:rgba(20,18,12,.28);backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2)}
+.popup{position:fixed;top:66px;bottom:calc(20px + env(safe-area-inset-bottom));left:max(16px,calc((100% - 460px)/2 + 16px));right:max(16px,calc((100% - 460px)/2 + 16px));background:#ffffff;border:1px solid #ece7db;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.22);overflow:hidden;z-index:50;display:flex;flex-direction:column;animation:fpop .18s ease}
+@keyframes fpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.popup-scroll{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.popup button{display:block;width:100%;padding:13px 14px;font-size:13px;font-weight:700;color:#3a3324;border:0;border-bottom:1px solid #f4efe4;text-align:left;background:#ffffff;cursor:pointer;font:inherit;-webkit-tap-highlight-color:transparent}
+.popup button:last-child{border-bottom:0}
+.popup button:active{background:#faf8f2}
+.popup button.on{background:#f2f1ee;color:#1a1a1a;font-weight:900}
+.popup button.on::after{content:"✓";float:right;color:#1a1a1a;font-weight:900}
+
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="hdr">
+    <div class="search-wrap">
+      <input id="searchInput" type="search" placeholder="Search restaurants, promos, events..." autofocus autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Search EatOuts">
+      <button class="clear-btn" type="button" data-act="clear" aria-label="Clear search" hidden>&times;</button>
+    </div>
+  </header>
+  <div id="filterBar">
+    <button class="filter-btn" type="button" data-act="openFilter" data-filter="type">All types</button>
+    <button class="filter-btn" type="button" data-act="openFilter" data-filter="town">All towns</button>
+    <button class="filter-btn" type="button" data-act="openFilter" data-filter="area">All areas</button>
+  </div>
+  <div id="results"></div>
+  <nav id="nav"><button class="nav-btn" data-tab="promos" aria-label="promos"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg></button><button class="nav-btn on" data-tab="restaurants" aria-label="restaurants"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"></path><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"></path><path d="M3 9h18"></path><path d="M9 13h6"></path></svg></button><button class="nav-btn" data-tab="reserve" aria-label="reserve"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></button><button class="nav-btn" data-tab="gallery" aria-label="gallery"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></button><button class="nav-btn" data-tab="about" aria-label="about"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></nav>
+</div>
+
+<!-- Filter popup -->
+<div id="popup-scrim" class="pop-scrim hidden" data-act="closePopup"></div>
+<div id="popup" class="popup hidden" role="listbox"></div>
+
+<!-- ============================================================
+     DATA SCRIPTS  (same sources as index.html, minus the big
+     inline PROMOS / EVENTS / MENU blobs — the bridge seeds from
+     the directory runtime data instead)
+     ============================================================ -->
+<script src="assets/data/restaurant_listings/restaurant_types_filter.js"></script>
+<script src="assets/data/restaurant_listings/directory_runtime_data.js"></script>
+<script src="assets/data/restaurant_listings/eatouts_manifest.js"></script>
+<script src="assets/data/event_types.js"></script>
+<script src="assets/data/venue-provider-list.js"></script>
+<script src="assets/data/BottleLliquorStoresDatabase.js"></script>
+<script src="assets/data/CateringServicesDatabase.js?v=20261021"></script>
+<script src="assets/data/bakery_services_database.js?v=20261021"></script>
+<script src="botswana_locations.js"></script>
+<script src="js/eatouts-locations.js"></script>
+<script src="js/eatouts-brand.js"></script>
+<script src="js/eatouts-bottle-stores.js"></script>
+<script src="js/eatouts-catering.js"></script>
+<script src="js/eatouts-db.js"></script>
+<script src="js/eatouts-auth.js"></script>
+<script src="js/eatouts-age.js"></script>
+<script src="js/eatouts-customer.js"></script>
+<script src="js/eatouts-seed-data.js"></script>
+<script src="js/eatouts-seed.js"></script>
+<script src="js/eatouts-bridge.js"></script>
+<script src="js/eatouts-content.js"></script>
+<script src="js/eatouts-slug.js"></script>
+<script src="js/eatouts-router.js"></script>
+<script src="js/eatouts-analytics.js"></script>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============================================================
+     CONSTANTS
+     ============================================================ */
+  var DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  var TYPE_OPTIONS = [
+    { value: 'all',            label: 'All types' },
+    { value: 'restaurant',     label: 'Restaurants' },
+    { value: 'catering',       label: 'Catering' },
+    { value: 'bakery',         label: 'Bakeries' },
+    { value: 'bottle_store',   label: 'Bottle Stores' },
+    { value: 'mobile_kitchen', label: 'Mobile Kitchens' },
+    { value: 'promo',          label: 'Promos' },
+    { value: 'event',          label: 'Events' }
+  ];
+
+  var TYPE_LABEL = {
+    restaurant:     'Restaurant',
+    catering:       'Catering',
+    bakery:         'Bakery',
+    bottle_store:   'Bottle Store',
+    mobile_kitchen: 'Mobile Kitchen',
+    promo:          'Promo',
+    event:          'Event'
+  };
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  var state = {
+    query: '',
+    typeFilter: 'all',
+    townFilter: 'all',
+    areaFilter: 'all',
+    popup: null,
+    index: [],
+    indexReady: false
+  };
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function norm(s){ return String(s || '').trim().toLowerCase(); }
+  function uniqueSorted(arr){
+    var seen = {}, out = [];
+    arr.forEach(function(v){
+      var t = String(v || '').trim();
+      if (!t) return;
+      var k = t.toLowerCase();
+      if (seen[k]) return;
+      seen[k] = 1; out.push(t);
+    });
+    out.sort(function(a,b){ return a.localeCompare(b); });
+    return out;
+  }
+
+  /* ============================================================
+     BRIDGE INIT (minimal source; directory data fills it in)
+     ============================================================ */
+  function initBridge(){
+    if (!window.EatoutsBridge || typeof window.EatoutsBridge.setSource !== 'function') return;
+    try {
+      window.EatoutsBridge.setSource({
+        profile: null, menu: [], gallery: [],
+        promos: {}, events: {}, performers: []
+      });
+      if (typeof window.EatoutsBridge.ensureSeeded === 'function') window.EatoutsBridge.ensureSeeded();
+      if (typeof window.EatoutsBridge.setDayNames === 'function') window.EatoutsBridge.setDayNames(DAY_NAMES);
+    } catch(e){ console.warn('[Search] bridge init failed:', e); }
+  }
+
+  /* ============================================================
+     DIRECTORY LOAD (same shape index.html uses)
+     ============================================================ */
+  function loadDirectory(){
+    return new Promise(function(resolve){
+      function merge(dir){
+        if (!dir) return;
+        window.DIRECTORY_DATA = dir;
+        if (window.EatoutsSeed && typeof window.EatoutsSeed.mergeDirectory === 'function'){
+          try { window.EatoutsSeed.mergeDirectory(dir); } catch(e){ console.warn('[Search] mergeDirectory:', e); }
+        }
+      }
+      if (window.DIRECTORY_RUNTIME_DATA){ merge(window.DIRECTORY_RUNTIME_DATA); resolve(); return; }
+      if (typeof fetch !== 'function'){ resolve(); return; }
+      fetch('assets/data/restaurant_listings/directory_runtime_data.json')
+        .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(dir){ merge(dir); resolve(); })
+        .catch(function(e){ console.warn('[Search] directory unavailable:', e); resolve(); });
+    });
+  }
+
+  /* ============================================================
+     INDEX BUILD
+     ============================================================ */
+  function pushRestaurant(out, r){
+    if (!r || !r.name) return;
+    var loc = r.location || {};
+    var types = (r.types && r.types.length) ? r.types.slice() : [r.category || 'Restaurant'];
+    var isMobile = types.join(' ').toLowerCase().indexOf('mobile') > -1 ||
+                   types.join(' ').toLowerCase().indexOf('truck') > -1;
+    out.push({
+      type: isMobile ? 'mobile_kitchen' : 'restaurant',
+      id: r.id,
+      name: r.name,
+      subtitle: [r.category, loc.town, loc.area].filter(Boolean).join(' · '),
+      searchText: [r.name, r.category || '', types.join(' '), loc.town || '', loc.area || '', 'restaurant food'].join(' ').toLowerCase(),
+      logo: r.logo || null,
+      town: loc.town || '',
+      area: loc.area || '',
+      badge: isMobile ? TYPE_LABEL.mobile_kitchen : (types[0] || 'Restaurant'),
+      slug: r.slug || r.id,
+      navKind: 'restaurant'
+    });
+  }
+  function pushCatering(out, b){
+    if (!b || !b.name) return;
+    var br = (b.branches && b.branches[0]) || {};
+    out.push({
+      type: 'catering', id: b.slug, name: b.name,
+      subtitle: ['Catering', br.town, br.area].filter(Boolean).join(' · '),
+      searchText: [b.name, 'catering', b.type || '', br.town || '', br.area || ''].join(' ').toLowerCase(),
+      logo: b.logo || null, town: br.town || '', area: br.area || '',
+      badge: 'Catering', slug: b.slug, navKind: 'catering'
+    });
+  }
+  function pushBakery(out, r){
+    if (!r || !r.businessName) return;
+    function n(v){ v = String(v || '').trim(); return (!v || v === 'Not specified') ? '' : v; }
+    var town = n(r.town), area = n(r.area);
+    out.push({
+      type: 'bakery', id: 'bakery-' + r.id, name: r.businessName,
+      subtitle: ['Bakery', town, area].filter(Boolean).join(' · '),
+      searchText: [r.businessName, 'bakery bread pastry cake', town, area].join(' ').toLowerCase(),
+      logo: null, town: town, area: area,
+      badge: 'Bakery', slug: 'bakery-' + r.id, navKind: 'bakery'
+    });
+  }
+  function pushBottleStore(out, b){
+    if (!b || !b.name) return;
+    var br = (b.branches && b.branches[0]) || {};
+    out.push({
+      type: 'bottle_store', id: b.slug, name: b.name,
+      subtitle: ['Bottle Store', br.town, br.area].filter(Boolean).join(' · '),
+      searchText: [b.name, 'bottle store liquor alcohol beer wine spirits', br.town || '', br.area || ''].join(' ').toLowerCase(),
+      logo: b.logo || null, town: br.town || '', area: br.area || '',
+      badge: 'Bottle Store', slug: b.slug, navKind: 'bottle_store'
+    });
+  }
+  function pushBundleContent(out, r){
+    if (!r || !window.EatoutsBridge) return;
+    var bundle = null;
+    try { bundle = window.EatoutsBridge.bundleOf(r.id); } catch(e){ return; }
+    if (!bundle) return;
+    var loc = r.location || {};
+
+    // Promos
+    var pObj = bundle.promos || {};
+    Object.keys(pObj).forEach(function(day){
+      var list = pObj[day];
+      (Array.isArray(list) ? list : (list ? [list] : [])).forEach(function(p){
+        if (!p || !p.title) return;
+        out.push({
+          type: 'promo',
+          id: p.id || ('promo-' + r.id + '-' + day),
+          name: p.title,
+          subtitle: ['Promo · ' + day, r.name].filter(Boolean).join(' · '),
+          searchText: [p.title, p.desc || '', p.type || '', 'promo special deal', day, r.name, loc.town || ''].join(' ').toLowerCase(),
+          logo: r.logo || null, town: loc.town || '', area: loc.area || '',
+          badge: 'Promo', slug: r.slug || r.id, venueSlug: r.slug || r.id, navKind: 'promo'
+        });
+      });
+    });
+
+    // Events
+    var eObj = bundle.events || {};
+    Object.keys(eObj).forEach(function(day){
+      var list = eObj[day];
+      (Array.isArray(list) ? list : (list ? [list] : [])).forEach(function(ev){
+        if (!ev) return;
+        var nm = ev.name || ev.title;
+        if (!nm) return;
+        out.push({
+          type: 'event',
+          id: ev.id || ('event-' + r.id + '-' + day),
+          name: nm,
+          subtitle: ['Event · ' + day, r.name].filter(Boolean).join(' · '),
+          searchText: [nm, ev.desc || '', 'event live music show', day, r.name, loc.town || ''].join(' ').toLowerCase(),
+          logo: r.logo || null, town: loc.town || '', area: loc.area || '',
+          badge: 'Event', slug: r.slug || r.id, venueSlug: r.slug || r.id, navKind: 'event'
+        });
+      });
+    });
+  }
+
+  function buildIndex(){
+    var out = [];
+
+    // Restaurants (+ mobile kitchens)
+    if (window.EatoutsBridge && typeof window.EatoutsBridge.all === 'function'){
+      try {
+        window.EatoutsBridge.all().forEach(function(r){
+          pushRestaurant(out, r);
+          pushBundleContent(out, r);
+        });
+      } catch(e){ console.warn('[Search] restaurants/bundles:', e); }
+    }
+
+    // Catering
+    if (window.EatoutsCatering && typeof window.EatoutsCatering.all === 'function'){
+      try { window.EatoutsCatering.all().forEach(function(b){ pushCatering(out, b); }); }
+      catch(e){ console.warn('[Search] catering:', e); }
+    }
+
+    // Bakeries
+    if (Array.isArray(window.BAKERY_BUSINESSES_DATA)){
+      try { window.BAKERY_BUSINESSES_DATA.forEach(function(r){ pushBakery(out, r); }); }
+      catch(e){ console.warn('[Search] bakeries:', e); }
+    }
+
+    // Bottle stores
+    if (window.EatoutsBottleStores && typeof window.EatoutsBottleStores.all === 'function'){
+      try { window.EatoutsBottleStores.all().forEach(function(b){ pushBottleStore(out, b); }); }
+      catch(e){ console.warn('[Search] bottle stores:', e); }
+    }
+
+    return out;
+  }
+
+  /* ============================================================
+     FILTER
+     ============================================================ */
+  function passesType(item){
+    if (state.typeFilter === 'all') return true;
+    if (state.typeFilter === 'mobile_kitchen'){
+      return item.type === 'mobile_kitchen' ||
+             (item.type === 'restaurant' && /mobile|truck/i.test(item.badge || ''));
+    }
+    return item.type === state.typeFilter;
+  }
+  function passesLocation(item){
+    if (state.townFilter !== 'all' && norm(item.town) !== norm(state.townFilter)) return false;
+    if (state.areaFilter !== 'all' && norm(item.area) !== norm(state.areaFilter)) return false;
+    return true;
+  }
+  function filteredResults(){
+    var q = norm(state.query);
+    return state.index.filter(function(item){
+      if (!passesType(item)) return false;
+      if (!passesLocation(item)) return false;
+      if (q && item.searchText.indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
+  function renderResults(){
+    var el = document.getElementById('results');
+    if (!el) return;
+
+    if (!state.indexReady){
+      el.innerHTML = '<div class="empty"><div class="empty-title">Loading…</div><p>Building the search index.</p></div>';
+      return;
+    }
+
+    var items = filteredResults();
+
+    if (!items.length){
+      if (state.query.trim()){
+        el.innerHTML = '<div class="empty"><div class="empty-title">No matches</div><p>Try a different search or clear your filters.</p></div>';
+      } else {
+        el.innerHTML = '<div class="empty"><div class="empty-title">Search EatOuts</div><p>Find restaurants, promos, events, bottle stores, catering and more.</p></div>';
+      }
+      return;
+    }
+
+    var html = '<div class="result-count">' + items.length + ' result' + (items.length === 1 ? '' : 's') + '</div>';
+
+    items.forEach(function(item){
+      var initial = (item.name || '?').charAt(0).toUpperCase();
+      var thumbInner = item.logo
+        ? '<img src="' + esc(item.logo) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=&quot;placeholder&quot;>' + esc(initial) + '</span>\'">'
+        : '<span class="placeholder">' + esc(initial) + '</span>';
+      html += '<button class="result" type="button" data-act="openResult" data-id="' + esc(item.id) + '">' +
+        '<div class="result-thumb">' + thumbInner + '</div>' +
+        '<div class="result-info">' +
+          '<div class="result-name">' + esc(item.name) + '</div>' +
+          '<div class="result-meta">' + esc(item.subtitle || '') + '</div>' +
+          '<span class="result-badge">' + esc(TYPE_LABEL[item.type] || item.badge || '') + '</span>' +
+        '</div>' +
+        '<span class="result-arrow">›</span>' +
+      '</button>';
+    });
+
+    el.innerHTML = html;
+  }
+
+  /* ============================================================
+     FILTER BUTTONS
+     ============================================================ */
+  function filterLabel(kind){
+    if (kind === 'type'){
+      if (state.typeFilter === 'all') return 'All types';
+      var opt = TYPE_OPTIONS.filter(function(o){ return o.value === state.typeFilter; })[0];
+      return opt ? opt.label : 'All types';
+    }
+    if (kind === 'town') return state.townFilter === 'all' ? 'All towns' : state.townFilter;
+    return state.areaFilter === 'all' ? 'All areas' : state.areaFilter;
+  }
+  function updateFilterButtons(){
+    document.querySelectorAll('.filter-btn').forEach(function(btn){
+      var kind = btn.getAttribute('data-filter');
+      btn.textContent = filterLabel(kind);
+      var active = (kind === 'type' && state.typeFilter !== 'all') ||
+                   (kind === 'town' && state.townFilter !== 'all') ||
+                   (kind === 'area' && state.areaFilter !== 'all');
+      btn.classList.toggle('on', active);
+    });
+  }
+
+  /* ============================================================
+     FILTER POPUP
+     ============================================================ */
+  function townOptions(){
+    return uniqueSorted(state.index.map(function(i){ return i.town; }));
+  }
+  function areaOptions(){
+    var filtered = state.index;
+    if (state.townFilter !== 'all'){
+      var t = norm(state.townFilter);
+      filtered = filtered.filter(function(i){ return norm(i.town) === t; });
+    }
+    return uniqueSorted(filtered.map(function(i){ return i.area; }));
+  }
+  function currentValue(kind){
+    if (kind === 'type') return state.typeFilter;
+    if (kind === 'town') return state.townFilter;
+    return state.areaFilter;
+  }
+  function openFilterPopup(kind){
+    state.popup = kind;
+    var scrim = document.getElementById('popup-scrim');
+    var popup = document.getElementById('popup');
+    var scroll = document.createElement('div');
+    scroll.className = 'popup-scroll';
+
+    var options;
+    if (kind === 'type'){
+      options = TYPE_OPTIONS.slice();
+    } else if (kind === 'town'){
+      options = [{ value: 'all', label: 'All towns' }].concat(
+        townOptions().map(function(t){ return { value: t, label: t }; })
+      );
+    } else {
+      options = [{ value: 'all', label: 'All areas' }].concat(
+        areaOptions().map(function(a){ return { value: a, label: a }; })
+      );
+    }
+
+    var current = currentValue(kind);
+    options.forEach(function(opt){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = opt.label;
+      if (current === opt.value) b.className = 'on';
+      b.addEventListener('click', function(){
+        if (kind === 'type') state.typeFilter = opt.value;
+        else if (kind === 'town'){ state.townFilter = opt.value; state.areaFilter = 'all'; }
+        else state.areaFilter = opt.value;
+        closePopup();
+        updateFilterButtons();
+        renderResults();
+      });
+      scroll.appendChild(b);
+    });
+
+    popup.innerHTML = '';
+    popup.appendChild(scroll);
+    popup.classList.remove('hidden');
+    scrim.classList.remove('hidden');
+  }
+  function closePopup(){
+    state.popup = null;
+    document.getElementById('popup-scrim').classList.add('hidden');
+    var p = document.getElementById('popup');
+    p.classList.add('hidden');
+    p.innerHTML = '';
+  }
+
+  /* ============================================================
+     RESULT NAVIGATION
+     ============================================================ */
+  function openResult(id){
+    var item = state.index.filter(function(x){ return x.id === id; })[0];
+    if (!item) return;
+    var slug = item.venueSlug || item.slug || '';
+    if (item.navKind === 'restaurant' && slug){
+      window.location.href = 'index.html#' + encodeURIComponent(slug) + '/menu';
+      return;
+    }
+    if ((item.navKind === 'promo' || item.navKind === 'event') && slug){
+      window.location.href = 'index.html#' + encodeURIComponent(slug) + '/promos';
+      return;
+    }
+    // Fallback: hand off to the Restaurants tab
+    window.location.href = 'index.html#restaurants';
+  }
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  function init(){
+    initBridge();
+    loadDirectory().then(function(){
+      state.index = buildIndex();
+      state.indexReady = true;
+      updateFilterButtons();
+      renderResults();
+    });
+
+    // Search input (live filtering, no debounce needed for ~1k rows)
+    var input = document.getElementById('searchInput');
+    var clearBtn = document.querySelector('.clear-btn');
+    input.addEventListener('input', function(){
+      state.query = input.value;
+      if (clearBtn) clearBtn.hidden = !state.query;
+      renderResults();
+    });
+
+    if (clearBtn){
+      clearBtn.addEventListener('click', function(){
+        input.value = '';
+        state.query = '';
+        clearBtn.hidden = true;
+        input.focus();
+        renderResults();
+      });
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        openFilterPopup(btn.getAttribute('data-filter'));
+      });
+    });
+
+    // Popup scrim
+    document.getElementById('popup-scrim').addEventListener('click', closePopup);
+
+    // Result taps (event-delegated)
+    document.getElementById('results').addEventListener('click', function(e){
+      var t = e.target.closest && e.target.closest('[data-act="openResult"]');
+      if (t) openResult(t.getAttribute('data-id'));
+    });
+
+    // Nav buttons
+    document.querySelectorAll('#nav .nav-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var tab = btn.getAttribute('data-tab');
+        if(tab) window.location.href = 'index.html#' + tab;
+      });
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' || e.keyCode === 27){
+        if (state.popup) closePopup();
+      }
+      if ((e.key === 'Enter') && e.target === input){
+        var first = document.querySelector('.result');
+        if (first) first.click();
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>

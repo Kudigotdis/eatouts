@@ -1230,3 +1230,13 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Not verified: real-device layout at 360/390/430px and the live browser geolocation prompt (headless runs take the `openMapsPick()` fallback).
 - Note: untracked `docs/Directory_Subscription_Agreement*` stayed out of this commit.
 
+
+### [2026-11-01 17:27:38] - [Agent: Cline] - [search_screen bottom nav matched to the 5-tab shell nav] - [COMMITTED]
+- Task: make the bottom nav on `search_screen.html` look like, and use the exact same icons as, the 5-tab nav supplied by the user (Promos / Restaurants / Reserve / Gallery / About).
+- **`search_screen.html`** (nav region only, 7 lines -> 1): the 4-button nav (truncated tag icon, fork+knife "restaurants", a duplicate `data-tab="promos"` Home button, gallery, gear "about") is replaced by the supplied 5-button markup verbatim — full tag path (`...V2h10l8.59 8.59a2 2 0 0 1 0 2.82z`), storefront icon for restaurants, calendar icon on the new `data-tab="reserve"` button, image icon for gallery, info circle (`r="10"`) for about. `class="nav-btn on"` sits on `restaurants`; the snippet's lower-case `aria-label`s are kept.
+- No CSS change: `.nav-btn` / `.nav-btn svg` / `.nav-btn.on` (lines 47-51) are already the same stroke recipe (`fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap/linejoin:round`) these icons need.
+- No JS change: `init()`'s `#nav .nav-btn` listener routes `data-tab` -> `index.html#<tab>`, so `reserve` works out of the box; `data-act="nav"` was dropped from the buttons because no `act === "nav"` handler exists on this page (verified across the loaded `js/*.js`).
+- Verified: byte-exact comparison of the shipped nav line against the requested snippet -> **NAV MARKUP EXACT MATCH (1302 chars, `-ceq`)**; structure counts on the saved file -> `navOpen=1 navClose=1 navBtn=5 onBtns=1`, `data-tab` hits = 5, `#results` = 1, `<script>` = 25, file ends `</html>`, 631 -> 625 lines (7-line block -> 1 line).
+- Not verified: visual parity on a real device/viewport (jsdom is not installed in this checkout, so no DOM harness was run; `tests/` has no reference to `search_screen.html` and `npm test` is unaffected).
+- Note: pre-existing modified `index.html` and untracked `docs/Directory_Subscription_Agreement_Update.txt` / `docs/EatOuts_Directory_Subscription_Agreement.docx` stayed out of this commit.
+
