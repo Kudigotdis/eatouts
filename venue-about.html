@@ -479,7 +479,7 @@
     object-fit:contain;border-radius:18px;
     box-shadow:0 24px 60px rgba(0,0,0,.55);
     transform:scale(.88);
-    transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1), width .28s ease, height .28s ease;
     background:#fdf6e4;
   }
   .logo-overlay.open .logo-large{transform:scale(1)}
@@ -529,6 +529,68 @@
   }
   .settings-btn:hover{background:rgba(255,255,255,.14)}
   .settings-btn small{color:rgba(255,255,255,.55);font-weight:500;font-size:12px}
+
+  /* ── ABOUT (inside the logo overlay) ── */
+  .about-btn{
+    width:min(360px, 100%);
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:16px;color:#fff;cursor:pointer;
+    padding:15px 20px;font:800 15px/1 inherit;
+    display:flex;align-items:center;justify-content:space-between;
+    transition:background .15s ease;
+  }
+  .about-btn:hover{background:rgba(255,255,255,.14)}
+  .about-btn small{color:rgba(255,255,255,.55);font-weight:500;font-size:12px;margin-left:10px}
+  .about-btn .about-caret{transition:transform .25s ease;font-size:12px;color:rgba(255,255,255,.65)}
+  .logo-overlay.about-open .about-btn .about-caret{transform:rotate(180deg)}
+
+  /* Logo rides up (still visible) and the white card drops in below it. */
+  .logo-overlay.about-open{
+    justify-content:flex-start;
+    padding-top:calc(24px + env(safe-area-inset-top));
+    gap:16px;
+  }
+  .logo-overlay.about-open .logo-large{
+    width:min(120px, 32vw);height:min(120px, 32vw);border-radius:14px;
+  }
+  .about-panel{
+    width:min(360px, 100%);
+    background:#ffffff;color:var(--ink);
+    border-radius:16px;overflow:hidden;
+    display:grid;grid-template-rows:0fr;opacity:0;
+    transition:grid-template-rows .3s ease, opacity .25s ease;
+  }
+  .about-panel > .about-inner{overflow:hidden;min-height:0}
+  .logo-overlay.about-open .about-panel{grid-template-rows:1fr;opacity:1}
+  .about-scroll{
+    max-height:min(46dvh, 380px);overflow:auto;
+    padding:18px 20px 20px;-webkit-overflow-scrolling:touch;
+  }
+  .about-eyebrow{
+    font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    color:#a89a7e;margin-bottom:6px;
+  }
+  .about-title{font-size:19px;font-weight:800;line-height:1.25;margin:0 0 6px;color:var(--ink)}
+  .about-tagline{font-size:13.5px;font-weight:600;color:#6b6459;margin:0 0 12px;line-height:1.45}
+  .about-p{font-size:13.5px;line-height:1.55;color:var(--ink-2);margin:0 0 10px}
+  .about-facts{
+    border-top:1px solid #efeae1;margin-top:14px;padding-top:12px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .about-fact{display:flex;gap:12px;align-items:flex-start;font-size:13px}
+  .about-k{
+    flex:0 0 86px;color:#8d8577;font-weight:700;font-size:11px;
+    text-transform:uppercase;letter-spacing:.03em;padding-top:2px;
+  }
+  .about-v{flex:1;min-width:0;color:var(--ink);font-weight:600;word-break:break-word}
+  .about-v a{color:var(--ink);text-decoration:underline}
+  .about-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+  .about-chip{
+    background:#f6f2ea;border:1px solid #e8e1d4;border-radius:999px;
+    padding:6px 11px;font-size:12px;font-weight:600;color:#5a5348;
+  }
+  .about-foot{margin:14px 0 0;font-size:11px;color:#a89a7e;font-weight:600}
 
   /* ── FLOATING POPUP ── */
   .popup-scrim{
@@ -678,6 +740,7 @@
 <script src="assets/data/CateringServicesDatabase.js"></script>
 <script src="assets/data/bakery_services_database.js?v=20261021"></script>
 <script src="js/eatouts-catering.js"></script>
+<script src="assets/data/venue_about_info.js"></script>
 </head>
 <body data-page="venue-about">
 
@@ -858,6 +921,13 @@
 <div class="logo-overlay" id="logoOverlay" role="dialog" aria-modal="true" aria-label="Logo settings">
   <button class="logo-overlay-close" id="logoOverlayClose" aria-label="Close">&times;</button>
   <img class="logo-large" id="logoLarge" alt="Enlarged logo">
+  <button class="about-btn" id="aboutBtn" type="button" aria-expanded="false" aria-controls="aboutPanel">
+    <span class="about-btn-main">About <small>Business info</small></span>
+    <span class="about-caret" aria-hidden="true">&#9662;</span>
+  </button>
+  <div class="about-panel" id="aboutPanel" role="region" aria-label="About this business">
+    <div class="about-inner"><div class="about-scroll" id="aboutPanelBody"></div></div>
+  </div>
   <details class="settings-acc" id="settingsAcc">
     <summary>Settings</summary>
     <div class="settings-body"><div class="si"><div class="si-inner">
@@ -995,6 +1065,33 @@
           };
         }
       }
+    }
+
+    /* Curated overlay-only venues (e.g. Zorz) that have no directory record:
+       their identity lives in assets/data/venue_about_info.js, so nothing is
+       invented and the generated directory stays untouched. */
+    var oe = aboutEntry(s);
+    if (oe && oe.name) {
+      var okey = String(oe.slug || s).toLowerCase();
+      return {
+        kind: 'venue',
+        slug: okey,
+        name: oe.name,
+        logo: oe.logo || null,
+        record: {
+          name: oe.name,
+          town: oe.town || '',
+          area: oe.area || '',
+          address: oe.address || '',
+          contacts: oe.phone ? [{ label: 'Phone', value: oe.phone }] : [],
+          socials: oe.socials || []
+        },
+        branch: {
+          id: okey, slug: okey, name: oe.name,
+          town: oe.town || '', area: oe.area || '', address: oe.address || '',
+          phones: oe.phone ? [oe.phone] : []
+        }
+      };
     }
 
     return null;
@@ -1705,12 +1802,150 @@
   if (logoBtn && logoOverlay && logoLarge && logoImg) {
     logoBtn.addEventListener('click', function () {
       logoLarge.src = logoImg.src;
+      setAbout(false);
       logoOverlay.classList.add('open');
     });
   }
   var logoClose = document.getElementById('logoOverlayClose');
-  if (logoClose && logoOverlay) logoClose.addEventListener('click', function () { logoOverlay.classList.remove('open'); });
-  if (logoOverlay) logoOverlay.addEventListener('click', function (e) { if (e.target === logoOverlay) logoOverlay.classList.remove('open'); });
+  if (logoClose && logoOverlay) logoClose.addEventListener('click', function () { closeLogoOverlay(); });
+  if (logoOverlay) logoOverlay.addEventListener('click', function (e) { if (e.target === logoOverlay) closeLogoOverlay(); });
+
+  /* ---- About panel (logo overlay) ----
+     Content comes from window.EATOUTS_VENUE_ABOUT (curated, keyed by slug with
+     aliases) and falls back to whatever the directory/branch record carries, so
+     every venue kind shows something and nothing is invented. */
+  var aboutBtn = document.getElementById('aboutBtn');
+  var aboutScroll = document.getElementById('aboutPanelBody');
+  var settingsAcc = document.getElementById('settingsAcc');
+
+  function aboutEntry(s) {
+    var data = window.EATOUTS_VENUE_ABOUT || {};
+    var keys = Object.keys(data), low = String(s || '').toLowerCase(), target = canon(s);
+    for (var i = 0; i < keys.length; i++) {
+      var entry = data[keys[i]] || {};
+      var names = [keys[i]].concat(entry.aliases || []);
+      for (var n = 0; n < names.length; n++) {
+        if (String(names[n]).toLowerCase() === low || canon(names[n]) === target) return entry;
+      }
+    }
+    return null;
+  }
+
+  function aboutKindLabel() {
+    if (biz.kind === 'bakery') return 'Bakery';
+    if (biz.kind === 'bottle_store') return 'Bottle store';
+    if (biz.kind === 'catering') return 'Catering';
+    if (biz.kind === 'restaurant') return 'Restaurant';
+    return 'Venue';
+  }
+
+  function aboutEsc(v) {
+    return String(v == null ? '' : v)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function aboutParagraphs(e) {
+    var paras = [];
+    if (Array.isArray(e.about)) paras = e.about.filter(Boolean);
+    else if (typeof e.about === 'string' && e.about) paras = [e.about];
+    if (paras.length) return paras;
+    var rec = biz.record || {}, br = biz.branch || {};
+    if (rec.description) return [rec.description];
+    var kinds = ((rec.types && rec.types.length) ? rec.types : (rec.category ? [rec.category] : [])).filter(Boolean);
+    var place = [rec.area || br.area, rec.town || br.town].filter(Boolean).join(', ');
+    return [biz.name + (kinds.length ? ' \u2014 ' + kinds.join(' \u00b7 ') : '') + (place ? ' in ' + place + '.' : '.')];
+  }
+
+  function aboutFacts(e) {
+    var rec = biz.record || {}, br = biz.branch || {};
+    var rows = [];
+    function add(label, value, href) {
+      var v = String(value || '').trim();
+      if (v) rows.push({ label: label, value: v, href: href || '' });
+    }
+    var loc = [e.area || rec.area || br.area, e.town || rec.town || br.town].filter(Boolean).join(' \u00b7 ');
+    add('Location', loc);
+    add('Address', e.address || rec.address || br.address || (rec.addresses && rec.addresses[0]));
+    (e.hours || []).forEach(function (h) { if (h && h.day) add(h.day, h.time); });
+    var phones = [];
+    if (e.phone) phones.push(e.phone);
+    if (e.phone2) phones.push(e.phone2);
+    if (!phones.length) {
+      (rec.contacts || []).forEach(function (c) {
+        if (c && c.value && /phone|call|tel/i.test(c.label || '')) phones.push(String(c.value));
+      });
+      (br.phones || []).forEach(function (p) { if (p) phones.push(String(p)); });
+    }
+    add('Phone', phones.join(' \u00b7 '));
+    var wa = e.whatsapp || '';
+    if (!wa) {
+      (rec.contacts || []).forEach(function (c) {
+        if (!wa && c && c.value && /whatsapp/i.test(c.label || '')) wa = String(c.value);
+      });
+    }
+    add('WhatsApp', wa);
+    add('Email', e.email || (br.emails && br.emails[0]) || rec.email);
+    var url = String(e.website || rec.website || '');
+    add('Website', url.replace(/^https?:\/\//i, '').replace(/\/$/, ''), /^https?:\/\//i.test(url) ? url : '');
+    add('Price range', e.priceRange);
+    add('Services', (e.services || []).join(' \u00b7 '));
+    add('Established', e.established);
+    return rows;
+  }
+
+  function renderAbout() {
+    if (!aboutScroll || aboutScroll.getAttribute('data-rendered') === '1') return;
+    var e = aboutEntry(biz.slug) || {};
+    var html = '<div class="about-eyebrow">' + aboutEsc(e.cuisine || aboutKindLabel()) + '</div>'
+      + '<h2 class="about-title">' + aboutEsc(e.name || biz.name) + '</h2>';
+    if (e.tagline) html += '<p class="about-tagline">' + aboutEsc(e.tagline) + '</p>';
+    aboutParagraphs(e).forEach(function (p) { html += '<p class="about-p">' + aboutEsc(p) + '</p>'; });
+    var rows = aboutFacts(e);
+    if (rows.length) {
+      html += '<div class="about-facts">';
+      rows.forEach(function (r) {
+        var v = r.href
+          ? '<a href="' + aboutEsc(r.href) + '" target="_blank" rel="noopener">' + aboutEsc(r.value) + '</a>'
+          : aboutEsc(r.value);
+        html += '<div class="about-fact"><span class="about-k">' + aboutEsc(r.label) + '</span>'
+          + '<span class="about-v">' + v + '</span></div>';
+      });
+      html += '</div>';
+    }
+    var chips = e.highlights || [];
+    if (chips.length) {
+      html += '<div class="about-chips">' + chips.map(function (c) {
+        return '<span class="about-chip">' + aboutEsc(c) + '</span>';
+      }).join('') + '</div>';
+    }
+    if (e.updated) html += '<p class="about-foot">Updated ' + aboutEsc(e.updated) + '</p>';
+    aboutScroll.innerHTML = html;
+    aboutScroll.setAttribute('data-rendered', '1');
+  }
+
+  function setAbout(open) {
+    if (!aboutBtn) return;
+    if (open) renderAbout();
+    if (logoOverlay) logoOverlay.classList[open ? 'add' : 'remove']('about-open');
+    aboutBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open && aboutScroll) aboutScroll.scrollTop = 0;
+  }
+
+  function closeLogoOverlay() {
+    if (logoOverlay) logoOverlay.classList.remove('open');
+    setAbout(false);
+  }
+
+  if (aboutBtn) aboutBtn.addEventListener('click', function () {
+    var open = !(logoOverlay && logoOverlay.classList.contains('about-open'));
+    if (open && settingsAcc) settingsAcc.open = false;
+    setAbout(open);
+  });
+  /* One panel at a time — opening Settings folds the About card away. */
+  if (settingsAcc) settingsAcc.addEventListener('toggle', function () {
+    if (settingsAcc.open) setAbout(false);
+  });
 
   /* ---- Drag resize ---- */
   var dragHandle = document.getElementById('dragHandle');
@@ -1744,7 +1979,7 @@
   });
 
   /* Escape closes */
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closePromoLightbox(); closePopup(); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closePromoLightbox(); closePopup(); closeLogoOverlay(); } });
 })();
 </script>
 
