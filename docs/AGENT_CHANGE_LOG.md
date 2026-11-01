@@ -1276,3 +1276,23 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Push: `15b76d7..e2b47c4 -> origin/main` (fast-forward), `PUSH_EXIT=0`.
 - Staging note: the commit was built from a byte-exact blob (`git hash-object -w --path index.html` of the working file with only the six unrelated hunks reverted), because `git apply --cached` on the sliced zero-context patch re-seated the big insertions on the wrong lines (the first attempt staged a shifted file and was `git reset` out). Verified after staging: `git diff --cached --stat` = 466+/11-, the residual unstaged `index.html` diff = exactly the 43+/5- header/masonry delta, and a jsdom boot of the **staged** blob passed 11/11 (bar opens on the nav tap, Gaborone filters catering to 71, bakery Type lists 27, Cancel closes, bakery list still 97).
 
+
+### [2026-11-01 19:35:37] - [Agent: Cline] - [Status: COMMITTED]
+- Task: Shrink the filter-row button type on the four directory pages — `.cbar2.rest-filter-row .cbtn` 16px -> 13px for `data-page="restaurants-pager"`, `"catering"`, `"bakeries"`, `"beverages"`.
+- Files changed:
+  - `index.html` — `.rest-filter-controls .rest-filter-row .cbtn{font-size:16px}` -> `13px` (`:476`), plus the comment above it (`:473`, which promised "16px centred button labels").
+  - `tests/beverages.js` — the assertion that pinned the old value (`:306-308`) now expects `13px` and says so in its label.
+  - `docs/AGENT_CHANGE_LOG.md` — this entry.
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - **No `[data-page]` scoping added, and none would work:** `#cbar` is a sibling of `#viewport` (`:963-966`), not a descendant of any `.screen[data-page]`, so a page-ancestor selector could never match these buttons. The existing `.rest-filter-controls` scope is already page-exact: `renderFilterBar()` is the only emitter of `.rest-filter-controls` + `.cbar2.rest-filter-row` (`:6717-6727`) and it has exactly four callers — catering (`:6769`), bakery (`:6795`), beverages (`:6820`) and the restaurants-pager list (`:6846`). One declaration therefore covers exactly the four requested pages and nothing else, which keeps the diff to a single CSS value.
+  - Only the three Town / Area / Cuisine-Type buttons change size. The search input (`.csearch input`, already 13px) and every `.fpop` popup row keep their own sizes; `.cbtn.gal-val` (gallery cbar) and `.rest-filter-row.town-row` (reserve venue / gallery town rows) stay on the 12px `.cbtn` base because they are outside `.rest-filter-controls`.
+  - Verified:
+    - headless jsdom probe (`%TEMP%\eatouts_fontsize_probe.js`, out of repo) -> **13 passed, 0 failed**: computed `font-size` is `13px` for all three row buttons *and* their label `<span>`s on restaurants-pager, catering, bakeries and beverages; catering labels still read `All Towns | All Areas | All Cuisines`, bakery still `All Towns | All Areas | Type`; the bottle-store town popup rows are not 13px; `.cbtn.gal-val` is still 12px; the 16px rule is gone from the stylesheet.
+    - `node tests/beverages.js` -> BEVERAGES TEST PASSED (0 window errors); `popups.js`, `gallery.js`, `restloc.js`, `catering-directory.js`, `bakery-directory.js` (32/32) and `bottle-stores.js` -> all PASSED.
+    - `npm test` -> **59 passed, 2 failed** — unchanged from the pre-existing baseline, same two unrelated suites (`inventory.js`, `html-catalog.js`, both only about `search_screen.html`'s missing page banner / `data-page` / catalog entry).
+  - Staging note: `index.html` still carries the six pre-existing unrelated hunks in the working tree, so the staged blob was built from the HEAD blob with just this rule + comment rewritten (`git hash-object -w --path index.html` + `git update-index --cacheinfo`). `git diff --cached --stat` = `index.html | 4 ++--`, `tests/beverages.js | 4 ++--`; the unrelated hunks stay unstaged.
+  - Not verified: real-device render at 360-390px (jsdom resolves the cascade but not pixels or text wrapping). 13px now matches the search input's own 13px, so the row should read calmer — worth an eyeball on a phone.
+- Errors: none
+

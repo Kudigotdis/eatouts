@@ -303,8 +303,8 @@ setTimeout(() => {
     controls ? window.getComputedStyle(controls).paddingTop : 'none');
   check('filter bar shows a Type button',
     !!typeBtn && typeBtn.textContent.trim() === 'Type', typeBtn ? typeBtn.textContent.trim() : 'none');
-  check('filter button labels are 16px',
-    !!typeBtn && window.getComputedStyle(typeBtn.querySelector('span')).fontSize === '16px',
+  check('filter button labels are 13px',
+    !!typeBtn && window.getComputedStyle(typeBtn.querySelector('span')).fontSize === '13px',
     typeBtn ? window.getComputedStyle(typeBtn.querySelector('span')).fontSize : 'none');
   check('All Towns is centred',
     !!townBtn && window.getComputedStyle(townBtn).textAlign === 'center',
