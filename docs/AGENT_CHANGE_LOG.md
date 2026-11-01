@@ -15,6 +15,24 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
+### [2026-11-01 23:23:55] - [Agent: opencode] - [COMMITTED]
+- Task: venue-about — the About card holds copy only (eyebrow / title / paragraphs), curated contact facts moved to the social row, Settings hidden while the card is open and the About↔Settings gap tightened
+- Files changed:
+  - venue-about.html (CSS: .about-scroll content rules reduced to .about-eyebrow/.about-title/.about-p - .about-tagline, .about-facts, .about-fact, .about-k, .about-v removed; .logo-overlay.about-open gap 16px→10px; new .logo-overlay:not(.about-open) .about-panel{margin:-20px 0} so the collapsed 0-height card no longer contributes two 28px flex gaps (About→Settings ~56px→16px) while the grid-template-rows transition still animates; new .logo-overlay.about-open .settings-acc{display:none}. JS: renderAbout() emits only eyebrow + title + .about-p and reads the shared `curated` entry; aboutFacts() deleted; new `curated = aboutEntry(biz.slug)` feeds the contact pools (whatsapp/phone/phone2 merged into C.wa + C.call, deduped by digits), the social row (curated socials ahead of record socials) and the Website icon (curated.website before record.website)).
+  - tests/venue-about-about.js (tagline/negative-rows assertions replaced by card-shape checks - cardClasses()/copyOnly() assert the card's direct children are only about-eyebrow/about-title/about-p; added "Settings is hidden while the card is open" + "Settings returns once the card folds away"; Bukhara's curated website now asserted on the social-row Website icon href, curated phones on the Call icon, curated IG/FB on their icons; Operating Hours accordion asserted to still exist; fallback venues assert copy-only).
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+  - HTML_CATALOG.md (changelog line)
+- Commit: 4b3e07f (feature commit; this ledger entry is the follow-up commit)
+- Push: origin/main — feature 4b3e07f + this ledger commit
+- Notes:
+  User decisions: no email home needed (curated email is now display-unused); Operating Hours accordion deliberately left as the static placeholder because real hours will be supplied later, so curated hours (Ocean Basket, Bukhara) are display-unused for now; curated priceRange/services/established/highlights were already unused by any entry and stay untouched.
+  Consequence to remember: venue-about.html no longer shows phone numbers, website, hours or email inside the white About card - phone/WhatsApp/website/socials live in the social row icons, hours stay in the Operating Hours accordion.
+  The About card can now legitimately be shorter for venues with no curated entry (one generated paragraph).
+- Verified: node tests/venue-about-about.js -> VENUE ABOUT PANEL TEST PASSED (incl. new card-shape + Settings-hidden checks). Also green: venue-about-menu.js, venue-about-options.js, beverages.js, bottle-stores.js, bakery-directory.js (32/0), venue-slug-integration.js, search-screen.js.
+- Errors: none.
+
+---
+
 ### [2026-11-01 21:52:10] - [Agent: Cline] - [COMMITTED]
 - Task: venue-about — trim the About card / About button: drop Location, Address, Phone and Email rows, the highlights chips, the "Updated" footer, the "Business info" sub-label and the ▼ caret
 - Files changed:
