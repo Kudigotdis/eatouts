@@ -1166,3 +1166,13 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Not verified: the receiving AI's execution of the prompts (they remain briefs); no device pass was run (jsdom does not lay out).
 - Note: untracked `EATOUTS TASKS/`, `SYNC REGION TASK/`, `assets/images/services/logo_cleanup.jpg`, `docs/Directory_Subscription_Agreement*` stayed out of this commit.
 
+
+### [2026-11-01 12:54:34] - [Agent: Cline] - [T22 step 2 (additive) — js/eatouts-regions.js] - [COMMITTED]
+- Task: land the region registry in isolation, before the phases that consume it (Appendix C phase A). The file is inert — no page loads it yet — so it cannot regress anything while T09 / T12 / T13 / T21 are still open.
+- **New file:** `js/eatouts-regions.js` (78 lines), emitted verbatim from `EATOUTS TASKS\BATCH 7.txt` and checked line-by-line against `PLATFORM UPDATE TASKS.md` §T22 step 2 — `window.EATOUTS_REGIONS` holds BW (active, `BWP`, `en-BW`, `locations:'botswana_locations.js'`) plus ZA/ZW/MW/KE inactive; `window.EatoutsRegions` exposes `all` / `get` / `isActive` / `getActiveRegion` / `setActiveRegion` / `DEFAULT_CODE` / `STORE_KEY`; persisted under `localStorage 'eatouts.region.v1'`.
+- Safety property by construction: `setActiveRegion()` returns `false` for any region not flagged active, and `getActiveRegion()` falls back to BW when the stored value is missing, unknown **or inactive** — so a stale/hand-edited localStorage value can never activate a region with no data.
+- Not done on purpose: no `index.html` script tag, no `.setrow`, no `EatOuts-Region.html`, no data gating, no `copy-static.mjs` / catalog / inventory row, no `tests/eatouts-regions.js`, `SYNC REGION TASK/` untouched. All of that is Appendix C phase K.
+- Verified: `node --check js/eatouts-regions.js` → exit **0**. Behavioural smoke test under a stubbed `window`/`localStorage` → `count=5 active=BW setZA=false setBW=true isActiveKE=false` (exactly the specified contract). `npm test` → **60 passed, 0 failed**, unchanged from baseline.
+- Not verified: real-browser load (nothing loads the file yet) and the registry's behaviour once `index.html` wires it — that arrives in phase K.
+- Note: untracked `EATOUTS TASKS/`, `SYNC REGION TASK/`, `assets/images/services/logo_cleanup.jpg`, `docs/Directory_Subscription_Agreement*` stayed out of this commit.
+
