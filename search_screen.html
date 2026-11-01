@@ -112,6 +112,7 @@ img{display:block;max-width:100%}
 <script src="assets/data/BottleLliquorStoresDatabase.js"></script>
 <script src="assets/data/CateringServicesDatabase.js?v=20261021"></script>
 <script src="assets/data/bakery_services_database.js?v=20261021"></script>
+<script src="assets/data/venue_about_info.js"></script>
 <script src="botswana_locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-brand.js"></script>
@@ -287,6 +288,34 @@ img{display:block;max-width:100%}
       badge: 'Bottle Store', slug: b.slug, navKind: 'bottle_store'
     });
   }
+  /* Curated overlay-only venues (e.g. Zors) have no directory record: their
+     identity lives in assets/data/venue_about_info.js. A venue that already
+     has a directory row is never repeated - the directory stays the source
+     of truth, the overlay only fills the gap. */
+  function pushOverlayVenue(out, key, oe, have){
+    if (!oe || !oe.name) return;
+    var slug = norm(oe.slug || key);
+    if (!slug || have[slug]) return;
+    var aliases = (oe.aliases || []).map(norm);
+    if (aliases.some(function(a){ return have[a]; })) return;
+    have[slug] = 1;
+    var town = oe.town || '', area = oe.area || '';
+    out.push({
+      type: 'restaurant',
+      id: 'venue-' + slug,
+      name: oe.name,
+      subtitle: ['Restaurant', oe.cuisine, town, area].filter(Boolean).join(' · '),
+      // The slug and aliases are searched too, so "zors" finds "Zorz".
+      searchText: [oe.name, slug, aliases.join(' '), oe.cuisine || '',
+                   oe.tagline || '', 'restaurant food', town, area].join(' ').toLowerCase(),
+      logo: oe.logo || null,
+      town: town, area: area,
+      badge: 'Restaurant',
+      slug: slug,
+      navKind: 'restaurant',
+      overlay: true
+    });
+  }
   function pushBundleContent(out, r){
     if (!r || !window.EatoutsBridge) return;
     var bundle = null;
@@ -362,6 +391,17 @@ img{display:block;max-width:100%}
     if (window.EatoutsBottleStores && typeof window.EatoutsBottleStores.all === 'function'){
       try { window.EatoutsBottleStores.all().forEach(function(b){ pushBottleStore(out, b); }); }
       catch(e){ console.warn('[Search] bottle stores:', e); }
+    }
+
+    // Curated overlay-only venues with no directory record yet. Pushed last so
+    // the slug dedupe below sees every directory row first.
+    if (window.EATOUTS_VENUE_ABOUT){
+      try {
+        var have = {};
+        out.forEach(function(it){ if (it.slug) have[norm(it.slug)] = 1; });
+        var about = window.EATOUTS_VENUE_ABOUT;
+        Object.keys(about).forEach(function(key){ pushOverlayVenue(out, key, about[key], have); });
+      } catch(e){ console.warn('[Search] overlay venues:', e); }
     }
 
     return out;
@@ -530,20 +570,36 @@ img{display:block;max-width:100%}
   /* ============================================================
      RESULT NAVIGATION
      ============================================================ */
+  /* Single exit point, same convention as index.html's gotoVenueAbout: surface
+     the target on the document first, then leave, so a non-navigating host
+     (tests, previews) can still observe where a tap was headed. */
+  function go(url){
+    try {
+      document.dispatchEvent(new CustomEvent('eatouts:about-nav', { detail: { url: url } }));
+    } catch(e){}
+    window.location.href = url;
+  }
   function openResult(id){
     var item = state.index.filter(function(x){ return x.id === id; })[0];
     if (!item) return;
     var slug = item.venueSlug || item.slug || '';
+    /* Overlay-only venues resolve on their standalone page (same data file).
+       Their menu does not exist in the app yet, so index.html#<slug>/menu
+       would silently bounce back to the Restaurants list. */
+    if (item.overlay && slug){
+      go('venue-about.html?link=' + encodeURIComponent(slug));
+      return;
+    }
     if (item.navKind === 'restaurant' && slug){
-      window.location.href = 'index.html#' + encodeURIComponent(slug) + '/menu';
+      go('index.html#' + encodeURIComponent(slug) + '/menu');
       return;
     }
     if ((item.navKind === 'promo' || item.navKind === 'event') && slug){
-      window.location.href = 'index.html#' + encodeURIComponent(slug) + '/promos';
+      go('index.html#' + encodeURIComponent(slug) + '/promos');
       return;
     }
     // Fallback: hand off to the Restaurants tab
-    window.location.href = 'index.html#restaurants';
+    go('index.html#restaurants');
   }
 
   /* ============================================================

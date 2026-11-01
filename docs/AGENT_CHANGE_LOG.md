@@ -15,6 +15,39 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
+### [2026-11-01 21:23:15] - [Agent: Cline] - [COMMITTED]
+- Task: Search screen — make the curated overlay-only venue Zors findable (typing "zors" returned nothing)
+- Files changed:
+  - search_screen.html (+~50): loads assets/data/venue_about_info.js in the data-script block; new pushOverlayVenue() helper; buildIndex() gains a 4th source that walks window.EATOUTS_VENUE_ABOUT last, deduped by canonical slug (and alias) against every row already indexed; openResult() sends overlay rows to venue-about.html?link=<slug>; new go() helper dispatches eatouts:about-nav before navigating (same convention as index.html gotoVenueAbout)
+  - tests/search-screen.js (new suite, 20 checks) + tests/run-all.js (1 line in SUITES)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: PENDING (sha recorded in the follow-up ledger commit)
+- Push: PENDING
+- Notes:
+  Why: "Zors" (ZORZ Luxury Chisanyama) is an overlay-only venue - it has no row in directory_runtime_data.js and its identity lives only in
+  assets/data/venue_about_info.js, so buildIndex() (which read only EatoutsBridge.all / EatoutsCatering / BAKERY_BUSINESSES_DATA /
+  EatoutsBottleStores) never saw it. The page did not even load the overlay file.
+  Indexing: pushOverlayVenue() pushes { type:'restaurant', id:'venue-<slug>', name, subtitle:['Restaurant', cuisine, town, area],
+  searchText:[name, slug, aliases, cuisine, tagline, 'restaurant food', town, area], logo, town, area, badge:'Restaurant', slug,
+  navKind:'restaurant', overlay:true }. The slug and aliases are inside searchText on purpose: the name is "Zorz" (z-o-r-z), so the query the
+  user actually typed - "zors" - would still miss it without them.
+  Dedupe: the overlay file also curates Ocean Basket and Bukhara, which DO have directory rows (directory slugs ocean-basket [2 branches:
+  Gaborone + Francistown] and bukhara). Overlay rows are pushed last and skipped when their slug or any alias is already indexed, so no venue
+  is duplicated. Verified by data-id: every "ocean basket"/"bukhara" row stays a rest_* directory row, never venue-*.
+  Routing: overlay rows deliberately do NOT go to index.html#<slug>/menu. index.html's boot deep-link resolves #<slug>/menu only against
+  EatoutsBridge.all() (:10798-10811) and renderRestaurantSubView() falls back to the list when EatoutsBridge.byId() is null (:6400-6405), so an
+  unknown slug bounces straight back; and with no menus_data/zors.json the menu view would render the flagship template under Zors' name
+  (invented content). They go to venue-about.html?link=zors instead - the standalone page already resolves Zors from the same overlay file
+  (venue-about.html:1070-1095) and toasts "has not yet loaded their menu" rather than dead-ending (:1774-1776).
+  Deliberately NOT done: a Zors row on index.html's Restaurants tab. allRestaurants() -> EatoutsBridge.groupedListing() rows are consumed by
+  restaurantItem/restaurantOptions, whose Menu/Promos/About actions require EatoutsBridge.byId(); an overlay row there needs overlay-awareness
+  in the listing, the boot deep-link and renderRestaurantSubView, plus a real Zors menu. Separate task, after Zors publishes a menu.
+- Verified: node tests/search-screen.js -> SEARCH SCREEN TEST PASSED (20/20 ok, window errors: 0). Full npm test -> 61 passed, 2 failed.
+- Errors: none from this change. The 2 failing suites (html-catalog.js, inventory.js) are PRE-EXISTING: both only complain that
+  search_screen.html has no scripts/html_catalog.meta.json entry, no <!-- PAGE: --> banner, no <body data-page> and is missing from
+  PAGE_INVENTORY.md - all true of HEAD 6543c82 as well (verified with git show). Unrelated to this task and left untouched.
+
+
 
 ### [2026-11-01 20:28:42] - [Agent: Cline] - [COMMITTED]
 - Task: venue-about - add an "About" button above Settings in the logo overlay that pushes the logo up and reveals a white business-info card

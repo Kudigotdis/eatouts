@@ -27,6 +27,7 @@ const SUITES = [
   'venue-about-menu.js',
   'venue-about-options.js',
   'venue-about-about.js',
+  'search-screen.js',
   'blog.js',
   'dashboard.js',
   'wa.js',
