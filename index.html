@@ -700,10 +700,11 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 .ritem{width:calc(100% - 20px);margin:7px 10px;background:#ffffff;border:1px solid #ece7db;border-radius:7px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px rgba(16,24,40,.06);transition:box-shadow .25s ease,border-color .25s ease,opacity .18s ease}
 .ritem.open{border-color:#dfe3e9;box-shadow:0 2px 4px rgba(16,24,40,.06),0 18px 40px rgba(16,24,40,.10)}
 .ritem.open>.rrow{background:#ffffff}
-/* T03 — an open row is the only lit row: the rest dim and stop taking taps,
-   and the page holds still until the accordion is closed. */
-.scroll.has-open .ritem:not(.open){opacity:.25;pointer-events:none}
-body.ritem-locked .scroll{overflow:hidden;touch-action:none}
+/* T03 — an open row is the only lit row: the rest dim so the opened card is
+   the one in focus. The list is never scroll-locked and the dimmed rows keep
+   taking taps, so a tall panel stays reachable and tapping another row (or the
+   same header) switches/closes instead of leaving the accordion stuck. */
+.scroll.has-open .ritem:not(.open){opacity:.25}
 /* T08 — Back History popup, opened from the logo. */
 .hist-wrap{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px}
 .hist-scrim{position:absolute;inset:0;background:rgba(20,18,12,.28);-webkit-backdrop-filter:blur(10px) saturate(1.2);backdrop-filter:blur(10px) saturate(1.2)}
@@ -4650,14 +4651,15 @@ function syncRestAccordions(){
     const b=el.querySelector('.rrow[data-act="toggleRestaurant"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
-  /* T03: centre the opened row, hold the list still, and dim the rest. */
+  /* T03: bring the opened row into view and dim the rest. The list is never
+     scroll-locked - a tall panel has to stay scrollable and the dimmed rows
+     stay tappable so another row (or the same header) can be tapped. */
   Array.prototype.forEach.call(vp.querySelectorAll(".scroll.has-open"),function(el){el.classList.remove("has-open");});
-  document.body.classList.toggle("ritem-locked",!!openEl);
   if(!openEl){restAccFocused=null;return;}
   if(openEl.parentNode) openEl.parentNode.classList.add("has-open");
   if(restAccFocused!==state.restaurantOpen){
     restAccFocused=state.restaurantOpen;
-    if(openEl.scrollIntoView) openEl.scrollIntoView({block:"center",behavior:"smooth"});
+    if(openEl.scrollIntoView) openEl.scrollIntoView({block:"nearest",behavior:"smooth"});
   }
 }
 function syncVenueMenuAccordions(){

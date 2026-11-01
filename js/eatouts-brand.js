@@ -64,6 +64,10 @@ kfc: 'assets/logo/kfc.jpg',
     if (s === 'yellow-giraffe' || s === 'the-yellow-giraffe') return 'the-yellow-giraffe';
     if (s === 'game-reserve' || s === 'the-game-reserve') return 'the-game-reserve';
     if (s === 'bull-and-bush-maun') return 'bull-and-bush';
+    /* The curated overlay entry for Zorz is keyed 'zors'
+       (assets/data/venue_about_info.js), while its directory row is the full
+       name, so both spellings have to land on the same brand key. */
+    if (s === 'zors' || s === 'zorz') return 'zorz-luxury-chisanyama';
     return s;
   }
 

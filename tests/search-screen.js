@@ -2,19 +2,22 @@
 /**
  * Search screen — the result index must include EVERY discoverable venue.
  *
- * Zorz (slug `zors`) is an overlay-only venue: it has no row in
- * directory_runtime_data.js, so its identity lives in
- * assets/data/venue_about_info.js. buildIndex() therefore reads that file as a
- * fourth source, deduped by slug against everything already indexed (Ocean
- * Basket and Bukhara DO have directory rows and must not appear twice).
+ * Zorz (slug `zors`) used to be an overlay-only venue: it had no row in
+ * directory_runtime_data.js, so its identity lived in
+ * assets/data/venue_about_info.js. It is now a real directory row
+ * (`rest_zorz-luxury-chisanyama`, seeded from the `extras` block of
+ * eatouts_manifest.json), so buildIndex() must NOT add a second, overlay-only
+ * row for it - the curated slug/aliases are folded into the directory row's
+ * search text instead (same rule that keeps Ocean Basket and Bukhara single).
  *
  * Covered here:
  *   - the index builds from the directory (results render, no "Loading…")
- *   - "zors" finds "Zorz Luxury Chisanyama" (the typed alias, not the name)
- *   - "zorz" and "chisanyama" find it too
- *   - "ocean basket" still returns exactly one row (overlay dedupe)
- *   - the overlay row carries Gaborone / Remmogo Crossing for the filters
- *   - tapping it targets the standalone venue-about.html?link=zors page
+ *   - "zors" finds "Zorz Luxury Chisanyama" (the curated alias, not the name)
+ *   - "zorz", "chisanyama" and "remmogo" find it too
+ *   - "zors" / "zorz" resolve to one and the same directory row (alias fold)
+ *   - "ocean basket" / "bukhara" still return only their directory rows
+ *   - the row carries Gaborone / Remmogo Crossing for the filters
+ *   - tapping it opens its in-app menu (index.html#<slug>/menu)
  *   - no runtime errors
  *
  * CommonJS on purpose — tests/package.json pins this folder to CommonJS.
@@ -110,14 +113,20 @@ setTimeout(() => {
   rows = search('remmogo');
   check('"remmogo" (its area) finds it', names(rows).indexOf(ZORZ) > -1, names(rows).join(' | '));
 
+  /* Zorz is a normal directory row now, so its subtitle is the directory's
+     "town · area"; the words the curated overlay supplied ("zors") live in
+     that row's search text (asserted below). */
   const meta = metaOf(search('zors'), ZORZ);
-  check('row is typed as a restaurant', /Restaurant/.test(meta), meta);
   check('row carries town + area for the filters', /Gaborone/.test(meta) && /Remmogo Crossing/.test(meta), meta);
 
-  /* ---------- C: overlay dedupe against real directory rows ---------- */
+  /* ---------- C: one row per venue (no overlay duplicate) ---------- */
   const idsFor = q => search(q).map(r => r.getAttribute('data-id'));
-  check('Zorz row id is namespaced (venue-zors)', search('zors')[0].getAttribute('data-id') === 'venue-zors',
+  check('Zorz is the directory row rest_zorz-luxury-chisanyama',
+    search('zors')[0].getAttribute('data-id') === 'rest_zorz-luxury-chisanyama',
     search('zors')[0].getAttribute('data-id'));
+  check('"zors" and "zorz" resolve to that same single row',
+    idsFor('zors').length === 1 && idsFor('zorz').join() === idsFor('zors').join(),
+    idsFor('zors').join(' | ') + ' vs ' + idsFor('zorz').join(' | '));
   /* Ocean Basket has two real directory branches, so two rows are correct -
      the overlay entry for it must NOT add a third ("venue-ocean-basket"). */
   check('"ocean basket" adds no overlay duplicate',
@@ -126,13 +135,13 @@ setTimeout(() => {
     idsFor('bukhara').every(id => id.indexOf('venue-') !== 0), idsFor('bukhara').join(' | '));
   check('"bukhara" is still exactly one row', idsFor('bukhara').length === 1, idsFor('bukhara').length);
 
-  /* ---------- D: tap routes to the standalone About page ---------- */
+  /* ---------- D: tap opens the venue's in-app menu ---------- */
   let navUrl = null;
   doc.addEventListener('eatouts:about-nav', e => { navUrl = e.detail && e.detail.url; });
   rows = search('zors');
   click(rows[0]);
-  check('tapping Zorz targets venue-about.html?link=zors',
-    navUrl === 'venue-about.html?link=zors', navUrl);
+  check('tapping Zorz opens index.html#zorz-luxury-chisanyama/menu',
+    navUrl === 'index.html#zorz-luxury-chisanyama/menu', navUrl);
 
   /* a normal restaurant still keeps the in-app menu route */
   navUrl = null;

@@ -295,9 +295,20 @@ img{display:block;max-width:100%}
   function pushOverlayVenue(out, key, oe, have){
     if (!oe || !oe.name) return;
     var slug = norm(oe.slug || key);
-    if (!slug || have[slug]) return;
     var aliases = (oe.aliases || []).map(norm);
-    if (aliases.some(function(a){ return have[a]; })) return;
+    /* have[slug] holds the row that already covers this venue. A venue that
+       has since been given its own directory row is not repeated: the curated
+       slug/aliases are folded into that row's searchText so the curated
+       spellings ("zors") still find it. */
+    var existing = (slug && have[slug]) || null;
+    if (!existing) {
+      for (var i = 0; i < aliases.length; i++) { if (have[aliases[i]]) { existing = have[aliases[i]]; break; } }
+    }
+    if (existing) {
+      if (existing.searchText) existing.searchText += ' ' + [slug].concat(aliases).join(' ');
+      return;
+    }
+    if (!slug) return;
     have[slug] = 1;
     var town = oe.town || '', area = oe.area || '';
     out.push({
@@ -315,6 +326,7 @@ img{display:block;max-width:100%}
       navKind: 'restaurant',
       overlay: true
     });
+    have[slug] = out[out.length - 1];
   }
   function pushBundleContent(out, r){
     if (!r || !window.EatoutsBridge) return;
@@ -398,7 +410,7 @@ img{display:block;max-width:100%}
     if (window.EATOUTS_VENUE_ABOUT){
       try {
         var have = {};
-        out.forEach(function(it){ if (it.slug) have[norm(it.slug)] = 1; });
+        out.forEach(function(it){ if (it.slug) have[norm(it.slug)] = it; });
         var about = window.EATOUTS_VENUE_ABOUT;
         Object.keys(about).forEach(function(key){ pushOverlayVenue(out, key, about[key], have); });
       } catch(e){ console.warn('[Search] overlay venues:', e); }

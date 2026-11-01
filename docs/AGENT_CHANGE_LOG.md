@@ -15,7 +15,29 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
+### [2026-11-01 23:36:00] - [Agent: cline] - [Status: IN_PROGRESS]
+- Task: three venues had no menu (Ocean Basket, Bukhara, Zorz Luxury Chisanyama) + Zorz was missing from the Restaurants list/search + the open restaurant card (`.ritem.open`) could scroll-lock the page
+- Files changed:
+  - assets/data/menus_data/Ocean Basket.json, Bukhara.json, Zorz Luxury Chisanyama.json (new; transcribed from the venue menu documents into the directory schema `{restaurant,currency,currencySymbol,menu:[{category,note,items:[{name,description,price|variants,extras}]}]}` — Ocean Basket 2 categories/3 items, Bukhara 14/104, Zorz 8/32; variants keep both prices ("Half/Full"), sauces become `extras`)
+  - assets/data/restaurant_listings/eatouts_manifest.json (+ the generated eatouts_manifest.js): new `extras` entry `Zorz Luxury Chisanyama` (town Gaborone, district 01, area + address Remmogo Crossing, category Restaurant, logo assets/logo/ZORZ_logo.webp, phone +267 77 853 309) so the venue is a real directory row instead of overlay-only
+  - assets/data/restaurant_listings/directory_runtime_data.json/.js (regenerated: menuFiles 14→17, menusRaw now carries the three menus, restaurants gains `rest_zorz-luxury-chisanyama`)
+  - js/eatouts-brand.js: `canonicalKey()` maps `zors`/`zorz` → `zorz-luxury-chisanyama` (the curated overlay key is `zors`, the directory slug is the full name, so both spellings must resolve to one brand)
+  - search_screen.html: `pushOverlayVenue()` no longer skips when the curated slug/aliases are already indexed — it folds them into that row's `searchText` instead (so "zors" still finds the directory row and no duplicate `venue-zors` row is created); `have[slug]` now stores the row rather than `1`
+  - index.html: removed the T03 scroll lock — `body.ritem-locked .scroll{overflow:hidden;touch-action:none}` and `pointer-events:none` on dimmed rows are gone, `syncRestAccordions()` no longer toggles `ritem-locked`, and `scrollIntoView` uses `block:"nearest"`; the dim (`.scroll.has-open .ritem:not(.open){opacity:.25}`) stays
+  - tests/search-screen.js: Zorz is a directory row now, so the suite asserts `data-id === rest_zorz-luxury-chisanyama`, that "zors" and "zorz" resolve to that same single row, and that tapping it opens `index.html#zorz-luxury-chisanyama/menu` (the old `venue-zors` / `venue-about.html?link=zors` expectations are gone)
+  - assets/data/link_registry.json (regenerated: 838 → 839 with zorz-luxury-chisanyama)
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - Menu JSON is the only source now; the older `*-Menu.js` menu files are no longer in assets (stale copies in dist are gone after `npm run build`).
+  - `scripts/seeds/business_links.sql` was regenerated too but NOT committed: `build_link_registry.mjs` rewrites `created_at/updated_at` for all 839 rows (1634662431786 → 4332980179919), a pre-existing generator drift unrelated to this task. Restored to HEAD.
+  - `index.html` also carries another agent's uncommitted header-search icon + masonry gallery work, so only the T03 hunks were staged for this commit.
+- Verified: `npm run build` (merge + link-registry + copy-static) clean; `node tests/search-screen.js` PASSED; `node tests/venue-about-about.js`, `venue-about-menu.js`, `venue-about-options.js`, `menuview.js` PASSED; ad-hoc jsdom harness (not committed) confirmed menuFiles/menusRaw for the three venues (2/3, 14/104, 8/32 items), `menuFor('zors')` → Zorz menu, Zorz card in the rendered Restaurants list, `.ritem.open` opens without `ritem-locked` while `.scroll` keeps `overflow-y:auto`, and `venue-about.html?link=ocean-basket|bukhara|zors|zorz|zorz-luxury-chisanyama` navigate from the Menu line-action with no "not yet loaded" toast.
+- Errors: none.
+
+
 ### [2026-11-01 23:23:55] - [Agent: opencode] - [COMMITTED]
+
 - Task: venue-about — the About card holds copy only (eyebrow / title / paragraphs), curated contact facts moved to the social row, Settings hidden while the card is open and the About↔Settings gap tightened
 - Files changed:
   - venue-about.html (CSS: .about-scroll content rules reduced to .about-eyebrow/.about-title/.about-p - .about-tagline, .about-facts, .about-fact, .about-k, .about-v removed; .logo-overlay.about-open gap 16px→10px; new .logo-overlay:not(.about-open) .about-panel{margin:-20px 0} so the collapsed 0-height card no longer contributes two 28px flex gaps (About→Settings ~56px→16px) while the grid-template-rows transition still animates; new .logo-overlay.about-open .settings-acc{display:none}. JS: renderAbout() emits only eyebrow + title + .about-p and reads the shared `curated` entry; aboutFacts() deleted; new `curated = aboutEntry(biz.slug)` feeds the contact pools (whatsapp/phone/phone2 merged into C.wa + C.call, deduped by digits), the social row (curated socials ahead of record socials) and the Website icon (curated.website before record.website)).
