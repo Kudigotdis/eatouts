@@ -21,8 +21,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - search_screen.html (+~50): loads assets/data/venue_about_info.js in the data-script block; new pushOverlayVenue() helper; buildIndex() gains a 4th source that walks window.EATOUTS_VENUE_ABOUT last, deduped by canonical slug (and alias) against every row already indexed; openResult() sends overlay rows to venue-about.html?link=<slug>; new go() helper dispatches eatouts:about-nav before navigating (same convention as index.html gotoVenueAbout)
   - tests/search-screen.js (new suite, 20 checks) + tests/run-all.js (1 line in SUITES)
   - docs/AGENT_CHANGE_LOG.md (this entry)
-- Commit: PENDING (sha recorded in the follow-up ledger commit)
-- Push: PENDING
+- Commit: f2a7ef4 (feature commit; the sha + push are recorded in the follow-up ledger commit)
+- Push: origin/main — feature commit f2a7ef4 + this ledger commit (fast-forward from 6543c82)
 - Notes:
   Why: "Zors" (ZORZ Luxury Chisanyama) is an overlay-only venue - it has no row in directory_runtime_data.js and its identity lives only in
   assets/data/venue_about_info.js, so buildIndex() (which read only EatoutsBridge.all / EatoutsCatering / BAKERY_BUSINESSES_DATA /
