@@ -106,6 +106,15 @@ function copyOnly(cls) { return /^about-(eyebrow|title|p)$/.test(cls); }
   check('OB: button has no caret and no sub-label',
     !q('#aboutBtn .about-caret') && !q('#aboutBtn small'));
 
+  /* The About button and the Settings summary are stacked look-alikes, so they
+     must compute to the same type: family, size, weight and line-height. */
+  const aboutFont = w.getComputedStyle(btn);
+  const setFont = w.getComputedStyle(acc.querySelector('summary'));
+  const fontOf = s => [s.fontFamily, s.fontSize, s.fontWeight, s.lineHeight].join(' ');
+  check('OB: About button and Settings summary share the same font',
+    fontOf(aboutFont) === fontOf(setFont),
+    'about[' + fontOf(aboutFont) + '] vs settings[' + fontOf(setFont) + ']');
+
   click(q('#logoBtn'));
   check('OB: tapping the logo opens the overlay', !!q('#logoOverlay.open'));
 
