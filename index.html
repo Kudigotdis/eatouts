@@ -939,6 +939,7 @@ a.dlg-btn{text-decoration:none}
 <script src="assets/data/BottleLliquorStoresDatabase.js"></script>
 <script src="assets/data/CateringServicesDatabase.js?v=20261021"></script>
 <script src="assets/data/bakery_services_database.js?v=20261021"></script>
+<script src="js/bakery-types.js?v=20261101"></script>
 <script src="botswana_locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-brand.js"></script>
@@ -3755,7 +3756,29 @@ profilePhoto:null,
   cateringBranchOf:{},
   cateringLocPicker:null,
   bakeryOpen:null,
-  cateringQuery:""
+  cateringQuery:"",
+  /* Catering + bakery filter bars (2nd tap of the Restaurants nav icon).
+     Their own town/area/type state so filtering one directory never
+     filters the food or beverage lists. */
+  cateringFilterOpen:false,
+  cateringTown:"All",
+  cateringArea:"All",
+  cateringTypes:[],
+  cateringTownPicker:false,
+  cateringAreaPicker:false,
+  cateringTypePicker:false,
+  cateringTypeDraft:[],
+  cateringTypeSearch:"",
+  bakeryFilterOpen:false,
+  bakeryTown:"All",
+  bakeryArea:"All",
+  bakeryTypes:[],
+  bakeryTownPicker:false,
+  bakeryAreaPicker:false,
+  bakeryTypePicker:false,
+  bakeryTypeDraft:[],
+  bakeryTypeSearch:"",
+  bakeryQuery:""
 };
 let restNoticeTimer=null;
 
@@ -5555,6 +5578,11 @@ function switchRestPanel(panel){
     closeAllRitemAccordions();
     state.bevView=null;
     state.bevCheckout=false;
+    /* filter pickers never carry over to the next directory panel */
+    state.cateringTownPicker=false;state.cateringAreaPicker=false;state.cateringTypePicker=false;
+    state.cateringTypeDraft=state.cateringTypes.slice();state.cateringTypeSearch="";
+    state.bakeryTownPicker=false;state.bakeryAreaPicker=false;state.bakeryTypePicker=false;
+    state.bakeryTypeDraft=state.bakeryTypes.slice();state.bakeryTypeSearch="";
     render();
     panelFade=false;
   };
@@ -5591,11 +5619,133 @@ function cateringThumb(brand){
   return "";
 }
 /* PAGE: catering — Catering */
+/* ---------- catering filter bar (search + Town | Area | Cuisines) -------- */
+function cateringFilterActive(){
+  return state.cateringTown!=="All"||state.cateringArea!=="All"||
+    state.cateringTypes.length>0||String(state.cateringQuery||"").trim()!=="";
+}
+function cateringTowns(){
+  const seen={};const out=[];
+  cateringBrands().forEach(function(b){
+    (b.branches||[]).forEach(function(s){
+      const t=String(s.town||"").trim();
+      if(!t||seen[normalizeRestType(t)])return;seen[normalizeRestType(t)]=1;out.push(t);
+    });
+  });
+  out.sort(function(a,b){return normalizeRestType(a).localeCompare(normalizeRestType(b));});
+  return out;
+}
+function cateringAreasForTown(town){
+  const seen={};const out=[];
+  cateringBrands().forEach(function(b){
+    (b.branches||[]).forEach(function(s){
+      if(town&&town!=="All"&&normalizeRestType(s.town)!==normalizeRestType(town))return;
+      const a=String(s.area||"").trim();
+      if(!a||seen[normalizeRestType(a)])return;seen[normalizeRestType(a)]=1;out.push(a);
+    });
+  });
+  out.sort(function(a,b){return normalizeRestType(a).localeCompare(normalizeRestType(b));});
+  return out;
+}
+/* Cuisines = the distinct brand.type values in the catering database. */
+function cateringTypeNames(){
+  const seen={};const out=[];
+  cateringBrands().forEach(function(b){
+    const t=String(b.type||"").trim();
+    if(!t||seen[normalizeRestType(t)])return;seen[normalizeRestType(t)]=1;out.push(t);
+  });
+  out.sort(function(a,b){return normalizeRestType(a).localeCompare(normalizeRestType(b));});
+  return out;
+}
+function cateringCountByType(name){
+  return cateringBrands().filter(function(b){
+    return normalizeRestType(b.type)===normalizeRestType(name);
+  }).length;
+}
+function cateringBrandCount(town,area){
+  return cateringBrands().filter(function(b){
+    return (b.branches||[]).some(function(s){
+      if(town&&town!=="All"&&normalizeRestType(s.town)!==normalizeRestType(town))return false;
+      if(area&&area!=="All"&&normalizeRestType(s.area)!==normalizeRestType(area))return false;
+      return true;
+    });
+  }).length;
+}
+function cateringTownCount(town){return cateringBrandCount(town,"All");}
+function cateringMatchesFilters(brand){
+  const q=String(state.cateringQuery||"").trim().toLowerCase();
+  const town=state.cateringTown,area=state.cateringArea;
+  const types=state.cateringTypes||[];
+  const branchOk=(brand.branches||[]).filter(function(s){
+    if(town!=="All"&&normalizeRestType(s.town)!==normalizeRestType(town))return false;
+    if(area!=="All"&&normalizeRestType(s.area)!==normalizeRestType(area))return false;
+    return true;
+  });
+  if(!branchOk.length)return false;
+  if(types.length&&!types.some(function(t){return normalizeRestType(brand.type)===normalizeRestType(t);}))return false;
+  if(!q)return true;
+  if(normalizeRestType(brand.name).indexOf(q)>-1)return true;
+  if(normalizeRestType(brand.type).indexOf(q)>-1)return true;
+  return branchOk.some(function(s){
+    return normalizeRestType(s.town).indexOf(q)>-1||normalizeRestType(s.area).indexOf(q)>-1||
+      normalizeRestType(s.address).indexOf(q)>-1||normalizeRestType(s.name).indexOf(q)>-1;
+  });
+}
+function filteredCateringBrands(){return cateringBrands().filter(cateringMatchesFilters);}
+function renderCateringTownPicker(){
+  const towns=cateringTowns();
+  let h='<div class="fpop-scrim" data-act="closeCateringTownPicker"></div><div class="fpop town-pop rest-town-pop" role="listbox" aria-label="Choose town">';
+  h+='<div class="town-scroll">';
+  h+='<button class="loc-all'+(state.cateringTown==="All"?" on":"")+'" data-act="pickCateringTown" data-town="All" role="option" aria-selected="'+(state.cateringTown==="All")+'"><span class="lbl">All Towns</span></button>';
+  towns.forEach(function(t){
+    const selected=state.cateringTown===t;
+    h+='<button class="loc-town-main'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickCateringTown" data-town="'+esc(t)+'"><span class="lbl">'+esc(t)+'</span><span class="loc-count">'+cateringTownCount(t)+'</span></button>';
+  });
+  if(!towns.length)h+='<div class="fpop-note">No towns listed</div>';
+  h+='</div>';
+  h+='<nav class="az-rail" aria-label="Jump to letter"></nav><div class="az-bubble" aria-hidden="true"></div>';
+  return h+'</div>';
+}
+function renderCateringAreaPicker(){
+  const areas=state.cateringTown==="All"?[]:cateringAreasForTown(state.cateringTown);
+  let h='<div class="fpop-scrim" data-act="closeCateringAreaPicker"></div><div class="fpop area-pop" role="listbox" aria-label="Choose area">';
+  h+='<button class="loc-area-option'+(state.cateringArea==="All"?" on":"")+'" role="option" aria-selected="'+(state.cateringArea==="All")+'" data-act="pickCateringArea" data-area="All"><span>All Areas</span></button>';
+  areas.forEach(function(a){
+    const selected=state.cateringArea===a;
+    h+='<button class="loc-area-option'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickCateringArea" data-area="'+esc(a)+'"><span>'+esc(a)+'</span></button>';
+  });
+  if(state.cateringTown==="All")h+='<div class="fpop-note">Choose a town to list its areas.</div>';
+  else if(!areas.length)h+='<div class="fpop-note">No areas listed</div>';
+  return h+'</div>';
+}
+function renderCateringTypePicker(){
+  const query=(state.cateringTypeSearch||"").trim().toLowerCase();
+  const names=cateringTypeNames().filter(function(n){return !query||n.toLowerCase().indexOf(query)>-1;});
+  let h='<div class="fpop-scrim" data-act="closeCateringTypePicker"></div><div class="fpop rest-type-pop" role="dialog" aria-label="Choose catering cuisines">';
+  h+='<div class="rest-type-top"><div class="csearch"><input id="cateringTypeSearch" type="search" placeholder="Search cuisines..." value="'+esc(state.cateringTypeSearch)+'" aria-label="Search catering cuisines"></div>';
+  h+='<div class="rest-type-status"><span>'+state.cateringTypeDraft.length+' selected</span><button type="button" data-act="clearCateringTypeDraft">Clear</button></div></div>';
+  h+='<div class="rest-type-options">';
+  if(names.length){
+    h+='<section>';
+    names.forEach(function(name){
+      const selected=state.cateringTypeDraft.indexOf(name)>-1;
+      h+='<label class="rest-type-option"><input type="checkbox" data-catering-type-option value="'+esc(name)+'"'+(selected?' checked':'')+'><span>'+esc(name)+'</span><span class="loc-count rest-type-count">'+cateringCountByType(name)+'</span></label>';
+    });
+    h+='</section>';
+  } else {
+    h+='<div class="rest-type-empty">No matching cuisines</div>';
+  }
+  h+='</div><div class="rest-type-footer"><button type="button" data-act="closeCateringTypePicker">Cancel</button><button type="button" class="apply" data-act="applyCateringTypeSelection">Apply</button></div></div>';
+  return h;
+}
 function renderCatering(){
   let h='<div class="scroll">';
   if(!cateringAPI()){h+='<div class="empty">Catering services are loading…</div></div>';return h;}
-  const brands=cateringBrands();
-  if(!brands.length){h+='<div class="empty">No catering services found.</div></div>';return h;}
+  const brands=filteredCateringBrands();
+  if(!brands.length){
+    h+='<div class="empty">'+(cateringFilterActive()?"No catering services match these filters.":"No catering services found.")+'</div></div>';
+    return h;
+  }
   brands.forEach(function(b){h+=cateringItem(b);});
   h+='<div style="height:24px"></div></div>';
   return h;
@@ -5713,7 +5863,10 @@ function bakeryBrands(){
       phone:notSpecified(r.contacts),
       address:notSpecified(r.address),
       area:notSpecified(r.area),
-      town:notSpecified(r.town)
+      town:notSpecified(r.town),
+      /* product categories, once a bakery publishes them — the Type filter
+         only narrows bakeries that actually declare a category list */
+      categories:Array.isArray(r.categories)?r.categories.slice():[]
     };
   });
 }
@@ -5724,10 +5877,119 @@ function bakeryThumb(b){
   return "";
 }
 /* PAGE: bakeries — Bakeries */
+/* ---------- bakery filter bar (search + Town | Area | Type) -------------- */
+function bakeryFilterActive(){
+  return state.bakeryTown!=="All"||state.bakeryArea!=="All"||
+    state.bakeryTypes.length>0||String(state.bakeryQuery||"").trim()!=="";
+}
+function bakeryTowns(){
+  const seen={};const out=[];
+  bakeryBrands().forEach(function(b){
+    const t=String(b.town||"").trim();
+    if(!t||seen[normalizeRestType(t)])return;seen[normalizeRestType(t)]=1;out.push(t);
+  });
+  out.sort(function(a,b){return normalizeRestType(a).localeCompare(normalizeRestType(b));});
+  return out;
+}
+function bakeryAreasForTown(town){
+  const seen={};const out=[];
+  bakeryBrands().forEach(function(b){
+    if(town&&town!=="All"&&normalizeRestType(b.town)!==normalizeRestType(town))return;
+    const a=String(b.area||"").trim();
+    if(!a||seen[normalizeRestType(a)])return;seen[normalizeRestType(a)]=1;out.push(a);
+  });
+  out.sort(function(a,b){return normalizeRestType(a).localeCompare(normalizeRestType(b));});
+  return out;
+}
+/* Type options come from js/bakery-types.js (window.BAKERY_TYPES). */
+function bakeryTypeNames(){return (window.BAKERY_TYPES||[]).slice();}
+function bakeryDeclaredTypeCount(){
+  let n=0;
+  bakeryBrands().forEach(function(b){if((b.categories||[]).length)n++;});
+  return n;
+}
+/* A bakery that has not published its product categories stays visible under
+   every Type — the filter only hides bakeries whose own list excludes it. */
+function bakeryHasType(b,name){
+  const own=(b.categories||[]).map(normalizeRestType);
+  if(!own.length)return true;
+  return own.indexOf(normalizeRestType(name))>-1;
+}
+function bakeryCountByType(name){
+  return bakeryBrands().filter(function(b){return bakeryHasType(b,name);}).length;
+}
+function bakeryCount(town,area){
+  return bakeryBrands().filter(function(b){
+    if(town&&town!=="All"&&normalizeRestType(b.town)!==normalizeRestType(town))return false;
+    if(area&&area!=="All"&&normalizeRestType(b.area)!==normalizeRestType(area))return false;
+    return true;
+  }).length;
+}
+function bakeryTownCount(town){return bakeryCount(town,"All");}
+function bakeryMatchesFilters(b){
+  const q=String(state.bakeryQuery||"").trim().toLowerCase();
+  if(state.bakeryTown!=="All"&&normalizeRestType(b.town)!==normalizeRestType(state.bakeryTown))return false;
+  if(state.bakeryArea!=="All"&&normalizeRestType(b.area)!==normalizeRestType(state.bakeryArea))return false;
+  const types=state.bakeryTypes||[];
+  if(types.length&&!types.some(function(t){return bakeryHasType(b,t);}))return false;
+  if(!q)return true;
+  return [b.name,b.town,b.area,b.address].some(function(v){return normalizeRestType(v).indexOf(q)>-1;});
+}
+function filteredBakeries(){return bakeryBrands().filter(bakeryMatchesFilters);}
+function renderBakeryTownPicker(){
+  const towns=bakeryTowns();
+  let h='<div class="fpop-scrim" data-act="closeBakeryTownPicker"></div><div class="fpop town-pop rest-town-pop" role="listbox" aria-label="Choose town">';
+  h+='<div class="town-scroll">';
+  h+='<button class="loc-all'+(state.bakeryTown==="All"?" on":"")+'" data-act="pickBakeryTown" data-town="All" role="option" aria-selected="'+(state.bakeryTown==="All")+'"><span class="lbl">All Towns</span></button>';
+  towns.forEach(function(t){
+    const selected=state.bakeryTown===t;
+    h+='<button class="loc-town-main'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickBakeryTown" data-town="'+esc(t)+'"><span class="lbl">'+esc(t)+'</span><span class="loc-count">'+bakeryTownCount(t)+'</span></button>';
+  });
+  if(!towns.length)h+='<div class="fpop-note">No towns listed</div>';
+  h+='</div>';
+  h+='<nav class="az-rail" aria-label="Jump to letter"></nav><div class="az-bubble" aria-hidden="true"></div>';
+  return h+'</div>';
+}
+function renderBakeryAreaPicker(){
+  const areas=state.bakeryTown==="All"?[]:bakeryAreasForTown(state.bakeryTown);
+  let h='<div class="fpop-scrim" data-act="closeBakeryAreaPicker"></div><div class="fpop area-pop" role="listbox" aria-label="Choose area">';
+  h+='<button class="loc-area-option'+(state.bakeryArea==="All"?" on":"")+'" role="option" aria-selected="'+(state.bakeryArea==="All")+'" data-act="pickBakeryArea" data-area="All"><span>All Areas</span></button>';
+  areas.forEach(function(a){
+    const selected=state.bakeryArea===a;
+    h+='<button class="loc-area-option'+(selected?" on":"")+'" role="option" aria-selected="'+selected+'" data-act="pickBakeryArea" data-area="'+esc(a)+'"><span>'+esc(a)+'</span></button>';
+  });
+  if(state.bakeryTown==="All")h+='<div class="fpop-note">Choose a town to list its areas.</div>';
+  else if(!areas.length)h+='<div class="fpop-note">No areas listed</div>';
+  return h+'</div>';
+}
+function renderBakeryTypePicker(){
+  const query=(state.bakeryTypeSearch||"").trim().toLowerCase();
+  const names=bakeryTypeNames().filter(function(n){return !query||n.toLowerCase().indexOf(query)>-1;});
+  let h='<div class="fpop-scrim" data-act="closeBakeryTypePicker"></div><div class="fpop rest-type-pop" role="dialog" aria-label="Choose bakery type">';
+  h+='<div class="rest-type-top"><div class="csearch"><input id="bakeryTypeSearch" type="search" placeholder="Search types..." value="'+esc(state.bakeryTypeSearch)+'" aria-label="Search bakery types"></div>';
+  h+='<div class="rest-type-status"><span>'+state.bakeryTypeDraft.length+' selected</span><button type="button" data-act="clearBakeryTypeDraft">Clear</button></div></div>';
+  h+='<div class="rest-type-options">';
+  if(names.length){
+    h+='<section>';
+    names.forEach(function(name){
+      const selected=state.bakeryTypeDraft.indexOf(name)>-1;
+      h+='<label class="rest-type-option"><input type="checkbox" data-bakery-type-option value="'+esc(name)+'"'+(selected?' checked':'')+'><span>'+esc(name)+'</span><span class="loc-count rest-type-count">'+bakeryCountByType(name)+'</span></label>';
+    });
+    h+='</section>';
+  } else {
+    h+='<div class="rest-type-empty">No matching types</div>';
+  }
+  if(!bakeryDeclaredTypeCount())h+='<div class="rest-type-note">No bakery has listed its products yet — every bakery stays listed until they do.</div>';
+  h+='</div><div class="rest-type-footer"><button type="button" data-act="closeBakeryTypePicker">Cancel</button><button type="button" class="apply" data-act="applyBakeryTypeSelection">Apply</button></div></div>';
+  return h;
+}
 function renderBakeries(){
   let h='<div class="scroll">';
-  const brands=bakeryBrands();
-  if(!brands.length){h+='<div class="empty">No bakeries found.</div></div>';return h;}
+  const brands=filteredBakeries();
+  if(!brands.length){
+    h+='<div class="empty">'+(bakeryFilterActive()?"No bakeries match these filters.":"No bakeries found.")+'</div></div>';
+    return h;
+  }
   brands.forEach(function(b){h+=bakeryItem(b);});
   h+='<div style="height:24px"></div></div>';
   return h;
@@ -6401,6 +6663,13 @@ function cbarKey(){
     state.bottleOpen||"",state.bottleTown,state.bottleArea,state.bottleQuery,
     state.bottleTownFilter,state.bottleAreaFilter,
     JSON.stringify(state.bottleLocPicker),JSON.stringify(state.bottleBranchOf),
+    state.cateringFilterOpen,state.cateringTownPicker,state.cateringAreaPicker,state.cateringTypePicker,
+    state.cateringTown,state.cateringArea,state.cateringTypes.join(","),
+    state.cateringTypeDraft.join(","),state.cateringTypeSearch,state.cateringQuery,
+    state.bakeryFilterOpen,state.bakeryTownPicker,state.bakeryAreaPicker,state.bakeryTypePicker,
+    state.bakeryTown,state.bakeryArea,state.bakeryTypes.join(","),
+    state.bakeryTypeDraft.join(","),state.bakeryTypeSearch,state.bakeryQuery,
+    (window.BAKERY_TYPES||[]).length,
     state.searchOpen,state.gallerySearch,state.galleryFilter,
     state.galRest,state.galTown,state.galArea,state.galPopup,
     state.galLocMode,state.galRestSearch].join("~");
@@ -6445,11 +6714,57 @@ function renderControlBarInner(){
 
   /* ---- Restaurants tab: food filters, beverage filters, search ---- */
   if(state.tab==="restaurants"){
-    /* Catering & Bakery panels: no filter bar of their own yet — keep the bar hidden. */
-    if(state.restPanel==='catering'||state.restPanel==='bakery'){
-      cb.classList.remove("on"); cb.innerHTML="";
-      state.bevTypePicker=false;state.bottleTownFilter=false;state.bottleAreaFilter=false;
-      state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
+    /* Catering panel: its own bar (search + Town | Area | Cuisines),
+       hidden unless the nav tap toggled it open. */
+    if(state.restPanel==='catering'){
+      if(state.restaurantView||!state.cateringFilterOpen){
+        cb.classList.remove("on"); cb.innerHTML="";
+        state.bevTypePicker=false;state.bottleTownFilter=false;state.bottleAreaFilter=false;
+        state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
+        state.cateringTownPicker=false;state.cateringAreaPicker=false;state.cateringTypePicker=false;
+        state.cateringTypeDraft=state.cateringTypes.slice();state.cateringTypeSearch="";
+        return;
+      }
+      cb.classList.add("on");
+      const catTownLabel=state.cateringTown==="All"?"All Towns":state.cateringTown;
+      const catAreaLabel=state.cateringArea==="All"?"All Areas":state.cateringArea;
+      const catTypeLabel=!state.cateringTypes.length?"All Cuisines":state.cateringTypes.length===1?state.cateringTypes[0]:state.cateringTypes.length+" Cuisines";
+      let ch=renderFilterBar({
+        searchId:"cateringSearch", placeholder:"Search catering…", query:state.cateringQuery,
+        townAct:"openCateringTownPicker", townLabel:catTownLabel, townOpen:state.cateringTownPicker,
+        areaAct:"openCateringAreaPicker", areaLabel:catAreaLabel, areaOpen:state.cateringAreaPicker,
+        typeAct:"openCateringTypePicker", typeLabel:catTypeLabel, typeOpen:state.cateringTypePicker
+      });
+      if(state.cateringTownPicker)ch+=renderCateringTownPicker();
+      if(state.cateringAreaPicker)ch+=renderCateringAreaPicker();
+      if(state.cateringTypePicker)ch+=renderCateringTypePicker();
+      cb.innerHTML=ch;
+      return;
+    }
+    /* Bakery panel: same bar, its Type list comes from js/bakery-types.js */
+    if(state.restPanel==='bakery'){
+      if(state.restaurantView||!state.bakeryFilterOpen){
+        cb.classList.remove("on"); cb.innerHTML="";
+        state.bevTypePicker=false;state.bottleTownFilter=false;state.bottleAreaFilter=false;
+        state.restTownPicker=false;state.restAreaPicker=false;state.restTypePicker=false;
+        state.bakeryTownPicker=false;state.bakeryAreaPicker=false;state.bakeryTypePicker=false;
+        state.bakeryTypeDraft=state.bakeryTypes.slice();state.bakeryTypeSearch="";
+        return;
+      }
+      cb.classList.add("on");
+      const bakTownLabel=state.bakeryTown==="All"?"All Towns":state.bakeryTown;
+      const bakAreaLabel=state.bakeryArea==="All"?"All Areas":state.bakeryArea;
+      const bakTypeLabel=!state.bakeryTypes.length?"Type":state.bakeryTypes.length===1?state.bakeryTypes[0]:state.bakeryTypes.length+" Types";
+      let bh2=renderFilterBar({
+        searchId:"bakerySearch", placeholder:"Search bakeries…", query:state.bakeryQuery,
+        townAct:"openBakeryTownPicker", townLabel:bakTownLabel, townOpen:state.bakeryTownPicker,
+        areaAct:"openBakeryAreaPicker", areaLabel:bakAreaLabel, areaOpen:state.bakeryAreaPicker,
+        typeAct:"openBakeryTypePicker", typeLabel:bakTypeLabel, typeOpen:state.bakeryTypePicker
+      });
+      if(state.bakeryTownPicker)bh2+=renderBakeryTownPicker();
+      if(state.bakeryAreaPicker)bh2+=renderBakeryAreaPicker();
+      if(state.bakeryTypePicker)bh2+=renderBakeryTypePicker();
+      cb.innerHTML=bh2;
       return;
     }
     /* Beverages panel: its own filter bar, hidden unless toggled open */
@@ -9051,6 +9366,11 @@ function restoreHistory(entry){
   if(!s){if(entry.href)window.location.href=entry.href;else render();return;}
   state.tab=s.tab||"promos";
   state.restPanel=s.restPanel||"food";
+  /* restore lands on a directory panel with no popup open */
+  state.cateringTownPicker=false;state.cateringAreaPicker=false;state.cateringTypePicker=false;
+  state.cateringTypeDraft=state.cateringTypes.slice();state.cateringTypeSearch="";
+  state.bakeryTownPicker=false;state.bakeryAreaPicker=false;state.bakeryTypePicker=false;
+  state.bakeryTypeDraft=state.bakeryTypes.slice();state.bakeryTypeSearch="";
   state.restaurantOpen=s.restaurantOpen||null;
   state.restaurantView=s.restaurantView?JSON.parse(JSON.stringify(s.restaurantView)):null;
   state.promoId=s.promoId||null;
@@ -9125,6 +9445,16 @@ document.addEventListener("click",function(e){
         if(!state.bevFilterOpen){
           state.bevTypePicker=false;state.restTownPicker=false;state.restAreaPicker=false;
           state.bottleTownFilter=false;state.bottleAreaFilter=false;
+        }
+      }else if(state.restPanel==="catering"){
+        state.cateringFilterOpen=!state.cateringFilterOpen;
+        if(!state.cateringFilterOpen){
+          state.cateringTownPicker=false;state.cateringAreaPicker=false;state.cateringTypePicker=false;
+        }
+      }else if(state.restPanel==="bakery"){
+        state.bakeryFilterOpen=!state.bakeryFilterOpen;
+        if(!state.bakeryFilterOpen){
+          state.bakeryTownPicker=false;state.bakeryAreaPicker=false;state.bakeryTypePicker=false;
         }
       }else{
         state.restFilterOpen=!state.restFilterOpen;
@@ -9634,6 +9964,73 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     else if(brand)delete state.bottleBranchOf[brand];
     if(id&&state.restaurantView&&state.restaurantView.kind==="bottle_store")state.restaurantView.id=id;
     state.bottleLocPicker=null;render();return;
+  }
+  /* CATERING + BAKERY FILTER BARS */
+  if(act==="openCateringTownPicker"){
+    state.cateringTownPicker=!state.cateringTownPicker;state.cateringAreaPicker=false;state.cateringTypePicker=false;
+    state.cateringTypeDraft=state.cateringTypes.slice();state.cateringTypeSearch="";
+    renderControlBar();return;
+  }
+  if(act==="closeCateringTownPicker"){state.cateringTownPicker=false;renderControlBar();return;}
+  if(act==="pickCateringTown"){
+    state.cateringTown=t.getAttribute("data-town")||"All";
+    state.cateringArea="All";state.cateringTownPicker=false;render();return;
+  }
+  if(act==="openCateringAreaPicker"){
+    state.cateringAreaPicker=!state.cateringAreaPicker;state.cateringTownPicker=false;state.cateringTypePicker=false;
+    state.cateringTypeDraft=state.cateringTypes.slice();state.cateringTypeSearch="";
+    renderControlBar();return;
+  }
+  if(act==="closeCateringAreaPicker"){state.cateringAreaPicker=false;renderControlBar();return;}
+  if(act==="pickCateringArea"){state.cateringArea=t.getAttribute("data-area")||"All";state.cateringAreaPicker=false;render();return;}
+  if(act==="openCateringTypePicker"){
+    state.cateringTypePicker=!state.cateringTypePicker;state.cateringTownPicker=false;state.cateringAreaPicker=false;
+    state.cateringTypeDraft=state.cateringTypes.slice();state.cateringTypeSearch="";
+    renderControlBar();
+    if(state.cateringTypePicker)setTimeout(function(){const i=document.getElementById("cateringTypeSearch");if(i)i.focus();},30);
+    return;
+  }
+  if(act==="closeCateringTypePicker"){
+    state.cateringTypePicker=false;state.cateringTypeDraft=state.cateringTypes.slice();state.cateringTypeSearch="";
+    renderControlBar();return;
+  }
+  if(act==="clearCateringTypeDraft"){state.cateringTypeDraft=[];renderControlBar();return;}
+  if(act==="applyCateringTypeSelection"){
+    state.cateringTypes=state.cateringTypeDraft.slice();state.cateringTypePicker=false;state.cateringTypeSearch="";
+    render();return;
+  }
+  if(act==="openBakeryTownPicker"){
+    state.bakeryTownPicker=!state.bakeryTownPicker;state.bakeryAreaPicker=false;state.bakeryTypePicker=false;
+    state.bakeryTypeDraft=state.bakeryTypes.slice();state.bakeryTypeSearch="";
+    renderControlBar();return;
+  }
+  if(act==="closeBakeryTownPicker"){state.bakeryTownPicker=false;renderControlBar();return;}
+  if(act==="pickBakeryTown"){
+    state.bakeryTown=t.getAttribute("data-town")||"All";
+    state.bakeryArea="All";state.bakeryTownPicker=false;render();return;
+  }
+  if(act==="openBakeryAreaPicker"){
+    state.bakeryAreaPicker=!state.bakeryAreaPicker;state.bakeryTownPicker=false;state.bakeryTypePicker=false;
+    state.bakeryTypeDraft=state.bakeryTypes.slice();state.bakeryTypeSearch="";
+    renderControlBar();return;
+  }
+  if(act==="closeBakeryAreaPicker"){state.bakeryAreaPicker=false;renderControlBar();return;}
+  if(act==="pickBakeryArea"){state.bakeryArea=t.getAttribute("data-area")||"All";state.bakeryAreaPicker=false;render();return;}
+  if(act==="openBakeryTypePicker"){
+    state.bakeryTypePicker=!state.bakeryTypePicker;state.bakeryTownPicker=false;state.bakeryAreaPicker=false;
+    state.bakeryTypeDraft=state.bakeryTypes.slice();state.bakeryTypeSearch="";
+    renderControlBar();
+    if(state.bakeryTypePicker)setTimeout(function(){const i=document.getElementById("bakeryTypeSearch");if(i)i.focus();},30);
+    return;
+  }
+  if(act==="closeBakeryTypePicker"){
+    state.bakeryTypePicker=false;state.bakeryTypeDraft=state.bakeryTypes.slice();state.bakeryTypeSearch="";
+    renderControlBar();return;
+  }
+  if(act==="clearBakeryTypeDraft"){state.bakeryTypeDraft=[];renderControlBar();return;}
+  if(act==="applyBakeryTypeSelection"){
+    state.bakeryTypes=state.bakeryTypeDraft.slice();state.bakeryTypePicker=false;state.bakeryTypeSearch="";
+    render();return;
   }
   /* CATERING DIRECTORY */
   if(act==="toggleCatering"){state.cateringOpen=(state.cateringOpen===id)?null:id;state.cateringLocPicker=null;state.restNotice=null;syncCateringAccordions();return;}
@@ -10145,6 +10542,24 @@ document.addEventListener("change",function(e){
     Array.prototype.forEach.call(document.querySelectorAll("[data-bev-type-option]"),function(input){if(input.value===value)input.focus();});
     return;
   }
+  if(e.target.matches("[data-catering-type-option]")){
+    const value=e.target.value;
+    const selected=state.cateringTypeDraft.indexOf(value)>-1;
+    if(e.target.checked&&!selected)state.cateringTypeDraft.push(value);
+    if(!e.target.checked&&selected)state.cateringTypeDraft=state.cateringTypeDraft.filter(function(type){return type!==value;});
+    renderControlBar();
+    Array.prototype.forEach.call(document.querySelectorAll("[data-catering-type-option]"),function(input){if(input.value===value)input.focus();});
+    return;
+  }
+  if(e.target.matches("[data-bakery-type-option]")){
+    const value=e.target.value;
+    const selected=state.bakeryTypeDraft.indexOf(value)>-1;
+    if(e.target.checked&&!selected)state.bakeryTypeDraft.push(value);
+    if(!e.target.checked&&selected)state.bakeryTypeDraft=state.bakeryTypeDraft.filter(function(type){return type!==value;});
+    renderControlBar();
+    Array.prototype.forEach.call(document.querySelectorAll("[data-bakery-type-option]"),function(input){if(input.value===value)input.focus();});
+    return;
+  }
   if(e.target.matches("[data-promo-subtype]")){
     const value=e.target.value;
     const selected=state.promoSubtypes.indexOf(value)>-1;
@@ -10194,6 +10609,46 @@ document.addEventListener("input",function(e){
     const input=document.getElementById("bottleSearch");
     if(input){input.focus();input.setSelectionRange(start,start);}
     state.bottleQuery=inputValue;
+    return;
+  }
+  if(e.target.id==="cateringSearch"){
+    state.cateringQuery=e.target.value;
+    const inputValue=state.cateringQuery;
+    const start=e.target.selectionStart;
+    render();
+    const input=document.getElementById("cateringSearch");
+    if(input){input.focus();input.setSelectionRange(start,start);}
+    state.cateringQuery=inputValue;
+    return;
+  }
+  if(e.target.id==="bakerySearch"){
+    state.bakeryQuery=e.target.value;
+    const inputValue=state.bakeryQuery;
+    const start=e.target.selectionStart;
+    render();
+    const input=document.getElementById("bakerySearch");
+    if(input){input.focus();input.setSelectionRange(start,start);}
+    state.bakeryQuery=inputValue;
+    return;
+  }
+  if(e.target.id==="cateringTypeSearch"){
+    state.cateringTypeSearch=e.target.value;
+    const inputValue=state.cateringTypeSearch;
+    const start=e.target.selectionStart;
+    renderControlBar();
+    const input=document.getElementById("cateringTypeSearch");
+    if(input){input.focus();input.setSelectionRange(start,start);}
+    state.cateringTypeSearch=inputValue;
+    return;
+  }
+  if(e.target.id==="bakeryTypeSearch"){
+    state.bakeryTypeSearch=e.target.value;
+    const inputValue=state.bakeryTypeSearch;
+    const start=e.target.selectionStart;
+    renderControlBar();
+    const input=document.getElementById("bakeryTypeSearch");
+    if(input){input.focus();input.setSelectionRange(start,start);}
+    state.bakeryTypeSearch=inputValue;
     return;
   }
   if(e.target.id==="restSearch"){
