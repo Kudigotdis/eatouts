@@ -1107,3 +1107,32 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: `node tests/back-history.js` BACK-HISTORY PASSED (29 checks); `node tests/appshell.js` PASSED; `node tests/customer.js` PASSED; `node tests/orders-list.js` 26 checks; full `node tests/run-all.js` -> **60 passed, 0 failed**; `npm run inventory` PASSED (10 checks, 90 warnings - 89 are stale `PAGE_INVENTORY.md` line numbers); `npm run catalog` 70 pages / 1,114 lines; `Select-String -Path *.html -Pattern 'class="topbar"|topbar-row|hdr-chip'` -> 0 hits.
 - Not verified: device pass - header height, `.hdr-right` rhythm, progress-strip spacing at 360px and the print preview (jsdom neither lays out nor paginates).
 - Note: `assets/images/services/logo_cleanup.png` had been deleted from the worktree by an earlier asset task and was restored here (`git restore`) because nothing in T08b needs it gone. `assets/images/services/logo_cleanup.jpg`, `SYNC REGION TASK/` and `docs/Directory_Subscription_Agreement*` stay untracked and out of this commit.
+
+### [2026-11-01 02:37:00] - [Agent: Cline] - [T16: About -> WhatsApp Channel per region] - [COMMITTED]
+- Task: `PLATFORM UPDATE TASKS.md` T16 - the About tab's "WhatsApp Channel" row stops being a dead link and becomes region-aware.
+- Files changed:
+  - `index.html` (TAB 5 comment block ~`:8660` + the Settings list in `renderAbout` ~`:8736`)
+  - `tests/about.js` (+33 lines, 8 new checks)
+  - `PLATFORM UPDATE TASKS.md` (T16 block: status, steps, progress list)
+  - `docs/AGENT_CHANGE_LOG.md` (this entry)
+- Change: the single empty `const EATOUTS_WHATSAPP_CHANNEL_URL=''` is gone. In its place:
+    const WHATSAPP_CHANNELS={BW:'',ZA:'',ZW:'',MW:'',KE:''};
+    const ACTIVE_REGION='BW';
+    function whatsappChannelUrl(){return WHATSAPP_CHANNELS[ACTIVE_REGION]||'';}
+  `renderAbout` reads `const waUrl=whatsappChannelUrl();` and branches:
+    - channel configured -> `<a class="setrow" href="..." target="_blank" rel="noopener noreferrer">WhatsApp Channel</a>`
+    - no channel yet   -> `<button class="setrow" data-act="showRestNotice" data-notice="The EatOuts WhatsApp Channel is coming soon.">` which raises the
+      already-shipped floating `.rest-notice` popup (same mechanism the "Install EatOuts" row uses). No dead `href=""` ships in either state.
+  All five region codes are present but empty, so today's build shows the coming-soon notice - deliberate, per D7.
+- Tests: `tests/about.js` gained 8 checks - row is present, row never carries an empty href, the map keys equal `BW,ZA,ZW,MW,KE` in order,
+  `ACTIVE_REGION==='BW'`, `whatsappChannelUrl()` is `''` while unset, tapping the row raises `.rest-notice` with the coming-soon copy, setting
+  `WHATSAPP_CHANNELS.BW` flips the same row into an `<a>` with `_blank` + `noopener noreferrer`, and the shipped state is restored to unset (a `<button>`, empty url).
+  `node tests/about.js` -> ABOUT TEST PASSED.
+- Verified: full `node tests/run-all.js` -> **60 passed, 0 failed** (run to completion, no `FAIL ` suite lines; the only "fail" strings in the log are words
+  inside passing check labels, e.g. "server upload falls back to the data URL on failure").
+- Not verified: no device pass - the link vs. button row renders identically in jsdom, so the outbound-tab behaviour itself is untested (and untestable until
+  D7 supplies a real URL).
+- Open: 🔴 **D7 - the Botswana channel URL is still missing.** Drop it into `WHATSAPP_CHANNELS.BW` and the row goes live with no other edit.
+  `ACTIVE_REGION` stays hard-coded `'BW'` until T22 (region picker) makes it dynamic; the other four regions stay on the coming-soon popup until they get channels.
+- Note: untracked `assets/images/services/logo_cleanup.jpg`, `SYNC REGION TASK/` and `docs/Directory_Subscription_Agreement*` stayed out of this commit.
+

@@ -78,6 +78,39 @@ setTimeout(() => {
     !!bizPanel && bizLinks.length === 6 && !bizPanel.querySelector('a[href="designer-services.html"]'),
     'count=' + bizLinks.length);
 
+  /* T16 — About → WhatsApp Channel: one URL per region, coming-soon fallback */
+  const waRow = () => Array.from(vp.querySelectorAll('.setlist .setrow'))
+    .filter(el => el.textContent.trim() === 'WhatsApp Channel')[0];
+  check('WhatsApp Channel row present', !!waRow());
+  check('WhatsApp Channel row is never a dead link',
+    !!waRow() && !(waRow().tagName === 'A' && !(waRow().getAttribute('href') || '').trim()),
+    waRow() ? waRow().tagName + ' href=' + (waRow().getAttribute('href') || '') : 'missing');
+  check('WhatsApp channel map covers the five launch regions',
+    JSON.stringify(dom.window.eval('Object.keys(WHATSAPP_CHANNELS)')) ===
+    JSON.stringify(['BW', 'ZA', 'ZW', 'MW', 'KE']),
+    dom.window.eval('Object.keys(WHATSAPP_CHANNELS).join(",")'));
+  check('active region defaults to Botswana', dom.window.eval('ACTIVE_REGION') === 'BW');
+  check('a region without a channel resolves to an empty url',
+    dom.window.eval('whatsappChannelUrl()') === '');
+  click(waRow());
+  const waNotice = vp.querySelector('.rest-notice');
+  check('unconfigured channel shows the floating coming-soon notice',
+    !!waNotice && /whatsapp channel is coming soon/i.test(waNotice.textContent),
+    waNotice ? waNotice.textContent.trim() : 'no notice');
+  /* once the region has a real channel the same row becomes an outbound link */
+  dom.window.eval("WHATSAPP_CHANNELS.BW='https://whatsapp.com/channel/0029testBW'");
+  dom.window.eval('state.restNotice=null;render()');
+  const waLink = waRow();
+  check('a configured channel renders an outbound link',
+    !!waLink && waLink.tagName === 'A' &&
+    waLink.getAttribute('href') === 'https://whatsapp.com/channel/0029testBW' &&
+    waLink.getAttribute('target') === '_blank' &&
+    waLink.getAttribute('rel') === 'noopener noreferrer',
+    waLink ? waLink.tagName + ' ' + waLink.getAttribute('href') : 'missing');
+  dom.window.eval("WHATSAPP_CHANNELS.BW='';render()");
+  check('shipped state keeps the channel unset (no dead link)',
+    dom.window.eval('whatsappChannelUrl()') === '' && waRow().tagName === 'BUTTON');
+
   const oldShare = vp.querySelector('a.btn.share');
   check('old Share EatOuts button removed', !oldShare, oldShare ? 'text=' + oldShare.textContent.trim() : 'ok');
   const shareIco = vp.querySelector('.social-row a[aria-label="Share EatOuts"]');

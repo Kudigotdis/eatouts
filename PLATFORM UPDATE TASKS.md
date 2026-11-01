@@ -376,7 +376,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] `tests/appshell.js` merchant assertions still pass (`class="hdr-chip"`, own `.tabs`, logo anchor); full `npm test` 58/58.
 - [ ] Device pass — **needs a device/browser look** at the new white header over the dark `.intro` and the dark merchant `.tabs` strip on the five onboarding pages.
 
-#### T16 — About → WhatsApp Channel (user task 16) · M
+#### T16 — About → WhatsApp Channel (user task 16) · M — ⚠️ **WIRED 2026-11-01** (Botswana URL still needed — see D7)
 **Files:** `index.html` (`EATOUTS_WHATSAPP_CHANNEL_URL=''` at `:8521`, setrow at `:8597`, `renderAbout` `:8563`).
 **Current:** the URL constant is empty, so the row is a dead link.
 **Steps**
@@ -385,6 +385,11 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 2. Row opens the channel for the active region in a new tab; if the region has no channel yet, show the standard floating "coming soon" popup.
 3. Needs the Botswana channel URL/number from you (D7).
 **Done when** tapping the row opens the correct channel for Botswana; unknown region shows the popup.
+- [x] **Region map:** the single `EATOUTS_WHATSAPP_CHANNEL_URL` constant is gone; `index.html` now holds `const WHATSAPP_CHANNELS={BW:'',ZA:'',ZW:'',MW:'',KE:''}`, `const ACTIVE_REGION='BW'` and `whatsappChannelUrl()` (= `WHATSAPP_CHANNELS[ACTIVE_REGION]||''`).
+- [x] **Row:** renders `<a class="setrow" href="…" target="_blank" rel="noopener noreferrer">WhatsApp Channel</a>` when the active region has a channel, and otherwise a `<button class="setrow" data-act="showRestNotice" data-notice="The EatOuts WhatsApp Channel is coming soon.">` that raises the standard floating `.rest-notice` popup. No dead link ships.
+- [x] `tests/about.js` — 8 new checks: row present, never an empty href, the five regions in order, `ACTIVE_REGION==='BW'`, empty URL while unset, the coming-soon notice text on tap, a configured BW URL turning the row into a `_blank` / `noopener noreferrer` link, and the shipped state staying unset. `node tests/about.js` → ABOUT TEST PASSED.
+- [ ] 🔴 **D7 — the Botswana channel URL is still missing.** Drop it into `WHATSAPP_CHANNELS.BW` and the row goes live with no other change; nothing else needs editing.
+- [ ] `ACTIVE_REGION` becomes dynamic in T22 (the region picker); the other four regions stay on the coming-soon popup until they get channels.
 
 ---
 

@@ -8657,7 +8657,13 @@ function renderRestaurantGallery(){
 /* ================================================================
    TAB 5: ABOUT
    ================================================================ */
-const EATOUTS_WHATSAPP_CHANNEL_URL='';
+/* T16: one WhatsApp Channel per region. An empty entry means that region has
+   no channel yet, so the About row shows the standard floating "coming soon"
+   notice instead of shipping a dead link. T22 turns ACTIVE_REGION into the
+   region the customer picked; until then Botswana is the only live region. */
+const WHATSAPP_CHANNELS={BW:'',ZA:'',ZW:'',MW:'',KE:''};
+const ACTIVE_REGION='BW';
+function whatsappChannelUrl(){return WHATSAPP_CHANNELS[ACTIVE_REGION]||'';}
 /* Full-width "List your business" banner shown on the About tab (between the
    hero and the content pad) and in the Promos feed after every 3rd card. */
 function signupBanner(){
@@ -8727,13 +8733,16 @@ function renderAbout(){
      beneath it. Centred text rows, no chevrons. The nested list is a native
      <details>/<summary> so it also works without JavaScript. */
   const sOpen=!!state.aboutSettingsOpen;
+  const waUrl=whatsappChannelUrl();
   h+='<div class="setlist"><div class="setacc'+(sOpen?" open":"")+'" data-sacc="settings">'+
     '<button class="setrow" data-act="toggleAboutSettings" aria-expanded="'+(sOpen?"true":"false")+'">Settings</button>'+
     '<div class="acc-wrap"><div class="acc-in">'+
       '<a class="setrow" href="eatouts-about.html">About EatOuts</a>'+
       '<button class="setrow" data-act="showRestNotice" '+
         'data-notice="'+esc("EatOuts APK installer is coming soon - we will notify you here when it drops.")+'">Install EatOuts</button>'+
-      '<a class="setrow" href="'+esc(EATOUTS_WHATSAPP_CHANNEL_URL)+'">WhatsApp Channel</a>'+
+      (waUrl
+        ? '<a class="setrow" href="'+esc(waUrl)+'" target="_blank" rel="noopener noreferrer">WhatsApp Channel</a>'
+        : '<button class="setrow" data-act="showRestNotice" data-notice="'+esc("The EatOuts WhatsApp Channel is coming soon.")+'">WhatsApp Channel</button>')+
       '<a class="setrow" href="eatouts-blog.html">Blog</a>'+
       '<a class="setrow" href="eatouts-suppliers.html">Event Suppliers</a>'+
       '<button class="setrow" data-act="openTerms">Terms of Service</button>'+
