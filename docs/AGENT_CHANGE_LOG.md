@@ -1240,3 +1240,13 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Not verified: visual parity on a real device/viewport (jsdom is not installed in this checkout, so no DOM harness was run; `tests/` has no reference to `search_screen.html` and `npm test` is unaffected).
 - Note: pre-existing modified `index.html` and untracked `docs/Directory_Subscription_Agreement_Update.txt` / `docs/EatOuts_Directory_Subscription_Agreement.docx` stayed out of this commit.
 
+
+### [2026-11-01 17:36:12] - [Agent: Cline] - [search_screen results: badge + arrow removed] - [COMMITTED]
+- Task: on `search_screen.html`, remove `class="result-arrow"` and `class="result-badge"`.
+- **CSS (-2 lines, after `.result-meta`):** deleted `.result-badge` (uppercase 9.5px pill) and `.result-arrow` (22px `›` glyph) rules. `.result` / `.result-thumb` / `.result-info` / `.result-name` / `.result-meta` untouched, so rows are now thumb + name + meta only (`gap:12px` still spaces the two children).
+- **JS (`renderResults()` row template, -2 lines):** dropped the `'<span class="result-badge">…'` line and the `'<span class="result-arrow">›</span>'` line; the concatenation now runs `…result-meta…` -> `</div>` -> `</button>` with no dangling `+`.
+- No other code referenced either class (`TYPE_LABEL` is still used by the mobile-kitchen branch at `:251`, and `item.badge` still feeds the mobile/truck test at `:377`, so nothing became dead).
+- Verified: `Select-String 'result-arrow|result-badge'` -> **0 hits**; inline `<script>` syntax check (`new Function(src)`, 18637 chars) -> **JS SYNTAX PASSED**; re-read of `:53-63` and `:417-436` confirms the edited regions.
+- Not verified: on-screen row rendering (no jsdom in this checkout; `tests/` has no `search_screen.html` coverage, `npm test` unaffected).
+- Note: pre-existing modified `index.html` and untracked `docs/Directory_Subscription_Agreement*` / `js/bakery-types.js` stayed out of this commit.
+
