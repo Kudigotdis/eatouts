@@ -104,7 +104,7 @@ setTimeout(() => {
   check('WA message carries the destination area', msg.indexOf('Area: Kgale View') > -1, msg.match(/Area:[^\n]*/));
   check('WA message records the payment preference', msg.indexOf('Cash on Delivery') > -1);
   const bar = doc.querySelector('#bar .btn.primary');
-  check('bar button offers review & send with the total', bar && bar.textContent.indexOf('P140.00') > -1, bar && bar.textContent);
+  check('bar adds the fee to the order subtotal', bar && /Add P40\.00 to P100\.00 for 2 items/.test(bar.textContent), bar && bar.textContent);
 
   /* ---------- persisted back into the shared key ---------- */
   const o = stored();
@@ -125,7 +125,7 @@ setTimeout(() => {
   const osumAfterSchedule = doc.querySelector('.osum .osum-tot');
   check('schedule fee drops the total to P115.00', osumAfterSchedule && osumAfterSchedule.textContent === 'P115.00', osumAfterSchedule && osumAfterSchedule.textContent);
   const barIncomplete = doc.querySelector('#bar .btn.primary');
-  check('bar asks for the missing window', barIncomplete && barIncomplete.textContent.indexOf('Complete') > -1, barIncomplete && barIncomplete.textContent);
+  check('bar still adds the fee while the window is missing', barIncomplete && /Add P15\.00 to P100\.00 for 2 items/.test(barIncomplete.textContent), barIncomplete && barIncomplete.textContent);
   check('schedule section is rendered', !!doc.querySelector('[data-acc="schedule"]'));
 
   const slot = doc.querySelector('[data-act="pickSlot"]:not(.full):not([disabled])');
@@ -136,7 +136,7 @@ setTimeout(() => {
     check('window persisted after picking a slot', !!o2 && o2.delivery && !!o2.delivery.window, o2 && o2.delivery && o2.delivery.window);
     check('schedule fee persisted as 15', !!o2 && o2.delivery && o2.delivery.fee === 15, o2 && o2.delivery && o2.delivery.fee);
     const barReady = doc.querySelector('#bar .btn.primary');
-    check('bar is ready to review once the window is set', barReady && barReady.textContent.indexOf('Review') > -1, barReady && barReady.textContent);
+    check('bar still adds the fee once the window is set', barReady && /Add P15\.00 to P100\.00 for 2 items/.test(barReady.textContent), barReady && barReady.textContent);
     const msg2 = doc.querySelector('.msgbox');
     check('WA message now carries the requested window', !!msg2 && msg2.textContent.indexOf('REQUESTED WINDOW') > -1);
   }

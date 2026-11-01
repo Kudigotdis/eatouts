@@ -37,6 +37,7 @@ const SUITES = [
   'demo-seed.js',
   'delivery.js',
   'checkout-delivery.js',
+  'customer-delivery.js',
   'orders-list.js',
   'back-history.js',
   'promocats.js',

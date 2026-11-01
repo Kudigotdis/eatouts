@@ -37,19 +37,20 @@ img{display:block;max-width:100%}
 .rname{font-size:18px;font-weight:900;color:var(--ink);line-height:1.2;letter-spacing:-.01em}
 .rmeta{font-size:14px;color:var(--muted);margin-top:5px;font-weight:600;line-height:1.4}
 .rmeta b{color:var(--ok);font-weight:800}
-.osum{padding:16px 14px;background:#fff;border-bottom:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;width:100%}
+.osum{padding:15px 14px;background:#fff;border-bottom:1px solid var(--bd);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:100%}
 .osum:active{background:var(--bg)}
-.osum-info{flex:1;min-width:0;text-align:center}
+.osum-line{display:flex;align-items:baseline;justify-content:center;gap:7px;flex-wrap:wrap;text-align:center}
 .osum-lbl{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 .osum-tot{font-size:20px;font-weight:900;color:var(--ink);letter-spacing:-.02em;line-height:1.1}
-.osum-items{font-size:13px;color:var(--ink);font-weight:700;margin-top:3px}
-.osum-back{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);margin-top:5px}
-/* Accordion */
-.acc{margin:12px 14px;background:#fff;border:1px solid var(--bd);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.osum-items{font-size:13px;color:var(--ink);font-weight:700}
+/* Accordion — the .acc panel itself is the 3% grey container */
+.acc{margin:12px 14px;background:rgba(0,0,0,.03);border:1px solid var(--bd);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.acc.locked{opacity:.55}
 .acc.open{border-color:rgba(26,26,26,.05)}
 .acc-hdr{width:100%;padding:14px 16px;display:flex;align-items:center;justify-content:center;gap:12px;background:transparent}
 .acc-hdr:active{background:var(--bg)}
-.acc-title{flex:1;min-width:0;text-align:center}
+.acc-title{flex:1;min-width:0;text-align:center;border-radius:10px;transition:background .18s}
+.acc.open .acc-title{background:rgba(0,0,0,.05);padding:7px 10px}
 .acc-lbl{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:block}
 .acc-val{font-size:13.5px;font-weight:800;color:var(--ink);line-height:1.3;display:block}
 .acc-val.muted{color:var(--muted);font-style:italic;font-weight:600}
@@ -135,6 +136,47 @@ img{display:block;max-width:100%}
 .wrap-row.total{border-top:1px solid var(--bd);margin-top:6px;padding-top:9px;font-size:14px;color:var(--ink);font-weight:900}
 .wrap-row.total b{font-weight:900;color:var(--ink)}
 .msgbox{background:var(--bg);border:1px solid var(--bd);border-radius:11px;padding:14px;font-size:12px;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;max-height:340px;overflow-y:auto}
+.btn.danger{background:#fbeaea;border-color:#f0d1d1;color:var(--danger)}
+/* Floating popup (gating + recipient viewer) */
+.fpop-scrim{position:fixed;inset:0;background:rgba(20,18,12,.45);z-index:110;display:none;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.fpop-scrim.on{display:block;animation:fadeIn .16s ease}
+.fpop{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(100% - 36px);max-width:400px;max-height:82dvh;overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 24px 60px -24px rgba(0,0,0,.45);padding:18px;z-index:120;display:none;flex-direction:column;gap:10px}
+.fpop.on{display:flex;animation:fadeIn .16s ease}
+.fpop-msg{font-size:14.5px;font-weight:800;color:var(--ink);text-align:center;line-height:1.5}
+/* Floating dropdown list (area / property type / bank) */
+.drp-list.float{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);right:auto;width:calc(100% - 36px);max-width:400px;max-height:70dvh;border-radius:16px;box-shadow:0 24px 60px -24px rgba(0,0,0,.45);z-index:120}
+/* Attach-location button */
+.gps-btn{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(0,0,0,.05);color:#4a463c;border:1px solid var(--bd);border-radius:11px;font-size:13px;font-weight:800;text-align:center;margin:0 0 12px}
+.gps-btn:active{background:rgba(0,0,0,.08)}
+.gps-btn.on{background:rgba(23,131,75,.1);color:var(--ok);border-color:rgba(23,131,75,.25)}
+.hint.centre{text-align:center}
+/* Recipient toggle + cards + viewer */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;background:rgba(0,0,0,.05);border-radius:13px;margin-bottom:14px}
+.seg-btn{padding:11px 10px;border-radius:10px;font-size:13px;font-weight:800;color:var(--muted2);text-align:center}
+.seg-btn.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px -4px rgba(0,0,0,.35)}
+.rcpt-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.rcpt-card{display:flex;gap:12px;align-items:center;padding:10px;background:#fff;border:1.5px solid var(--bd);border-radius:13px;width:100%;text-align:left}
+.rcpt-card.on{border-color:var(--ink);background:var(--bg)}
+.rcpt-thumb{width:90px;height:90px;flex:0 0 auto;border-radius:12px;overflow:hidden;background:var(--bg);border:1px solid var(--bd2);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:var(--muted2)}
+.rcpt-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.rcpt-pick{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left}
+.rcpt-name{font-size:14px;font-weight:900;color:var(--ink);line-height:1.25}
+.rcpt-meta{font-size:12px;color:var(--muted);font-weight:700;margin-top:4px}
+.rcpt-hero{width:150px;height:150px;margin:0 auto 12px;border-radius:16px;overflow:hidden;background:var(--bg);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:900;color:var(--muted2)}
+.rcpt-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.rcpt-photo-pick{display:block;width:100%;text-align:center;font-size:11px;font-weight:800;color:var(--muted2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.rcpt-view-hero{width:100%;aspect-ratio:1/1;max-height:44dvh;border-radius:14px;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:900;color:var(--muted2)}
+.rcpt-view-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.rcpt-view-name{font-size:16.5px;font-weight:900;text-align:center;margin-top:12px}
+.rcpt-view-meta{font-size:12.5px;color:var(--muted);font-weight:700;text-align:center;margin-bottom:2px}
+.rcpt-actions{display:flex;flex-direction:column;gap:8px}
+/* Review page */
+.review-page{margin:12px 14px 20px;padding:18px 16px;background:#fff;border:1px solid var(--bd);border-radius:16px}
+.review-hdr{text-align:center;margin-bottom:14px}
+.review-title{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.review-sub{font-size:15px;font-weight:900;color:var(--ink);margin-top:5px}
+.rev-sect{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--bd2)}
+.rev-lbl{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 #toast{position:fixed;bottom:calc(150px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:12.5px;font-weight:800;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 40px);text-align:center}
 #toast.on{opacity:1}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -156,6 +198,8 @@ img{display:block;max-width:100%}
     <a class="nav-btn" href="index.html#about" aria-label="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></a>
   </nav>
 </div>
+<div class="fpop-scrim" id="fpopScrim"></div>
+<div class="fpop" id="fpop" role="dialog" aria-modal="true"></div>
 <div id="toast"></div>
 
 <script src="assets/data/delivery_zones.js"></script>
@@ -286,15 +330,21 @@ var STATE = {
   basket: (ORDER.items||[]).slice(),
   openAcc: {},
   openDrp:null,
+  popup:null,
   orderRef:'EO-' + (Math.floor(Math.random()*9000)+1000),
   deliveryMode:null,
-  destination:{ area:'', street:'', plot:'', propType:'', cond:{}, directions:'', mapLink:'', tier:null },
+  destination:{ area:'', street:'', plot:'', propType:'', cond:{}, directions:'', mapLink:'', tier:null, gps:null },
   slotDate:'',
   slotWindow:'',
-  recipient:{isSelf:true, first:'', last:'', gender:'Prefer not to say', country:'+267', number:''},
+  recipient:{isSelf:true, id:null, first:'', last:'', gender:'Prefer not to say', country:'+267', number:''},
+  recipients:null,
+  newRec:{photo:'',first:'',last:'',gender:'Prefer not to say',country:'+267',number:''},
+  showNew:false,
   payment:{method:'', bank:''},
   sent:false
 };
+var RC_EDIT={};
+STATE.recipients=loadRecipients();
 
 /* Hydrate from any delivery the customer already chose. */
 (function(){
@@ -314,6 +364,7 @@ var STATE = {
   STATE.slotWindow=d.window||'';
   if(d.recipient){
     STATE.recipient.isSelf=false;
+    STATE.recipient.id=d.recipient.id||null;
     STATE.recipient.first=d.recipient.first||'';
     STATE.recipient.last=d.recipient.last||'';
     STATE.recipient.number=d.recipient.number||'';
@@ -374,6 +425,10 @@ function waTarget(){ return (RESTAURANT&&RESTAURANT.whatsapp)||'26771844129' }
 /* Write the delivery selection back into the shared order key so
    index.html shows the fee and adds it to the WhatsApp message. */
 function persistDelivery(){
+  var pd=STATE.destination, pr=STATE.recipient;
+  var nothing=!STATE.deliveryMode && !pd.area && !pd.plot && !pr.first && !STATE.payment.method;
+  if(nothing){ ORDER.delivery=null; saveOrder(); return }
+
   ORDER.delivery={
     mode:STATE.deliveryMode,
     tier:tierOf(),
@@ -382,6 +437,7 @@ function persistDelivery(){
     date:STATE.slotDate,
     window:STATE.slotWindow,
     recipient:{
+      id:STATE.recipient.id||null,
       first:STATE.recipient.first||'',
       last:STATE.recipient.last||'',
       name:((STATE.recipient.first||'')+' '+(STATE.recipient.last||'')).trim(),
@@ -470,11 +526,14 @@ function closeDropdowns(){STATE.openDrp=null}
 document.addEventListener('click',function(e){
   if(e.target.closest('.drp-opt')) return;
   if(e.target.closest('.drp')) return;
-  if(!e.target.closest('.drp-list')) closeDropdowns();
+  if(!e.target.closest('.drp-list')){ if(STATE.openDrp){ closeDropdowns(); render(); } }
 });
+
+var FLOAT_DRP={area:1,propType:1,bank:1};
 
 function renderDropdown(id,value,options,placeholder){
   var open=STATE.openDrp===id;
+  var float=!!FLOAT_DRP[id];
   var label=value?value:placeholder;
   var opts=(options||[]).map(function(o){
     var v=typeof o==='string'?o:o.value;
@@ -482,18 +541,27 @@ function renderDropdown(id,value,options,placeholder){
     var sub=(o && typeof o==='object' && o.sub) ? ('<small>'+esc(o.sub)+'</small>') : '';
     return '<div class="drp-opt'+(v===value?' sel':'')+'" data-drp-pick="'+esc(id)+'" data-drp-val="'+esc(v)+'"><span>'+esc(l)+'</span>'+sub+'</div>';
   }).join('');
-  return '<div class="drpset">'+
-    '<div class="drp'+(value?'':' ph')+'" data-drp-open="'+esc(id)+'">'+esc(label)+'</div>'+
-    (open?'<div class="drp-list open">'+
-      ((options||[]).length>6?'<input class="drp-search" data-drp-search="'+esc(id)+'" placeholder="Search…" autocomplete="off">':'')+
-      (opts||'<div class="drp-empty">No matches</div>')+
-    '</div>':'')+
-  '</div>';
+  var trigger='<div class="drp'+(value?'':' ph')+'" data-drp-open="'+esc(id)+'">'+esc(label)+'</div>';
+  var search=((options||[]).length>6)?('<input class="drp-search" data-drp-search="'+esc(id)+'" placeholder="Search…" autocomplete="off">'):'';
+  if(!open) return '<div class="drpset">'+trigger+'</div>';
+  if(float){
+    return '<div class="drpset">'+trigger+'</div>'+
+      '<div class="fpop-scrim on" data-drp-close="'+esc(id)+'"></div>'+
+      '<div class="drp-list open float" data-drp-list="'+esc(id)+'">'+search+opts+'</div>';
+  }
+  return '<div class="drpset">'+trigger+'<div class="drp-list open">'+search+opts+'</div></div>';
 }
 
 /* ============================================================
    RENDER
    ============================================================ */
+/* Accordion shell: the method step gates every accordion below it. */
+function accClass(id){
+  var open=!!STATE.openAcc[id];
+  var locked=(id!=='method' && !STATE.deliveryMode);
+  return 'acc'+(open?' open':'')+(locked?' locked':'');
+}
+
 function render(){
   var scroll=document.getElementById('scroll');
   scroll.innerHTML=
@@ -508,6 +576,7 @@ function render(){
     renderWhatsApp();
   renderBar();
   bindInputs();
+  renderPopup();
   persistDelivery();
 }
 
@@ -532,11 +601,9 @@ function renderOrderSummary(){
   var tot=STATE.deliveryMode?sub+fee:sub;
   var extra=STATE.deliveryMode?(' · + '+money(fee)+' delivery'):'';
   return '<button class="osum" data-act="backToOrder">'+
-    '<div class="osum-info">'+
-      '<div class="osum-lbl">'+esc(lbl)+'</div>'+
-      '<div class="osum-tot">'+money(tot)+'</div>'+
-      '<div class="osum-items">'+basketCount()+' item'+(basketCount()===1?'':'s')+esc(extra)+'</div>'+
-      '<div class="osum-back">Back to order summary</div>'+
+    '<div class="osum-lbl">'+esc(lbl)+'</div>'+
+    '<div class="osum-line"><span class="osum-tot">'+money(tot)+'</span>'+
+      '<span class="osum-items">for '+basketCount()+' item'+(basketCount()===1?'':'s')+esc(extra)+'</span>'+
     '</div>'+
   '</button>';
 }
@@ -562,7 +629,7 @@ function renderMethod(){
     '</button>';
   });
   body+='</div>';
-  return '<div class="acc'+(STATE.openAcc['method']?' open':'')+'">'+
+  return '<div class="'+accClass('method')+'">'+
     '<button class="acc-hdr" data-acc="method">'+
       '<span class="acc-title"><span class="acc-lbl">Delivery Method</span><span class="acc-val'+(m?'':' muted')+'">'+esc(val)+'</span></span>'+
     '</button>'+
@@ -600,8 +667,9 @@ function renderDestination(){
     });
     body+='</div>';
   }
-  body+='<div class="fld"><label>Directions and landmark</label><textarea data-field="directions" placeholder="e.g. Cream house with a blue gate, next to the tuckshop">'+esc(d.directions)+'</textarea><div class="hint">Help the driver find you. Gate colour, road name, nearby landmark.</div></div>';
+  body+='<div class="fld"><label>Directions and landmark</label><textarea data-field="directions" placeholder="e.g. Cream house with a blue gate, next to the tuckshop">'+esc(d.directions)+'</textarea><div class="hint centre">Help the delivery driver find you. Gate colour, road name, nearby landmark etc.</div></div>';
   body+='<div class="fld"><label>Map link (optional)</label><input type="url" data-field="mapLink" value="'+esc(d.mapLink)+'" placeholder="Paste a Google Maps link"></div>';
+  body+='<button class="gps-btn'+(d.gps&&d.gps.lat?' on':'')+'" type="button" data-act="pickGps">'+(d.gps&&d.gps.lat?'Location attached ✓':'Use my current location')+'</button>';
   if(STATE.deliveryMode){
     body+='<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd2);display:flex;justify-content:space-between;align-items:baseline">'+
       '<span style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)">Delivery fee for this destination</span>'+
@@ -609,7 +677,7 @@ function renderDestination(){
     '</div>';
   }
 
-  return '<div class="acc'+(STATE.openAcc['dest']?' open':'')+'">'+
+  return '<div class="'+accClass('dest')+'">'+
     '<button class="acc-hdr" data-acc="dest">'+
       '<span class="acc-title"><span class="acc-lbl">Delivery Destination</span><span class="acc-val'+(summary.length?'':' muted')+'">'+esc(val)+'</span></span>'+
     '</button>'+
@@ -648,7 +716,7 @@ function renderSchedule(){
   body+='</div>';
   body+='<div class="hint">Only windows the restaurant has opened for this destination appear. A slot is confirmed once the restaurant accepts your request.</div>';
   body+='</div>';
-  return '<div class="acc'+(STATE.openAcc['schedule']?' open':'')+'">'+
+  return '<div class="'+accClass('schedule')+'">'+
     '<button class="acc-hdr" data-acc="schedule">'+
       '<span class="acc-title"><span class="acc-lbl">Delivery Date &amp; Time</span><span class="acc-val'+(w?'':' muted')+'">'+esc(val)+'</span></span>'+
     '</button>'+
@@ -656,36 +724,214 @@ function renderSchedule(){
   '</div>';
 }
 
+
 /* --- 4. Recipient --- */
 function renderRecipient(){
   var r=STATE.recipient;
-  var val=(r.isSelf?'My details':(r.first||'Recipient not set'));
-  if(!r.isSelf && r.first) val=r.first+' '+(r.last||'');
+  var sel=recipientById(r.id);
+  var val;
+  if(r.isSelf){ var myName=((r.first||'')+' '+(r.last||'')).trim(); val=myName?('Me · '+myName):'Me'; }
+  else val=sel?fullName(sel):(((r.first||'')+' '+(r.last||'')).trim()||'Recipient not set');
   var body='';
-  body+='<div class="fld"><label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink);font-weight:700">'+
-    '<input type="checkbox" data-field="isSelf"'+(r.isSelf?' checked':'')+' style="width:auto;min-height:auto;accent-color:#1a1a1a"> I am receiving this order</label></div>';
-  body+='<div class="row2">'+
-    '<div class="fld"><label>First name</label><input type="text" data-field="first" value="'+esc(r.first)+'" placeholder="Kagiso"></div>'+
-    '<div class="fld"><label>Surname</label><input type="text" data-field="last" value="'+esc(r.last)+'" placeholder="Sithole"></div>'+
+  body+='<div class="seg">'+
+    '<button class="seg-btn'+(r.isSelf?' on':'')+'" type="button" data-act="recipWho" data-val="me">Me</button>'+
+    '<button class="seg-btn'+(!r.isSelf?' on':'')+'" type="button" data-act="recipWho" data-val="other">Someone else</button>'+
   '</div>';
-  var genders=['Male','Female','Prefer not to say'];
-  body+='<div class="fld"><label>Gender</label>'+renderDropdown('gender',r.gender,genders,'Choose')+'</div>';
-  body+='<div class="fld"><label>Mobile number</label><div class="row3">'+
-    '<div>'+renderDropdown('mobileCC',r.country||'+267',COUNTRIES.map(function(c){return {value:c.code,label:c.code+' '+c.name}}),'Code')+'</div>'+
-    '<div style="grid-column:span 2"><input type="tel" data-field="number" value="'+esc(r.number)+'" placeholder="71 234 567"></div>'+
-  '</div></div>';
-  return '<div class="acc'+(STATE.openAcc['recip']?' open':'')+'">'+
+  if(r.isSelf){
+    body+='<div class="rev-lbl">My details</div>'+
+      '<div class="row2">'+
+        '<div class="fld"><label>First name</label><input type="text" data-field="first" value="'+esc(r.first)+'" placeholder="Kagiso"></div>'+
+        '<div class="fld"><label>Surname</label><input type="text" data-field="last" value="'+esc(r.last)+'" placeholder="Sithole"></div>'+
+      '</div>'+
+      '<div class="fld"><label>Mobile number</label><div class="row3">'+
+        '<div>'+renderDropdown('mobileCC',r.country,COUNTRIES.map(function(c){return {value:c.code,label:c.code+' '+c.name}}),'Code')+'</div>'+
+        '<div style="grid-column:span 2"><input type="tel" data-field="number" value="'+esc(r.number)+'" placeholder="71 234 567"></div>'+
+      '</div></div>';
+  } else {
+    var list=STATE.recipients||[];
+    if(list.length){
+      body+='<div class="rev-lbl">Recipient history</div><div class="rcpt-list">';
+      list.forEach(function(x){
+        var n=Number(x.orders)||0;
+        body+='<div class="rcpt-card'+(x.id===r.id?' on':'')+'">'+
+          '<button class="rcpt-thumb" type="button" data-act="rcView" data-id="'+esc(x.id)+'">'+
+            (x.photo?'<img src="'+esc(x.photo)+'" alt="">':esc(initials(x)))+
+          '</button>'+
+          '<button class="rcpt-pick" type="button" data-act="rcPick" data-id="'+esc(x.id)+'">'+
+            '<span class="rcpt-name">'+esc(fullName(x))+'</span>'+
+            '<span class="rcpt-meta">'+n+' order'+(n===1?'':'s')+' received</span>'+
+          '</button>'+
+        '</div>';
+      });
+      body+='</div>';
+    }
+    body+='<button class="btn ghost sm full" type="button" data-act="rcNew">'+(STATE.showNew?'Cancel new recipient':'Add a new recipient')+'</button>';
+    if(STATE.showNew) body+=renderRecipientForm();
+  }
+  return '<div class="'+accClass('recip')+'">'+
     '<button class="acc-hdr" data-acc="recip">'+
-      '<span class="acc-title"><span class="acc-lbl">Recipient Details</span><span class="acc-val'+(val?'':' muted')+'">'+esc(val)+'</span></span>'+
+      '<span class="acc-title"><span class="acc-lbl">Recipient Details</span><span class="acc-val'+(val?'':' muted')+'">'+esc(val||'Recipient not set')+'</span></span>'+
     '</button>'+
     '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
   '</div>';
 }
 
+/* New recipient: photo is mandatory, 150px hero thumb above the name row. */
+function renderRecipientForm(){
+  var n=STATE.newRec||{};
+  var body='<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd2)">';
+  body+='<div class="rcpt-hero">'+(n.photo?'<img src="'+esc(n.photo)+'" alt="">':'📷')+'</div>';
+  body+='<label class="rcpt-photo-pick">'+(n.photo?'Change photo':'Add photo (required)')+
+    '<input type="file" accept="image/*" data-newphoto hidden></label>';
+  body+='<div class="row2">'+
+    '<div class="fld"><label>First name</label><input type="text" data-newrec="first" value="'+esc(n.first)+'" placeholder="Naledi"></div>'+
+    '<div class="fld"><label>Surname</label><input type="text" data-newrec="last" value="'+esc(n.last)+'" placeholder="Molefe"></div>'+
+  '</div>';
+  body+='<div class="fld"><label>Gender</label>'+renderDropdown('gender',n.gender,['Male','Female','Prefer not to say'],'Choose')+'</div>';
+  body+='<div class="fld"><label>Mobile number</label><div class="row3">'+
+    '<div>'+renderDropdown('newCC',n.country,COUNTRIES.map(function(c){return {value:c.code,label:c.code+' '+c.name}}),'Code')+'</div>'+
+    '<div style="grid-column:span 2"><input type="tel" data-newrec="number" value="'+esc(n.number)+'" placeholder="71 234 567"></div>'+
+  '</div></div>';
+  body+='<button class="btn primary full" type="button" data-act="rcSaveNew">Save recipient</button>';
+  body+='</div>';
+  return body;
+}
+
+function fullName(x){ return (((x&&x.first)||'')+' '+((x&&x.last)||'')).trim()||'Recipient'; }
+function initials(x){
+  var a=String((x&&x.first)||'?').charAt(0);
+  var b=String((x&&x.last)||'').charAt(0);
+  return (a+b).toUpperCase()||'?';
+}
+function recipientById(id){
+  if(id==null||id==='') return null;
+  return (STATE.recipients||[]).filter(function(x){return String(x.id)===String(id)})[0]||null;
+}
+function loadRecipients(){
+  var arr=null;
+  try{ arr=JSON.parse(safeGet('eatouts_recipients_v1')||'null'); }catch(e){ arr=null; }
+  if(!Array.isArray(arr)){
+    arr=[
+      {id:'rc1',first:'Naledi',last:'Molefe',gender:'Female',country:'+267',number:'71234567',photo:'',orders:7},
+      {id:'rc2',first:'Thabo',last:'Dube',gender:'Male',country:'+267',number:'72345678',photo:'',orders:3}
+    ];
+  }
+  return arr;
+}
+function saveRecipients(){ safeSet('eatouts_recipients_v1',JSON.stringify(STATE.recipients||[])); }
+
+function pickRecipient(id){
+  var rc=recipientById(id);
+  if(!rc) return;
+  STATE.recipient.id=rc.id;
+  STATE.recipient.isSelf=false;
+  STATE.recipient.first=rc.first||'';
+  STATE.recipient.last=rc.last||'';
+  STATE.recipient.gender=rc.gender||'Prefer not to say';
+  STATE.recipient.country=rc.country||'+267';
+  STATE.recipient.number=rc.number||'';
+  persistDelivery(); render();
+  toast('Recipient set: '+fullName(rc));
+}
+
+function saveNewRecipient(){
+  var n=STATE.newRec||{};
+  if(!n.photo){ fpopAlert('Add a photo of the recipient before saving.'); return }
+  if(!String(n.first||'').trim()||!String(n.last||'').trim()){ fpopAlert('First name and surname are required.'); return }
+  if(String(n.number||'').replace(/\D/g,'').length<6){ fpopAlert('Enter a valid mobile number.'); return }
+  var rc={
+    id:'rc'+Date.now(),
+    first:String(n.first).trim(), last:String(n.last).trim(),
+    gender:n.gender||'Prefer not to say',
+    country:n.country||'+267',
+    number:String(n.number||'').replace(/\s+/g,''),
+    photo:String(n.photo||''), orders:0
+  };
+  STATE.recipients.unshift(rc);
+  saveRecipients();
+  STATE.showNew=false;
+  STATE.newRec={photo:'',first:'',last:'',gender:'Prefer not to say',country:'+267',number:''};
+  pickRecipient(rc.id);
+  toast('Recipient saved');
+}
+
+function saveRcEdit(){
+  var rc=recipientById(STATE.popup&&STATE.popup.id);
+  if(!rc) return;
+  if(RC_EDIT.first!=null&&String(RC_EDIT.first).trim()) rc.first=String(RC_EDIT.first).trim();
+  if(RC_EDIT.last!=null) rc.last=String(RC_EDIT.last).trim();
+  if(RC_EDIT.number!=null) rc.number=String(RC_EDIT.number).replace(/\s+/g,'');
+  saveRecipients();
+  if(String(STATE.recipient.id)===String(rc.id)){
+    STATE.recipient.first=rc.first;
+    STATE.recipient.last=rc.last;
+    STATE.recipient.number=rc.number;
+  }
+  RC_EDIT={};
+  STATE.popup={kind:'rcpt',id:rc.id,edit:false};
+  persistDelivery(); render();
+  toast('Details updated');
+}
+
+function deleteRecipient(id){
+  STATE.recipients=(STATE.recipients||[]).filter(function(x){return String(x.id)!==String(id)});
+  saveRecipients();
+  if(String(STATE.recipient.id)===String(id)){ STATE.recipient.id=null }
+  STATE.popup=null;
+  render();
+  toast('Recipient deleted');
+}
+
+function renderRecipientViewer(st){
+  var rc=recipientById(st.id);
+  if(!rc) return '<div class="fpop-msg">Recipient not found</div><button class="btn primary full" data-act="fpopClose">Close</button>';
+  var h='<div class="rcpt-view-hero">'+(rc.photo?'<img src="'+esc(rc.photo)+'" alt="">':esc(initials(rc)))+'</div>';
+  h+='<div class="rcpt-view-name">'+esc(fullName(rc))+'</div>';
+  h+='<div class="rcpt-view-meta">'+(Number(rc.orders)||0)+' order'+(Number(rc.orders)===1?'':'s')+' received</div>';
+  if(st.edit){
+    h+='<div class="fld"><label>First name</label><input type="text" data-rcedit="first" value="'+esc(rc.first)+'"></div>';
+    h+='<div class="fld"><label>Surname</label><input type="text" data-rcedit="last" value="'+esc(rc.last)+'"></div>';
+    h+='<div class="fld"><label>Mobile number</label><input type="tel" data-rcedit="number" value="'+esc(rc.number)+'"></div>';
+    h+='<button class="btn primary full" data-act="rcSaveEdit">Save details</button>';
+  } else {
+    h+='<div class="rcpt-actions">'+
+      '<label class="btn ghost full">Add image<input type="file" accept="image/*" data-rcphoto="'+esc(rc.id)+'" hidden></label>'+
+      '<button class="btn ghost full" data-act="rcEdit">Edit details</button>'+
+      '<button class="btn danger full" data-act="rcDelete">Delete</button>'+
+    '</div>';
+  }
+  h+='<button class="btn ghost sm full" data-act="fpopClose">Close</button>';
+  return h;
+}
+
+function fpopAlert(msg){
+  STATE.popup={kind:'alert',msg:msg};
+  renderPopup();
+}
+function renderPopup(){
+  var scrim=document.getElementById('fpopScrim');
+  var pop=document.getElementById('fpop');
+  if(!scrim||!pop) return;
+  var st=STATE.popup;
+  if(!st){ scrim.classList.remove('on'); pop.classList.remove('on'); pop.innerHTML=''; return }
+  var html='';
+  if(st.kind==='alert'){
+    html='<div class="fpop-msg">'+esc(st.msg)+'</div><button class="btn primary full" data-act="fpopClose">Got it</button>';
+  } else if(st.kind==='rcpt'){
+    html=renderRecipientViewer(st);
+  }
+  pop.innerHTML=html;
+  scrim.classList.add('on');
+  pop.classList.add('on');
+  Array.prototype.forEach.call(pop.querySelectorAll('[data-rcedit]'),function(el){
+    el.oninput=function(){ RC_EDIT[el.getAttribute('data-rcedit')]=el.value; };
+  });
+}
 /* --- 5. Payment --- */
 function renderPayment(){
   var p=STATE.payment;
-  var val=p.method?({cash:'Cash on Delivery',card:'Card / Swipe on Delivery'}[p.method]):'Not selected';
+  var methodLbl=({cash:'Cash on Delivery',card:'Card / Swipe on Delivery'})[p.method]||'';
+  var val=p.bank||methodLbl||'Not selected';
   var body='';
   body+='<div class="choose">';
   body+='<button class="choose-card'+(p.method==='cash'?' on':'')+'" data-act="pickPay" data-val="cash">'+
@@ -694,10 +940,9 @@ function renderPayment(){
     '<b>Card / Swipe on Delivery</b><small>Pay using the driver’s card terminal.</small></button>';
   body+='</div>';
   if(p.method==='card'){
-    body+='<div class="fld" style="margin-top:14px"><label>Terminal / bank (optional)</label>'+renderDropdown('bank',p.bank,BANKS_BW,'Choose a bank')+'<div class="hint">A normal card swipe does not need the bank. Only select if the restaurant asked.</div></div>';
+    body+='<div class="fld" style="margin-top:14px"><label>Terminal / bank</label>'+renderDropdown('bank',p.bank,BANKS_BW,'Choose a bank')+'</div>';
   }
-  body+='<div style="margin-top:12px;font-size:11.5px;color:var(--muted);line-height:1.5">Payment preference recorded. Payment has not yet been collected or verified.</div>';
-  return '<div class="acc'+(STATE.openAcc['pay']?' open':'')+'">'+
+  return '<div class="'+accClass('pay')+'">'+
     '<button class="acc-hdr" data-acc="pay">'+
       '<span class="acc-title"><span class="acc-lbl">Payment Preference</span><span class="acc-val'+(p.method?'':' muted')+'">'+esc(val)+'</span></span>'+
     '</button>'+
@@ -710,45 +955,35 @@ function renderReview(){
   var d=STATE.destination;
   var r=STATE.recipient;
   var complete=isComplete();
-  var val=complete?'Ready to review':'Complete the sections above';
   var body='';
-  body+='<div style="margin-bottom:12px"><div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Restaurant</div><div style="font-size:13px;font-weight:800">'+esc(RESTAURANT.name||'')+'</div></div>';
-  body+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--bd2)">'+
-    '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)">Order</span><span style="font-size:13px;font-weight:800">'+money(basketSubtotal())+' · '+basketCount()+' item'+(basketCount()===1?'':'s')+'</span></div>'+
-    '<div style="margin-top:8px">'+renderItemLines()+'</div>'+
+  body+='<div class="rev-sect"><div class="rev-lbl">Restaurant</div>'+
+    '<div style="font-size:13px;font-weight:800">'+esc(RESTAURANT.name||'')+'</div></div>';
+  body+='<div class="rev-sect"><div class="rev-lbl">Order · '+money(basketSubtotal())+'</div>'+renderItemLines()+'</div>';
+  body+='<div class="rev-sect"><div class="rev-lbl">Delivery</div>'+
+    '<div class="wrap-row"><span>Method</span><b>'+esc(STATE.deliveryMode?modeLabel(STATE.deliveryMode):'Not chosen')+'</b></div>'+
+    (d.area?'<div class="wrap-row"><span>Area</span><b>'+esc(d.area)+(d.plot?' · Plot '+esc(d.plot):'')+'</b></div>':'')+
+    (d.propType?'<div class="wrap-row"><span>Property</span><b>'+esc((PROPERTY_TYPES.filter(function(x){return x.id===d.propType})[0]||{}).name||'')+'</b></div>':'')+
+    (d.directions?'<div class="wrap-row"><span>Directions</span><b style="text-align:right;max-width:62%">'+esc(d.directions)+'</b></div>':'')+
+    (d.gps&&d.gps.lat?'<div class="wrap-row"><span>Location</span><b>Attached</b></div>':'')+
+    (STATE.deliveryMode==='schedule'&&STATE.slotWindow?'<div class="wrap-row"><span>Window</span><b>'+esc(formatDate(STATE.slotDate)+' · '+STATE.slotWindow)+'</b></div>':'')+
+    '<div class="wrap-row"><span>Fee</span><b>'+money(deliveryFee())+'</b></div>'+
   '</div>';
-  if(STATE.deliveryMode){
-    body+='<div class="wrap-row"><span>'+esc(modeLabel(STATE.deliveryMode))+(d.area?' · '+esc(d.area):'')+'</span><b>'+money(deliveryFee())+'</b></div>';
-  }
-  if(d.area){
-    body+='<div style="margin:12px 0"><div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Destination</div>'+
-      '<div style="font-size:12.5px;line-height:1.55">'+esc(d.area)+(d.plot?' · Plot '+esc(d.plot):'')+
-      (d.propType?'<br>'+esc((PROPERTY_TYPES.filter(function(x){return x.id===d.propType})[0]||{}).name||''):'')+
-      (d.directions?'<br><em style="color:var(--muted);font-style:italic">'+esc(d.directions)+'</em>':'')+
-      '</div></div>';
-  }
-  if(STATE.deliveryMode==='schedule' && STATE.slotWindow){
-    body+='<div class="wrap-row"><span>Window</span><b>'+esc(formatDate(STATE.slotDate)+' · '+STATE.slotWindow)+'</b></div>';
-    body+='<div class="wrap-row"><span>Slot status</span><b>Requested, awaiting restaurant confirmation</b></div>';
-  }
-  if(r.first||r.isSelf){
-    body+='<div class="wrap-row"><span>Recipient</span><b>'+esc((r.first||'')+' '+(r.last||''))+'</b></div>';
-    body+='<div class="wrap-row"><span>Mobile</span><b>'+esc((r.country||'+267')+' '+esc(r.number||''))+'</b></div>';
-  }
-  if(STATE.payment.method){
-    body+='<div class="wrap-row"><span>Payment</span><b>'+esc({cash:'Cash on Delivery',card:'Card / Swipe on Delivery'}[STATE.payment.method])+(STATE.payment.bank?' · '+esc(STATE.payment.bank):'')+'</b></div>';
-  }
+  body+='<div class="rev-sect"><div class="rev-lbl">Recipient</div>'+
+    '<div class="wrap-row"><span>Name</span><b>'+esc((((r.first||'')+' '+(r.last||'')).trim())||(r.isSelf?'Me':'Not set'))+'</b></div>'+
+    '<div class="wrap-row"><span>Mobile</span><b>'+esc((r.country||'+267')+' '+(r.number||''))+'</b></div>'+
+  '</div>';
+  body+='<div class="rev-sect"><div class="rev-lbl">Payment</div>'+
+    '<div class="wrap-row"><span>Method</span><b>'+esc(({cash:'Cash on Delivery',card:'Card / Swipe on Delivery'})[STATE.payment.method]||'Not chosen')+(STATE.payment.bank?' · '+esc(STATE.payment.bank):'')+'</b></div>'+
+  '</div>';
   body+='<div class="wrap-row total"><span>Estimated total</span><b>'+money(grandTotal())+'</b></div>';
   body+='<div class="row2" style="margin-top:14px">'+
-    '<button class="btn ghost" data-act="openMethod">Edit delivery</button>'+
-    '<button class="btn primary"'+(complete?'':' disabled')+' data-act="openWA">Prepare WhatsApp</button>'+
+    '<button class="btn ghost" data-act="reviewEdit">Edit</button>'+
+    '<button class="btn danger" data-act="reviewDelete">Delete</button>'+
   '</div>';
-
-  return '<div class="acc'+(STATE.openAcc['review']?' open':'')+'">'+
-    '<button class="acc-hdr" data-acc="review">'+
-      '<span class="acc-title"><span class="acc-lbl">Delivery Review</span><span class="acc-val'+(complete?'':' muted')+'">'+esc(val)+'</span></span>'+
-    '</button>'+
-    '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
+  return '<div class="review-page" id="reviewPage">'+
+    '<div class="review-hdr"><div class="review-title">Delivery Review</div>'+
+      '<div class="review-sub">'+esc(complete?'Everything prepared':'Complete the sections above')+'</div></div>'+
+    body+
   '</div>';
 }
 
@@ -839,9 +1074,9 @@ function renderWhatsApp(){
       '<button class="btn ghost sm" data-act="markSent" style="margin-top:8px">'+(STATE.sent?'Undo “I sent this”':'I have sent this on WhatsApp')+'</button>'+
     '</div>';
   }
-  return '<div class="acc'+(STATE.openAcc['wa']?' open':'')+'">'+
+  return '<div class="'+accClass('wa')+'">'+
     '<button class="acc-hdr" data-acc="wa">'+
-      '<span class="acc-title"><span class="acc-lbl">WhatsApp Request</span><span class="acc-val'+(STATE.sent?'':' muted')+'">'+esc(val)+'</span></span>'+
+      '<span class="acc-title"><span class="acc-val'+(STATE.sent?'':' muted')+'">'+esc(val)+'</span></span>'+
     '</button>'+
     '<div class="acc-body"><div class="acc-in">'+body+'</div></div>'+
   '</div>';
@@ -852,11 +1087,10 @@ function renderWhatsApp(){
    ============================================================ */
 function renderBar(){
   var bar=document.getElementById('bar');
-  var complete=isComplete();
+  var n=basketCount();
   var label;
-  if(!STATE.deliveryMode) label='Choose delivery';
-  else if(!complete) label='Complete the required details';
-  else label='Review & send · '+money(grandTotal());
+  if(!STATE.deliveryMode) label='Choose a delivery method';
+  else label='Add '+money(deliveryFee())+' to '+money(basketSubtotal())+' for '+n+' item'+(n===1?'':'s');
   bar.innerHTML='<button class="btn primary" data-act="barPrimary">'+esc(label)+'</button>';
 }
 
@@ -873,6 +1107,9 @@ function bindInputs(){
       else if(k==='first'||k==='last'||k==='number'){ STATE.recipient[k]=el.value; persistDelivery(); }
       renderBar();
     };
+  });
+  document.querySelectorAll('[data-newrec]').forEach(function(el){
+    el.oninput=function(){ STATE.newRec[el.getAttribute('data-newrec')]=el.value; };
   });
   document.querySelectorAll('[data-cond]').forEach(function(el){
     el.oninput=function(){ STATE.destination.cond[el.getAttribute('data-cond')]=el.value; persistDelivery(); };
@@ -922,6 +1159,7 @@ document.addEventListener('click',function(e){
   var acc=e.target.closest('[data-acc]');
   if(acc){
     var id3=acc.getAttribute('data-acc');
+    if(id3!=='method' && !STATE.deliveryMode){ fpopAlert('Choose a delivery method first'); return }
     STATE.openAcc[id3]=!STATE.openAcc[id3];
     render();
     return;
@@ -952,17 +1190,99 @@ document.addEventListener('click',function(e){
   }
   if(e.target.closest('[data-act="barPrimary"]')){
     if(!STATE.deliveryMode){ STATE.openAcc['method']=true; render(); scrollToAcc('method'); return }
-    if(!isComplete()){
-      STATE.openAcc['dest']=true;
-      render();
-      toast('Complete the required fields');
-      scrollToAcc('dest');
-      return;
-    }
-    STATE.openAcc['wa']=true; render(); scrollToAcc('wa');
+    window.location.href='index.html?resume=1#restaurants';
     return;
   }
-  if(e.target.closest('[data-act="openMethod"]')){ STATE.openAcc['method']=true; render(); scrollToAcc('method'); return }
+  if(e.target.closest('[data-act="openMethod"]')||e.target.closest('[data-act="reviewEdit"]')){
+    if(!STATE.deliveryMode){ fpopAlert('Choose a delivery method first'); return }
+    STATE.openAcc['method']=true; render(); scrollToAcc('method');
+    return;
+  }
+  if(e.target.closest('[data-act="reviewDelete"]')){
+    STATE.deliveryMode=null;
+    STATE.slotWindow='';
+    STATE.destination={area:'',street:'',plot:'',propType:'',cond:{},directions:'',mapLink:'',tier:null,gps:null};
+    STATE.recipient={isSelf:true,id:null,first:'',last:'',gender:'Prefer not to say',country:'+267',number:''};
+    STATE.payment={method:'',bank:''};
+    ORDER.delivery=null;
+    saveOrder();
+    render();
+    toast('Delivery details deleted');
+    return;
+  }
+  if(e.target.closest('[data-act="pickGps"]')){ pickGps(); return }
+  var who=e.target.closest('[data-act="recipWho"]');
+  if(who){
+    STATE.recipient.isSelf=(who.getAttribute('data-val')==='me');
+    if(STATE.recipient.isSelf&&!STATE.recipient.first){
+      STATE.recipient.first='Kagiso'; STATE.recipient.last='Sithole'; STATE.recipient.number='71100001';
+    }
+    persistDelivery(); render();
+    return;
+  }
+  var rcPick=e.target.closest('[data-act="rcPick"]');
+  if(rcPick){ pickRecipient(rcPick.getAttribute('data-id')); return }
+  var rcView=e.target.closest('[data-act="rcView"]');
+  if(rcView){ STATE.popup={kind:'rcpt',id:rcView.getAttribute('data-id'),edit:false}; render(); return }
+  if(e.target.closest('[data-act="rcNew"]')){
+    STATE.showNew=!STATE.showNew;
+    if(STATE.showNew) STATE.recipient.isSelf=false;
+    render();
+    return;
+  }
+  if(e.target.closest('[data-act="rcSaveNew"]')){ saveNewRecipient(); return }
+  if(e.target.closest('[data-act="rcEdit"]')){
+    STATE.popup={kind:'rcpt',id:(STATE.popup&&STATE.popup.id)||null,edit:true};
+    render();
+    return;
+  }
+  if(e.target.closest('[data-act="rcSaveEdit"]')){ saveRcEdit(); return }
+  if(e.target.closest('[data-act="rcDelete"]')){ if(STATE.popup&&STATE.popup.id) deleteRecipient(STATE.popup.id); return }
+  if(e.target.closest('[data-act="fpopClose"]')){ STATE.popup=null; render(); return }
+});
+
+function openMapsPick(){
+  try{ window.open('https://www.google.com/maps','_blank'); }catch(e){}
+}
+function pickGps(){
+  if(navigator.geolocation&&navigator.geolocation.getCurrentPosition){
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lat=pos&&pos.coords?pos.coords.latitude:null;
+      var lng=pos&&pos.coords?pos.coords.longitude:null;
+      if(lat==null||lng==null){ openMapsPick(); return }
+      STATE.destination.gps={lat:lat,lng:lng};
+      STATE.destination.mapLink='https://maps.google.com/?q='+lat+','+lng;
+      persistDelivery(); render();
+      toast('Location attached');
+    },function(){ openMapsPick(); });
+    return;
+  }
+  openMapsPick();
+}
+function attachPhoto(dataUrl,rcId){
+  if(!dataUrl) return;
+  if(rcId==null){
+    STATE.newRec.photo=dataUrl;
+  } else {
+    var rc=recipientById(rcId);
+    if(!rc) return;
+    rc.photo=dataUrl;
+    saveRecipients();
+  }
+  render();
+  toast('Photo attached');
+}
+document.addEventListener('change',function(e){
+  var el=e.target;
+  if(!el||String(el.tagName||'').toUpperCase()!=='INPUT'||el.type!=='file') return;
+  var isNew=el.hasAttribute('data-newphoto');
+  var rcId=el.getAttribute('data-rcphoto');
+  if(!isNew&&!rcId) return;
+  var file=el.files&&el.files[0];
+  if(!file) return;
+  var rd=new FileReader();
+  rd.onload=function(){ attachPhoto(String(rd.result||''),isNew?null:rcId); };
+  rd.readAsDataURL(file);
 });
 
 function scrollToAcc(id){
@@ -983,8 +1303,9 @@ function applyPick(id,val){
     d.tier=t?t.id:null;
   }
   else if(id==='propType'){ d.propType=val; d.cond={}; }
-  else if(id==='gender'){ STATE.recipient.gender=val; }
+  else if(id==='gender'){ if(STATE.showNew){ STATE.newRec.gender=val; } else { STATE.recipient.gender=val; } }
   else if(id==='mobileCC'){ STATE.recipient.country=val; }
+  else if(id==='newCC'){ STATE.newRec.country=val; }
   else if(id==='bank'){ STATE.payment.bank=val; }
 }
 

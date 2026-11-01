@@ -184,7 +184,7 @@ bottom nav where the page is part of the app shell.
 |---|---|---|---|---|
 | 15 | T04 | 4 | `venue-checkout` redesign — ✅ **DONE 2026-10-31** | L |
 | 16 | T06 | 6 | Orders badge + `Orders-List.html` (needs T04) — ✅ **DONE 2026-11-01** (`.hdr-chip` swept from all 15 `#hdr` pages; 32 `.topbar` pages wait on T08b) | L |
-| 17 | T05 | 5 | `customer-delivery` redesign | L |
+| 17 | T05 | 5 | `customer-delivery` redesign — ✅ **DONE 2026-11-01** (method gate + floating popups, recipient cards, full-page review) | L |
 | 18 | T18 | 18 | `eatouts-suppliers` rework (steps 1–7) | L |
 
 ### Phase 5 — Large builds
@@ -591,6 +591,17 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 10. Remove the "WhatsApp Request" `.acc-lbl`.
 11. `barPrimary` label: "Add P#.## to P#.## for # items" → tapping returns to the order summary.
 **Done when** each bullet is true, gating works, popups float, and the WhatsApp message includes recipient + delivery + payment + bank.
+
+**Result — ✅ DONE 2026-11-01** (`tests/customer-delivery.js`, 52 checks)
+- 1–4: `.hdr-chip` gone; `.osum-back` + its CSS deleted, `.osum-tot` + `.osum-items` now `.osum-line` ("P140.00 · for 2 items"); `.acc` is the 3% grey panel (`background:rgba(0,0,0,.03)`); `.acc.open .acc-title` paints 5%.
+- 5: `accClass(id)` adds `.locked` to every accordion except `method` while `!STATE.deliveryMode`; the `[data-acc]` handler refuses with `fpopAlert('Choose a delivery method first')` inside `#fpop` / `#fpopScrim` (new markup beside `#toast`).
+- 6: `FLOAT_DRP={area,propType,bank}` → `renderDropdown()` emits a second `.drp-list.open.float` node plus a `.fpop-scrim` (fixed, centred, 70dvh); the hint is `.hint.centre` with the exact copy; `.gps-btn` (5% grey, `#4a463c`) calls `pickGps()` → geolocation attaches lat/lng + a maps link, otherwise opens the Maps picker.
+- 7: `.seg` me / someone-else toggle; `.rcpt-card` history (90px `.rcpt-thumb`, name + "# orders received"); thumb → `#fpop` viewer with Add image (`[data-rcphoto]`, FileReader), Edit details (`[data-rcedit]` first/surname/mobile) and Delete; new-recipient form demands a photo before saving, 150px `.rcpt-hero` above the `.row2` name row; `.acc-val` shows `Me · Name` or the picked card's name. Recipients persist in `eatouts_recipients_v1`.
+- 8: bank picker floats, `.hint` and "Payment preference recorded…" removed, `.acc-val` = bank (or the method when no bank is chosen).
+- 9: `#reviewPage` — full page block (no `.acc`, no `[data-acc="review"]`), Edit jumps to the method step, Delete clears mode/area/recipient/payment, drops `ORDER.delivery` and re-locks the flow.
+- 10–11: "WhatsApp Request" `.acc-lbl` deleted; `barPrimary` reads `Add P40.00 to P100.00 for 2 items` and navigates to `index.html?resume=1#restaurants`. `persistDelivery()` now writes `delivery:null` when nothing is chosen.
+- Verified: `node tests/customer-delivery.js` → **CUSTOMER-DELIVERY TEST PASSED** (52 checks, 0 window errors); `tests/checkout-delivery.js` bar assertions updated to the new label → PASSED; `npm test` → **61 passed, 0 failed**; `npm run inventory` → 10 checks / 90 warnings; `npm run catalog` → 70 pages.
+- Not verified: real-device look at 360/390/430px (jsdom does not lay out) and the live geolocation prompt (only the fallback path is exercised headlessly).
 
 #### T18 — `eatouts-suppliers` rework (user task 18) · L
 **Files:** `eatouts-suppliers.html` — header `:269-275`, step scaffold `:700-720`, `renderIdentityStep` `:~730-770`, `renderServicesStep` `:~770-800`, `renderPricingStep` `:~810-874`, `renderGalleryStep` `:876-…`, portfolio, contact `:~950-1010`, review, export `:~1077`.
@@ -1010,6 +1021,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 2026-11-01 | T16 | DONE (closed by D7) | `PLATFORM UPDATE TASKS.md` only — code shipped in `6fb0e52` | D7 resolved: **no WhatsApp channel exists yet**, so the coming-soon popup is the intended shipped state. `tests/about.js` already asserts both branches | (this commit) |
 | 2026-11-01 | B1 | DONE | `bakery-`, `bottle-store-`, `mobile-kitchen-`, `restaurant-`, `supplier-onboarding.html` — `.modal-backdrop` `align-items:flex-end` → `center` + `padding:20px`, `.modal` `max-width:420px`, `max-height:80dvh`, `border-radius:9px` (no more `9px 9px 0 0`), desktop `90dvh` override aligned to `80dvh` | audit 2 (`(modal-backdrop\|fpop)…flex-end`) prints nothing; full `npm test` **60 passed, 0 failed** | (this commit) |
 | 2026-11-01 | B2 | DONE | `PLATFORM UPDATE TASKS.md` §5 — audit 1 now resolves linked `assets/*.css` (was reporting 9 false positives on the manager pages, which hide the bar via `eatouts-manager.css:34-35`); audit 2 scoped to popup selectors; audit 4 added as advisory | audit 1 prints nothing (verified); audits 2 + 3 print nothing; audit 4 → ~30 advisory hits, live ones owned by T05/T12 | (this commit) |
+| 2026-11-01 | T05 | DONE | `customer-delivery.html` — `.hdr-chip` gone; `.osum-back` deleted and `.osum-tot`/`.osum-items` joined in one centred `.osum-line`; `.acc` = 3% grey panel with a 5% `.acc-title` when open; method gate (`accClass()` `.locked` + `#fpop`/`#fpopScrim` "Choose a delivery method first"); `area`/`propType`/`bank` open a fixed `.drp-list.open.float` over a scrim; centred `.hint.centre`; `.gps-btn` attaches the current location; real `.seg` me/someone-else toggle + `.rcpt-card` history + `#fpop` recipient viewer (Add image / Edit details / Delete) + photo-mandatory new-recipient form with a 150px `.rcpt-hero`; `.acc-val` shows the chosen bank; `#reviewPage` full-page review with Edit + Delete; "WhatsApp Request" label removed; `barPrimary` = "Add P#.## to P#.## for # items" → `index.html?resume=1#restaurants`; `tests/customer-delivery.js` (new, 52 checks); `tests/checkout-delivery.js` bar assertions re-pointed | `node tests/customer-delivery.js` PASSED (52 checks) · `node tests/checkout-delivery.js` PASSED · `npm test` **61 passed, 0 failed** · `npm run inventory` 10 checks / 90 warnings · `npm run catalog` 70 pages | `60cd759` |
 | 2026-11-01 | T09 | DONE | `index.html` (D10 cart persist/hydrate, `window.EO_cart`, badge), `venue-about.html` (`.promo-thumb.is-branded` + `.plb-*` gallery CSS, lightbox markup, promo feed → tiles → Add to Order JS), `tests/customer.js` (+22 D10 checks), `tests/venue-about-options.js` (+26 T09 checks) | `customer` PASSED (`window errors: 0`); `venue-about-options` PASSED (26 new T09 checks: tiles, dots, swipe both ways, dot jump, CTA beneath image, one-line cart write, re-tap increments, envelope, toast, outside-tap + Escape, branded fallback); full `npm test` **60 passed, 0 failed**; audits 1/2/3 print nothing | `c1e6286` + this commit |
 
 
