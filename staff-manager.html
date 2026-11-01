@@ -39,4 +39,4 @@ function showTab(t){document.querySelectorAll("#tabs .tab").forEach(el=>el.class
 document.querySelector("#tabs").onclick=e=>{const t=e.target.dataset.tab;if(t)showTab(t)};
 document.querySelector("#add").onclick=()=>show();
 list.onclick=e=>{const av=e.target.closest(".av-wrap");if(av&&av.querySelector("img")){openAv(av.querySelector("img").src);return}const id=e.target.dataset.edit||e.target.dataset.del;if(!id)return;if(e.target.dataset.del){if(!EO.confirm("Delete this staff member? This cannot be undone."))return;const before=EatoutsMgrDB.find("staff",id);EatoutsMgrDB.remove("staff",id);if(API&&SRID&&before&&before.serverMembershipId)API.staffRemove(SRID,before.serverMembershipId).then(r=>{if(r.data&&r.data.error)EO.toast("Server: "+r.data.error)});if(window.EatoutsAudit&&window.EatoutsAudit.log)EatoutsAudit.log("staff.delete",id,before?{id:before.id,firstName:before.firstName,surname:before.surname}:null,null,{businessId:b.id});renderRoster()}else show(EatoutsMgrDB.find("staff",id))};
-showTab("roster");serverSync();});</script></body></html>
+showTab("roster");serverSync();});</script><script src="js/eatouts-back-history.js"></script></body></html>

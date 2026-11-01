@@ -61,15 +61,6 @@
     if(u.type==="supplier")return "operator";
     return "operator";
   }
-  function homeFor(group){
-    if(group==="admin")return "eatouts-admin-dashboard.html";
-    if(group==="operator"){
-      const u=currentUser();
-      if(window.EatoutsAuth&&EatoutsAuth.routeFor){try{const r=EatoutsAuth.routeFor(u);if(r)return r}catch(e){}}
-      return "operator-dashboard1.html";
-    }
-    return "index.html#promos";
-  }
   function ensureDemo(){
     if(!EatoutsAuth.isLoggedIn()){
       const seed=EatoutsUsers.find("u-owner");
@@ -103,11 +94,8 @@
       const on=file&&file===here;
       return `<a href="${href}"${on?' class="on"':''}>${esc(label)}</a>`;
     }).join("");
-    const b=business();
-    const chip=opts.section||(b?b.name:"EatOuts");
-    const back=opts.back||homeFor(group);
     document.title=`${title} · EatOuts`;
-    return `<div id="shell"><header class="topbar"><a class="brand" href="${back}"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></a><div class="hdr-right"><span class="hdr-chip">${esc(chip)}</span><button class="hdr-exit" type="button" data-action="logout">Exit</button></div></header><main class="app"><div class="page-head"><div><h1>${esc(title)}</h1>${subtitle?`<p>${esc(subtitle)}</p>`:""}</div>${opts.action||""}</div>${content}</main><nav class="appnav">${navHtml}</nav></div>`
+    return `<div id="shell"><header id="hdr"><button class="brand-mark" type="button" aria-label="EatOuts home" data-act="backHistory"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button><div class="hdr-right"><button class="hdr-exit" type="button" data-action="logout">Exit</button></div></header><main class="app"><div class="page-head"><div><h1>${esc(title)}</h1>${subtitle?`<p>${esc(subtitle)}</p>`:""}</div>${opts.action||""}</div>${content}</main><nav class="appnav">${navHtml}</nav></div>`
   }
   function card(title,body,cls=""){return `<section class="card ${cls}"><div class="card-title">${esc(title)}</div>${body}</section>`}
   function metric(label,value,note=""){return `<div class="metric"><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></div>`}

@@ -16,7 +16,6 @@
 body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;line-height:1.45}
 button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;border:0;background:none;text-align:left}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.topbar{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:14px}
 .brand{font-weight:900;font-size:16px;letter-spacing:-.02em;color:var(--black)}.brand span{color:var(--gold)}
 .page{flex:1;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 .top-actions{display:flex;gap:8px;align-items:center}.demo-note{font-size:10px;color:var(--warn);font-weight:800}
@@ -66,17 +65,27 @@ td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}tr:l
 .service-category{margin:17px 0 8px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:900}
 .small{font-size:11px}.right{text-align:right}.nowrap{white-space:nowrap}
 .footer-note{padding:4px 2px 22px;color:var(--muted);font-size:10.5px;line-height:1.5}
-@media(max-width:800px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.app{padding:14px 12px 40px}.card{padding:14px}.topbar{padding:12px}.brow strong{flex-basis:112px}}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.app{padding:14px 12px 40px}.card{padding:14px}.brow strong{flex-basis:112px}}
 @media(max-width:520px){.page{font-size:10px}.stats{gap:8px}.stat{padding:11px}.stat strong{font-size:20px}.grid2{grid-template-columns:1fr}.top-actions .demo-note{display:none}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+/* ---- T08b standard header ---- */
+#hdr{height:58px;box-sizing:border-box;flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:0 14px;padding-top:env(safe-area-inset-top);background:#fff;border-bottom:1px solid #ece7db;position:sticky;top:0;z-index:58}
+.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden;padding:0;margin:0;cursor:pointer}
+.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;min-width:0}
+/* the progress strip that used to sit inside the dark bar */
+#hdr + .progress,#hdr + .progress-row{background:#fff;border-bottom:1px solid #ece7db;padding:9px 14px 10px}
+#hdr + .progress .progress-label,#hdr + .progress-row span{color:#8a7d64}
+#hdr + .progress .progress-count,#hdr + .progress-row strong{color:#c84513}
+#hdr + .progress .progress-track{background:#ece7db}
 </style>
 </head>
 <body data-page="brand-kit-admin">
-<header class="topbar">
-  <div class="brand" aria-label="EatOuts">EAT<span>OUTS</span></div>
-  <div class="page">Brand & Design Services Admin</div>
-  <div class="top-actions"><span id="mode-note" class="demo-note"></span><button class="btn sm" id="refresh-btn" type="button">Refresh</button></div>
-</header>
+<header id="hdr">
+    <button class="brand-mark" type="button" aria-label="EatOuts home" data-act="backHistory"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
+    <div class="hdr-right"><div class="page">Brand & Design Services Admin</div>
+      <div class="top-actions"><span id="mode-note" class="demo-note"></span><button class="btn sm" id="refresh-btn" type="button">Refresh</button></div></div>
+  </header>
 <nav class="tabs" aria-label="Admin sections">
   <a class="tab active" href="#jobs" data-tab="jobs">Jobs</a>
   <a class="tab" href="#designers" data-tab="designers">Designers</a>
@@ -722,5 +731,5 @@ function initialize(){
 initialize();
 })();
 </script>
-</body>
+<script src="js/eatouts-back-history.js"></script></body>
 </html>

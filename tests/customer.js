@@ -131,8 +131,8 @@ setTimeout(() => {
   const about = boot('eatouts-about.html');
   const adoc = about.doc;
   check('about: no window errors', about.errors.length === 0, about.errors.slice(0, 3).join(' | '));
-  check('about: title chip', /About EatOuts/.test((adoc.querySelector('.topbar .ttl') || {}).textContent || ''));
-  check('about: back link returns to the About tab', (adoc.querySelector('.topbar a.back') || {}).getAttribute?.('href') === 'index.html#about');
+  check('about: title chip', /About EatOuts/.test((adoc.querySelector('#hdr .ttl') || {}).textContent || ''));
+  check('about: back link returns to the About tab', (adoc.querySelector('#hdr a.back') || {}).getAttribute?.('href') === 'index.html#about');
   check('about: hero logo renders', !!adoc.querySelector('.hero img'));
   check('about: lists the platform blocks', adoc.querySelectorAll('.ablock').length >= 4, adoc.querySelectorAll('.ablock').length);
   check('about: has the business CTA', !!adoc.querySelector('a.cta[href="eatouts-business-signup.html"]'));

@@ -64,20 +64,8 @@
     overflow:hidden;
     position:relative;
     box-shadow:0 0 70px rgba(20,20,25,.16);
-  }
+  }/* ============ TOPBAR ============ */
 
-  /* ============ TOPBAR ============ */
-  .topbar{
-    flex:0 0 auto;
-    background:#141418;
-    padding:calc(13px + env(safe-area-inset-top)) 0 0;
-    position:relative;
-    z-index:10;
-  }
-  .topbar-row{
-    display:flex;align-items:center;gap:10px;
-    padding:0 18px 13px;
-  }
   .brand{
     display:inline-flex;align-items:center;gap:9px;
     text-decoration:none;
@@ -93,17 +81,6 @@
   .brand .word{
     color:#fff;font-size:15px;font-weight:800;
     letter-spacing:-.02em;
-  }
-  .hdr-chip{
-    margin-left:auto;
-    font-size:10px;font-weight:800;
-    letter-spacing:.12em;text-transform:uppercase;
-    color:var(--orange-2);
-    border:1px solid rgba(255,122,66,.32);
-    background:rgba(255,90,31,.1);
-    border-radius:999px;
-    padding:5px 11px;
-    white-space:nowrap;
   }
 
   .progress{padding:0 18px 14px}
@@ -714,20 +691,24 @@
     transition:opacity .2s ease,transform .2s ease;
   }
   .toast.show{opacity:1;transform:translate(-50%,0)}
+/* ---- T08b standard header ---- */
+#hdr{height:58px;box-sizing:border-box;flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:0 14px;padding-top:env(safe-area-inset-top);background:#fff;border-bottom:1px solid #ece7db;position:sticky;top:0;z-index:58}
+.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden;padding:0;margin:0;cursor:pointer}
+.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;min-width:0}
+/* the progress strip that used to sit inside the dark bar */
+#hdr + .progress,#hdr + .progress-row{background:#fff;border-bottom:1px solid #ece7db;padding:9px 14px 10px}
+#hdr + .progress .progress-label,#hdr + .progress-row span{color:#8a7d64}
+#hdr + .progress .progress-count,#hdr + .progress-row strong{color:#c84513}
+#hdr + .progress .progress-track{background:#ece7db}
 </style>
 </head>
 <body data-page="event-onboarding">
 <div id="shell">
 
-  <header class="topbar">
-    <div class="topbar-row">
-      <a class="brand" href="index.html#promos">
-        <span class="mark">E</span>
-        <span class="word">EatOuts</span>
-      </a>
-      <span class="hdr-chip">Events &amp; Performers</span>
-    </div>
-    <div class="progress">
+  <header id="hdr">
+    <button class="brand-mark" type="button" aria-label="EatOuts home" data-act="backHistory"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button></header>
+  <div class="progress">
       <div class="progress-top">
         <span class="progress-label">Event status</span>
         <span class="progress-count" id="progressCount">0 events</span>
@@ -736,7 +717,7 @@
         <div class="progress-fill" id="progressFill"></div>
       </div>
     </div>
-    <nav class="tabs">
+  <nav class="tabs">
       <a class="tab" href="restaurant-onboarding.html">Restaurant</a>
       <a class="tab" href="menu-onboarding.html">Menu</a>
       <a class="tab" href="promo-onboarding.html">Promos</a>
@@ -744,7 +725,6 @@
       <a class="tab" href="gallery-onboarding.html">Gallery</a>
       <a class="tab" href="operator-dashboard1.html">Dashboard</a>
     </nav>
-  </header>
 
   <div class="scroll" id="scroll">
     <section class="intro" id="intro">
@@ -1409,5 +1389,5 @@ render();
 eventServerSync();
 document.addEventListener('keydown',function(e){if(e.key!=='Escape'&&e.keyCode!==27)return;document.querySelectorAll('.modal-scrim,.scrim').forEach(function(s){s.remove()});var b=document.getElementById('modalBackdrop');if(b)b.classList.add('hide');var sh=document.getElementById('sheet');if(sh)sh.classList.remove('on');});
 </script>
-</body>
+<script src="js/eatouts-back-history.js"></script></body>
 </html>

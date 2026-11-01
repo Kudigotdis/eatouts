@@ -401,7 +401,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
    - empty state: "No recent pages yet."
 4. On the SPA, history entries are `data-page` slugs; on standalone pages, `location.pathname`.
 **Done when**
-- [ ] Every app page has the identical header. **Not done** — 48 of the 69 pages still use `.topbar` / `.appbar` / `.topbar-row`, and `tests/appshell.js:80` still requires `<a class="brand-mark" href="index.html#promos">` on the merchant pages, so converting those logos to buttons is a separate decision. Split out as **T08b**.
+- [x] Every app page has the identical header — **closed by T08b (2026-11-01)**: all 36 `.topbar` pages plus the manager shell now render `#hdr` + `.brand-mark` + `.hdr-right`, and `class="topbar"` / `topbar-row` / `hdr-chip` no longer appear in any root `*.html`. Only `food-truck-schedule1.html` and `operator-dashboard1.html` keep their bespoke `.top` bar (they never used `.topbar` — out of scope).
 - [x] Tapping the logo opens the centred Back History popup with ≤5 entries — on the SPA (`index.html`); the logo there was already a `<button>`.
 - [x] Tapping an entry navigates there; outside tap closes.
 - [x] No `.fpop-close` inside it.
@@ -409,13 +409,13 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] Entries carry a whitelisted state snapshot (`tab`, `restPanel`, open venue + its view, promo ids, gallery view, reserve breadcrumb, operator view) so a tap restores the actual SPA screen — the app has no hash router to replay one.
 - [x] Labels: `Promos` / `Promo details`, `Restaurants` / `Catering` / `Bakeries` / `Beverages`, `"<venue> · Menu|Promos|About"`, `Reservations`, `Gallery`, `About Us`; relative time `now / Nm / Nh / Nd`.
 - [x] Empty state: "No recent pages yet."
-- [ ] **T08b — header sweep** — split into its own brief below: 36 `.topbar` pages + `js/eatouts-back-history.js` for standalone pages.
+- [x] **T08b — header sweep** — done 2026-11-01 (36 `.topbar` pages + `js/eatouts-back-history.js`); see the block below.
 - [ ] Device pass — popup shadow, row rhythm and the blur scrim at 360px.
 
 **Notes**
-- **Behaviour change:** on the SPA the logo no longer resets to the Promos home (that stays on the Promos nav tab). Standalone pages keep `<a class="brand-mark" href="index.html#promos">` until T08b, so they still go home.
-- No new file: the feature is one self-contained block in `index.html` (the brief's optional `js/eatouts-back-history.js` wasn't needed while only the SPA records).
-- Standalone-page recording (`pagehide` + `location.pathname`) is not wired yet — entries in `sessionStorage` will mix SPA snapshots and URLs once T08b lands, and `restoreHistory()` already handles an entry with `href` by navigating.
+- **Behaviour change:** on the SPA the logo no longer resets to the Promos home (that stays on the Promos nav tab). Standalone pages used to keep `<a class="brand-mark" href="index.html#promos">`; since T08b they are `<button data-act="backHistory">` too, so the logo opens history everywhere.
+- No new file on the SPA: the feature is one self-contained block in `index.html`; the standalone half lives in `js/eatouts-back-history.js` (T08b).
+- Standalone-page recording is now wired (`pagehide` + `location.pathname`), so `eatouts.history.v1` mixes SPA snapshots and standalone URLs and `restoreHistory()` handles both.
 
 #### T08b — Header sweep (user task 8, part 2) · L
 **Why this is separate:** T08 shipped the popup on the SPA only. **36** root pages still build their own `class="topbar"` / `.topbar-row` header, **22** carry an `id="hdr"` variant, and `js/eatouts-manager.js:110` still injects a `.hdr-chip` into **32** of them. This is step 1 of T08 and step 1 of both **T18** and **T21** ("standard header (T08)"), so it lands before them.
@@ -433,8 +433,16 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] `brand-mark` is a `<button type="button" data-act="backHistory">` on all 19 standard-header pages (13 anchors swapped, 4 existing buttons tagged, 2 decorative divs promoted).
 - [x] `js/eatouts-back-history.js`: records `{href,label,t}` on load and on `pagehide` into `eatouts.history.v1` (deduped by href, capped at 5), renders the same `.hist-wrap` / `.hist-pop` dialog (scrim + `Escape` close, empty state "No recent pages yet."), and sends SPA snapshot entries to `index.html#<tab>`.
 - [x] `copy-static.mjs` copies `js/` wholesale, so the new file ships without a config change; the tag goes before `</body>`.
-- [x] `tests/back-history.js` (27 checks) + the `tests/appshell.js` logo assertion retargeted + registered in `tests/run-all.js`.
-- [ ] **Step 1 still open:** the 36 `.topbar` pages (dark bar, `.topbar-row`; several carry a progress strip, search row or tabs) are untouched — restyling them to the light `#hdr` changes their look, so it needs a decision.
+- [x] `tests/back-history.js` (29 checks) + the `tests/appshell.js` logo assertion retargeted + registered in `tests/run-all.js`.
+
+**Progress 2026-11-01 (full sweep — user decision A, all 36 `.topbar` pages)** — T08b closed:
+- [x] **Manager shell first:** `js/eatouts-manager.js` builds `<header id="hdr">` (logo button + `.hdr-right`) instead of `.topbar`; the `.hdr-chip` label is gone and the page title now lives in `.hdr-right`. `homeFor()` deleted. `assets/eatouts-manager.css`: `.topbar` → `#hdr`, `.brand` → `.brand-mark`, `.hdr-chip` rule dropped. `js/eatouts-back-history.js` is loaded by the 10 `EO.shell` pages that get their header from JS.
+- [x] **36 pages converted:** the 12 brand+chip pages, 19 brand+chip+progress pages, the one brand+chip+progress+`.tabs` page and the 3 no-chip/no-progress pages now carry the identical light block. The progress strip moved out of the dark bar to its own row directly under `#hdr` (`#hdr + .progress-row` styling), `.hdr-chip` deleted, dead `.topbar` / `.topbar-row` / `.hdr-chip` CSS stripped.
+- [x] **Page labels kept where the chip was the only title:** `gallery-onboarding` ("Gallery"), `invoice` ("Invoice"), `menu-onboarding` ("Menu Management"), `ops-console` ("Ops Console"), `eatouts-checkout-summary` ("Checkout Summary") and `eatouts-customer-signup` show it as `.hdr-right > .brand-subtitle`; the signup page also lost its duplicated brand block and the dead "Draft mode" pill.
+- [x] **Print rules** that used to hide `.topbar` now hide `#hdr` (blog, intake, invoice, lodge-onboarding, one-pager, promo-onboarding).
+- [x] `tests/back-history.js` sweep asserts: no `class="topbar"` / `topbar-row` / `hdr-chip` in any root page, 55 pages carry the brand mark, all 55 wire the button + load the script, and only `food-truck-schedule1.html` / `operator-dashboard1.html` keep a bespoke header.
+- [x] Verified: `npm test` ✔ (60 suites, 0 failed) · `npm run inventory` ✔ (70 pages) · `npm run catalog` ✔ (70 pages).
+- [ ] Device pass — the light header + moved progress strip at 360px on the three densest pages (`eatouts-orders`, `restaurant-dashboard`, `event-onboarding`).
 
 **Done when** every app page has the identical header, the logo opens Back History on every page (≤5 entries, mixing SPA screens and standalone pages), and `Select-String -Pattern 'topbar|hdr-chip' *.html` returns nothing.
 
@@ -544,7 +552,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] `.hdr-chip` gone from every `id="hdr"` block (T06c, `46e4573` / `76dd282` / `8e4f28a`).
 - [x] Verified: `npm test` ✔ (**59 suites passed, 0 failed**) · `npm run inventory` ✔ (19 checks, 70 pages) · `npm run catalog` ✔ (70 pages) · `tests/orders-list.js` 26 checks.
 - [ ] Device pass at 360/390/430px — the counter's 13px light-grey number and the delivery pages' right slot are unchecked visually.
-- Note: 32 admin/merchant pages still render `.hdr-chip` from the shared `.topbar` (`js/eatouts-manager.js:110`) — those are not `id="hdr"` blocks, so the sweep lands with **T08b**.
+- Note: the 32 admin/merchant pages that rendered `.hdr-chip` from the shared `.topbar` were converted in **T08b** (`js/eatouts-manager.js` no longer builds a topbar) — no `.hdr-chip` remains in the repo.
 
 #### T05 — `customer-delivery` redesign (user task 5) · L
 **Files:** `customer-delivery.html` — CSS `:25-26, :42-60, :68-82`, markup `:149-151`, renderers `renderMethod :549`, `renderDestination :616`, `renderRecipient :681`, `renderPayment :690`, `renderReview :~751`, `renderWhatsApp :827`, `barPrimary` ~`:116`.

@@ -20,8 +20,6 @@ button{cursor:pointer}
 
 /* ---------- shell ---------- */
 #app-shell{width:100%;max-width:520px;height:100dvh;min-height:560px;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 60px rgba(20,20,25,.12);position:relative}
-.topbar{flex:0 0 auto;background:#171719;color:#fff;padding:calc(13px + env(safe-area-inset-top)) 18px 14px}
-.topbar-row{display:flex;align-items:center;gap:11px;margin-bottom:13px}
 .brand-mark{height:36px;width:36px;display:grid;place-items:center;background:var(--orange);color:#fff;font-weight:900;font-size:19px;border-radius:7px}
 .brand-title{font-size:18px;font-weight:850;letter-spacing:-.03em;line-height:1.2}
 .brand-subtitle{font-size:11.5px;color:#AEB1B8;letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
@@ -263,22 +261,30 @@ button{cursor:pointer}
 
 @media(min-width:520px){body{padding:12px 0}#app-shell{height:calc(100dvh - 24px);border-radius:9px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ---- T08b standard header ---- */
+#hdr{height:58px;box-sizing:border-box;flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:0 14px;padding-top:env(safe-area-inset-top);background:#fff;border-bottom:1px solid #ece7db;position:sticky;top:0;z-index:58}
+.brand-mark{height:34px;width:auto;aspect-ratio:1172/504;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;background:none;border:0;border-radius:0;box-shadow:none;overflow:hidden;padding:0;margin:0;cursor:pointer}
+.brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;min-width:0}
+/* the progress strip that used to sit inside the dark bar */
+#hdr + .progress,#hdr + .progress-row{background:#fff;border-bottom:1px solid #ece7db;padding:9px 14px 10px}
+#hdr + .progress .progress-label,#hdr + .progress-row span{color:#8a7d64}
+#hdr + .progress .progress-count,#hdr + .progress-row strong{color:#c84513}
+#hdr + .progress .progress-track{background:#ece7db}
+#hdr .brand-subtitle{color:#8a7d64;font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+#hdr + .progress-row + .progress-track{height:6px;background:#ece7db;border-radius:0;overflow:hidden}
 </style>
 </head>
 <body data-page="eatouts-customer-signup">
 <div id="app-shell">
-  <header class="topbar">
-    <div class="topbar-row">
-      <div class="brand-mark">E</div>
-      <div>
-        <div class="brand-title">EatOuts</div>
+  <header id="hdr">
+    <button class="brand-mark" type="button" aria-label="EatOuts home" data-act="backHistory"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
+    <div class="hdr-right">
         <div class="brand-subtitle" id="brandSub">Customer signup</div>
-      </div>
-      <span class="draft-pill" id="saveIndicator">Draft mode</span>
     </div>
-    <div class="progress-row" id="progressRow"><span>Signup completeness</span><strong id="progressText">0% complete</strong></div>
-    <div class="progress-track" id="progressTrack"><div id="progressFill" class="progress-fill"></div></div>
   </header>
+  <div class="progress-row" id="progressRow"><span>Signup completeness</span><strong id="progressText">0% complete</strong></div>
+  <div class="progress-track" id="progressTrack"><div id="progressFill" class="progress-fill"></div></div>
   <div class="scroll" id="scroll">
     <section class="intro" id="introSection"></section>
     <main class="content">
@@ -1513,5 +1519,5 @@ renderApp(false);
 saveState();
 })();
 </script>
-</body>
+<script src="js/eatouts-back-history.js"></script></body>
 </html>

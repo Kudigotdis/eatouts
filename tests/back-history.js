@@ -138,16 +138,19 @@ function done() {
       JSON.stringify(list.map(e => e.href)));
     check('the revisited entry is stamped now', list[0].t > old);
 
-    /* parity sweep: every standard-header page is wired */
+    /* parity sweep: no page may keep the old bar, every logo must be wired */
     const pages = fs.readdirSync(APP_DIR).filter(f => f.endsWith('.html'));
     const src = f => fs.readFileSync(path.join(APP_DIR, f), 'utf8');
-    const swept = pages.filter(f => /class="brand-mark"/.test(src(f)) &&
-      !/class="topbar"/.test(src(f)) && f !== 'index.html');
-    check('nineteen standard-header pages carry the brand mark', swept.length === 19, swept.join(','));
-    const unwired = swept.filter(f => !(/data-act="backHistory"/.test(src(f)) &&
+    const legacy = pages.filter(f => /class="topbar"|topbar-row|hdr-chip/.test(src(f)));
+    check('no page keeps the old .topbar / .topbar-row / .hdr-chip', legacy.length === 0, legacy.join(','));
+    const branded = pages.filter(f => /class="brand-mark"/.test(src(f)) && f !== 'index.html');
+    check('fifty-five pages carry the standard brand mark', branded.length === 55, branded.length);
+    const unwired = branded.filter(f => !(/data-act="backHistory"/.test(src(f)) &&
       src(f).includes('js/eatouts-back-history.js')));
-    check('every swept page wires the button and loads the script',
+    check('every standard-header page wires the button and loads the script',
       unwired.length === 0, unwired.join(','));
+    const odd = pages.filter(f => /<header/.test(src(f)) && !/<header id="hdr"/.test(src(f)));
+    check('only the two .top pages keep a bespoke header', odd.length === 2, odd.join(','));
 
     const indexSrc = src('index.html');
     check('index.html keeps its own SPA copy of the popup',
