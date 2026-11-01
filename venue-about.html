@@ -1112,17 +1112,54 @@
   }
   if (logoImg) {
     if (logoSrc) {
+      logoImg.onload = function () { updateHeroLogoBackground(); };
+      logoImg.onerror = function () { logoImg.style.opacity = '0'; updateHeroLogoBackground('#ffffff'); };
       logoImg.src = logoSrc;
       logoImg.alt = biz.name + ' logo';
       logoImg.style.opacity = '1';
-      logoImg.onerror = function () { logoImg.style.opacity = '0'; };
     } else {
       var initial = (biz.name.charAt(0) || '?').toUpperCase();
       var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#f3ece0"/><text x="100" y="128" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="80" font-weight="800" fill="#a89a7e">' + initial + '</text></svg>';
+      logoImg.onload = function () { updateHeroLogoBackground(); };
       logoImg.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
       logoImg.alt = biz.name;
       logoImg.style.opacity = '1';
     }
+  }
+
+  /* ---- Dynamic hero-logo background from the loaded logo's corner pixel ---- */
+  function updateHeroLogoBackground(fallback) {
+    var img = document.getElementById('logoImg');
+    var hero = document.getElementById('heroLogo');
+    if (!hero) return;
+    var fb = fallback || '#ffffff';
+    if (!img || !img.src) { hero.style.backgroundColor = fb; document.documentElement.style.setProperty('--hero-logo-bg', fb); return; }
+    var tmp = new Image();
+    tmp.crossOrigin = 'Anonymous';
+    tmp.onload = function () {
+      try {
+        var c = document.createElement('canvas');
+        c.width = 50; c.height = 50;
+        var ctx = c.getContext('2d');
+        ctx.drawImage(tmp, 0, 0, c.width, c.height);
+        var d = ctx.getImageData(0, 0, 1, 1).data;
+        // Transparent (alpha 0) or pure black corners sample as black;
+        // fall back to white so the strip never renders black.
+        var isTransparent = (d[3] === 0);
+        var isBlack = (d[0] === 0 && d[1] === 0 && d[2] === 0);
+        var rgb = (isTransparent || isBlack) ? '#ffffff' : 'rgb(' + d[0] + ',' + d[1] + ',' + d[2] + ')';
+        hero.style.backgroundColor = rgb;
+        document.documentElement.style.setProperty('--hero-logo-bg', rgb);
+      } catch (e) {
+        hero.style.backgroundColor = fb;
+        document.documentElement.style.setProperty('--hero-logo-bg', fb);
+      }
+    };
+    tmp.onerror = function () {
+      hero.style.backgroundColor = fb;
+      document.documentElement.style.setProperty('--hero-logo-bg', fb);
+    };
+    tmp.src = img.src;
   }
 
   var h1 = document.querySelector('.hero h1'); if (h1) h1.textContent = biz.name;
@@ -1918,7 +1955,7 @@
   if (fi && logoImg) fi.addEventListener('change', function (e) {
     var file = e.target.files && e.target.files[0]; if (!file) return;
     var r = new FileReader();
-    r.onload = function (ev) { logoImg.src = ev.target.result; logoImg.style.opacity = '1'; toast('Logo updated'); };
+    r.onload = function (ev) { logoImg.src = ev.target.result; logoImg.style.opacity = '1'; logoImg.onload = function () { updateHeroLogoBackground(); }; toast('Logo updated'); };
     r.readAsDataURL(file); e.target.value = '';
   });
 
