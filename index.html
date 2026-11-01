@@ -3917,6 +3917,72 @@ function cartKeys(){
   const p="i"+activeRestId()+":";
   return Object.keys(state.cart).filter(function(k){return k.indexOf(p)===0;});
 }
+/* D10 (option A): the cart persists under 'eatouts_cart_v1' so a promo
+   added on venue-about.html survives a reload and reappears on the menu
+   badge. Cart keys and cart logic stay in this file (DO-NOT: no move).
+   Promo lines use the namespaced key "promo:<slug>:<promoId>" so
+   cartKeys() — which filters on "i<restId>:" — never returns them and
+   menu totals / checkout stay menu-only. */
+const CART_KEY="eatouts_cart_v1";
+function cartPersist(){
+  try{
+    localStorage.setItem(CART_KEY,JSON.stringify({
+      v:1,cart:state.cart,updated:new Date().toISOString()
+    }));
+  }catch(e){}
+}
+function cartHydrate(){
+  try{
+    const raw=localStorage.getItem(CART_KEY);
+    if(!raw) return false;
+    const p=JSON.parse(raw);
+    if(!p||p.v!==1||!p.cart||typeof p.cart!=="object") return false;
+    state.cart=p.cart;
+    return true;
+  }catch(e){return false;}
+}
+/* promo:* only — menu totals stay covered by cartTotal() */
+function cartPromoTotal(){
+  let t=0;
+  Object.keys(state.cart).forEach(function(k){
+    if(k.indexOf("promo:")!==0)return;
+    const l=state.cart[k];if(!l)return;
+    t+=(Number(l.price)||0)*(Number(l.qty)||0);
+  });
+  return t;
+}
+function cartPromoCount(){
+  let c=0;
+  Object.keys(state.cart).forEach(function(k){
+    if(k.indexOf("promo:")!==0)return;
+    const l=state.cart[k];if(!l)return;
+    c+=(Number(l.qty)||0);
+  });
+  return c;
+}
+/* Public write path. One row per (slug,promoId); tapping again
+   increments qty on the same row (never duplicates). */
+window.EO_cart={
+  addPromo:function(line){
+    if(!line||!line.venueSlug||!line.promoId) return false;
+    const key="promo:"+String(line.venueSlug)+":"+String(line.promoId);
+    const cur=state.cart[key];
+    if(cur){
+      cur.qty=(Number(cur.qty)||0)+1;
+      if(line.title) cur.title=line.title;
+      if(line.price!=null) cur.price=Number(line.price);
+    }else{
+      state.cart[key]={
+        itemId:key,sizeIdx:-1,qty:1,extras:{},kind:"promo",
+        title:line.title||"Promo",price:Number(line.price)||0
+      };
+    }
+    cartPersist();
+    return true;
+  },
+  total:function(){return cartTotal()+cartPromoTotal();},
+  keys:function(){return Object.keys(state.cart);}
+};
 function cartLine(itemId,sizeIdx){
   const k=cartKey(itemId,sizeIdx);
   if(!state.cart[k]) state.cart[k]={itemId:itemId,sizeIdx:sizeIdx,qty:0,extras:{}};
@@ -4673,6 +4739,7 @@ function syncCart(){
   });
   /* an emptied cart would leave stale checkout rows behind */
   if(state.checkoutView && n===0) render();
+  cartPersist();
 }
 
 /* ================================================================
@@ -7674,11 +7741,16 @@ function renderMenuCategory(){
   h+='<div class="pad"><button class="btn ghost full" data-act="backCats">Back to Menu</button></div>';
   h+='</div>';
 
+  /* Badge text reflects the whole cart (menu + promo:*). The button's
+     enable rule stays menu-only so tapping never lands on an empty
+     checkout (promo lines don't render there — A4). */
   const total=cartTotal();
   const count=cartCount();
+  const badgeTotal=total+cartPromoTotal();
+  const badgeCount=count+cartPromoCount();
   h+='<div class="cbwrap"><div class="cbar">'+
     '<button class="cbtot" data-act="openCheckout"'+(total>0?"":" disabled")+'>'+
-    '<span data-cartcount>'+fmt(total)+' for '+count+' item'+(count===1?"":"s")+'</span>'+
+    '<span data-cartcount>'+fmt(badgeTotal)+' for '+badgeCount+' item'+(badgeCount===1?"":"s")+'</span>'+
     '</button>'+
     '</div></div>';
   return h;
@@ -9746,7 +9818,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     render();return;
   }
   if(act==="deleteSummaryConfirm"){
-    state.cart={};
+    state.cart={};cartPersist();
     state.splitPeople=[];state.splitOpen=false;state.checkoutOpen=null;state.checkoutView=false;state.checkoutReview=false;
     state.delivery=null;state.cardAlert=null;
     state.orderName="";state.orderContact="";state.orderNotes="";
@@ -10318,6 +10390,7 @@ try{
     }
   }
 }catch(e){}
+cartHydrate();
 openVenueFromSlug(readVenueMeta());
 render();
 loadRestaurantTypeFilters();

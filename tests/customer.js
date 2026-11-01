@@ -126,6 +126,56 @@ setTimeout(() => {
     galTotal + ' total, ' + before + ' -> ' + after);
 
   check('index.html no window errors', appErrors.length === 0, appErrors.slice(0, 3).join(' | '));
+  /* ---------- E. D10 — cart persists to eatouts_cart_v1 (T09a) ---------- */
+  check('EO_cart exposed', ev('typeof window.EO_cart') === 'object');
+  check('EO_cart.addPromo is a function', typeof ev('window.EO_cart.addPromo') === 'function');
+  check('cartHydrate helper present', ev('typeof cartHydrate') === 'function');
+  check('cartPersist helper present', ev('typeof cartPersist') === 'function');
+  check('cartPromoTotal helper present', ev('typeof cartPromoTotal') === 'function');
+  check('cartPromoCount helper present', ev('typeof cartPromoCount') === 'function');
+
+  /* clean slate */
+  ev('state.cart={};cartPersist();');
+  try { w.localStorage.removeItem('eatouts_cart_v1'); } catch (e) {}
+
+  /* addPromo: exactly one row, namespaced key, kind=promo, qty=1 */
+  check('addPromo returns true', ev('window.EO_cart.addPromo({venueSlug:"kfc",promoId:"MON-01",title:"Test",price:75})') === true);
+  check('addPromo created exactly one line', Object.keys(ev('state.cart')).length === 1, Object.keys(ev('state.cart')).join(','));
+  check('addPromo key is namespaced', Object.keys(ev('state.cart'))[0] === 'promo:kfc:MON-01', Object.keys(ev('state.cart'))[0]);
+  check('addPromo row kind=promo', ev('state.cart["promo:kfc:MON-01"].kind') === 'promo');
+  check('addPromo row qty=1', ev('state.cart["promo:kfc:MON-01"].qty') === 1);
+  check('addPromo row carries title + price', ev('state.cart["promo:kfc:MON-01"].title') === 'Test' && ev('state.cart["promo:kfc:MON-01"].price') === 75);
+  check('cartPromoTotal sums promo rows', ev('cartPromoTotal()') === 75, ev('cartPromoTotal()'));
+  check('cartPromoCount sums promo qty', ev('cartPromoCount()') === 1, ev('cartPromoCount()'));
+  check('EO_cart.total includes promo', ev('window.EO_cart.total()') === 75, ev('window.EO_cart.total()'));
+  check('EO_cart.keys includes promo key', ev('window.EO_cart.keys()').indexOf('promo:kfc:MON-01') > -1);
+
+  /* retap: increment on same row, no duplicate */
+  ev('window.EO_cart.addPromo({venueSlug:"kfc",promoId:"MON-01",title:"Test",price:75})');
+  check('addPromo twice still one row', Object.keys(ev('state.cart')).length === 1, Object.keys(ev('state.cart')).join(','));
+  check('addPromo twice qty=2', ev('state.cart["promo:kfc:MON-01"].qty') === 2);
+  check('cartPromoTotal doubled', ev('cartPromoTotal()') === 150, ev('cartPromoTotal()'));
+
+  /* D10 envelope shape */
+  const stored = JSON.parse(w.localStorage.getItem('eatouts_cart_v1') || 'null');
+  check('eatouts_cart_v1 written with v:1 + cart + updated',
+    stored && stored.v === 1 && stored.cart && typeof stored.updated === 'string',
+    JSON.stringify(stored || {}).slice(0, 100));
+  check('envelope row keeps qty=2', stored && stored.cart['promo:kfc:MON-01'] && stored.cart['promo:kfc:MON-01'].qty === 2,
+    JSON.stringify(stored && stored.cart['promo:kfc:MON-01']));
+
+  /* hydrate on "boot" — clear in-memory cart, then read from localStorage */
+  ev('state.cart={};cartHydrate();');
+  check('cartHydrate restores state.cart from localStorage',
+    ev('state.cart["promo:kfc:MON-01"] && state.cart["promo:kfc:MON-01"].qty') === 2,
+    JSON.stringify(ev('state.cart["promo:kfc:MON-01"]')));
+  check('cartHydrate -> cartPromoTotal', ev('cartPromoTotal()') === 150, ev('cartPromoTotal()'));
+
+  /* clean up so subsequent suites see an empty store */
+  ev('state.cart={};cartPersist();');
+  try { w.localStorage.removeItem('eatouts_cart_v1'); } catch (e) {}
+
+
 
   /* ---------- 2. eatouts-about.html standalone page ---------- */
   const about = boot('eatouts-about.html');
