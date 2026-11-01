@@ -145,6 +145,13 @@ only reads; it never rewrites this file. It warns on line drift.
 | 70 | `Orders-List.html` | Saved orders (T06) — every kept checkout summary grouped by place, 90px thumb on the right. | header orders counter (signed-in) / direct URL | `PAGE: Orders List` | 1 |
 
 
+## J. Search (2026-11)
+
+| # | File | What it is | How you reach it | Page marker | ~Lines |
+|---|------|-----------|------------------|-------------|--------|
+| 71 | `search_screen.html` | Full-page search over the customer directory - restaurants, caterers, bakeries, bottle stores, promos and events in one search row. | Search icon in the index.html header; direct URL | `PAGE: Search` | 691 |
+
+
 ---
 
 # Part 2 — Screens Within index.html (SPA)

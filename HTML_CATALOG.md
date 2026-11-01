@@ -25,25 +25,25 @@ and `HTML_PAGES.md` the longer capability narrative.
 
 | Group | Pages | Size | Lines |
 |-------|-------|------|-------|
-| Public & customer surfaces | 15 | 926 KB | 18462 |
+| Public & customer surfaces | 16 | 992 KB | 19864 |
 | Restaurant operator back-office | 9 | 609 KB | 8114 |
 | Manager / auth / platform admin (staged package) | 38 | 1275 KB | 25325 |
-| Delivery flows | 3 | 130 KB | 2230 |
+| Delivery flows | 3 | 147 KB | 2551 |
 | Internal ops & billing | 3 | 156 KB | 2777 |
-| Developer harness | 2 | 226 KB | 4652 |
-| **Total** | **70** | **3319 KB** | **61560** |
+| Developer harness | 2 | 225 KB | 4644 |
+| **Total** | **71** | **3403 KB** | **63275** |
 
-Status: 65 FULL · 1 PARTIAL · 4 STUB/DEMO.
+Status: 66 FULL · 1 PARTIAL · 4 STUB/DEMO.
 
 > Run the app through **`run-eatouts.bat`** (serves the root over `http://127.0.0.1`).
 > Opening a page via `file://` isolates `localStorage` per page and breaks
-> `crypto.subtle` sign-in. Relevant to the 70 catalogued surfaces below.
+> `crypto.subtle` sign-in. Relevant to the 71 catalogued surfaces below.
 
 ## 2. Master index
 
 | # | File | Group | Purpose | How you reach it | Auth | Store keys | Size |
 |---|------|-------|---------|------------------|------|-----------|------|
-| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_cart_v1` `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 524 KB / 10420 lines |
+| 1 | `index.html` | public-customer | Public, mobile-first customer app: browse the restaurant directory and open each venue's menu, promotions, events, gallery and about content. | Open the site root served by run-eatouts.bat; About Us hosts Operator Sign in. | - | `eatouts_cart_v1` `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 550 KB / 10915 lines |
 | 2 | `get-started.html` | public-customer | Marketing landing that explains the operator offer and links into the intake and pricing flows. | Direct / marketing links. | - | `EatoutsDB`→`eatouts_db_v2` | 14 KB / 190 lines |
 | 3 | `pricing.html` | public-customer | Public pricing page; reads and can persist the shared plan prices. | Marketing links; get-started.html. | - | `EatoutsDB`→`eatouts_db_v2` | 14 KB / 249 lines |
 | 4 | `one-pager.html` | public-customer | Static sales one-pager for prospects. | Direct link. | - | — | 18 KB / 638 lines |
@@ -90,14 +90,14 @@ Status: 65 FULL · 1 PARTIAL · 4 STUB/DEMO.
 | 45 | `eatouts-orders.html` | manager-admin | Customer order history. | eatouts-login.html â†’ customer shell â†’ Orders. | yes | `EatoutsMgrDB`→`eatouts_manager_v1` | 29 KB / 950 lines |
 | 46 | `eatouts-profile.html` | manager-admin | Customer profile. | eatouts-login.html â†’ customer shell â†’ Profile. | yes | — | 40 KB / 1200 lines |
 | 47 | `eatouts-addresses.html` | manager-admin | Customer delivery addresses. | eatouts-login.html â†’ customer shell â†’ Addresses. | yes | — | 29 KB / 705 lines |
-| 48 | `customer-delivery.html` | delivery | Customer post-checkout delivery flow; collects delivery details and persists the completed order. | Reached after checkout in the customer app (reads the eatouts_order_v1 draft). | - | `eatouts_active_session_v2` `eatouts_auth_session_v1` `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1` | 56 KB / 1018 lines |
+| 48 | `customer-delivery.html` | delivery | Customer post-checkout delivery flow; collects delivery details and persists the completed order. | Reached after checkout in the customer app (reads the eatouts_order_v1 draft). | - | `eatouts_active_session_v2` `eatouts_auth_session_v1` `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `eatouts_recipients_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 73 KB / 1339 lines |
 | 49 | `restaurant-delivery.html` | delivery | Restaurant dispatch board (demo): incoming requests, rounds, kitchen prep, routes and settings. | restaurant-onboarding.html Delivery & Dispatch buttons. | - | `eatouts_delivery_orders_v1` | 43 KB / 708 lines |
 | 50 | `driver-delivery.html` | delivery | Rider board (demo): duty status, rounds, active stop checklist, problems and completed log. | restaurant-onboarding.html Delivery & Dispatch buttons. | - | — | 31 KB / 504 lines |
 | 51 | `intake.html` | internal-ops | Guided operator/concierge intake capture of a restaurant record. | get-started.html / operator links; auth-gated. | yes | `eatouts_intake_draft_v1` `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 73 KB / 1204 lines |
 | 52 | `invoice.html` | internal-ops | Operator/ops invoice generation. | Ops links; auth-gated. | yes | `eatouts_ops_v1` `EatoutsDB`→`eatouts_db_v2` | 21 KB / 404 lines |
 | 53 | `ops-console.html` | internal-ops | Internal ops tracker: venues, submissions, MRR/activity. | Ops links; auth-gated. | yes | `eatouts_ops_v1` `EatoutsMgrDB`→`eatouts_manager_v1` | 62 KB / 1169 lines |
 | 54 | `seed-demo.html` | dev-harness | Developer harness that seeds the roster and runs data-layer verification assertions. | run-eatouts.bat â†’ open seed-demo.html. | - | `eatouts_db_v2` `EatoutsDB`→`eatouts_db_v2` | 23 KB / 448 lines |
-| 55 | `eatout_event_builder.html` | dev-harness | Legacy experimental event builder. | Direct link. | - | — | 203 KB / 4204 lines |
+| 55 | `eatout_event_builder.html` | dev-harness | Legacy experimental event builder. | Direct link. | - | — | 202 KB / 4196 lines |
 | 56 | `brand-kit-admin.html` | manager-admin | Admin workspace for design jobs, designers, payouts and services | From eatouts-admin-dashboard.html → Brand & Design card (or direct link) | yes | `eatouts_audit_log_v1` `eatouts_auth_session_v1` `eatouts_brand_jobs_v1` `eatouts_db_v2` `eatouts_designers_v1` `eatouts_jobs_v1` `eatouts_services_v1` `eatouts_users_v1` `EatoutsDB`→`eatouts_db_v2` | 67 KB / 736 lines |
 | 57 | `designer-dashboard.html` | manager-admin | Designer private workspace | From designer-services.html → Open your workspace (prototype designer sign-in) | yes | `eatouts_designer_session_v1` | 18 KB / 323 lines |
 | 58 | `designer-services.html` | public-customer | Public marketplace for design services | From index.html About → Settings → Need Design | - | — | 38 KB / 746 lines |
@@ -108,11 +108,12 @@ Status: 65 FULL · 1 PARTIAL · 4 STUB/DEMO.
 | 63 | `eatouts-about.html` | public-customer | Public About EatOuts page. | From index.html About → Settings → About EatOuts. | - | — | 6 KB / 103 lines |
 | 64 | `about-guest-popup.html` | public-customer | Standalone demo of the Create Profile popup on the About tab. | Open from About tab | - | — | 11 KB / 163 lines |
 | 65 | `about-profile-options.html` | public-customer | Standalone demo of the logged‑in profile‑options popup. | Open from About tab | - | — | 36 KB / 479 lines |
-| 66 | `venue-about.html` | public-customer | Data-driven standalone venue About page: renders ANY resolved business's About surface (logo, hero, status, social row, Options, Operating Hours, Venue, Promos, Ambience, Amenities, Menu Tags) from the resolved business alone — no hardcoded venue values, section visibility driven only by present data. | Open directly; pick a business with ?link=<slug> (e.g. venue-about.html?link=nandos) or #<slug> (e.g. venue-about.html#nandos). No slug or an unresolvable slug hands straight back to the directory (location.replace('index.html#restaurants')) — there is no placeholder screen. | - | `eatouts_cart_v1` | 72 KB / 1753 lines |
+| 66 | `venue-about.html` | public-customer | Data-driven standalone venue About page: renders ANY resolved business's About surface (logo, hero, status, social row, Options, Operating Hours, Venue, Promos, Ambience, Amenities, Menu Tags) from the resolved business alone — no hardcoded venue values, section visibility driven only by present data. | Open directly; pick a business with ?link=<slug> (e.g. venue-about.html?link=nandos) or #<slug> (e.g. venue-about.html#nandos). No slug or an unresolvable slug hands straight back to the directory (location.replace('index.html#restaurants')) — there is no placeholder screen. | - | `eatouts_cart_v1` | 81 KB / 1969 lines |
 | 67 | `bakery-onboarding.html` | operator-onboarding | Bakery setup: brand identity, outlets, product range, café/seating capability and the Hosting Services block. | eatouts-business-signup.html → Bakery; the operator dashboard. | - | — | 127 KB / 1706 lines |
 | 68 | `mobile-kitchen-onboarding.html` | operator-onboarding | Mobile kitchen setup: units, service locations, grab-and-go menu, throughput and the Hosting Services block. | eatouts-business-signup.html → Mobile Kitchen; the operator dashboard. | - | — | 113 KB / 1189 lines |
 | 69 | `operator-businesses.html` | operator-onboarding | Business hub: lists the operator's businesses as profile cards and routes each to its type-specific dashboard after sign-in. | index.html → About Us → Operator; or direct URL. | - | `eatouts_active_business_v2` `eatouts_businesses_v1` | 17 KB / 335 lines |
 | 70 | `Orders-List.html` | public-customer | Saved orders (T06): every summary the customer kept at checkout, grouped by the place it came from. | The orders counter in the standard header (logged-in users only), or a direct URL. | - | — | 9 KB / 216 lines |
+| 71 | `search_screen.html` | public-customer | Full-page search over the customer directory: one search row over restaurants, caterers, bakeries, bottle stores, promos and events, with their own result rows. | The search icon in index.html's header, or a direct URL. | - | — | 31 KB / 691 lines |
 
 ## 3. Navigation map
 
@@ -153,8 +154,8 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_cart_v1` `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 8
-- **Size:** 524 KB / 10420 lines (536500 bytes)
-- **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `assets/data/CateringServicesDatabase.js?v=20261021`, `assets/data/bakery_services_database.js?v=20261021`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-catering.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-age.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-content.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`, `js/eatouts-analytics.js`, `js/eatouts-orders-badge.js`
+- **Size:** 550 KB / 10915 lines (563589 bytes)
+- **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/eatouts_terms_of_service.js`, `assets/data/eatouts_privacy_policy.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `assets/data/CateringServicesDatabase.js?v=20261021`, `assets/data/bakery_services_database.js?v=20261021`, `js/bakery-types.js?v=20261101`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-catering.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-age.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-content.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`, `js/eatouts-analytics.js`, `js/eatouts-orders-badge.js`
 - **Notes:** Promo/event cards and detail pages use bare heart + WhatsApp icon rows; the app resolves /bw/<slug> vanity deep-links (openVanityTarget). The 8 alerts are informational/validation only. On venue open the app hydrates that venue's canonical D1 content via window.EatoutsContent (js/eatouts-content.js), merging profile/menu/gallery/promos/events into the local store before re-rendering; an unreachable backend leaves the imported-directory path untouched.
 
 #### #2 `get-started.html`
@@ -322,8 +323,8 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** FULL
 - **Store:** `eatouts_cart_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 72 KB / 1753 lines (73369 bytes)
-- **Loads:** `js/eatouts-brand.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/BottleLliquorStoresDatabase.js`, `js/eatouts-bottle-stores.js`, `assets/data/CateringServicesDatabase.js`, `assets/data/bakery_services_database.js?v=20261021`, `js/eatouts-catering.js`, `js/eatouts-back-history.js`
+- **Size:** 81 KB / 1969 lines (83381 bytes)
+- **Loads:** `js/eatouts-brand.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/BottleLliquorStoresDatabase.js`, `js/eatouts-bottle-stores.js`, `assets/data/CateringServicesDatabase.js`, `assets/data/bakery_services_database.js?v=20261021`, `js/eatouts-catering.js`, `assets/data/venue_about_info.js`, `js/eatouts-back-history.js`
 - **Notes:** Design/layout/behaviours derive from the preserved mockup (byte-identical to _trash/venue-about-demo.html), but every business value comes from the resolved business. No flagship fallback and no slug substitution. Owner detection is window.EatoutsAuth.currentSession() (restaurantId match) plus a manager-DB owner lookup. The page-scoped demo registry (assets/data/eatouts_demo_businesses.js) is loaded ONLY here and never merged into the customer DB, so index.html's browse list stays clean. Slug read order: ?link= → #hash; when neither resolves to a business the page redirects to index.html#restaurants instead of rendering an empty state.
 
 #### #70 `Orders-List.html`
@@ -338,6 +339,19 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Size:** 9 KB / 216 lines (9652 bytes)
 - **Loads:** `js/eatouts-customer.js`, `js/eatouts-back-history.js`
 - **Notes:** Added in T06. Reads the existing js/eatouts-customer.js summaries store (the one checkout's Save Order writes to) and reuses the Order Summary Card layout from T04. No new dependency.
+
+#### #71 `search_screen.html`
+
+- **Purpose:** Full-page search over the customer directory: one search row over restaurants, caterers, bakeries, bottle stores, promos and events, with their own result rows.
+- **Audience:** Customers
+- **Reach it:** The search icon in index.html's header, or a direct URL.
+- **How you use it:** Typing filters the merged directory live (placeholder 'Search restaurants, promos, events...'); each result row opens that venue/offer; curated overlay venues such as Zors are folded into the matching directory row instead of producing a duplicate.
+- **Auth:** open · **Status:** FULL
+- **Store:** —
+- **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
+- **Size:** 31 KB / 691 lines (32126 bytes)
+- **Loads:** `assets/data/restaurant_listings/restaurant_types_filter.js`, `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/restaurant_listings/eatouts_manifest.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `assets/data/BottleLliquorStoresDatabase.js`, `assets/data/CateringServicesDatabase.js?v=20261021`, `assets/data/bakery_services_database.js?v=20261021`, `assets/data/venue_about_info.js`, `botswana_locations.js`, `js/eatouts-locations.js`, `js/eatouts-brand.js`, `js/eatouts-bottle-stores.js`, `js/eatouts-catering.js`, `js/eatouts-db.js`, `js/eatouts-auth.js`, `js/eatouts-age.js`, `js/eatouts-customer.js`, `js/eatouts-seed-data.js`, `js/eatouts-seed.js`, `js/eatouts-bridge.js`, `js/eatouts-content.js`, `js/eatouts-slug.js`, `js/eatouts-router.js`, `js/eatouts-analytics.js`
+- **Notes:** Registered as page 71 in 2026-11: the file had shipped without a `<!-- PAGE: -->` banner or a body data-page slug, which was the single cause of the tests/inventory.js and tests/html-catalog.js failures. Reads the same directory_runtime_data / bridge data as index.html.
 
 ### Restaurant operator back-office
 
@@ -957,9 +971,9 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Reach it:** Reached after checkout in the customer app (reads the eatouts_order_v1 draft).
 - **How you use it:** Choose delivery mode/zone, confirm details, then 'sent on WhatsApp' persists the order via the order bridge.
 - **Auth:** open · **Status:** FULL
-- **Store:** `eatouts_active_session_v2` `eatouts_auth_session_v1` `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `EatoutsMgrDB`→`eatouts_manager_v1`
+- **Store:** `eatouts_active_session_v2` `eatouts_auth_session_v1` `eatouts_manager_v1` `eatouts_order_v1` `eatouts_order_v1_history` `eatouts_recipients_v1` `EatoutsMgrDB`→`eatouts_manager_v1`
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 56 KB / 1018 lines (57481 bytes)
+- **Size:** 73 KB / 1339 lines (75042 bytes)
 - **Loads:** `assets/data/delivery_zones.js`, `js/eatouts-back-history.js`
 - **Notes:** Order bridge (persistCompletedOrder/resolveBusinessId) added D18.
 
@@ -1052,7 +1066,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **Auth:** open · **Status:** STUB/DEMO
 - **Store:** —
 - **Markers:** shell - · auth - · esc - · pager - · confirm - · audit - · alerts 0
-- **Size:** 203 KB / 4204 lines (207608 bytes)
+- **Size:** 202 KB / 4196 lines (206876 bytes)
 - **Loads:** `assets/data/restaurant_listings/directory_runtime_data.js`, `assets/data/event_types.js`, `assets/data/venue-provider-list.js`, `botswana_locations.js`, `assets/data/masterSupplierCatalogue.js`, `assets/data/event_supplier_demo_catalogue.js`, `js/eatouts-customer.js`, `js/eatouts-orders-badge.js`, `js/eatouts-back-history.js`
 - **Notes:** Superseded by event-onboarding.html.
 
@@ -1061,8 +1075,6 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **2026-10-31** — T04 venue-checkout redesign (SPA): checkout is now an Order Summary - one 'Order Summary' crumb over a 3% grey page, a card with the venue's 90px logo, its name and a live 'N items for P#' line, each item's stepper on its own row, and totals (subtotal, delivery fee, grand total) that update in place as quantities, extras or delivery details change. Save Order (account only) writes the summary under About > Summaries; Delete Summary asks for confirmation and clears the cart. Split the Bill and Save Order show a floating sign-up popup for browsers. 'Send via WhatsApp' now asks where the order should go - straight to the venue's number, or to a contact saved on this phone (sign-up popup for browsers) - and a new WhatsApp Review screen (venue-checkout-review) previews the exact message before anything is sent. The draft order is still bridged and the venue is still notified first.
 - **2026-10-31** — T08 Back History (SPA): tapping the EatOuts logo no longer jumps home - it opens a centred popup with the last five screens visited (page title + relative time, newest first, capped at five). Entries are stored in sessionStorage and carry a small state snapshot, so one tap restores the exact screen (tab, directory panel, open venue and its Menu/Promos/About view, promo, gallery view, reservation step). Escape or an outside tap closes it. The header sweep across the remaining standalone pages is still open (T08b).
 - **2026-10-31** — T07 standardised filter bar: the food and bottle-store directories now share one builder - a live search row above Town | Area | Cuisine/Type. Food search really filters the list (empty state kept), filter labels are 16px and centred, the browse counts are gone from every "All" row, the town list hides its scrollbar and the A-Z rail is a subtle grey tint.
-- **2026-11-01** — venue-about.html overlay typography fix: the About button and the Settings accordion header now share one font. `.about-btn` carried `font:800 15px/1 inherit`, an invalid `font` shorthand (`inherit` cannot sit inside the shorthand), so the declaration was dropped and the button rendered in the browser's default control font at ~13.3px/400 while the Settings summary read 15px/800 at the body line-height. It now sets the longhands explicitly (15px / 800 / inherited line-height; family already inherited), so the two stacked rows match.
-- **2026-11-01** — venue-about.html About card is now copy-only: the white card inside the logo overlay holds just the eyebrow, the title and paragraphs (the tagline block and the hours/WhatsApp/website/price/services/established fact rows are gone, along with their CSS and aboutFacts()). The same curated entry in assets/data/venue_about_info.js now feeds the page's own surfaces instead — WhatsApp/phone numbers into the social row's WhatsApp and Call icons and their contact-list popups, website into the Website icon, socials[] into the Facebook/Instagram icons. Tapping About hides the Settings accordion (one panel at a time, CSS-only) and the collapsed card no longer eats two flex gaps, so About→Settings reads as one 16px step while the card's open/close animation is unchanged. Operating Hours stays the static placeholder until real hours are supplied.
 - **2026-10-31** — T03 restaurant-row focus: opening a directory row centres it with a smooth scroll, locks the list scroll (and the page) while it is open, and dims every other row to 25% with taps disabled; closing, switching tabs or navigating away restores the list and never leaves the lock behind.
 - **2026-10-31** — T15 onboarding headers: restaurant-, caterer-, bakery-, bottle-store-, mobile-kitchen- and supplier-onboarding plus eatouts-login drop their dark .topbar for the standard white #hdr (logo link home, hidden .hdr-chip), the Draft mode pill is gone, the setup-completeness bar moved to a light .progress-strip under the header, the 18+ / Secure pills were re-coloured for white, and every page now locks the document (html,body overflow:hidden + overscroll-behavior:none) so no page scrollbar appears.
 - **2026-10-31** — Phase 6 UI polish: the Promos week calendar sits on a 3% grey band; Plan Event category names read at 20px; the Restaurants/Beverages toggle is evenly spaced with 40% inactive tabs; the gallery search button uses assets/icons/search_icon.webp; promo and event detail pages drop their tag/chip rows (ticketing, sponsor and hashtag lists stay as plain rows); gallery thumbnails keep their natural height (capped at 40vh) in the 3-across grid.
@@ -1113,3 +1125,7 @@ The customer app writes a draft order to `eatouts_order_v1`; `customer-delivery.
 - **2026-10-16** — Business promos through the moderation queue (C8): migration 0006_promo_business.sql adds restaurant_id + source ('business'|'customer') to promo_submissions; promoSubmissionOut exposes both. functions/api/customer/promo-submissions.js now dual-serves: a body/query restaurantId routes to requireBusiness (marketing_manager+) and stamps source='business', otherwise requireCustomer as before; business promos always queue as status='pending' (never published directly). js/eatouts-business-api.js gained promosRead/promoSubmit/promoToSubmission. promo-onboarding.html submits on Save, reads back review status, and shows a review badge; the admin dashboard shows a Business/source pill and now labels the queue for events + business promos. Tests: extended tests/promo-submissions.js and tests/business-client.js.
 - **2026-10-16** — Unified content model, public read (C9): new public GET /api/venues/:id (functions/api/venues/[id].js) resolves a venue by D1 id or slug and returns one canonical bundle — identity + visible menu categories/items, visible gallery groups/images, active promos and published events — reusing the _business.js row mappers. New js/eatouts-content.js (window.EatoutsContent) fetches that bundle, maps it to the v2 flat content shape and merges it into EatoutsDB (forkContent + contentSource='d1'), so every existing EatoutsBridge renderer shows D1-published content; it is conservative — a locally authored fork/flagship is never clobbered and an unreachable backend falls back to the imported directory. js/eatouts-bridge.js setActive now dispatches an 'eatouts:venue-active' event and index.html hydrates on venue open (plus the boot venue) and re-renders only when content applied. Tests: added tests/api-venues.js and tests/content.js.
 - **2026-10-20** — About actions in index.html (openRestAbout, bottleStoreInfo, openCateringAbout, openVenueFromSlug) now navigate to the standalone venue-about.html?link=<slug> page instead of rendering an inline .screen[data-page=venue-about]. The inline renderer, EatoutsVenueAbout module and state.venueAboutOrphan were removed. venue-about.html replaces its history.back() handler with a 3-item Page-history popup (EatOuts Home / Restaurants / biz Menu). Tests updated to assert navigation target and absence of the inline about screen. venue-about-new.html mockup deleted; preserved copy in _trash/.
+- **2026-11-01** — venue-about.html overlay typography: `.about-btn` carried `font:800 15px/1 inherit`, an invalid `font` shorthand (`inherit` cannot be a component of it), so the declaration was dropped and the button fell back to the browser's default control font while `.settings-acc > summary` read 15px/800. It now sets the longhands explicitly (15px / 800 / inherited line-height), so the two stacked rows match. Recorded here as well because the change had only been logged in the generated HTML_CATALOG.md, which `npm run catalog` overwrites.
+- **2026-11-02** — index.html: the standard header gained a search icon (`.hdr-search` over assets/icons/search_icon.webp) that opens search_screen.html through a new `openSearchScreen` action, with `.hdr-right` turned into a flex row so the orders counter and the icon sit together. The gallery dropped its fixed 3-column grid and `max-height:40vh` crops for CSS multi-column masonry — 2 columns under 520px, then 3/4/5 at 520/720/960px — so every image keeps its natural aspect ratio and the cells stagger.
+- **2026-11-02** — venue-about.html: the hero strip now takes its colour from the venue's own logo — updateHeroLogoBackground() samples the top-left pixel through a 50x50 canvas and applies it to #heroLogo plus the --hero-logo-bg variable, falling back to white on transparent or pure-black corners, image errors or a missing logo, and re-running when a new logo is chosen in Settings.
+- **2026-11-02** — search_screen.html registered as page 71: added the `<!-- PAGE: Search -->` banner and `<body data-page="search_screen">`, a page entry in scripts/html_catalog.meta.json and a row in PAGE_INVENTORY.md. Those missing markers were the whole of the tests/inventory.js and tests/html-catalog.js failures, so npm test is green again. assets/logo/zen_cafe_logo.jpg was recompressed in the same sweep (234 KB -> 26 KB, still 1024x1024).

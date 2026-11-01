@@ -892,6 +892,18 @@
       "auth": false,
       "status": "FULL",
       "notes": "Added in T06. Reads the existing js/eatouts-customer.js summaries store (the one checkout's Save Order writes to) and reuses the Order Summary Card layout from T04. No new dependency."
+    },
+    {
+      "id": 71,
+      "file": "search_screen.html",
+      "group": "public-customer",
+      "purpose": "Full-page search over the customer directory: one search row over restaurants, caterers, bakeries, bottle stores, promos and events, with their own result rows.",
+      "audience": "Customers",
+      "entry": "The search icon in index.html's header, or a direct URL.",
+      "interactions": "Typing filters the merged directory live (placeholder 'Search restaurants, promos, events...'); each result row opens that venue/offer; curated overlay venues such as Zors are folded into the matching directory row instead of producing a duplicate.",
+      "auth": false,
+      "status": "FULL",
+      "notes": "Registered as page 71 in 2026-11: the file had shipped without a `<!-- PAGE: -->` banner or a body data-page slug, which was the single cause of the tests/inventory.js and tests/html-catalog.js failures. Reads the same directory_runtime_data / bridge data as index.html."
     }
   ],
   "changelog": [
@@ -1106,6 +1118,22 @@
     {
       "date": "2026-10-20",
       "note": "About actions in index.html (openRestAbout, bottleStoreInfo, openCateringAbout, openVenueFromSlug) now navigate to the standalone venue-about.html?link=<slug> page instead of rendering an inline .screen[data-page=venue-about]. The inline renderer, EatoutsVenueAbout module and state.venueAboutOrphan were removed. venue-about.html replaces its history.back() handler with a 3-item Page-history popup (EatOuts Home / Restaurants / biz Menu). Tests updated to assert navigation target and absence of the inline about screen. venue-about-new.html mockup deleted; preserved copy in _trash/."
+    },
+    {
+      "date": "2026-11-01",
+      "note": "venue-about.html overlay typography: `.about-btn` carried `font:800 15px/1 inherit`, an invalid `font` shorthand (`inherit` cannot be a component of it), so the declaration was dropped and the button fell back to the browser's default control font while `.settings-acc > summary` read 15px/800. It now sets the longhands explicitly (15px / 800 / inherited line-height), so the two stacked rows match. Recorded here as well because the change had only been logged in the generated HTML_CATALOG.md, which `npm run catalog` overwrites."
+    },
+    {
+      "date": "2026-11-02",
+      "note": "index.html: the standard header gained a search icon (`.hdr-search` over assets/icons/search_icon.webp) that opens search_screen.html through a new `openSearchScreen` action, with `.hdr-right` turned into a flex row so the orders counter and the icon sit together. The gallery dropped its fixed 3-column grid and `max-height:40vh` crops for CSS multi-column masonry — 2 columns under 520px, then 3/4/5 at 520/720/960px — so every image keeps its natural aspect ratio and the cells stagger."
+    },
+    {
+      "date": "2026-11-02",
+      "note": "venue-about.html: the hero strip now takes its colour from the venue's own logo — updateHeroLogoBackground() samples the top-left pixel through a 50x50 canvas and applies it to #heroLogo plus the --hero-logo-bg variable, falling back to white on transparent or pure-black corners, image errors or a missing logo, and re-running when a new logo is chosen in Settings."
+    },
+    {
+      "date": "2026-11-02",
+      "note": "search_screen.html registered as page 71: added the `<!-- PAGE: Search -->` banner and `<body data-page=\"search_screen\">`, a page entry in scripts/html_catalog.meta.json and a row in PAGE_INVENTORY.md. Those missing markers were the whole of the tests/inventory.js and tests/html-catalog.js failures, so npm test is green again. assets/logo/zen_cafe_logo.jpg was recompressed in the same sweep (234 KB -> 26 KB, still 1024x1024)."
     }
   ]
 }
