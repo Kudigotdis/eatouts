@@ -204,10 +204,21 @@ SUCCESS CRITERIA
 [ ] grep -ri "export profile|profile JSON" returns 0.
 
 SCOPE - files you may touch
-- eatouts-suppliers.html (1,779 lines: header :269-275, scaffold :700-720, renderIdentityStep
-                          ~:730-770, renderServicesStep ~:770-800, renderPricingStep ~:810-874,
-                          renderGalleryStep :876-..., portfolio, contact ~:950-1010, review,
-                          export ~:1077)
+- eatouts-suppliers.html (1,779 lines - VERIFIED anchors, do not trust ":~" guesses):
+    header        .title#hdrTitle :270, #hdrStatus :271
+    publish       data-act="publish" :526, publishReady() :1031, gate call :1366,
+                  DRAFT_KEY :308, publish contract documented :298
+    step scaffold :713-730  (data-act="toggleStep", 5 keys: services/pricing/gallery/contact/review)
+    identity      NO renderIdentityStep() EXISTS - rendered inline :713-756;
+                  owner.headshot :744
+    services      renderServicesStep() :757, toggleService() :778 / :1429
+    pricing       renderPricingStep() :813
+    gallery       renderGalleryStep() :874, addImage :892 / editImage :1330
+    contact       renderContactStep() :941, "Neighbourhood / area" :953,
+                  availability.peakSeason :441 + :966
+    review        renderReviewStep() :978, .foot :1164
+    export        :995 (button), :1074 (dash action), :1397 (handler), exportProfile() :1701
+    step tints    .acc-item.i1-i7 :130-136
 - botswana_locations.js  (read-only data source - do not modify)
 - js/supplier_onboarding_catalog.js (inspect first: may hold the service list to repeat per service)
 - tests/eatouts-suppliers.js (NEW - no suite covers this page today) + tests/run-all.js
@@ -228,9 +239,11 @@ GOAL
 Nine verifiable sub-areas, each shipped as its own commit (12.1 -> 12.9) with tests green after each.
 This is the highest-regression page in the repo: one sub-area per commit, stop and hand back after 12.9.
 
-12.1 VENUE BAR - .venue-bar-expand.open (:63-66)
+12.1 VENUE BAR - .venue-bar-expand.open (:63-66 CSS, expanded markup :1894)
      All text 16px. Remove "Venue Provider", "Name, from P0.00", "Spaces", "Selected".
-     .title-edit-panel -> floating popup (G3).
+     .title-edit-panel (:694-697) -> floating popup (G3): it already floats at >=520px but is a
+     bottom sheet below that, so apply the full recipe (min(92vw,420px), max-height:80dvh,
+     no align-items:flex-end, no "border-radius ... 0 0").
 
 12.2 SCHEDULE - [data-sec="schedule"]
      setScheduleMode chips (one-day / multi-day) equal width + centred. .schedule-day becomes a
@@ -238,40 +251,52 @@ This is the highest-regression page in the repo: one sub-area per commit, stop a
      each opening a floating scroll-list popup, day count correct per month + leap year. Time fields
      -> 2-column Hour / Minute buttons on one row, same popup pattern.
 
-12.3 AUDIENCE - [data-sec="audience"]
-     Thin light separator above the field hint. addAudience -> floating .prompt-panel. Thin light
-     separator above "Event Rules". addRule -> floating .prompt-panel. .rm (removeAudience /
-     removeRule) -> light grey "X", no white circle.
+12.3 AUDIENCE - [data-sec="audience"]        anchors: .field-hint :139, .rm :2156/:2169,
+     Thin light separator above the field hint. addAudience (btn :2161, handler :3558) ->
+     floating .prompt-panel. Thin light separator above "Event Rules". addRule (btn :2173) ->
+     floating .prompt-panel. .rm (removeAudience / removeRule) -> light grey "X", no white circle.
+     >>> .prompt-panel is ONE rule (:704-706) reused by 12.6 / 12.7 / 12.8 - convert it HERE and
+     >>> those three become residual checks. Do not re-diff the same rule four times.
 
-12.4 SUPPLIERS - [data-sec="suppliers"]
+12.4 SUPPLIERS - [data-sec="suppliers"]      anchors: openSupplierTypeMenu :2356/:2389/:3618,
+     .fpop-scrim :536-539, .fpop-body :551, .fpop-search :548/:2517, .sup-profile-scroll :600/:2567,
+     .sup-profile-name :608/:2570, .sup-profile-loc :609, .qty-stepper.sm :652/:2446/:2550
+     ALREADY SATISFIED - verify with Select-String, DO NOT rewrite:
+       .fpop-close = 0 hits; .fpop-x :545 is already background:transparent (plain glyph)
+       .sup-profile-avatar :604 is already 150px ; .pit-thumb :621 is already 90px
+     Remaining work:
      openSupplierTypeMenu -> floating .fpop-scrim (not a bottom sheet). .fpop-search pinned to the
-     bottom of that popup with .fpop-body above it. Beige .fpop-close circle replaced by a plain X
-     glyph (.fpop-x, no circle). .sup-profile-avatar -> 150px, tap -> gallery with swipe + dots.
-     .sup-profile-loc -> 16px. .sup-profile-scroll -> floating popup. .sup-profile-name ->
-     "Service Provider Info" floating popup (90px thumb left; right = name + services; description
-     below). .pit-thumb -> 90px, tap -> full-image gallery (feint black backdrop, dots above the
-     image, white caption below, outside-tap closes). .qty-stepper.sm -> centred -/+ moved to a row
-     BELOW .pit-info, right-aligned, with the added cost left-aligned under .pit-info. .pit-info =
-     90px thumb left, .pit-title + .pit-price right.
+     bottom of that popup with .fpop-body above it. .sup-profile-loc -> 16px. .sup-profile-scroll ->
+     floating popup. .sup-profile-name -> "Service Provider Info" floating popup (90px thumb left;
+     right = name + services; description below). .pit-thumb tap -> full-image gallery (feint black
+     backdrop, dots above the image, white caption below, outside-tap closes). .qty-stepper.sm ->
+     centred -/+ moved to a row BELOW .pit-info, right-aligned, added cost left-aligned under
+     .pit-info. .pit-info = 90px thumb left, .pit-title + .pit-price right.
 
 12.5 DETAILS - [data-sec="details"]
      Centre .chip-row. setEventMode chips equal width. Centre .field-hint. Dress code ->
      Dress-Code-Cards: 90px square thumb, tap = gallery (add/remove/swipe), add/edit/remove cards.
 
-12.6 GUESTS - [data-sec="guests"]
-     .prompt-panel floating. .prompt-thumb -> 150px, "Add photo" text removed. Beige fpop-close
-     circle removed, plain X glyph kept. .qty-stepper -/+ centred.
+12.6 GUESTS - [data-sec="guests"]              anchors: renderPrompt() :3025, prompt-panel :3072
+     .prompt-panel floating (inherited from 12.3 - verify only). ALREADY SATISFIED, do not redo:
+     .prompt-thumb :709 / :3032 is already 150px; .fpop-x :3075 is already a plain X; .fpop-close = 0.
+     Remaining: "Add photo" text removed; .qty-stepper :3036 -/+ centred (it lives inside
+     renderPrompt(), so this is a prompt-popup change, not a guests-section change).
 
-12.7 RSVP - [data-sec="rsvp"]: .prompt-panel floating; beige close circle replaced by a plain X.
-12.8 LINKS - [data-sec="links"]: .prompt-panel floating; beige close circle replaced by a plain X.
+12.7 RSVP - [data-sec="rsvp"]: .prompt-panel floating (from 12.3); close glyph already plain
+     (renderPrompt() :3025, .fpop-x :3075). Expect a VERIFY-ONLY commit - say so if nothing changes.
+12.8 LINKS - [data-sec="links"]: .prompt-panel from 12.3; renderLinkPicker() :3097, .fpop-x :3108
+     already plain. VERIFY-ONLY commit expected.
 
-12.9 SHARE + SAVE
+12.9 SHARE + SAVE                          anchors: shareWhatsApp :2997/:3197/:3919,
+     saveEvent :2996, prompt-panel :3072/:3105, draft :1290 (key) / :1318 (save) / :1328 (load)
      shareWhatsApp -> floating popup with 2 options: "Share with Venue Provider" / "Share with
      WhatsApp Contacts" (account-only; browser -> sign-up popup). saveEvent account-only. Leaving an
      in-progress event (account user) -> "Save draft?" floating prompt; the draft persists in
-     STATE.draftKey="eatouts.event.draft.v2" (:1293, save :1321, load :1331) and restores everything;
+     STATE.draftKey="eatouts.event.draft.v2" (:1290, save :1318, load :1328) and restores everything;
      nav-btn[data-tab="reserve"] offers "Create New Event". On save: choose the event-card thumbnail
      (event images or device) + rename the title; the card shows created + edited dates.
+     >>> Land 12.9 AFTER T13 (P5): it owns the payload Created_Event.html reads.
 
 GLOBAL (applies to all nine)
 [ ] No glyph indicators (G2). All popups floating (G3). No .fpop-close anywhere.
@@ -373,9 +398,17 @@ SUCCESS CRITERIA
 
 SCOPE - files you may touch
 - js/eatouts-services-seed.js   (291 lines; 30 svc_* -> 24)
-- designer-services.html        (746 lines: hero :240-257, catalogue :259-..., designer list,
-                                 step 2, step 3)
-- tests/designer-services.js    (:57 count, :66 first service)
+- designer-services.html        (746 lines - VERIFIED anchors)
+    CSS      .badges :31, .cat-chips :36, .cat-chip .ico :39, .card-img height:118px :42,
+             .service-sub 11.5px :48, .designer-card :71-87, .mosaic 2-col grid :73-78,
+             .designer-top :80, .av-ini :86, .footnote 10.5px :130
+    markup   .badges :241, .cat-chips incl. .ico span :251/:255, .footnote :266,
+             .card-img render :279, .service-sub render :282, .pill.ok :295
+    render   renderCatalogue :229, renderServiceCard :273, renderServiceDetail :302,
+             renderDesignerPicker :364, renderDesignerCard :413, renderBrief :442,
+             renderSummary :490, renderDone :540, goto :596, submitRequest :618
+    NOTE: .mosaic is currently a fixed 2-column grid, not a carousel - this is a rebuild, not a tweak.
+- tests/designer-services.js    (:57 asserts 30 -> 24; :66 asserts 'Logo clean-up' -> 'Brand Kit')
 - eatouts-profile.html          ("My Design Requests" section)
 - js/eatouts-brand-kit.js, brand-kit-admin.html   (only if they reference removed/renamed services)
 - assets/images/services/*      (placeholders; the folder currently holds only logo_cleanup.*)
@@ -399,8 +432,9 @@ Move the region inputs out of the scratch folder into the app, add a region regi
 region selector page. Botswana stays the only active region; all BW data must still load.
 
 PRE-REQUISITE (do not skip)
-SYNC REGION TASK/ is UNTRACKED (261 files). Commit it before moving anything - if it is wiped
-mid-move the region inputs are gone permanently.
+SYNC REGION TASK/ is UNTRACKED. Commit it before moving anything - if it is wiped mid-move the
+region inputs are gone permanently. Verified inventory (2026-11-01): 4 .js + 1 .html +
+256 .png (Country-Flag-Icons/) + that folder. Nothing else.
 
 SUCCESS CRITERIA
 [ ] SYNC REGION TASK/ is empty and deleted. Moved: countries-data.js, territories.js,
@@ -414,7 +448,9 @@ SUCCESS CRITERIA
     field is missing); location data resolved through the registry; currency formatting driven by
     the region.
 [ ] Settings: a .setrow labelled with the active region ("Botswana") sits ABOVE "About EatOuts"
-    (index.html renderAbout, ~:8590-8600) and opens EatOuts-Region.html.
+    and opens EatOuts-Region.html. INSERT IMMEDIATELY BEFORE index.html:8740
+    (<a class="setrow" href="eatouts-about.html">About EatOuts</a>); .setrow CSS is :586-597,
+    the settings accordion markup runs :8738-8746. Do NOT look near :8590 - that is the A-Z rail.
 [ ] EatOuts-Region.html: reskinned selector (EatOuts header/nav/colours, flags from assets/flags/,
     search), Botswana selected; tapping any other region raises the floating popup
     "This region is coming soon."
@@ -581,9 +617,12 @@ Never claim done without pasting the `npm test` tail.
 | `venue-about.html` promo markup `.promo-thumb` exists at `:663-672`, CSS `:352-365` | venue-about.html |
 | `designer-services.html` `.ico` spans at `:255`; `.card-img` fixed 118px crop | designer-services.html |
 | `customer-delivery.html` render fns: method `:549`, destination `:616`, recipient `:681`, payment `:690`, review `~:751`, WhatsApp `:827` | customer-delivery.html |
-| `eatouts-suppliers.html` export block `~:1077`, `owner.headshot` `:746`, `availability.peakSeason` `:443` | eatouts-suppliers.html |
-| `eatout_event_builder.html` draft key `eatouts.event.draft.v2` — `:1293` / save `:1321` / load `:1331` | event builder |
+| `eatouts-suppliers.html` export paths `:995` (button) / `:1074` (dash action) / `:1397` (handler) / `:1701` (`exportProfile()`); `owner.headshot` `:744`; `availability.peakSeason` `:441` + `:966`; `.foot` `:1164` | eatouts-suppliers.html |
+| `eatout_event_builder.html` draft key `eatouts.event.draft.v2` — `:1290` / save `:1318` / load `:1328` | event builder |
 | 5 onboarding pages (`bakery/bottle-store/mobile-kitchen/restaurant/supplier-onboarding.html`) already use the G3 floating recipe — copy it | done (B1) |
+| **Already compliant — verify, do not "fix"**: `.fpop-close` = **0 hits** in the builder; `.fpop-x` is already `background:transparent` (`:545`); `.sup-profile-avatar` already 150px (`:604`); `.pit-thumb` already 90px (`:621`); `.prompt-thumb` already 150px (`:709`) | event builder |
+| `.prompt-panel` is **one** CSS rule (`:704-706`) shared by 12.3 / 12.6 / 12.7 / 12.8 — convert it once in 12.3, then the other three are residual checks only | event builder |
+| `title-edit-panel` `:694-697` already floats ≥520px but is a bottom sheet below it; needs the full G3 recipe (`min(92vw,420px)`, `max-height:80dvh`, no `align-items:flex-end`) | event builder |
 
 Traps:
 
@@ -623,4 +662,63 @@ Each of these is marked DONE in code but was only jsdom-verified. A human must c
    return the failing line only; do not re-prompt the whole task.
 4. Check the task off in `PLATFORM UPDATE TASKS.md`, add a §8 progress row, commit, and move to the
    next prompt in the §1 order.
+
+---
+
+## Appendix C — verified execution order + residual-work map (audited 2026-11-01)
+
+Prompts in §2 are correct as written **except** for the anchors and residual notes below, which were
+re-verified line-by-line against the working tree. Trust this appendix over any `:~` guess elsewhere.
+
+### C1. Order (one commit per phase, `npm test` green after each)
+
+| Phase | Work | Prompt | Test suites |
+|---|---|---|---|
+| A | `js/eatouts-regions.js` verbatim from PLATFORM UPDATE TASKS.md §T22 step 2 | P7 (part) | 60 |
+| B | T09a — promo cart bridge on `venue-about.html` (boot hydrate call goes at **:10347**, not :9749) | P1 | 60 |
+| C | T09b — branded promo tiles + `.plb-*` lightbox (BATCH 3 is superseded: it assumes non-existent `data-promo-*` attributes) | P1 | 60 |
+| D | 12.1 venue bar | P4 | 60 |
+| E | T05 `customer-delivery.html` | P2 | 60 → **61** |
+| F | T13 `Created_Event.html` | P5 | 61 → **62**, `back-history.js:147` **55 → 56** |
+| G | 12.2 → 12.8, one commit each (12.3 before 12.6/12.7/12.8 — see §5 row 588) | P4 | 62 |
+| H | T18 `eatouts-suppliers.html` | P3 | 62 |
+| I | T21 `designer-services.html` | P6 | 62 |
+| J | 12.9 share + save (after F, because it owns the payload T13 reads) | P4 | 62 |
+| K | T22 steps 1, 3, 4, 5, 6 (step 2 = phase A) | P7 | 62 → **63**, `back-history.js:147` **56 → 57**, `:153` stays **2** |
+
+Do **not** run A/K out of order: A writes the registry file that K's gating imports.
+
+### C2. Residual-work map — what is already true in the code
+
+| Item | Status | Evidence |
+|---|---|---|
+| No beige `.fpop-close` circle anywhere in the builder | **already done** | `Select-String .fpop-close` in `eatout_event_builder.html` → 0 hits |
+| Plain `X` glyph on every builder popup | **already done** | `.fpop-x` `:545` `background:transparent`; used `:2515 / :3075 / :3108` |
+| `.sup-profile-avatar` 150px (G4) | **already done** | `:604` |
+| `.pit-thumb` 90px (G4) | **already done** | `:621` |
+| `.prompt-thumb` 150px (G4) | **already done** | `:709` |
+| T18 publish flow exists client-side | **already done** | `publish` :526, `publishReady()` :1031, gate :1366, `DRAFT_KEY` :308 |
+| `.cat-chips` `.ico` span present in T21 | to remove | `:255` markup, `:39` CSS |
+| T21 `.mosaic` | to rebuild | `:73-78` is a fixed 2-col grid, not a carousel |
+| 12.7 / 12.8 | **expect verify-only commits** | both inherit `.prompt-panel` from 12.3; close glyphs already plain |
+
+If a "fix" in §2 targets something in this table, **report it as already satisfied instead of
+editing it** — a rewrite of a compliant rule is a rejected diff.
+
+### C3. Known defects found during the audit (fold into the owning phase)
+
+| # | Defect | Owned by |
+|---|---|---|
+| D1 | `venue-about.html` calls `EatoutsBridge.bundleOf()` at `:1284` / `:1297` but **never loads `js/eatouts-bridge.js`** — the whole branch is dead | Phase B |
+| D2 | `#promoCarousel` / `#promoDots` in `venue-about.html` are dead placeholders (8 empty buttons, no JS fills them) | Phase C |
+| D3 | T12.1's `.venue-bar-expand` lives in `eatout_event_builder.html` `:63-66` (CSS) + `:1894` (expanded markup) — **not** in `venue-about.html` | Phase D |
+
+### C4. Test-integrity notes
+
+- `tests/designer-services.js:57` asserts **30** cards while the seed holds **29** services — the page
+  renders one extra card today. Going to 24 changes **both** numbers; confirm which card disappears.
+- `tests/back-history.js:147` hard-codes the branded-page count. Update it in the **same** commit that
+  adds the page, or the suite goes red for an unrelated reason.
+- `tests/venue-about-options.js` already boots with `runScripts:'dangerously'` and inlines the page
+  scripts at `:36` — extend it for T09; do **not** add a fourth test file.
 
