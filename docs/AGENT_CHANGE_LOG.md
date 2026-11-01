@@ -1283,8 +1283,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `index.html` — `.rest-filter-controls .rest-filter-row .cbtn{font-size:16px}` -> `13px` (`:476`), plus the comment above it (`:473`, which promised "16px centred button labels").
   - `tests/beverages.js` — the assertion that pinned the old value (`:306-308`) now expects `13px` and says so in its label.
   - `docs/AGENT_CHANGE_LOG.md` — this entry.
-- Commit: PENDING
-- Push: PENDING
+- Commit: `2c33534` — `[Agent] filter row buttons - 16px to 13px on the four directory pages` (3 files, +24/-4).
+- Push: `923761e..2c33534 -> origin/main`, `PUSH_EXIT=0`.
 - Notes:
   - **No `[data-page]` scoping added, and none would work:** `#cbar` is a sibling of `#viewport` (`:963-966`), not a descendant of any `.screen[data-page]`, so a page-ancestor selector could never match these buttons. The existing `.rest-filter-controls` scope is already page-exact: `renderFilterBar()` is the only emitter of `.rest-filter-controls` + `.cbar2.rest-filter-row` (`:6717-6727`) and it has exactly four callers — catering (`:6769`), bakery (`:6795`), beverages (`:6820`) and the restaurants-pager list (`:6846`). One declaration therefore covers exactly the four requested pages and nothing else, which keeps the diff to a single CSS value.
   - Only the three Town / Area / Cuisine-Type buttons change size. The search input (`.csearch input`, already 13px) and every `.fpop` popup row keep their own sizes; `.cbtn.gal-val` (gallery cbar) and `.rest-filter-row.town-row` (reserve venue / gallery town rows) stay on the 12px `.cbtn` base because they are outside `.rest-filter-controls`.
