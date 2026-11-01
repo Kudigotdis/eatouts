@@ -1146,3 +1146,12 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Not verified: device pass — the centred onboarding modals at 360px (jsdom does not lay out).
 - Note: untracked `assets/images/services/logo_cleanup.jpg`, `SYNC REGION TASK/` and `docs/Directory_Subscription_Agreement*` stayed out of this commit.
 
+
+### [2026-11-01 10:24:19] - [Agent: Cline] - [Delegation pack for the 7 remaining tasks (T09/T05/T18/T12/T13/T21/T22)] - [COMMITTED]
+- Task: the 100%-completion audit left 7 tasks (19 of 41.75 effort units = 45.5%) plus 11 device passes. Building them serially in one session is slow, so this commit adds a hand-off pack so a fresh AI session can produce any single piece and the lead agent only has to verify + commit.
+- **New file:** `docs/AI-DELEGATION-PACK.md` (626 lines). §0 read-first rules (PowerShell-only, minimal diff, no new deps, G1–G4 popup/thumbnail/scrollbar standards, generated-doc rule); §1 work order smallest→largest with the locked decisions D6/D7/D8/D10; §2 seven self-contained prompts **P1–P7**, one per remaining task, each carrying GOAL + a tappable SUCCESS CRITERIA checklist + explicit SCOPE/DO-NOT file lists + the evidence the receiver must return; §3 a numbered 56-file manifest (what each task must create or edit); §4 the verification protocol the lead agent runs (inventory → catalog → `npm test`, the three §5 audit helpers, per-task extra checks, one commit per task); §5 established facts so nobody re-derives them (memory-only `state.cart` at `index.html:3916`, the fixed menu cart key format, `tests/back-history.js:147` hard-coded 55, `SYNC REGION TASK/` = 261 untracked files, 60/60 baseline); Appendix A the 11 device passes; Appendix B how to hand the pack over.
+- Deliberate omission: **no code changes.** The pack is instructions only — nothing in `*.html` was touched, so the 60/60 suite result is unchanged.
+- Verified: `npm test` → **60 passed, 0 failed** (log: `$env:TEMP\eatouts-test.log`). Heading structure re-read after writing (15 sections, all present); `git status` shows only the 8 files of the B1/B2 commit (`1df5506`) plus this doc.
+- Not verified: the prompts themselves — they are briefs, not executed work. P1's D10 contract and P7's page-count arithmetic only become real in their own commits.
+- Note: untracked `assets/images/services/logo_cleanup.jpg`, `SYNC REGION TASK/`, `docs/Directory_Subscription_Agreement*` stayed out of this commit.
+
