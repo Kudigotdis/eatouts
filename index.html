@@ -52,8 +52,13 @@ img{display:block;max-width:100%}
 .brand-mark img{width:100%;height:100%;object-fit:contain;display:block}
 .hdr-right{margin-left:auto}
 /* T06: orders counter in the header right slot */
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:4px}
 .ord-count{border:0;background:transparent;padding:4px 6px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:.02em;color:#b9b1a2;cursor:pointer}
 .ord-count[hidden]{display:none}
+/* T-SEARCH: search icon in the header right slot */
+.hdr-search{border:0;background:transparent;padding:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;-webkit-tap-highlight-color:transparent}
+.hdr-search:active{background:#f4efe4}
+.hdr-search img{width:22px;height:22px;object-fit:contain;display:block}
 
 /* ---------- VIEWPORT (WHITE) ---------- */
 #viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#ffffff;padding-top:0;view-transition-name:app-vp}
@@ -415,11 +420,38 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 .lrow .ld{font-size:11.5px;color:#a89a7e;font-weight:500;margin-top:3px;text-align:center}
 .resback{flex:0 0 auto;background:#ffffff;border-top:1px solid #f1ece1;padding:10px 14px 12px}
 
-/* ---------- GALLERY ---------- */
-.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);align-items:start;gap:2px;padding:0 0 2px;background:#ffffff}
-.gal-cell{position:relative;max-height:40vh;overflow:hidden;background:#f4efe4;border:0;padding:0;display:block}
+/* ---------- GALLERY (MASONRY) ---------- */
+/* CSS multi-column masonry: fixed-width columns, variable-height cells.
+   Every image keeps its natural aspect ratio (no row heights, no crop),
+   so cells stagger like a brick wall. */
+.gal-grid{
+  column-count:2;
+  column-gap:3px;
+  padding:3px;
+  background:#ffffff;
+}
+.gal-cell{
+  position:relative;
+  display:block;
+  width:100%;
+  margin:0 0 3px;
+  padding:0;
+  border:0;
+  background:#f4efe4;
+  overflow:hidden;
+  break-inside:avoid;
+  -webkit-column-break-inside:avoid;
+  page-break-inside:avoid;
+}
 .gal-cell .tile-ico{font-size:30px}
-.gal-cell>img{width:100%;height:auto;max-height:40vh;object-fit:cover;display:block}
+.gal-cell>img{
+  display:block;
+  width:100%;
+  height:auto;
+}
+@media(min-width:520px){.gal-grid{column-count:3}}
+@media(min-width:720px){.gal-grid{column-count:4}}
+@media(min-width:960px){.gal-grid{column-count:5}}
 
 /* ---------- CONTROL BAR (GALLERY) ---------- */
 .cbar2{display:flex;align-items:center;gap:8px;padding:10px 12px}
@@ -922,7 +954,12 @@ a.dlg-btn{text-decoration:none}
 <div id="shell">
   <header id="hdr" data-act="closePickers">
     <button class="brand-mark" type="button" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
-    <div class="hdr-right"><button class="ord-count" type="button" id="ordCount" data-act="ordersCount" aria-label="Your orders" hidden>0</button></div>
+    <div class="hdr-right">
+      <button class="ord-count" type="button" id="ordCount" data-act="ordersCount" aria-label="Your orders" hidden>0</button>
+      <button class="hdr-search" type="button" data-act="openSearchScreen" aria-label="Search EatOuts">
+        <img src="assets/icons/search_icon.webp" alt="Search">
+      </button>
+    </div>
   </header>
   <div id="viewport"></div>
   <div id="cbar"></div>
@@ -10381,6 +10418,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
   if(act==="closePhoto"){if(e.target.closest("img"))return;state.galleryView="grid";state.galleryPhoto=null;render();return;}
   if(act==="openSearch"){state.searchOpen=true;render();setTimeout(function(){const i=document.getElementById("gsearch");if(i)i.focus();},60);return;}
   if(act==="closeSearch"){state.searchOpen=false;state.gallerySearch="";render();return;}
+  if(act==="openSearchScreen"){window.location.href="search_screen.html";return;}
 
   /* ABOUT */
   if(act==="openAboutGallery"){state.aboutView="gallery";render();return;}
