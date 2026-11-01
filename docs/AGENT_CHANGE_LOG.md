@@ -15,7 +15,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
-### [2026-11-01 23:36:00] - [Agent: cline] - [Status: IN_PROGRESS]
+### [2026-11-01 23:36:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: three venues had no menu (Ocean Basket, Bukhara, Zorz Luxury Chisanyama) + Zorz was missing from the Restaurants list/search + the open restaurant card (`.ritem.open`) could scroll-lock the page
 - Files changed:
   - assets/data/menus_data/Ocean Basket.json, Bukhara.json, Zorz Luxury Chisanyama.json (new; transcribed from the venue menu documents into the directory schema `{restaurant,currency,currencySymbol,menu:[{category,note,items:[{name,description,price|variants,extras}]}]}` — Ocean Basket 2 categories/3 items, Bukhara 14/104, Zorz 8/32; variants keep both prices ("Half/Full"), sauces become `extras`)
@@ -26,8 +26,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - index.html: removed the T03 scroll lock — `body.ritem-locked .scroll{overflow:hidden;touch-action:none}` and `pointer-events:none` on dimmed rows are gone, `syncRestAccordions()` no longer toggles `ritem-locked`, and `scrollIntoView` uses `block:"nearest"`; the dim (`.scroll.has-open .ritem:not(.open){opacity:.25}`) stays
   - tests/search-screen.js: Zorz is a directory row now, so the suite asserts `data-id === rest_zorz-luxury-chisanyama`, that "zors" and "zorz" resolve to that same single row, and that tapping it opens `index.html#zorz-luxury-chisanyama/menu` (the old `venue-zors` / `venue-about.html?link=zors` expectations are gone)
   - assets/data/link_registry.json (regenerated: 838 → 839 with zorz-luxury-chisanyama)
-- Commit: PENDING
-- Push: PENDING
+- Commit: d6f60ed
+- Push: origin/main (ad7a26c..d6f60ed)
 - Notes:
   - Menu JSON is the only source now; the older `*-Menu.js` menu files are no longer in assets (stale copies in dist are gone after `npm run build`).
   - `scripts/seeds/business_links.sql` was regenerated too but NOT committed: `build_link_registry.mjs` rewrites `created_at/updated_at` for all 839 rows (1634662431786 → 4332980179919), a pre-existing generator drift unrelated to this task. Restored to HEAD.
