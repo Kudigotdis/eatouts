@@ -176,7 +176,7 @@ bottom nav where the page is part of the app shell.
 | 11 | T08 | 8 | Activate `brand-mark` + Back History popup — ⚠️ **PARTIAL 2026-10-31** (SPA popup done; header sweep split to T08b) | M |
 | 11b | T08b | 8 | Header sweep — standard `#hdr` on the 36 `.topbar` pages + `js/eatouts-back-history.js` for standalone pages | L |
 | 12 | T03 | 3 | `ritem` focus, scroll lock, 25% dim others — ✅ **DONE 2026-10-31** | M |
-| 13 | T09 | 9 | `venue-about` promo thumb → gallery + "Add to Order" | M |
+| 13 | T09 | 9 | `venue-about` promo thumb → gallery + "Add to Order" — ✅ **DONE 2026-11-01** | M |
 | 14 | T07 | 7 | Standardised Filter Bar on 4 screens — ✅ **DONE 2026-10-31** (food + bottle store; catering/bakery blocked on data) | M |
 
 ### Phase 4 — Structural redesigns
@@ -468,14 +468,17 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] Probe: 23/23 — open sets `.open`/`has-open`/`ritem-locked` + one `scrollIntoView`, sibling computes `opacity .25` / `pointer-events none`; close restores; reopening scrolls again; Promos tab leaves no lock.
 - [ ] Device pass — **needs a phone look** at the smooth centring and the 0.25 dim on a long list.
 
-#### T09 — Promo thumb → Add to Order (user task 9) · M
-**Files:** `venue-about.html` (`.promo-thumb` CSS `:352-363`, markup `:663-673`, carousel JS), `index.html` cart API (`state.cart`, `cartKeys`, `cartTotal`).
+#### T09 — Promo thumb → Add to Order (user task 9) · M — ✅ **DONE 2026-11-01**
+**Files:** `venue-about.html` (`.promo-thumb` CSS `:352-365`, markup `:663-673`, carousel JS), `index.html` cart API (`state.cart`, `cartKeys`, `cartTotal`).
 **Steps**
-1. Tapping `.promo-thumb` opens a full-screen lightbox (feint black backdrop, image centred, dots for the gallery, swipe left/right).
-2. A centred "Add to Order" button sits horizontally beneath the image.
-3. Tap outside the image closes.
-4. "Add to Order" writes the promo as a cart line (promo id, title, price) and returns to the venue/checkout with a toast.
-**Done when** the gallery opens with dots + swipe, outside-tap closes, Add to Order adds exactly one line and the cart badge/total update.
+- [x] 1. Tapping `.promo-thumb` opens a floating gallery (feint black scrim over the page, image centred in a rounded stage, dots for the gallery, swipe left/right, dot tap jumps).
+- [x] 2. A centred "Add to Order" button sits horizontally beneath the image (`#plbAdd`, last child of `#plb`).
+- [x] 3. Tap outside the image (the scrim) closes; Escape closes.
+- [x] 4. "Add to Order" writes the promo as one cart line (promo id, title, price, qty:1) into `localStorage 'eatouts_cart_v1'` and toasts; a re-tap increments qty on the same row.
+**Done when** the gallery opens with dots + swipe, outside-tap closes, Add to Order adds exactly one line and the cart badge/total update. ✅ all four covered by 26 checks in `tests/venue-about-options.js`.
+
+**Data note (why the fallback exists):** promo content is API-owned — `index.html` ships `const PROMOS = {}` (`:3250`), `assets/data/restaurant_listings/directory_runtime_data.js` has no `promos` field at all, and no demo promo exists in the repo. `venue-about.html` therefore reads, in order: `window.EATOUTS_VENUE_PROMOS[slug]` (promo API / owner tool), `EatoutsBridge.feedPromos()` (GET `/api/promos`, when that library is on the page), `rec.promos`. With none present the Promos accordion shows **branded venue tiles** (the locked T09 decision) and the CTA reads "Price not published yet" and stays disabled — the page never invents a price. The full Add to Order path is exercised in the suite by injecting the feed the same way the API would.
+
 
 #### T07 — Standardised Filter Bar (user task 7) · M — ✅ **DONE 2026-10-31** (food + bottle store; catering/bakery blocked on data — see notes)
 **Files:** `index.html` — `#cbar` `:855`, `renderRestaurants` `:5195`, `renderRestaurantsPager` `:5244`, `renderCatering`/`renderBakeries`/`renderBeverages`, `#cbar` builder `:6289-6328`, `restFilterOpen` toggle `:8782`, `.rest-filter-controls`/`.cbtn` CSS, `.town-pop`/`.town-scroll`/`.az-rail`/`.loc-count` CSS ~`:608-635`.
@@ -1007,6 +1010,8 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 2026-11-01 | T16 | DONE (closed by D7) | `PLATFORM UPDATE TASKS.md` only — code shipped in `6fb0e52` | D7 resolved: **no WhatsApp channel exists yet**, so the coming-soon popup is the intended shipped state. `tests/about.js` already asserts both branches | (this commit) |
 | 2026-11-01 | B1 | DONE | `bakery-`, `bottle-store-`, `mobile-kitchen-`, `restaurant-`, `supplier-onboarding.html` — `.modal-backdrop` `align-items:flex-end` → `center` + `padding:20px`, `.modal` `max-width:420px`, `max-height:80dvh`, `border-radius:9px` (no more `9px 9px 0 0`), desktop `90dvh` override aligned to `80dvh` | audit 2 (`(modal-backdrop\|fpop)…flex-end`) prints nothing; full `npm test` **60 passed, 0 failed** | (this commit) |
 | 2026-11-01 | B2 | DONE | `PLATFORM UPDATE TASKS.md` §5 — audit 1 now resolves linked `assets/*.css` (was reporting 9 false positives on the manager pages, which hide the bar via `eatouts-manager.css:34-35`); audit 2 scoped to popup selectors; audit 4 added as advisory | audit 1 prints nothing (verified); audits 2 + 3 print nothing; audit 4 → ~30 advisory hits, live ones owned by T05/T12 | (this commit) |
+| 2026-11-01 | T09 | DONE | `index.html` (D10 cart persist/hydrate, `window.EO_cart`, badge), `venue-about.html` (`.promo-thumb.is-branded` + `.plb-*` gallery CSS, lightbox markup, promo feed → tiles → Add to Order JS), `tests/customer.js` (+22 D10 checks), `tests/venue-about-options.js` (+26 T09 checks) | `customer` PASSED (`window errors: 0`); `venue-about-options` PASSED (26 new T09 checks: tiles, dots, swipe both ways, dot jump, CTA beneath image, one-line cart write, re-tap increments, envelope, toast, outside-tap + Escape, branded fallback); full `npm test` **60 passed, 0 failed**; audits 1/2/3 print nothing | `c1e6286` + this commit |
+
 
 ### Per-task completion template
 

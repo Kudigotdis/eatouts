@@ -28,7 +28,7 @@ function check(label, cond, extra) {
   else console.log('ok    ' + label);
 }
 
-function loadPage(slug) {
+function loadPage(slug, seed) {
   let html = fs.readFileSync(path.join(APP_DIR, 'venue-about.html'), 'utf8');
   html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, src) => {
     const f = path.join(APP_DIR, src.split('?')[0].replace(/\//g, path.sep));
@@ -48,7 +48,11 @@ function loadPage(slug) {
     url: 'http://localhost/venue-about.html?link=' + encodeURIComponent(slug),
     runScripts: 'dangerously',
     pretendToBeVisual: true,
-    virtualConsole: vc
+    virtualConsole: vc,
+    beforeParse(win) {
+      /* T09: the promo API / owner tool hands its payload in here. */
+      if (seed && seed.promos) win.EATOUTS_VENUE_PROMOS = seed.promos;
+    }
   });
   return { dom, doc: dom.window.document, window: dom.window, errors, navs };
 }
@@ -186,6 +190,106 @@ function click(el) {
     /window\.location\.href\s*=\s*'index\.html#'\s*\+\s*biz\.slug\s*\+\s*'\/promos'/.test(seen));
   check('index.html parses the #<slug>/menu|promos hash',
     /hashParts\[1\]==="menu"\|\|hashParts\[1\]==="promos"/.test(fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8')));
+})();
+
+/* ---------- T09: promo thumb → gallery → Add to Order ------------------
+   Promo content is API-owned (index.html ships `const PROMOS = {}`), so the
+   page reads window.EATOUTS_VENUE_PROMOS[slug]. The feed is injected here
+   the same way the promo API / owner tool would. */
+(function () {
+  const FEED = {
+    kfc: [
+      { promoId: 'P1', title: 'Family Bucket Deal', price: 75, image: 'assets/promo/p1.jpg' },
+      { promoId: 'P2', title: 'Two-for-Tuesday', price: 120, image: 'assets/promo/p2.jpg' }
+    ]
+  };
+  const { dom, doc, window: w, errors } = loadPage('kfc', { promos: FEED });
+  const q = s => doc.querySelector(s);
+  const qa = s => Array.prototype.slice.call(doc.querySelectorAll(s));
+  const store = () => { try { return JSON.parse(w.localStorage.getItem('eatouts_cart_v1') || 'null'); } catch (e) { return null; } };
+  const promoKeys = () => { const b = store(); return b && b.cart ? Object.keys(b.cart).filter(k => k.indexOf('promo:') === 0) : []; };
+
+  check('T09: promo tiles render from the injected feed',
+    qa('#promoCarousel [data-promo-idx]').length === 2, qa('#promoCarousel [data-promo-idx]').length);
+  check('T09: no branded placeholders once real promos exist',
+    qa('#promoCarousel .is-branded').length === 0);
+
+  /* tap the second tile */
+  click(qa('#promoCarousel [data-promo-idx]')[1]);
+  check('T09: tapping a tile opens the floating gallery', !!q('#plb.open') && !!q('#plbScrim.open'));
+  check('T09: gallery shows the tapped slide', (q('#plbImg').getAttribute('src') || '') === 'assets/promo/p2.jpg', q('#plbImg').getAttribute('src'));
+  check('T09: caption shows title + price',
+    /Two-for-Tuesday/.test(q('#plbCap').textContent) && /P120/.test(q('#plbCap').textContent), q('#plbCap').textContent);
+  check('T09: dots track the tapped index',
+    qa('#plbDots .plb-dot').length === 2 && qa('#plbDots .plb-dot')[1].classList.contains('on'),
+    qa('#plbDots .plb-dot').map(d => d.className).join('|'));
+
+  /* swipe: negative dx steps forward, positive steps back, both wrap */
+  const swipe = (x0, x1) => {
+    const d = new w.Event('pointerdown', { bubbles: true }); d.clientX = x0; q('#plbStage').dispatchEvent(d);
+    const u = new w.Event('pointerup', { bubbles: true }); u.clientX = x1; q('#plbStage').dispatchEvent(u);
+  };
+  swipe(200, 100);
+  check('T09: swipe left wraps to the first slide', /Family Bucket Deal/.test(q('#plbCap').textContent), q('#plbCap').textContent);
+  swipe(100, 200);
+  check('T09: swipe right moves back', /Two-for-Tuesday/.test(q('#plbCap').textContent), q('#plbCap').textContent);
+
+  /* dot tap jumps */
+  click(qa('#plbDots .plb-dot')[0]);
+  check('T09: tapping a dot jumps to that slide', /Family Bucket Deal/.test(q('#plbCap').textContent), q('#plbCap').textContent);
+
+  /* the CTA sits below the image in DOM order */
+  const kids = Array.prototype.slice.call(q('#plb').children);
+  check('T09: Add to Order sits beneath the image',
+    kids.indexOf(q('#plbStage')) > -1 && kids.indexOf(q('#plbAdd')) > kids.indexOf(q('#plbStage')),
+    kids.map(k => k.id || k.className).join(','));
+  check('T09: CTA enabled for a priced promo', !q('#plbAdd').disabled, q('#plbAdd').textContent);
+
+  click(q('#plbAdd'));
+  check('T09: Add to Order writes exactly one cart line', promoKeys().length === 1, promoKeys().join(','));
+  check('T09: line key is promo:<slug>:P1', /^promo:[a-z0-9-]+:P1$/.test(promoKeys()[0] || ''), promoKeys()[0]);
+  const line = (store() && store().cart[promoKeys()[0]]) || {};
+  check('T09: line carries kind/title/price/qty',
+    line.kind === 'promo' && line.title === 'Family Bucket Deal' && line.price === 75 && line.qty === 1,
+    JSON.stringify(line));
+  check('T09: envelope is D10 shaped', !!store() && store().v === 1 && typeof store().updated === 'string');
+
+  click(q('#plbAdd'));
+  check('T09: re-tap increments qty on the same row',
+    promoKeys().length === 1 && store().cart[promoKeys()[0]].qty === 2,
+    JSON.stringify(store().cart[promoKeys()[0]]));
+  check('T09: toast confirms the line', /added to your order/i.test(q('#toast').textContent), q('#toast').textContent);
+
+  /* outside tap + Escape */
+  click(q('#plbScrim'));
+  check('T09: outside tap closes the gallery', !q('#plb.open') && !q('#plbScrim.open'));
+  click(qa('#promoCarousel [data-promo-idx]')[0]);
+  doc.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  check('T09: Escape closes the gallery', !q('#plb.open'));
+
+  check('T09: no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '));
+  dom.window.close();
+})();
+
+/* ---------- T09 fallback: no promo data anywhere ---------- */
+(function () {
+  const { dom, doc, errors } = loadPage('kfc');
+  const q = s => doc.querySelector(s);
+  const qa = s => Array.prototype.slice.call(doc.querySelectorAll(s));
+
+  check('T09 fallback: branded tiles render instead of empty squares',
+    qa('#promoCarousel .promo-thumb.is-branded').length === 3, qa('#promoCarousel .promo-thumb').length);
+  check('T09 fallback: tile carries the venue name',
+    /kfc/i.test((q('#promoCarousel .promo-brand') || {}).textContent || ''), (q('#promoCarousel .promo-brand') || {}).textContent);
+
+  click(qa('#promoCarousel [data-promo-idx]')[0]);
+  check('T09 fallback: gallery still opens (dots + swipe demonstrable)', !!q('#plb.open'));
+  check('T09 fallback: CTA disabled — never invents a price',
+    q('#plbAdd').disabled && /Price not published yet/.test(q('#plbAdd').textContent), q('#plbAdd').textContent);
+  click(q('#plbScrim'));
+  check('T09 fallback: outside tap closes', !q('#plb.open'));
+  check('T09 fallback: no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '));
+  dom.window.close();
 })();
 
 console.log('');

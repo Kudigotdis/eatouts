@@ -378,6 +378,61 @@
     width:18px;border-radius:3px;
   }
 
+  /* Branded placeholder tile (T09): no promo art exists in the repo yet, so a
+     tile shows the venue name instead of an empty grey square. */
+  .promo-thumb.is-branded{
+    display:flex;align-items:center;justify-content:center;
+    padding:8px;text-align:center;
+  }
+  .promo-brand{
+    font-size:11px;font-weight:800;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--ink);opacity:.5;line-height:1.25;
+  }
+
+  /* ── PROMO LIGHTBOX (T09) — feint black stage, image centred, dots + CTA ── */
+  .plb-scrim{
+    position:fixed;inset:0;z-index:120;
+    background:rgba(15,10,5,.42);
+    backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+    opacity:0;pointer-events:none;transition:opacity .22s ease;
+  }
+  .plb-scrim.open{opacity:1;pointer-events:auto}
+
+  .plb{
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) scale(.96);
+    width:calc(100% - 36px);max-width:420px;max-height:80dvh;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    z-index:125;opacity:0;pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .plb.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+
+  .plb-stage{
+    width:100%;max-height:62dvh;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:18px;overflow:hidden;background:#fff;
+    box-shadow:0 24px 60px rgba(0,0,0,.42);
+    touch-action:pan-y;
+  }
+  .plb-stage.is-branded{background:#efeae0;min-height:180px}
+  .plb-img{display:block;width:100%;height:auto;max-height:62dvh;object-fit:contain;background:#fff}
+  .plb-cap{font-size:14px;font-weight:700;color:#fff;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+  .plb-dots{display:flex;justify-content:center;gap:6px}
+  .plb-dot{
+    width:6px;height:6px;border:0;padding:0;border-radius:50%;
+    background:rgba(255,255,255,.45);cursor:pointer;
+    transition:background .2s ease, width .2s ease;
+  }
+  .plb-dot.on{background:#fff;width:18px;border-radius:3px}
+  .plb-add{
+    align-self:center;display:inline-flex;align-items:center;justify-content:center;
+    padding:13px 26px;border:0;border-radius:14px;
+    font-size:15px;font-weight:800;cursor:pointer;
+    background:var(--ink);color:#fff;
+  }
+  .plb-add[disabled]{opacity:.55;cursor:default}
+
   /* ── ACTIONS ── */
   .actions{padding:6px 18px 22px;display:flex;flex-direction:column;gap:10px}
   .btn{
@@ -829,6 +884,17 @@
     <h2 class="popup-title" id="popupTitle">—</h2>
   </div>
   <div class="popup-body" id="popupBody"></div>
+</div>
+
+<!-- PROMO LIGHTBOX (T09) — outside-tap and Escape close; no glyph affordance -->
+<div class="plb-scrim" id="plbScrim"></div>
+<div class="plb" id="plb" role="dialog" aria-modal="true" aria-label="Promo gallery">
+  <div class="plb-stage" id="plbStage">
+    <img class="plb-img" id="plbImg" alt="">
+  </div>
+  <div class="plb-cap" id="plbCap"></div>
+  <div class="plb-dots" id="plbDots"></div>
+  <button type="button" class="plb-add" id="plbAdd" data-plb-add>Add to Order</button>
 </div>
 
 <input type="file" id="fileInput" accept="image/*" hidden>
@@ -1375,8 +1441,233 @@
       : '';
   }
 
+  /* ==================================================================
+     T09 — promo thumbnails → floating gallery → Add to Order
+     ------------------------------------------------------------------
+     Promo content is API-owned: index.html ships `const PROMOS = {}` and
+     the directory records carry no promos, so this page reads, in order:
+       1. window.EATOUTS_VENUE_PROMOS[slug]  — promo API / owner tool
+       2. EatoutsBridge.feedPromos()         — GET /api/promos, when loaded
+       3. rec.promos                         — a record that already has them
+     With none present the carousel shows branded venue tiles (locked T09
+     decision) and the CTA stays disabled rather than inventing a price.
+     ================================================================== */
+  var CART_STORE = 'eatouts_cart_v1';
+
+  function money(n) {
+    var v = Number(n);
+    if (!isFinite(v)) return '';
+    var s = String(Math.round(v * 100) / 100).split('.');
+    s[0] = s[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return 'P' + s.join('.');
+  }
+  function promoPrice(v) {
+    if (v == null || v === '') return null;
+    var n = Number(v);
+    return isFinite(n) ? n : null;
+  }
+  function normPromo(p, i) {
+    if (!p || typeof p !== 'object') return null;
+    var id = p.promoId || p.id || p.promo_id || ('p' + (i + 1));
+    var title = String(p.title || p.name || p.headline || '').trim();
+    var price = promoPrice(p.price != null ? p.price : (p.amount != null ? p.amount : null));
+    var image = p.image || p.img || p.src || p.photo || '';
+    if (!title && !image) return null;
+    return { promoId: String(id), title: title || 'Promo', price: price, image: image };
+  }
+  function promoSourceList() {
+    var injected = window.EATOUTS_VENUE_PROMOS;
+    if (injected && typeof injected === 'object') {
+      var mine = injected[slug] || injected[biz.slug] || injected[canon(slug)];
+      if (Array.isArray(mine) && mine.length) return mine;
+    }
+    if (window.EatoutsBridge && typeof EatoutsBridge.feedPromos === 'function') {
+      var feed = null;
+      try { feed = EatoutsBridge.feedPromos(); } catch (e) { feed = null; }
+      if (Array.isArray(feed) && feed.length) {
+        var forVenue = feed.filter(function (p) {
+          var s = String((p && (p.venueSlug || p.slug || p.restaurantSlug)) || '').toLowerCase();
+          return !!s && (s === slug || canon(s) === canon(slug));
+        });
+        if (forVenue.length) return forVenue;
+      }
+    }
+    var rec = biz && biz.record;
+    if (rec) {
+      if (Array.isArray(rec.promos) && rec.promos.length) return rec.promos;
+      if (rec.promos && typeof rec.promos === 'object') {
+        var flat = [];
+        Object.keys(rec.promos).forEach(function (d) {
+          (rec.promos[d] || []).forEach(function (p) { flat.push(p); });
+        });
+        if (flat.length) return flat;
+      }
+    }
+    return [];
+  }
+  function promoEntries() {
+    var out = [];
+    promoSourceList().forEach(function (p, i) {
+      var n = normPromo(p, i);
+      if (n) out.push(n);
+    });
+    return out;
+  }
+  function brandedSlide() {
+    var src = null;
+    if (window.EatoutsBrand && typeof EatoutsBrand.logoFor === 'function' && biz.record) {
+      try { src = EatoutsBrand.logoFor(biz.record); } catch (e) { src = null; }
+    }
+    return { promoId: '', title: biz.name + ' · promo tile', price: null, image: src || '', branded: true };
+  }
+  function renderPromoCarousel() {
+    var wrap = document.getElementById('promoCarousel');
+    if (!wrap) return;
+    var list = promoEntries();
+    var html = '';
+    if (list.length) {
+      list.forEach(function (p, i) {
+        var bg = p.image
+          ? ' style="background-image:url(&quot;' + esc(p.image) + '&quot;);background-size:cover;background-position:center"'
+          : '';
+        html += '<button type="button" class="promo-thumb" data-promo-idx="' + i + '"' + bg +
+                ' aria-label="' + esc(p.title) + '"></button>';
+      });
+    } else {
+      for (var i = 0; i < 3; i++) {
+        html += '<button type="button" class="promo-thumb is-branded" data-promo-idx="' + i +
+                '" aria-label="' + esc(biz.name) + ' promo tile ' + (i + 1) + '">' +
+                '<span class="promo-brand">' + esc(biz.name) + '</span></button>';
+      }
+    }
+    wrap.innerHTML = html;
+  }
+
   renderOptions();
   renderHosting();
+  renderPromoCarousel();
+  /* ---- T09 lightbox: dots, swipe, centred CTA, outside-tap + Escape ---- */
+  var plbList = [], plbIdx = 0;
+
+  function plbRender() {
+    var p = plbList[plbIdx];
+    if (!p) return;
+    var img = document.getElementById('plbImg');
+    var cap = document.getElementById('plbCap');
+    var dots = document.getElementById('plbDots');
+    var add = document.getElementById('plbAdd');
+    var stage = document.getElementById('plbStage');
+    if (stage) stage.className = 'plb-stage' + (p.branded ? ' is-branded' : '');
+    if (img) {
+      if (p.image) { img.src = p.image; img.alt = p.title; img.style.display = ''; }
+      else { img.removeAttribute('src'); img.alt = p.title; img.style.display = 'none'; }
+    }
+    if (cap) cap.textContent = p.price != null ? p.title + ' · ' + money(p.price) : p.title;
+    if (dots) {
+      dots.innerHTML = plbList.map(function (x, i) {
+        return '<button type="button" class="plb-dot' + (i === plbIdx ? ' on' : '') +
+               '" data-plb-dot="' + i + '" aria-label="Image ' + (i + 1) + '"></button>';
+      }).join('');
+      dots.style.display = plbList.length > 1 ? '' : 'none';
+    }
+    if (add) {
+      add.disabled = p.price == null;
+      add.textContent = p.price != null ? 'Add to Order · ' + money(p.price) : 'Price not published yet';
+    }
+  }
+  function openPromoLightbox(idx) {
+    var list = promoEntries();
+    plbList = list.length ? list : [brandedSlide()];
+    plbIdx = Math.max(0, Math.min(Number(idx) || 0, plbList.length - 1));
+    plbRender();
+    var s = document.getElementById('plbScrim'), p = document.getElementById('plb');
+    if (s) s.classList.add('open');
+    if (p) p.classList.add('open');
+  }
+  function closePromoLightbox() {
+    var s = document.getElementById('plbScrim'), p = document.getElementById('plb');
+    if (s) s.classList.remove('open');
+    if (p) p.classList.remove('open');
+  }
+  function promoStep(dir) {
+    if (plbList.length < 2) return;
+    plbIdx = (plbIdx + (dir < 0 ? -1 : 1) + plbList.length) % plbList.length;
+    plbRender();
+  }
+  /* One row per promo in the shared cart store (D10): the same key shape and
+     envelope index.html's window.EO_cart.addPromo writes, so the menu badge
+     picks the line up after the next load. A repeat tap increments qty. */
+  function cartAddPromo(line) {
+    if (!line || line.price == null || !line.promoId) return false;
+    var key = 'promo:' + biz.slug + ':' + line.promoId;
+    var blob = null;
+    try { blob = JSON.parse(localStorage.getItem(CART_STORE) || 'null'); } catch (e) { blob = null; }
+    if (!blob || blob.v !== 1 || !blob.cart || typeof blob.cart !== 'object') {
+      blob = { v: 1, cart: {}, updated: null };
+    }
+    var cur = blob.cart[key];
+    if (cur) {
+      cur.qty = (Number(cur.qty) || 0) + 1;
+      cur.title = line.title;
+      cur.price = Number(line.price);
+    } else {
+      blob.cart[key] = {
+        itemId: key, sizeIdx: -1, qty: 1, extras: {}, kind: 'promo',
+        title: line.title, price: Number(line.price)
+      };
+    }
+    blob.updated = new Date().toISOString();
+    try { localStorage.setItem(CART_STORE, JSON.stringify(blob)); } catch (e) { return false; }
+    return true;
+  }
+  function cartPromoQty(line) {
+    if (!line || !line.promoId) return 0;
+    try {
+      var blob = JSON.parse(localStorage.getItem(CART_STORE) || 'null');
+      var row = blob && blob.cart && blob.cart['promo:' + biz.slug + ':' + line.promoId];
+      return row ? (Number(row.qty) || 0) : 0;
+    } catch (e) { return 0; }
+  }
+
+  var promoCarousel = document.getElementById('promoCarousel');
+  if (promoCarousel) promoCarousel.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-promo-idx]');
+    if (b) openPromoLightbox(parseInt(b.getAttribute('data-promo-idx'), 10) || 0);
+  });
+  var plbScrim = document.getElementById('plbScrim');
+  if (plbScrim) plbScrim.addEventListener('click', closePromoLightbox);
+  document.addEventListener('click', function (e) {
+    var d = e.target.closest('[data-plb-dot]');
+    if (d) {
+      plbIdx = parseInt(d.getAttribute('data-plb-dot'), 10) || 0;
+      plbRender();
+      return;
+    }
+    var add = e.target.closest('[data-plb-add]');
+    if (add && !add.disabled) {
+      var p = plbList[plbIdx];
+      if (p && cartAddPromo(p)) {
+        var n = cartPromoQty(p);
+        toast(p.title + ' added to your order' + (n > 1 ? ' · ' + n + ' in cart' : ''));
+        plbRender();
+      }
+    }
+  });
+  /* Swipe: horizontal drag of 40px+ steps the gallery. */
+  var plbStage = document.getElementById('plbStage');
+  if (plbStage) {
+    var swX = null;
+    plbStage.addEventListener('pointerdown', function (e) { swX = e.clientX; });
+    plbStage.addEventListener('pointerup', function (e) {
+      if (swX == null) return;
+      var dx = e.clientX - swX;
+      swX = null;
+      if (Math.abs(dx) < 40) return;
+      promoStep(dx < 0 ? 1 : -1);
+    });
+    plbStage.addEventListener('pointercancel', function () { swX = null; });
+  }
+
   if (optList) optList.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-opt]');
     if (!btn) return;
@@ -1453,7 +1744,7 @@
   });
 
   /* Escape closes */
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePopup(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closePromoLightbox(); closePopup(); } });
 })();
 </script>
 
