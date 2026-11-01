@@ -15,6 +15,24 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
+### [2026-11-01 21:52:10] - [Agent: Cline] - [COMMITTED]
+- Task: venue-about — trim the About card / About button: drop Location, Address, Phone and Email rows, the highlights chips, the "Updated" footer, the "Business info" sub-label and the ▼ caret
+- Files changed:
+  - venue-about.html (markup: the About button is now a single "About" label - no .about-btn-main wrapper, no <small>, no .about-caret; CSS: removed the now-dead .about-btn small, .about-btn .about-caret, .logo-overlay.about-open .about-btn .about-caret, .about-chips, .about-chip and .about-foot rules; aboutFacts() lost add('Location')/add('Address')/add('Phone')/add('Email') plus the dead loc variable, the phones gather block and the unused br branch; renderAbout() lost the chips block and the about-foot line)
+  - tests/venue-about-about.js (the suite asserted the four removed rows and the chips, so those assertions are now negatives: button label is exactly "About", no caret/sub-label, no Location/Address/Phone/Email labels, no curated address/phone values, zero about-chip, zero about-foot; the hours and website rows keep their positive assertions)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: 38d13b9
+- Push: origin/main (feature commit + this ledger commit, fast-forward)
+- Notes:
+  Still rendered in the card: eyebrow, title, tagline, paragraphs, then the surviving .about-facts rows - opening hours per day, WhatsApp, Website (external link), Price range, Services, Established. The .about-facts/.about-fact/.about-k/.about-v CSS is all still in use.
+  No longer rendered: Location (town · area), Address, Phone (both numbers), Email, the highlight chips, the "Updated <date>" footer, and the button's "Business info" sub-label + chevron.
+  Data left untouched by explicit user decision: assets/data/venue_about_info.js keeps highlights[], updated, address, phone and email. address/highlights/updated are now display-unused; phone/email MUST stay because venue-about.html's overlay branch of resolve() maps oe.phone into record.contacts + branch.phones (:1085-1092), which is what keeps the Call/WhatsApp icons in the social row live.
+  Known visual consequence: town/area and the street address no longer appear anywhere on venue-about.html (the hero is .hero h1 #venueName + #statusLine only). Flagged during planning and deliberately not addressed here.
+- Verified: node tests/venue-about-about.js -> VENUE ABOUT PANEL TEST PASSED. node tests/search-screen.js -> SEARCH SCREEN TEST PASSED. npm test -> 61 passed, 2 failed - html-catalog.js and inventory.js only, both pre-existing and unrelated (they flag search_screen.html, untouched here).
+- Errors: none from this change. The only failing suites are the pre-existing html-catalog.js / inventory.js pair (search_screen.html has no catalog entry / PAGE / data-page / PAGE_INVENTORY row - true at HEAD 6543c82 too, untouched here).
+
+
+
 ### [2026-11-01 21:23:15] - [Agent: Cline] - [COMMITTED]
 - Task: Search screen — make the curated overlay-only venue Zors findable (typing "zors" returned nothing)
 - Files changed:
