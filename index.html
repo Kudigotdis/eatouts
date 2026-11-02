@@ -996,6 +996,7 @@ a.dlg-btn{text-decoration:none}
 <script src="js/eatouts-slug.js"></script>
 <script src="js/eatouts-router.js"></script>
 <script src="js/eatouts-analytics.js"></script>
+<script src="js/eatouts-regions.js"></script>
 
 <script>
 /* ================================================================
@@ -9187,9 +9188,12 @@ function renderAbout(){
      <details>/<summary> so it also works without JavaScript. */
   const sOpen=!!state.aboutSettingsOpen;
   const waUrl=whatsappChannelUrl();
+  const regionName=(window.EatoutsRegions&&window.EatoutsRegions.getActiveRegion)
+    ? window.EatoutsRegions.getActiveRegion().name : "Botswana";
   h+='<div class="setlist"><div class="setacc'+(sOpen?" open":"")+'" data-sacc="settings">'+
     '<button class="setrow" data-act="toggleAboutSettings" aria-expanded="'+(sOpen?"true":"false")+'">Settings</button>'+
     '<div class="acc-wrap"><div class="acc-in">'+
+      '<a class="setrow" href="EatOuts-Region.html">'+esc(regionName)+'</a>'+
       '<a class="setrow" href="eatouts-about.html">About EatOuts</a>'+
       '<button class="setrow" data-act="showRestNotice" '+
         'data-notice="'+esc("EatOuts APK installer is coming soon - we will notify you here when it drops.")+'">Install EatOuts</button>'+

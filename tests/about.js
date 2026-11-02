@@ -78,6 +78,19 @@ setTimeout(() => {
     !!bizPanel && bizLinks.length === 6 && !bizPanel.querySelector('a[href="designer-services.html"]'),
     'count=' + bizLinks.length);
 
+  /* T22 — the region row sits above About EatOuts and opens the selector */
+  const regionRow = vp.querySelector('.acc-in > a[href="EatOuts-Region.html"]');
+  check('region row present', !!regionRow, regionRow ? 'text=' + regionRow.textContent.trim() : 'missing');
+  check('region row is labelled with the active region',
+    !!regionRow && regionRow.textContent.trim() === 'Botswana', regionRow ? regionRow.textContent.trim() : 'missing');
+  const aboutEatOuts = vp.querySelector('.acc-in > a[href="eatouts-about.html"]');
+  check('region row sits directly above About EatOuts',
+    !!regionRow && !!aboutEatOuts && regionRow.nextElementSibling === aboutEatOuts);
+  check('region row is a Settings-level row (not inside List Business)',
+    !!regionRow && !!regionRow.closest('[data-sacc="settings"]') && !regionRow.closest('details.setacc'));
+  check('index.html loads the region registry',
+    /<script src="js\/eatouts-regions\.js"><\/script>/.test(fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8')));
+
   /* T16 — About → WhatsApp Channel: one URL per region, coming-soon fallback */
   const waRow = () => Array.from(vp.querySelectorAll('.setlist .setrow'))
     .filter(el => el.textContent.trim() === 'WhatsApp Channel')[0];

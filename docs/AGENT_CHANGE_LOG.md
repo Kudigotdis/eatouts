@@ -1790,3 +1790,23 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `npm test` -> **65 passed, 0 failed** (exit 0)
 - Errors: none
 
+
+### [2026-11-03 00:20:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T22 step 4 - the region row above "About EatOuts"
+- Files changed:
+  - index.html: `renderAbout()` now derives `regionName` from `window.EatoutsRegions.getActiveRegion()` (falling back to "Botswana" when the module is absent) and emits `<a class="setrow" href="EatOuts-Region.html">` as the first child of the Settings `.acc-in`, directly above `About EatOuts`; `js/eatouts-regions.js` is loaded right after `js/eatouts-analytics.js`.
+  - tests/about.js (+5 checks): region row present, labelled "Botswana", its next sibling is the `About EatOuts` anchor, it sits in the Settings panel rather than the nested List Business `<details>`, and index.html loads the registry script.
+  - PLATFORM UPDATE TASKS.md: T22 header now names only data gating as outstanding, step 4 ticked with its coverage lines, new §8 row.
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: (this commit)
+- Notes:
+  - The row is a plain anchor, not a `data-act` button: the selector is its own page, so a real href keeps middle-click, back-button and no-JS behaviour for free. Nothing else in the Settings list needs to know it exists.
+  - The label is read at render time, so once `setActiveRegion()` is allowed to move off BW the row renames itself on the next `renderAbout()` with no further edit.
+  - `tests/about.js` inlines every `<script src>` and records a missing file in its `errors` list, so adding the tag also proves `js/eatouts-regions.js` resolves on disk.
+  - Sequencing: step 3 (data gating) stays open on purpose - `money.js` (T13) owns currency formatting, and gating before it would duplicate that code.
+  - Harness note: three `node tests/run-all.js` runs overlapped in this session and interleaved into one redirect file, which is how a bogus "68 passed" appeared - two suites print their own "N passed, 0 failed" line. The trustworthy number is the one framed by the `--------------------------------------------` divider: **65 passed, 0 failed**.
+- Verified:
+  - `node tests/about.js` -> ABOUT TEST PASSED (5 new checks, 0 failed)
+  - `node tests/run-all.js` -> **65 passed, 0 failed** (exit 0)
+- Errors: none
+
