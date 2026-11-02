@@ -1611,3 +1611,24 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `npm test` -> **64 passed, 0 failed**
 - Errors: none
 
+
+
+### [2026-11-02 20:05:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T22 step 1 — land the region registry files inside the app tree (`js/`) and the 256 country flags inside `assets/flags/`, and verify nothing referenced the old `SYNC REGION TASK/` paths
+- Files changed:
+  - js/countries-data.js, js/territories.js, js/territory-registry.js, js/countries_mobile_networks.js — moved out of `SYNC REGION TASK/` (renames, no content change)
+  - assets/flags/*.png — 256 ISO-3166 alpha-2 flag icons moved out of `SYNC REGION TASK/Country-Flag-Icons/` (renames, no content change; `bw.png za.png zw.png mw.png ke.png` all present for the registry)
+  - PLATFORM UPDATE TASKS.md — T22 header marked IN PROGRESS, step 1 sub-boxes ticked with the landed sizes/file counts, note that `copy-static.mjs` needs no edit, §8 progress row
+- Commit: (this commit)
+- Notes:
+  - The moves were already staged in the working tree when this session picked the task up (they match T22 step 1 exactly), so this commit verifies and records them rather than re-running `git mv`.
+  - `copy-static.mjs` copies `js/` and `assets/` wholesale (`FOLDERS` at :11-15), so `dist/js/*` and `dist/assets/flags/*` follow automatically - that is the whole reason the move was safe.
+  - `SYNC REGION TASK/eatouts-region-selector.html` is deliberately left where it is: it is reskinned/renamed to `EatOuts-Region.html` in the page step, which is also when the folder disappears.
+  - Flag filenames are already lower-case ISO-3166 alpha-2, so the selector can build `assets/flags/<code>.png` directly from `window.EATOUTS_REGIONS` without a lookup table.
+- Verified:
+  - `git status --short` -> 260 rename entries (`R`), 0 deletions of the moved files
+  - `Select-String` across `*.html`, `*.mjs`, `*.js`, `js/*.js` for `SYNC REGION TASK` -> no hits (no broken path left behind)
+  - `node tests/catering-directory.js` -> CATERING DIRECTORY PASSED
+  - `npm test` -> **64 passed, 0 failed**
+- Errors: none
+

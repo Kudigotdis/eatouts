@@ -722,14 +722,16 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 10. Catalogue rework — the **24 offers** in §6, new prices. Update `js/eatouts-services-seed.js`, any admin/brand-kit references, and the docs. Missing images → add placeholders to `assets/images/services/` and list them as "images to get".
 **Done when** catalogue matches §6, prices correct, galleries behave as specified, gating works, requests persist, docs/tests green.
 
-#### T22 — Multi-region architecture (user task 22) · XL
+#### T22 — Multi-region architecture (user task 22) · XL — 🟡 **IN PROGRESS 2026-11-02** (step 1 moves landed; selector page, data gating and the settings row still pending)
 **Files:** `SYNC REGION TASK/*` (must end up **empty**), new `js/eatouts-regions.js`, new `EatOuts-Region.html`, `index.html` (`renderAbout` settings rows `:8590-8600`), `copy-static.mjs`, `botswana_locations.js`, docs.
 **Steps**
 1. **Move the files** (folder must be empty afterwards):
-   - `countries-data.js`, `territories.js`, `territory-registry.js`, `countries_mobile_networks.js` → `js/`
-   - `Country-Flag-Icons/*` → `assets/flags/` (or `assets/icons/flags/`)
-   - `eatouts-region-selector.html` → reskin + rename → `EatOuts-Region.html`
-   - delete the now-empty `SYNC REGION TASK/` folder.
+   - [x] `countries-data.js`, `territories.js`, `territory-registry.js`, `countries_mobile_networks.js` → `js/` (all four landed, 9,752 / 14,850 / 38,884 / 43,548 bytes; nothing referenced the old paths)
+   - [x] `Country-Flag-Icons/*` → `assets/flags/` — 256 ISO-3166 alpha-2 `.png` flags (`bw.png`, `za.png`, `zw.png`, `mw.png`, `ke.png` all present), so the selector can build `assets/flags/<code>.png` straight from the registry
+   - [ ] `eatouts-region-selector.html` → reskin + rename → `EatOuts-Region.html` (still the only file left in `SYNC REGION TASK/`)
+   - [ ] delete the now-empty `SYNC REGION TASK/` folder (happens with the page above)
+   - Note: no `copy-static.mjs` change is needed for the moves — `FOLDERS` already copies `js` and `assets` wholesale, which is why `dist/js/countries-data.js` and `dist/assets/flags/*` follow automatically.
+
 2. **Region registry** `js/eatouts-regions.js`:
    ```js
    window.EATOUTS_REGIONS = [
@@ -1024,6 +1026,9 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 2026-11-01 | T05 | DONE | `customer-delivery.html` — `.hdr-chip` gone; `.osum-back` deleted and `.osum-tot`/`.osum-items` joined in one centred `.osum-line`; `.acc` = 3% grey panel with a 5% `.acc-title` when open; method gate (`accClass()` `.locked` + `#fpop`/`#fpopScrim` "Choose a delivery method first"); `area`/`propType`/`bank` open a fixed `.drp-list.open.float` over a scrim; centred `.hint.centre`; `.gps-btn` attaches the current location; real `.seg` me/someone-else toggle + `.rcpt-card` history + `#fpop` recipient viewer (Add image / Edit details / Delete) + photo-mandatory new-recipient form with a 150px `.rcpt-hero`; `.acc-val` shows the chosen bank; `#reviewPage` full-page review with Edit + Delete; "WhatsApp Request" label removed; `barPrimary` = "Add P#.## to P#.## for # items" → `index.html?resume=1#restaurants`; `tests/customer-delivery.js` (new, 52 checks); `tests/checkout-delivery.js` bar assertions re-pointed | `node tests/customer-delivery.js` PASSED (52 checks) · `node tests/checkout-delivery.js` PASSED · `npm test` **61 passed, 0 failed** · `npm run inventory` 10 checks / 90 warnings · `npm run catalog` 70 pages | `eface0b` |
 | 2026-11-01 | T09 | DONE | `index.html` (D10 cart persist/hydrate, `window.EO_cart`, badge), `venue-about.html` (`.promo-thumb.is-branded` + `.plb-*` gallery CSS, lightbox markup, promo feed → tiles → Add to Order JS), `tests/customer.js` (+22 D10 checks), `tests/venue-about-options.js` (+26 T09 checks) | `customer` PASSED (`window errors: 0`); `venue-about-options` PASSED (26 new T09 checks: tiles, dots, swipe both ways, dot jump, CTA beneath image, one-line cart write, re-tap increments, envelope, toast, outside-tap + Escape, branded fallback); full `npm test` **60 passed, 0 failed**; audits 1/2/3 print nothing | `c1e6286` + this commit |
 | 2026-11-02 | T07 | DONE (closed) | `PLATFORM UPDATE TASKS.md` + the missing coverage — **no source change needed**: the shared `renderFilterBar()` was already wired for catering `:6785-6809` and bakery `:6811-6835` in the 10-31 commit (stale "blocked on data" note retracted; catering types come from `cateringTypeNames()`, bakery types from `window.BAKERY_TYPES`). Added the permanent assertions the 10-31 note wrongly assumed were impossible: `tests/catering-directory.js` (+12, new index.html jsdom probe) and `tests/bakery-directory.js` (+9) | `node tests/catering-directory.js` PASSED (bar hidden → 2nd nav tap opens → 3rd closes, `#cateringSearch`, centred Town\|Area\|Cuisines, cuisine list non-empty, live search) · `node tests/bakery-directory.js` **42/42** (same for `#bakerySearch` + `window.BAKERY_TYPES`) · full `npm test` **64 passed, 0 failed** | (this commit) |
+| 2026-11-02 | T22 (step 1) | IN PROGRESS | `SYNC REGION TASK/countries-data.js`, `territories.js`, `territory-registry.js`, `countries_mobile_networks.js` → `js/`; `SYNC REGION TASK/Country-Flag-Icons/*.png` (256) → `assets/flags/`; `PLATFORM UPDATE TASKS.md` | `git status` shows 260 renames with no deletions; 0 hits for `SYNC REGION TASK/` in `*.html`/`*.mjs`/`*.js`; `copy-static.mjs` already copies `js` + `assets` wholesale (no edit needed); `npm test` **64 passed, 0 failed** | (this commit) |
+
+
 
 
 
