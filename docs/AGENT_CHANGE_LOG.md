@@ -33,7 +33,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - Chain About taps passed the active branch slug (`liquorama-gaborone`, `tops-at-spar-gaborone`), but `EatoutsBottleStores.get()` / `EatoutsCatering.get()` are brand-keyed (branch ids resolve only via `.store()` / `.branch()`), so `venue-about.html` resolved nothing and redirected to index.html#restaurants. Taps now pass `brand.slug`; venue-about resolves branch slugs too, for shared links.
   - `tests/beverages.js` missed the catering case only because its assertion used `indexOf()` (a branch slug is a prefix superset); both assertions are now exact.
 - Verified: node tests/inventory.js (21 checks, 71 pages) / tests/bottle-stores.js / tests/beverages.js / tests/venue-about-about.js all PASSED; `npm test` 63 passed, 0 failed; `npm run stage` -> dist/ has 71 .html files + search_screen.html.
-- Errors: none.
+- Live check (after push): Cloudflare Pages' Git integration built and deployed main; https://www.eatouts.site/search_screen.html -> 200 (<title>Search - EatOuts</title>), live index.html carries `gotoVenueAbout(brand.slug)`, live venue-about.html carries the branch-slug fallback. A manual `wrangler pages deploy` of a HEAD-built dist failed twice with UND_ERR_CONNECT_TIMEOUT mid asset-upload, so the Git build is what shipped it.
+- Errors: none (the two aborted manual uploads were network connect timeouts, not code).
 
 ---
 
