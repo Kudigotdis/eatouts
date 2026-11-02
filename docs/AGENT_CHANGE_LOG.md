@@ -1704,3 +1704,20 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `node tests/builder-suppliers.js` -> PASSED · `builder-preview.js` -> PASSED · `builder-guests.js` -> PASSED
 - Errors: none
 
+
+### [2026-11-02 22:00:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T12.4 — verify the supplier directory / profile / gallery work against the spec and give it permanent coverage
+- Files changed:
+  - tests/builder-suppliers.js (49 -> 87 checks, +38 T12.4): directory popup child order `fpop-hdr > fpop-body > fpop-search.is-foot`; the `.is-foot` rule sits on the top edge; the close is a transparent `×` with no circle; profile card computes `420px / 80dvh / 16px`; avatar `150px`; `.sup-profile-loc` `16px`; `.pit-card` is a `grid` with a `90px 1fr` template and `.pit-foot` as its third child (`.pit-cost` left, `.qty-stepper.sm` pushed right by `margin-left:auto`, glyphs flex-centred); avatar tap opens `.img-gal` over `rgba(0, 0, 0, 0.55)` with the caption last and the profile still open behind it; two photos put `.img-gal-dots` above the track with the first dot `.on`, a dot tap moves `.on`, and an outside tap closes the gallery; an item-thumb tap opens the gallery captioned with that item's title; a name tap opens the 420px `Service Provider Info` card whose top row is the 90px thumb + name/services meta, description below it, closed by its `×` while the profile survives
+  - PLATFORM UPDATE TASKS.md: "permanent coverage" line under 12.4
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: (this commit)
+- Notes:
+  - 12.4 was implemented and committed by the session that owns the builder (`d14d4f2`); this commit is the proof half, and every new check passed on the first run — no implementation change was needed.
+  - Dots only exist when a supplier has more than one image, and `getSuppliers()` gives each supplier exactly one `photo` (rotating through `SUPPLIER_PHOTOS`), so the dots block temporarily sets `s.photos = [photo, photo]`, re-renders, then restores the original — the same shape `openSupGallery` will read once real suppliers carry `photos[]`.
+  - Everything is driven through shipped code, not stubs: the profile is opened by clicking a real `.stm-sup` row whose supplier has a numeric `price` and a `photo`, so `.pit-card`, `.pit-foot` and both galleries are the markup users actually get.
+- Verified:
+  - `node tests/builder-suppliers.js` -> **85 ok, 0 failed** (87 `check()` calls; two sit in an `if/else` branch)
+  - `npm test` -> **64 passed, 0 failed** (exit 0)
+- Errors: none
+

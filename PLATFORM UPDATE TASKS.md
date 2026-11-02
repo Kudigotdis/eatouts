@@ -668,6 +668,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] `.pit-thumb` 90px, tap → full-image gallery with a feint black backdrop (`rgba(0,0,0,.55)`), dots **above** the image, white caption below, outside tap closes (`renderImageGallery()` `:2793`);
 - [x] `.qty-stepper.sm`: `−`/`+` centred, stepper moved to a row **below** `.pit-info`, right-aligned, with the added cost left-aligned under `.pit-info` (`.pit-foot` / `.pit-cost` `:652-656`);
 - [x] `.pit-info`: 90px thumb left, `.pit-title` + `.pit-price` right (`.pit-card` is now a `90px 1fr` grid).
+- [x] permanent coverage: `tests/builder-suppliers.js` (49 → 87 checks) proves the popup child order `fpop-hdr > fpop-body > fpop-search.is-foot`, the plain transparent `×`, the 420px / 80dvh / 16px profile and info cards, the 150px avatar, the 16px location line, the `90px 1fr` card with its `.pit-foot` (cost left, 118px right-pushed stepper, centred glyphs), and both galleries end-to-end (feint backdrop, dots above the track, caption below, dot highlight, avatar + item-thumb opens, outside tap closes, profile surviving behind).
 
 **12.5 Details** — `[data-sec="details"]`
 - centre `.chip-row`; `setEventMode` chips equal width; centre `.field-hint`;

@@ -223,6 +223,156 @@ function draftWith(venueId, suppliers) {
   check('T12.1: .title-edit-panel capped at 80dvh', /\.title-edit-panel\{[^}]*max-height:80dvh/.test(builderSrc));
   check('T12.1: .title-edit-panel has no squared bottom corners', !/\.title-edit-panel\{[^}]*border-radius:20px 20px 0 0/.test(builderSrc));
 
+  /* ---------- T12.4: supplier directory popup (search pinned to the foot, plain X) ---------- */
+  click(w, doc.querySelector('[data-sec="suppliers"] .sup-add-btn[data-cat=""]'));
+  const stm = doc.querySelector('.fpop');
+  check('T12.4: directory popup reopens', !!stm);
+  const stmKids = stm ? [].slice.call(stm.children).map(el => el.className.split(' ')[0]) : [];
+  check('T12.4: popup order is header > list > search',
+    stmKids.join('>') === 'fpop-hdr>fpop-body>fpop-search', stmKids.join('>'));
+  check('T12.4: search is pinned under the list',
+    !!stm && !!stm.querySelector('.fpop-search.is-foot') && stm.lastElementChild.classList.contains('fpop-search'));
+  check('T12.4: the foot search keeps its rule on top',
+    /\.fpop-search\.is-foot\{border-bottom:0;border-top:1px solid var\(--border-soft\)\}/.test(builderSrc));
+  const stmX = stm && stm.querySelector('.fpop-x');
+  const stmXCs = stmX ? w.getComputedStyle(stmX) : null;
+  check('T12.4: directory close is a plain X, no beige circle',
+    !!stmX && stmX.textContent.trim() === '\u00d7' && !!stmXCs &&
+    (stmXCs.backgroundColor === 'transparent' || stmXCs.backgroundColor === 'rgba(0, 0, 0, 0)') &&
+    (stmXCs.borderRadius === '' || stmXCs.borderRadius === '0px'),
+    stmXCs ? [stmX.textContent.trim(), stmXCs.backgroundColor, stmXCs.borderRadius].join(' / ') : 'no .fpop-x');
+
+  /* ---------- T12.4: floating profile card ---------- */
+  const stmRows = [].slice.call(doc.querySelectorAll('.stm-sup'));
+  const prRow = stmRows.find(r => {
+    const s = w.findSupplier(r.getAttribute('data-id'));
+    return s && typeof s.price === 'number' && s.photo;
+  }) || stmRows[0];
+  click(w, prRow);
+  const prSup = w.findSupplier(prRow.getAttribute('data-id'));
+  const prof = doc.querySelector('.sup-profile-panel');
+  check('T12.4: profile opens as a floating card', !!prof && !!prof.closest('.fpop-scrim'));
+  const profCs = prof ? w.getComputedStyle(prof) : null;
+  check('T12.4: profile card is 420px / 80dvh / 16px',
+    !!profCs && profCs.maxWidth === '420px' && profCs.maxHeight === '80dvh' && profCs.borderRadius === '16px',
+    profCs ? [profCs.maxWidth, profCs.maxHeight, profCs.borderRadius].join(' / ') : 'no panel');
+  const avCs = w.getComputedStyle(doc.querySelector('.sup-profile-avatar'));
+  check('T12.4: avatar is 150px', avCs.width === '150px' && avCs.height === '150px', avCs.width + ' x ' + avCs.height);
+  const locEl = doc.querySelector('.sup-profile-loc');
+  check('T12.4: location line is 16px',
+    (!!locEl && w.getComputedStyle(locEl).fontSize === '16px') && /\.sup-profile-loc\{font-size:16px/.test(builderSrc),
+    locEl ? w.getComputedStyle(locEl).fontSize : 'no .sup-profile-loc');
+
+  /* ---------- T12.4: item card — 90px thumb left, title + price right ---------- */
+  const pitCard = doc.querySelector('.sup-profile-panel .pit-card');
+  const pitInfo = pitCard && pitCard.querySelector('.pit-info');
+  check('T12.4: item card is a two-column grid', !!pitCard && w.getComputedStyle(pitCard).display === 'grid',
+    pitCard && w.getComputedStyle(pitCard).display);
+  check('T12.4: item card columns are 90px + the rest',
+    /\.pit-card\{display:grid;grid-template-columns:90px 1fr/.test(builderSrc));
+  const pitThumbCs = w.getComputedStyle(doc.querySelector('.sup-profile-panel .pit-thumb'));
+  check('T12.4: item thumb is 90px', pitThumbCs.width === '90px' && pitThumbCs.height === '90px',
+    pitThumbCs.width + ' x ' + pitThumbCs.height);
+  check('T12.4: title + price sit in the right-hand column',
+    !!pitInfo && !!pitInfo.querySelector('.pit-title') && !!pitInfo.querySelector('.pit-price'),
+    pitInfo && pitInfo.textContent.trim());
+  check('T12.4: the thumb comes before the info column',
+    !!pitCard && pitCard.children[0].classList.contains('pit-thumb') && pitCard.children[1].classList.contains('pit-info'));
+
+  /* ---------- T12.4: cost + stepper on their own row ---------- */
+  const pitFoot = pitCard && pitCard.querySelector('.pit-foot');
+  check('T12.4: cost + stepper sit on their own row under the info',
+    !!pitFoot && pitCard.children[2] === pitFoot && w.getComputedStyle(pitFoot).display === 'flex');
+  check('T12.4: cost is left, stepper is right',
+    !!pitFoot && pitFoot.children[0].classList.contains('pit-cost') && pitFoot.children[1].classList.contains('qty-stepper'),
+    pitFoot && [].slice.call(pitFoot.children).map(c => c.className).join(' | '));
+  check('T12.4: the foot stepper is pushed to the right',
+    /\.pit-foot \.qty-stepper\.sm\{flex:0 0 auto;width:118px;margin-left:auto\}/.test(builderSrc));
+  const smBtn = pitFoot && pitFoot.querySelector('.qty-stepper.sm button');
+  const smBtnCs = smBtn ? w.getComputedStyle(smBtn) : null;
+  check('T12.4: the small stepper glyphs are centred',
+    !!smBtnCs && smBtnCs.display === 'flex' && smBtnCs.alignItems === 'center' && smBtnCs.justifyContent === 'center',
+    smBtnCs ? [smBtnCs.display, smBtnCs.alignItems, smBtnCs.justifyContent].join(' / ') : 'no stepper button');
+
+  /* ---------- T12.4: avatar tap -> full-image gallery ---------- */
+  click(w, doc.querySelector('.sup-profile-avatar'));
+  let gal = doc.querySelector('.img-gal');
+  check('T12.4: tapping the avatar opens the gallery', !!gal);
+  check('T12.4: gallery backdrop is feint black',
+    !!gal && w.getComputedStyle(gal).backgroundColor === 'rgba(0, 0, 0, 0.55)',
+    gal && w.getComputedStyle(gal).backgroundColor);
+  check('T12.4: the gallery shows the provider photo',
+    !!gal && !!gal.querySelector('.img-gal-track .img-gal-slide img'));
+  const galIn = gal && gal.querySelector('.img-gal-in');
+  check('T12.4: the caption sits under the image',
+    !!galIn && galIn.children[galIn.children.length - 1].classList.contains('img-gal-cap') &&
+    /./.test(gal.querySelector('.img-gal-cap').textContent),
+    galIn && galIn.children[galIn.children.length - 1].className);
+  check('T12.4: the profile stays open behind the gallery', !!doc.querySelector('.sup-profile-panel'));
+  click(w, doc.querySelector('.img-gal'));
+  check('T12.4: tapping outside closes the gallery',
+    !doc.querySelector('.img-gal') && !!doc.querySelector('.sup-profile-panel'));
+
+  /* ---------- T12.4: several photos -> dots above the image ---------- */
+  const savedPhotos = prSup.photos;
+  prSup.photos = [prSup.photo, prSup.photo];
+  w.render();
+  click(w, doc.querySelector('.sup-profile-avatar'));
+  gal = doc.querySelector('.img-gal');
+  const galKids = gal ? [].slice.call(gal.querySelector('.img-gal-in').children) : [];
+  check('T12.4: dots sit above the image',
+    galKids.length === 3 && galKids[0].classList.contains('img-gal-dots') && galKids[1].classList.contains('img-gal-track'),
+    galKids.map(c => c.className).join(' > '));
+  check('T12.4: one dot per photo, first one active',
+    !!gal && gal.querySelectorAll('.img-gal-dot').length === 2 && gal.querySelector('.img-gal-dot').classList.contains('on'));
+  click(w, doc.querySelectorAll('.img-gal-dot')[1]);
+  check('T12.4: tapping a dot moves the highlight',
+    doc.querySelectorAll('.img-gal-dot')[1].classList.contains('on') &&
+    !doc.querySelectorAll('.img-gal-dot')[0].classList.contains('on'));
+  click(w, doc.querySelector('.img-gal'));
+  prSup.photos = savedPhotos;
+  w.render();
+  check('T12.4: the gallery closes and the profile is still behind it',
+    !doc.querySelector('.img-gal') && !!doc.querySelector('.sup-profile-panel'));
+
+  /* ---------- T12.4: item thumb tap -> captioned gallery ---------- */
+  click(w, doc.querySelector('.sup-profile-panel .pit-thumb'));
+  gal = doc.querySelector('.img-gal');
+  check('T12.4: tapping an item thumb opens the gallery', !!gal);
+  const itemTitle = doc.querySelector('.sup-profile-panel .pit-title').textContent.trim();
+  check('T12.4: the item gallery is captioned with that item',
+    !!gal && gal.querySelector('.img-gal-cap').textContent.trim() === itemTitle,
+    (gal && gal.querySelector('.img-gal-cap') && gal.querySelector('.img-gal-cap').textContent.trim()) + ' vs ' + itemTitle);
+  click(w, doc.querySelector('.img-gal'));
+  check('T12.4: the item gallery closes on an outside tap', !doc.querySelector('.img-gal'));
+
+  /* ---------- T12.4: name tap -> Service Provider Info popup ---------- */
+  click(w, doc.querySelector('.sup-profile-name'));
+  const info = doc.querySelector('.sup-info-panel');
+  check('T12.4: tapping the provider name opens Service Provider Info',
+    !!info && /Service Provider Info/.test(info.querySelector('h3').textContent));
+  const infoTop = info && info.querySelector('.sup-info-top');
+  check('T12.4: info shows a thumb beside the name + services',
+    !!infoTop && infoTop.children[0].classList.contains('sup-info-thumb') &&
+    infoTop.children[1].classList.contains('sup-info-meta') &&
+    !!info.querySelector('.sup-info-name') && !!info.querySelector('.sup-info-svc'),
+    infoTop && [].slice.call(infoTop.children).map(c => c.className).join(' | '));
+  check('T12.4: info thumb is 90px', !!info &&
+    w.getComputedStyle(info.querySelector('.sup-info-thumb')).width === '90px',
+    info && w.getComputedStyle(info.querySelector('.sup-info-thumb')).width);
+  check('T12.4: the info popup is the 420px floating card',
+    !!info && w.getComputedStyle(info).maxWidth === '420px' && w.getComputedStyle(info).borderRadius === '16px',
+    info && w.getComputedStyle(info).maxWidth);
+  const infoScroll = info && info.querySelector('.sup-info-scroll');
+  const descEl = info && info.querySelector('.sup-info-desc');
+  check('T12.4: the description sits below the top row',
+    !!descEl && !!infoScroll &&
+    [].slice.call(infoScroll.children).indexOf(infoTop) < [].slice.call(infoScroll.children).indexOf(descEl),
+    !descEl ? 'no description for this supplier' : 'order mismatch');
+  click(w, info.querySelector('.fpop-x'));
+  check('T12.4: info popup closes on its X', !doc.querySelector('.sup-info-panel'));
+  check('T12.4: the profile survives the info popup', !!doc.querySelector('.sup-profile-panel'));
+
   console.log('');
   if (fails) console.log('FAILED: ' + fails + ' check(s)');
   else console.log('BUILDER-SUPPLIERS TEST PASSED');
