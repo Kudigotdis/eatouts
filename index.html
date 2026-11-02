@@ -737,6 +737,9 @@ img[src*="heart_inactive_icon"]{opacity:.5}
    taking taps, so a tall panel stays reachable and tapping another row (or the
    same header) switches/closes instead of leaving the accordion stuck. */
 .scroll.has-open .ritem:not(.open){opacity:.25}
+/* T03 — room below the last card while a row is open, so even the bottom of a
+   list can be pinned to the top. 100% resolves against .scroll's own height. */
+.scroll.has-open::after{content:"";display:block;height:calc(100% - 120px)}
 /* T08 — Back History popup, opened from the logo. */
 .hist-wrap{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px}
 .hist-scrim{position:absolute;inset:0;background:rgba(20,18,12,.28);-webkit-backdrop-filter:blur(10px) saturate(1.2);backdrop-filter:blur(10px) saturate(1.2)}
@@ -4676,6 +4679,19 @@ function syncMenuAccordions(){
    existing .acc-wrap grid-rows transition does the collapsing - no
    innerHTML swap, so the panel animates shut instead of vanishing. */
 let restAccFocused=null;
+/* T03: the opened card is the only lit row and it is pinned to the top of its
+   list so its options read without a manual drag. block:"start" is aligned to
+   the card's own top edge, which does not move while .acc-wrap expands, so the
+   pin never races the 0.32s grid-rows transition. `scroll` is false on plain
+   re-renders - a restored list must not be yanked on navigation. */
+function focusRitem(openEl,scroll){
+  const vp=document.getElementById("viewport");
+  if(!vp) return;
+  Array.prototype.forEach.call(vp.querySelectorAll(".scroll.has-open"),function(el){el.classList.remove("has-open");});
+  if(!openEl) return;
+  if(openEl.parentNode) openEl.parentNode.classList.add("has-open");
+  if(scroll&&openEl.scrollIntoView) openEl.scrollIntoView({block:"start",behavior:reduceMotion()?"auto":"smooth"});
+}
 function syncRestAccordions(){
   const vp=document.getElementById("viewport");
   if(!vp) return;
@@ -4691,13 +4707,9 @@ function syncRestAccordions(){
   /* T03: bring the opened row into view and dim the rest. The list is never
      scroll-locked - a tall panel has to stay scrollable and the dimmed rows
      stay tappable so another row (or the same header) can be tapped. */
-  Array.prototype.forEach.call(vp.querySelectorAll(".scroll.has-open"),function(el){el.classList.remove("has-open");});
-  if(!openEl){restAccFocused=null;return;}
-  if(openEl.parentNode) openEl.parentNode.classList.add("has-open");
-  if(restAccFocused!==state.restaurantOpen){
-    restAccFocused=state.restaurantOpen;
-    if(openEl.scrollIntoView) openEl.scrollIntoView({block:"nearest",behavior:"smooth"});
-  }
+  const refocus=restAccFocused!==state.restaurantOpen;
+  restAccFocused=openEl?state.restaurantOpen:null;
+  focusRitem(openEl,refocus);
 }
 function syncVenueMenuAccordions(){
   const vp=document.getElementById("viewport");
@@ -5885,7 +5897,7 @@ function syncCateringAccordions(){
   Array.prototype.forEach.call(vp.querySelectorAll("[data-cacc]"),function(el){
     if(state.cateringOpen===el.getAttribute("data-cacc")) openEl=el;
   });
-  if(openEl && openEl.scrollIntoView) openEl.scrollIntoView({block:"nearest",behavior:"smooth"});
+  focusRitem(openEl,true);
 }
 /* ================================================================
    BAKERY DIRECTORY (Bakeries landing)
@@ -6077,18 +6089,19 @@ function bakeryOptions(b){
 function syncBakeryAccordions(){
   const vp=document.getElementById("viewport");
   if(!vp) return;
-  Array.prototype.forEach.call(vp.querySelectorAll("[data-bacc]"),function(el){
+  /* Bakery and bottle-store rows share the data-bacc attribute and both
+     panels live in the DOM at once, so each query is scoped to its own
+     column - otherwise one sync strips .open off the other panel's rows. */
+  const rows=vp.querySelectorAll('.bevpage[data-page="bakeries"] [data-bacc]');
+  let openEl=null;
+  Array.prototype.forEach.call(rows,function(el){
     const on=state.bakeryOpen===el.getAttribute("data-bacc");
+    if(on) openEl=el;
     el.classList.toggle("open",on);
     const b=el.querySelector('.rrow[data-act="toggleBakery"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
-  /* bring the opened row into view */
-  let openEl=null;
-  Array.prototype.forEach.call(vp.querySelectorAll("[data-bacc]"),function(el){
-    if(state.bakeryOpen===el.getAttribute("data-bacc")) openEl=el;
-  });
-  if(openEl && openEl.scrollIntoView) openEl.scrollIntoView({block:"nearest",behavior:"smooth"});
+  focusRitem(openEl,true);
 }
 /* Leaving a tab or switching directory panels collapses every open
    accordion, so no ritem stays stretched from a previous visit. */
@@ -6096,10 +6109,12 @@ function closeAllRitemAccordions(){
   state.restaurantOpen=null;
   state.cateringOpen=null;
   state.bakeryOpen=null;
+  state.bottleOpen=null;
   state.restNotice=null;
   syncRestAccordions();
   syncCateringAccordions();
   syncBakeryAccordions();
+  syncBottleAccordions();
 }
 
 /* One brand row plus its always-present, collapsed options panel. Each row
@@ -6285,18 +6300,16 @@ function renderBottleLocPicker(){
 function syncBottleAccordions(){
   const vp=document.getElementById("viewport");
   if(!vp) return;
-  Array.prototype.forEach.call(vp.querySelectorAll("[data-bacc]"),function(el){
+  const rows=vp.querySelectorAll('.bevpage[data-page="beverages"] [data-bacc]');
+  let openEl=null;
+  Array.prototype.forEach.call(rows,function(el){
     const on=state.bottleOpen===el.getAttribute("data-bacc");
+    if(on) openEl=el;
     el.classList.toggle("open",on);
     const b=el.querySelector('.rrow[data-act="toggleBottleStore"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
-  /* bring the opened row into view */
-  let openEl=null;
-  Array.prototype.forEach.call(vp.querySelectorAll("[data-bacc]"),function(el){
-    if(state.bottleOpen===el.getAttribute("data-bacc")) openEl=el;
-  });
-  if(openEl && openEl.scrollIntoView) openEl.scrollIntoView({block:"nearest",behavior:"smooth"});
+  focusRitem(openEl,true);
 }
 function bottleStoreCount(town,area){
   const api=bottleAPI();if(!api)return 0;

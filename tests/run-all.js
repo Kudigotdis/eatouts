@@ -36,6 +36,7 @@ const SUITES = [
   'upload.js',
   'beverages.js',
   'bottle-stores.js',
+  'ritem-focus.js',
   'demo-seed.js',
   'delivery.js',
   'checkout-delivery.js',
