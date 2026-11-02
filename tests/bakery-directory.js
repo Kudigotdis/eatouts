@@ -127,6 +127,34 @@ check('thumb guard: no layout => pure-CSS fallback, no inline translate', !thumb
 check('closeAllRitemAccordions clears restaurant/catering/bakery open state',
   ev('(function(){state.restaurantOpen="r1";state.cateringOpen="c1";state.bakeryOpen="bakery-1";closeAllRitemAccordions();return state.restaurantOpen===null&&state.cateringOpen===null&&state.bakeryOpen===null;})()'));
 
+// 14. T07 — the bakery panel renders the shared filter bar (search + Town | Area | Type)
+const navTap = () => doc.querySelector('[data-tab="restaurants"]').click();
+ev('state.tab="restaurants"; state.restPanel="bakery"; state.bakeryFilterOpen=false; state.bakeryQuery=""; render();');
+const cbar = doc.getElementById('cbar');
+check('bakery filter bar starts hidden', !cbar.classList.contains('on') && !cbar.querySelector('.rest-filter-controls'));
+navTap();
+check('2nd Restaurants tap opens the bakery filter bar',
+  ev('state.bakeryFilterOpen') === true && cbar.classList.contains('on'), ev('state.bakeryFilterOpen'));
+check('bakery bar uses the shared renderFilterBar', !!cbar.querySelector('.rest-filter-controls'));
+check('bakery search input renders', !!cbar.querySelector('#bakerySearch'));
+const bakTown = cbar.querySelector('[data-act="openBakeryTownPicker"]');
+const bakArea = cbar.querySelector('[data-act="openBakeryAreaPicker"]');
+const bakType = cbar.querySelector('[data-act="openBakeryTypePicker"]');
+check('bakery Town / Area / Type buttons render', !!bakTown && !!bakArea && !!bakType);
+check('bakery filter buttons are centred',
+  !!bakType && w.getComputedStyle(bakType).textAlign === 'center' &&
+  w.getComputedStyle(bakTown).textAlign === 'center' &&
+  w.getComputedStyle(bakArea).textAlign === 'center',
+  bakType ? w.getComputedStyle(bakType).textAlign : 'none');
+check('bakery Type options come from js/bakery-types.js',
+  ev('bakeryTypeNames().length') > 0, ev('bakeryTypeNames().length'));
+check('bakery search filters the list',
+  ev('(function(){state.bakeryQuery="zzzznotabakery";var n=filteredBakeries().length;state.bakeryQuery="";return n===0;})()'));
+check('clearing the search restores the list', ev('filteredBakeries().length') > 50, ev('filteredBakeries().length'));
+navTap();
+check('2nd tap hides the bakery filter bar again',
+  ev('state.bakeryFilterOpen') === false && !cbar.classList.contains('on'), ev('state.bakeryFilterOpen'));
+
 console.log('');
 console.log(pass + ' passed, ' + fail + ' failed');
 /* jsdom cannot navigate to another document — gotoVenueAbout deliberately

@@ -164,9 +164,64 @@ try {
   check('venue-about jsdom probe ran', false, String(e && e.message));
 }
 
+/* ---------- T07 — the catering panel renders the shared filter bar ----------
+   search + Town | Area | Cuisines, toggled by a second tap on Restaurants.
+   Cuisine options come from the database's own brand.type values. */
+try {
+  const { JSDOM, VirtualConsole } = require(path.join(__dirname, 'node_modules', 'jsdom'));
+  let page = fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8');
+  const bootErrors = [];
+  page = page.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, src) => {
+    const f = path.join(APP_DIR, src.split('?')[0].replace(/\//g, path.sep));
+    if (!fs.existsSync(f)) { bootErrors.push('missing script: ' + src); return ''; }
+    return '<script>' + fs.readFileSync(f, 'utf8') + '</script>';
+  });
+  const vc2 = new VirtualConsole();
+  vc2.on('jsdomError', e => {
+    if (/Not implemented: navigation/.test(String((e && e.message) || ''))) return;
+    bootErrors.push(String((e && e.stack) || (e && e.message) || e));
+  });
+  const dom2 = new JSDOM(page, { runScripts: 'dangerously', url: 'https://example.test/', virtualConsole: vc2 });
+  const w2 = dom2.window;
+  const d2 = w2.document;
+  const ev2 = s => w2.eval(s);
+
+  ev2('state.tab="restaurants"; state.restPanel="catering"; state.cateringFilterOpen=false; state.cateringQuery=""; render();');
+  const cbar = d2.getElementById('cbar');
+  check('catering filter bar hidden by default', !cbar.classList.contains('on') && !cbar.querySelector('.rest-filter-controls'));
+  d2.querySelector('[data-tab="restaurants"]').click();
+  check('2nd Restaurants tap opens the catering filter bar',
+    ev2('state.cateringFilterOpen') === true && cbar.classList.contains('on'), ev2('state.cateringFilterOpen'));
+  check('catering bar uses the shared renderFilterBar', !!cbar.querySelector('.rest-filter-controls'));
+  check('catering search input renders', !!cbar.querySelector('#cateringSearch'));
+  const catTown = cbar.querySelector('[data-act="openCateringTownPicker"]');
+  const catArea = cbar.querySelector('[data-act="openCateringAreaPicker"]');
+  const catType = cbar.querySelector('[data-act="openCateringTypePicker"]');
+  check('catering Town / Area / Cuisines buttons render', !!catTown && !!catArea && !!catType);
+  check('catering filter buttons are centred',
+    !!catType && w2.getComputedStyle(catType).textAlign === 'center' &&
+    w2.getComputedStyle(catTown).textAlign === 'center' &&
+    w2.getComputedStyle(catArea).textAlign === 'center',
+    catType ? w2.getComputedStyle(catType).textAlign : 'none');
+  check('catering cuisines come from the database',
+    ev2('cateringTypeNames().length') > 0, ev2('cateringTypeNames().length'));
+  check('catering search filters the list',
+    ev2('(function(){state.cateringQuery="zzzznotacaterer";var n=filteredCateringBrands().length;state.cateringQuery="";return n===0;})()'));
+  check('clearing the search restores the list', ev2('filteredCateringBrands().length') > 0, ev2('filteredCateringBrands().length'));
+  d2.querySelector('[data-tab="restaurants"]').click();
+  check('2nd tap hides the catering filter bar again',
+    ev2('state.cateringFilterOpen') === false && !cbar.classList.contains('on'), ev2('state.cateringFilterOpen'));
+  check('index.html booted without errors for the filter-bar probe', bootErrors.length === 0, bootErrors.slice(0, 2).join(' | '));
+} catch (e) {
+  check('catering filter-bar jsdom probe ran', false, String(e && e.message));
+}
+
 console.log('');
 if (fails) {
   console.log('CATERING DIRECTORY FAILED (' + fails + ' failed).');
   process.exit(1);
 }
 console.log('CATERING DIRECTORY PASSED.');
+/* The index.html probe leaves jsdom timers queued (the notice auto-dismiss
+   timer); exit deterministically so they never fire against a torn-down DOM. */
+process.exit(0);
