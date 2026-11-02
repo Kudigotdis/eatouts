@@ -633,7 +633,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 5 — Large builds
 
-#### T12 — `eatout_event_builder` overhaul (user task 12) · XL
+#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1 + 12.3 done; 12.2, 12.4-12.9 open)
 **Files:** `eatout_event_builder.html` (single file, ~4.2k lines), `js/eatouts-events*` if present.
 **Sub-tasks (do in this order, verify each)**
 
@@ -648,12 +648,11 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - date fields → 3-column Year / Month / Day buttons on one row, centred, each opening a floating scroll-list popup; day count correct per month/leap year;
 - time fields → 2-column Hour / Minute buttons on one row, each opening a floating scroll-list popup.
 
-**12.3 Audience** — `[data-sec="audience"]`
-- thin light separator above the field hint;
-- `addAudience` → floating `.prompt-panel`;
-- thin light separator above "Event Rules";
-- `addRule` → floating `.prompt-panel`;
-- `.rm` (removeAudience / removeRule) → light grey "X", no white circle.
+**12.3 Audience** — `[data-sec="audience"]` — ✅ **DONE 2026-11-02**
+- [x] thin light separator above the field hint (new `.sec-sep` `:338-339`, emitted after the guest-count field at `:2147`);
+- [x] `addAudience` → floating `.prompt-panel` — the shared `.prompt-panel` is now the G3 floating recipe (`max-width:420px`, `border-radius:16px`, `max-height:80dvh`, flex column, scrollable `.prompt-body`); it already rendered inside `.fpop-scrim` via `renderPrompt()` `:3063`, so the bottom-sheet CSS was the only thing standing in the way. This also floats the guests / RSVP / links prompts (12.6-12.8);
+- [x] thin light separator above "Event Rules" (`:2160`, inline `margin-top:24px` dropped in favour of the divider);
+- [x] `.rm` (removeAudience / removeRule, plus `.tier` and `.note-item` for consistency) → light grey `X`, no white circle (`background:transparent`, `border:0`, `color:var(--muted-2)`, `:active{opacity:.55}`; `border-radius:50%` removed).
 
 **12.4 Suppliers** — `[data-sec="suppliers"]`
 - `openSupplierTypeMenu` → floating `.fpop-scrim` (not bottom sheet);
@@ -1027,6 +1026,9 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 2026-11-01 | T09 | DONE | `index.html` (D10 cart persist/hydrate, `window.EO_cart`, badge), `venue-about.html` (`.promo-thumb.is-branded` + `.plb-*` gallery CSS, lightbox markup, promo feed → tiles → Add to Order JS), `tests/customer.js` (+22 D10 checks), `tests/venue-about-options.js` (+26 T09 checks) | `customer` PASSED (`window errors: 0`); `venue-about-options` PASSED (26 new T09 checks: tiles, dots, swipe both ways, dot jump, CTA beneath image, one-line cart write, re-tap increments, envelope, toast, outside-tap + Escape, branded fallback); full `npm test` **60 passed, 0 failed**; audits 1/2/3 print nothing | `c1e6286` + this commit |
 | 2026-11-02 | T07 | DONE (closed) | `PLATFORM UPDATE TASKS.md` + the missing coverage — **no source change needed**: the shared `renderFilterBar()` was already wired for catering `:6785-6809` and bakery `:6811-6835` in the 10-31 commit (stale "blocked on data" note retracted; catering types come from `cateringTypeNames()`, bakery types from `window.BAKERY_TYPES`). Added the permanent assertions the 10-31 note wrongly assumed were impossible: `tests/catering-directory.js` (+12, new index.html jsdom probe) and `tests/bakery-directory.js` (+10) | `node tests/catering-directory.js` PASSED (bar hidden → 2nd nav tap opens → 3rd closes, `#cateringSearch`, centred Town\|Area\|Cuisines, cuisine list non-empty, live search) · `node tests/bakery-directory.js` **42/42** (same for `#bakerySearch` + `window.BAKERY_TYPES`) · full `npm test` **64 passed, 0 failed** | 6e41887 + this commit |
 | 2026-11-02 | T22 (step 1) | IN PROGRESS | `SYNC REGION TASK/countries-data.js`, `territories.js`, `territory-registry.js`, `countries_mobile_networks.js` → `js/`; `SYNC REGION TASK/Country-Flag-Icons/*.png` (256) → `assets/flags/`; `PLATFORM UPDATE TASKS.md` | `git status` shows 260 renames with no deletions; 0 hits for `SYNC REGION TASK/` in `*.html`/`*.mjs`/`*.js`; `copy-static.mjs` already copies `js` + `assets` wholesale (no edit needed); `npm test` **64 passed, 0 failed** | (this commit) |
+| 2026-11-02 | T12.3 | DONE | `eatout_event_builder.html` — `.prompt-panel` → G3 floating (420px / 16px / 80dvh / scrollable body), new `.sec-sep`, `.rm` de-circled (audience, tier, note), Event Rules inline margin replaced by the divider | probe 18/18 (2 separators in place, prompt inside `.fpop-scrim` with 420px/16px/80dvh/`overflow-y:auto`, `.fpop-x` transparent, `.rm` transparent + borderless + non-circular + non-red, 0 window errors); `builder-audience` · `builder-guests` · `builder-preview` · `builder-schedule` · `builder-suppliers` all PASSED; full `npm test` pending in the same push | (this commit) |
+
+
 
 
 

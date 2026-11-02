@@ -301,10 +301,10 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   margin-bottom:8px;background:var(--surface)}
 .note-item h5{margin:0 0 5px;font-size:12px;font-weight:800;color:var(--text);
   display:flex;align-items:center;gap:8px}
-.note-item h5 .rm{margin-left:auto;color:var(--danger);font-size:16px;font-weight:900;
+.note-item h5 .rm{margin-left:auto;color:var(--muted-2);font-size:16px;font-weight:900;
   width:22px;height:22px;display:flex;align-items:center;justify-content:center;
-  border-radius:50%;background:#fff;border:1px solid var(--border-soft)}
-.note-item h5 .rm:active{background:#fbeaea}
+  background:transparent;border:0}
+.note-item h5 .rm:active{opacity:.55}
 .note-item p{margin:0;font-size:12px;color:var(--muted);line-height:1.5;white-space:pre-wrap}
 .note-item .meta{font-size:10.5px;color:var(--muted-2);margin-top:4px;font-weight:700;
   letter-spacing:.04em;text-transform:uppercase}
@@ -328,12 +328,15 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   margin-bottom:8px;background:var(--surface)}
 .audience-card h5{margin:0 0 5px;font-size:12px;font-weight:800;color:var(--text);
   display:flex;align-items:center;gap:8px}
-.audience-card h5 .rm{margin-left:auto;color:var(--danger);font-size:16px;font-weight:900;
+.audience-card h5 .rm{margin-left:auto;color:var(--muted-2);font-size:16px;font-weight:900;
   width:22px;height:22px;display:flex;align-items:center;justify-content:center;
-  border-radius:50%;background:#fff;border:1px solid var(--border-soft)}
+  background:transparent;border:0}
+.audience-card h5 .rm:active{opacity:.55}
 .audience-card p{margin:0;font-size:11.5px;color:var(--muted);line-height:1.5}
 .audience-card .age{font-size:10.5px;color:var(--muted-2);font-weight:800;margin-top:5px;
   letter-spacing:.04em}
+/* thin light divider between the audience blocks */
+.sec-sep{border-top:1px solid var(--border-soft);margin:18px 0 14px}
 
 /* ---------- SUPPLIER FIELD ---------- */
 .sup-summary{display:grid;grid-template-columns:1fr;gap:6px;padding:10px;
@@ -488,9 +491,10 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .tier{border:1px solid var(--border-soft);border-radius:11px;padding:10px 12px;
   margin-bottom:8px;background:var(--surface)}
 .tier h5{margin:0 0 6px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:8px}
-.tier h5 .rm{margin-left:auto;color:var(--danger);font-size:16px;font-weight:900;
+.tier h5 .rm{margin-left:auto;color:var(--muted-2);font-size:16px;font-weight:900;
   width:22px;height:22px;display:flex;align-items:center;justify-content:center;
-  border-radius:50%;background:#fff;border:1px solid var(--border-soft)}
+  background:transparent;border:0}
+.tier h5 .rm:active{opacity:.55}
 .tier .price{font-size:13px;font-weight:900;color:var(--muted-2);margin-bottom:4px}
 .tier .notes{font-size:11.5px;color:var(--muted);line-height:1.5}
 
@@ -697,11 +701,11 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .title-edit-foot{padding:14px 18px;border-top:1px solid var(--border-soft);background:#fafaf7;
   display:flex;gap:10px;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
 
-/* Simple add item prompt panel */
-.prompt-panel{background:#fff;width:100%;max-width:460px;border-radius:20px 20px 0 0;
-  overflow:hidden;animation:slideUp .22s cubic-bezier(.4,0,.2,1)}
-@media(min-width:520px){.prompt-panel{border-radius:20px}}
-.prompt-body{padding:16px 18px}
+/* Simple add item prompt panel — floating per G3 (centred, 420px, 80dvh) */
+.prompt-panel{background:#fff;width:100%;max-width:420px;max-height:80dvh;
+  border-radius:16px;display:flex;flex-direction:column;overflow:hidden;
+  animation:fadeIn .18s ease}
+.prompt-body{padding:16px 18px;flex:1 1 auto;overflow-y:auto}
 .prompt-body .field{margin-bottom:12px}
 .prompt-thumb{width:150px;height:150px;border-radius:20px;margin:0 auto 14px;background:var(--surface);
   border:1.5px dashed var(--border-soft);display:flex;flex-direction:column;align-items:center;
@@ -2140,6 +2144,7 @@ function renderAudienceSection(){
     '<div class="field-hint">A rough headcount to help with planning. You can leave this blank.</div>'+
   '</div>';
   // Audience groups
+  body+='<div class="sec-sep"></div>';
   if(!STATE.targetAudience.length){
     body+='<div class="field-hint" style="margin-bottom:10px">Describe who this event is for — audience groups, age brackets, special notes.</div>';
   }
@@ -2152,7 +2157,8 @@ function renderAudienceSection(){
   });
   body+='<button class="sup-add-btn" data-act="addAudience">+ Add target audience</button>';
   // Event Rules
-  body+='<div class="field" style="margin-top:24px"><label>Event Rules</label>';
+  body+='<div class="sec-sep"></div>';
+  body+='<div class="field"><label>Event Rules</label>';
   if(!STATE.venueRules.length){
     body+='<div class="field-hint" style="margin-bottom:10px">Add the rules guests should know — dress, timing, prohibited items.</div>';
   }

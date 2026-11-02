@@ -1632,3 +1632,19 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `npm test` -> **64 passed, 0 failed**
 - Errors: none
 
+
+
+### [2026-11-02 20:32:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T12.3 - audience section (thin separators, floating add prompts, plain-grey remove buttons)
+- Files changed:
+  - eatout_event_builder.html (+8/-8): `.prompt-panel` converted from a bottom sheet (`max-width:460px`, `border-radius:20px 20px 0 0`, `slideUp`) to the G3 floating recipe (`max-width:420px`, `border-radius:16px`, `max-height:80dvh`, flex column, `fadeIn`, `.prompt-body{flex:1 1 auto;overflow-y:auto}`) - it was already rendered inside `.fpop-scrim` by `renderPrompt()`, so the CSS was the only blocker; new `.sec-sep` (1px `--border-soft` divider); `.rm` for `.audience-card`, `.note-item` and `.tier` lost their white circle (`background:transparent`, `border:0`, `border-radius:50%` removed) and are now a light grey glyph (`var(--muted-2)`) that only fades on `:active`; `renderAudienceSection()` emits a `.sec-sep` after the optional guest-count field and another above "Event Rules" (inline `margin-top:24px` dropped)
+- Commit: (this commit)
+- Notes:
+  - One shared CSS change floats every `.prompt-panel` user: add/edit audience, add rule, add/edit guest, add RSVP contact, add ticket tier, add link. The remaining 12.6-12.8 items (150px thumb, "Add photo" label, centred steppers) are content changes and stay open.
+  - `.rm` in `.tier` and `.note-item` were changed alongside `.audience-card` because they are the same component copied three times; leaving two red circled X's next to one grey one would be an inconsistency, not scope creep.
+  - `.sec-sep` is deliberately generic (no section prefix) so 12.5/12.8 can reuse it instead of adding inline margins.
+- Verified:
+  - ad-hoc jsdom probe 18/18: two `.sec-sep` in `[data-sec="audience"]`, first above the "Describe who this event is for" hint, second directly above the "Event Rules" label; `addAudience` opens `.fpop-scrim .prompt-panel` with computed `max-width:420px`, `border-radius:16px`, `max-height:80dvh`, `.prompt-body{overflow-y:auto}`, `.fpop-x` background transparent; seeded rule card renders `.rm` with transparent background, no border, `border-radius` not 50% and a non-red colour; 0 window errors
+  - `node tests/builder-audience.js` -> PASSED · `builder-guests.js` -> PASSED · `builder-preview.js` -> PASSED · `builder-schedule.js` -> PASSED · `builder-suppliers.js` -> PASSED
+- Errors: none
+
