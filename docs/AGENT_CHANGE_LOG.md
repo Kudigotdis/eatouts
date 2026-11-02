@@ -1666,3 +1666,23 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `node tests/builder-schedule.js` -> PASSED · `builder-preview.js` -> PASSED · `builder-audience.js` -> PASSED (including the foreign 12.3 checks) · `builder-guests.js` -> PASSED · `builder-suppliers.js` -> PASSED
 - Errors: none
 
+
+
+### [2026-11-02 21:20:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T12.2 + T12.3 — replace the ad-hoc jsdom probes with permanent assertions, and verify both sub-tasks against the committed implementation
+- Files changed:
+  - tests/builder-schedule.js (25 -> 64 checks): 12.2 proof — `.chip-row.eq` is a real 2-column grid with `text-align:center` chips; the day header carries `data-act="toggleDayOpen"` and a tap flips `.schedule-day.collapsed` (computed `display:none` on `.schedule-day-in`) while a second tap re-expands; 3-button Year|Month|Day and 2-button Hour|Minute rows on one grid line each, wired to the right `data-idx`/`data-dfield`, with no native date/time input left; and a seeded 2028-02-10 boot exercising the pickers end-to-end (Feb 2028 = 29 options, stored day preselected, pick writes back, 2027 clamps 29 -> 28, minute pick keeps the hour, 24/60 option lists, `.fpop-x` and a pick both close it, result lands in the debounced draft)
+  - tests/builder-audience.js (24 -> 31 checks): 12.3 proof — the rule prompt is a `.fpop-scrim` centred `flex` container holding a 420px/16px `.prompt-panel`, the close is a bare `×` glyph with a transparent background and no `border-radius`, the section carries exactly two `.sec-sep` (one above the audience hint, one above Event Rules), and `.rm` has lost its white circle
+  - PLATFORM UPDATE TASKS.md: "permanent coverage" line under 12.2 and 12.3 pointing at the two test files
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: (this commit)
+- Notes:
+  - Both sub-tasks were already implemented and committed by the session that owns the builder (`61be967` = 12.3, `e77f434` = 12.2); this commit is the verification half, so the behaviour is guarded in the repo instead of in a throwaway probe.
+  - One real bug surfaced while adding the accordion checks: `tests/builder-schedule.js` cached the `[data-sec="schedule"]` node before any interaction, so every later `sec.querySelector(...)` read a detached tree. The day/note block now re-queries `document`, which is why 3 previously passing checks ("tapping reveals the note box" and the two seeded-note checks) would have broken the moment the page re-rendered.
+  - The draft assertion waits 500ms on purpose: `scheduleSave()` is `setTimeout(saveDraft,400)`, so reading `localStorage` straight after a pick sees the previous value.
+- Verified:
+  - `node tests/builder-schedule.js` -> **64 passed, 0 failed**
+  - `node tests/builder-audience.js` -> **31 passed, 0 failed**
+  - `npm test` -> **64 passed, 0 failed** (exit 0)
+- Errors: none
+

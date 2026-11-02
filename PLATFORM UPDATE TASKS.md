@@ -633,7 +633,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 5 — Large builds
 
-#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1-12.3 done; 12.4-12.9 open)
+#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1-12.4 done; 12.5-12.9 open)
 **Files:** `eatout_event_builder.html` (single file, ~4.2k lines), `js/eatouts-events*` if present.
 **Sub-tasks (do in this order, verify each)**
 
@@ -648,24 +648,26 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] date fields → **Year / Month / Day** buttons on one row (`.dt-row.dt-3`, `scheduleDateRow()` `:2178`), each opening a floating scroll-list popup (`renderSchedulePicker()` `:2216`, `.fpop-scrim` + `.fpop` + scrolling `.fpop-body`, selected option centred on open); the stored value stays `YYYY-MM-DD`, and `daysInMonth()`/`clampDate()` keep the day count correct per month and leap year (Feb 2028 → 29 options, Feb 2027 → 28, a 31st clamps down);
 - [x] time fields → **Hour / Minute** buttons on one row (`.dt-row.dt-2`, `scheduleTimeRow()` `:2186`), same floating scroll-list (24 hours / 60 minutes), stored as `HH:MM`;
 - [x] no native `<input type="date">`/`type="time">` left in the section.
+- [x] permanent coverage: `tests/builder-schedule.js` (25 → 64 checks) proves the chip grid, the accordion toggle, the three/two-button rows, the 29-vs-28 February day count, the 29 Feb → 28 clamp, the 24/60 option lists and the draft write-back.
 
 **12.3 Audience** — `[data-sec="audience"]` — ✅ **DONE 2026-11-02**
 - [x] thin light separator above the field hint (new `.sec-sep` `:338-339`, emitted after the guest-count field at `:2147`);
 - [x] `addAudience` → floating `.prompt-panel` — the shared `.prompt-panel` is now the G3 floating recipe (`max-width:420px`, `border-radius:16px`, `max-height:80dvh`, flex column, scrollable `.prompt-body`); it already rendered inside `.fpop-scrim` via `renderPrompt()` `:3063`, so the bottom-sheet CSS was the only thing standing in the way. This also floats the guests / RSVP / links prompts (12.6-12.8);
 - [x] thin light separator above "Event Rules" (`:2160`, inline `margin-top:24px` dropped in favour of the divider);
 - [x] `.rm` (removeAudience / removeRule, plus `.tier` and `.note-item` for consistency) → light grey `X`, no white circle (`background:transparent`, `border:0`, `color:var(--muted-2)`, `:active{opacity:.55}`; `border-radius:50%` removed).
+- [x] permanent coverage: `tests/builder-audience.js` (24 → 31 checks) proves the prompt floats in a centred scrim as a 420px/16px card, the close is a bare `×` with no circle, the two `.sec-sep` sit above the hint and above Event Rules, and `.rm` dropped its white circle.
 
-**12.4 Suppliers** — `[data-sec="suppliers"]`
-- `openSupplierTypeMenu` → floating `.fpop-scrim` (not bottom sheet);
-- `.fpop-search` pinned to the bottom of that popup, `.fpop-body` above it;
-- remove the beige circle behind `.fpop-close` → replace with a plain `X` glyph (`.fpop-x`, no circle);
-- `.sup-profile-avatar` → 150px; tap → gallery with swipe + dots;
-- `.sup-profile-loc` → 16px;
-- `.sup-profile-scroll` → floating popup;
-- `.sup-profile-name` → "Service Provider Info" floating popup: 90px thumb left, right = name + services, description below;
-- `.pit-thumb` → 90px; tap → full-image gallery with feint black backdrop, dots above the image, white caption below; outside tap closes;
-- `.qty-stepper.sm`: centre `−`/`+`; move stepper to a row **below** `.pit-info`, right-aligned, with the added cost left-aligned under `.pit-info`;
-- `.pit-info`: 90px thumb left, `.pit-title` + `.pit-price` right.
+**12.4 Suppliers** — `[data-sec="suppliers"]` — ✅ **DONE 2026-11-02**
+- [x] `openSupplierTypeMenu` → floating `.fpop-scrim` (already was; the panel is `.fpop`, 420px / 80dvh);
+- [x] `.fpop-search` pinned to the **bottom** of that popup — new `.fpop-search.is-foot` (`:566-567`, rule on top instead of bottom) and the markup order is now hdr → `.fpop-body` → search;
+- [x] no beige circle behind the close button — `.fpop-x` is a plain glyph (`background:transparent`, no border, `×` only);
+- [x] `.sup-profile-avatar` 150px, tap → full-image gallery with swipe + dots;
+- [x] `.sup-profile-loc` → 16px;
+- [x] `.sup-profile-scroll` → inside the floating 420px / 80dvh / 16px-radius panel (`:618-623`);
+- [x] `.sup-profile-name` → opens the **Service Provider Info** floating popup (`renderSupInfo()` `:2766`): 90px thumb left, name + services right, description below;
+- [x] `.pit-thumb` 90px, tap → full-image gallery with a feint black backdrop (`rgba(0,0,0,.55)`), dots **above** the image, white caption below, outside tap closes (`renderImageGallery()` `:2793`);
+- [x] `.qty-stepper.sm`: `−`/`+` centred, stepper moved to a row **below** `.pit-info`, right-aligned, with the added cost left-aligned under `.pit-info` (`.pit-foot` / `.pit-cost` `:652-656`);
+- [x] `.pit-info`: 90px thumb left, `.pit-title` + `.pit-price` right (`.pit-card` is now a `90px 1fr` grid).
 
 **12.5 Details** — `[data-sec="details"]`
 - centre `.chip-row`; `setEventMode` chips equal width; centre `.field-hint`;

@@ -100,6 +100,24 @@ function draftWith(venueId, extra) {
   check('add rule prompt opens', !!panel);
   check('rule prompt has title + note fields',
     !!panel && !!panel.querySelector('[data-prompt-field="title"]') && !!panel.querySelector('[data-prompt-field="note"]'));
+  /* ---------- 12.3 — the prompt floats, the close is a plain X ---------- */
+  const scrim = panel.closest('.fpop-scrim');
+  const scrimCs = scrim ? w.getComputedStyle(scrim) : null;
+  check('add rule prompt floats in a centred scrim',
+    !!scrimCs && scrimCs.display === 'flex' && scrimCs.alignItems === 'center' && scrimCs.justifyContent === 'center',
+    scrimCs ? [scrimCs.display, scrimCs.alignItems, scrimCs.justifyContent].join(' / ') : 'no .fpop-scrim');
+  const panelCs = w.getComputedStyle(panel);
+  check('add rule prompt is the 420px rounded card',
+    panelCs.maxWidth === '420px' && panelCs.borderRadius === '16px',
+    panelCs.maxWidth + ' / ' + panelCs.borderRadius);
+  const closeBtn = panel.querySelector('.fpop-x');
+  const closeCs = closeBtn ? w.getComputedStyle(closeBtn) : null;
+  check('close is a plain X glyph, no filled circle',
+    !!closeBtn && closeBtn.textContent.trim() === '\u00d7' && !!closeCs &&
+    (closeCs.backgroundColor === 'transparent' || closeCs.backgroundColor === 'rgba(0, 0, 0, 0)') &&
+    (closeCs.borderRadius === '' || closeCs.borderRadius === '0px'),
+    closeCs ? [closeBtn.textContent.trim(), closeCs.backgroundColor, closeCs.borderRadius].join(' / ') : 'no .fpop-x');
+
   type(w, panel.querySelector('[data-prompt-field="title"]'), 'No outside alcohol');
   type(w, panel.querySelector('[data-prompt-field="note"]'), 'Bar service is on site.');
   click(w, panel.querySelector('[data-act="savePrompt"]'));
@@ -116,6 +134,18 @@ function draftWith(venueId, extra) {
   const rulesField3 = Array.from(doc.querySelectorAll('[data-sec="audience"] .field'))
     .find(f => /Event Rules/.test((f.querySelector('label') || {}).textContent || ''));
   check('rule removed', rulesField3.querySelectorAll('.audience-card').length === 0);
+
+  /* ---------- 12.3 — thin separators + light grey X ---------- */
+  w.render();
+  const seps = doc.querySelectorAll('[data-sec="audience"] .sec-sep');
+  check('two thin separators in the audience section', seps.length === 2, 'got ' + seps.length);
+  check('separator sits above the audience hint',
+    seps.length === 2 && !!seps[0].nextElementSibling && seps[0].nextElementSibling.classList.contains('field-hint'));
+  check('separator sits above Event Rules',
+    seps.length === 2 && !!seps[1].nextElementSibling &&
+    /Event Rules/.test((seps[1].nextElementSibling.querySelector('label') || {}).textContent || ''));
+  check('12.3: .rm is light grey with no white circle',
+    /\.rm\{[^}]*background:transparent;border:0\}/.test(raw) && !/\.rm\{[^}]*border-radius:50%/.test(raw));
 
   /* ---------- Persistence across reload ---------- */
   const b = boot(draftWith(venueId, {
