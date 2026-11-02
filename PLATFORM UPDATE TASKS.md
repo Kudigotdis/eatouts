@@ -1061,8 +1061,6 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 2026-11-02 | docs | DONE | `PLATFORM UPDATE TASKS.md` — T08 / T08b / T06 headings and queue row 11b marked DONE; G1's four done-when boxes triaged (3 ticked on evidence, the A–Z rail box reworded because the shipped rail hides its scrollbar and does not scroll); D3 + D10 moved to **Resolved**; the ten blank log rows replaced by the two real coverage rows above; §5 audit #4 baseline updated | G1 box 1 + 2 re-verified by running §5 audit #1 (prints nothing); D10 confirmed implemented at `index.html:3983-3989`; no code touched | (this commit) |
 | 2026-11-02 | T12.7 + T12.8 | DONE (coverage) | `tests/builder-guests.js` 33 → 55 checks — a new `floatingCard()` helper asserts the G3 contract once per prompt, then proves the **RSVP prompt** (`addRsvp` → `renderPrompt` `:3301-3316`) and the **Event Links icon picker** (`openLinkPicker` → `renderLinkPicker` `:3334-3340`) are that same card: inside a centred `.fpop-scrim`, computed 420px / 16px, a plain transparent `×` in `.fpop-hdr`, **zero** `.fpop-close` in the document, and each closing via the `X`, an outside tap and `Escape`. **No implementation change was needed** — 12.3 already floated both, so these are verify-only commits per the delegation pack | `node tests/builder-guests.js` PASSED — 22 new checks green on the first run (4 shared-contract + 7 prompt-specific checks, run once per prompt) | (this commit) |
 
-
-
 ### Per-task completion template
 
 

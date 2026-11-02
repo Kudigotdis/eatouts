@@ -1810,3 +1810,13 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `node tests/run-all.js` -> **65 passed, 0 failed** (exit 0)
 - Errors: none
 
+
+### [2026-11-03 00:30:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: housekeeping - drop the two stray blank lines above `### Per-task completion template`
+- Files changed: PLATFORM UPDATE TASKS.md (2 blank lines removed between the §8 log table and the template heading; nothing else), docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: (this commit)
+- Notes:
+  - First attempt used a regex with `[^\\r\\n]*` against a CRLF file and the `\\r?\\n` boundary ate the whole T12.7/T12.8 row plus the heading. Reverted with `git checkout --` and redone by splitting on the file's own newline (`\\r\\n`, detected, not assumed), removing only the extra empty strings directly before the heading. Line endings stay uniform - writing `\\n` into a CRLF file is what made the diff unreadable the first time.
+- Verified: `git diff --stat` -> `1 file changed, 2 deletions(-)`; row 1062 (T12.7 + T12.8) still intact, heading now 1064 with one blank line above it.
+- Errors: none
+
