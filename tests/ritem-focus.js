@@ -130,6 +130,14 @@ setTimeout(() => {
     doc.querySelectorAll('.scroll.has-open').length === 0 && doc.querySelectorAll('.ritem.open').length === 0,
     doc.querySelectorAll('.ritem.open').length + ' open rows');
 
+  /* ---- regression guard: a directory card must never show a street address ---- */
+  const rawSrc = fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8');
+  check('no address line renders in any directory card',
+    doc.querySelectorAll('.baddr').length === 0,
+    doc.querySelectorAll('.baddr').length + ' found');
+  check('no card builder emits an address line', !/class="baddr"/.test(rawSrc));
+
+
   console.log('');
   console.log(pass + ' passed, ' + fail + ' failed');
   const realErrors = errors.filter(e => !/navigation to another Document/.test(e));

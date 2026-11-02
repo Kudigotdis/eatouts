@@ -701,7 +701,6 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 .fpop .loc-area-option{padding:11px 14px;border:0;background:transparent;font-size:20px}
 .fpop .loc-area-option.on{background:#fdf9ef}
 .fpop .loc-area-option .loc-sub{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:500;color:#a89a7e;margin-top:2px}
-.ropts .baddr{margin:9px 2px 2px;font-size:10.5px;font-weight:600;color:#8a8170;text-align:left;line-height:1.45}
 .fpop-note{padding:12px 14px;font-size:11px;color:#a89a7e}
 /* "All Towns" first row reads as a centred caption */
 .fpop .loc-all{justify-content:center;text-align:center}
@@ -5825,7 +5824,6 @@ function cateringOptions(brand,active){
     '" data-lock-act="openCateringLocPicker" data-lock-label="'+esc("Select Town")+'" data-lock-axis="town" aria-disabled="true"';
   const menuBtn='<button class="line line-action'+(locationReady?"":" is-disabled")+'" data-act="openCateringMenu" data-brand="'+esc(brand.slug)+'"'+(locationReady?"":lockAttrs)+'>Menu</button>';
   const promosBtn='<button class="line line-action is-disabled" data-act="showRestNotice" data-notice="'+esc("No promos available at this location right now.")+'" aria-disabled="true">Promos</button>';
-  const addr=(locationReady&&active&&active.address)?'<div class="baddr">'+esc(active.address)+'</div>':'';
   const favBtn=favButton("catering",brand.slug,{title:brand.name,subtitle:(active&&(active.address||active.town))||"",venueId:(active&&active.id)||null,imageRef:brand.logo||null},"Save");
   const waBtn='<button class="ico-btn" data-act="waCateringAbout" data-brand="'+esc(brand.slug)+'" aria-label="WhatsApp" title="WhatsApp"><img src="'+IMG.iconWA+'" alt=""></button>';
   const infoBtn='<button class="ico-btn" data-act="openCateringAbout" data-brand="'+esc(brand.slug)+'" aria-label="About '+esc(brand.name)+'" title="About"><img class="ico-info-img" src="'+IMG.iconInfo+'" alt=""></button>';
@@ -5834,7 +5832,7 @@ function cateringOptions(brand,active){
     '<button class="line line-select'+(areaSel?" is-set":"")+(locationReady?"":" is-disabled")+'" data-act="openCateringLocPicker" data-brand="'+esc(brand.slug)+'" data-axis="area" aria-haspopup="listbox"'+(locationReady?"":lockAttrs)+'><span>'+esc(areaSel||"Select Area")+'</span></button>'+
     menuBtn+promosBtn+
     '<div class="card-ico-row">'+favBtn+waBtn+infoBtn+'</div>'+
-    '</div>'+addr;
+    '</div>';
 }
 function renderCateringLocPicker(){
   const lp=state.cateringLocPicker;
@@ -6075,7 +6073,6 @@ function bakeryOptions(b){
   const areaLine='<button type="button" class="line line-select'+(area?" is-set":" is-disabled")+'" aria-haspopup="false"'+(area?"":' aria-disabled="true"')+'><span>'+esc(area||"Select Area")+'</span></button>';
   const menuBtn='<button class="line line-action is-disabled" data-act="showRestNotice" data-notice="'+esc("Menu coming soon for this bakery.")+'" aria-disabled="true">Menu</button>';
   const promosBtn='<button class="line line-action is-disabled" data-act="showRestNotice" data-notice="'+esc("No promos available at this location right now.")+'" aria-disabled="true">Promos</button>';
-  const addr=b.address?'<div class="baddr">'+esc(b.address)+'</div>':'';
   const favBtn=favButton("bakery",b.slug,{title:b.name,subtitle:[b.area,b.town].filter(Boolean).join(", "),venueId:b.slug,imageRef:"assets/logo/logo_placement_image.png"},"Save");
   const waBtn=b.phone
     ?'<button class="ico-btn" data-act="waBakery" data-id="'+esc(b.slug)+'" aria-label="WhatsApp '+esc(b.name)+'" title="WhatsApp"><img src="'+IMG.iconWA+'" alt=""></button>'
@@ -6084,7 +6081,7 @@ function bakeryOptions(b){
   return '<div class="ropts brows">'+
     townLine+areaLine+menuBtn+promosBtn+
     '<div class="card-ico-row">'+favBtn+waBtn+infoBtn+'</div>'+
-    '</div>'+addr;
+    '</div>';
 }
 function syncBakeryAccordions(){
   const vp=document.getElementById("viewport");
@@ -6239,7 +6236,6 @@ function bottleStoreOptions(brand,active){
     '" data-lock-act="openBottleLocPicker" data-lock-label="'+esc("Select Town")+'" data-lock-axis="town" aria-disabled="true"';
   const menuBtn='<button class="line line-action'+(locationReady?"":" is-disabled")+'" data-act="openBottleMenu" data-brand="'+esc(brand.slug)+'"'+(locationReady?"":lockAttrs)+'>Menu</button>';
   const promosBtn='<button class="line line-action'+(locationReady?"":" is-disabled")+'" data-act="openBottlePromos" data-brand="'+esc(brand.slug)+'"'+(locationReady?"":lockAttrs)+'>Promos</button>';
-  const addr=(locationReady&&active&&active.address)?'<div class="baddr">'+esc(active.address)+'</div>':'';
   const favBtn=favButton("bottle_store",brand.slug,{title:brand.name,subtitle:(active&&(active.address||active.town))||"",venueId:(active&&active.id)||null,imageRef:(active&&active.image)||null},"Save");
   const waBtn='<button class="ico-btn" data-act="waBottle" data-brand="'+esc(brand.slug)+'" aria-label="WhatsApp" title="WhatsApp"><img src="'+IMG.iconWA+'" alt=""></button>';
   const infoBtn='<button class="ico-btn" data-act="bottleStoreInfo" data-brand="'+esc(brand.slug)+'" aria-label="About '+esc(brand.name)+'" title="Store details"><img class="ico-info-img" src="'+IMG.iconInfo+'" alt=""></button>';
@@ -6248,7 +6244,7 @@ function bottleStoreOptions(brand,active){
     '<button class="line line-select'+(areaSel?" is-set":"")+(locationReady?"":" is-disabled")+'" data-act="openBottleLocPicker" data-brand="'+esc(brand.slug)+'" data-axis="area" aria-haspopup="listbox"'+(locationReady?"":lockAttrs)+'><span>'+esc(areaSel||"Select Area")+'</span></button>'+
     menuBtn+promosBtn+
     '<div class="card-ico-row">'+favBtn+waBtn+infoBtn+'</div>'+
-    '</div>'+addr;
+    '</div>';
 }
 function renderBottleLocPicker(){
   const lp=state.bottleLocPicker;

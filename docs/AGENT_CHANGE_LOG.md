@@ -14,6 +14,27 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-02 17:40:21] - [Agent: cline] - [Status: COMMITTED]
+- Task: Remove the street-address line from the expanded card of every directory row (catering, bakeries, beverages; restaurants never had one)
+- Files changed:
+  - index.html (dropped the three `const addr=...'<div class="baddr">'...` declarations and their `+addr` concatenations in `cateringOptions`, `bakeryOptions`, `bottleStoreOptions`; deleted the now-dead `.ropts .baddr{...}` CSS rule)
+  - tests/ritem-focus.js (+2 regression guards, 66 -> 68 checks)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit
+- Notes:
+  - Repo-wide grep (all *.js/*.html/*.css/*.mjs, excluding node_modules and dist) proved `baddr` existed in exactly 4 places, all in index.html, so the removal is exhaustive. Restaurants were already address-free - `restaurantItem` only renders `category - places` in `.rmeta`.
+  - Not inside `.rrow`: the address was a sibling of `.ropts`, appended after the options block inside the card's `.acc-in`, so the `.rrow` header markup is untouched.
+  - Guard choice: one DOM check plus one source scan. `class="baddr"` can only be emitted from a hard-coded literal (no data-driven path), so the source scan is a complete superset; the DOM check alone would stay green if the line were re-added only in the `locationReady===false` / no-address branches, which jsdom fixtures never render. Both follow the existing "no longer ..." tripwire idiom (gallery.js:235, login.js:99, about.js:124).
+  - No CSS follow-up needed: `.ropts.brows` already carries `padding:2px 14px 16px`, so the card keeps its own bottom breathing room once the address line is gone (cards get ~24px shorter).
+  - `locationReady` and `active` remain used elsewhere in all three option builders, so no variables were orphaned.
+  - The address is still reachable via the Town/Area selectors, the Store details / About pages, and the favourites `subtitle` (JS data, not a row element).
+- Verified: `Select-String 'baddr' index.html` 0 hits and `+addr` 0 hits; `node tests/ritem-focus.js` 68/68; `node tests/bakery-directory.js` 32/32; `node tests/catering-directory.js` PASSED; `node tests/bottle-stores.js` PASSED; `node tests/beverages.js` PASSED; `npm test` 64 passed, 0 failed (exit 0).
+- Not verified: card spacing/height change on a real device (jsdom has no layout) - cards are ~24px shorter, worth a glance at 360x740.
+- Errors: none.
+
+---
+
+
 ### [2026-11-02 17:11:34] - [Agent: cline] - [Status: COMMITTED]
 - Task: T03 - tapping a directory row must bring the opened card into view at the top of its list, on all four pager panels
 - Files changed:
