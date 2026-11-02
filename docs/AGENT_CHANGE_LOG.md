@@ -1686,3 +1686,21 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `npm test` -> **64 passed, 0 failed** (exit 0)
 - Errors: none
 
+
+
+### [2026-11-02 21:52:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T12.4 - suppliers (bottom-pinned search, floating profile, Service Provider Info popup, item cards, full-image gallery)
+- Files changed:
+  - eatout_event_builder.html (+120/-28): `.fpop-search.is-foot` (rule on top) with the directory markup reordered to hdr > `.fpop-body` > search; `.sup-profile-panel` aligned to the G3 card (420px / 80dvh / 16px / `fadeIn`); `.sup-profile-loc` 12.5px -> 16px; `.sup-profile-name` is now a tap target; `.pit-card` is a `90px 1fr` grid and gained a `.pit-foot` row (`.pit-cost` left, `.qty-stepper.sm` right with centred glyphs); new `renderSupInfo()` ("Service Provider Info": 90px thumb, name + services, description) and `renderImageGallery()` (feint `rgba(0,0,0,.55)` backdrop, dots above the track, white caption below, outside tap closes, swipe via scroll-snap with a dot-sync scroll listener); new STATE `supInfoOpen`/`supInfoId`/`gallery` and actions `openSupInfo`, `closeSupInfo`, `openSupGallery`, `openItemGallery`, `closeImgGallery`, `imgGalDot`
+  - PLATFORM UPDATE TASKS.md: 12.4 ticked, T12 header progress, §8 row
+- Commit: (this commit)
+- Notes:
+  - The directory popup already floated (`.fpop-scrim`), so the only real work there was moving the search under the list and swapping the divider side - no markup rebuild.
+  - The gallery is one reusable popup, used by both the 150px provider avatar and the 90px item thumb; suppliers only carry a single `photo` today, so the dots stay hidden for one image, but `s.photos[]` is honoured as soon as the data has more than one.
+  - The item thumb keeps its emoji glyph (`.pit-thumb`), so the gallery shows the provider photo captioned with the service name rather than inventing per-item images.
+  - `.pit-check` (the on-quote tick) now sits in the foot row instead of the top row so every card has the same two-row rhythm.
+- Verified:
+  - ad-hoc jsdom probe 40/40: popup child order `fpop-hdr | fpop-body | fpop-search`, `.is-foot` rule present, `.fpop-x` transparent, panel 420px/80dvh/16px, avatar 150px, loc 16px, card `90px 1fr`, thumb 90px, `.pit-foot` holds the stepper with `margin-left:auto` and a left-aligned `.pit-cost`, stepper buttons `display:flex`/centred, info popup anatomy (90px thumb first, name + services right, description under a label), gallery backdrop `rgba(0, 0, 0, 0.55)` with dots above the track and the caption below, avatar + item galleries both open and close on an outside tap, profile survives behind the gallery, 0 window errors
+  - `node tests/builder-suppliers.js` -> PASSED · `builder-preview.js` -> PASSED · `builder-guests.js` -> PASSED
+- Errors: none
+
