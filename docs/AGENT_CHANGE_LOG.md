@@ -1592,3 +1592,22 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - npm test -> **63 passed, 0 failed** (was 61 passed, 2 failed: html-catalog.js + inventory.js)
 - Errors: none
 
+
+
+### [2026-11-02 19:48:21] - [Agent: cline] - [Status: COMMITTED]
+- Task: close T07 — prove the standardised filter bar works on all four directory screens and retract the stale "catering/bakery blocked on data" note
+- Files changed:
+  - PLATFORM UPDATE TASKS.md: T07 header + summary-table row marked DONE 2026-11-02 (all four directories); the `[ ] Deviation — catering + bakery bars stay hidden` note replaced with a ticked retraction (catering brands do carry a `type`; bakeries get Type from `window.BAKERY_TYPES`); new §8 progress-log row
+  - tests/catering-directory.js: +12 checks — boots index.html in jsdom, asserts the catering bar is hidden by default, opens on the 2nd Restaurants tap (`#cbar.on`), uses the shared `renderFilterBar()`, renders `#cateringSearch` + centred Town | Area | Cuisines buttons, draws its cuisine list from the database, filters live on search, and hides again on the 3rd tap; suite now exits deterministically (`process.exit(0)`) so the page's notice timer cannot fire against a torn-down DOM
+  - tests/bakery-directory.js: +9 checks — the same contract for the bakery panel (`#bakerySearch`, `openBakery*Picker` acts, `bakeryTypeNames()` from `js/bakery-types.js`, live search + restore)
+- Commit: (this commit)
+- Notes:
+  - No source change was required. `renderFilterBar()` had already been wired into the catering panel (index.html:6785-6809) and the bakery panel (index.html:6811-6835) in the 2026-10-31 T07 commit, behind `state.cateringFilterOpen` (:3803) and `state.bakeryFilterOpen` (:3812) with nav-tap branches at :9515-9524. The partial status came from a note written before that wiring existed.
+  - Catering types are real data: `assets/data/catering_services_database.json` carries a per-brand `"type"`, exposed through `cateringTypeNames()` (:5701) and already used by `cateringMatchesFilters()`. Bakery types come from `js/bakery-types.js`, and `bakeryHasType()` (:5966) intentionally keeps bakeries with no declared product categories visible under every Type.
+  - The behaviour is now covered permanently in the repo instead of by an ad-hoc temp probe, so a future edit to `renderCbar()` cannot silently unhook either panel.
+- Verified:
+  - `node tests/catering-directory.js` -> CATERING DIRECTORY PASSED (12 new bar checks, 0 window errors on boot)
+  - `node tests/bakery-directory.js` -> **42 passed, 0 failed** (was 32; +9 bar checks, +1 pre-existing count drift)
+  - `npm test` -> **64 passed, 0 failed**
+- Errors: none
+

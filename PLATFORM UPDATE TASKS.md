@@ -177,7 +177,7 @@ bottom nav where the page is part of the app shell.
 | 11b | T08b | 8 | Header sweep — standard `#hdr` on the 36 `.topbar` pages + `js/eatouts-back-history.js` for standalone pages | L |
 | 12 | T03 | 3 | `ritem` focus, scroll lock, 25% dim others — ✅ **DONE 2026-10-31** | M |
 | 13 | T09 | 9 | `venue-about` promo thumb → gallery + "Add to Order" — ✅ **DONE 2026-11-01** | M |
-| 14 | T07 | 7 | Standardised Filter Bar on 4 screens — ✅ **DONE 2026-10-31** (food + bottle store; catering/bakery blocked on data) | M |
+| 14 | T07 | 7 | Standardised Filter Bar on 4 screens — ✅ **DONE 2026-11-02** (food, catering, bakery, bottle store) | M |
 
 ### Phase 4 — Structural redesigns
 | # | ID | User task | Task | Size |
@@ -480,7 +480,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 **Data note (why the fallback exists):** promo content is API-owned — `index.html` ships `const PROMOS = {}` (`:3250`), `assets/data/restaurant_listings/directory_runtime_data.js` has no `promos` field at all, and no demo promo exists in the repo. `venue-about.html` therefore reads, in order: `window.EATOUTS_VENUE_PROMOS[slug]` (promo API / owner tool), `EatoutsBridge.feedPromos()` (GET `/api/promos`, when that library is on the page), `rec.promos`. With none present the Promos accordion shows **branded venue tiles** (the locked T09 decision) and the CTA reads "Price not published yet" and stays disabled — the page never invents a price. The full Add to Order path is exercised in the suite by injecting the feed the same way the API would.
 
 
-#### T07 — Standardised Filter Bar (user task 7) · M — ✅ **DONE 2026-10-31** (food + bottle store; catering/bakery blocked on data — see notes)
+#### T07 — Standardised Filter Bar (user task 7) · M — ✅ **DONE 2026-11-02** (all four directories; the 10-31 "blocked on data" note was wrong — see notes)
 **Files:** `index.html` — `#cbar` `:855`, `renderRestaurants` `:5195`, `renderRestaurantsPager` `:5244`, `renderCatering`/`renderBakeries`/`renderBeverages`, `#cbar` builder `:6289-6328`, `restFilterOpen` toggle `:8782`, `.rest-filter-controls`/`.cbtn` CSS, `.town-pop`/`.town-scroll`/`.az-rail`/`.loc-count` CSS ~`:608-635`.
 **Steps**
 1. Build one reusable `renderFilterBar({searchId, placeholder, townAct, areaAct, typeLabel})` producing `id="cbar" class="rest-filter-controls"` with the two rows from the brief.
@@ -501,8 +501,8 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] `.town-scroll` already had even `8px` top/bottom padding; it now also hides its scrollbar (`scrollbar-width:none` + `::-webkit-scrollbar{display:none}`).
 - [x] `.az-rail` background `rgba(0,0,0,.03)`.
 - [x] `tests/beverages.js` updated to the new spec (was asserting 18px / left / right-aligned).
-- [ ] **Deviation — catering + bakery bars stay hidden.** Neither directory has town/area/type filter data (`cateringBrands()` has no per-brand type; `bakeryBrands()` has only name/town/area), so a standardised bar there would render dead buttons. `state.cateringQuery` is already reserved for the day that data lands. Needs a data decision, not a CSS one.
-- [ ] Device pass — 16px centred labels and the tinted rail at 360px.
+- [x] **Deviation retracted 2026-11-02 — catering + bakery were never blocked on data.** `cateringBrands()` does carry a per-brand `type` (`assets/data/catering_services_database.json` → `CateringServicesDatabase.js`), surfaced by `cateringTypeNames()` `:5701` and already consumed by `cateringMatchesFilters()`; bakeries get their Type list from `js/bakery-types.js` (`window.BAKERY_TYPES`) via `bakeryTypeNames()` `:5960`, with `bakeryHasType()` `:5966` deliberately showing undeclared-product bakeries under every type. Both screens therefore reuse the same `renderFilterBar()` — catering `:6785-6809` (toggle `state.cateringFilterOpen` `:3803`), bakery `:6811-6835` (toggle `state.bakeryFilterOpen` `:3812`), plus the nav-tap branches at `:9515-9524`. Probe 26/26 across all four panels (hidden → 2nd tap open → 3rd tap close, `#restSearch`/`#cateringSearch`/`#bakerySearch`/`#bottleSearch`, `Town | Area | All Cuisines|Type`), 0 window errors.
+- [ ] Device pass — 16px centred labels and the tinted rail at 360px (all four panels).
 
 ---
 
@@ -1023,6 +1023,9 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 2026-11-01 | B2 | DONE | `PLATFORM UPDATE TASKS.md` §5 — audit 1 now resolves linked `assets/*.css` (was reporting 9 false positives on the manager pages, which hide the bar via `eatouts-manager.css:34-35`); audit 2 scoped to popup selectors; audit 4 added as advisory | audit 1 prints nothing (verified); audits 2 + 3 print nothing; audit 4 → ~30 advisory hits, live ones owned by T05/T12 | (this commit) |
 | 2026-11-01 | T05 | DONE | `customer-delivery.html` — `.hdr-chip` gone; `.osum-back` deleted and `.osum-tot`/`.osum-items` joined in one centred `.osum-line`; `.acc` = 3% grey panel with a 5% `.acc-title` when open; method gate (`accClass()` `.locked` + `#fpop`/`#fpopScrim` "Choose a delivery method first"); `area`/`propType`/`bank` open a fixed `.drp-list.open.float` over a scrim; centred `.hint.centre`; `.gps-btn` attaches the current location; real `.seg` me/someone-else toggle + `.rcpt-card` history + `#fpop` recipient viewer (Add image / Edit details / Delete) + photo-mandatory new-recipient form with a 150px `.rcpt-hero`; `.acc-val` shows the chosen bank; `#reviewPage` full-page review with Edit + Delete; "WhatsApp Request" label removed; `barPrimary` = "Add P#.## to P#.## for # items" → `index.html?resume=1#restaurants`; `tests/customer-delivery.js` (new, 52 checks); `tests/checkout-delivery.js` bar assertions re-pointed | `node tests/customer-delivery.js` PASSED (52 checks) · `node tests/checkout-delivery.js` PASSED · `npm test` **61 passed, 0 failed** · `npm run inventory` 10 checks / 90 warnings · `npm run catalog` 70 pages | `eface0b` |
 | 2026-11-01 | T09 | DONE | `index.html` (D10 cart persist/hydrate, `window.EO_cart`, badge), `venue-about.html` (`.promo-thumb.is-branded` + `.plb-*` gallery CSS, lightbox markup, promo feed → tiles → Add to Order JS), `tests/customer.js` (+22 D10 checks), `tests/venue-about-options.js` (+26 T09 checks) | `customer` PASSED (`window errors: 0`); `venue-about-options` PASSED (26 new T09 checks: tiles, dots, swipe both ways, dot jump, CTA beneath image, one-line cart write, re-tap increments, envelope, toast, outside-tap + Escape, branded fallback); full `npm test` **60 passed, 0 failed**; audits 1/2/3 print nothing | `c1e6286` + this commit |
+| 2026-11-02 | T07 | DONE (closed) | `PLATFORM UPDATE TASKS.md` + the missing coverage — **no source change needed**: the shared `renderFilterBar()` was already wired for catering `:6785-6809` and bakery `:6811-6835` in the 10-31 commit (stale "blocked on data" note retracted; catering types come from `cateringTypeNames()`, bakery types from `window.BAKERY_TYPES`). Added the permanent assertions the 10-31 note wrongly assumed were impossible: `tests/catering-directory.js` (+12, new index.html jsdom probe) and `tests/bakery-directory.js` (+9) | `node tests/catering-directory.js` PASSED (bar hidden → 2nd nav tap opens → 3rd closes, `#cateringSearch`, centred Town\|Area\|Cuisines, cuisine list non-empty, live search) · `node tests/bakery-directory.js` **42/42** (same for `#bakerySearch` + `window.BAKERY_TYPES`) · full `npm test` **64 passed, 0 failed** | (this commit) |
+
+
 
 
 ### Per-task completion template
