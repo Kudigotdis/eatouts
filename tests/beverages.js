@@ -129,8 +129,7 @@ setTimeout(() => {
     check('inline venue-about screen is gone for the caterer',
       doc.querySelector('#viewport .screen[data-page="venue-about"]') === null);
     check('caterer About targets the standalone page for that caterer',
-      !!catNav && catNav.indexOf('venue-about.html?link=') === 0 &&
-      catNav.indexOf(encodeURIComponent('fedics-food-service')) > -1, catNav);
+      catNav === 'venue-about.html?link=' + encodeURIComponent('fedics-food-service'), catNav);
   } else {
     check('caterer (Fedics) present for About test', false, 'Fedics card not found');
   }

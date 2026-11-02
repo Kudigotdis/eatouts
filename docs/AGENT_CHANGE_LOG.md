@@ -15,6 +15,28 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
+### [2026-11-02 00:00:00] - [Agent: opencode] - [Status: COMMITTED]
+- Task: Fix live routing/404s for search and chain About pages; add deploy-manifest guard
+- Files changed:
+  - copy-static.mjs (add `search_screen.html` to FILES)
+  - index.html (`bottleStoreInfo` and `openCateringAbout` now pass `brand.slug` to venue-about.html instead of the active branch slug)
+  - venue-about.html (`resolve()` also resolves bottle-store/catering brands from branch slugs, so a `?link=<branch>` deep link no longer bounces to index.html#restaurants)
+  - tests/bottle-stores.js (About link assertion now expects the exact brand slug `venue-about.html?link=liquorama`)
+  - tests/beverages.js (catering About assertion now exact: `venue-about.html?link=fedics-food-service`)
+  - tests/venue-about-about.js (new branch-slug resolution cases: Liquorama Gaborone, Fedics Gaborone)
+  - tests/inventory.js (new guard: every root *.html must appear in copy-static.mjs FILES)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - Live check: `https://www.eatouts.site/search_screen.html` returned 404. `copy-static.mjs` is the Cloudflare Pages manifest and listed 70 of the repo's 71 root HTML files; `search_screen.html` (page 71) was never staged into `dist/`. Same failure class as `ac99a83` (venue-about.html). `npm run stage` now emits 71 HTML files including search_screen.html.
+  - Chain About taps passed the active branch slug (`liquorama-gaborone`, `tops-at-spar-gaborone`), but `EatoutsBottleStores.get()` / `EatoutsCatering.get()` are brand-keyed (branch ids resolve only via `.store()` / `.branch()`), so `venue-about.html` resolved nothing and redirected to index.html#restaurants. Taps now pass `brand.slug`; venue-about resolves branch slugs too, for shared links.
+  - `tests/beverages.js` missed the catering case only because its assertion used `indexOf()` (a branch slug is a prefix superset); both assertions are now exact.
+- Verified: node tests/inventory.js (21 checks, 71 pages) / tests/bottle-stores.js / tests/beverages.js / tests/venue-about-about.js all PASSED; `npm test` 63 passed, 0 failed; `npm run stage` -> dist/ has 71 .html files + search_screen.html.
+- Errors: none.
+
+---
+
 ### [2026-11-01 21:00:00] - [Agent: TierMux] - [Status: COMMITTED]
 - Task: venue-about - dynamic hero-logo background color extracted from the loaded logo via canvas
 - Files changed: venue-about.html

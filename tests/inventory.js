@@ -137,6 +137,21 @@ if (fs.existsSync(DOC)) {
   check('PAGE_INVENTORY.md Part 2 markers match code', badPart2.length === 0, badPart2.join(', '));
 }
 
+/* ---- Deploy manifest guard -------------------------------------------------
+   Cloudflare Pages serves dist/, and copy-static.mjs is the only thing that
+   stages root pages into it. A page that exists and is linked from the app but
+   is missing from FILES ships as a live 404 (search_screen.html, 2026-11-02;
+   venue-about.html before that), so every root .html must be listed. */
+const MANIFEST = path.join(ROOT, 'copy-static.mjs');
+check('copy-static.mjs exists', fs.existsSync(MANIFEST));
+if (fs.existsSync(MANIFEST)) {
+  const manifestSrc = fs.readFileSync(MANIFEST, 'utf8');
+  const filesBlock = (manifestSrc.split('const FILES = [')[1] || '').split('];')[0];
+  const deployed = new Set(Array.from(filesBlock.matchAll(/'([^']+)'/g), (m) => m[1]));
+  const notDeployed = htmlFiles.filter((f) => !deployed.has(f));
+  check('every root .html is staged for deploy (copy-static.mjs FILES)', notDeployed.length === 0, notDeployed.join(', '));
+}
+
 console.log('');
 if (fails) {
   console.log(checks + ' checks, ' + fails + ' failed — fix markers or restore PAGE_INVENTORY.md.');

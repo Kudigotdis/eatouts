@@ -215,7 +215,7 @@ setTimeout(() => {
   check('store About did not set inline about state', ev('state.restaurantView && state.restaurantView.view') !== 'about', ev('JSON.stringify(state.restaurantView)'));
   check('inline venue-about screen is gone for the store', doc.querySelector('#viewport .screen[data-page="venue-about"]') === null);
   check('store About targets the standalone page for that store',
-    !!storeNav && storeNav.indexOf('venue-about.html?link=') === 0, storeNav);
+    storeNav === 'venue-about.html?link=liquorama', storeNav);
   ev('state.bottleOpen=null;render()');
 
   /* ---- Promos jumps to the Promos tab ---- */

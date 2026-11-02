@@ -9724,13 +9724,14 @@ document.addEventListener("click",function(e){
     return;
   }
   /* Information icon on a bottle-store card: leave for that store's standalone
-     About page (venue-about.html), resolved from the bottle-store directory. */
+     About page (venue-about.html), resolved from the bottle-store directory.
+     venue-about.html resolves bottle stores by BRAND slug; branch slugs are
+     store ids only, so EatoutsBottleStores.get() misses them. */
   if(act==="bottleStoreInfo"){
     const api=bottleAPI();
     const brand=api&&api.get(t.getAttribute("data-brand"));
     if(!brand)return;
-    const active=bottleActiveBranch(brand);
-    gotoVenueAbout((active&&active.slug)||brand.slug);
+    gotoVenueAbout(brand.slug);
     return;
   }
   if(act==="waPoetry"){
@@ -10118,8 +10119,9 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     const api=cateringAPI();
     const brand=api?api.get(t.getAttribute("data-brand")||""):null;
     if(!brand)return;
-    const active=cateringActiveBranch(brand);
-    gotoVenueAbout((active&&active.slug)||brand.slug);
+    /* Brand slug, not the branch slug: venue-about.html resolves caterers by
+       brand (EatoutsCatering.get()); branch ids are not brand keys. */
+    gotoVenueAbout(brand.slug);
     return;
   }
   if(act==="waCateringAbout"){

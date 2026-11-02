@@ -258,6 +258,10 @@ checkFallback('kfc', 'KFC (no curated entry)', 'KFC');
 checkFallback('bakery-3', 'Bakery (Bakeology)', 'Bakeology');
 checkFallback('alcool', 'Bottle store (Alcool)');
 checkFallback('boifyscateringservices', 'Catering (Boifys)');
+/* Branch slugs are store/branch ids, not brand keys. They must still resolve
+   so a shared venue-about.html?link=<branch> deep link does not bounce home. */
+checkFallback('liquorama-gaborone', 'Bottle store branch (Liquorama Gaborone)', 'Liquorama');
+checkFallback('fedics-food-service-gaborone', 'Catering branch (Fedics Gaborone)', 'Fedics');
 
 console.log('');
 if (fails) {

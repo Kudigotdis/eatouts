@@ -48,6 +48,7 @@ const FILES = [
 
   // Standalone customer surfaces reached from index.html
   'venue-about.html',
+  'search_screen.html',
   'about-guest-popup.html',
   'about-profile-options.html',
 
