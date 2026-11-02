@@ -26,8 +26,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - tests/venue-about-about.js (new branch-slug resolution cases: Liquorama Gaborone, Fedics Gaborone)
   - tests/inventory.js (new guard: every root *.html must appear in copy-static.mjs FILES)
   - docs/AGENT_CHANGE_LOG.md (this entry)
-- Commit: PENDING
-- Push: PENDING
+- Commit: d9c121c (feature commit; this ledger entry is the follow-up commit)
+- Push: origin/main — feature d9c121c + this ledger commit
 - Notes:
   - Live check: `https://www.eatouts.site/search_screen.html` returned 404. `copy-static.mjs` is the Cloudflare Pages manifest and listed 70 of the repo's 71 root HTML files; `search_screen.html` (page 71) was never staged into `dist/`. Same failure class as `ac99a83` (venue-about.html). `npm run stage` now emits 71 HTML files including search_screen.html.
   - Chain About taps passed the active branch slug (`liquorama-gaborone`, `tops-at-spar-gaborone`), but `EatoutsBottleStores.get()` / `EatoutsCatering.get()` are brand-keyed (branch ids resolve only via `.store()` / `.branch()`), so `venue-about.html` resolved nothing and redirected to index.html#restaurants. Taps now pass `brand.slug`; venue-about resolves branch slugs too, for shared links.
