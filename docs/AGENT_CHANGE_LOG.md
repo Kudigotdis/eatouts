@@ -37,6 +37,16 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
+### [2026-11-02 00:10:00] - [Agent: opencode] - [Status: COMMITTED]
+- Task: Add the EatOuts directory subscription agreement documents
+- Files changed: docs/Directory_Subscription_Agreement_Update.txt, docs/EatOuts_Directory_Subscription_Agreement.docx (both were untracked user paperwork; committed on request), docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: be5c52f (docs) + this ledger commit
+- Push: origin/main
+- Notes: No code change; files were sitting untracked in docs/.
+- Errors: none.
+
+---
+
 ### [2026-11-01 21:00:00] - [Agent: TierMux] - [Status: COMMITTED]
 - Task: venue-about - dynamic hero-logo background color extracted from the loaded logo via canvas
 - Files changed: venue-about.html
