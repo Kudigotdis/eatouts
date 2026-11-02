@@ -563,13 +563,13 @@ button.cbtot[disabled]{opacity:.4;cursor:default}
 /* ---------- SOCIAL ICON ROW ----------
    Bare icons only: the PNGs carry their own brand disc, so the anchor
    stays a plain hit area (no border/background/radius). Every row is a
-   fixed 370px = 5 slots of 70px + 4 gaps of 5px on line one, which is
+   fixed 300px = 5 slots of 56px + 4 gaps of 5px on line one, which is
    exactly what drops a 6th icon onto the second (centred) line. An
    icon with no destination yet renders its _Off glyph, not a link. */
-.social-row{display:flex;flex-wrap:wrap;gap:5px;width:370px;max-width:100%;margin:16px auto 4px;justify-content:center;align-items:center}
-.social-ico{flex:0 0 auto;width:70px;height:70px;display:flex;align-items:center;justify-content:center;padding:8px;border:none;border-radius:0;background:transparent;box-shadow:none;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.social-row{display:flex;flex-wrap:wrap;gap:5px;width:300px;max-width:100%;margin:16px auto 4px;justify-content:center;align-items:center}
+.social-ico{flex:0 0 auto;width:56px;height:56px;display:flex;align-items:center;justify-content:center;padding:8px;border:none;border-radius:0;background:transparent;box-shadow:none;text-decoration:none;-webkit-tap-highlight-color:transparent}
 .social-ico:active{opacity:.65}
-.social-ico img{width:100%;height:100%;object-fit:contain;display:block}
+.social-ico img{width:43.2px;height:43.2px;object-fit:contain;display:block}
 .social-ico.off{pointer-events:none;cursor:default}
 
 /* ---------- ACTION ICON ROW (save / share) ----------
@@ -5880,6 +5880,12 @@ function syncCateringAccordions(){
     const b=el.querySelector('.rrow[data-act="toggleCatering"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
+  /* bring the opened row into view */
+  let openEl=null;
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-cacc]"),function(el){
+    if(state.cateringOpen===el.getAttribute("data-cacc")) openEl=el;
+  });
+  if(openEl && openEl.scrollIntoView) openEl.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 /* ================================================================
    BAKERY DIRECTORY (Bakeries landing)
@@ -6077,6 +6083,12 @@ function syncBakeryAccordions(){
     const b=el.querySelector('.rrow[data-act="toggleBakery"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
+  /* bring the opened row into view */
+  let openEl=null;
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-bacc]"),function(el){
+    if(state.bakeryOpen===el.getAttribute("data-bacc")) openEl=el;
+  });
+  if(openEl && openEl.scrollIntoView) openEl.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 /* Leaving a tab or switching directory panels collapses every open
    accordion, so no ritem stays stretched from a previous visit. */
@@ -6279,6 +6291,12 @@ function syncBottleAccordions(){
     const b=el.querySelector('.rrow[data-act="toggleBottleStore"]');
     if(b) b.setAttribute("aria-expanded",on?"true":"false");
   });
+  /* bring the opened row into view */
+  let openEl=null;
+  Array.prototype.forEach.call(vp.querySelectorAll("[data-bacc]"),function(el){
+    if(state.bottleOpen===el.getAttribute("data-bacc")) openEl=el;
+  });
+  if(openEl && openEl.scrollIntoView) openEl.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 function bottleStoreCount(town,area){
   const api=bottleAPI();if(!api)return 0;
