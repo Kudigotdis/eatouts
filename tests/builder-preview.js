@@ -163,6 +163,46 @@ function draftWith(venueId, opt) {
   check('no-image fallback hero renders', !!ddoc.querySelector('.preview-hero-ph'));
   check('no-image hero has no gallery track', !ddoc.querySelector('.preview-hero-track'));
 
+  /* ---------- G3: the two menu overlays are floating .fpop cards ---------- */
+  /* jsdom drops vh/dvh from computed styles, so the geometry is asserted against
+     the stylesheet rule, then the DOM proves the panel is a direct child of the
+     centred `.fpop-scrim` and closes on outside tap. */
+  const src = fs.readFileSync(path.join(APP_DIR, 'eatout_event_builder.html'), 'utf8');
+  const cssRule = sel => {
+    const m = src.match(new RegExp('(^|\\n)\\' + sel + '\\{([^}]*)\\}', 'm'));
+    return m ? m[2] : '';
+  };
+  ['.menu-page-panel', '.flyer-menu-panel'].forEach(sel => {
+    const r = cssRule(sel);
+    check(sel + ' rule found', r.length > 0);
+    check(sel + ' is a 420px card', /(^|;|\s)max-width:420px(;|$)/.test(r), r);
+    check(sel + ' caps at 80dvh', /(^|;|\s)max-height:80dvh(;|$)/.test(r), r);
+    check(sel + ' has 16px rounded corners', /(^|;|\s)border-radius:16px(;|$)/.test(r), r);
+    check(sel + ' is not a bottom sheet', !/(^|;|\s)height:\s*\d/.test(r) && !/0 0[;}]/.test(r), r);
+  });
+
+  const flyerTrigger = ddoc.querySelector('[data-act="openFlyerMenu"]');
+  check('flyer menu trigger present', !!flyerTrigger);
+  if (flyerTrigger) {
+    click(dw, flyerTrigger);
+    const fpanel = ddoc.querySelector('.fpop-scrim > .flyer-menu-panel');
+    check('flyer menu opens inside the centred scrim', !!fpanel);
+    check('flyer menu keeps 16px corners', fpanel && dw.getComputedStyle(fpanel).borderRadius === '16px',
+      fpanel && dw.getComputedStyle(fpanel).borderRadius);
+    check('flyer menu keeps a plain X', !!(fpanel && fpanel.querySelector('.fpop-x')) && !(fpanel && fpanel.querySelector('.fpop-close')));
+    click(dw, ddoc.querySelector('.fpop-scrim'));
+    check('flyer menu closes on outside tap', !ddoc.querySelector('.flyer-menu-panel'));
+  }
+
+  const menuTrigger = ddoc.querySelector('[data-act="openMenuPage"]');
+  if (menuTrigger) {
+    click(dw, menuTrigger);
+    const mpanel = ddoc.querySelector('.fpop-scrim > .menu-page-panel');
+    check('provider menu opens inside the centred scrim', !!mpanel);
+    check('provider menu keeps 16px corners', mpanel && dw.getComputedStyle(mpanel).borderRadius === '16px',
+      mpanel && dw.getComputedStyle(mpanel).borderRadius);
+  }
+
   console.log('\nBUILDER-PREVIEW TEST ' + (fails ? 'FAILED (' + fails + ')' : 'PASSED'));
   process.exit(fails ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });

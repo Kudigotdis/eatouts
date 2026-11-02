@@ -1535,6 +1535,28 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Commit: `2c33534` — `[Agent] filter row buttons - 16px to 13px on the four directory pages` (3 files, +24/-4).
 - Push: `923761e..2c33534 -> origin/main`, `PUSH_EXIT=0`.
 - Notes:
+
+### [2026-11-02 23:35:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T12 — float the last two bottom sheets (`menu-page` + `flyer-menu`) and close out the task-doc debt (T08/T08b/T06 status, G1 triage, D3/D10)
+- Files changed:
+  - eatout_event_builder.html (+6/-8): `.menu-page-panel` (`:463-466`) and `.flyer-menu-panel` (`:727-730`) dropped `max-width:460px` / `height:94vh` / `height:88vh` / `border-radius:20px 20px 0 0` and now use the `.fpop` recipe — `max-width:420px`, `max-height:80dvh`, `border-radius:16px` — with the two stale `@media(min-width:520px)` overrides deleted. No markup, state or JS change: both panels already rendered inside the centred `.fpop-scrim`, and `Escape` already reset `STATE.menuPage` (`:3573`/`:3576`)
+  - tests/builder-preview.js (+40 lines, 56 ok checks, +24 new): per-panel stylesheet assertions (`.menu-page-panel`, `.flyer-menu-panel` → rule found, `max-width:420px`, `max-height:80dvh`, `border-radius:16px`, not a bottom sheet: no fixed viewport height and no `0 0` corners) plus runtime proof (flyer menu trigger → `.fpop-scrim > .flyer-menu-panel`, 16px computed radius, a plain `.fpop-x` and no `.fpop-close`, outside tap closes it; provider menu → `.fpop-scrim > .menu-page-panel`, 16px radius)
+  - PLATFORM UPDATE TASKS.md: T12 "Global overlays (G3)" block added and the T12 header now reads "12.1-12.4 + the overlay standard done"; T08 (`:400`), T08b (`:427`) and T06 (`:543`) headings plus queue row 11b marked DONE with their shipped commit refs; G1's four done-when boxes triaged; §5 audit #4 baseline rewritten (triage now returns zero live hits); D3 and D10 moved from "Still open" to **Resolved**; the ten blank §8 rows replaced by the two real coverage rows for `1eacec8` / `386021f`, then two rows for this commit
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: (this commit)
+- Notes:
+  - `audit #4` had been flagging `.menu-page-panel` as the last live T12 hit; while fixing it, `.flyer-menu-panel` turned out to be the identical defect (same `460px` / `88vh` / `20px 20px 0 0` recipe, also inside `.fpop-scrim`), so both were converted in the same commit — that is what took the repo-wide triage to zero.
+  - Clicking `.fpop-scrim` closes the flyer menu because the delegated handler ignores clicks inside `[data-stop="1"]`; the panel keeps `data-stop`, so the outside-tap contract is unchanged.
+  - The flyer menu no longer has a fixed height, so it now hugs its 120px image track instead of stretching to 88vh — that is the intended G3 behaviour (`.fpop` also has no height, only `max-height`).
+  - G1's "A–Z rail still scrolls and is the only visible affordance" box was **not** ticked: `index.html:717` hides the rail's scrollbar on purpose and the letters are a `flex:1 1 0` tap strip that does not scroll, so the box as written describes behaviour the app does not have. It needs a decision, not a tick.
+  - Doc-only: no `.fpop-close`, no new state, no new dependency, and no other page touched.
+- Verified:
+  - §5 audit #2 (`align-items:flex-end` in popup selectors) → prints nothing; audit #3 (`fpop-close` / chevrons / `▾ ▸`) → prints nothing; audit #4 triage (`border-radius … 0 0` filtered to `.modal` / `.fpop` / `*-panel`) → **prints nothing repo-wide** (was 2 live hits before this commit)
+  - `node tests/builder-preview.js` → **PASSED** (56 ok, 0 failed), including the two new runtime panel checks
+  - full `npm test` → **64 passed, 0 failed** (exit 0)
+  - `npm run inventory` → **PASSED** (10 checks, 90 warnings — the pre-existing stale-marker class)
+- Errors: none
+
   - **No `[data-page]` scoping added, and none would work:** `#cbar` is a sibling of `#viewport` (`:963-966`), not a descendant of any `.screen[data-page]`, so a page-ancestor selector could never match these buttons. The existing `.rest-filter-controls` scope is already page-exact: `renderFilterBar()` is the only emitter of `.rest-filter-controls` + `.cbar2.rest-filter-row` (`:6717-6727`) and it has exactly four callers — catering (`:6769`), bakery (`:6795`), beverages (`:6820`) and the restaurants-pager list (`:6846`). One declaration therefore covers exactly the four requested pages and nothing else, which keeps the diff to a single CSS value.
   - Only the three Town / Area / Cuisine-Type buttons change size. The search input (`.csearch input`, already 13px) and every `.fpop` popup row keep their own sizes; `.cbtn.gal-val` (gallery cbar) and `.rest-filter-row.town-row` (reserve venue / gallery town rows) stay on the 12px `.cbtn` base because they are outside `.rest-filter-controls`.
   - Verified:

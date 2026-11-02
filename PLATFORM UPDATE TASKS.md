@@ -173,8 +173,8 @@ bottom nav where the page is part of the app shell.
 ### Phase 3 — Interaction
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
-| 11 | T08 | 8 | Activate `brand-mark` + Back History popup — ⚠️ **PARTIAL 2026-10-31** (SPA popup done; header sweep split to T08b) | M |
-| 11b | T08b | 8 | Header sweep — standard `#hdr` on the 36 `.topbar` pages + `js/eatouts-back-history.js` for standalone pages | L |
+| 11 | T08 | 8 | Activate `brand-mark` + Back History popup — ✅ **DONE 2026-11-01** (SPA popup + the header sweep in T08b) | M |
+| 11b | T08b | 8 | Header sweep — standard `#hdr` on the 36 `.topbar` pages + `js/eatouts-back-history.js` for standalone pages — ✅ **DONE 2026-11-01** | L |
 | 12 | T03 | 3 | `ritem` focus, scroll lock, 25% dim others — ✅ **DONE 2026-10-31** | M |
 | 13 | T09 | 9 | `venue-about` promo thumb → gallery + "Add to Order" — ✅ **DONE 2026-11-01** | M |
 | 14 | T07 | 7 | Standardised Filter Bar on 4 screens — ✅ **DONE 2026-11-02** (food, catering, bakery, bottle store) | M |
@@ -220,10 +220,10 @@ bottom nav where the page is part of the app shell.
 4. Add `overflow-x:hidden` to every scroll container; remove `100vw` widths and negative-margin overflow.
 5. Re-run the audit; the "missing scrollbar hiding" list must be empty.
 **Done when**
-- [ ] No window scrollbar on any page at 360/390/430px width.
-- [ ] `eatouts-login` shows no scrollbar.
-- [ ] A–Z rail (`.az-rail`) still scrolls and is the only visible affordance.
-- [ ] `npm test` green.
+- [x] No window scrollbar on any page at 360/390/430px width — §5 audit #1 prints nothing (re-run 2026-11-02; it resolves linked `assets/*.css`, so the manager pages count too).
+- [x] `eatouts-login` shows no scrollbar — in that same sweep.
+- [ ] A–Z rail (`.az-rail`) "still scrolls and is the only visible affordance" — **no longer matches the shipped rail**: `index.html:717` deliberately hides the rail's scrollbar and the letters are a tap strip (`flex:1 1 0`, no scrolling). Needs a decision on the intended behaviour, not a tick.
+- [x] `npm test` green.
 
 #### G2 — No accordion indicators
 **Files:** `eatout_event_builder.html`, `intake.html`, `eatouts-suppliers.html`.
@@ -397,7 +397,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 3 — Interaction
 
-#### T08 — `brand-mark` + Back History (user task 8) · M — ⚠️ **PARTIAL 2026-10-31** (SPA popup shipped; header sweep pending — see notes)
+#### T08 — `brand-mark` + Back History (user task 8) · M — ✅ **DONE 2026-11-01** (popup on the SPA + full 36-page header sweep via T08b; only the device pass is outstanding)
 **Files:** every page with `id="hdr"`; new shared component in `index.html` + a small `js/eatouts-back-history.js` (or inline per page — prefer one JS file added to `copy-static.mjs`).
 **Steps**
 1. Standardise every header to the exact block (see T14). Sweep: `grep -l '<header id="hdr"'` must equal the set of app pages; convert `topbar`, `appbar`, `topbar-row` variants (T14/T15/T20 do the first ones).
@@ -424,7 +424,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - No new file on the SPA: the feature is one self-contained block in `index.html`; the standalone half lives in `js/eatouts-back-history.js` (T08b).
 - Standalone-page recording is now wired (`pagehide` + `location.pathname`), so `eatouts.history.v1` mixes SPA snapshots and standalone URLs and `restoreHistory()` handles both.
 
-#### T08b — Header sweep (user task 8, part 2) · L
+#### T08b — Header sweep (user task 8, part 2) · L — ✅ **DONE 2026-11-01**
 **Why this is separate:** T08 shipped the popup on the SPA only. **36** root pages still build their own `class="topbar"` / `.topbar-row` header, **22** carry an `id="hdr"` variant, and `js/eatouts-manager.js:110` still injects a `.hdr-chip` into **32** of them. This is step 1 of T08 and step 1 of both **T18** and **T21** ("standard header (T08)"), so it lands before them.
 **Files:** `js/eatouts-manager.js` (`:110` topbar builder), the 36 `.topbar` pages, new **`js/eatouts-back-history.js`**, `copy-static.mjs`, `tests/appshell.js`, `tests/orders-list.js`.
 **Steps**
@@ -540,7 +540,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] Verified: `npm run inventory` ✔ (31 screens) · `npm run catalog` ✔ · `npm test` ✔ — `tests/checkout-delivery.js` grew 5 checks for the review screen + recipient choice.
 - [ ] Device pass at 360/390/430px (jsdom does not lay out).
 
-#### T06 — Orders badge + `Orders-List.html` (user task 6) · L
+#### T06 — Orders badge + `Orders-List.html` (user task 6) · L — ✅ **DONE 2026-11-01** (T06a `05930ea`, T06b `9b07f11`, T06c chip removal; device pass outstanding)
 **Depends on:** T04 (Order Summary Card), T08 (uniform header).
 **Files:** every `id="hdr"` page; new `Orders-List.html`; `js/eatouts-customer.js` (summaries store `:321-400`); `copy-static.mjs`; catalog/inventory docs.
 **Steps**
@@ -633,9 +633,14 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 5 — Large builds
 
-#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1-12.4 done; 12.5-12.9 open)
+#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1-12.4 + the overlay standard done; 12.5-12.9 open)
 **Files:** `eatout_event_builder.html` (single file, ~4.2k lines), `js/eatouts-events*` if present.
 **Sub-tasks (do in this order, verify each)**
+
+**Global overlays (G3)** — ✅ **DONE 2026-11-02**
+- `.menu-page-panel` (`:463-466`) and `.flyer-menu-panel` (`:727-730`) were the last two bottom-sheet panels in this file (up to 460px wide, `94vh`/`88vh` tall, `border-radius:20px 20px 0 0`). Both now use the `.fpop` recipe — `max-width:420px`, `max-height:80dvh`, `border-radius:16px` — and both already rendered inside the centred `.fpop-scrim`, so the CSS geometry was the only thing standing in the way;
+- `Escape` already closed `.menu-page-panel` (`:3573`/`:3576`); outside-tap closes both through the scrim's `data-act`;
+- §5 audit #4 triage (`.modal` / `.fpop` / `*-panel` hits only) now returns **zero** live hits repo-wide.
 
 **12.1 Venue bar** — `.venue-bar-expand.open` (`:63-66`) — ✅ **DONE 2026-11-01**
 - all text 16px;
@@ -883,9 +888,10 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'fpop-close|class="c
 
 # 4. ADVISORY ONLY — squared top corners = possible bottom sheet.
 #    Expected to be noisy: toasts, `.action-bar` and page `.sheet` backgrounds
-#    also match. Triage only `.modal` / `.fpop` / `*-panel` hits. Baseline after
-#    B1: ~30 hits, of which the live ones are `customer-delivery.html .drp-search`
-#    (T05) and `eatout_event_builder.html .menu-page-panel` (T12).
+#    also match. Triage only `.modal` / `.fpop` / `*-panel` hits. After T12
+#    (2026-11-02) that triage returns ZERO live hits repo-wide: `.menu-page-panel`
+#    and `.flyer-menu-panel` were the last two (both now 420px / 80dvh / 16px).
+#    `customer-delivery.html .drp-search` is a search input, not a popup — keep.
 Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]{1,24}\s0\s0[;}]' |
   Select-Object Filename, LineNumber
 ```
@@ -970,7 +976,9 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 
 ## 7. Open decisions (need your answer before the affected task)
 
-**Resolved 2026-10-29**
+**Resolved**
+- **D3 — 90px thumbs:** closed 2026-10-30 (G4). Applies to list/card thumbs; galleries keep their layout sizes; `sup-profile-avatar` / `prompt-thumb` are 150px; carousels and mosaics untouched.
+- **D10 — T09 cart:** closed 2026-11-01 by option **A** — the cart persists under `eatouts_cart_v1`, mirrored on every mutation and hydrated on boot (`index.html:3983-3989`; also read by `venue-about.html:1605`).
 - **D1 — popup close:** the beige circular `.fpop-close` is removed; a **plain `X` glyph** (`.fpop-x`, transparent, no circle) may remain, and outside-tap / `Escape` always closes.
 - **D2 — catalogue count:** the **24 listed offers** are authoritative (see §6).
 - **D4 — orders page:** create a **new `Orders-List.html`**, reusing the existing summaries store in `js/eatouts-customer.js`.
@@ -982,10 +990,8 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 
 | ID | Task | Question | Recommended default |
 |---|---|---|---|
-| **D3** | G4 | "All thumbnails 90px" — does that include **menu item thumbs** (currently 54px) and gallery grid cells? | Yes for list/card thumbs; galleries keep their layout sizes. *(Applied 2026-10-30: list/card thumbs → 90px, `sup-profile-avatar`/`prompt-thumb` → 150px, carousels/mosaics untouched.)* |
 | **D6** | T18 | The brief says only "activate" under `eatouts-suppliers` — activate what? | The page's save/publish flow (currently gated). |
 | **D8** | T21 | Prices missing for 8 offers (see §6 "confirm"). One conflict: §6 says keep **P550** for Full Packaging Design but the seed has **P1800**; §6 also has no home for Menu refresh (P400) and Event programme (P350). | Keep current prices, set Packaging to **P550**, drop Menu refresh + Event programme. |
-| **D10** | T09 | `venue-about.html` is a standalone page and `state.cart` lives in `index.html` memory only, so "Add to Order" has no cart to write to. **A** persist the cart (`eatouts_cart_v1`, mirrored on every mutation, hydrated on boot) · **B** hash hand-off (`index.html#restaurants&addPromo=<id>`) · **C** append to the `eatouts_order_v1` hand-off draft. | **A** — it also makes the cart survive a reload. |
 
 ---
 
@@ -1033,15 +1039,10 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 2026-11-02 | T12.3 | DONE | `eatout_event_builder.html` — `.prompt-panel` → G3 floating (420px / 16px / 80dvh / scrollable body), new `.sec-sep`, `.rm` de-circled (audience, tier, note), Event Rules inline margin replaced by the divider | probe 18/18 (2 separators in place, prompt inside `.fpop-scrim` with 420px/16px/80dvh/`overflow-y:auto`, `.fpop-x` transparent, `.rm` transparent + borderless + non-circular + non-red, 0 window errors); `builder-audience` · `builder-guests` · `builder-preview` · `builder-schedule` · `builder-suppliers` all PASSED; full `npm test` pending in the same push | (this commit) |
 | 2026-11-02 | T12.2 | DONE | `eatout_event_builder.html` — `.chip-row.eq`, `.schedule-day` accordion (`STATE.dayCollapsed`, `toggleDayOpen`), Year/Month/Day + Hour/Minute `.dt-btn` rows replacing the native date/time inputs, new floating scroll-list picker (`renderSchedulePicker`, `STATE.schedulePicker`, `.sp-opt`), `daysInMonth`/`clampDate` maths | probe 44/44 (chips grid + centred, collapse/expand + `display:none`, 3+2 button rows, 13 years / 12 months / 29 vs 28 February days, 31→29→28 clamping, 24 hours / 60 minutes, `09:30` stored, scrim close, per-day independence, no native date/time inputs left, 0 window errors); `builder-schedule` · `builder-preview` · `builder-audience` · `builder-guests` · `builder-suppliers` all PASSED; full `npm test` in the same push | (this commit) |
 | 2026-11-02 | T12.4 | DONE | `eatout_event_builder.html` — search pinned under the supplier list (`.fpop-search.is-foot`), profile panel 420px/80dvh/16px, `.sup-profile-loc` 16px, name → new `Service Provider Info` popup (`renderSupInfo`), avatar + `.pit-thumb` → new full-image gallery (`renderImageGallery`, feint black backdrop, dots above, caption below, outside tap closes), `.pit-card` `90px 1fr` grid with a new `.pit-foot` row (cost left, stepper right), centred `−`/`+` | probe 40/40 (popup child order, is-foot rule, plain X, panel 420/80dvh/16px, 150px avatar, 16px loc, 90px thumbs, grid columns, foot row + left cost + right stepper + centred buttons, info popup anatomy, gallery backdrop `rgba(0,0,0,.55)` with dots above / caption below, both galleries open + close, profile stays open behind the gallery, 0 window errors); `builder-suppliers` · `builder-preview` · `builder-guests` PASSED | (this commit) |
-
-
-
-
-
-
-
-
-
+| 2026-11-02 | T12.2 + T12.3 | DONE (coverage) | `tests/builder-schedule.js` 25 → 64 checks, `tests/builder-audience.js` 24 → 31 — permanent jsdom coverage for the Year/Month/Day + Hour/Minute pickers, the `.schedule-day` accordion, month-length clamping, `.chip-row.eq`, the `.sec-sep` dividers and `.rm` de-circling. **No implementation change was needed** — every new assertion passed on the first run | `builder-schedule` 64/64 PASSED · `builder-audience` 31/31 PASSED · full `npm test` **64 passed, 0 failed** | `1eacec8` |
+| 2026-11-02 | T12.4 | DONE (coverage) | `tests/builder-suppliers.js` 49 → 87 checks — `.fpop-search.is-foot` pinning, profile panel 420px/80dvh/16px, 150px avatar, 16px location, 90px `.pit-thumb`, `.pit-card` 90px/1fr grid + `.pit-foot` (cost left, stepper right, centred buttons), Service Provider Info popup, full-image gallery (feint backdrop, dots above, caption below, outside tap) and "profile stays open behind the gallery". **No implementation change was needed** | `builder-suppliers` 87/87 PASSED · `builder-preview` + `builder-guests` PASSED · full `npm test` **64 passed, 0 failed** | `386021f` |
+| 2026-11-02 | T12 (overlays) | DONE | `eatout_event_builder.html` — `:463-466` `.menu-page-panel` and `:727-730` `.flyer-menu-panel` were the last two bottom sheets in the file (up to 460px wide, `94vh`/`88vh` tall, `border-radius:20px 20px 0 0`). Both now use the `.fpop` recipe — `max-width:420px`, `max-height:80dvh`, `border-radius:16px` — and their stale `@media(min-width:520px)` overrides are gone. Both already rendered inside the centred `.fpop-scrim`, so the geometry was the only thing standing in the way. `tests/builder-preview.js` +24 checks; `PLATFORM UPDATE TASKS.md` (T12 "Global overlays" block, §5 audit #4 baseline) | rule assertions for both panels (420px / 80dvh / 16px / no fixed viewport height / no `0 0` corners); flyer menu opens inside `.fpop-scrim`, keeps 16px corners + a plain `X`, closes on an outside tap; provider menu opens inside the same scrim; §5 audit #2 and #3 print nothing and audit #4 triage (`.modal` / `.fpop` / `*-panel`) now prints **nothing** repo-wide; `builder-preview` PASSED; full `npm test` **64 passed, 0 failed**; `npm run inventory` PASSED (10 checks, 90 warnings) | (this commit) |
+| 2026-11-02 | docs | DONE | `PLATFORM UPDATE TASKS.md` — T08 / T08b / T06 headings and queue row 11b marked DONE; G1's four done-when boxes triaged (3 ticked on evidence, the A–Z rail box reworded because the shipped rail hides its scrollbar and does not scroll); D3 + D10 moved to **Resolved**; the ten blank log rows replaced by the two real coverage rows above; §5 audit #4 baseline updated | G1 box 1 + 2 re-verified by running §5 audit #1 (prints nothing); D10 confirmed implemented at `index.html:3983-3989`; no code touched | (this commit) |
 
 
 
