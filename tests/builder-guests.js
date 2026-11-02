@@ -39,6 +39,27 @@ function boot(draft) {
 function click(w, el) { el.dispatchEvent(new w.MouseEvent('click', { bubbles: true })); }
 function type(w, inp, val) { inp.value = val; inp.dispatchEvent(new w.Event('input', { bubbles: true })); }
 
+/* T12.7 / T12.8: one card contract, asserted once per prompt. */
+function floatingCard(label, w, panel) {
+  const scrim = panel ? panel.closest('.fpop-scrim') : null;
+  const scrimCs = scrim ? w.getComputedStyle(scrim) : null;
+  check(label + ': floats in a centred scrim',
+    !!scrimCs && scrimCs.display === 'flex' && scrimCs.alignItems === 'center' && scrimCs.justifyContent === 'center',
+    scrimCs ? [scrimCs.display, scrimCs.alignItems, scrimCs.justifyContent].join(' / ') : 'no .fpop-scrim');
+  const cs = panel ? w.getComputedStyle(panel) : null;
+  check(label + ': is the 420px rounded card',
+    !!cs && cs.maxWidth === '420px' && cs.borderRadius === '16px',
+    cs ? cs.maxWidth + ' / ' + cs.borderRadius : 'no panel');
+  const x = panel ? panel.querySelector('.fpop-hdr .fpop-x') : null;
+  const xCs = x ? w.getComputedStyle(x) : null;
+  check(label + ': close is a plain X glyph, no beige circle',
+    !!x && x.textContent.trim() === '\u00d7' && !!xCs &&
+    (xCs.backgroundColor === 'transparent' || xCs.backgroundColor === 'rgba(0, 0, 0, 0)') &&
+    (xCs.borderRadius === '' || xCs.borderRadius === '0px'),
+    xCs ? [x.textContent.trim(), xCs.backgroundColor, xCs.borderRadius].join(' / ') : 'no .fpop-x');
+  check(label + ': no .fpop-close anywhere', !panel.ownerDocument.querySelector('.fpop-close'));
+}
+
 function draftWith(venueId) {
   return {
     eventTitle: 'Gallery Gala',
@@ -141,6 +162,46 @@ function draftWith(venueId) {
   /* ---------- Remove ---------- */
   click(w, doc.querySelector('[data-sec="guests"] .sup-slot-btn.danger'));
   check('remove clears the guest list', !doc.querySelector('[data-sec="guests"] .sup-slot'));
+
+  /* ---------- 12.7 RSVP — the prompt is the shared floating card ---------- */
+  const openRsvp = () => click(w, doc.querySelector('[data-sec="rsvp"] [data-act="addRsvp"]'));
+  check('12.7: rsvp section present', !!doc.querySelector('[data-sec="rsvp"]'));
+  openRsvp();
+  const rpanel = doc.querySelector('.prompt-panel');
+  check('12.7: add RSVP prompt opens', !!rpanel);
+  check('12.7: prompt is titled Add RSVP Contact',
+    !!rpanel && /Add RSVP Contact/.test((rpanel.querySelector('.fpop-hdr h3') || {}).textContent || ''));
+  check('12.7: RSVP prompt keeps its own fields (type + value)',
+    !!rpanel && !!rpanel.querySelector('[data-prompt-field="contactType"]') &&
+    !!rpanel.querySelector('[data-prompt-field="contactValue"]'));
+  floatingCard('12.7 RSVP prompt', w, rpanel);
+  click(w, rpanel.querySelector('.fpop-x'));
+  check('12.7: the X closes the RSVP prompt', !doc.querySelector('.prompt-panel'));
+  openRsvp();
+  click(w, doc.querySelector('.fpop-scrim'));
+  check('12.7: an outside tap closes the RSVP prompt', !doc.querySelector('.prompt-panel'));
+  openRsvp();
+  doc.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  check('12.7: Escape closes the RSVP prompt', !doc.querySelector('.prompt-panel'));
+
+  /* ---------- 12.8 Event Links — the icon picker is that same card ---------- */
+  const openLinks = () => click(w, doc.querySelector('[data-sec="links"] [data-act="openLinkPicker"]'));
+  check('12.8: links section present', !!doc.querySelector('[data-sec="links"]'));
+  openLinks();
+  const lpanel = doc.querySelector('.prompt-panel');
+  check('12.8: add-link picker opens', !!lpanel);
+  check('12.8: picker is titled Add Link',
+    !!lpanel && /Add Link/.test((lpanel.querySelector('.fpop-hdr h3') || {}).textContent || ''));
+  check('12.8: picker still shows the icon grid', !!lpanel && !!lpanel.querySelector('.link-icon-grid'));
+  floatingCard('12.8 link picker', w, lpanel);
+  click(w, lpanel.querySelector('.fpop-x'));
+  check('12.8: the X closes the picker', !doc.querySelector('.prompt-panel'));
+  openLinks();
+  click(w, doc.querySelector('.fpop-scrim'));
+  check('12.8: an outside tap closes the picker', !doc.querySelector('.prompt-panel'));
+  openLinks();
+  doc.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  check('12.8: Escape closes the picker', !doc.querySelector('.prompt-panel'));
 
   console.log('\nBUILDER-GUESTS TEST ' + (fails ? 'FAILED (' + fails + ')' : 'PASSED'));
   process.exit(fails ? 1 : 0);

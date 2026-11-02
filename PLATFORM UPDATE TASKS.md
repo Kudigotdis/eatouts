@@ -633,7 +633,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 5 — Large builds
 
-#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1-12.4 + the overlay standard done; 12.5-12.9 open)
+#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1-12.4, 12.7, 12.8 + the overlay standard done; 12.5, 12.6, 12.9 open)
 **Files:** `eatout_event_builder.html` (single file, ~4.2k lines), `js/eatouts-events*` if present.
 **Sub-tasks (do in this order, verify each)**
 
@@ -685,9 +685,11 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - remove beige `fpop-close` circle, keep a plain `X` glyph (D1);
 - `.qty-stepper` `−`/`+` centred.
 
-**12.7 RSVP** — `[data-sec="rsvp"]`: `.prompt-panel` floating; remove beige close circle, keep a plain `X` glyph.
+**12.7 RSVP** — `[data-sec="rsvp"]`: `.prompt-panel` floating; remove beige close circle, keep a plain `X` glyph. — ✅ **DONE 2026-11-02** (`renderPrompt` `:3301-3316`, inherited from 12.3)
+- permanent coverage: `tests/builder-guests.js` +11 checks — `addRsvp` → `.prompt-panel` inside a centred `.fpop-scrim`, computed 420px / 16px, a plain transparent `×` in `.fpop-hdr`, zero `.fpop-close` in the document; the `X`, an outside tap and `Escape` each close it; the RSVP-specific `contactType` / `contactValue` fields survive.
 
-**12.8 Links** — `[data-sec="links"]`: `.prompt-panel` floating; remove beige close circle, keep a plain `X` glyph.
+**12.8 Links** — `[data-sec="links"]`: `.prompt-panel` floating; remove beige close circle, keep a plain `X` glyph. — ✅ **DONE 2026-11-02** (`renderLinkPicker` `:3334-3340`)
+- permanent coverage: `tests/builder-guests.js` +11 checks — `openLinkPicker` → the same `.fpop-scrim > .prompt-panel` card (420px / 16px) titled "Add Link" with its `.link-icon-grid` intact, a plain transparent `×` (`data-act="closeLinkPicker"`), zero `.fpop-close`; the `X`, an outside tap and `Escape` each close it.
 
 **12.9 Share + save**
 - `shareWhatsApp` → floating popup, 2 options: "Share with Venue Provider" / "Share with WhatsApp Contacts" (account-only; browser → sign-up popup);
@@ -1043,6 +1045,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 2026-11-02 | T12.4 | DONE (coverage) | `tests/builder-suppliers.js` 49 → 87 checks — `.fpop-search.is-foot` pinning, profile panel 420px/80dvh/16px, 150px avatar, 16px location, 90px `.pit-thumb`, `.pit-card` 90px/1fr grid + `.pit-foot` (cost left, stepper right, centred buttons), Service Provider Info popup, full-image gallery (feint backdrop, dots above, caption below, outside tap) and "profile stays open behind the gallery". **No implementation change was needed** | `builder-suppliers` 87/87 PASSED · `builder-preview` + `builder-guests` PASSED · full `npm test` **64 passed, 0 failed** | `386021f` |
 | 2026-11-02 | T12 (overlays) | DONE | `eatout_event_builder.html` — `:463-466` `.menu-page-panel` and `:727-730` `.flyer-menu-panel` were the last two bottom sheets in the file (up to 460px wide, `94vh`/`88vh` tall, `border-radius:20px 20px 0 0`). Both now use the `.fpop` recipe — `max-width:420px`, `max-height:80dvh`, `border-radius:16px` — and their stale `@media(min-width:520px)` overrides are gone. Both already rendered inside the centred `.fpop-scrim`, so the geometry was the only thing standing in the way. `tests/builder-preview.js` +24 checks; `PLATFORM UPDATE TASKS.md` (T12 "Global overlays" block, §5 audit #4 baseline) | rule assertions for both panels (420px / 80dvh / 16px / no fixed viewport height / no `0 0` corners); flyer menu opens inside `.fpop-scrim`, keeps 16px corners + a plain `X`, closes on an outside tap; provider menu opens inside the same scrim; §5 audit #2 and #3 print nothing and audit #4 triage (`.modal` / `.fpop` / `*-panel`) now prints **nothing** repo-wide; `builder-preview` PASSED; full `npm test` **64 passed, 0 failed**; `npm run inventory` PASSED (10 checks, 90 warnings) | (this commit) |
 | 2026-11-02 | docs | DONE | `PLATFORM UPDATE TASKS.md` — T08 / T08b / T06 headings and queue row 11b marked DONE; G1's four done-when boxes triaged (3 ticked on evidence, the A–Z rail box reworded because the shipped rail hides its scrollbar and does not scroll); D3 + D10 moved to **Resolved**; the ten blank log rows replaced by the two real coverage rows above; §5 audit #4 baseline updated | G1 box 1 + 2 re-verified by running §5 audit #1 (prints nothing); D10 confirmed implemented at `index.html:3983-3989`; no code touched | (this commit) |
+| 2026-11-02 | T12.7 + T12.8 | DONE (coverage) | `tests/builder-guests.js` 33 → 55 checks — a new `floatingCard()` helper asserts the G3 contract once per prompt, then proves the **RSVP prompt** (`addRsvp` → `renderPrompt` `:3301-3316`) and the **Event Links icon picker** (`openLinkPicker` → `renderLinkPicker` `:3334-3340`) are that same card: inside a centred `.fpop-scrim`, computed 420px / 16px, a plain transparent `×` in `.fpop-hdr`, **zero** `.fpop-close` in the document, and each closing via the `X`, an outside tap and `Escape`. **No implementation change was needed** — 12.3 already floated both, so these are verify-only commits per the delegation pack | `node tests/builder-guests.js` PASSED — 22 new checks green on the first run (4 shared-contract + 7 prompt-specific checks, run once per prompt) | (this commit) |
 
 
 

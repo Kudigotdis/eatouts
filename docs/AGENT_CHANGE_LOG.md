@@ -1743,3 +1743,21 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `npm test` -> **64 passed, 0 failed** (exit 0)
 - Errors: none
 
+
+### [2026-11-02 23:20:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T12.7 (RSVP) + T12.8 (Event Links) - verify both prompts against the G3 overlay standard and give them permanent coverage
+- Files changed:
+  - tests/builder-guests.js (33 -> 55 checks, +22): new `floatingCard(label, w, panel)` helper that asserts the card contract once per prompt - the panel sits inside a `.fpop-scrim` that computes `display:flex` / `align-items:center` / `justify-content:center`, the panel computes `max-width:420px` + `border-radius:16px`, `.fpop-hdr .fpop-x` is the literal `x` glyph with a transparent background and no radius, and the document contains zero `.fpop-close`. The RSVP block opens `[data-sec="rsvp"] [data-act="addRsvp"]` -> titled "Add RSVP Contact", keeps its own `contactType` / `contactValue` fields, and closes via the `X`, an outside tap on the scrim, and `Escape`. The Links block opens `[data-sec="links"] [data-act="openLinkPicker"]` -> titled "Add Link", keeps its `.link-icon-grid`, and closes by the same three routes; its close is `data-act="closeLinkPicker"` on both the scrim and the `X`.
+  - PLATFORM UPDATE TASKS.md: T12 header now reads "12.1-12.4, 12.7, 12.8 + the overlay standard done; 12.5, 12.6, 12.9 open"; 12.7 and 12.8 marked DONE with their coverage lines; new §8 row
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: (this commit)
+- Notes:
+  - Verify-only, per the delegation pack: `renderPrompt()` (`:3301-3316`) and `renderLinkPicker()` (`:3334-3340`) already shipped inside `.fpop-scrim` with a plain `.fpop-x` from 12.3, so no builder change was needed and every new assertion passed on the first run.
+  - The two prompts share the `.prompt-panel` class but not the close action (RSVP `closePrompt` vs links `closeLinkPicker`), so both close paths are exercised rather than assuming one covers the other.
+  - Each re-open re-queries its trigger: `render()` replaces the tree, so a cached `[data-sec="rsvp"]` button is detached and clicking it would silently pass a false negative.
+  - Deliberately not ticked: 12.6 still has the "Add photo" text at `:3263` and the CTA label swap is the builder session's half of the guests work.
+- Verified:
+  - `node tests/builder-guests.js` -> PASSED, 22 new checks, 0 failed
+  - `npm test` -> 64 passed, 0 failed (exit 0)
+- Errors: none
+
