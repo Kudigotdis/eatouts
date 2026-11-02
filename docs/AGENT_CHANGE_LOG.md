@@ -15,6 +15,24 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
+### [2026-11-02 00:40:00] - [Agent: opencode] - [Status: COMMITTED]
+- Task: Commit the pending social-row / scroll-into-view work, recompress the logo set, and audit the untracked logos
+- Files changed:
+  - index.html (social row 370px/70px -> 300px/56px with 43.2px art, matching comment updated; bakery/catering/bottle accordions call `scrollIntoView` on the row just opened)
+  - 83 files under assets/logo/ (recompressed in place, same names and formats)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: bd78337 (index.html), 9040758 (logos), this ledger commit
+- Push: origin/main
+- Notes:
+  - These were working-tree changes that already existed when the 404 fix was committed; they were deliberately left out of d9c121c and are committed now on request.
+  - Logo recompression is byte-only: 12,198,325 -> 3,551,596 bytes (-71%), every file still has a valid JPEG header and none grew, so no data or markup references change.
+  - Audited the 10 untracked `assets/logo/*.jpg` files: none is referenced by any data file. They are source/duplicate images whose committed siblings are what the app loads (`tops_logo.png`, `Boxer_Liqours_Logo.png`, `Nandos-Logo.png`, `the_beef_baron.png`, `cresta-hotel-logo.png`, `zen_cafe_logo.jpg`, `*.webp` for butter chicken / chicken licken / pub_20_two, plus an unreferenced `EatOuts_Logo.jpg`). They were left untracked; they are not a live issue. An earlier note claiming live 404 logos was wrong - the referenced `.png`/`.webp` files are committed and served.
+  - Removed a stray untracked `UsersKudzanaiAppDataLocalTempopencodeidx.diff` from the repo root (agent artifact from a mis-parsed shell redirect, never tracked).
+- Verified: `npm test` 63 passed, 0 failed, run against the committed tree.
+- Errors: none.
+
+---
+
 ### [2026-11-02 00:00:00] - [Agent: opencode] - [Status: COMMITTED]
 - Task: Fix live routing/404s for search and chain About pages; add deploy-manifest guard
 - Files changed:
