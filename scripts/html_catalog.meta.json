@@ -904,6 +904,18 @@
       "auth": false,
       "status": "FULL",
       "notes": "Registered as page 71 in 2026-11: the file had shipped without a `<!-- PAGE: -->` banner or a body data-page slug, which was the single cause of the tests/inventory.js and tests/html-catalog.js failures. Reads the same directory_runtime_data / bridge data as index.html."
+    },
+    {
+      "id": 72,
+      "file": "EatOuts-Region.html",
+      "group": "public-customer",
+      "purpose": "Region selector (T22): the five EatOuts regions on the standard shell, with a search row and a coming-soon card for regions that are not live yet.",
+      "audience": "Customers",
+      "entry": "Direct URL; the region row on index.html's About tab.",
+      "interactions": "Every region from window.EatoutsRegions renders as a flag row with its status (Botswana 'Selected', the rest 'Coming soon'); typing in the search row filters by name or code and shows a no-match line; tapping the active region persists 'eatouts.region.v1'; tapping any other region opens the G3 floating card 'This region is coming soon.', closed by its X, an outside tap, Escape or Got it.",
+      "auth": false,
+      "status": "FULL",
+      "notes": "Converts SYNC REGION TASK/eatouts-region-selector.html onto the standard EatOuts shell: EatOuts brand header, `.appnav`, 3% grey `.pad` and the brand manifest, with the momentum/track-hype demo assets dropped and the flag folder rewritten from Country-Flag-Icons/ to assets/flags/. Reads js/eatouts-regions.js (EatoutsRegions), so no new dependency. Covered by tests/region-selector.js."
     }
   ],
   "changelog": [
@@ -1134,6 +1146,10 @@
     {
       "date": "2026-11-02",
       "note": "search_screen.html registered as page 71: added the `<!-- PAGE: Search -->` banner and `<body data-page=\"search_screen\">`, a page entry in scripts/html_catalog.meta.json and a row in PAGE_INVENTORY.md. Those missing markers were the whole of the tests/inventory.js and tests/html-catalog.js failures, so npm test is green again. assets/logo/zen_cafe_logo.jpg was recompressed in the same sweep (234 KB -> 26 KB, still 1024x1024)."
+    },
+    {
+      "date": "2026-11-02",
+      "note": "EatOuts-Region.html registered as page 72 (T22): the region selector from SYNC REGION TASK/ rebuilt on the standard EatOuts shell - brand header, `.appnav`, 3% grey `.pad`, EatOuts manifest, demo momentum/track-hype assets dropped, Country-Flag-Icons/ rewritten to assets/flags/. Five rows from window.EatoutsRegions, a search row that filters by name or code, and a G3 floating card ('This region is coming soon.', 420px / 16px, plain X) for anything other than Botswana; picking Botswana persists 'eatouts.region.v1'. Covered by the new tests/region-selector.js and staged for deploy in copy-static.mjs."
     }
   ]
 }

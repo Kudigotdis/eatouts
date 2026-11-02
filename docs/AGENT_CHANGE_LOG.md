@@ -1761,3 +1761,32 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `npm test` -> 64 passed, 0 failed (exit 0)
 - Errors: none
 
+
+### [2026-11-02 23:55:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T22 steps 1 (tail), 2, 5 and 6 - ship `EatOuts-Region.html` on the standard EatOuts shell, retire `SYNC REGION TASK/`, and register the page everywhere
+- Files changed:
+  - EatOuts-Region.html (new, 204 lines): the TrackHype selector rebuilt on the house shell - `<!-- PAGE: Select Region -->`, `<body data-page="EatOuts-Region">`, standard `#hdr` (button `.brand-mark` on `data-act="backHistory"`, `js/eatouts-back-history.js` loaded), five-link `.appnav`, 3% grey `.pad`, hero `.phead`. Demo momentum/track-hype assets dropped, `Country-Flag-Icons/` rewritten to `assets/flags/<code>.png`, manifest pointed at EatOuts. Rows, search and flags are generated from `window.EatoutsRegions` (`all` / `get` / `getActiveRegion` / `setActiveRegion`) - BW is `aria-pressed="true"` and tagged "Selected", the other four read "Coming soon". `#regionSearch` filters by name **and** by ISO code and shows a no-match line; tapping BW persists `eatouts.region.v1`; tapping anything else opens `#soonScrim` -> `.fpop` ("This region is coming soon.", G3: 420px / 80dvh / 16px, plain transparent `×`, no `.fpop-close`), closed by the X, an outside tap, `Escape` or "Got it".
+  - SYNC REGION TASK/eatouts-region-selector.html: deleted (the mockup copy sits in gitignored `_trash/eatouts-region-selector.html`, spelling out the tracked deletion), and the folder is gone.
+  - tests/region-selector.js (new, 45 checks): page markers + `data-page` slug, the standard header (button, not a link) and the house nav, five rows in registry order, BW selected, every rendered flag path resolving to a real file on disk, search by name / by code / no-match / cleared, the full card contract and all four close routes, the BW tap writing `eatouts.region.v1`, the registry API (`setActiveRegion('ZA')` refuses) and the two fallbacks for a stale stored code.
+  - tests/run-all.js: `region-selector.js` registered (65 suites).
+  - tests/back-history.js: brand-mark parity count 55 -> 56.
+  - copy-static.mjs: `EatOuts-Region.html` added under "Standalone customer surfaces reached from index.html" (`js/` + `assets/` were already copied wholesale, so `js/eatouts-regions.js` and `assets/flags/*` follow automatically).
+  - scripts/html_catalog.meta.json: page 72 entry + a 2026-11-02 changelog note; PAGE_INVENTORY.md: new §K "Regions (2026-11)" with the `PAGE: Select Region` marker; HTML_PAGES.md: summary row; HTML_CATALOG.md regenerated.
+  - PLATFORM UPDATE TASKS.md: T22 header re-worded, step 1 fully ticked, step 2 ticked with its `fadcf15` provenance and coverage, step 3 flagged open (after T13) with the reason, steps 5 and 6 ticked with coverage lines, new §8 row.
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: (this commit)
+- Notes:
+  - `js/eatouts-regions.js` had already shipped in `fadcf15`, so step 2 needed a tick plus coverage, not code. Step 3 (data gating) stays open: `money.js` owns currency formatting today, so doing it before T13 would mean writing the same code twice.
+  - The first cut of the page made the brand mark an `<a href="index.html">`. `tests/back-history.js` refused it: the parity sweep requires every branded page to carry `data-act="backHistory"` **and** load `js/eatouts-back-history.js`. Switched to the real house pattern (`<button class="brand-mark">`) and bumped the sweep's expected count to 56 - that count is the single place a new standard-header page must be declared.
+  - `tests/inventory.js` and `tests/html-catalog.js` both failed on purpose before registration (71 vs 72 pages; no catalog entry), which is the guard working: a page that ships without markers is invisible to the docs.
+  - The click delegation on the scrim checks `closest('.fpop')` first, so tapping the card body does nothing while the X, "Got it" and the backdrop all still close - the same shape the builder's G3 cards use.
+  - Method note: the editor caps a single write near 6,000 characters, and an insert at a stale line number silently lands mid-block (the first attempt dropped the `type('')` reset and the search stayed filtered, turning `item('ZA')` into a null dereference). Re-read the region before inserting.
+- Verified:
+  - `node tests/region-selector.js` -> **REGION-SELECTOR TEST PASSED**, 45 ok, 0 failed
+  - `node tests/back-history.js` -> **BACK-HISTORY PASSED**, 29 checks
+  - `node tests/inventory.js` -> INVENTORY PASSED (21 checks, 72 pages, 31 screens)
+  - `node tests/html-catalog.js` -> HTML-CATALOG PASSED (9 checks, 72 pages)
+  - `npm run catalog` -> 72 pages, 1,147 lines; `npm run inventory` -> 72 standalone files
+  - `npm test` -> **65 passed, 0 failed** (exit 0)
+- Errors: none
+

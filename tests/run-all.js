@@ -81,6 +81,7 @@ const SUITES = [
   'password-reset.js',
   'age-gate.js',
   'promo-pricing.js',
+  'region-selector.js',
   'money.js'
 ];
 

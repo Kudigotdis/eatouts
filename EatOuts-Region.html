@@ -1,0 +1,204 @@
+<!doctype html>
+<!-- PAGE: Select Region -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Select Region · EatOuts</title>
+<style>
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --ink:#1a1a1a;
+  --mute:#8a8170;
+  --line:#f1ece1;
+  --paper:#f4f2ec;
+  --green:#1f8a53;
+}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:#fff;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+#shell{max-width:460px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative;background:#fff}
+
+/* standard header (T08) */
+#hdr{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;position:relative;z-index:20}
+.brand-mark{border:0;background:transparent;padding:0;width:34px;height:34px;border-radius:10px;overflow:hidden;
+  display:grid;place-items:center;cursor:pointer;text-decoration:none}
+.brand-mark img{width:100%;height:100%;object-fit:contain}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.region-code{font-size:11px;font-weight:900;letter-spacing:.09em;color:#a89a7e}
+
+.scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.phead{padding:4px 16px 12px;background:#fff}
+.phead h1{margin:0;font-size:26px;font-weight:900;letter-spacing:-.02em}
+.phead p{margin:6px 0 0;font-size:13px;font-weight:600;color:var(--mute)}
+.pad{background:rgba(0,0,0,.03);padding:12px 14px 26px;min-height:100%}
+
+.rs-search{display:block;width:100%;margin:0 0 12px;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:12px 14px;font-family:inherit;font-size:16px;font-weight:600;color:var(--ink);outline:none}
+.rs-search:focus{border-color:var(--green)}
+
+.rs-list{display:flex;flex-direction:column;gap:9px}
+.rs-item{display:flex;align-items:center;gap:12px;width:100%;padding:12px;background:#fff;
+  border:1px solid var(--line);border-radius:14px;text-align:left;font-family:inherit;cursor:pointer}
+.rs-item:active{transform:scale(.99)}
+.rs-item[aria-pressed="true"]{border-color:var(--green);box-shadow:0 0 0 1px var(--green)}
+.rs-flag{flex:0 0 48px;width:48px;height:32px;border-radius:3px;object-fit:cover;border:1px solid var(--line);background:var(--paper)}
+.rs-name{flex:1 1 auto;min-width:0;font-size:16px;font-weight:900;color:var(--ink)}
+.rs-tag{flex:0 0 auto;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--green)}
+.rs-tag.is-soon{color:#a89a7e}
+.rs-empty{margin:18px 4px 0;text-align:center;font-size:13px;font-weight:700;color:var(--mute)}
+
+/* G3 floating popup - 420px / 80dvh / 16px, centred, plain X */
+.fpop-scrim{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;
+  padding:16px;background:rgba(0,0,0,.45)}
+.fpop-scrim[hidden]{display:none}
+.fpop-scrim.open{display:flex}
+.fpop{width:100%;max-width:420px;max-height:80dvh;background:#fff;border-radius:16px;
+  display:flex;flex-direction:column;overflow:hidden}
+.fpop-hdr{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+.fpop-hdr h3{margin:0;flex:1;min-width:0;font-size:16px;font-weight:900;line-height:1.3}
+.fpop-x{flex:0 0 auto;border:0;background:transparent;color:var(--mute);font-size:22px;line-height:1;
+  padding:0 2px;cursor:pointer;border-radius:0}
+.fpop-body{flex:1 1 auto;overflow-y:auto;padding:16px;font-size:16px;font-weight:600;line-height:1.5;color:var(--ink)}
+.fpop-foot{flex:0 0 auto;padding:0 16px 16px}
+.fpop-btn{display:block;width:100%;border:0;border-radius:14px;padding:14px;font-family:inherit;font-size:15px;
+  font-weight:800;cursor:pointer;background:var(--green);color:#fff}
+
+.appnav{flex:0 0 auto;display:flex;align-items:center;justify-content:space-around;background:#fff;
+  border-top:1px solid var(--line);padding:9px 4px calc(9px + env(safe-area-inset-bottom))}
+.appnav a{display:grid;justify-items:center;gap:3px;font-size:10px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;color:#a89a7e;text-decoration:none}
+</style>
+</head>
+
+
+<body data-page="EatOuts-Region">
+<div id="shell">
+
+  <header id="hdr">
+    <button class="brand-mark" type="button" aria-label="EatOuts home" data-act="backHistory">
+      <img src="assets/logo/EatOuts_Logo.png" alt="EatOuts">
+    </button>
+    <div class="hdr-right"><span class="region-code" id="regionCode">BW</span></div>
+  </header>
+
+  <div class="scroll">
+    <div class="phead">
+      <h1>Select Region</h1>
+      <p>Your region sets the currency, locations and content the app loads.</p>
+    </div>
+    <main class="pad">
+      <input id="regionSearch" class="rs-search" type="search" placeholder="Search regions…" autocomplete="off" aria-label="Search regions">
+      <div id="regionList" class="rs-list"></div>
+    </main>
+  </div>
+
+  <nav class="appnav">
+    <a href="index.html#promos">Promos</a>
+    <a href="index.html#restaurants">Restaurants</a>
+    <a href="index.html#reserve">Reserve</a>
+    <a href="index.html#gallery">Gallery</a>
+    <a href="index.html#about">About</a>
+  </nav>
+
+</div>
+
+<div class="fpop-scrim" id="soonScrim" hidden>
+  <div class="fpop" role="dialog" aria-modal="true" aria-labelledby="soonTitle">
+    <div class="fpop-hdr">
+      <h3 id="soonTitle">This region is coming soon.</h3>
+      <button class="fpop-x" type="button" data-act="closeSoon" aria-label="Close">×</button>
+    </div>
+    <div class="fpop-body" id="soonBody">Botswana is the only region live today.</div>
+    <div class="fpop-foot"><button class="fpop-btn" type="button" data-act="closeSoon">Got it</button></div>
+  </div>
+</div>
+
+<script src="js/eatouts-back-history.js"></script>
+<script src="js/eatouts-regions.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var R = window.EatoutsRegions;
+  var listEl = document.getElementById('regionList');
+  var searchEl = document.getElementById('regionSearch');
+  var codeEl = document.getElementById('regionCode');
+  var scrim = document.getElementById('soonScrim');
+  var soonBody = document.getElementById('soonBody');
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  function current(){
+    return (R && R.getActiveRegion) ? R.getActiveRegion() : null;
+  }
+
+  function rowHtml(r, active){
+    var on = !!(active && active.code === r.code);
+    return '<button class="rs-item" type="button" data-code="' + esc(r.code) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+      '<img class="rs-flag" src="assets/flags/' + esc(String(r.code).toLowerCase()) + '.png" alt="' + esc(r.name) + '" loading="lazy">' +
+      '<span class="rs-name">' + esc(r.name) + '</span>' +
+      '<span class="rs-tag' + (r.active ? '' : ' is-soon') + '">' + (r.active ? 'Selected' : 'Coming soon') + '</span>' +
+    '</button>';
+  }
+
+  function render(q){
+    if (!R || !R.all){
+      listEl.innerHTML = '<div class="rs-empty">Regions are unavailable right now.</div>';
+      return;
+    }
+    var active = current();
+    var term = String(q || '').trim().toLowerCase();
+    var rows = R.all().filter(function(r){
+      if (!term) return true;
+      return r.name.toLowerCase().indexOf(term) !== -1 || String(r.code).toLowerCase().indexOf(term) !== -1;
+    });
+    codeEl.textContent = active ? active.code : '';
+    listEl.innerHTML = rows.length
+      ? rows.map(function(r){ return rowHtml(r, active); }).join('')
+      : '<div class="rs-empty">No region matches "' + esc(term) + '".</div>';
+  }
+
+  function openSoon(name){
+    soonBody.textContent = name + ' is not open yet. Botswana is the only region live today.';
+    scrim.hidden = false;
+    scrim.classList.add('open');
+  }
+  function closeSoon(){
+    scrim.classList.remove('open');
+    scrim.hidden = true;
+  }
+
+  /* tapping a row: the active region selects, anything else explains itself */
+  listEl.addEventListener('click', function(ev){
+    var btn = ev.target.closest ? ev.target.closest('.rs-item') : null;
+    if (!btn) return;
+    var r = (R && R.get) ? R.get(btn.getAttribute('data-code')) : null;
+    if (!r) return;
+    if (!r.active){ openSoon(r.name); return; }
+    if (R.setActiveRegion) R.setActiveRegion(r.code);
+    render(searchEl.value);
+  });
+
+  searchEl.addEventListener('input', function(){ render(this.value); });
+
+  scrim.addEventListener('click', function(ev){
+    if (ev.target.closest('.fpop') && !ev.target.closest('.fpop-x') && !ev.target.closest('.fpop-btn')) return;
+    closeSoon();
+  });
+
+  document.addEventListener('keydown', function(ev){
+    if ((ev.key === 'Escape' || ev.keyCode === 27) && scrim.classList.contains('open')) closeSoon();
+  });
+
+  render('');
+})();
+</script>
+</body>
+</html>
