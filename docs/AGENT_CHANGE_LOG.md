@@ -14,6 +14,29 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-02 17:11:34] - [Agent: cline] - [Status: COMMITTED]
+- Task: T03 - tapping a directory row must bring the opened card into view at the top of its list, on all four pager panels
+- Files changed:
+  - index.html (`focusRitem(openEl,scroll)` helper next to `syncRestAccordions`; the four sync functions all use it; `block:"nearest"` -> `block:"start"`; new `.scroll.has-open::after` trailing room; bakery/bottle `[data-bacc]` queries scoped to their own `.bevpage`; `closeAllRitemAccordions()` now clears and re-syncs `state.bottleOpen`)
+  - tests/ritem-focus.js (new, 66 checks: pin-to-top, dim, clear-on-close, bottom row, no bakery/bottle cross-talk, closeAll)
+  - tests/run-all.js (registers the new suite after bottle-stores.js)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: ec31d4b
+- Push: origin/main (this ledger commit follows)
+- Notes:
+  - Root cause: the earlier patch scrolled with `block:"nearest"` synchronously while `.acc-wrap` was still collapsed, so the tapped row already counted as visible and nothing moved - `.ritem.open` stayed below the fold. `block:"start"` targets the card's top edge, which does not move while the card expands, so no second scroll or transition listener is needed.
+  - `.scroll.has-open::after{height:calc(100% - 120px)}` adds scroll room below the last card only while a row is open (`100%` resolves against `.scroll`'s own height, so there is no `dvh` dependency). Without it the bottom rows can only be bottom-aligned.
+  - Bakery and bottle-store rows share `data-bacc` and both panels sit in the DOM at once, so each sync now queries only its own column. Before this, opening a bakery row stripped `.open` off an open bottle store and vice versa.
+  - `closeAllRitemAccordions()` now also clears `state.bottleOpen` and calls `syncBottleAccordions()`, so the beverages column collapses on panel/tab/history switches like the other three.
+  - `dist/` was not touched: it is untracked build output and Pages rebuilds from Git.
+  - Known debt (not changed): the shared `data-bacc` attribute itself; scoping the queries works around it but a `data-btacc` rename would remove the trap.
+- Verified: `node tests/ritem-focus.js` 66/66; `node tests/bakery-directory.js` 32/32; `node tests/catering-directory.js` PASSED; `node tests/bottle-stores.js` PASSED; `npm test` 64 passed, 0 failed (63 before this change plus the new suite).
+- Not verified: real-browser feel (smooth scroll vs the 0.32s expansion, iOS `scroll-snap-type:x` on the pager) - needs a device pass.
+- Errors: none.
+
+---
+
+
 
 ### [2026-11-02 00:40:00] - [Agent: opencode] - [Status: COMMITTED]
 - Task: Commit the pending social-row / scroll-into-view work, recompress the logo set, and audit the untracked logos
