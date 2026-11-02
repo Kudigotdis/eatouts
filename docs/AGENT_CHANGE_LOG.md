@@ -1648,3 +1648,21 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `node tests/builder-audience.js` -> PASSED · `builder-guests.js` -> PASSED · `builder-preview.js` -> PASSED · `builder-schedule.js` -> PASSED · `builder-suppliers.js` -> PASSED
 - Errors: none
 
+
+
+### [2026-11-02 21:05:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T12.2 - schedule section (equal chips, collapsible day accordion, Year/Month/Day + Hour/Minute button pickers)
+- Files changed:
+  - eatout_event_builder.html (+112/-22): `.chip-row.eq` (2-column grid, centred labels); `.schedule-day` is now a collapsible accordion keyed by day id in `STATE.dayCollapsed` (`.schedule-day.collapsed .schedule-day-in{display:none}`, body kept in the DOM); native `<input type="date">`/`<input type="time">` replaced by `.dt-row.dt-3` / `.dt-row.dt-2` button rows (`scheduleDateRow()`, `scheduleTimeRow()`) that open a floating scroll-list popup (`renderSchedulePicker()` + `STATE.schedulePicker`, `.fpop-scrim` > `.fpop` > scrolling `.fpop-body`, selected row scrolled to centre); `dateParts/timeParts/todayParts/daysInMonth/clampDate/applySchedulePart` helpers keep the stored `YYYY-MM-DD` / `HH:MM` strings valid; new actions `toggleDayOpen`, `openSchedulePart`, `pickSchedulePart`, `closeSchedulePicker` (incl. scrim-tap close)
+  - PLATFORM UPDATE TASKS.md: 12.2 ticked, T12 header progress, §8 row
+- Commit: (this commit)
+- Notes:
+  - Storage format is unchanged on purpose (`startDate`/`endDate` stay `YYYY-MM-DD`, `startTime`/`endTime` stay `HH:MM`), so `eventDuration()`, the calc bar, the preview renderer and every saved draft keep working without a migration.
+  - Picking a single part writes a complete date/time immediately (defaults: today for dates, 12:00 for times) - that is what keeps a partially-picked field from ever being invalid, and `clampDate()` drops a 31st down to 28/29 when the month/year changes.
+  - The accordion ships expanded by default, so the existing schedule tests (which query inside `.schedule-day-in`) keep passing; only an explicit header tap collapses a day.
+  - `tests/builder-audience.js` shows an uncommitted modification in the working tree (12.3 checks added by another session, with mojibake em dashes). It was left untouched and uncommitted - it is not this task's file - but it does pass against the 12.3 implementation.
+- Verified:
+  - ad-hoc jsdom probe 44/44: chips = `.chip-row.eq` + `grid-template-columns:1fr 1fr` + `text-align:center`; header tap toggles `.collapsed` and computes `display:none`, second tap re-expands; 3-button date row / 2-button time row with the right labels; year popup 13 options, month popup 12, February 2028 = 29 options, February 2027 = 28, day clamps 31 -> 29 -> 28; hour popup 24, minute popup 60; `startTime` ends as `09:30`; scrim tap closes; day 2 picker leaves day 1 alone; no native date/time input remains; 0 window errors
+  - `node tests/builder-schedule.js` -> PASSED · `builder-preview.js` -> PASSED · `builder-audience.js` -> PASSED (including the foreign 12.3 checks) · `builder-guests.js` -> PASSED · `builder-suppliers.js` -> PASSED
+- Errors: none
+

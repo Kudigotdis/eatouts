@@ -144,8 +144,21 @@ input:focus,textarea:focus,select:focus{border-color:var(--text);background:#fff
 textarea{min-height:80px;resize:vertical;line-height:1.5}
 select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* date (Year|Month|Day) and time (Hour|Minute) button rows */
+.dt-row{display:grid;gap:8px;margin-top:2px}
+.dt-row.dt-3{grid-template-columns:1fr 1fr 1fr}
+.dt-row.dt-2{grid-template-columns:1fr 1fr}
+.dt-btn{min-height:44px;border:1px solid var(--border-soft);border-radius:11px;
+  background:var(--surface);font-size:13px;font-weight:800;color:var(--text);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:0 6px;overflow:hidden;white-space:nowrap}
+.dt-btn:active{background:rgba(0,0,0,.05)}
+.dt-btn.unset{color:var(--muted-2);font-weight:700}
 @media(max-width:360px){.grid2{grid-template-columns:1fr}}
 .chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+/* equal-width, centred chip pair (schedule type, event mode) */
+.chip-row.eq{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chip-row.eq .chip{text-align:center;padding:9px 10px}
 .chip{font-size:11px;font-weight:700;letter-spacing:.02em;padding:7px 12px;border-radius:20px;
   background:var(--surface);border:1px solid var(--border-soft);color:var(--muted);
   cursor:pointer;transition:all .15s}
@@ -312,7 +325,9 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .schedule-day{border:1px solid var(--border-soft);border-radius:11px;margin-bottom:9px;
   overflow:hidden;background:var(--surface)}
 .schedule-day-hdr{display:flex;align-items:center;gap:10px;padding:9px 11px;background:#fff;
-  border-bottom:1px solid var(--border-soft)}
+  border-bottom:1px solid var(--border-soft);cursor:pointer}
+.schedule-day.collapsed .schedule-day-hdr{border-bottom:0}
+.schedule-day.collapsed .schedule-day-in{display:none}
 .schedule-day-hdr .day-num{width:22px;height:22px;border-radius:50%;background:var(--black);
   color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;
   font-weight:900;flex:0 0 auto}
@@ -555,6 +570,11 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
   border-bottom:1px solid var(--border-soft);transition:background .12s}
 .fpop-opt:active{background:var(--surface)}
 .fpop-opt:last-child{border-bottom:0}
+/* schedule scroll-list picker */
+.sp-opt{justify-content:center;text-align:center}
+.sp-opt .sp-lbl{flex:1;font-size:13px;font-weight:700;color:var(--text)}
+.sp-opt.on{background:var(--surface)}
+.sp-opt.on .sp-lbl{font-weight:900}
 .fpop-opt-ico{width:38px;height:38px;border-radius:10px;flex:0 0 auto;background:var(--surface);
   border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;
   font-size:16px;overflow:hidden}
@@ -1287,6 +1307,8 @@ const STATE = {
   titleEditDraft:{title:"",description:""},
   linkPicker:{open:false},
   prompt:{open:false,kind:null,fields:null,onSave:null,values:{},onDelete:null},
+  schedulePicker:{open:false,day:null,field:null,part:null},
+  dayCollapsed:{},
 
   draftKey:"eatouts.event.draft.v2",
   toastTimer:null
@@ -2095,30 +2117,27 @@ function renderScheduleSection(){
   }
   let body='';
   body+='<div class="field" style="margin-top:24px"><label>Schedule type</label>'+
-    '<div class="chip-row">'+
+    '<div class="chip-row eq">'+
       '<span class="chip'+(STATE.schedule.mode==="one-day"?" on":"")+'" data-act="setScheduleMode" data-val="one-day">One Day</span>'+
       '<span class="chip'+(STATE.schedule.mode==="multi-day"?" on":"")+'" data-act="setScheduleMode" data-val="multi-day">Multiple Days</span>'+
     '</div>'+
   '</div>';
   STATE.schedule.days.forEach(function(d,i){
-    body+='<div class="schedule-day">'+
-      '<div class="schedule-day-hdr">'+
+    const collapsed=!!STATE.dayCollapsed[d.id];
+    body+='<div class="schedule-day'+(collapsed?" collapsed":"")+'">'+
+      '<div class="schedule-day-hdr" data-act="toggleDayOpen" data-idx="'+i+'">'+
         '<span class="day-num">'+(i+1)+'</span>'+
         '<span class="day-title">'+(i===0?"Day 1":("Day "+(i+1)))+'</span>'+
         (STATE.schedule.days.length>1?'<button class="day-remove" data-act="removeDay" data-idx="'+i+'" aria-label="Remove">×</button>':'')+
       '</div>'+
       '<div class="schedule-day-in">'+
         '<div class="field"><label>Start date & time</label>'+
-          '<div class="grid2">'+
-            '<input type="date" data-day="'+i+'" data-dfield="startDate" value="'+esc(d.startDate||"")+'">'+
-            '<input type="time" data-day="'+i+'" data-dfield="startTime" value="'+esc(d.startTime||"")+'">'+
-          '</div>'+
+          scheduleDateRow(i,"startDate",d)+
+          scheduleTimeRow(i,"startTime",d)+
         '</div>'+
         '<div class="field"><label>End date & time</label>'+
-          '<div class="grid2">'+
-            '<input type="date" data-day="'+i+'" data-dfield="endDate" value="'+esc(d.endDate||"")+'">'+
-            '<input type="time" data-day="'+i+'" data-dfield="endTime" value="'+esc(d.endTime||"")+'">'+
-          '</div>'+
+          scheduleDateRow(i,"endDate",d)+
+          scheduleTimeRow(i,"endTime",d)+
         '</div>'+
         scheduleDayNote(i,d)+
       '</div>'+
@@ -2131,6 +2150,121 @@ function renderScheduleSection(){
     STATE.schedule.mode==="multi-day"?STATE.schedule.days.length+" days":"One day event",
     body, {locked:false});
 }
+/* ---- Schedule date/time buttons: Year | Month | Day and Hour | Minute ---- */
+const MONTHS=["January","February","March","April","May","June","July",
+  "August","September","October","November","December"];
+function pad2(n){return (n<10?"0":"")+n;}
+function dateParts(raw){
+  const m=/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(String(raw||""));
+  if(!m) return null;
+  return {y:Number(m[1]),m:Number(m[2]),d:Number(m[3])};
+}
+function timeParts(raw){
+  const m=/^(\d{1,2}):(\d{2})$/.exec(String(raw||""));
+  if(!m) return null;
+  return {h:Number(m[1]),mi:Number(m[2])};
+}
+function daysInMonth(y,m){ return new Date(y,m,0).getDate(); }
+function todayParts(){
+  const n=new Date();
+  return {y:n.getFullYear(),m:n.getMonth()+1,d:n.getDate()};
+}
+function clampDate(p){
+  const out={y:p.y,m:Math.min(12,Math.max(1,p.m)),d:p.d};
+  out.d=Math.min(daysInMonth(out.y,out.m),Math.max(1,out.d));
+  return out;
+}
+function isDateField(field){ return field==="startDate"||field==="endDate"; }
+function scheduleDateRow(i,field,d){
+  const p=dateParts(d[field]);
+  return '<div class="dt-row dt-3">'+
+    '<button type="button" class="dt-btn'+(p?"":" unset")+'" data-act="openSchedulePart" data-idx="'+i+'" data-dfield="'+field+'" data-part="y">'+(p?String(p.y):"Year")+'</button>'+
+    '<button type="button" class="dt-btn'+(p?"":" unset")+'" data-act="openSchedulePart" data-idx="'+i+'" data-dfield="'+field+'" data-part="m">'+(p?MONTHS[p.m-1].slice(0,3):"Month")+'</button>'+
+    '<button type="button" class="dt-btn'+(p?"":" unset")+'" data-act="openSchedulePart" data-idx="'+i+'" data-dfield="'+field+'" data-part="d">'+(p?pad2(p.d):"Day")+'</button>'+
+  '</div>';
+}
+function scheduleTimeRow(i,field,d){
+  const t=timeParts(d[field]);
+  return '<div class="dt-row dt-2">'+
+    '<button type="button" class="dt-btn'+(t?"":" unset")+'" data-act="openSchedulePart" data-idx="'+i+'" data-dfield="'+field+'" data-part="h">'+(t?pad2(t.h):"Hour")+'</button>'+
+    '<button type="button" class="dt-btn'+(t?"":" unset")+'" data-act="openSchedulePart" data-idx="'+i+'" data-dfield="'+field+'" data-part="mi">'+(t?pad2(t.mi):"Minute")+'</button>'+
+  '</div>';
+}
+function schedulePickerTitle(p){
+  if(isDateField(p.field)) return p.part==="y"?"Year":(p.part==="m"?"Month":"Day");
+  return p.part==="h"?"Hour":"Minute";
+}
+function schedulePickerOptions(p){
+  const day=STATE.schedule.days[p.day]||{};
+  const raw=day[p.field];
+  if(isDateField(p.field)){
+    const base=clampDate(dateParts(raw)||todayParts());
+    if(p.part==="y"){
+      const now=new Date().getFullYear();
+      const opts=[];
+      for(let y=now-2;y<=now+10;y++) opts.push({v:String(y),label:String(y),sel:base.y===y});
+      return opts;
+    }
+    if(p.part==="m"){
+      return MONTHS.map(function(name,idx){
+        return {v:String(idx+1),label:name,sel:base.m===idx+1};
+      });
+    }
+    /* day count follows the chosen month + leap year */
+    const total=daysInMonth(base.y,base.m);
+    const opts=[];
+    for(let dd=1;dd<=total;dd++) opts.push({v:String(dd),label:pad2(dd),sel:base.d===dd});
+    return opts;
+  }
+  const base=timeParts(raw)||{h:12,mi:0};
+  const opts=[];
+  if(p.part==="h"){
+    for(let h=0;h<24;h++) opts.push({v:String(h),label:pad2(h)+":00",sel:base.h===h});
+    return opts;
+  }
+  for(let mi=0;mi<60;mi++) opts.push({v:String(mi),label:":"+pad2(mi),sel:base.mi===mi});
+  return opts;
+}
+function renderSchedulePicker(){
+  const p=STATE.schedulePicker;
+  if(!p.open) return "";
+  const opts=schedulePickerOptions(p);
+  return '<div class="fpop-scrim" data-act="closeSchedulePicker">'+
+    '<div class="fpop" data-stop="1">'+
+      '<div class="fpop-hdr">'+
+        '<h3>'+esc(schedulePickerTitle(p))+'</h3>'+
+        '<button class="fpop-x" data-act="closeSchedulePicker" aria-label="Close">×</button>'+
+      '</div>'+
+      '<div class="fpop-body sp-body">'+
+        opts.map(function(o){
+          return '<button type="button" class="fpop-opt sp-opt'+(o.sel?" on":"")+'" data-act="pickSchedulePart" data-val="'+esc(o.v)+'">'+
+            '<span class="sp-lbl">'+esc(o.label)+'</span></button>';
+        }).join("")+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+/* Write one picked part back into the stored YYYY-MM-DD / HH:MM string. */
+function applySchedulePart(idx,field,part,val){
+  const day=STATE.schedule.days[idx];
+  if(!day) return;
+  const num=Number(val);
+  if(isDateField(field)){
+    const base=clampDate(dateParts(day[field])||todayParts());
+    if(part==="y") base.y=num;
+    else if(part==="m") base.m=num;
+    else base.d=num;
+    const fixed=clampDate(base);
+    day[field]=fixed.y+"-"+pad2(fixed.m)+"-"+pad2(fixed.d);
+  }else{
+    const base=timeParts(day[field])||{h:12,mi:0};
+    if(part==="h") base.h=Math.min(23,Math.max(0,num));
+    else base.mi=Math.min(59,Math.max(0,num));
+    day[field]=pad2(base.h)+":"+pad2(base.mi);
+  }
+}
+
+
 
 /* ============================================================
    SECTION 03 — TARGET AUDIENCE
@@ -3229,6 +3363,7 @@ function render(){
   modalHtml+=renderSupplierTypeMenu();
   modalHtml+=renderSupplierProfile();
   modalHtml+=renderPrompt();
+  modalHtml+=renderSchedulePicker();
   modalHtml+=renderLinkPicker();
   modalHtml+=renderVenueLogo();
   modalHtml+=renderSupPhoto();
@@ -3356,6 +3491,7 @@ document.addEventListener("click",function(e){
     if(act==="closeFlyerItemMenu"){STATE.flyerItemMenu.open=false;render();return;}
     if(act==="closeTitleEdit"){STATE.titleEditOpen=false;render();return;}
     if(act==="closePrompt"){STATE.prompt.open=false;render();return;}
+    if(act==="closeSchedulePicker"){STATE.schedulePicker={open:false,day:null,field:null,part:null};render();return;}
     if(act==="closeLinkPicker"){STATE.linkPicker.open=false;render();return;}
     if(act==="closeMenuPage"){STATE.menuPage={open:false,cat:"food",view:"items"};render();return;}
     if(act==="closeSupplierProfile"){STATE.supplierProfile={open:false,id:null,cat:"",items:{}};render();return;}
@@ -3548,6 +3684,40 @@ document.addEventListener("click",function(e){
   if(act==="removeDay"){
     const i=Number(t.getAttribute("data-idx"));
     STATE.schedule.days.splice(i,1);
+    render();
+    return;
+  }
+  if(act==="toggleDayOpen"){
+    const i=Number(t.getAttribute("data-idx"));
+    const d=STATE.schedule.days[i];
+    if(!d) return;
+    STATE.dayCollapsed[d.id]=!STATE.dayCollapsed[d.id];
+    render();
+    return;
+  }
+  if(act==="openSchedulePart"){
+    STATE.schedulePicker={open:true,
+      day:Number(t.getAttribute("data-idx")),
+      field:t.getAttribute("data-dfield"),
+      part:t.getAttribute("data-part")};
+    render();
+    setTimeout(function(){
+      const sel=document.querySelector(".sp-opt.on");
+      if(sel && typeof sel.scrollIntoView==="function") sel.scrollIntoView({block:"center"});
+    },30);
+    return;
+  }
+  if(act==="closeSchedulePicker"){
+    STATE.schedulePicker={open:false,day:null,field:null,part:null};
+    render();
+    return;
+  }
+  if(act==="pickSchedulePart"){
+    const sp=STATE.schedulePicker;
+    if(!sp.open) return;
+    applySchedulePart(sp.day,sp.field,sp.part,t.getAttribute("data-val"));
+    STATE.schedulePicker={open:false,day:null,field:null,part:null};
+    scheduleSave();
     render();
     return;
   }

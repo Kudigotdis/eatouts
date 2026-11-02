@@ -633,7 +633,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 5 — Large builds
 
-#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1 + 12.3 done; 12.2, 12.4-12.9 open)
+#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1-12.3 done; 12.4-12.9 open)
 **Files:** `eatout_event_builder.html` (single file, ~4.2k lines), `js/eatouts-events*` if present.
 **Sub-tasks (do in this order, verify each)**
 
@@ -642,11 +642,12 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - remove: "Venue Provider", "Name, from P0.00", "Spaces", "Selected";
 - `.title-edit-panel` → floating popup (G3).
 
-**12.2 Schedule** — `[data-sec="schedule"]`
-- `setScheduleMode` chips (`one-day`, `multi-day`) equal width + centred;
-- `.schedule-day` becomes a collapsible accordion;
-- date fields → 3-column Year / Month / Day buttons on one row, centred, each opening a floating scroll-list popup; day count correct per month/leap year;
-- time fields → 2-column Hour / Minute buttons on one row, each opening a floating scroll-list popup.
+**12.2 Schedule** — `[data-sec="schedule"]` — ✅ **DONE 2026-11-02**
+- [x] `setScheduleMode` chips (`one-day`, `multi-day`) equal width + centred — `.chip-row.eq` (`:159-161`, `grid-template-columns:1fr 1fr`, centred labels), applied at `:2115`;
+- [x] `.schedule-day` is a collapsible accordion — header is `data-act="toggleDayOpen"` (`:2123`), state in `STATE.dayCollapsed` keyed by day id, `.schedule-day.collapsed .schedule-day-in{display:none}` (`:329-330`); the body stays in the DOM so the per-day note and tests keep working;
+- [x] date fields → **Year / Month / Day** buttons on one row (`.dt-row.dt-3`, `scheduleDateRow()` `:2178`), each opening a floating scroll-list popup (`renderSchedulePicker()` `:2216`, `.fpop-scrim` + `.fpop` + scrolling `.fpop-body`, selected option centred on open); the stored value stays `YYYY-MM-DD`, and `daysInMonth()`/`clampDate()` keep the day count correct per month and leap year (Feb 2028 → 29 options, Feb 2027 → 28, a 31st clamps down);
+- [x] time fields → **Hour / Minute** buttons on one row (`.dt-row.dt-2`, `scheduleTimeRow()` `:2186`), same floating scroll-list (24 hours / 60 minutes), stored as `HH:MM`;
+- [x] no native `<input type="date">`/`type="time">` left in the section.
 
 **12.3 Audience** — `[data-sec="audience"]` — ✅ **DONE 2026-11-02**
 - [x] thin light separator above the field hint (new `.sec-sep` `:338-339`, emitted after the guest-count field at `:2147`);
@@ -1027,6 +1028,9 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 2026-11-02 | T07 | DONE (closed) | `PLATFORM UPDATE TASKS.md` + the missing coverage — **no source change needed**: the shared `renderFilterBar()` was already wired for catering `:6785-6809` and bakery `:6811-6835` in the 10-31 commit (stale "blocked on data" note retracted; catering types come from `cateringTypeNames()`, bakery types from `window.BAKERY_TYPES`). Added the permanent assertions the 10-31 note wrongly assumed were impossible: `tests/catering-directory.js` (+12, new index.html jsdom probe) and `tests/bakery-directory.js` (+10) | `node tests/catering-directory.js` PASSED (bar hidden → 2nd nav tap opens → 3rd closes, `#cateringSearch`, centred Town\|Area\|Cuisines, cuisine list non-empty, live search) · `node tests/bakery-directory.js` **42/42** (same for `#bakerySearch` + `window.BAKERY_TYPES`) · full `npm test` **64 passed, 0 failed** | 6e41887 + this commit |
 | 2026-11-02 | T22 (step 1) | IN PROGRESS | `SYNC REGION TASK/countries-data.js`, `territories.js`, `territory-registry.js`, `countries_mobile_networks.js` → `js/`; `SYNC REGION TASK/Country-Flag-Icons/*.png` (256) → `assets/flags/`; `PLATFORM UPDATE TASKS.md` | `git status` shows 260 renames with no deletions; 0 hits for `SYNC REGION TASK/` in `*.html`/`*.mjs`/`*.js`; `copy-static.mjs` already copies `js` + `assets` wholesale (no edit needed); `npm test` **64 passed, 0 failed** | (this commit) |
 | 2026-11-02 | T12.3 | DONE | `eatout_event_builder.html` — `.prompt-panel` → G3 floating (420px / 16px / 80dvh / scrollable body), new `.sec-sep`, `.rm` de-circled (audience, tier, note), Event Rules inline margin replaced by the divider | probe 18/18 (2 separators in place, prompt inside `.fpop-scrim` with 420px/16px/80dvh/`overflow-y:auto`, `.fpop-x` transparent, `.rm` transparent + borderless + non-circular + non-red, 0 window errors); `builder-audience` · `builder-guests` · `builder-preview` · `builder-schedule` · `builder-suppliers` all PASSED; full `npm test` pending in the same push | (this commit) |
+| 2026-11-02 | T12.2 | DONE | `eatout_event_builder.html` — `.chip-row.eq`, `.schedule-day` accordion (`STATE.dayCollapsed`, `toggleDayOpen`), Year/Month/Day + Hour/Minute `.dt-btn` rows replacing the native date/time inputs, new floating scroll-list picker (`renderSchedulePicker`, `STATE.schedulePicker`, `.sp-opt`), `daysInMonth`/`clampDate` maths | probe 44/44 (chips grid + centred, collapse/expand + `display:none`, 3+2 button rows, 13 years / 12 months / 29 vs 28 February days, 31→29→28 clamping, 24 hours / 60 minutes, `09:30` stored, scrim close, per-day independence, no native date/time inputs left, 0 window errors); `builder-schedule` · `builder-preview` · `builder-audience` · `builder-guests` · `builder-suppliers` all PASSED; full `npm test` in the same push | (this commit) |
+
+
 
 
 
