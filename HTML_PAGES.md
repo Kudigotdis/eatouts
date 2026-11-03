@@ -168,7 +168,7 @@ profile, the customer directory row and an `eatouts.venue.v1` submission.
 
 **Cannot do** - No accounts or server; per-device draft only.
 
-## eatouts-suppliers.html - supplier directory + self-onboarding (1737 lines)
+## eatouts-suppliers.html - supplier directory + self-onboarding (1652 lines)
 
 **Purpose:** browse event suppliers, and let a supplier publish a profile on-device.
 

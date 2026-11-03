@@ -14,6 +14,22 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 20:05:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T18 step 8 — remove `.foot` and the whole export/JSON feature from `eatouts-suppliers.html`
+- Files changed:
+  - `eatouts-suppliers.html` (+1/-40): deleted the `.supplier-card .foot` markup block and its two CSS rules, the review-step `Export profile JSON` section (title + hint + button + trailing divider), the dashboard `Export profile JSON` manage action, the `act === 'exportProfile'` branch, `exportProfile()`, `downloadPayload()` and the "Profiles export as JSON for the directory" header comment (rewritten to say profiles sync on publish). `slugify()` was kept — `publish` still mints the public slug with it.
+  - `PLATFORM UPDATE TASKS.md`: step 8 ticked with the scan result, T18 header status line updated
+  - `HTML_PAGES.md`: page line count corrected 1737 → 1652
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - `downloadPayload()` looked reusable but had exactly one caller (`exportProfile`), so it went with it rather than being left as dead code.
+  - The review step now ends on the Summary supplier card. The publish control lives in the bottom bar (`setBar('review')`), not in this HTML — checked before deleting the trailing divider, no orphan section left.
+  - Docs audited, not assumed: `HTML_PAGES.md` / `PAGE_INVENTORY.md` never mentioned the export; the `AI-DELEGATION-PACK.md` hits are the task's own "grep must return 0" acceptance criteria and were kept as the checklist. `HTML_PAGES.md:141/331` mention an "Export this restaurant" JSON action — that belongs to the owner dashboard, a different page, so it stays.
+- Verified: `node tests/supplier-activate.js` PASSED (22 checks) · `node tests/smoke.js` PASSED · `node tests/appshell.js` PASSED · scan `exportProfile|downloadPayload|class="foot"|\.foot|profile JSON|exportedAt|eatouts.supplier.v1` → **0 hits**.
+
+---
+
 ### [2026-11-03 19:15:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: T18 steps 6 + 9 — remove the portfolio step from `eatouts-suppliers.html` and renumber
 - Files changed:
