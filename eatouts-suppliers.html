@@ -781,12 +781,28 @@ img{display:block;max-width:100%}
     h += '<div class="acc">';
     h += step('identity',  1, 'You & your business', 'Name, age, business name, about');
     h += step('services',  2, 'What you offer',      'Pick the supplier types you do');
-    h += step('pricing',   3, 'Pricing & discounts', 'Rates, packages, EatOuts discount codes');
+    /* one pricing step per selected service — step 3 repeats, the title names the service */
+    (p.services || []).forEach(function(s){
+      var type = findType(s.categoryId, s.typeId);
+      h += step(pricingKey(s), 3, (s.title || (type ? type.name : 'Service')), 'Rate, packages, discounts, photos');
+    });
     h += step('gallery',   4, 'Gallery',             'Photos and video of your work');
     h += step('contact',   5, 'Contact & availability','WhatsApp, town, days you work');
     h += step('review',    6, 'Review & publish',    'Checklist + publish gate');
     h += '</div>';
     return h;
+  }
+
+  /* data-step key for a service's own pricing step */
+  function pricingKey(s){ return 'pricing:' + s.categoryId + ':' + s.typeId; }
+  function svcByPricingKey(key){
+    var parts = key.split(':');
+    return (state.profile.services || []).filter(function(s){
+      return s.categoryId === parts[1] && s.typeId === parts[2];
+    })[0] || null;
+  }
+  function findSvc(id){
+    return (state.profile.services || []).filter(function(s){ return s.id === id; })[0] || null;
   }
 
   function step(key, num, title, subtitle){
@@ -803,10 +819,13 @@ img{display:block;max-width:100%}
   }
 
   function stepBody(key){
+    if (key.indexOf('pricing:') === 0) {
+      var svc = svcByPricingKey(key);
+      return svc ? renderServicePricingStep(svc) : '';
+    }
     switch(key){
       case 'identity':  return renderIdentity();
       case 'services':  return renderServicesStep();
-      case 'pricing':   return renderPricingStep();
       case 'gallery':   return renderGalleryStep();
       case 'contact':   return renderContactStep();
       case 'review':    return renderReviewStep();
@@ -900,6 +919,7 @@ img{display:block;max-width:100%}
               (s.baseRate ? '<div class="rate">' + money(s.baseRate) + ' · ' + esc(s.rateType || 'Per booking') + '</div>' : '<div class="rate">Rate not set</div>') +
             '</div>' +
             '<div class="svc-actions">' +
+              '<button data-act="openSvcPricing" data-id="' + esc(s.id) + '">Pricing</button>' +
               '<button data-act="editService" data-id="' + esc(s.id) + '">Edit</button>' +
               '<button class="danger" data-act="removeService" data-id="' + esc(s.id) + '">Remove</button>' +
             '</div>' +
@@ -910,27 +930,44 @@ img{display:block;max-width:100%}
     return h;
   }
 
-  /* ---------- STEP 3: PRICING & DISCOUNTS ---------- */
-  function renderPricingStep(){
+  /* ---------- STEP 3 (per service): PRICING & DISCOUNTS ---------- */
+  function renderServicePricingStep(svc){
     var p = state.profile;
-    var pr = p.pricing;
+    var i = p.services.indexOf(svc);
+    var base = 'services.' + i + '.';
     var h = '';
-    h += '<div class="section-title">Rates</div>';
-    h += '<div class="field"><label>Hourly rate</label><input data-model="pricing.hourlyRate" type="number" min="0" value="' + (pr.hourlyRate == null ? '' : pr.hourlyRate) + '" placeholder="P"></div>';
-    h += '<div class="field"><label>Half-day rate (5h)</label><input data-model="pricing.halfDayRate" type="number" min="0" value="' + (pr.halfDayRate == null ? '' : pr.halfDayRate) + '" placeholder="P"></div>';
-    h += '<div class="field"><label>Full-day rate (8–10h)</label><input data-model="pricing.fullDayRate" type="number" min="0" value="' + (pr.fullDayRate == null ? '' : pr.fullDayRate) + '" placeholder="P"></div>';
-    h += '<div class="field"><label>Deposit %</label><input data-model="pricing.depositPercent" type="number" min="0" max="100" value="' + (pr.depositPercent == null ? 30 : pr.depositPercent) + '"><div class="hint">Typical for Botswana event suppliers is 30–50%.</div></div>';
+    h += '<div class="section-title">Rate for this service</div>';
+    h += '<div class="field"><label>Half-day rate (5h)</label><input data-model="' + base + 'halfDayRate" type="number" min="0" value="' + (svc.halfDayRate == null ? '' : svc.halfDayRate) + '" placeholder="P"></div>';
+    h += '<div class="field"><label>Full-day rate (8–10h)</label><input data-model="' + base + 'fullDayRate" type="number" min="0" value="' + (svc.fullDayRate == null ? '' : svc.fullDayRate) + '" placeholder="P"></div>';
+    h += '<div class="field"><label>Deposit %</label><input data-model="' + base + 'depositPercent" type="number" min="0" max="100" value="' + (svc.depositPercent == null ? 30 : svc.depositPercent) + '"><div class="hint">Typical for Botswana event suppliers is 30–50%.</div></div>';
     h += '<div class="field"><label>Payment terms</label><div class="chips">' +
       PAYMENT_TERMS.map(function(t){
-        var on = (pr.paymentTerms || '').indexOf(t) > -1;
-        return '<span class="chip' + (on ? ' on' : '') + '" data-act="togglePayTerm" data-val="' + esc(t) + '">' + esc(t) + '</span>';
+        var on = (svc.paymentTerms || '').indexOf(t) > -1;
+        return '<span class="chip' + (on ? ' on' : '') + '" data-act="toggleSvcPayTerm" data-id="' + esc(svc.id) + '" data-val="' + esc(t) + '">' + esc(t) + '</span>';
       }).join('') +
     '</div></div>';
 
     h += '<hr class="divider">';
+    h += '<div class="section-title">Photos for this service</div>';
+    h += '<div class="hint" style="margin-bottom:10px">Shown with this service only. Tap a photo to enlarge.</div>';
+    if ((svc.images || []).length) {
+      h += '<div class="gal-grid">';
+      svc.images.forEach(function(url, k){
+        h += '<div class="gal-cell">' +
+          '<img src="' + esc(url) + '" alt="" data-act="viewSvcPhoto" data-id="' + esc(svc.id) + '" data-i="' + k + '">' +
+          '<button class="rm" data-act="removeSvcPhoto" data-id="' + esc(svc.id) + '" data-i="' + k + '" aria-label="Remove">×</button>' +
+        '</div>';
+      });
+      h += '</div>';
+    } else {
+      h += '<div class="empty" style="margin-bottom:12px">No photos for this service yet.</div>';
+    }
+    h += '<button class="btn ghost full" data-act="addSvcPhoto" data-id="' + esc(svc.id) + '">+ Add a photo from this device</button>';
+
+    h += '<hr class="divider">';
     h += '<div class="section-title">Packages</div>';
     h += '<div class="hint" style="margin-bottom:10px">Bundled offerings like "Wedding package" or "4-hour DJ set + lighting".</div>';
-    (pr.packages || []).forEach(function(pkg, i){
+    (svc.packages || []).forEach(function(pkg, k){
       h += '<div class="svc-card">' +
         '<div class="svc-hdr">' +
           '<div class="info">' +
@@ -939,18 +976,18 @@ img{display:block;max-width:100%}
             (pkg.includes ? '<div class="meta" style="font-size:11px;color:#7a7466;margin-top:3px">' + esc(pkg.includes) + '</div>' : '') +
           '</div>' +
           '<div class="svc-actions">' +
-            '<button data-act="editPackage" data-i="' + i + '">Edit</button>' +
-            '<button class="danger" data-act="removePackage" data-i="' + i + '">Remove</button>' +
+            '<button data-act="editPackage" data-id="' + esc(svc.id) + '" data-i="' + k + '">Edit</button>' +
+            '<button class="danger" data-act="removePackage" data-id="' + esc(svc.id) + '" data-i="' + k + '">Remove</button>' +
           '</div>' +
         '</div>' +
       '</div>';
     });
-    h += '<button class="btn ghost full" data-act="addPackage">+ Add package</button>';
+    h += '<button class="btn ghost full" data-act="addPackage" data-id="' + esc(svc.id) + '">+ Add package</button>';
 
     h += '<hr class="divider">';
     h += '<div class="section-title">EatOuts discounts</div>';
-    h += '<div class="hint" style="margin-bottom:10px">Codes venues see on your listing. Applied when they add you to an event.</div>';
-    (p.discounts || []).forEach(function(d, i){
+    h += '<div class="hint" style="margin-bottom:10px">Codes venues see on this service. Applied when they add you to an event.</div>';
+    (svc.discounts || []).forEach(function(d, k){
       h += '<div class="disc-card">' +
         '<div class="disc-hdr">' +
           '<div class="info">' +
@@ -962,12 +999,12 @@ img{display:block;max-width:100%}
           '<div class="disc-value">' + (d.percent ? d.percent + '%' : (d.flatOff ? money(d.flatOff) : '')) + '</div>' +
         '</div>' +
         '<div class="svc-actions" style="margin-top:8px">' +
-          '<button data-act="editDiscount" data-i="' + i + '">Edit</button>' +
-          '<button class="danger" data-act="removeDiscount" data-i="' + i + '">Remove</button>' +
+          '<button data-act="editDiscount" data-id="' + esc(svc.id) + '" data-i="' + k + '">Edit</button>' +
+          '<button class="danger" data-act="removeDiscount" data-id="' + esc(svc.id) + '" data-i="' + k + '">Remove</button>' +
         '</div>' +
       '</div>';
     });
-    h += '<button class="btn ghost full" data-act="addDiscount">+ Add discount code</button>';
+    h += '<button class="btn ghost full" data-act="addDiscount" data-id="' + esc(svc.id) + '">+ Add discount code</button>';
     return h;
   }
 
@@ -1069,7 +1106,9 @@ img{display:block;max-width:100%}
       ? { k:'ok', ic:'✓', txt: svc + ' service' + (svc===1?'':'s') + ' selected.' }
       : { k:'warn', ic:'!', txt:'Add at least one service (Step 2).' });
 
-    var hasPrice = p.services.some(function(s){ return s.baseRate; }) ||
+    var hasPrice = p.services.some(function(s){
+                     return s.baseRate || s.halfDayRate || s.fullDayRate || (s.packages || []).length;
+                   }) ||
                    p.pricing.hourlyRate || p.pricing.halfDayRate || p.pricing.fullDayRate ||
                    (p.pricing.packages||[]).length;
     checks.push(hasPrice
@@ -1078,7 +1117,7 @@ img{display:block;max-width:100%}
 
     checks.push(p.contact.whatsapp
       ? { k:'ok', ic:'✓', txt:'WhatsApp number on file.' }
-      : { k:'warn', ic:'!', txt:'Add your WhatsApp number (Step 6).' });
+      : { k:'warn', ic:'!', txt:'Add your WhatsApp number (Step 5).' });
 
     checks.push(p.business.name
       ? { k:'ok', ic:'✓', txt:'Business name set.' }
@@ -1094,13 +1133,30 @@ img{display:block;max-width:100%}
 
     checks.push(p.location.town
       ? { k:'ok', ic:'✓', txt:'Town / city set.' }
-      : { k:'warn', ic:'!', txt:'Set your town or city (Step 6).' });
+      : { k:'warn', ic:'!', txt:'Set your town or city (Step 5).' });
 
-    checks.push((p.gallery.images||[]).length > 0
-      ? { k:'ok', ic:'✓', txt:(p.gallery.images||[]).length + ' photo' + ((p.gallery.images||[]).length===1?'':'s') + ' in gallery.' }
+    checks.push(photosOf(p) > 0
+      ? { k:'ok', ic:'✓', txt: photosOf(p) + ' photo' + (photosOf(p)===1?'':'s') + ' in gallery.' }
       : { k:'warn', ic:'!', txt:'Add at least one photo (Step 4).' });
 
     return checks;
+  }
+  /* gallery photos + the photos attached to individual services */
+  function photosOf(p){
+    var n = ((p.gallery || {}).images || []).length;
+    (p.services || []).forEach(function(s){ n += (s.images || []).length; });
+    return n;
+  }
+  /* every package / discount the listing carries, per-service entries first */
+  function allPackages(p){
+    var out = [];
+    (p.services || []).forEach(function(s){ out = out.concat(s.packages || []); });
+    return out.concat(((p.pricing || {}).packages || []));
+  }
+  function allDiscounts(p){
+    var out = [];
+    (p.services || []).forEach(function(s){ out = out.concat(s.discounts || []); });
+    return out.concat(p.discounts || []);
   }
   function publishReady(p){
     return publishChecks(p).every(function(c){ return c.k !== 'warn'; });
@@ -1221,10 +1277,15 @@ img{display:block;max-width:100%}
     if (p.location.town) {
       h += '<div class="row"><span>Based in</span><b>' + esc(p.location.town) + (p.location.servesNationwide ? ' · Nationwide' : (p.location.travelRadiusKm ? ' · ' + p.location.travelRadiusKm + 'km' : '')) + '</b></div>';
     }
-    if (p.pricing.fullDayRate) h += '<div class="row"><span>Full day</span><b>' + money(p.pricing.fullDayRate) + '</b></div>';
+    var rates = (p.services||[]).map(function(s){
+      return s.baseRate || s.fullDayRate || s.halfDayRate;
+    }).filter(function(r){ return r; });
+    if (rates.length) h += '<div class="row"><span>From</span><b>' + money(Math.min.apply(null, rates)) + '</b></div>';
+    else if (p.pricing.fullDayRate) h += '<div class="row"><span>Full day</span><b>' + money(p.pricing.fullDayRate) + '</b></div>';
     else if (p.pricing.hourlyRate) h += '<div class="row"><span>Hourly</span><b>' + money(p.pricing.hourlyRate) + '</b></div>';
-    if ((p.discounts||[]).length) {
-      var d = p.discounts[0];
+    var disc = allDiscounts(p);
+    if (disc.length) {
+      var d = disc[0];
       h += '<div class="row"><span>EatOuts discount</span><b style="color:#17834b">' + esc(d.code) + ' · ' + (d.percent ? d.percent + '% off' : money(d.flatOff) + ' off') + '</b></div>';
     }
     return h;
@@ -1302,6 +1363,43 @@ img{display:block;max-width:100%}
     }, function(err){
       toast((err && err.message) ? err.message : 'That image could not be used');
     }, { maxWidth: 1200, maxHeight: 1200 });
+  }
+
+  /* Gallery photo for one service — same device path as the profile photo. */
+  function pickSvcImage(svcId){
+    var svc = findSvc(svcId);
+    if (!svc) return;
+    if (!window.EatoutsUpload || typeof window.EatoutsUpload.pickImage !== 'function') {
+      toast('Image picking is not available in this browser');
+      return;
+    }
+    window.EatoutsUpload.pickImage(function(url){
+      if (!url) return;
+      if (!svc.images) svc.images = [];
+      svc.images.push(url);
+      markDirty();
+      render();
+    }, function(err){
+      toast((err && err.message) ? err.message : 'That image could not be used');
+    }, { maxWidth: 1400, maxHeight: 1400 });
+  }
+
+  /* Tap a photo to see it full size. */
+  function viewPhoto(url){
+    if (!url) return;
+    var scrim = document.createElement('div');
+    scrim.className = 'scrim';
+    scrim.setAttribute('data-act', 'closeSheet');
+    scrim.innerHTML = '<div class="sheet" style="background:transparent;max-height:80dvh">' +
+      '<div class="sheet-hdr" style="background:#fff;border-radius:16px 16px 0 0">' +
+        '<h3>Photo</h3>' +
+        '<button class="close-x" data-act="closeSheet" aria-label="Close">×</button>' +
+      '</div>' +
+      '<div class="sheet-body" style="background:#111">' +
+        '<img src="' + esc(url) + '" alt="" style="width:100%;height:auto;display:block;border-radius:8px">' +
+      '</div>' +
+    '</div>';
+    document.body.appendChild(scrim);
   }
 
   /* Account-only listing: a profile always belongs to the account holder on
@@ -1399,16 +1497,6 @@ img{display:block;max-width:100%}
       markDirty(); render();
       return;
     }
-    if (act === 'togglePayTerm') {
-      var v = t.getAttribute('data-val');
-      var cur = state.profile.pricing.paymentTerms || '';
-      var parts = cur ? cur.split(', ').filter(Boolean) : [];
-      var idx = parts.indexOf(v);
-      if (idx > -1) parts.splice(idx, 1); else parts.push(v);
-      state.profile.pricing.paymentTerms = parts.join(', ');
-      markDirty(); t.classList.toggle('on');
-      return;
-    }
     if (act === 'toggleDay') {
       var d = t.getAttribute('data-val');
       var days = state.profile.availability.days || [];
@@ -1418,17 +1506,50 @@ img{display:block;max-width:100%}
       markDirty(); t.classList.toggle('on');
       return;
     }
-    if (act === 'addPackage') { editPackage(-1); return; }
-    if (act === 'editPackage') { editPackage(parseInt(t.getAttribute('data-i'),10)); return; }
-    if (act === 'removePackage') {
-      state.profile.pricing.packages.splice(parseInt(t.getAttribute('data-i'),10), 1);
+    if (act === 'toggleSvcPayTerm') {
+      var sv = findSvc(t.getAttribute('data-id'));
+      if (!sv) return;
+      var svv = t.getAttribute('data-val');
+      var svParts = (sv.paymentTerms || '') ? sv.paymentTerms.split(', ').filter(Boolean) : [];
+      var si = svParts.indexOf(svv);
+      if (si > -1) svParts.splice(si, 1); else svParts.push(svv);
+      sv.paymentTerms = svParts.join(', ');
+      markDirty(); t.classList.toggle('on');
+      return;
+    }
+    if (act === 'addSvcPhoto') { pickSvcImage(t.getAttribute('data-id')); return; }
+    if (act === 'removeSvcPhoto') {
+      var phSvc = findSvc(t.getAttribute('data-id'));
+      if (!phSvc) return;
+      phSvc.images.splice(parseInt(t.getAttribute('data-i'),10), 1);
       markDirty(); render();
       return;
     }
-    if (act === 'addDiscount') { editDiscount(-1); return; }
-    if (act === 'editDiscount') { editDiscount(parseInt(t.getAttribute('data-i'),10)); return; }
+    if (act === 'viewSvcPhoto') {
+      var phSv = findSvc(t.getAttribute('data-id'));
+      if (phSv) viewPhoto(phSv.images[parseInt(t.getAttribute('data-i'),10)]);
+      return;
+    }
+    if (act === 'openSvcPricing') {
+      var prSvc = findSvc(t.getAttribute('data-id'));
+      if (prSvc) { state.openStep = pricingKey(prSvc); render(); }
+      return;
+    }
+    if (act === 'addPackage') { editPackage(t.getAttribute('data-id'), -1); return; }
+    if (act === 'editPackage') { editPackage(t.getAttribute('data-id'), parseInt(t.getAttribute('data-i'),10)); return; }
+    if (act === 'removePackage') {
+      var pkSvc = findSvc(t.getAttribute('data-id'));
+      var pkList = pkSvc ? pkSvc.packages : state.profile.pricing.packages;
+      pkList.splice(parseInt(t.getAttribute('data-i'),10), 1);
+      markDirty(); render();
+      return;
+    }
+    if (act === 'addDiscount') { editDiscount(t.getAttribute('data-id'), -1); return; }
+    if (act === 'editDiscount') { editDiscount(t.getAttribute('data-id'), parseInt(t.getAttribute('data-i'),10)); return; }
     if (act === 'removeDiscount') {
-      state.profile.discounts.splice(parseInt(t.getAttribute('data-i'),10), 1);
+      var dcSvc = findSvc(t.getAttribute('data-id'));
+      var dcList = dcSvc ? dcSvc.discounts : state.profile.discounts;
+      dcList.splice(parseInt(t.getAttribute('data-i'),10), 1);
       markDirty(); render();
       return;
     }
@@ -1491,7 +1612,7 @@ img{display:block;max-width:100%}
     if (act === 'editProfile') { state.view = 'onboarding'; state.editing = true; state.openStep = 'identity'; render(); return; }
     if (act === 'viewPreview') { state.view = 'preview'; render(); return; }
     if (act === 'backFromPreview') { state.view = 'dashboard'; render(); return; }
-    if (act === 'quickDiscount') { editDiscount(-1); return; }
+    if (act === 'quickDiscount') { editDiscount(null, -1); return; }
     if (act === 'unpublish') {
       if (!confirm('Unpublish your profile? Venues won\'t see you until you re-publish.')) return;
       state.profile.status = 'draft';
@@ -1536,64 +1657,74 @@ img{display:block;max-width:100%}
       return;
     }
     var type = findType(cid, tid);
-    /* open the detail sheet to capture title/rate */
-    openSheet('Add service',
-      '<div class="field"><label>Service title</label><input id="__svcTitle" value="' + esc(type ? type.name : '') + '"></div>' +
-      '<div class="field"><label>Description</label><textarea id="__svcDesc" rows="3" placeholder="What does this include?"></textarea></div>' +
-      '<div class="field"><label>Base rate (BWP)</label><input id="__svcRate" type="number" min="0" placeholder="e.g. 2500"></div>' +
-      '<div class="field"><label>Rate type</label><select id="__svcRateType">' +
-        RATE_TYPES.map(function(rt){ return '<option>' + esc(rt) + '</option>'; }).join('') +
-      '</select></div>' +
-      '<div class="field"><label>Minimum notice (days)</label><input id="__svcMin" type="number" min="0" placeholder="Optional"></div>',
+    /* tapping a service opens the G3 popup where that service is configured */
+    openSheet('Add service', svcSheetHTML({ title: type ? type.name : '', rateType: RATE_TYPES[0] }),
       function(scrim){
         var title = scrim.querySelector('#__svcTitle').value.trim();
         if (!title) { toast('Give the service a title'); return; }
-        p.services.push({
-          id: uid('svc'),
-          categoryId: cid,
-          typeId: tid,
-          title: title,
-          description: scrim.querySelector('#__svcDesc').value.trim(),
-          baseRate: scrim.querySelector('#__svcRate').value === '' ? null : Number(scrim.querySelector('#__svcRate').value),
-          rateType: scrim.querySelector('#__svcRateType').value,
-          minimum: scrim.querySelector('#__svcMin').value === '' ? null : Number(scrim.querySelector('#__svcMin').value),
-          travelIncluded: true
-        });
+        var svc = {
+          id: uid('svc'), categoryId: cid, typeId: tid,
+          title: title, description: '', baseRate: null, rateType: RATE_TYPES[0],
+          minimum: null, travelIncluded: true,
+          halfDayRate: null, fullDayRate: null, depositPercent: 30, paymentTerms: '',
+          packages: [], discounts: [], images: []
+        };
+        readSvcSheet(scrim, svc);
+        p.services.push(svc);
         scrim.remove();
         markDirty();
         render();
       }, 'Add service');
   }
   function editService(id){
-    var p = state.profile;
-    var svc = p.services.filter(function(s){ return s.id === id; })[0];
+    var svc = findSvc(id);
     if (!svc) return;
-    var type = findType(svc.categoryId, svc.typeId);
-    openSheet('Edit service',
-      '<div class="field"><label>Service title</label><input id="__svcTitle" value="' + esc(svc.title || '') + '"></div>' +
-      '<div class="field"><label>Description</label><textarea id="__svcDesc" rows="3">' + esc(svc.description || '') + '</textarea></div>' +
-      '<div class="field"><label>Base rate (BWP)</label><input id="__svcRate" type="number" min="0" value="' + (svc.baseRate == null ? '' : svc.baseRate) + '"></div>' +
-      '<div class="field"><label>Rate type</label><select id="__svcRateType">' +
-        RATE_TYPES.map(function(rt){ return '<option' + (svc.rateType === rt ? ' selected' : '') + '>' + esc(rt) + '</option>'; }).join('') +
-      '</select></div>' +
-      '<div class="field"><label>Minimum notice (days)</label><input id="__svcMin" type="number" min="0" value="' + (svc.minimum == null ? '' : svc.minimum) + '"></div>',
+    openSheet('Edit service', svcSheetHTML(svc),
       function(scrim){
-        svc.title = scrim.querySelector('#__svcTitle').value.trim();
-        svc.description = scrim.querySelector('#__svcDesc').value.trim();
-        svc.baseRate = scrim.querySelector('#__svcRate').value === '' ? null : Number(scrim.querySelector('#__svcRate').value);
-        svc.rateType = scrim.querySelector('#__svcRateType').value;
-        svc.minimum = scrim.querySelector('#__svcMin').value === '' ? null : Number(scrim.querySelector('#__svcMin').value);
+        if (!scrim.querySelector('#__svcTitle').value.trim()) { toast('Give the service a title'); return; }
+        readSvcSheet(scrim, svc);
         scrim.remove();
         markDirty(); render();
       }, 'Save');
   }
 
+  /* the fields of the service popup — shared by add and edit */
+  function svcSheetHTML(s){
+    var v = function(x){ return x == null ? '' : x; };
+    return '<div class="field"><label>Service title</label><input id="__svcTitle" value="' + esc(s.title || '') + '"></div>' +
+      '<div class="field"><label>Description</label><textarea id="__svcDesc" rows="3" placeholder="What does this include?">' + esc(s.description || '') + '</textarea></div>' +
+      '<div class="field"><label>Base rate (BWP)</label><input id="__svcRate" type="number" min="0" value="' + v(s.baseRate) + '" placeholder="e.g. 2500"></div>' +
+      '<div class="field"><label>Rate type</label><select id="__svcRateType">' +
+        RATE_TYPES.map(function(rt){ return '<option' + (s.rateType === rt ? ' selected' : '') + '>' + esc(rt) + '</option>'; }).join('') +
+      '</select></div>' +
+      '<div class="field"><label>Half-day rate (5h)</label><input id="__svcHalf" type="number" min="0" value="' + v(s.halfDayRate) + '" placeholder="Optional"></div>' +
+      '<div class="field"><label>Full-day rate (8–10h)</label><input id="__svcFull" type="number" min="0" value="' + v(s.fullDayRate) + '" placeholder="Optional"></div>' +
+      '<div class="field"><label>Deposit %</label><input id="__svcDep" type="number" min="0" max="100" value="' + (s.depositPercent == null ? 30 : s.depositPercent) + '"></div>' +
+      '<div class="field"><label>Minimum notice (days)</label><input id="__svcMin" type="number" min="0" value="' + v(s.minimum) + '" placeholder="Optional"></div>';
+  }
+  function readSvcSheet(scrim, s){
+    var numOrNull = function(sel){
+      var el = scrim.querySelector(sel);
+      return !el || el.value === '' ? null : Number(el.value);
+    };
+    s.title = scrim.querySelector('#__svcTitle').value.trim();
+    s.description = scrim.querySelector('#__svcDesc').value.trim();
+    s.baseRate = numOrNull('#__svcRate');
+    s.rateType = scrim.querySelector('#__svcRateType').value;
+    s.halfDayRate = numOrNull('#__svcHalf');
+    s.fullDayRate = numOrNull('#__svcFull');
+    s.depositPercent = numOrNull('#__svcDep');
+    s.minimum = numOrNull('#__svcMin');
+  }
+
   /* ============================================================
      PACKAGE / DISCOUNT / IMAGE / VIDEO EDITORS
      ============================================================ */
-  function editPackage(i){
+  function editPackage(svcId, i){
     var p = state.profile;
-    var pkg = i >= 0 ? p.pricing.packages[i] : { name:'', price:null, includes:'' };
+    var svc = svcId ? findSvc(svcId) : null;
+    var list = svc ? svc.packages : p.pricing.packages;
+    var pkg = i >= 0 ? list[i] : { name:'', price:null, includes:'' };
     openSheet(i >= 0 ? 'Edit package' : 'Add package',
       '<div class="field"><label>Package name</label><input id="__pkName" value="' + esc(pkg.name) + '" placeholder="e.g. Wedding package"></div>' +
       '<div class="field"><label>Price (BWP)</label><input id="__pkPrice" type="number" min="0" value="' + (pkg.price == null ? '' : pkg.price) + '"></div>' +
@@ -1606,15 +1737,17 @@ img{display:block;max-width:100%}
           price: scrim.querySelector('#__pkPrice').value === '' ? null : Number(scrim.querySelector('#__pkPrice').value),
           includes: scrim.querySelector('#__pkInc').value.trim()
         };
-        if (i >= 0) p.pricing.packages[i] = obj; else p.pricing.packages.push(obj);
+        if (i >= 0) list[i] = obj; else list.push(obj);
         scrim.remove();
         markDirty(); render();
       }, i >= 0 ? 'Save' : 'Add');
   }
 
-  function editDiscount(i){
+  function editDiscount(svcId, i){
     var p = state.profile;
-    var d = i >= 0 ? p.discounts[i] : { code:'', label:'', percent:10, flatOff:null, validUntil:'', terms:'' };
+    var svc = svcId ? findSvc(svcId) : null;
+    var list = svc ? svc.discounts : p.discounts;
+    var d = i >= 0 ? list[i] : { code:'', label:'', percent:10, flatOff:null, validUntil:'', terms:'' };
     openSheet(i >= 0 ? 'Edit discount' : 'Add discount',
       '<div class="field"><label>Discount code</label><input id="__dCode" value="' + esc(d.code) + '" placeholder="e.g. EATOUTS10" style="text-transform:uppercase"><div class="hint">Short, memorable, uppercase.</div></div>' +
       '<div class="field"><label>Label</label><input id="__dLabel" value="' + esc(d.label) + '" placeholder="e.g. 10% off for EatOuts bookings"></div>' +
@@ -1637,7 +1770,7 @@ img{display:block;max-width:100%}
           validUntil: scrim.querySelector('#__dUntil').value || '',
           terms: scrim.querySelector('#__dTerms').value.trim()
         };
-        if (i >= 0) p.discounts[i] = obj; else p.discounts.push(obj);
+        if (i >= 0) list[i] = obj; else list.push(obj);
         scrim.remove();
         markDirty(); render();
       }, i >= 0 ? 'Save' : 'Add');

@@ -53,6 +53,7 @@ const SUITES = [
   'builder-details.js',
   'supplier-activate.js',
   'supplier-identity.js',
+  'supplier-pricing.js',
   'appshell.js',
   'html-catalog.js',
   'field.js',
