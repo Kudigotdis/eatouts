@@ -35,6 +35,39 @@ walkthrough that closes those boxes.
 
 ---
 
+## How to report back
+
+Paste one line per screen — `pass` or `fail — <what you saw>` — with the widths
+and the device you used. Bare numbers are enough; I have the mapping.
+
+```
+1 promos       360/390  pass
+2 filter+ritem 360      pass
+3 gallery      360      fail  — 4th row clipped on a tall image
+4 checkout     360/390/430 pass
+5 backhistory  360      pass
+6 reserve      390      pass
+7 blog         360/390/430 pass
+8 onboarding   360      pass (desktop DevTools only, no phone)
+9 headers      360      pass
+10 orders      360/390/430 pass
+11 suppliers   360      untested — no Android device
+12 region      360/390  pass
+```
+
+Rules I apply when ticking:
+
+- `pass` → the box in `PLATFORM UPDATE TASKS.md` is ticked and the sign-off row
+  above is filled with the date + device.
+- `fail — …` → the box stays open and I file the text you gave me as a bug line
+  under that task (not a tick), so nothing is quietly closed.
+- `untested` → stays open, and I say so in the summary. I do not infer a pass
+  from a width you did not try.
+- Only the widths you actually tested go in the sign-off row — e.g. `360` alone
+  means 390/430 are still outstanding for that screen if the box asks for them.
+
+---
+
 ## 1. Promos feed — `index.html` → **Promos** (also tap a promo card for the detail view)
 
 *Box: T01 (line 267)* · widths 360 / 390
