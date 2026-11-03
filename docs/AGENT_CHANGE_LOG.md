@@ -14,6 +14,23 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 21:55:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T18 step 3 (final half) — account-only listing + Step 1 prefill, plus a permanent identity test
+- Files changed:
+  - `eatouts-suppliers.html`: new `prefillFromAccount()` (signed-in profile, else most recent profile on device → first/last name, photo, `dob`/`birth`/`age`) called from the `newProfile` branch; `publishChecks()` gained a second warn requiring the account holder's first + last name
+  - `tests/supplier-identity.js` (NEW, 33 checks): device photo/logo pickers, Y/M/D popups incl. leap years + day clamping, derived age + draft autosave, account prefill, both publish gates
+  - `tests/run-all.js`: registers the new suite after `supplier-activate.js`
+  - `PLATFORM UPDATE TASKS.md`: step 3 closed with the interpretation stated
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - "Account-only" was the one ambiguous line in the brief, so it was interpreted against what the page actually has: there is no auth backend (D6 already recorded that decision), only a local profile store + session + PIN. Hence "account-only" = the listing carries the account holder's identity (enforced at publish) and Step 1 opens prefilled from the account on this device. Recorded in the task doc rather than silently assumed.
+  - Prefill copies only personal fields — never the business, services, pricing or gallery — so a second listing cannot inherit a previous business by accident.
+  - No new dependency: the test uses the `jsdom` copy already vendored at `tests/node_modules`.
+- Verified: `node tests/supplier-identity.js` PASSED (33 checks) · `node tests/supplier-activate.js` PASSED (22 checks) · `node tests/smoke.js` PASSED · `npm run inventory` PASSED (10 checks, 92 warnings = baseline).
+
+---
+
 ### [2026-11-03 21:15:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: T18 step 3 (age picker) — mandatory 3-column Year / Month / Day picker with floating scroll-list popups
 - Files changed:

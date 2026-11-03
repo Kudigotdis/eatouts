@@ -1088,6 +1088,10 @@ img{display:block;max-width:100%}
       ? { k:'ok', ic:'✓', txt:'Date of birth on file.' }
       : { k:'warn', ic:'!', txt:'Add the account holder\'s date of birth (Step 1).' });
 
+    checks.push((p.owner.firstName && p.owner.lastName)
+      ? { k:'ok', ic:'✓', txt:'Account holder: ' + p.owner.firstName + ' ' + p.owner.lastName + '.' }
+      : { k:'warn', ic:'!', txt:'Listings belong to an account — add the account holder\'s first and last name (Step 1).' });
+
     checks.push(p.location.town
       ? { k:'ok', ic:'✓', txt:'Town / city set.' }
       : { k:'warn', ic:'!', txt:'Set your town or city (Step 6).' });
@@ -1300,6 +1304,26 @@ img{display:block;max-width:100%}
     }, { maxWidth: 1200, maxHeight: 1200 });
   }
 
+  /* Account-only listing: a profile always belongs to the account holder on
+     this device, so Step 1 opens with their personal details already filled
+     in instead of asking them to retype what was saved last time. */
+  function prefillFromAccount(p){
+    var list = loadProfiles();
+    if (!list.length) return;
+    var sid = sessionGet();
+    var src = null;
+    for (var i = 0; i < list.length; i++) if (sid && list[i].id === sid) src = list[i];
+    if (!src) src = list[list.length - 1];
+    if (!src || !src.owner) return;
+    var o = p.owner, s = src.owner;
+    o.firstName = s.firstName || '';
+    o.lastName = s.lastName || '';
+    o.photo = s.photo || s.headshot || '';
+    o.dob = s.dob || '';
+    o.age = s.age == null ? null : s.age;
+    if (s.birth) o.birth = { y: s.birth.y || null, m: s.birth.m || null, d: s.birth.d || null };
+  }
+
   /* ============================================================
      ACTION HANDLER
      ============================================================ */
@@ -1311,6 +1335,7 @@ img{display:block;max-width:100%}
     /* ---------- landing ---------- */
     if (act === 'newProfile') {
       var p = blankProfile();
+      prefillFromAccount(p);
       state.profile = p;
       state.editing = true;
       state.view = 'onboarding';
