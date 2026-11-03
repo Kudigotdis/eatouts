@@ -21,8 +21,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `tests/supplier-identity.js` (NEW, 33 checks): device photo/logo pickers, Y/M/D popups incl. leap years + day clamping, derived age + draft autosave, account prefill, both publish gates
   - `tests/run-all.js`: registers the new suite after `supplier-activate.js`
   - `PLATFORM UPDATE TASKS.md`: step 3 closed with the interpretation stated
-- Commit: PENDING
-- Push: PENDING
+- Commit: `10221d2`
+- Push: `71a71e7..10221d2  main -> main`
 - Notes:
   - "Account-only" was the one ambiguous line in the brief, so it was interpreted against what the page actually has: there is no auth backend (D6 already recorded that decision), only a local profile store + session + PIN. Hence "account-only" = the listing carries the account holder's identity (enforced at publish) and Step 1 opens prefilled from the account on this device. Recorded in the task doc rather than silently assumed.
   - Prefill copies only personal fields — never the business, services, pricing or gallery — so a second listing cannot inherit a previous business by accident.
