@@ -18,8 +18,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Task: D6 — close the T18 "activate" question ("activate = make it work")
 - Files changed:
   - `PLATFORM UPDATE TASKS.md` (+3/-5): §7 **D6** moved to Resolved and recorded as *closed by execution*, citing `saveDraft` `:1355`, `publish` `:1368`, `publishChecks`/`publishReady` `:1003`/`:1035`, `EatoutsSupplierDirectory.sync()` `:614` and the `?link=<slug>` router `:1739`; §7 now ends with **"Still open: none."**; T18 step 2 marked ✅ DONE by execution so the remaining work is steps 1 and 3–9 only
-- Commit: PENDING
-- Push: PENDING
+- Commit: `dfe7880`
+- Push: `fa2fdc3..dfe7880  main -> main`
 - Notes:
   - No code was needed: the flow was already live. `node tests/supplier-activate.js` was run **before** touching the doc and passed, which is what established "no build required" rather than an assumption.
   - Recorded as "closed by execution" in the same style as D5 / D9 rather than "closed by decision", because the answer is evidenced by the shipped code + a passing suite.
