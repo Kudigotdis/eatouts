@@ -1893,3 +1893,31 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: `git diff --stat` -> `1 file changed, 2 deletions(-)`; row 1062 (T12.7 + T12.8) still intact, heading now 1064 with one blank line above it.
 - Errors: none
 
+
+### [2026-11-03 03:05:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T21 step 7 (commit 2 of 3) — designer step rework: Available/Previous toggle, 90px square avatars, 3-image snap carousel, portfolio lightbox + 3-across grid, `.pill.ok` retired
+- Files changed:
+  - designer-services.html:
+    - step 2 rebuilt as **Available Designers**: `<h1>` "Pick a style" → "Available Designers", body copy 16px, `.seg` toggle (`data-act="desTab"`, `available`/`previous`) under the hero.
+    - previous = designers already named on a job in `eatouts_jobs_v1` (`previousDesigners()`, most recent first) → no new seed fields, no new store.
+    - `.designer-top` is now a centred row holding a `.av-btn` wrapper; `.av-wrap`/`.av-ini`/`img` go from `border-radius:50%` to **16px on a 90px square**, and tapping the avatar opens the lightbox. Card reads avatar → `<h4>` (16px) → `<p>` → work strip → dots → action, all centred.
+    - `.mosaic` is a 3-image `scroll-snap-type:x mandatory` carousel (`.cell{flex:0 0 100%;aspect-ratio:1/1}`), with `.mos-dots` under it that track the scroll position (`wireMosaics()`).
+    - new `#lb` lightbox: pager (one photo + live dots, swipe via `touchstart`/`touchend`, wired once) → tapping the dots flips to the 3-across `columns:3` grid on `rgba(10,10,10,.94)` → tapping a grid photo enlarges it back in the pager. Designers with no photos fall back to an initials tile (`.lb-ini`).
+    - engaged designers stay on the page, inactive (`.designer-card.locked{opacity:.62}`, no `pointer-events:none` so the new button is tappable) with "Available from <date>" (`availableFrom()` = start + delivery days over their open jobs, `fmtDate()` → "6 Nov") or "There is work waiting — join the queue", plus a **Notify me when free** button that opens a pre-filled `wa.me` to the admin number.
+    - `.pill.ok` retired: rule deleted, "Available" badge on the card and in the review summary dropped, and the catalogue's founding-discount pill became a plain `.micro` line ("Founding-20 discount available"). `.pill` / `.pill.warn` untouched.
+  - tests/designer-services.js (+29 checks, 34 → 63): heading, 16px copy, both toggle buttons + default active, `.pill.ok` gone from DOM and CSS, 90px square avatar + tappable, card child order, centred 16px title, 3-cell snap carousel + 3 dots, engaged cards (4) offer notify-me and never a pick, the "Available from <date>" and "work waiting" variants, carousel → lightbox → dots index → swipe both ways → 3-across grid (9 photos) → enlarge → close, avatar enlarge, Previous tab from a seeded closed + open job, toggle round-trip. The two seeded jobs make the persisted-job assertion `mine.length === 1 && stored.length === 3`.
+  - PLATFORM UPDATE TASKS.md: T21 heading marked 🟡 in progress (steps 1–7 + 10 landed, 5/8/9 open), same convention as T22.
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: (this commit)
+- Notes:
+  - Answers used for the three open questions (the user said "proceed"): **A1** previous designers = designers on past `eatouts_jobs_v1` jobs — yes; **A2** no `status`/`available_from` fields were added to `js/eatouts-designers-seed.js` — availability stays derived from `slot_types`/`max_projects`/`max_retainers`/`isDesignerReserved` plus `availableFrom()`, so the seed and the designer workspace are untouched; **A3** `eatouts_jobs_v1` remains the single request store, which step 8 will read for "My Design Requests".
+  - `openLightbox`/`portfolioItems` reuse the seed's 8–9 portfolio images, so the lightbox grid is richer than the 3 shown in the carousel while the carousel stays a clean 3-up snap strip.
+  - Availability is still counter-driven: an `in_progress` job does **not** make a designer unavailable, it only supplies the "available from" date. Keeping that split means the designer workspace remains the only place that flips a slot.
+  - Not verified: real-device visual pass (jsdom has no layout engine, so snap scrolling, swipe feel and the 90px avatar crop need eyes).
+- Verified:
+  - `node tests/designer-services.js` -> **DESIGNER-SERVICES TEST PASSED**, 63 ok, 0 failed, 0 window errors
+  - `node tests/brand-kit-admin.js` -> BRAND-KIT-ADMIN TEST PASSED
+  - `node tests/designer-dashboard.js` -> DESIGNER-DASHBOARD TEST PASSED
+  - `node tests/run-all.js` -> **66 passed, 0 failed** (read from the divider-framed summary line)
+- Errors: none
+

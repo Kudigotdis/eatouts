@@ -709,7 +709,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 4. Empty/not-found state.
 **Done when** a saved event renders exactly like the builder preview, nothing is editable, share opens WhatsApp with the link, docs/tests green.
 
-#### T21 — `designer-services` catalogue + galleries (user task 21) · XL
+#### T21 — `designer-services` catalogue + galleries (user task 21) · XL — 🟡 **IN PROGRESS 2026-11-03** (steps 1–7 + 10 landed; account gating / requests (5, 8, 9) still open)
 **Files:** `designer-services.html` (hero `:240-257`, catalogue `:259-…`, designer list, step 2, step 3), `js/eatouts-services-seed.js` (29 services, `:14-272`), `js/eatouts-brand-kit.js`, `assets/images/services/*`.
 **Steps**
 1. Header → standard (T08); add the bottom nav exactly as in the brief; remove `.badges`.

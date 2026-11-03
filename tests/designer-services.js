@@ -8,7 +8,8 @@
  * `eatouts_jobs_v1` as `awaiting_admin`. Also guards the designer-workspace
  * entry link in the catalogue footer, and the T21 standard-shell rework
  * (bottom `appnav`, centred chip row, 16px type, no pill badges / icons /
- * plus glyphs).
+ * plus glyphs) plus the step-2 rework (Available/Previous toggle, 90px
+ * avatars, 3-image snap carousel, portfolio lightbox + 3-across grid).
  */
 'use strict';
 
@@ -124,15 +125,118 @@ setTimeout(() => {
   check('service detail prices a total', svcSum && /Total/.test(svcSum.textContent), svcSum ? svcSum.textContent.slice(0, 60) : 'no summary');
 
   /* ---------- continue to the designer step ---------- */
+  /* a returning browser with design history: one closed job, one still open */
+  const DAY = 86400000;
+  const seedJob = (o) => Object.assign({
+    service_id: 'svc_brand_kit', service_category: 'identity', service_name: 'Brand Kit',
+    is_recurring: false, business_name: 'Old Bistro', business_whatsapp: '26770000000',
+    base_price: 1500, add_ons: [], bundle_discount: 0, founding_discount: 0, total: 1500,
+    price_breakdown: { gross: 1500, platform_cut: 225, designer_payout: 1275 },
+    slot_type: 'project', brief: { industry: '', likes: '', dislikes: '', references: [] },
+    deadlines: { admin_response_due_by: 0, first_draft_due_by: null, client_review_due_by: null },
+    payout_status: 'paid', founding_gift: false, onboard_upsell_checked: false,
+    created_at: Date.now(), updated_at: Date.now()
+  }, o);
+  window.localStorage.setItem('eatouts_jobs_v1', JSON.stringify({ jobs: [
+    seedJob({ id: 'JOB-PAST01', designer_id: 'designer_neoframe', status: 'closed', created_at: Date.now() - 40 * DAY }),
+    seedJob({ id: 'JOB-OPEN01', designer_id: 'designer_thuto_motion', status: 'in_progress', created_at: Date.now() - 3 * DAY })
+  ] }));
   click(doc.getElementById('btnNextStep'));
   const dCards = doc.querySelectorAll('#view .designer-card');
   check('designer step lists the roster (5)', dCards.length === 5, dCards.length);
   check('designer avatars render (5)', doc.querySelectorAll('#view .designer-card .av-wrap').length === 5, doc.querySelectorAll('#view .designer-card .av-wrap').length);
-  const pickDes = doc.querySelector('#view [data-act="pickDesigner"]');
-  check('an available portfolio can be picked', !!pickDes, pickDes && pickDes.getAttribute('data-id'));
+  check('an available portfolio can be picked', !!doc.querySelector('#view [data-act="pickDesigner"]'), doc.querySelector('#view [data-act="pickDesigner"]'));
+
+  /* ---------- T21 step 7: designer step rework ---------- */
+  const dH1 = doc.querySelector('#view .hero h1');
+  check('designer step heading says Available Designers', dH1 && dH1.textContent === 'Available Designers', dH1 && dH1.textContent);
+  const dCopy = doc.querySelector('#view .hero p');
+  check('designer step copy is 16px', dCopy && window.getComputedStyle(dCopy).fontSize === '16px', dCopy && window.getComputedStyle(dCopy).fontSize);
+  const tabs = Array.from(doc.querySelectorAll('#view .seg-btn'));
+  check('available / previous toggle renders', tabs.length === 2 && tabs.map(b => b.getAttribute('data-val')).join(',') === 'available,previous',
+    tabs.map(b => b.getAttribute('data-val')).join(','));
+  check('available tab is active by default', tabs[0] && tabs[0].classList.contains('on') && !tabs[1].classList.contains('on'), tabs[0] && tabs[0].className);
+  check('retired available pill is gone', !doc.querySelector('#view .pill.ok') && !/\.pill\.ok\{/.test(HTML), doc.querySelectorAll('#view .pill.ok').length);
+
+  const av = doc.querySelector('#view .designer-card .av-wrap');
+  const avStyle = window.getComputedStyle(av);
+  check('avatar is a 90px square', av && av.style.width === '90px' && av.style.height === '90px' && avStyle.borderRadius === '16px',
+    av && av.style.width + 'x' + av.style.height + ' r=' + avStyle.borderRadius);
+  check('avatar is tappable to enlarge', !!doc.querySelector('#view .designer-card .av-btn[data-act="zoomAvatar"]'));
+
+  const card = doc.querySelector('#view .designer-card');
+  const seq = Array.from(card.children).map(n => n.tagName.toLowerCase() + (n.className ? '.' + String(n.className).split(' ')[0] : ''));
+  check('card orders avatar, title, blurb, work, action', seq.join(',') === 'div.designer-top,h4,p,div.mosaic,button.mos-dots,button.btn', seq.join(','));
+  check('title + blurb sit centred under the avatar',
+    window.getComputedStyle(card).textAlign === 'center' && window.getComputedStyle(card.querySelector('h4')).fontSize === '16px',
+    window.getComputedStyle(card).textAlign + ' / ' + window.getComputedStyle(card.querySelector('h4')).fontSize);
+  const mosaics = Array.from(doc.querySelectorAll('#view .designer-card .mosaic'));
+  check('work strip is a 3-image snap carousel', /\.mosaic\{[^}]*scroll-snap-type:x mandatory/.test(HTML) && mosaics.every(m => m.querySelectorAll('.cell').length === 3),
+    mosaics.map(m => m.querySelectorAll('.cell').length).join(','));
+  const mosDots = card.querySelector('.mos-dots');
+  check('carousel shows 3 dots under the work strip', mosDots && mosDots.children.length === 3 && mosDots.children[0].classList.contains('on'),
+    mosDots && mosDots.children.length);
+
+  const lockedCards = Array.from(doc.querySelectorAll('#view .designer-card.locked'));
+  check('engaged designers stay listed but inactive', lockedCards.length === 4, lockedCards.length);
+  check('engaged cards offer notify-me, never a pick', lockedCards.every(c => c.querySelector('[data-act="notifyMe"]') && !c.querySelector('[data-act="pickDesigner"]')));
+  const busyCard = doc.querySelector('#view .designer-card[data-designer="designer_thuto_motion"]');
+  check('engaged card shows the date it frees up', busyCard && /Available from \d/.test(busyCard.textContent),
+    busyCard && busyCard.textContent.slice(-120));
+  const idleBusy = doc.querySelector('#view .designer-card[data-designer="designer_dineo_social"]');
+  check('engaged card without a job still invites a queue request', idleBusy && /work waiting/i.test(idleBusy.textContent),
+    idleBusy && idleBusy.textContent.slice(-120));
+
+  /* carousel -> lightbox pager -> 3-across grid -> enlarge -> swipe */
+  const lbEl = doc.getElementById('lb');
+  const swipe = (dx) => {
+    const start = new window.Event('touchstart', { bubbles: true });
+    Object.defineProperty(start, 'touches', { value: [{ clientX: 200 }] });
+    lbEl.dispatchEvent(start);
+    const end = new window.Event('touchend', { bubbles: true });
+    Object.defineProperty(end, 'changedTouches', { value: [{ clientX: 200 + dx }] });
+    lbEl.dispatchEvent(end);
+  };
+  const lbDots = () => Array.from(lbEl.querySelectorAll('.lb-dots span'));
+  const onDot = () => lbDots().findIndex(d => d.classList.contains('on'));
+  const neoCells = doc.querySelectorAll('#view .designer-card[data-designer="designer_neoframe"] .cell');
+  click(neoCells[1]);
+  check('tapping a work image opens the lightbox', !lbEl.classList.contains('hide') && !!lbEl.querySelector('.lb-stage'),
+    lbEl.className + ' / ' + lbEl.innerHTML.slice(0, 40));
+  check('lightbox dots track the tapped photo', lbDots().length === 9 && onDot() === 1, lbDots().length + ' / on=' + onDot());
+  swipe(-120);
+  check('swiping left advances the photo', onDot() === 2, onDot());
+  swipe(120);
+  check('swiping right goes back', onDot() === 1, onDot());
+  click(lbEl.querySelector('.lb-dots'));
+  check('tapping the dots opens the 3-across grid',
+    !!lbEl.querySelector('.lb-grid') && lbEl.querySelectorAll('.lb-grid img').length === 9,
+    lbEl.querySelectorAll('.lb-grid img').length);
+  check('grid is 3 across on feint black', /\.lb-grid\{[^}]*columns:3/.test(HTML) && /\.lb\{[^}]*rgba\(10,10,10/.test(HTML));
+  click(lbEl.querySelectorAll('.lb-grid img')[4]);
+  check('tapping a grid photo enlarges it', !!lbEl.querySelector('.lb-stage') && !lbEl.querySelector('.lb-grid') && onDot() === 4, onDot());
+  click(lbEl.querySelector('[data-act="lbClose"]'));
+  check('closing the lightbox clears it', lbEl.classList.contains('hide') && lbEl.innerHTML === '', lbEl.className);
+  click(doc.querySelector('#view .designer-card .av-btn'));
+  check('tapping the avatar enlarges it',
+    !lbEl.classList.contains('hide') && !!lbEl.querySelector('.lb-stage img') && lbDots().length === 1, lbDots().length);
+  click(lbEl.querySelector('[data-act="lbClose"]'));
+
+  /* previous designers come from the request history */
+  click(tabs[1]);
+  const prevCards = Array.from(doc.querySelectorAll('#view .designer-card'));
+  check('previous designers come from past requests',
+    prevCards.length === 2 && !!doc.querySelector('#view [data-designer="designer_neoframe"]') && !!doc.querySelector('#view [data-designer="designer_thuto_motion"]'),
+    prevCards.map(c => c.getAttribute('data-designer')).join(','));
+  check('previous tab drops the engaged list', !/Currently engaged/.test(doc.querySelector('#view .list').textContent));
+  check('previous tab keeps the available pick', !!doc.querySelector('#view [data-designer="designer_neoframe"] [data-act="pickDesigner"]'));
+  click(doc.querySelector('#view .seg-btn[data-val="available"]'));
+  check('toggle returns to the available roster', doc.querySelectorAll('#view .designer-card').length === 5,
+    doc.querySelectorAll('#view .designer-card').length);
+  check('pick survives the toggle round-trip', !!doc.querySelector('#view [data-act="pickDesigner"]'));
 
   /* ---------- brief ---------- */
-  click(pickDes);
+  click(doc.querySelector('#view [data-act="pickDesigner"]'));
   check('brief step shows the business fields', !!doc.getElementById('fName') && !!doc.getElementById('fWhats'));
   check('brief requires accepting the terms', !!doc.querySelector('[data-act="toggleTerms"]'));
   type(doc.getElementById('fName'), 'Test Bistro');
@@ -151,8 +255,10 @@ setTimeout(() => {
   check('WhatsApp handoff is a wa.me URL', sendWa && /^https:\/\/wa\.me\/\d+\?text=/.test(sendWa.getAttribute('href')), sendWa && sendWa.getAttribute('href'));
 
   const stored = jobs();
-  check('job persisted to eatouts_jobs_v1', stored.length === 1 && stored[0].business_name === 'Test Bistro', JSON.stringify(stored[0] && { b: stored[0].business_name, s: stored[0].status }));
-  check('job starts awaiting admin', !!stored[0] && stored[0].status === 'awaiting_admin', stored[0] && stored[0].status);
+  const mine = stored.filter(j => j.business_name === 'Test Bistro');
+  check('job persisted to eatouts_jobs_v1', mine.length === 1 && stored.length === 3,
+    JSON.stringify({ total: stored.length, mine: mine.length, status: mine[0] && mine[0].status }));
+  check('job starts awaiting admin', !!mine[0] && mine[0].status === 'awaiting_admin', mine[0] && mine[0].status);
 
   console.log('\nwindow errors: ' + errors.length);
   errors.slice(0, 10).forEach(e => console.log('  ' + e.split('\n')[0]));
