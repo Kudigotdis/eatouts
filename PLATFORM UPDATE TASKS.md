@@ -607,7 +607,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 **Files:** `eatouts-suppliers.html` — header `:269-275`, step scaffold `:700-720`, `renderIdentityStep` `:~730-770`, `renderServicesStep` `:~770-800`, `renderPricingStep` `:~810-874`, `renderGalleryStep` `:876-…`, portfolio, contact `:~950-1010`, review, export `:~1077`.
 **Steps**
 1. Remove `.title#hdrTitle` (`:272`); standard header (T08).
-2. "Activate" the page — see D6 (ambiguous).
+2. "Activate" the page — see D6 (ambiguous). → ✅ **DONE by execution 2026-11-03 (D6):** publish/save already works end-to-end (`publish` `:1368` → `EatoutsSupplierDirectory.sync()` `:614` → directory + builder cost model + `?link=<slug>` public page), proven by `tests/supplier-activate.js` (22 checks).
 3. Step 1 (`i1`):
    - 150px centred square rounded **profile image** picker + separate **business logo** picker (device upload);
    - remove `owner.headshot` URL field (`:746`);
@@ -1016,12 +1016,10 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 - **D9 — T15 headers:** closed by execution 2026-10-31 — all 7 onboarding pages were converted to the light standard header (see T15).
 - **D7 — Botswana WhatsApp Channel:** closed 2026-11-01 — **no channel exists yet.** The coming-soon popup is the intended shipped state; `WHATSAPP_CHANNELS.BW` stays empty until the channel is created, then a one-line edit turns the row into a live link.
 
-**Still open**
-
-| ID | Task | Question | Recommended default |
-|---|---|---|---|
-| **D6** | T18 | The brief says only "activate" under `eatouts-suppliers` — activate what? | The page's save/publish flow (currently gated). |
+- **D6 — T18 "activate":** closed 2026-11-03 by execution — "activate" means **make the page work end-to-end**, and it already does. A supplier fills the accordion steps, `saveDraft` (`:1355`) and `publish` (`:1368`) write `eatouts_suppliers_v1` under a session key, the publish gate is `publishChecks`/`publishReady` (`:1003`/`:1035` — service, price, WhatsApp, name, town, one photo), and `EatoutsSupplierDirectory.sync()` (`:614`) bridges every **published** profile into the directory the builder, venue pages and cost model read; `?link=<slug>` renders the public page (`:621`, router at `:1739`). Proven by `tests/supplier-activate.js` (22 checks, PASSED): a published profile resolves by slug, carries its planner bucket / service / price / unit / area, prices correctly through the builder cost model, does not duplicate on re-sync, leaves the demo directory untouched, and a **draft** stays invisible. Nothing to build for this step — T18 steps 1 and 3–9 remain.
 - **D8 — T21 prices:** closed 2026-11-03 by option **A** — the **shipped seed wins**. §6 now mirrors `js/eatouts-services-seed.js` exactly (24 offers): Brand Kit **P1,500**, Brand Kit Plus **P3,200**, Business Cards **P350**, Shopfront **P850**, Monthly Social Media **P1,600**, Takeaway Bag **P450**, Logo Animation **P450**, and **Full Packaging Design P1,800** (the brief's P550 was stale). `svc_menu_refresh` / `svc_event_programme` were already dropped by the build and stay dropped here — they live on as supplier services. Doc-only change: no seed or test edits.
+
+**Still open: none.** Every decision above is closed, so no task is blocked on an answer.
 
 ---
 
