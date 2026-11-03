@@ -389,6 +389,12 @@
 
   /* ---------- money formatting ---------- */
   function money(n){
+    /* T22b: follow the active region (BW -> "P", ZA -> "R"). Pages that do not
+       load js/eatouts-regions.js keep the Botswana default, which is the same
+       string, so no page changes appearance today. */
+    if (window.EatoutsRegions && typeof window.EatoutsRegions.money === 'function') {
+      return window.EatoutsRegions.money(n);
+    }
     return 'P' + (Number(n)||0).toFixed(2);
   }
 

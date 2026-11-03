@@ -98,7 +98,9 @@ Endpoints:
 - `GET  /api/health` — readiness + which bindings are live.
 - `POST /api/auth/dev-login` — passwordless login (**development only**; refuses when `ENV=production`).
 - `POST /api/auth/logout`, `GET /api/me` — session management.
-- `GET  /api/venues` — list / search / "mine" venues.
+- `GET  /api/venues` — list / search / "mine" venues. Scoped to one region:
+  `?region=ZA` selects it, no param means `BW`, an unknown code falls back to `BW`
+  (schema v16, `restaurants.region`).
 - `POST /api/upload?path=<key>` — session-gated upload to Supabase Storage.
 
 First-time setup (run once, paste the IDs each command prints back into `wrangler.toml`):

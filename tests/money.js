@@ -4,7 +4,13 @@
    turned a total into "0NaN" or "1050" concatenation.
 
    Runs the real js/eatouts-analytics.js in jsdom (no mock), then checks the
-   four dashboard pages that used to sum money inline. */
+   four dashboard pages that used to sum money inline.
+
+   Since T22b the same file also owns the display half: js/eatouts-regions.js
+   now formats prices per region (money() / symbol()), and the two shared
+   formatters (brand kit, manager) delegate to it. For Botswana the output is
+   byte-identical to the 'P' strings the pages print today, which is the point:
+   the region switch is invisible until a second region is active. */
 'use strict';
 
 const fs = require('fs');
@@ -86,6 +92,23 @@ check('eatouts-staff-admin1.html no longer sums money inline',
   fs.readFileSync(path.join(APP_DIR, 'eatouts-staff-admin1.html'), 'utf8').indexOf('orders.reduce(function(n,o){ return n + Number(o.total') === -1);
 check('eatouts-platform-analytics.html no longer sums money inline',
   fs.readFileSync(path.join(APP_DIR, 'eatouts-platform-analytics.html'), 'utf8').indexOf('orders.reduce(function(s,x){ return s + Number(x.total') === -1);
+
+/* ---------- T22b: the formatter follows the region ---------- */
+console.log('\n-- region-driven currency (T22b) --');
+dom.window.eval(fs.readFileSync(path.join(APP_DIR, 'js', 'eatouts-regions.js'), 'utf8'));
+const R = dom.window.EatoutsRegions;
+check('the registry owns a money() formatter', !!(R && typeof R.money === 'function' && typeof R.symbol === 'function'));
+check('registry money() prints exactly what the pages printed before (BW)',
+  R.money(12.5) === 'P12.50' && R.money(0) === 'P0.00' && R.money('abc') === 'P0.00',
+  R.money(12.5) + ' / ' + R.money('abc'));
+
+const BRAND_KIT = fs.readFileSync(path.join(APP_DIR, 'js', 'eatouts-brand-kit.js'), 'utf8');
+check('brand-kit money() delegates to the registry', BRAND_KIT.indexOf('window.EatoutsRegions.money') > -1);
+check('brand-kit keeps a P fallback for pages without the registry', BRAND_KIT.indexOf("return 'P' + (Number(n)||0)") > -1);
+
+const MANAGER = fs.readFileSync(path.join(APP_DIR, 'js', 'eatouts-manager.js'), 'utf8');
+check('manager money() falls back to the region currency, not a literal BWP',
+  MANAGER.indexOf('EatoutsRegions.currency()') > -1 && MANAGER.indexOf('||"BWP"') === -1);
 
 console.log('');
 console.log(fails ? (fails + ' FAILED') : (checks + ' checks passed'));

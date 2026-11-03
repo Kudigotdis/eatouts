@@ -13,7 +13,10 @@
  * gating has no field and reads as the default), and filterByRegion() is the
  * gate the data layers apply — see EatoutsBridge.all() and
  * EatoutsLocations. locationsFile() / currency() / locale() expose the active
- * region's own settings so callers stop hard-coding Botswana.
+ * region's own settings so callers stop hard-coding Botswana, and symbol() /
+ * money(v) are the display half: money(12) is "P12.00" in BW, "R12.00" in ZA.
+ * A page that has not been switched over keeps its own 'P' helper; the two are
+ * the same string for Botswana, so the change is invisible until region 2.
  *
  * Persisted under localStorage 'eatouts.region.v1'.
  */
@@ -71,6 +74,21 @@
     return (r && r.currency) || "BWP";
   }
 
+  /* The letter a page prints, not the ISO code: Botswana pages have always
+     written "P", and a currency with no mapping falls back to its own code so
+     nothing silently prints the wrong symbol. */
+  var SYMBOLS = { BWP:"P", ZAR:"R", USD:"$", MWK:"MK", KES:"KSh" };
+
+  function symbol(code){
+    var cur = String(code || currency()).toUpperCase();
+    return SYMBOLS[cur] || cur;
+  }
+
+  /** Region-aware price formatter — the one call site a page needs (T22b). */
+  function money(v){
+    return symbol() + (Number(v) || 0).toFixed(2);
+  }
+
   function locale(){
     var r = getActiveRegion();
     return (r && r.locale) || "en-BW";
@@ -112,6 +130,8 @@
     setActiveRegion: setActiveRegion,
     code: activeCode,
     currency: currency,
+    symbol: symbol,
+    money: money,
     locale: locale,
     locationsFile: locationsFile,
     recordRegion: recordRegion,

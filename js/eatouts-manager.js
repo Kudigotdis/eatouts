@@ -4,7 +4,7 @@
    store (EatoutsMgrDB) and the role layer on EatoutsAuth. */
 (function(){
   const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  const money=n=>`${(EatoutsMgrDB.get().settings||{}).currency||"BWP"} ${Number(n||0).toFixed(2)}`;
+  const money=n=>{const set=(EatoutsMgrDB.get().settings||{}).currency;const cur=set||(window.EatoutsRegions?window.EatoutsRegions.currency():"BWP");return `${cur} ${Number(n||0).toFixed(2)}`};
   const qs=s=>document.querySelector(s);
   function toast(msg){let x=qs("#eo-toast");if(!x){x=document.createElement("div");x.id="eo-toast";document.body.appendChild(x)}x.textContent=msg;x.classList.add("show");clearTimeout(window.__eoToast);window.__eoToast=setTimeout(()=>x.classList.remove("show"),2200)}
   function currentUser(){return window.EatoutsAuth&&EatoutsAuth.getUser?EatoutsAuth.getUser():null}

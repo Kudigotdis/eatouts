@@ -1,0 +1,50 @@
+-- EatOuts schema v16 (Cloudflare D1 / SQLite)
+-- Region gating part 2 (T22b): every venue row carries the region it belongs to.
+--
+-- WHY: T22 shipped the client-side gate — js/eatouts-regions.js filterByRegion()
+-- over the LOCAL records every directory reads — but the server copy of the
+-- directory had nowhere to store a region, so GET /api/venues returned every
+-- row regardless of who asked. Five regions sit in the registry and one is
+-- active, so that is invisible today and a "Kenya is served Botswana venues"
+-- bug the day ZA/ZW/MW/KE turns on. This column is the missing half.
+--
+-- DEFAULT 'BW' IS THE MIGRATION. Every row that exists right now is a Botswana
+-- venue (BW is the only active region), so NOT NULL DEFAULT 'BW' backfills the
+-- table correctly without a separate UPDATE. It also keeps the seed working:
+-- scripts/build_d1_seed.py emits `INSERT OR IGNORE INTO restaurants (col, ...)`
+-- with an explicit column list that does not name `region`, so new rows take
+-- the default too.
+--
+-- IDEMPOTENCY, READ THIS: SQLite has no `ADD COLUMN IF NOT EXISTS`, so this
+-- file is NOT re-runnable by hand — a second manual run fails with
+-- "duplicate column name: region" and changes nothing. That is fine through
+-- wrangler, which records applied files in d1_migrations and never reapplies
+-- one. The index below is IF NOT EXISTS so it is safe either way.
+--
+-- NO DOWN MIGRATION: this repo has no rollback convention (see 0015). The
+-- reverse is `DROP INDEX IF EXISTS idx_restaurants_region;` then
+-- `ALTER TABLE restaurants DROP COLUMN region;` (SQLite 3.35+, which D1 has).
+-- Reverting the code without reverting the column is harmless — an unused TEXT
+-- column with a default.
+--
+-- ORDERING: column first, filter second. Applying 0016 against the OLD worker
+-- is a no-op (that code never names `region`); shipping the functions/api/
+-- venues.js filter before this column would fail every /api/venues call with
+-- "no such column: region". Both ship in one commit, column included.
+--
+-- Applied with:
+--   npx wrangler d1 migrations apply eatouts --local    (npm run db:migrate:local)
+--   npx wrangler d1 migrations apply eatouts --remote   (npm run db:migrate)
+-- The --remote apply is the LAST step, run by a human after `git push`.
+--
+-- REHEARSED LOCALLY 2026-11-03 (npm run db:migrate:local, on a database that
+-- already held 0001-0015 and the seeded directory):
+--   PRAGMA table_info(restaurants) -> region TEXT NOT NULL DEFAULT 'BW'
+--   idx_restaurants_region present
+--   567 seeded venues, 567 read BW (the default backfilled the table)
+--   a row inserted with region='ZA' reads ZA and is invisible to the BW filter
+
+ALTER TABLE restaurants ADD COLUMN region TEXT NOT NULL DEFAULT 'BW';
+
+-- ISO-3166 alpha-2, the same codes js/eatouts-regions.js holds: BW | ZA | ZW | MW | KE.
+CREATE INDEX IF NOT EXISTS idx_restaurants_region ON restaurants(region);

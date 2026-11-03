@@ -5,6 +5,8 @@
  * Proves that the client data layers only ever see the active region:
  *   - the registry exposes the active region's code / currency / locale /
  *     location file, and its gating helpers;
+ *   - prices format through the region (symbol() / money()), so a page never
+ *     re-implements the currency itself (T22b);
  *   - a record written before gating (no `region`) reads as BW, so no saved
  *     venue disappears;
  *   - EatoutsBridge.all() — the single read path every directory, menu and
@@ -76,6 +78,14 @@ check('the registry and the data layers are present',
 /* ================= registry: active-region settings ================= */
 check('the active region is Botswana', R.code() === 'BW', R.code());
 check('currency follows the region', R.currency() === 'BWP', R.currency());
+check('the currency prints as the pages have always printed it', R.symbol() === 'P', R.symbol());
+check('money() formats in the active region', R.money(1250.5) === 'P1250.50', R.money(1250.5));
+check('money() never prints NaN', R.money('abc') === 'P0.00' && R.money(null) === 'P0.00',
+  R.money('abc') + ' / ' + R.money(null));
+check('symbol() takes an explicit code', R.symbol('ZAR') === 'R' && R.symbol('kes') === 'KSh',
+  R.symbol('ZAR') + ' / ' + R.symbol('kes'));
+check('an unmapped currency prints its own code, not a wrong symbol',
+  R.symbol('EUR') === 'EUR', R.symbol('EUR'));
 check('locale follows the region', R.locale() === 'en-BW', R.locale());
 check('the location file is resolved through the registry',
   R.locationsFile() === 'botswana_locations.js', R.locationsFile());
@@ -132,6 +142,8 @@ w.EATOUTS_REGIONS.forEach(r => { if (r.code === 'ZA') r.active = true; });
 check('ZA can be activated for this check', R.setActiveRegion('ZA') === true);
 check('the active code follows', R.code() === 'ZA', R.code());
 check('currency follows the new region', R.currency() === 'ZAR', R.currency());
+check('money() prints the new region\'s symbol', R.symbol() === 'R' && R.money(12) === 'R12.00',
+  R.symbol() + ' / ' + R.money(12));
 check('a region without a location file reports none', R.locationsFile() === null, R.locationsFile());
 check('the default stamp follows the active region',
   DB.addRestaurant('Delta Grill', db).region === 'ZA');

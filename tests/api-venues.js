@@ -4,7 +4,12 @@
    Stands up an in-memory fake of D1 and drives onRequestGet through
    id lookup, slug lookup, public-safe filtering (visible menu/gallery,
    active promos, published events) and the not-found / unconfigured
-   paths. Also checks the row -> client mappers shape. */
+   paths. Also checks the row -> client mappers shape.
+
+   Since T22b the same file also covers the LIST endpoint
+   (functions/api/venues.js) with its own fake D1: the region filter on all
+   three branches, the BW default, the unknown-code fallback, and region
+   combining with ?q / ?mine rather than overriding it. */
 'use strict';
 
 const path = require('path');
@@ -108,6 +113,72 @@ function ctx(id, env) {
   };
 }
 
+/* ---------- fake D1 for the LIST endpoint (functions/api/venues.js, T22b) ----------
+   The list handler is a different module from venues/[id].js, so it gets its own
+   seed: two BW venues, one ZA venue. Enough to prove the region filter, the BW
+   default, and that region combines with q / mine instead of being overridden. */
+function fakeListDB() {
+  const restaurants = [
+    { id: 'bw_1', slug: 'the-yard', name: 'The Yard', status: 'published', plan: 'growth', town: 'Gaborone', district_name: 'South East', area: 'CBD', logo_ref: 'a.png', types: '["Restaurant"]', region: 'BW' },
+    { id: 'bw_2', slug: 'kgale-cafe', name: 'Kgale Cafe', status: 'unclaimed', plan: 'starter', town: 'Gaborone', district_name: 'South East', area: 'Kgale', logo_ref: null, types: null, region: 'BW' },
+    { id: 'za_1', slug: 'moyo', name: 'Moyo', status: 'published', plan: 'pro', town: 'Cape Town', district_name: 'Western Cape', area: 'V&A', logo_ref: 'b.png', types: '["Bar"]', region: 'ZA' }
+  ];
+  const memberships = { user_1: ['bw_1', 'za_1'] };
+
+  function exec(sql, args) {
+    const s = norm(sql);
+    if (s.indexOf('JOIN memberships m ON m.restaurant_id = r.id') >= 0) {
+      const mine = memberships[args[0]] || [];
+      return restaurants.filter((r) => mine.indexOf(r.id) >= 0 && r.region === args[1]).slice(0, args[2]);
+    }
+    if (s.indexOf('(name LIKE ? OR town LIKE ?)') >= 0) {
+      const needle = String(args[0]).replace(/%/g, '').toLowerCase();
+      return restaurants.filter((r) => r.region === args[2] &&
+        (String(r.name).toLowerCase().indexOf(needle) >= 0 ||
+         String(r.town).toLowerCase().indexOf(needle) >= 0)
+      ).slice(0, args[3]);
+    }
+    if (s.indexOf('FROM restaurants WHERE region = ?') >= 0) {
+      return restaurants.filter((r) => r.region === args[0]).slice(0, args[1]);
+    }
+    throw new Error('Unhandled SQL (list): ' + s);
+  }
+
+  return {
+    prepare(sql) {
+      let bound = [];
+      const stmt = {
+        bind() { bound = Array.prototype.slice.call(arguments); return stmt; },
+        async all() { return { results: exec(sql, bound) }; },
+        async first() { return (exec(sql, bound) || [])[0] || null; },
+        async run() { return { success: true }; }
+      };
+      return stmt;
+    }
+  };
+}
+
+/* Same shape as tests/api-business.js: _shared getSession() reads 'sess:<token>'. */
+function fakeKV(sessions) {
+  const m = new Map();
+  Object.keys(sessions).forEach((tok) => m.set('sess:' + tok, JSON.stringify(sessions[tok])));
+  return {
+    async get(k) { return m.has(k) ? m.get(k) : null; },
+    async put(k, v) { m.set(k, v); },
+    async delete(k) { m.delete(k); }
+  };
+}
+
+function listCtx(query, env) {
+  const headers = {};
+  if (env && env.token) headers.cookie = 'eatouts_session=' + env.token;
+  return {
+    request: new Request('https://eatouts.test/api/venues' + (query || ''), { headers: headers }),
+    env: env,
+    params: {}
+  };
+}
+
 (async () => {
   const base = path.resolve(__dirname, '..', 'functions', 'api');
   const mod = await import(pathToFileURL(path.join(base, 'venues', '[id].js')).href);
@@ -151,6 +222,74 @@ function ctx(id, env) {
   /* ---- unconfigured ---- */
   res = await mod.onRequestGet(ctx('rest_1', {}));
   check('no backend -> 503', res.status === 503, res.status);
+
+  /* ---- list endpoint: region filter (T22b) ----------------------------------
+     functions/api/venues.js scopes every branch to one region. No param means
+     BW (the only active region), an unknown code falls back to BW rather than
+     returning nothing, and `region` rides along in the payload so the client
+     never has to guess which region it just read. */
+  console.log('');
+  console.log('-- /api/venues (list) region filter --');
+  const listMod = await import(pathToFileURL(path.join(base, 'venues.js')).href);
+
+  let lres = await listMod.onRequestGet(listCtx('', { DB: fakeListDB() }));
+  let lj = await lres.json();
+  check('list -> 200', lres.status === 200, lres.status);
+  check('list defaults to BW', lj.region === 'BW', JSON.stringify(lj).slice(0, 120));
+  check('list returns only BW rows', lj.venues.length === 2 && lj.venues.every((v) => v.region === 'BW'),
+    JSON.stringify(lj.venues.map((v) => v.region)));
+  check('list rows carry the region column', lj.venues[0].region === 'BW');
+  check('list parses types, null types -> []',
+    Array.isArray(lj.venues[0].types) && lj.venues[0].types.length === 1 &&
+    Array.isArray(lj.venues[1].types) && lj.venues[1].types.length === 0,
+    JSON.stringify(lj.venues.map((v) => v.types)));
+
+  lres = await listMod.onRequestGet(listCtx('?region=ZA', { DB: fakeListDB() }));
+  lj = await lres.json();
+  check('?region=ZA -> only the ZA venue',
+    lj.region === 'ZA' && lj.venues.length === 1 && lj.venues[0].id === 'za_1', JSON.stringify(lj.venues));
+
+  lres = await listMod.onRequestGet(listCtx('?region=za', { DB: fakeListDB() }));
+  lj = await lres.json();
+  check('?region=za is case-insensitive', lj.region === 'ZA' && lj.venues.length === 1, JSON.stringify(lj));
+
+  lres = await listMod.onRequestGet(listCtx('?region=XX', { DB: fakeListDB() }));
+  lj = await lres.json();
+  check('unknown region falls back to BW, never an empty list',
+    lj.region === 'BW' && lj.venues.length === 2, JSON.stringify(lj));
+
+  lres = await listMod.onRequestGet(listCtx('?q=gaborone', { DB: fakeListDB() }));
+  lj = await lres.json();
+  check('?q= searches inside the region', lj.venues.length === 2, JSON.stringify(lj.venues));
+
+  lres = await listMod.onRequestGet(listCtx('?q=cape%20town', { DB: fakeListDB() }));
+  lj = await lres.json();
+  check('?q= cannot reach another region', lj.venues.length === 0, JSON.stringify(lj.venues));
+
+  lres = await listMod.onRequestGet(listCtx('?q=gaborone&region=ZA', { DB: fakeListDB() }));
+  lj = await lres.json();
+  check('q and region combine', lj.region === 'ZA' && lj.venues.length === 0, JSON.stringify(lj));
+
+  lres = await listMod.onRequestGet(listCtx('?limit=1', { DB: fakeListDB() }));
+  lj = await lres.json();
+  check('limit is still honoured', lj.venues.length === 1, String(lj.venues.length));
+
+  lres = await listMod.onRequestGet(listCtx('?mine=1', { DB: fakeListDB() }));
+  check('mine without a session -> 401', lres.status === 401, lres.status);
+
+  const mineEnv = { DB: fakeListDB(), OPS_KV: fakeKV({ tok1: { userId: 'user_1' } }), token: 'tok1' };
+  lres = await listMod.onRequestGet(listCtx('?mine=1', mineEnv));
+  lj = await lres.json();
+  check('mine -> only this user\'s BW venues',
+    lj.venues.length === 1 && lj.venues[0].id === 'bw_1', JSON.stringify(lj.venues));
+
+  lres = await listMod.onRequestGet(listCtx('?mine=1&region=ZA', mineEnv));
+  lj = await lres.json();
+  check('mine + region -> only this user\'s ZA venues',
+    lj.venues.length === 1 && lj.venues[0].id === 'za_1', JSON.stringify(lj.venues));
+
+  lres = await listMod.onRequestGet(listCtx('', {}));
+  check('list with no backend -> 503', lres.status === 503, lres.status);
 
   console.log('');
   console.log(fails ? (fails + ' FAILED') : (checks + ' checks passed'));

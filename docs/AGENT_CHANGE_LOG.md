@@ -2273,3 +2273,27 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: none
 
 
+
+
+### [2026-11-03 19:35:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T22b — region gating part 2: the D1 `region` column, the `/api/venues` region filter, and region-driven currency
+- Files changed:
+  - `migrations/0016_region.sql` (new, 55 lines): `ALTER TABLE restaurants ADD COLUMN region TEXT NOT NULL DEFAULT 'BW'` + `idx_restaurants_region`. The default is the backfill (BW is the only active region), the seed keeps working because `scripts/build_d1_seed.py` names its columns and simply omits `region`, and the header records why there is no down migration (repo convention, see 0015) and why the column must ship with the filter, not before/after it.
+  - `functions/api/venues.js`: new `REGION_CODES` + `regionParam()` (uppercases `?region=`, unknown/absent -> `BW`); all three branches (`mine`, `q=`, bare list) now filter on `region`, each SELECT returns the column, and the payload echoes `region`.
+  - `js/eatouts-regions.js`: `symbol(code)` (BWP->P, ZAR->R, USD->$, MWK->MK, KES->KSh; unmapped -> its own code) and `money(v) = symbol() + n.toFixed(2)`, both exported next to `currency()`.
+  - `js/eatouts-brand-kit.js` (`money()` delegates to the registry, old literal kept as the fallback) and `js/eatouts-manager.js` (`EO.money` falls back to `EatoutsRegions.currency()` instead of a literal `BWP`).
+  - `tests/api-venues.js` (18 -> 34 checks): the LIST endpoint gets its own fake D1 + fake KV (same shape as `tests/api-business.js`) covering default BW, `?region=ZA`, lowercase, unknown -> BW, `q` x region in both directions, `limit`, `mine` 401 / BW / ZA, and no-backend 503.
+  - `tests/region-gating.js` (37 -> 43 checks): `symbol()`/`money()` for BW, the ZA switch, explicit codes, and an unmapped currency printing its own code. `tests/money.js` (33 -> 38): the registry formatter plus source assertions that the brand kit and manager delegate.
+  - `PLATFORM UPDATE TASKS.md`: roadmap row, T22's hand-off box, the T22b body (files, steps, evidence, one stated boundary), a progress-log row. `README.md`: `GET /api/venues` documented as region-scoped.
+- Notes:
+  - BW output is byte-identical to what the pages already print (`P12.50`), so the currency change is invisible until a second region is active. That is deliberate: it makes the diff safe to ship on a live Botswana app.
+  - Boundary, stated in the task and here: the 16 root pages that still carry their own `money()` helper keep printing `P` — they do not load `js/eatouts-regions.js`, so delegating them would change nothing today and cost a 16-page sweep. It should ride with the first non-BW region.
+  - Local D1 rehearsal is now real evidence, not a claim: 0016 applied on top of 0001-0015, `PRAGMA table_info` shows `region TEXT NOT NULL DEFAULT 'BW'`, the index exists, 567/567 seeded venues read BW, and a throwaway `region='ZA'` row was invisible to the BW filter (deleted afterwards, count back to 567).
+  - Errors: two `SQLITE_BUSY` failures came from running three `wrangler d1 execute --local` calls **in parallel** against one local file. Re-ran sequentially — that was my mistake, not a repo problem.
+  - Not verified: the `--remote` apply (`npm run db:migrate`). It needs the user and should run after this push.
+- Verified:
+  - `npm run db:migrate:local` → 0016 applied; `npx wrangler d1 execute ... --local` → column, index, 567 BW rows, ZA row filtered out
+  - `node tests/api-venues.js` → **34 checks passed** · `node tests/region-gating.js` → PASSED (43) · `node tests/region-selector.js` → PASSED · `node tests/money.js` → **38 checks passed**
+  - `node tests/run-all.js` → **74 passed, 0 failed**
+  - `npm run inventory` → INVENTORY PASSED (10 checks, 92 warnings = baseline)
+- Errors: none
