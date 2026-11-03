@@ -58,6 +58,10 @@
       id: id || 'rest_001',
       slug: slug || 'restaurant',
       name: name || 'Untitled restaurant',
+      /* T22: every venue belongs to a region. The registry is loaded later in
+         index.html than this file, so fall back to the default code. */
+      region: (window.EatoutsRegions && typeof window.EatoutsRegions.code === 'function')
+        ? window.EatoutsRegions.code() : 'BW',
       logo: null,
       landmark: '',
       location: { district: '', town: '', area: '' },

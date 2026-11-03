@@ -193,7 +193,8 @@ bottom nav where the page is part of the app shell.
 | 19 | T12 | 12 | `eatout_event_builder` overhaul (9 sub-areas) — ✅ **DONE 2026-11-03** | XL |
 | 20 | T13 | 13 | `Created_Event.html` view-only page (needs T12) — ✅ **DONE 2026-11-03** | L |
 | 21 | T21 | 21 | `designer-services` catalogue + galleries + requests — ✅ **DONE 2026-11-03** | XL |
-| 22 | T22 | 22 | Multi-region architecture + `EatOuts-Region.html` | XL |
+| 22 | T22 | 22 | Multi-region architecture + `EatOuts-Region.html` — ✅ **COMPLETE 2026-11-03** (steps 1–2, 4–6 done; step 3 shipped client-side — server/D1 gating + region currency split out to T22b) | XL |
+| 22b | T22b | 22 | Region gating part 2: D1 `region` column + `functions/api/venues.js` filter + region-driven currency | M |
 
 ### Phase 6 — UI polish (new, 2026-10-30)
 | # | ID | User task | Task | Size |
@@ -751,8 +752,8 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 10. Catalogue rework — the **24 offers** in §6, new prices. Update `js/eatouts-services-seed.js`, any admin/brand-kit references, and the docs. Missing images → add placeholders to `assets/images/services/` and list them as "images to get".
 **Done when** catalogue matches §6, prices correct, galleries behave as specified, gating works, requests persist, docs/tests green.
 
-#### T22 — Multi-region architecture (user task 22) · XL — 🟡 **IN PROGRESS 2026-11-02** (file moves, registry, selector page and the settings row landed; data gating still pending)
-**Files:** `SYNC REGION TASK/*` (**removed** 2026-11-02 — the last file moved to `_trash/`), new `js/eatouts-regions.js`, new `EatOuts-Region.html`, `index.html` (`renderAbout` settings rows `:8590-8600`), `copy-static.mjs`, `botswana_locations.js`, docs.
+#### T22 — Multi-region architecture (user task 22) · XL — ✅ **COMPLETE 2026-11-03** (steps 1–2, 4–6 done; step 3 landed as the client-side gate — the D1/currency half moved to T22b)
+**Files:** `SYNC REGION TASK/*` (**removed** 2026-11-02 — the last file moved to `_trash/`), `js/eatouts-regions.js`, new `EatOuts-Region.html`, `js/eatouts-db.js`, `js/eatouts-bridge.js`, `js/eatouts-locations.js`, `index.html` (`renderAbout` settings rows `:8590-8600`), `copy-static.mjs`, `botswana_locations.js`, `tests/region-gating.js`, docs.
 **Steps**
 1. **Move the files** (folder must be empty afterwards):
    - [x] `countries-data.js`, `territories.js`, `territory-registry.js`, `countries_mobile_networks.js` → `js/` (all four landed, 9,752 / 14,850 / 38,884 / 43,548 bytes; nothing referenced the old paths)
@@ -776,7 +777,12 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
    - [x] Landed in `fadcf15` as `window.EatoutsRegions` (`all` / `get` / `getActiveRegion` / `setActiveRegion` / `isActive` over `window.EATOUTS_REGIONS`), key `eatouts.region.v1`; a stored code that is unknown or still `active:false` falls back to `BW`.
    - [x] Covered by `tests/region-selector.js` (registry API block): `all()` returns five, the default is `BW`, `setActiveRegion('ZA')` returns `false` and leaves `BW` active, and both a stored `ZA` and a stored `XX` fall back to `BW`.
 3. **Data gating:** every place/venue/menu/directory load filters by `region` (add `region:'BW'` where missing, default `BW`); location files resolved through the registry; currency formatting driven by the region.
-   - [ ] Open — deliberately sequenced after T13 (`money.js` owns currency formatting today; gating first would double-write the same code).
+   - [x] **Client gate landed 2026-11-03.** `EatoutsBridge.all()` — the single read path every directory, menu and promo surface in `index.html` uses — now returns `EatoutsRegions.filterByRegion(list)` (`js/eatouts-bridge.js:207-215`), so one gate covers all of them.
+   - [x] Registry helpers (`js/eatouts-regions.js`): `code()` / `currency()` / `locale()` / `locationsFile()` plus `recordRegion()` / `inActiveRegion()` / `filterByRegion()`. A record with no `region` field (everything written before gating) and a record carrying an unknown code both read as `BW`, so **no saved venue disappears**.
+   - [x] `EatoutsDB.emptyRestaurant()` stamps `region` on every new venue, falling back to `BW` when the registry is not loaded yet (`js/eatouts-db.js:56-64`).
+   - [x] `EatoutsLocations` resolves its dataset through the registry instead of assuming it: when the active region's `locations` file is not `botswana_locations.js` the indexes stay empty and every selector degrades to "Other / not listed" rather than offering Botswana towns for a country with no data (`js/eatouts-locations.js:24-37`).
+   - [x] Covered by `tests/region-gating.js` (37 checks): active code / currency / locale / location file, the four `recordRegion()` fallbacks, `filterByRegion()` incl. non-array input, the DB stamp, the bridge dropping a ZA venue while keeping a legacy region-less one and preserving order, 28 districts / 486 towns for BW, and a full ZA walkthrough (empty town list, safe `resolve()` warnings, persisted code, restored afterwards).
+   - [ ] **Deferred to T22b** — the D1 half (a `region` column + `functions/api/venues.js` filter) and region-driven currency formatting, because `migrations/` has no local test harness and the per-page `money()` helpers belong to `tests/money.js`.
 4. **Settings row:** under Settings, **above** "About EatOuts", add a `.setrow` labelled with the active region ("Botswana"), opening `EatOuts-Region.html`.
    - [x] `index.html` `renderAbout()` `:9191-9196`: `regionName` reads `EatoutsRegions.getActiveRegion().name` (falling back to "Botswana" if the module is absent) and the row is the first child of the Settings `.acc-in`, directly above `About EatOuts`.
    - [x] `index.html` loads `js/eatouts-regions.js` right after `js/eatouts-analytics.js` (`:999`), so the label follows the persisted region.
@@ -790,6 +796,12 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
    - [x] Registered as page **72**: `scripts/html_catalog.meta.json` entry + changelog note, `PAGE_INVENTORY.md` §K "Regions (2026-11)" (`PAGE: Select Region` marker), `HTML_PAGES.md` summary row; `npm run catalog` → 72 pages / 1,147 lines, `npm run inventory` → 72 files.
    - [x] `tests/back-history.js` brand-mark count 55 → **56** (the parity sweep counts every standard-header page, so a new page bumps it).
 **Done when** `SYNC REGION TASK/` is empty/removed, the region row appears above About EatOuts, the selector page works, non-BW regions show the coming-soon popup, and all data still loads for Botswana.
+**Status 2026-11-03:** all five conditions hold — the folder is gone, the settings row is above About EatOuts, `EatOuts-Region.html` works, non-BW taps raise the coming-soon card, and every Botswana venue still loads (`EatoutsBridge.all()` keeps region-less records as BW; 486 towns still resolve). Verified: `node tests/region-gating.js` 37/37, `node tests/run-all.js` 74 passed / 0 failed, `npm run inventory` 10 checks / 92 warnings (= baseline).
+
+#### T22b — Region gating part 2: server + currency · M — 🟡 **OPEN** (split out of T22 step 3 on 2026-11-03)
+- **D1:** migration `0016_region.sql` — `restaurants.region TEXT NOT NULL DEFAULT 'BW'` (+ index), and a `region` filter in `functions/api/venues.js` (all three branches: `mine`, `q=`, bare list), defaulting to `BW` when the param is absent.
+- **Currency:** a region-driven formatter (`EatoutsRegions.currency()` already returns `BWP` / `ZAR` / `USD` / `MWK` / `KES`); the per-page `money()` helpers are the call sites, so extend `tests/money.js` rather than rewrite it.
+- **Why deferred:** `migrations/` has no local test harness (a schema change cannot be rehearsed here), and touching the `money()` helpers would change every page's totals in one diff. Neither is needed for a Botswana-only launch.
 
 
 

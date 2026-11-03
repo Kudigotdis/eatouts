@@ -23,6 +23,18 @@
 
   var DATA = (typeof window !== 'undefined' && window.BOTSWANA_LOCATIONS_DATA) || null;
 
+  /* T22 step 3 — the dataset is resolved through the region registry rather
+     than assumed. This adapter only understands Botswana's file, so when the
+     active region points at another one the indexes stay empty and every
+     selector degrades to "Other / not listed" instead of offering Botswana
+     towns for a country whose data has not landed yet. */
+  var LOCATIONS_FILE = 'botswana_locations.js';
+  var REGIONS = (typeof window !== 'undefined' && window.EatoutsRegions) || null;
+  if (DATA && REGIONS && typeof REGIONS.locationsFile === 'function' &&
+      REGIONS.locationsFile() !== LOCATIONS_FILE) {
+    DATA = null;
+  }
+
   var OTHER_LABEL = 'Other / not listed';
 
   /* ---------- indexes (built once) ---------- */

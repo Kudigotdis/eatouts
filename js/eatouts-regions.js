@@ -8,11 +8,14 @@
  * region not flagged active, and getActiveRegion() falls back to BW if the
  * stored value is missing, unknown, or belongs to an inactive region.
  *
- * Persisted under localStorage 'eatouts.region.v1'.
+ * Data gating (T22 step 3): every place / venue / menu / directory record
+ * carries a region code. recordRegion() reads it (a record written before
+ * gating has no field and reads as the default), and filterByRegion() is the
+ * gate the data layers apply — see EatoutsBridge.all() and
+ * EatoutsLocations. locationsFile() / currency() / locale() expose the active
+ * region's own settings so callers stop hard-coding Botswana.
  *
- * No existing page loads this file yet — the index.html wiring, the
- * EatOuts-Region.html selector, and the data-gating pass land after
- * T09 / T13 / T21 are merged onto main.
+ * Persisted under localStorage 'eatouts.region.v1'.
  */
 (function(){
   "use strict";
@@ -57,12 +60,63 @@
     return true;
   }
 
+  /* ---------- active-region settings ---------- */
+
+  function activeCode(){
+    return getActiveRegion().code;
+  }
+
+  function currency(){
+    var r = getActiveRegion();
+    return (r && r.currency) || "BWP";
+  }
+
+  function locale(){
+    var r = getActiveRegion();
+    return (r && r.locale) || "en-BW";
+  }
+
+  /** The location dataset the active region uses — null when it has none. */
+  function locationsFile(){
+    var r = getActiveRegion();
+    return (r && r.locations) || null;
+  }
+
+  /* ---------- data gating ---------- */
+
+  /**
+   * Region code of one record. An unknown code and a record written before
+   * gating both read as the default region, so no saved data disappears.
+   */
+  function recordRegion(record){
+    var code = (record && record.region) ? String(record.region).toUpperCase() : "";
+    if (!code || !byCode(code)) return DEFAULT_CODE;
+    return code;
+  }
+
+  function inActiveRegion(record){
+    return recordRegion(record) === activeCode();
+  }
+
+  /** The gate every data layer applies. Never returns a non-array. */
+  function filterByRegion(list){
+    if (!Array.isArray(list)) return [];
+    return list.filter(inActiveRegion);
+  }
+
   window.EatoutsRegions = {
     all: REGIONS.slice.bind(REGIONS),
     get: byCode,
     isActive: isActive,
     getActiveRegion: getActiveRegion,
     setActiveRegion: setActiveRegion,
+    code: activeCode,
+    currency: currency,
+    locale: locale,
+    locationsFile: locationsFile,
+    recordRegion: recordRegion,
+    inActiveRegion: inActiveRegion,
+    filterByRegion: filterByRegion,
     DEFAULT_CODE: DEFAULT_CODE,
     STORE_KEY: STORE_KEY
   };

@@ -205,7 +205,13 @@
   function db() { return DB.load(); }
 
   function all() {
-    return DB.byLastActive(db());
+    var list = DB.byLastActive(db());
+    /* T22 step 3 — the region gate. Every directory, menu and promo surface in
+       index.html reads venues through this one function, so filtering here
+       covers them all. Records saved before gating carry no `region` and read
+       as BW (EatoutsRegions.recordRegion), so nothing disappears today. */
+    var R = window.EatoutsRegions;
+    return (R && typeof R.filterByRegion === 'function') ? R.filterByRegion(list) : list;
   }
 
   function byId(id) { return DB.getRestaurant(id, db()); }

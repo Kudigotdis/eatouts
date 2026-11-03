@@ -89,6 +89,7 @@ const SUITES = [
   'age-gate.js',
   'promo-pricing.js',
   'region-selector.js',
+  'region-gating.js',
   'created-event.js',
   'money.js'
 ];
