@@ -14,6 +14,22 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 02:22:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: Close the verification note on the v2-catalogue entry below (full suite had not finished when that entry was written)
+- Files changed:
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit
+- Notes:
+  - `node tests/run-all.js` (= `npm test`) completed with **66 passed, 0 failed** (exit 0) after commit a0ad3ad, including the new `supplier-activate.js` suite (21 checks).
+  - Seed re-verified by loading `js/eatouts-services-seed.js` in Node: `EATOUTS_SERVICES_SEED` holds 24 services, 24 unique ids, price floor P120, ceiling P3,200, `VERSION = 2`, no `P80` string left in the file.
+  - `git push` confirmed: `061387f..a0ad3ad  main -> main`.
+  - Temp scripts (tmp-cats.cjs, tmp-seed-check.cjs, tmp-public.cjs) deleted; the only untracked items left are pre-existing `assets/logo/*.jpg` files unrelated to this task.
+- Verified: `node tests/run-all.js` 66/66; seed load check as above; `git push` output seen.
+- Not verified: nothing outstanding.
+- Errors: none.
+
+---
+
 ### [2026-11-03 02:10:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: Design-service catalogue v2 (24 offers, re-priced), safe v1->v2 migration of stored catalogues, and a published-supplier -> planner-directory bridge so a real supplier profile shows up in the event builder and at `?link=<slug>`
 - Files changed:
