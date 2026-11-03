@@ -19,8 +19,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Files changed:
   - `eatouts-suppliers.html` (+10/-86): deleted Step 5 `portfolio` end-to-end — the `step('portfolio', 5, …)` row, the `stepBody` case, `renderPortfolioStep()` (`:892-920`), the preview card block, `addPortfolio`/`editPortfolio`/`removePortfolio` act branches, the `editPortfolio()` sheet, the `portfolio: []` default and the `.pf-card`/`.pf-thumb`/`.pf-info`/`.pf-actions` CSS block (11 rules). Renumbered the remaining flow to 1 identity · 2 services · 3 pricing · 4 gallery · 5 contact · 6 review, moved the `.acc-item.i<n>` colour classes with it and deleted the now-unused `.acc-item.i7` rule + the `--s7-*` tokens (the s1-s6 ramp has no gap). `data-step` keys are untouched.
   - `PLATFORM UPDATE TASKS.md`: step 6 ticked, step 9 marked 🟡 PARTIAL with the numbering map and the note that the per-service `pricing:<cat>:<type>` fan-out (step 4) will re-run the numbering, T18 header status line updated
-- Commit: PENDING
-- Push: PENDING
+- Commit: `a0c5046`
+- Push: `fb1ca1e..a0c5046  main -> main`
 - Notes:
   - Scan after the edit: `portfolio|\.pf-|s7-` in the page → **0** hits, so no dead act handler, CSS rule or state key is left behind.
   - No migration for saved profiles: an old record still carrying `portfolio: []` just keeps an ignored key. Nothing reads it, so nothing breaks — cheaper and safer than rewriting every stored profile.
