@@ -14,6 +14,22 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 21:15:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T18 step 3 (age picker) — mandatory 3-column Year / Month / Day picker with floating scroll-list popups
+- Files changed:
+  - `eatouts-suppliers.html`: removed the `owner.age` number input; added `MONTHS`, `pad2`, `dobParts`, `daysInMonth`, `ageFromDob`, `birthParts`, `setDobPart`, `ageCol`, `pickAgePart`, `openPickList`; new `.age-row` / `.age-col` / `.pick-list` / `.pick-item` CSS; `owner` default gained `dob` + `birth {y,m,d}`; `pickAge` act branch; `publishChecks()` now warns when no date of birth is on file
+  - `PLATFORM UPDATE TASKS.md`: step 3 age-picker half ticked with the verified behaviour
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - Built the popup on the page's existing `.scrim`/`.sheet` (`openSheet`) instead of porting the event builder's `.fpop` — one modal system, no new CSS layer, still floats above the form and scrolls inside `.sheet-body` (`overflow-y:auto`, `max-height:80dvh`).
+  - First cut stored the partial date inside `owner.dob` and reset it whenever the three parts were incomplete, which silently discarded every pick (the harness caught it: columns stayed `—`, `dob` empty). Fixed by keeping partials in `owner.birth` and only writing `owner.dob` + `owner.age` once all three are set — no sentinel strings like `0000-00-00` in saved records.
+  - Age is derived, never typed: `ageFromDob` adjusts for the month/day not yet reached this year, so a 1992-04-30 birth is 33 on 2026-11-03 and 34 after 30 April 2027.
+  - Legacy tolerance: a profile saved with only `owner.age` still renders its age in the hint; the columns simply show `—` until the user picks, at which point `dob` becomes authoritative.
+- Verified: `node tests/supplier-activate.js` PASSED · `node tests/smoke.js` PASSED · `node tests/appshell.js` PASSED · `npm run inventory` PASSED (10 checks, 92 warnings = baseline) · jsdom harness 22/22 checks: year popup = 73 entries (18..90), month = 12, Feb 1990 = 28 days, Feb 1992 = 29 days, Jan = 31 days, 31 Jan → Apr clamps to 30, `owner.dob = '1992-04-30'` + derived age persisted to the draft.
+
+---
+
 ### [2026-11-03 20:40:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: T18 step 3 (pickers half) — device upload for the profile photo and business logo, headshot URL field removed
 - Files changed:

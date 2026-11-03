@@ -117,6 +117,19 @@ img{display:block;max-width:100%}
 .logo-pick .txt b{display:block;font-size:12.5px;font-weight:800;color:#1a1a1a}
 .logo-pick .txt span{display:block;font-size:11px;color:var(--muted-2);margin-top:2px}
 .logo-pick .go{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#8a7d63;flex:none}
+
+/* ---------- AGE / DATE PICKER ---------- */
+.age-row{display:flex;gap:8px}
+.age-col{flex:1;min-width:0;padding:10px 6px;border:1px solid var(--border);border-radius:12px;
+  background:#fdfbf6;text-align:center;font:inherit;display:flex;flex-direction:column;gap:3px}
+.age-col .v{font-size:15px;font-weight:900;color:#1a1a1a;letter-spacing:-.01em}
+.age-col .v.empty{color:#c3b9a4}
+.age-col .k{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a89a7e}
+.pick-list{display:flex;flex-direction:column;gap:2px;padding:2px 0}
+.pick-item{width:100%;padding:13px 14px;border-radius:10px;font-size:14px;font-weight:700;color:#1a1a1a;
+  background:none;border:0;text-align:center}
+.pick-item:active{background:#f5f0e4}
+.pick-item.sel{background:#1a1a1a;color:#fff}
 .counter{float:right;font-size:10px;color:#a89a7e;font-weight:400}
 
 /* ---------- CHIPS ---------- */
@@ -317,6 +330,7 @@ img{display:block;max-width:100%}
 
   var RATE_TYPES = ['Per hour','Per day','Per booking','Per person','Per item','Custom quote'];
   var WEEKDAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var PAYMENT_TERMS = ['Cash','EFT','MoMo','Orange Money','Card','Bank transfer'];
 
   /* ============================================================
@@ -333,6 +347,75 @@ img{display:block;max-width:100%}
       .replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
   }
   function money(n){ return 'P' + (Number(n)||0).toFixed(2); }
+  function pad2(n){ return (n < 10 ? '0' : '') + n; }
+  /* Date of birth: stored as YYYY-MM-DD in owner.dob, with owner.age
+     derived from it. */
+  function dobParts(dob){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dob || ''));
+    return m ? { y: +m[1], m: +m[2], d: +m[3] } : null;
+  }
+  function daysInMonth(y, m){
+    if (!y || !m) return 31;
+    return new Date(y, m, 0).getDate();
+  }
+  function ageFromDob(y, m, d){
+    var now = new Date();
+    var age = now.getFullYear() - y;
+    var thisMonth = now.getMonth() + 1;
+    if (thisMonth < m || (thisMonth === m && now.getDate() < d)) age--;
+    return age;
+  }
+  function setDobPart(part, value){
+    var o = state.profile.owner;
+    if (!o.birth) o.birth = { y: null, m: null, d: null };
+    o.birth[part] = value;
+    var b = o.birth;
+    var maxD = daysInMonth(b.y, b.m);
+    if (b.d && b.d > maxD) b.d = maxD;
+    if (b.y && b.m && b.d) {
+      o.dob = b.y + '-' + pad2(b.m) + '-' + pad2(b.d);
+      o.age = ageFromDob(b.y, b.m, b.d);
+    } else {
+      o.dob = '';
+      o.age = null;
+    }
+    markDirty();
+    render();
+  }
+  /* Partial picks live in owner.birth; owner.dob + owner.age are only
+     written once all three columns are set. */
+  function birthParts(o){
+    if (o.birth && (o.birth.y || o.birth.m || o.birth.d)) {
+      return { y: o.birth.y || null, m: o.birth.m || null, d: o.birth.d || null };
+    }
+    return dobParts(o.dob) || { y: null, m: null, d: null };
+  }
+  function ageCol(part, value, label){
+    return '<button class="age-col" data-act="pickAge" data-part="' + part + '">' +
+      '<span class="v' + (value == null ? ' empty' : '') + '">' + (value == null ? '—' : esc(value)) + '</span>' +
+      '<span class="k">' + esc(label) + '</span>' +
+    '</button>';
+  }
+  /* Birth year / month / day each open a floating scroll-list popup. */
+  function pickAgePart(part){
+    var cur = birthParts(state.profile.owner);
+    var now = new Date().getFullYear();
+    if (part === 'y') {
+      var years = [];
+      for (var y = now - 18; y >= now - 90; y--) years.push({ v: y, label: String(y) });
+      openPickList('Birth year', years, cur.y, function(v){ setDobPart('y', Number(v)); });
+      return;
+    }
+    if (part === 'm') {
+      var months = MONTHS.map(function(m, i){ return { v: i + 1, label: m }; });
+      openPickList('Birth month', months, cur.m, function(v){ setDobPart('m', Number(v)); });
+      return;
+    }
+    var maxD = daysInMonth(cur.y, cur.m);
+    var days = [];
+    for (var d = 1; d <= maxD; d++) days.push({ v: d, label: String(d) });
+    openPickList('Birth day', days, cur.d, function(v){ setDobPart('d', Number(v)); });
+  }
   function toDateLabel(iso){
     if (!iso) return '';
     try { return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
@@ -419,7 +502,7 @@ img{display:block;max-width:100%}
       pin: { salt: '', hash: '' },
 
       /* step 1 — you & business */
-      owner: { firstName: '', lastName: '', age: null, photo: '' },
+      owner: { firstName: '', lastName: '', age: null, photo: '', dob: '', birth: { y: null, m: null, d: null } },
       business: { name: '', tagline: '', about: '', since: null, logo: '' },
 
       /* step 2 — services */
@@ -746,7 +829,16 @@ img{display:block;max-width:100%}
     '</div>';
     h += '<div class="field"><label>First name</label><input data-model="owner.firstName" value="' + esc(o.firstName) + '" placeholder="e.g. Kagiso"></div>';
     h += '<div class="field"><label>Last name</label><input data-model="owner.lastName" value="' + esc(o.lastName) + '" placeholder="e.g. Molefe"></div>';
-    h += '<div class="field"><label>Age</label><input data-model="owner.age" type="number" min="18" max="99" value="' + (o.age == null ? '' : o.age) + '" placeholder="Optional"><div class="hint">Not shown publicly — for internal verification only.</div></div>';
+    var b0 = birthParts(o);
+    h += '<div class="field"><label>Date of birth *</label>' +
+      '<div class="age-row">' +
+        ageCol('y', b0.y, 'Year') +
+        ageCol('m', b0.m ? MONTHS[b0.m - 1] : null, 'Month') +
+        ageCol('d', b0.d, 'Day') +
+      '</div>' +
+      '<div class="hint">' + (o.age != null ? o.age + ' years old · ' : '') +
+        'Required — never shown publicly, used for internal verification only.</div>' +
+    '</div>';
 
     h += '<hr class="divider">';
     h += '<div class="section-title">Your business</div>';
@@ -991,6 +1083,10 @@ img{display:block;max-width:100%}
     checks.push(p.business.name
       ? { k:'ok', ic:'✓', txt:'Business name set.' }
       : { k:'warn', ic:'!', txt:'Give your business a name (Step 1).' });
+
+    checks.push(p.owner.age != null
+      ? { k:'ok', ic:'✓', txt:'Date of birth on file.' }
+      : { k:'warn', ic:'!', txt:'Add the account holder\'s date of birth (Step 1).' });
 
     checks.push(p.location.town
       ? { k:'ok', ic:'✓', txt:'Town / city set.' }
@@ -1256,6 +1352,7 @@ img{display:block;max-width:100%}
     /* ---------- onboarding nav ---------- */
     if (act === 'pickPhoto') { pickDeviceImage('owner.photo', 'Profile photo'); return; }
     if (act === 'pickLogo') { pickDeviceImage('business.logo', 'Business logo'); return; }
+    if (act === 'pickAge') { pickAgePart(t.getAttribute('data-part')); return; }
     if (act === 'toggleStep') {
       state.openStep = state.openStep === t.getAttribute('data-step') ? null : t.getAttribute('data-step');
       render();
@@ -1559,6 +1656,26 @@ img{display:block;max-width:100%}
   /* ============================================================
      MODAL SYSTEM
      ============================================================ */
+  /* Floating scroll-list popup used by the Y / M / D columns. */
+  function openPickList(title, items, selected, onSelect){
+    var h = '<div class="pick-list">';
+    items.forEach(function(it){
+      h += '<button class="pick-item' + (it.v === selected ? ' sel' : '') + '" data-v="' + esc(it.v) + '">' +
+        esc(it.label) + '</button>';
+    });
+    h += '</div>';
+    var scrim = openSheet(title, h, null, null);
+    var list = scrim.querySelector('.pick-list');
+    if (!list) return;
+    list.addEventListener('click', function(ev){
+      var b = ev.target.closest('.pick-item');
+      if (!b) return;
+      var v = b.getAttribute('data-v');
+      scrim.remove();
+      onSelect(v);
+    });
+  }
+
   function openSheet(title, bodyHTML, onSave, saveLabel){
     var scrim = document.createElement('div');
     scrim.className = 'scrim';
