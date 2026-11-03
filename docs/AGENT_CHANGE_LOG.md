@@ -14,6 +14,19 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 02:48:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: Close the push note on the T21 commit-1 entry below
+- Files changed:
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit
+- Push: `673278b..8d5cfc4  main -> main` (confirmed in terminal output)
+- Notes:
+  - T21 commit 1 landed as `8d5cfc4` — 3 files, +68/-23 — and the suite was re-run green before the commit.
+  - Next up is T21 commit 2, which needs answers on A1 (Previous Designers source), A2 (may `status`/`available_from` be added to `js/eatouts-designers-seed.js`?) and A3 (reuse `eatouts_jobs_v1` for "My Design Requests").
+- Verified: `git push` output seen.
+- Errors: none.
+
+---
 ### [2026-11-03 02:42:14] - [Agent: cline] - [Status: COMMITTED]
 - Task: T21 commit 1 — `designer-services.html` onto the standard shell (steps 1–6: shared bottom nav, no pill badges, no chip icons, no plus glyph, 16px type, centred chip row, hero copy)
 - Files changed:
