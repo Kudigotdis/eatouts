@@ -14,6 +14,21 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 18:40:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T18 step 1 — standard header on `eatouts-suppliers.html` (remove `.title#hdrTitle`)
+- Files changed:
+  - `eatouts-suppliers.html` (+6/-10): deleted the `<span class="title" id="hdrTitle">Suppliers</span>` mark and its `#hdr .title{…}` CSS rule, leaving the T08 header (brand-mark + `.status` chip). `paintHdr(title, profile)` → `paintHdr(profile)`: the label was the only consumer of `title`, so the param and the `getElementById('hdrTitle')` lookup went with it, and the five render-router calls (`:475-499`) dropped the dead first argument.
+  - `PLATFORM UPDATE TASKS.md`: T18 step 1 ticked with the verification line, T18 header marked 🚧 IN PROGRESS (steps 3-9 open)
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - The page already had the standard `#hdr` + `.brand-mark`; step 1 was only the leftover title label, so this is a 4-line-behaviour-preserving diff, not a header rewrite.
+  - The `Draft`/`Published` `.status` chip was deliberately kept — it is state, not a page title, and step 1 only names `.title#hdrTitle`.
+  - No `HTML_CATALOG.md` regeneration needed: the catalog is structural (no line counts) and the page inventory still passes at the baseline 92 warnings.
+- Verified: `node tests/appshell.js` PASSED · `node tests/smoke.js` PASSED · `node tests/supplier-activate.js` PASSED (22 checks) · `npm run inventory` PASSED (10 checks, 92 warnings) · `git diff --stat` = 1 code file.
+
+---
+
 ### [2026-11-03 18:05:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: D6 — close the T18 "activate" question ("activate = make it work")
 - Files changed:

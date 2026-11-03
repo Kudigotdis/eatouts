@@ -603,10 +603,10 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - Verified: `node tests/customer-delivery.js` → **CUSTOMER-DELIVERY TEST PASSED** (52 checks, 0 window errors); `tests/checkout-delivery.js` bar assertions updated to the new label → PASSED; `npm test` → **61 passed, 0 failed**; `npm run inventory` → 10 checks / 90 warnings; `npm run catalog` → 70 pages.
 - Not verified: real-device look at 360/390/430px (jsdom does not lay out) and the live geolocation prompt (only the fallback path is exercised headlessly).
 
-#### T18 — `eatouts-suppliers` rework (user task 18) · L
+#### T18 — `eatouts-suppliers` rework (user task 18) · L — 🚧 **IN PROGRESS** (step 1 done 2026-11-03; steps 3-9 open)
 **Files:** `eatouts-suppliers.html` — header `:269-275`, step scaffold `:700-720`, `renderIdentityStep` `:~730-770`, `renderServicesStep` `:~770-800`, `renderPricingStep` `:~810-874`, `renderGalleryStep` `:876-…`, portfolio, contact `:~950-1010`, review, export `:~1077`.
 **Steps**
-1. Remove `.title#hdrTitle` (`:272`); standard header (T08).
+1. Remove `.title#hdrTitle` (`:272`); standard header (T08). → ✅ **DONE 2026-11-03:** `.title#hdrTitle` + its `#hdr .title` CSS rule deleted (header is now brand mark + `.status` chip only); `paintHdr(title, profile)` collapsed to `paintHdr(profile)` because the label was its only consumer, and the five render-router call sites dropped the now-unused title argument. Verified: `node tests/appshell.js` PASSED · `node tests/smoke.js` PASSED · `node tests/supplier-activate.js` PASSED (22 checks) · `npm run inventory` PASSED (10 checks, 92 warnings).
 2. "Activate" the page — see D6 (ambiguous). → ✅ **DONE by execution 2026-11-03 (D6):** publish/save already works end-to-end (`publish` `:1368` → `EatoutsSupplierDirectory.sync()` `:614` → directory + builder cost model + `?link=<slug>` public page), proven by `tests/supplier-activate.js` (22 checks).
 3. Step 1 (`i1`):
    - 150px centred square rounded **profile image** picker + separate **business logo** picker (device upload);
