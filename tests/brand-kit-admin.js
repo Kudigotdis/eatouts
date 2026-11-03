@@ -96,7 +96,7 @@ setTimeout(() => {
   /* ---------- services tab ---------- */
   setTab('services');
   const svcH = Array.from(app().querySelectorAll('h2')).map(h => h.textContent);
-  check('services tab lists the catalogue', svcH.some(t => /Service catalogue \(\d+\)/.test(t)) && /Logo clean-up/.test(app().textContent), svcH.join(' | '));
+  check('services tab lists the catalogue', svcH.some(t => /Service catalogue \(\d+\)/.test(t)) && /Brand Kit/.test(app().textContent), svcH.join(' | '));
 
   /* ---------- payouts tab ---------- */
   setTab('payouts');

@@ -166,8 +166,18 @@ function designers(){
   return a;
 }
 function saveDesigners(a){writeArray(KEYS.designers,a);}
-function services(){return readArray(KEYS.services);}
-function saveServices(a){writeArray(KEYS.services,a);}
+function services(){
+  /* one shared store, two shapes in the wild: {services:[…]} (brand-kit module) and a bare array */
+  var v=parseJSON(localStorage.getItem(KEYS.services),null);
+  if(Array.isArray(v))return v;
+  if(v&&Array.isArray(v.services))return v.services;
+  return [];
+}
+function saveServices(a){
+  var v=parseJSON(localStorage.getItem(KEYS.services),null);
+  if(v&&!Array.isArray(v)&&Array.isArray(v.services)){v.services=a;localStorage.setItem(KEYS.services,JSON.stringify(v));return;}
+  writeArray(KEYS.services,a);
+}
 function normalizeJob(j){
   j=j||{};if(!j.id)j.id=makeId('job');if(!j.status)j.status='awaiting_admin';
   if(!j.price_breakdown){var total=Number(j.total||j.base_price||j.price||0);j.price_breakdown={gross:total,platform_cut:round2(total*.15),designer_payout:round2(total-round2(total*.15))};}
@@ -440,7 +450,7 @@ function renderServicesTab(){
   var ss=services().slice().sort(function(a,b){return (a.category||'').localeCompare(b.category||'')||(a.name||'').localeCompare(b.name||'');});
   var filtered=ss.filter(function(s){return state.serviceCategory==='all'||s.category===state.serviceCategory;});
   var h='<div class="card"><div class="card-head"><div><h2>Service catalogue ('+ss.length+')</h2><div class="sub">Prices are stored as numeric BWP values. Edits apply to new requests; existing job totals remain frozen.</div></div><div class="actions"><button class="btn" data-act="export-services">Export CSV</button><button class="btn primary" data-act="add-service">Add service</button></div></div>';
-  h+='<div class="notice">The supplied pricing document says there are 30 services, but the eight category tables list 24. The 24 listed services are seeded here; add the missing six only after their names and prices are confirmed. Bundle prices are not applied automatically by this admin screen until their arithmetic is reconciled.</div>';
+  h+='<div class="notice">This is the confirmed 24-offer price list (catalogue v2). Prices are BWP and apply to new requests only; existing job totals stay frozen. Bundle discounts (2+ items P100 off, 4+ items P250 off) are applied by the storefront, not by this screen.</div>';
   h+='<div class="filters"><button class="filter'+(state.serviceCategory==='all'?' active':'')+'" data-act="service-filter" data-id="all">All</button>';
   Object.keys(categoryNames).forEach(function(c){h+='<button class="filter'+(state.serviceCategory===c?' active':'')+'" data-act="service-filter" data-id="'+c+'">'+esc(categoryNames[c])+'</button>';});
   h+='</div>';

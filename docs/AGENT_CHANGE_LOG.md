@@ -14,6 +14,34 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 02:10:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: Design-service catalogue v2 (24 offers, re-priced), safe v1->v2 migration of stored catalogues, and a published-supplier -> planner-directory bridge so a real supplier profile shows up in the event builder and at `?link=<slug>`
+- Files changed:
+  - js/eatouts-services-seed.js (rewritten to 24 offers, `VERSION = 2`, categories/blurbs updated, Hero badge floor P120)
+  - js/eatouts-brand-kit.js (`V1_PRICES` map, `catalogueIsV1()`, `migrateServicesSeed()`, `seedIfEmpty()` migrates, `FOUNDING_DISCOUNT` comment corrected to P200)
+  - brand-kit-admin.html (`services()`/`saveServices()` tolerate `{services:[...]}` and bare-array store shapes; notice copy -> v2)
+  - designer-services.html (hero badge "From P80" -> "From P120")
+  - js/eatouts-supplier-directory.js (NEW: maps published `eatouts_suppliers_v1` profiles into planner directory records, appends to `window.EATOUTS_SUPPLIERS`, replaces prior `source:'supplier-profile'` rows on re-sync, exposes `EatoutsSupplierDirectory { records, find, sync, toRecord, CAT_MAP }`)
+  - eatouts-suppliers.html (loads the bridge; `openSupplierLink()` calls `EatoutsSupplierDirectory.sync()` so a same-session publish links without a reload)
+  - eatout_event_builder.html (loads the bridge + `js/eatouts-slug.js`)
+  - tests/designer-services.js (30 -> 24 cards, "Logo clean-up" -> "Brand Kit", seeds a v1 store in `beforeParse`, new migration assertions)
+  - tests/brand-kit-admin.js ("Logo clean-up" -> "Brand Kit")
+  - tests/supplier-activate.js (NEW: 21 checks - published-only filtering, record shape/price/unit/addons/serviceArea, `rating: null`, non-duplicating re-sync, `findSupplier`/`supplierProfileItems` costing, `?link=<slug>` public render)
+  - tests/run-all.js (registers `supplier-activate.js`)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit
+- Notes:
+  - Migration is deliberately conservative: the stored catalogue is only replaced when it still matches `V1_PRICES` AND carries 30 services; otherwise only `version` is bumped, so real admin edits are never overwritten.
+  - Two service-store shapes exist in the wild (`{services:[...]}` and a bare array). Both readers and the writer now handle both, which is why `brand-kit-admin.html` had to change alongside the seed.
+  - Category mapping is an explicit 8 onboarding categories -> 40 planner categories table with a `event_planning` fallback; `rating` stays `null` rather than inventing stars, so the directory never shows a fabricated score.
+  - `find()`/`sync()` are idempotent: bridged rows are keyed by `source:'supplier-profile'` and replaced, never duplicated (asserted in the new suite).
+  - Public page still prints the "Rates shown are illustrative demo figures" footnote for real suppliers - pre-existing shared copy, left untouched to keep the diff minimal.
+- Verified: `node tests/designer-services.js` PASSED; `node tests/brand-kit-admin.js` PASSED; `node tests/designer-dashboard.js` PASSED; `node tests/builder-suppliers.js` PASSED; `node tests/html-catalog.js` 9/9 (72 pages); `node tests/smoke.js` PASSED; `node tests/supplier-activate.js` 21/21 PASSED; `git status --short` clean of temp scripts (tmp-cats.cjs / tmp-seed-check.cjs / tmp-public.cjs deleted).
+- Not verified: visual check of the event-builder picker with a real published profile on a device (jsdom has no layout); `npm test` full-suite result is in the terminal log of this session.
+- Errors: none.
+
+---
+
 ### [2026-11-02 17:40:21] - [Agent: cline] - [Status: COMMITTED]
 - Task: Remove the street-address line from the expanded card of every directory row (catering, bakeries, beverages; restaurants never had one)
 - Files changed:

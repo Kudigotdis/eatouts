@@ -26,6 +26,18 @@ function inline(file) {
   });
 }
 
+const V1_PRICES = [
+  ['svc_logo_cleanup', 250], ['svc_brand_kit', 350], ['svc_brand_kit_plus', 500], ['svc_brand_guidelines', 900],
+  ['svc_promo_single', 80], ['svc_promo_pack5', 300], ['svc_promo_pack10', 550], ['svc_promo_retainer', 500],
+  ['svc_story_pack10', 450], ['svc_event_flyer', 120], ['svc_event_pack', 280], ['svc_event_programme', 350],
+  ['svc_menu_refresh', 400], ['svc_menu_full', 700], ['svc_menu_photo', 1200],
+  ['svc_print_cards', 200], ['svc_print_flyer_a5', 180], ['svc_print_table_tent', 220], ['svc_print_poster', 240],
+  ['svc_print_shopfront', 800], ['svc_print_vehicle', 1500],
+  ['svc_social_weekly', 350], ['svc_social_monthly', 1200], ['svc_social_banners', 280],
+  ['svc_pack_bag', 500], ['svc_pack_system', 1800],
+  ['svc_motion_promo', 400], ['svc_motion_teaser', 800], ['svc_motion_social', 1200], ['svc_motion_logo', 500]
+];
+
 const vc = new VirtualConsole();
 vc.on('jsdomError', e => errors.push('jsdomError: ' + (e.stack || e.message)));
 vc.on('error', (...a) => errors.push('console.error: ' + a.join(' ')));
@@ -35,7 +47,13 @@ const dom = new JSDOM(inline('designer-services.html'), {
   runScripts: 'dangerously',
   pretendToBeVisual: true,
   virtualConsole: vc,
-  beforeParse(w) { w.open = () => null; }
+  beforeParse(w) {
+    w.open = () => null;
+    /* a returning browser still holding catalogue v1 — boot must migrate it */
+    w.localStorage.setItem('eatouts_services_v1', JSON.stringify({
+      services: V1_PRICES.map(([id, price]) => ({ id, base_price: price, category: 'identity', name: id }))
+    }));
+  }
 });
 const { window } = dom;
 const doc = window.document;
@@ -54,16 +72,24 @@ setTimeout(() => {
   const hero = doc.querySelector('#view .hero h1');
   check('catalogue hero renders', hero && /designed/i.test(hero.textContent), hero && hero.textContent);
   const cards = doc.querySelectorAll('#view .card[data-service]');
-  check('catalogue lists all 30 services', cards.length === 30, cards.length);
+  check('catalogue lists all 24 services', cards.length === 24, cards.length);
   const wsLink = doc.querySelector('.ds-workspace a[href="designer-dashboard.html"]');
   check('catalogue footer links the designer workspace', !!wsLink, wsLink && wsLink.getAttribute('href'));
+
+  /* ---------- v1 -> v2 catalogue migration ---------- */
+  const cats = JSON.parse(window.localStorage.getItem('eatouts_services_v1') || '{}');
+  const storedSvc = cats.services || [];
+  check('stored v1 catalogue migrated to v2', cats.version === 2 && storedSvc.length === 24, cats.version + ' / ' + storedSvc.length);
+  check('retired v1 offers are gone', !storedSvc.some(s => s.id === 'svc_logo_cleanup' || s.id === 'svc_event_flyer'), storedSvc.map(s => s.id).join(','));
+  const kit = storedSvc.filter(s => s.id === 'svc_brand_kit')[0] || {};
+  check('Brand Kit repriced to P1,500', kit.base_price === 1500, kit.base_price);
 
   /* ---------- pick first service ---------- */
   const firstPick = doc.querySelector('#view [data-act="pickService"]');
   check('a service offers "Choose this service"', !!firstPick);
   click(firstPick);
   const svcH1 = doc.querySelector('#view .hero h1');
-  check('service detail shows the service name', svcH1 && svcH1.textContent === 'Logo clean-up', svcH1 && svcH1.textContent);
+  check('service detail shows the service name', svcH1 && svcH1.textContent === 'Brand Kit', svcH1 && svcH1.textContent);
   const svcSum = doc.querySelector('#view .summary');
   check('service detail prices a total', svcSum && /Total/.test(svcSum.textContent), svcSum ? svcSum.textContent.slice(0, 60) : 'no summary');
 

@@ -286,6 +286,8 @@ img{display:block;max-width:100%}
 <script src="assets/data/supplier_catalog.js"></script>
 <script src="assets/data/event_supplier_demo_catalogue.js"></script>
 <script src="js/eatouts-slug.js"></script>
+<script src="js/eatouts-supplier-directory.js"></script>
+
 <script src="js/eatouts-router.js"></script>
 
 <script>
@@ -608,6 +610,8 @@ img{display:block;max-width:100%}
 
   /* ?link=<slug> (or /bw/<slug> that redirected here): find the supplier. */
   function openSupplierLink(slug, refId){
+    /* a profile published in this session must be linkable without a reload */
+    if (window.EatoutsSupplierDirectory) EatoutsSupplierDirectory.sync();
     var list = (window.EATOUTS_SUPPLIERS && Array.isArray(window.EATOUTS_SUPPLIERS)) ? window.EATOUTS_SUPPLIERS : [];
 
     if (refId) {

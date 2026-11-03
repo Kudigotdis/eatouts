@@ -19,7 +19,7 @@
   var SETTINGS_KEY  = 'eatouts_db_v2';   // just read for whatsapp number
 
   var COMMISSION = 0.15;
-  var FOUNDING_DISCOUNT = 200; /* P350 → P150 for the Founding-20 Brand Kits */
+  var FOUNDING_DISCOUNT = 200; /* P200 off the Brand Kit for the Founding-20 */
 
   /* ---------- storage helpers ---------- */
   function readJSON(key, fallback){
@@ -37,10 +37,49 @@
   }
 
   /* ---------- seeding ---------- */
+  /* Prices shipped by catalogue v1. Used only to tell a catalogue nobody has
+     edited (safe to replace) from one an admin has already changed (left alone). */
+  var V1_PRICES = {
+    svc_logo_cleanup:250, svc_brand_kit:350, svc_brand_kit_plus:500, svc_brand_guidelines:900,
+    svc_promo_single:80, svc_promo_pack5:300, svc_promo_pack10:550, svc_promo_retainer:500,
+    svc_story_pack10:450, svc_event_flyer:120, svc_event_pack:280, svc_event_programme:350,
+    svc_menu_refresh:400, svc_menu_full:700, svc_menu_photo:1200,
+    svc_print_cards:200, svc_print_flyer_a5:180, svc_print_table_tent:220, svc_print_poster:240,
+    svc_print_shopfront:800, svc_print_vehicle:1500,
+    svc_social_weekly:350, svc_social_monthly:1200, svc_social_banners:280,
+    svc_pack_bag:500, svc_pack_system:1800,
+    svc_motion_promo:400, svc_motion_teaser:800, svc_motion_social:1200, svc_motion_logo:500
+  };
+
+  function catalogueIsV1(list){
+    if(!Array.isArray(list) || list.length !== 30) return false;
+    return list.every(function(s){ return !!s && V1_PRICES[s.id] === Number(s.base_price); });
+  }
+
+  /* Replace a cached catalogue that is still the v1 copy with the current seed.
+     Catalogues an admin has edited keep their prices — we only record that the
+     version was checked, so we do not fight the admin on every page load. */
+  function migrateServicesSeed(){
+    var seed = window.EATOUTS_SERVICES_SEED;
+    if(!seed || !Array.isArray(seed.services) || !seed.services.length) return;
+    var target = Number(seed.version) || 1;
+    var stored = readJSON(SERVICES_KEY, null);
+    if(!stored || !Array.isArray(stored.services)) return;
+    if((Number(stored.version) || 1) >= target) return;
+    if(!catalogueIsV1(stored.services)){
+      stored.version = target;
+      writeJSON(SERVICES_KEY, stored);
+      return;
+    }
+    writeJSON(SERVICES_KEY, seed);
+  }
+
   function seedIfEmpty(){
     if(!localStorage.getItem(SERVICES_KEY)){
       var svc = (window.EATOUTS_SERVICES_SEED) || { services:[], categories:[], bundleRules:[], addOns:[] };
       writeJSON(SERVICES_KEY, svc);
+    } else {
+      migrateServicesSeed();
     }
     if(!localStorage.getItem(DESIGNERS_KEY)){
       var des = (window.EATOUTS_DESIGNERS_SEED) || { designers:[] };
