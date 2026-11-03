@@ -55,6 +55,7 @@ const SUITES = [
   'field.js',
   'designer-services.js',
   'designer-dashboard.js',
+  'profile-design-requests.js',
   'brand-kit-admin.js',
   'api-auth.js',
   'api-auth-flow.js',

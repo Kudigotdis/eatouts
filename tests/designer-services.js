@@ -302,10 +302,27 @@ setTimeout(() => {
   check('summary shows a total and the EatOuts fee', sum && /Total/.test(sum.textContent) && /EatOuts fee/.test(sum.textContent), sum ? sum.textContent.slice(0, 70) : 'no summary');
 
   /* ---------- submit ---------- */
+  /* the roster only carries a number once the designer has added one */
+  const roster = JSON.parse(window.localStorage.getItem('eatouts_designers_v1') || '{"designers":[]}');
+  roster.designers.forEach(d => { d.private = d.private || {}; d.private.phone = '26771000001'; });
+  window.localStorage.setItem('eatouts_designers_v1', JSON.stringify(roster));
+
   click(doc.getElementById('btnNextStep'));
   check('done step confirms the request', /Request submitted/.test(doc.body.textContent));
   const sendWa = doc.getElementById('sendWa');
   check('WhatsApp handoff is a wa.me URL', sendWa && /^https:\/\/wa\.me\/\d+\?text=/.test(sendWa.getAttribute('href')), sendWa && sendWa.getAttribute('href'));
+
+  /* T21 step 8: the customer can reach the designer directly, and the request
+     shows up in their profile */
+  const sendDesigner = doc.getElementById('sendDesignerWa');
+  check('done step offers a chat with the designer',
+    !!sendDesigner && /^https:\/\/wa\.me\/26771000001\?text=/.test(sendDesigner.getAttribute('href') || ''),
+    sendDesigner && sendDesigner.getAttribute('href'));
+  check('designer message names the request reference',
+    !!sendDesigner && /JOB-/.test(decodeURIComponent(sendDesigner.getAttribute('href'))),
+    sendDesigner && decodeURIComponent(sendDesigner.getAttribute('href') || '').slice(0, 90));
+  check('done step links to my design requests',
+    !!doc.querySelector('#view a[href="eatouts-profile.html"]'));
 
   const stored = jobs();
   const mine = stored.filter(j => j.business_name === 'Test Bistro');

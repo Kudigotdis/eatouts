@@ -466,6 +466,48 @@
     letter-spacing:-.02em;
   }
 
+  /* ============ DESIGN REQUESTS ============ */
+  .dreq{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 13px;
+    margin-bottom:9px;
+  }
+  .dreq-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .dreq-top b{
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    line-height:1.3;
+  }
+  .dreq-st{
+    flex:0 0 auto;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:999px;
+    background:var(--blue-soft);
+    color:var(--blue);
+    white-space:nowrap;
+  }
+  .dreq-st.wait{background:var(--amber-soft);color:var(--amber)}
+  .dreq-st.done{background:var(--green-soft);color:var(--green)}
+  .dreq-meta{
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--faint);
+    margin-top:4px;
+  }
+
   /* ============ EMPTY ============ */
   .empty-note{
     font-size:12.5px;
@@ -900,6 +942,90 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /* ============================================================
+     DESIGN REQUESTS (T21 step 8)
+     Read-only view of the designer-services job store for this
+     account: `eatouts_jobs_v1` written by js/eatouts-brand-kit.js.
+     ============================================================ */
+  var DESIGN_STATUS = {
+    awaiting_admin:  { label: 'With EatOuts', cls: 'wait' },
+    assigned:        { label: 'Designer assigned', cls: '' },
+    in_progress:     { label: 'In progress', cls: '' },
+    draft_submitted: { label: 'Draft ready', cls: '' },
+    client_approved: { label: 'Approved', cls: 'done' },
+    closed:          { label: 'Delivered', cls: 'done' },
+    cancelled:       { label: 'Cancelled', cls: '' }
+  };
+
+  function designJobs(){
+    var raw = null;
+    try { raw = JSON.parse(localStorage.getItem('eatouts_jobs_v1') || '{"jobs":[]}'); }
+    catch (e) { raw = null; }
+    var all = (raw && raw.jobs) || [];
+    var minePhone = EO.phone(u.whatsapp);
+    return all.filter(function(j){
+      if (!j) return false;
+      if (u.id && j.customer_id === u.id) return true;
+      /* requests sent before accounts were required carry only the number */
+      return !!minePhone && EO.phone(j.business_whatsapp) === minePhone;
+    }).sort(function(a, b){ return (b.created_at || 0) - (a.created_at || 0); });
+  }
+
+  function designDay(ms){
+    if (!ms) return "";
+    try { return new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); }
+    catch (e) { return ""; }
+  }
+
+  function supportWhatsapp(){
+    try {
+      var s = (EatoutsMgrDB.get().settings || {});
+      if (s.whatsapp) return EO.phoneIntl(s.whatsapp);
+    } catch (e) {}
+    return '26771844129';
+  }
+
+  function designsSub(){
+    var n = designJobs().length;
+    return n ? n + " request" + (n === 1 ? "" : "s") : "None yet";
+  }
+
+  function designsModule(){
+    var list = designJobs();
+    var h = '<div class="module">' +
+      '<p class="module-note">Requests you sent to the EatOuts design team. Drafts, revisions and the invoice arrive on WhatsApp against the reference below.</p>';
+
+    if (!list.length){
+      return h +
+        '<div class="empty-note">No design requests yet. Pick a logo, menu or promo pack and your brief goes straight to a designer.</div>' +
+        '<div class="save-row"><a class="btn btn-save" href="designer-services.html" style="text-decoration:none">Browse design services</a></div>' +
+      '</div>';
+    }
+
+    list.forEach(function(j){
+      var st = DESIGN_STATUS[j.status] || { label: j.status || "Submitted", cls: "" };
+      var amount = Number(j.total || 0);
+      var when = designDay(j.created_at);
+      h += '<div class="dreq" data-job="' + escapeAttr(j.id || "") + '">' +
+        '<div class="dreq-top">' +
+          '<b>' + esc(j.service_name || "Design request") + '</b>' +
+          '<span class="dreq-st ' + st.cls + '">' + esc(st.label) + '</span>' +
+        '</div>' +
+        '<div class="dreq-meta">' + esc(j.id || "") +
+          (amount ? ' · P' + amount.toFixed(0) : "") +
+          (when ? ' · ' + esc(when) : "") +
+        '</div>' +
+      '</div>';
+    });
+
+    h += '<div class="save-row">' +
+      '<a class="btn btn-save" style="text-decoration:none" href="https://wa.me/' + supportWhatsapp() +
+        '?text=' + encodeURIComponent("Hi EatOuts — please can I get an update on design request " + (list[0].id || "") + "?") +
+      '">Ask about my request</a>' +
+    '</div>';
+    return h + '</div>';
+  }
+
+  /* ============================================================
      RENDER
      ============================================================ */
   var mount = document.getElementById('app');
@@ -911,6 +1037,7 @@ document.addEventListener("DOMContentLoaded", function () {
         section('personal', 'P', 'Personal details', nameSub(), personalModule()) +
         section('contacts', 'C', 'Contacts & notifications', contactsSub(), contactsModule()) +
         section('location', 'L', 'Default delivery location', locationSub(), locationModule()) +
+        section('designs', 'D', 'My design requests', designsSub(), designsModule()) +
       '</div>' +
       '<div class="quick-links">' +
         '<a class="quick-link" href="eatouts-addresses.html">' +

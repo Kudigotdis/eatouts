@@ -756,6 +756,22 @@ img{display:block;max-width:100%}
     updateActionBar();
   }
 
+  /* ---------- designer handoff ---------- */
+  /* the roster only carries a number once the designer adds one */
+  function designerWhatsapp(job){
+    var d = job && S.designerById(job.designer_id);
+    var p = d && d.private && d.private.phone;
+    var digits = (typeof p === 'string') ? p.replace(/\D/g, '') : '';
+    return digits.length >= 8 ? digits : '';
+  }
+  function designerMessage(job){
+    var d = S.designerById(job.designer_id) || {};
+    var who = (d.private && d.private.full_name) || d.portfolio_style || 'there';
+    return 'Hi ' + who + ' — I just sent a design request to EatOuts (ref ' + job.id + '). ' +
+           (job.service_name || 'Design work') + ' for ' + (job.business_name || 'my business') +
+           '. Looking forward to working with you.';
+  }
+
   function renderDone(){
     var j = state.job;
     var h = '';
@@ -775,12 +791,18 @@ img{display:block;max-width:100%}
     }
     h += '<div class="status-strip">We\'ll confirm availability and terms on WhatsApp within 24 hours. Your designer becomes formally engaged only after our approval.</div>';
     h += '<a class="btn primary full" id="sendWa" href="#">Message EatOuts on WhatsApp</a>';
+    if(j && designerWhatsapp(j)){
+      h += '<a class="btn full" id="sendDesignerWa" href="#">Message your designer on WhatsApp</a>';
+    }
+    h += '<a class="btn full" href="eatouts-profile.html">View my design requests</a>';
     h += '<a class="btn full" href="index.html" style="margin-top:8px">Return to EatOuts</a>';
     h += '<div class="footnote">Keep your reference number. We may quote it if you contact us later.</div>';
     h += '</div>';
     view().innerHTML = h;
     var wa = el('sendWa');
     if(wa && j) wa.href = S.whatsappLink(j);
+    var dwa = el('sendDesignerWa');
+    if(dwa && j) dwa.href = 'https://wa.me/' + designerWhatsapp(j) + '?text=' + encodeURIComponent(designerMessage(j));
     updateActionBar();
   }
 
@@ -967,6 +989,7 @@ img{display:block;max-width:100%}
   el('hdrBack').addEventListener('click', function(){
     var step = state.step;
     if(step === 'catalogue'){ window.location.href = 'index.html'; return; }
+    if(step === 'gate'){ takeResume(); goto('catalogue'); return; }
     if(step === 'service'){ goto('catalogue'); return; }
     if(step === 'designer'){ goto('service'); return; }
     if(step === 'brief'){ goto('designer'); return; }

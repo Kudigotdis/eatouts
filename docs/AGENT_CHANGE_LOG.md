@@ -14,6 +14,27 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 06:05:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T21 step 8 — designer handoff on the done step + "My design requests" on `eatouts-profile.html`
+- Files changed:
+  - designer-services.html (`designerWhatsapp()` / `designerMessage()`; the done step adds "Message your designer on WhatsApp" once the roster carries `private.phone`, plus a "View my design requests" link)
+  - eatouts-profile.html (new `.dreq` / `.dreq-st` styles; `designJobs()` / `designDay()` / `supportWhatsapp()` / `designsSub()` / `designsModule()`; a 4th accordion `section('designs', 'D', 'My design requests', …)` in `render()`)
+  - tests/designer-services.js (85 checks: designer chat href + reference in the message, profile link on the done step)
+  - tests/profile-design-requests.js (new, 18 checks: section title/subtitle, only-this-customer filtering by `customer_id` and by WhatsApp for pre-account jobs, newest-first order, status labels/tones, ref + amount, WhatsApp follow-up, empty state + catalogue link)
+  - tests/run-all.js (registers `profile-design-requests.js`)
+  - PLATFORM UPDATE TASKS.md (T21 → ✅ COMPLETE; steps 5 / 8 / 9 annotated)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit
+- Push: PENDING (recorded in the follow-up entry)
+- Notes:
+  - The profile module is read-only over `eatouts_jobs_v1` — the same store `js/eatouts-brand-kit.js` writes, so there is still exactly one request store (A3).
+  - Matching is `customer_id === user.id` first, then the WhatsApp number, so requests sent before the account gate existed still show up.
+  - Every designer in `js/eatouts-designers-seed.js` still has `private.phone: ""`, so in the shipped seed the done step shows only the EatOuts handoff; the designer chat appears as soon as a number is added (the test patches one in).
+  - Not verified: real-device look of the new accordion rows (jsdom has no layout engine).
+- Verified: `node tests/designer-services.js` 85 ok / PASSED (0 window errors); `node tests/profile-design-requests.js` 18 ok / PASSED; `tests/brand-kit-admin.js`, `tests/designer-dashboard.js`, `tests/customer.js` PASSED; `node tests/run-all.js` → see follow-up entry.
+- Errors: none.
+
+---
 ### [2026-11-03 05:20:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: T21 steps 5 + 9 — account gate on the design request flow + step 3 business prefill
 - Files changed:

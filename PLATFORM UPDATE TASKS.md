@@ -709,14 +709,14 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 4. Empty/not-found state.
 **Done when** a saved event renders exactly like the builder preview, nothing is editable, share opens WhatsApp with the link, docs/tests green.
 
-#### T21 — `designer-services` catalogue + galleries (user task 21) · XL — 🟡 **IN PROGRESS 2026-11-03** (steps 1–7 + 10 landed; account gating / requests (5, 8, 9) still open)
+#### T21 — `designer-services` catalogue + galleries (user task 21) · XL — ✅ **COMPLETE 2026-11-03** (steps 1–10 landed; 85 `designer-services` checks + 18 `profile-design-requests` checks green)
 **Files:** `designer-services.html` (hero `:240-257`, catalogue `:259-…`, designer list, step 2, step 3), `js/eatouts-services-seed.js` (29 services, `:14-272`), `js/eatouts-brand-kit.js`, `assets/images/services/*`.
 **Steps**
 1. Header → standard (T08); add the bottom nav exactly as in the brief; remove `.badges`.
 2. Copy change: "…from **local** designers…".
 3. `.cat-chips` centred; remove every `.ico` span (`:255`).
 4. `.card-img` shows the full image (no fixed 118px crop) — use `aspect-ratio` + `object-fit:cover`; `.service-sub` → 16px; remove `.plus`.
-5. `pickService` account-only (browser → sign-up popup).
+5. `pickService` account-only (browser → sign-up popup). ✅ `gate` step: "Create a free account" / "I already have an EatOuts account" / "Keep browsing"; the chosen service is parked in `sessionStorage` and reopened after sign-in. `submitRequest()` re-checks the account.
 6. `.footnote` centred, 16px.
 7. Step 2:
    - heading "Pick a style" → **"Available Designers"**;
@@ -727,8 +727,8 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
    - add a toggle under the hero: **Available Designers / Previous Designers** (previous = worked with before; unavailable ones appear inactive with "available from <date>"; allow "notify me / there is work waiting");
    - `.designer-card`: `<h4>` + `<p>` centred between the avatar and `.mosaic`;
    - `.mosaic` = 3-image snap carousel; tap a cell → lightbox with dots + swipe; tap dots → 3-across Pinterest-style grid on feint black; tap a grid image → enlarge + swipe.
-8. "Send my request" → sends to the designer's WhatsApp **and** records the request on the user's profile (add a "My Design Requests" list to `eatouts-profile.html`).
-9. Step 3: account-only; choose from the user's **listed businesses** (prefill) or **For Unlisted Business** (empty form).
+8. "Send my request" → sends to the designer's WhatsApp **and** records the request on the user's profile (add a "My Design Requests" list to `eatouts-profile.html`). ✅ Job lands in `eatouts_jobs_v1` as `awaiting_admin` with `customer_id` + `business_id`; the done step opens the designer chat once the roster carries `private.phone` (all seed designers still have `""`, so EatOuts stays the handoff); `eatouts-profile.html` gains a "My design requests" accordion (status label, ref, amount, date, WhatsApp follow-up) driven by the same store.
+9. Step 3: account-only; choose from the user's **listed businesses** (prefill) or **For Unlisted Business** (empty form). ✅ Step 3 is only reachable signed in, prefills name / WhatsApp / industry from `EatoutsMgrDB` → `businesses` (via `user.businessId`), and shows a `.seg` toggle between that business and "For Unlisted Business" (blank form, account number kept).
 10. Catalogue rework — the **24 offers** in §6, new prices. Update `js/eatouts-services-seed.js`, any admin/brand-kit references, and the docs. Missing images → add placeholders to `assets/images/services/` and list them as "images to get".
 **Done when** catalogue matches §6, prices correct, galleries behave as specified, gating works, requests persist, docs/tests green.
 
