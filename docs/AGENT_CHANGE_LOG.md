@@ -20,8 +20,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `eatouts-suppliers.html` (+1/-40): deleted the `.supplier-card .foot` markup block and its two CSS rules, the review-step `Export profile JSON` section (title + hint + button + trailing divider), the dashboard `Export profile JSON` manage action, the `act === 'exportProfile'` branch, `exportProfile()`, `downloadPayload()` and the "Profiles export as JSON for the directory" header comment (rewritten to say profiles sync on publish). `slugify()` was kept — `publish` still mints the public slug with it.
   - `PLATFORM UPDATE TASKS.md`: step 8 ticked with the scan result, T18 header status line updated
   - `HTML_PAGES.md`: page line count corrected 1737 → 1652
-- Commit: PENDING
-- Push: PENDING
+- Commit: `4c8d7b5`
+- Push: `d3f5838..4c8d7b5  main -> main`
 - Notes:
   - `downloadPayload()` looked reusable but had exactly one caller (`exportProfile`), so it went with it rather than being left as dead code.
   - The review step now ends on the Summary supplier card. The publish control lives in the bottom bar (`setBar('review')`), not in this HTML — checked before deleting the trailing divider, no orphan section left.
