@@ -633,7 +633,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 5 — Large builds
 
-#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1-12.4, 12.7, 12.8 + the overlay standard done; 12.5, 12.6, 12.9 open)
+#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1-12.8 + the overlay standard done; 12.9 open — land it after T13)
 **Files:** `eatout_event_builder.html` (single file, ~4.2k lines), `js/eatouts-events*` if present.
 **Sub-tasks (do in this order, verify each)**
 
@@ -675,15 +675,21 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - [x] `.pit-info`: 90px thumb left, `.pit-title` + `.pit-price` right (`.pit-card` is now a `90px 1fr` grid).
 - [x] permanent coverage: `tests/builder-suppliers.js` (49 → 87 checks) proves the popup child order `fpop-hdr > fpop-body > fpop-search.is-foot`, the plain transparent `×`, the 420px / 80dvh / 16px profile and info cards, the 150px avatar, the 16px location line, the `90px 1fr` card with its `.pit-foot` (cost left, 118px right-pushed stepper, centred glyphs), and both galleries end-to-end (feint backdrop, dots above the track, caption below, dot highlight, avatar + item-thumb opens, outside tap closes, profile surviving behind).
 
-**12.5 Details** — `[data-sec="details"]`
-- centre `.chip-row`; `setEventMode` chips equal width; centre `.field-hint`;
-- Dress code → **Dress-Code-Cards**: 90px square thumb, tap = gallery (add/remove/swipe), add/edit/remove cards.
+**12.5 Details** — `[data-sec="details"]` — ✅ **DONE 2026-11-03**
+- [x] `.chip-row` centred — `[data-sec="details"] .chip-row{justify-content:center}` (`:167`); the visibility row now uses `.chip-row.eq` so Private/Public are equal width with centred labels;
+- [x] `.field-hint` centred — `[data-sec="details"] .field-hint{text-align:center;font-size:14px}` (`:169`);
+- [x] the dress-code textarea is gone. `renderDetailsSection()` (`:2895`) renders **Dress-Code-Cards** from `eventDetails.dress` (`[{id,name,photos:[dataURL]}]`, state `:1343`): a `.dc-row` of `.dc-card`s — 90px `.dc-thumb` (first photo, else 👗), `.dc-name` under it, and a plain transparent `.dc-x`;
+- [x] tap the thumb → `openDressGallery` opens the shared full-image gallery with `edit:{idx}`; `renderImageGallery()` (`:2818`) now takes an optional `edit` footer — `＋ Add photo` (device upload, no URL field) and `Remove photo` (drops the current slide), with the existing scroll-snap swipe + dots untouched for suppliers; empty cards open in add mode with "No photos yet.";
+- [x] add / edit / remove — `addDress` + `editDress` reuse the floating `.prompt-panel` (name + 150px thumb picker, Delete inside the prompt), `.dc-x` removes from the section; `dresscode` stays a mirror of the card names (`syncDresscode()`) so the Preview card at `:3094` and older drafts keep working;
+- [x] the prompt's thumb picker now writes a hidden `[data-prompt-field]` (`renderPrompt` `:3347`, `pickPromptThumb` `:4488`) — `savePromptFromForm()` only reads `[data-prompt-field]` inputs, so without it a picked photo never reached `onSave` (guest thumbs were silently dropped too; that path is fixed by the same change);
+- [x] permanent coverage: new `tests/builder-details.js` (32 checks) — the CSS rules, `.eq` mode chips + computed centring, centred 14px hint, the card + 90px thumb + hanger fallback, add/edit/delete through the floating prompt, the `dresscode` mirror, the gallery's add/remove/empty/outside-tap paths, autosave round-trip and a legacy `dresscode`-only draft.
 
-**12.6 Guests** — `[data-sec="guests"]`
-- `.prompt-panel` floating;
-- `.prompt-thumb` → 150px, remove "Add photo" text;
-- remove beige `fpop-close` circle, keep a plain `X` glyph (D1);
-- `.qty-stepper` `−`/`+` centred.
+**12.6 Guests** — `[data-sec="guests"]` — ✅ **DONE 2026-11-03**
+- [x] `.prompt-panel` floating — inherited from 12.3 (verify only);
+- [x] `.prompt-thumb` 150px — already shipped; the "Add photo" text inside it is **removed** (`renderPrompt` `:3346`), leaving the bare `＋` glyph (the `aria-label` stays for a11y);
+- [x] plain `×` only — no `.fpop-close` in the document;
+- [x] `.qty-stepper` `−`/`+` centred — already `display:flex;align-items:center;justify-content:center` (`:709-711`); verify only;
+- [x] permanent coverage: `tests/builder-guests.js` +4 checks (150px square picker, no "Add photo" copy, computed centring of both stepper glyphs, plain `×` with no `.fpop-close`).
 
 **12.7 RSVP** — `[data-sec="rsvp"]`: `.prompt-panel` floating; remove beige close circle, keep a plain `X` glyph. — ✅ **DONE 2026-11-02** (`renderPrompt` `:3301-3316`, inherited from 12.3)
 - permanent coverage: `tests/builder-guests.js` +11 checks — `addRsvp` → `.prompt-panel` inside a centred `.fpop-scrim`, computed 420px / 16px, a plain transparent `×` in `.fpop-hdr`, zero `.fpop-close` in the document; the `X`, an outside tap and `Escape` each close it; the RSVP-specific `contactType` / `contactValue` fields survive.

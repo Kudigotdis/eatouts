@@ -49,6 +49,7 @@ const SUITES = [
   'builder-guests.js',
   'builder-schedule.js',
   'builder-audience.js',
+  'builder-details.js',
   'supplier-activate.js',
   'appshell.js',
   'html-catalog.js',

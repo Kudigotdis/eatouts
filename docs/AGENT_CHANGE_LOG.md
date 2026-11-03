@@ -14,6 +14,38 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 09:10:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T12.5 — builder "Event Details": centred chips/hints + Dress-Code-Cards
+- Files changed:
+  - eatout_event_builder.html (+110/-8): `[data-sec="details"] .chip-row{justify-content:center}` + `.field-hint{text-align:center;font-size:14px}`; new `.dc-row/.dc-card/.dc-thumb(90px)/.dc-name/.dc-x` and `.img-gal-acts`; `eventDetails.dress:[{id,name,photos}]` (state `:1343`) with `dresscode` kept as a name mirror; `renderDetailsSection()` emits the card row + "＋ Add dress code" instead of the old textarea; helpers `dressCards()`/`syncDresscode()`/`saveDress()`/`removeDressAt()`; acts `addDress`, `editDress` (floating prompt with Delete), `removeDress`, `openDressGallery`, `galAddPhoto`, `galRemovePhoto`; `renderImageGallery()` accepts an optional `edit` footer (add/remove photo; suppliers path unchanged); `STATE.gallery.edit` reset on close; `renderPrompt()`'s thumb branch now emits a hidden `[data-prompt-field]` and `pickPromptThumb` writes it — `savePromptFromForm()` only reads `[data-prompt-field]` inputs, so picked photos never reached `onSave` before (guest thumbs were silently dropped too)
+  - tests/builder-details.js (new, 32 checks), tests/run-all.js (registered)
+  - PLATFORM UPDATE TASKS.md (12.5 ticked, T12 header)
+- Commit: this commit
+- Push: PENDING
+- Notes:
+  - One request store, one gallery: the dress-code gallery reuses `STATE.gallery` + `renderImageGallery()` rather than a second lightbox, and the `edit` footer is opt-in so `builder-suppliers`' gallery assertions are untouched.
+  - `dresscode` stays a comma-joined mirror of the card names so the Preview card (`:3094`) and pre-12.5 drafts (`eventDetails.dresscode` only) keep rendering; a legacy draft simply shows the empty card state.
+  - A2/A3 from the plan held: one card = one dress code, first photo = the 90px thumb, and "add photo" is device-only (no URL field), matching 12.4's galleries.
+- Verified: `node tests/builder-details.js` → BUILDER-DETAILS TEST PASSED; `builder-audience` / `builder-schedule` / `builder-guests` / `builder-suppliers` PASSED; `node tests/run-all.js` → **68 passed, 0 failed**.
+- Not verified: real-device look of the 90px card row and the gallery footer (jsdom has no layout engine); the real file picker (only the hidden-input value path is exercised).
+- Errors: none.
+
+---
+### [2026-11-03 09:25:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T12.6 — builder Guests: bare 150px photo picker (the rest was verify-only)
+- Files changed:
+  - eatout_event_builder.html (+0/-1): `renderPrompt()`'s thumb branch drops the `<span>Add photo</span>` copy, leaving the `＋` glyph (the `aria-label="Add photo"` stays)
+  - tests/builder-guests.js (+17, 4 new checks), PLATFORM UPDATE TASKS.md (12.6 ticked)
+- Commit: this commit
+- Push: PENDING
+- Notes:
+  - Verify-only items confirmed by the new checks rather than by assumption: the prompt already floats in `.fpop-scrim` (12.3), `.prompt-thumb` was already 150px, `.fpop-close` is absent, and `.qty-stepper button` already centres its glyphs (`display:flex` + `align-items/justify-content:center`, `:709-711`).
+  - Only guests pass a `thumb` field through `openPrompt()`, so the visible change is scoped to that prompt (RSVP/links/audience prompts are unchanged).
+- Verified: `node tests/builder-guests.js` → BUILDER-GUESTS TEST PASSED (12.6 checks green); full suite re-run before the T12.5 push → 68 passed, 0 failed.
+- Not verified: real-device look of the empty 150px picker.
+- Errors: none.
+
+---
 ### [2026-11-03 06:20:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: Close the push notes on the two T21 entries below and record the full-suite result
 - Files changed:

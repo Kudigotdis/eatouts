@@ -110,6 +110,24 @@ function draftWith(venueId) {
   check('stepper minus is left with data-delta -1', !!kids[0] && kids[0].getAttribute('data-delta') === '-1');
   check('stepper plus is right with data-delta 1', !!kids[2] && kids[2].getAttribute('data-delta') === '1');
 
+  /* ---------- 12.6 Guests — 150px bare picker, centred stepper glyphs ---------- */
+  const thumbCs = thumb ? w.getComputedStyle(thumb) : null;
+  check('12.6: the photo picker is a 150px square',
+    !!thumbCs && thumbCs.width === '150px' && thumbCs.height === '150px',
+    thumbCs ? thumbCs.width + '×' + thumbCs.height : 'no thumb');
+  check('12.6: the picker has no "Add photo" copy',
+    !!thumb && !/Add photo/i.test(thumb.textContent) && thumb.textContent.trim() === '\uff0b',
+    thumb ? JSON.stringify(thumb.textContent.trim()) : 'no thumb');
+  const minusCs = kids[0] ? w.getComputedStyle(kids[0]) : null;
+  const plusCs = kids[2] ? w.getComputedStyle(kids[2]) : null;
+  check('12.6: −/+ glyphs are centred',
+    !!minusCs && minusCs.display === 'flex' && minusCs.alignItems === 'center' &&
+    minusCs.justifyContent === 'center' && !!plusCs && plusCs.justifyContent === 'center',
+    minusCs ? [minusCs.display, minusCs.alignItems, minusCs.justifyContent].join(' / ') : 'no −');
+  check('12.6: the close is a plain × with no beige circle',
+    !panel.querySelector('.fpop-close') && !!panel.querySelector('.fpop-x') &&
+    panel.querySelector('.fpop-x').textContent.trim() === '\u00d7');
+
   const plusInput = panel.querySelector('[data-prompt-field="plus"]');
   click(w, kids[0]);
   click(w, kids[0]);
