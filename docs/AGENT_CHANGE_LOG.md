@@ -2251,4 +2251,25 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `npm run inventory` → INVENTORY PASSED (10 checks, 92 warnings = baseline; 31 screens, 73 standalone files)
 - Errors: none
 
+### [2026-11-03 18:06:31] - [Agent: cline] - [Status: COMMITTED]
+- Task: QA debt made visible — new `docs/DEVICE-PASS-CHECKLIST.md`, plus the two open non-QA leftovers (T16's hand-off box, T05's missing DONE header)
+- Files changed:
+  - `docs/DEVICE-PASS-CHECKLIST.md` (new, 207 lines): the 11 open "device pass" boxes grouped into 12 screens (page, widths, pass rule per screen, console probe, sign-off table, failure log), with new rows for T18 and T22 which had no QA box at all.
+  - `index.html` (`:9117-9127`): `const ACTIVE_REGION='BW'` deleted; new `activeRegionCode()` reads `EatoutsRegions.code()` with a `'BW'` fallback, and `whatsappChannelUrl()` keys off it.
+  - `tests/about.js` (+2 checks, and one assertion swapped): "the live region comes from the registry, not a constant", "no hard-coded ACTIVE_REGION constant remains", "the channel follows the live region" (activates ZA for the check, then restores BW) and "switching back to Botswana restores the shipped unset state".
+  - `PLATFORM UPDATE TASKS.md`: T05 header → ✅ DONE 2026-11-01; T16's "handed to T22" box ticked with evidence (`:391`/`:393` wording updated to match the code); device-pass boxes added to T18 (`:637`) and T22 (`:801`); progress-log row.
+  - `docs/AGENT_CHANGE_LOG.md` (this entry)
+- Notes:
+  - This closes the last **non-QA** open box in the roadmap. What is left is now exactly 1 open build task (**T22b**: D1 `region` column + `functions/api/venues.js` filter + region currency), 13 device-pass boxes, and 1 decision (the A–Z rail, G1).
+  - The WhatsApp row's behaviour is **unchanged today** — BW is the only active region, so `activeRegionCode()` returns `'BW'` in production. The point is that the row now follows the selector instead of a constant, which is what T16's hand-off box was waiting for.
+  - The ZA round-trip in `tests/about.js` flags ZA active on `window.EATOUTS_REGIONS` for the duration of one check (same technique as `tests/region-gating.js`), then restores the flag and the stored region, so no later assertion in the file sees ZA.
+  - The checklist's width set (360/390/430) and page names were taken from the task bodies themselves, not invented; each entry cites the box it closes. Nothing in it was "verified" — it is a to-do for a human with a phone.
+  - Not verified: the checklist itself (that is the whole point). Everything it asks for requires layout jsdom does not compute.
+  - Untracked `assets/logo/*.jpg` (10) and `runall.txt` left alone — still unrelated and unrequested.
+- Verified:
+  - `node tests/about.js` → **ABOUT TEST PASSED** (65 ok, 0 failed, no window errors; was 63)
+  - `node tests/run-all.js` → **74 passed, 0 failed**
+  - `npm run inventory` → INVENTORY PASSED (10 checks, 92 warnings = baseline; 31 screens, 73 standalone files)
+- Errors: none
+
 

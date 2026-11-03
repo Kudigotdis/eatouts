@@ -102,7 +102,11 @@ setTimeout(() => {
     JSON.stringify(dom.window.eval('Object.keys(WHATSAPP_CHANNELS)')) ===
     JSON.stringify(['BW', 'ZA', 'ZW', 'MW', 'KE']),
     dom.window.eval('Object.keys(WHATSAPP_CHANNELS).join(",")'));
-  check('active region defaults to Botswana', dom.window.eval('ACTIVE_REGION') === 'BW');
+  check('the live region comes from the registry, not a constant',
+    dom.window.eval("typeof activeRegionCode==='function' && activeRegionCode()==='BW'"),
+    dom.window.eval('typeof activeRegionCode'));
+  check('no hard-coded ACTIVE_REGION constant remains',
+    dom.window.eval("typeof ACTIVE_REGION==='undefined'"));
   check('a region without a channel resolves to an empty url',
     dom.window.eval('whatsappChannelUrl()') === '');
   click(waRow());
@@ -123,6 +127,18 @@ setTimeout(() => {
   dom.window.eval("WHATSAPP_CHANNELS.BW='';render()");
   check('shipped state keeps the channel unset (no dead link)',
     dom.window.eval('whatsappChannelUrl()') === '' && waRow().tagName === 'BUTTON');
+  /* T22: the channel must follow the live region, not a baked-in code. ZA is
+     flagged active inside this check only, then everything is put back. */
+  dom.window.eval("window.EATOUTS_REGIONS.forEach(r=>{if(r.code==='ZA')r.active=true});" +
+    "EatoutsRegions.setActiveRegion('ZA');" +
+    "WHATSAPP_CHANNELS.ZA='https://whatsapp.com/channel/0029testZA'");
+  check('the channel follows the live region',
+    dom.window.eval('whatsappChannelUrl()') === 'https://whatsapp.com/channel/0029testZA',
+    dom.window.eval('whatsappChannelUrl()'));
+  dom.window.eval("WHATSAPP_CHANNELS.ZA='';EatoutsRegions.setActiveRegion('BW');" +
+    "window.EATOUTS_REGIONS.forEach(r=>{if(r.code==='ZA')r.active=false});render()");
+  check('switching back to Botswana restores the shipped unset state',
+    dom.window.eval('whatsappChannelUrl()') === '' && dom.window.eval('activeRegionCode()') === 'BW');
 
   const oldShare = vp.querySelector('a.btn.share');
   check('old Share EatOuts button removed', !oldShare, oldShare ? 'text=' + oldShare.textContent.trim() : 'ok');

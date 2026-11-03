@@ -9116,11 +9116,15 @@ function renderRestaurantGallery(){
    ================================================================ */
 /* T16: one WhatsApp Channel per region. An empty entry means that region has
    no channel yet, so the About row shows the standard floating "coming soon"
-   notice instead of shipping a dead link. T22 turns ACTIVE_REGION into the
-   region the customer picked; until then Botswana is the only live region. */
+   notice instead of shipping a dead link. T22: the live region now comes from
+   `EatoutsRegions.code()` (the region the customer picked), so the row follows
+   the selector; BW is the fallback while the registry is absent. */
 const WHATSAPP_CHANNELS={BW:'',ZA:'',ZW:'',MW:'',KE:''};
-const ACTIVE_REGION='BW';
-function whatsappChannelUrl(){return WHATSAPP_CHANNELS[ACTIVE_REGION]||'';}
+function activeRegionCode(){
+  const R=window.EatoutsRegions;
+  return (R&&typeof R.code==='function')?R.code():'BW';
+}
+function whatsappChannelUrl(){return WHATSAPP_CHANNELS[activeRegionCode()]||'';}
 /* Full-width "List your business" banner shown on the About tab (between the
    hero and the content pad) and in the Promos feed after every 3rd card. */
 function signupBanner(){
