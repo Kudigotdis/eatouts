@@ -8663,6 +8663,9 @@ function renderReserveCats(){
   /* no margin-top here: .scroll has no padding, so any top margin renders as a
      white strip between the app bar and the grey .phead band (T10) */
   h+='<div class="phead"><h2>Plan Event</h2></div>';
+  /* T12.9: the reserve tab is the entry point for a brand-new event */
+  h+='<button class="cat-row evcat" data-act="createEvent">'+
+    '<div class="minfo"><div class="cat-name">Create New Event</div></div></button>';
   RESERVE.forEach(c=>{
     h+='<button class="cat-row evcat" data-act="openResCat" data-id="'+c.id+'">'+
       '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div></div></button>';
@@ -10390,6 +10393,7 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
   if(act==="backFromWaReview"){state.checkoutReview=false;render();return;}
 
   /* RESERVE */
+  if(act==="createEvent"){location.href="eatout_event_builder.html";return;}
   if(act==="openResCat"){state.reserveCat=id;state.reserveGroup=null;state.reserveSub=null;render();return;}
   if(act==="backResCats"){state.reserveCat=null;state.reserveGroup=null;state.reserveSub=null;render();return;}
   if(act==="openResGroup"){state.reserveGroup=id;state.reserveSub=null;render();return;}

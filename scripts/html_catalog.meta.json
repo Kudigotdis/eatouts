@@ -933,6 +933,10 @@
   "changelog": [
     {
       "date": "2026-11-03",
+      "note": "T12.9 share + save: the planner's share icon now opens a floating two-option popup - 'Share with Venue Provider' (WhatsApp to the venue's number) or 'Share with WhatsApp Contacts' (Web Share API, wa.me fallback) - behind a floating 'Create a free account' gate that replaces the old confirm() prompts on Save Event and the favourite heart. Save Event opens a floating sheet to rename the event and pick its card photo (a flyer or a device photo), and the saved record now carries that photo plus created/edited dates; the events list shows 'Saved ... · Edited ...' on each card and opens the read-only Created_Event.html page. Leaving the planner with work in progress asks 'Save draft?' (save / discard / keep editing), and the Plan Event screen in index.html opens with a Create New Event row."
+    },
+    {
+      "date": "2026-11-03",
       "note": "Created_Event.html registered as page 73 (T13): the event builder's preview page as its own read-only page, rendered from a snapshot the builder now writes with every saved event (flyer hero with swipe dots, venue, dates, dress code, menu, suppliers, contacts, tickets, RSVP, guest list, budget, privacy switches honoured). Saved events now carry a stable id and a kept created_at plus updated_at, so the share link and the saved/edited dates survive edits; the customer event store matches on that id as well as the ref, so renaming updates the record instead of writing a second copy. Share uses the Web Share API with a wa.me fallback. Covered by the new tests/created-event.js and staged for deploy in copy-static.mjs."
     },
     {

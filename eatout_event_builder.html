@@ -798,6 +798,22 @@ select{appearance:none;-webkit-appearance:none;padding-right:32px}
 .prompt-foot{padding:12px 18px 16px;display:flex;gap:10px;
   padding-bottom:calc(12px + env(safe-area-inset-bottom))}
 
+/* T12.9 share / save / gate panels — same floating card as every other popup */
+.gate-copy{margin:0 0 6px;font-size:12.5px;line-height:1.55;color:var(--muted-2);font-weight:600}
+.opt-card{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--border);
+  border-radius:12px;padding:14px;margin-bottom:10px;font-family:inherit}
+.opt-card:last-child{margin-bottom:0}
+.opt-card:active{background:var(--surface)}
+.opt-card b{display:block;font-size:14px;font-weight:800;color:var(--text)}
+.opt-card em{display:block;margin-top:3px;font-style:normal;font-size:11.5px;
+  color:var(--muted-2);font-weight:600}
+.thumb-strip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px}
+.save-thumb{flex:0 0 90px;width:90px;height:90px;border-radius:12px;overflow:hidden;
+  background:var(--surface);border:2px solid var(--border);display:grid;place-items:center;
+  font-size:22px;font-weight:800;color:var(--muted-2);cursor:pointer;padding:0}
+.save-thumb.on{border-color:#1a1a1a}
+.save-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+
 /* ---------- REVIEW / PREVIEW ---------- */
 .review-hero{margin-bottom:14px;padding:18px 16px;border-radius:14px;
   background:linear-gradient(135deg,#151515,#2c2418);color:#fff;position:relative;
@@ -1310,6 +1326,7 @@ const STATE = {
   eventDescription:"",
   eventId:"",          // stable saved-record id, assigned on the first save (T13 link target)
   eventCreatedAt:0,    // first-save stamp, so created_at survives edits
+  eventThumb:"",       // event-card photo chosen in the save sheet (T12.9)
 
   // Schedule
   schedule:{mode:"one-day",days:[{id:"d1",startDate:"",startTime:"",endDate:"",endTime:"",noteTitle:"",noteText:""}]},
@@ -1378,6 +1395,12 @@ const STATE = {
   supInfoId:null,
   gallery:{open:false,images:[],index:0,caption:"",edit:null},
 
+  // T12.9 share / save
+  sharePicker:{open:false},          // 2-option share popup
+  saveSheet:{open:false,title:"",thumb:""}, // rename + card thumbnail
+  signupGate:{open:false},           // floating browser gate
+  leaveGuard:{open:false},           // "Save draft?" before leaving
+
   draftKey:"eatouts.event.draft.v2",
   toastTimer:null
 };
@@ -1394,6 +1417,7 @@ function saveDraft(){
       eventTitle:STATE.eventTitle,
       eventId:STATE.eventId,
       eventCreatedAt:STATE.eventCreatedAt,
+      eventThumb:STATE.eventThumb,
       eventDescription:STATE.eventDescription,
       schedule:STATE.schedule,
       targetAudience:STATE.targetAudience,
@@ -1427,6 +1451,7 @@ function loadDraft(){
     STATE.eventTitle=d.eventTitle||"";
     STATE.eventId=d.eventId||"";
     STATE.eventCreatedAt=d.eventCreatedAt||0;
+    STATE.eventThumb=d.eventThumb||"";
     STATE.eventDescription=d.eventDescription||"";
     if(d.schedule)STATE.schedule=d.schedule;
     STATE.targetAudience=d.targetAudience||[];
@@ -3493,6 +3518,100 @@ function savePromptFromForm(){
 }
 
 /* ============================================================
+   T12.9 — SHARE / SAVE / SIGN-UP GATE / SAVE DRAFT? (floating)
+   ============================================================ */
+function fpopShell(title,body,foot,closeAct){
+  return '<div class="fpop-scrim" data-act="'+closeAct+'">'+
+    '<div class="prompt-panel" data-stop="1">'+
+      '<div class="fpop-hdr">'+
+        '<h3>'+esc(title)+'</h3>'+
+        '<button class="fpop-x" data-act="'+closeAct+'" aria-label="Close">×</button>'+
+      '</div>'+
+      '<div class="prompt-body">'+body+'</div>'+
+      '<div class="prompt-foot" style="flex-direction:column;align-items:stretch">'+foot+'</div>'+
+    '</div>'+
+  '</div>';
+}
+function signedIn(){
+  const S=window.EatoutsCustomer;
+  return !!(S && S.getUser && S.getUser());
+}
+function shareLink(id){
+  try{
+    return location.origin+location.pathname.replace(/[^/]*$/,"Created_Event.html")+
+      "?id="+encodeURIComponent(id||"");
+  }catch(e){ return "Created_Event.html?id="+encodeURIComponent(id||""); }
+}
+function exitToVenueList(){
+  const eid=(STATE.eventType&&STATE.eventType.eventId)||"";
+  window.location.href=eid
+    ? "index.html?resEvent="+encodeURIComponent(eid)+"#reserve"
+    : "index.html#reserve";
+}
+function eventInProgress(){
+  return !!(STATE.eventTitle || (STATE.flyerImages||[]).length ||
+    STATE.menuFood.length || STATE.menuBeverages.length ||
+    STATE.guests.length || STATE.rsvp.length ||
+    STATE.schedule.days.some(function(d){return !!(d.startDate||d.startTime);}) ||
+    Object.keys(STATE.suppliers).some(function(k){return (STATE.suppliers[k]||[]).length;}));
+}
+function renderSharePicker(){
+  if(!STATE.sharePicker.open) return "";
+  const body='<button class="opt-card" data-act="shareVenue">'+
+      '<b>Share with Venue Provider</b>'+
+      '<em>Send this event to the venue on WhatsApp</em></button>'+
+    '<button class="opt-card" data-act="shareContacts">'+
+      '<b>Share with WhatsApp Contacts</b>'+
+      '<em>Pick who should get the event link</em></button>';
+  return fpopShell("Share Event",body,
+    '<button class="btn ghost full" data-act="closeSharePicker">Cancel</button>',"closeSharePicker");
+}
+function renderSignupGate(){
+  if(!STATE.signupGate.open) return "";
+  const next=encodeURIComponent("eatout_event_builder.html");
+  const body='<p class="gate-copy">Saving, sharing and drafts live in your free EatOuts account. '+
+    'It takes a minute and keeps this event on every device you sign in on.</p>';
+  const foot='<a class="btn primary full" href="eatouts-login.html?next='+next+'">Create a free account</a>'+
+    '<a class="btn ghost full" href="eatouts-login.html?next='+next+'" style="margin-top:10px">'+
+      'I already have an EatOuts account</a>'+
+    '<button class="btn ghost full" data-act="closeSignupGate" style="margin-top:10px">'+
+      'Keep browsing</button>';
+  return fpopShell("Create a free account",body,foot,"closeSignupGate");
+}
+function renderSaveSheet(){
+  const s=STATE.saveSheet;
+  if(!s.open) return "";
+  const flyers=STATE.flyerImages||[];
+  const deviceThumb=s.thumb && flyers.indexOf(s.thumb)===-1;
+  let strip=flyers.map(function(src,i){
+    return '<button class="save-thumb'+(s.thumb===src?" on":"")+'" data-act="pickSaveThumb" '+
+      'data-src="'+esc(src)+'" aria-label="Use flyer '+(i+1)+'">'+
+      '<img src="'+esc(src)+'" alt=""></button>';
+  }).join('');
+  if(deviceThumb) strip+='<button class="save-thumb on" data-act="pickSaveThumb" data-src="'+esc(s.thumb)+'" '+
+    'aria-label="Use this photo"><img src="'+esc(s.thumb)+'" alt=""></button>';
+  strip+='<button class="save-thumb'+(s.thumb?"":" on")+'" data-act="saveThumbDevice" '+
+    'aria-label="Choose a photo from this device"><span class="pt-plus">＋</span></button>';
+  const body='<div class="field"><label>Event name</label>'+
+      '<input type="text" id="saveTitle" value="'+esc(s.title||"")+'" placeholder="Untitled Event"></div>'+
+    '<div class="field" style="margin-bottom:0"><label>Event card photo</label>'+
+      '<div class="thumb-strip">'+strip+'</div></div>';
+  const foot='<button class="btn primary full" data-act="saveSheetSave">Save Event</button>'+
+    '<button class="btn ghost full" data-act="closeSaveSheet" style="margin-top:10px">Cancel</button>';
+  return fpopShell("Save Event",body,foot,"closeSaveSheet");
+}
+function renderLeaveGuard(){
+  if(!STATE.leaveGuard.open) return "";
+  const body='<p class="gate-copy">Keep this event so you can finish it later? '+
+    'Your draft stays on this device until you save it to your account.</p>';
+  const foot='<button class="btn primary full" data-act="leaveSaveDraft">Save draft</button>'+
+    '<button class="btn danger full" data-act="leaveDiscardDraft" style="margin-top:10px">Discard draft</button>'+
+    '<button class="btn ghost full" data-act="closeLeaveGuard" style="margin-top:10px">Keep editing</button>';
+  return fpopShell("Save draft?",body,foot,"closeLeaveGuard");
+}
+
+
+/* ============================================================
    RENDER — main scroll
    ============================================================ */
 function renderMainScroll(){
@@ -3559,6 +3678,10 @@ function render(){
   modalHtml+=renderImageGallery();
   modalHtml+=renderPreviewPage();
   modalHtml+=renderMenuPage();
+  modalHtml+=renderSharePicker();
+  modalHtml+=renderSaveSheet();
+  modalHtml+=renderSignupGate();
+  modalHtml+=renderLeaveGuard();
   root.innerHTML=modalHtml;
   // Focus search in STM
   if(STATE.supplierTypeMenu.open){
@@ -3685,6 +3808,10 @@ document.addEventListener("click",function(e){
     if(act==="closeLinkPicker"){STATE.linkPicker.open=false;render();return;}
     if(act==="closeMenuPage"){STATE.menuPage={open:false,cat:"food",view:"items"};render();return;}
     if(act==="closeSupplierProfile"){STATE.supplierProfile={open:false,id:null,cat:"",items:{}};render();return;}
+    if(act==="closeSharePicker"){STATE.sharePicker.open=false;render();return;}
+    if(act==="closeSaveSheet"){STATE.saveSheet.open=false;render();return;}
+    if(act==="closeSignupGate"){STATE.signupGate.open=false;render();return;}
+    if(act==="closeLeaveGuard"){STATE.leaveGuard.open=false;render();return;}
     // fallback: close any open modal
     STATE.flyerMenuOpen=false;STATE.titleEditOpen=false;
     STATE.flyerItemMenu.open=false;
@@ -3801,10 +3928,23 @@ document.addEventListener("click",function(e){
   }
 
   if(act==="backToVenueList"){
-    const eid=(STATE.eventType&&STATE.eventType.eventId)||"";
-    window.location.href=eid
-      ? "index.html?resEvent="+encodeURIComponent(eid)+"#reserve"
-      : "index.html#reserve";
+    /* T12.9: an account user with work in progress is asked about the draft */
+    if(signedIn() && eventInProgress()){ STATE.leaveGuard.open=true; render(); return; }
+    exitToVenueList();
+    return;
+  }
+  if(act==="closeLeaveGuard"){ STATE.leaveGuard.open=false; render(); return; }
+  if(act==="leaveSaveDraft"){
+    saveDraft();
+    STATE.leaveGuard.open=false;
+    toast("Draft saved");
+    exitToVenueList();
+    return;
+  }
+  if(act==="leaveDiscardDraft"){
+    try{ localStorage.removeItem(STATE.draftKey); }catch(e){}
+    STATE.leaveGuard.open=false;
+    exitToVenueList();
     return;
   }
 
@@ -4394,12 +4534,32 @@ document.addEventListener("click",function(e){
     return;
   }
 
-  // Share
+  // Share (T12.9: 2-option floating popup, account only)
   if(act==="shareWhatsApp"){
+    if(!signedIn()){ STATE.signupGate.open=true; render(); return; }
+    STATE.sharePicker.open=true;
+    render();
+    return;
+  }
+  if(act==="closeSharePicker"){ STATE.sharePicker.open=false; render(); return; }
+  if(act==="shareVenue"){
+    STATE.sharePicker.open=false; render();
+    if(!STATE.venue){ toast("Pick a venue first"); return; }
+    const number=STATE.venue.whatsapp || "26771844129";
+    window.open("https://wa.me/"+number+"?text="+encodeURIComponent(buildShareMessage()),"_blank");
+    return;
+  }
+  if(act==="shareContacts"){
+    STATE.sharePicker.open=false; render();
     const text=buildShareMessage();
+    if(navigator.share){
+      navigator.share({title:STATE.eventTitle||"EatOuts event",text:text}).catch(function(){});
+      return;
+    }
     window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank");
     return;
   }
+  if(act==="closeSignupGate"){ STATE.signupGate.open=false; render(); return; }
   if(act==="sendToVenue"){
     if(!STATE.venue) return;
     const text=buildShareMessage();
@@ -4411,7 +4571,7 @@ document.addEventListener("click",function(e){
   // Customer account: save event / post on promos (manual P50 invoice)
   if(act==="favEvent"){
     const S=window.EatoutsCustomer;
-    if(!S||!S.getUser()){ if(confirm("Sign in to save this event to your account. Continue to sign in?")) location.href="eatouts-login.html?next="+encodeURIComponent("eatout_event_builder.html"); return; }
+    if(!S||!S.getUser()){ STATE.signupGate.open=true; render(); return; }
     const item=eventFavItem();
     const was=S.favourites.has(item);
     S.favourites.toggle(item);
@@ -4420,15 +4580,49 @@ document.addEventListener("click",function(e){
     return;
   }
   if(act==="saveEvent"){
+    if(!signedIn()){ STATE.signupGate.open=true; render(); return; }
+    STATE.saveSheet={open:true,title:STATE.eventTitle||"",
+      thumb:STATE.eventThumb||(STATE.flyerImages[0]||"")};
+    render();
+    return;
+  }
+  if(act==="closeSaveSheet"){ STATE.saveSheet.open=false; render(); return; }
+  if(act==="pickSaveThumb"){
+    STATE.saveSheet.thumb=t.getAttribute("data-src")||"";
+    render();
+    return;
+  }
+  if(act==="saveThumbDevice"){
+    const input=document.createElement("input");
+    input.type="file";input.accept="image/*";
+    input.onchange=function(){
+      const f=input.files&&input.files[0];
+      if(!f) return;
+      const reader=new FileReader();
+      reader.onload=function(ev){
+        STATE.saveSheet.thumb=ev.target.result;
+        render();
+      };
+      reader.readAsDataURL(f);
+    };
+    input.click();
+    return;
+  }
+  if(act==="saveSheetSave"){
     const S=window.EatoutsCustomer;
-    if(!S||!S.getUser()){ if(confirm("Sign in to save this event to your account. Continue to sign in?")) location.href="eatouts-login.html?next="+encodeURIComponent("eatout_event_builder.html"); return; }
+    const inp=document.getElementById("saveTitle");
+    if(inp){ STATE.eventTitle=String(inp.value||"").trim()||STATE.eventTitle||"Untitled Event"; }
+    STATE.eventThumb=STATE.saveSheet.thumb||"";
+    STATE.saveSheet.open=false;
+    if(!S||!S.getUser()){ STATE.signupGate.open=true; render(); return; }
     S.events.save(eventSavePayload())
       .then(function(res){
         const item=res&&res.item;
         if(item){ STATE.eventId=item.id||""; STATE.eventCreatedAt=item.created_at||0; saveDraft(); }
         toast("Event saved to your account");
+        render();
       })
-      .catch(function(){ toast("Saved on this device"); });
+      .catch(function(){ toast("Saved on this device"); render(); });
     return;
   }
   if(act==="postOnPromos"){
@@ -4663,6 +4857,8 @@ function eventSavePayload(){
     subtitle:(STATE.venue?STATE.venue.name:"")+(firstWhen()?(" · "+firstWhen()):""),
     created_at:STATE.eventCreatedAt||Date.now(),
     updated_at:Date.now(),
+    image:STATE.eventThumb||(STATE.flyerImages[0]||""),
+    thumb:STATE.eventThumb||(STATE.flyerImages[0]||""),
     meta:{venue:STATE.venue?STATE.venue.id:null,eventType:(STATE.eventType&&STATE.eventType.eventId)||null,
       when:firstWhen(),guests:totalGuests(),budget:STATE.showBudget?grandTotal():null,
       flyer:(STATE.flyerImages&&STATE.flyerImages[0])||null},
@@ -4688,7 +4884,7 @@ function buildShareMessage(){
   if(supCount) msg+="Suppliers: "+supCount+"\n";
   if(STATE.showBudget) msg+="Estimated budget: "+fmt(grandTotal())+"\n";
   if(STATE.eventDescription) msg+="\n"+STATE.eventDescription+"\n";
-  msg+="\nPreview: https://eatouts.app/e/"+(v?v.id:"draft");
+  msg+="\nPreview: "+shareLink(STATE.eventId||eventRef());
   return msg;
 }
 

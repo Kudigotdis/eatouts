@@ -190,7 +190,7 @@ bottom nav where the page is part of the app shell.
 ### Phase 5 — Large builds
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
-| 19 | T12 | 12 | `eatout_event_builder` overhaul (9 sub-areas) | XL |
+| 19 | T12 | 12 | `eatout_event_builder` overhaul (9 sub-areas) — ✅ **DONE 2026-11-03** | XL |
 | 20 | T13 | 13 | `Created_Event.html` view-only page (needs T12) — ✅ **DONE 2026-11-03** | L |
 | 21 | T21 | 21 | `designer-services` catalogue + galleries + requests | XL |
 | 22 | T22 | 22 | Multi-region architecture + `EatOuts-Region.html` | XL |
@@ -633,7 +633,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 ### Phase 5 — Large builds
 
-#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — 🟡 **IN PROGRESS** (12.1-12.8 + the overlay standard done; 12.9 open — land it after T13)
+#### T12 — `eatout_event_builder` overhaul (user task 12) · XL — ✅ **COMPLETE 2026-11-03** (12.1-12.9 + the overlay standard)
 **Files:** `eatout_event_builder.html` (single file, ~4.2k lines), `js/eatouts-events*` if present.
 **Sub-tasks (do in this order, verify each)**
 
@@ -697,11 +697,15 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 **12.8 Links** — `[data-sec="links"]`: `.prompt-panel` floating; remove beige close circle, keep a plain `X` glyph. — ✅ **DONE 2026-11-02** (`renderLinkPicker` `:3334-3340`)
 - permanent coverage: `tests/builder-guests.js` +11 checks — `openLinkPicker` → the same `.fpop-scrim > .prompt-panel` card (420px / 16px) titled "Add Link" with its `.link-icon-grid` intact, a plain transparent `×` (`data-act="closeLinkPicker"`), zero `.fpop-close`; the `X`, an outside tap and `Escape` each close it.
 
-**12.9 Share + save**
+**12.9 Share + save** — ✅ **DONE 2026-11-03**
 - `shareWhatsApp` → floating popup, 2 options: "Share with Venue Provider" / "Share with WhatsApp Contacts" (account-only; browser → sign-up popup);
 - `saveEvent` account-only;
 - leaving an in-progress event (account user) → "Save draft?" floating prompt; draft persists (`STATE.draftKey="eatouts.event.draft.v2"`, `:1293`, save `:1321`, load `:1331`); returning restores everything; `nav-btn[data-tab="reserve"]` offers "Create New Event";
 - on save: choose the event-card thumbnail (event images or device) and rename the title; card shows created + edited dates.
+
+**12.9 Result (2026-11-03).** Four floating panels built on one `fpopShell()` helper (`.fpop-scrim` > `.prompt-panel`, 420px / 16px, plain `×`, no `.fpop-close`): **Share Event** (two `.opt-card` rows — "Share with Venue Provider" opens `wa.me/<venue.whatsapp || 26771844129>` with `buildShareMessage()`, "Share with WhatsApp Contacts" uses `navigator.share` and falls back to `wa.me/?text=`), **Save Event** (`#saveTitle` rename + `.thumb-strip` of the flyers / a device photo, writing `title`, `image`/`thumb`, `created_at`, `updated_at` and the snapshot), **Create a free account** (the gate that replaces the two `confirm()` calls for `saveEvent`/`favEvent`, with "Create a free account" / "I already have an EatOuts account" / "Keep browsing") and **Save draft?** ("Save draft" / "Discard draft" / "Keep editing", shown by `backToVenueList` when a signed-in user has work in progress). Backdrop taps close all four (they were added to the scrim's act list — without that they fell through to the generic "close any open modal" fallback and stayed on screen). `buildShareMessage()` now ends with the real `Created_Event.html?id=` link instead of the placeholder `https://eatouts.app/e/<venue>`. `eatouts-events.html` cards show "Saved … · Edited …" from `created_at`/`updated_at`, fall back to `snapshot.flyerImages[0]` for the thumb and open the read-only page. `index.html`'s Plan Event screen opens with a **Create New Event** row (`data-act="createEvent"`).
+**Not verified:** the device file picker for the card photo (only the `.save-thumb` selection path is exercised); a real native share sheet.
+**Verification:** new `tests/builder-save-share.js` (54 checks) → BUILDER SAVE-SHARE TEST PASSED; `builder-guests` / `builder-details` / `builder-suppliers` / `builder-schedule` / `builder-audience` / `created-event` all PASSED.
 
 **Done when** every sub-item is verifiable in the UI; no glyph indicators; all popups floating; no `.fpop-close` (plain `X` only); draft survives navigation; browser gates work.
 

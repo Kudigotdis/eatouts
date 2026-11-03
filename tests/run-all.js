@@ -47,6 +47,7 @@ const SUITES = [
   'builder-suppliers.js',
   'builder-preview.js',
   'builder-guests.js',
+  'builder-save-share.js',
   'builder-schedule.js',
   'builder-audience.js',
   'builder-details.js',

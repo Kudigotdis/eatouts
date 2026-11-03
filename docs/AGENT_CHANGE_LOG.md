@@ -14,6 +14,25 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 16:05:00] - [Agent: cline] - [Status: IN_PROGRESS]
+- Task: T12.9 — builder share + save (2-option share popup, account gate, save sheet, draft guard, Create New Event)
+- Files changed:
+  - eatout_event_builder.html (+170/-16): `STATE.sharePicker/saveSheet/signupGate/leaveGuard` + `STATE.eventThumb` (persisted in the draft); CSS `.gate-copy/.opt-card/.thumb-strip/.save-thumb`; `fpopShell()`, `signedIn()`, `shareLink()`, `exitToVenueList()`, `eventInProgress()`, `renderSharePicker()`, `renderSaveSheet()`, `renderSignupGate()`, `renderLeaveGuard()` wired into `render()`; acts `shareVenue`/`shareContacts`/`closeSharePicker`/`closeSignupGate`/`saveSheetSave`/`closeSaveSheet`/`pickSaveThumb`/`saveThumbDevice`/`leaveSaveDraft`/`leaveDiscardDraft`/`closeLeaveGuard`; `shareWhatsApp`/`saveEvent`/`favEvent` now gate through the floating sign-up card instead of `confirm()`; `backToVenueList` asks "Save draft?"; `buildShareMessage()` ends with the real `Created_Event.html?id=` link; payload carries `image`/`thumb`; the four new popups were added to the scrim's backdrop-close list
+  - eatouts-events.html (+26/-6): `eventThumb()` reads `image`/`thumb`/`snapshot.flyerImages[0]`, `dayLine()` prints "Saved … · Edited …", `.ev-row` gains a View button and `[data-view]` opens `Created_Event.html?id=`
+  - index.html (+4): Plan Event screen opens with a `Create New Event` row (`data-act="createEvent"` → `eatout_event_builder.html`)
+  - tests/builder-save-share.js (new, 54 checks), tests/run-all.js (registered)
+  - scripts/html_catalog.meta.json (+ changelog) → HTML_CATALOG.md, PLATFORM UPDATE TASKS.md (12.9 ticked + Result, T12 COMPLETE, §3 row 19)
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - One helper (`fpopShell`) for all four panels so the G3 overlay standard (centred scrim, 420px, 16px, plain `×`, no `.fpop-close`) is asserted once per popup by the test.
+  - `eventThumb` on the events list still tolerates older records (`cover`/`payload.image`), so pre-T13 saves keep their thumb.
+  - `beforeunload` still just autosaves the draft (browsers block floating prompts there); the "Save draft?" question is attached to the in-app exit (`Back to Venues`).
+- Verified: `node tests/builder-save-share.js` → BUILDER SAVE-SHARE TEST PASSED (54 checks); `builder-guests` / `builder-details` / `builder-suppliers` / `builder-schedule` / `builder-audience` / `created-event` PASSED; `npm run catalog` → 73 pages; `npm run inventory` → PASSED (92 warnings = baseline).
+- Not verified: the device photo picker for the event card (jsdom cannot open one); the native share sheet.
+
+---
+
 ### [2026-11-03 14:20:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: T13 — `Created_Event.html`, the read-only saved-event page (+ the payload contract it reads)
 - Files changed:

@@ -245,13 +245,26 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function eventThumb(e){
-    var img = e.image || e.cover || (e.payload && e.payload.image) || "";
+    var img = e.image || e.thumb || (e.snapshot && (e.snapshot.flyerImages || [])[0]) ||
+      e.cover || (e.payload && e.payload.image) || "";
     if (img) {
-      return '<button class="ev-thumb" type="button" data-view="' + escapeAttr(e.eventRef||e.id) + '">' +
+      return '<button class="ev-thumb" type="button" data-view="' + escapeAttr(e.id || e.eventRef) + '">' +
         '<img src="' + escapeAttr(img) + '" alt="">' +
       '</button>';
     }
-    return '<div class="ev-thumb">🎟</div>';
+    return '<button class="ev-thumb" type="button" data-view="' + escapeAttr(e.id || e.eventRef) + '">🎟</button>';
+  }
+
+  /* T12.9: the card shows when the event was created and last edited */
+  function dayLine(e){
+    function stamp(ts){
+      if (!ts) return "";
+      var d = new Date(ts);
+      return isNaN(d.getTime()) ? "" : d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    }
+    var made = stamp(e.created_at), edited = stamp(e.updated_at);
+    if (!made) return "";
+    return edited && edited !== made ? "Saved " + made + " · Edited " + edited : "Saved " + made;
   }
 
   function eventRow(e){
@@ -266,7 +279,9 @@ document.addEventListener("DOMContentLoaded", function () {
         '<div class="ev-title">' + esc(title) + '</div>' +
         (venue ? '<div class="ev-sub">' + esc(venue) + '</div>' : '') +
         (when  ? '<div class="ev-sub">' + esc(when) + '</div>'  : '') +
+        (dayLine(e) ? '<div class="ev-sub">' + esc(dayLine(e)) + '</div>' : '') +
         '<div class="ev-actions">' +
+          '<button class="mini-btn" type="button" data-view="' + escapeAttr(e.id || ref) + '">View</button>' +
           '<button class="mini-btn danger" type="button" data-del="' + escapeAttr(ref) + '">Remove</button>' +
         '</div>' +
       '</div>' +
@@ -374,6 +389,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   mount.addEventListener('click', function(e){
+    var view = e.target.closest('[data-view]');
+    if (view){
+      e.stopPropagation();
+      var vid = view.getAttribute('data-view');
+      if (vid) location.href = 'Created_Event.html?id=' + encodeURIComponent(vid);
+      return;
+    }
     var del = e.target.closest('[data-del]');
     if (del){
       e.stopPropagation();
