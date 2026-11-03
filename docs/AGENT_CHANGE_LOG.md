@@ -14,6 +14,22 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 02:42:14] - [Agent: cline] - [Status: COMMITTED]
+- Task: T21 commit 1 — `designer-services.html` onto the standard shell (steps 1–6: shared bottom nav, no pill badges, no chip icons, no plus glyph, 16px type, centred chip row, hero copy)
+- Files changed:
+  - designer-services.html (removed `.hero .badges`/`.hero .badge`/`.hero .badge.gold` CSS + markup -> single `.hero-note` line keeping "From P120 · 15% platform fee · Founding: N of 20 left"; added `.appnav` + `.appnav a` CSS copied verbatim from `EatOuts-Region.html:69-72` and a 5-link `<nav class="appnav">` after `#actionBar`; `.scroll` padding-bottom `120px` -> `calc(78px + env(safe-area-inset-bottom))`; hero copy "Botswana designers" -> "local designers"; `.cat-chips` + `justify-content:center`; deleted `.cat-chip .ico` rule + `<span class="ico">` markup; `.card-img` `height:118px` -> `aspect-ratio:16/10`; `.service-sub` 11.5px -> 16px; deleted `.plus`/`.card.open .plus` rules + `<span class="plus">+</span>`; `.footnote` 10.5px -> 16px + `text-align:center`)
+  - tests/designer-services.js (17 -> 34 checks: nav renders with 5 links in the shared order, nav follows `#view`/`#actionBar` in `#shell`, hero says "local designers" and keeps the P120/fee line, no `.badges`/`.badge`/`.ico`/`.plus` nodes in `#view`, no retired `.badges`/`.cat-chip .ico`/`.plus{` rules left, `.cat-chips` centred + computed `justify-content:center`, `.card-img` aspect-ratio (no `height:118px`), `.service-sub` 16px, `.footnote` computed 16px centred)
+- Commit: this commit
+- Push: PENDING (recorded in the follow-up entry)
+- Notes:
+  - Scope held to the two files above; no seed/designer/brief JS touched. `.ico` data (`c.icon` in the seed) is left in place — the markup no longer consumes it.
+  - `.action-bar` is `position:fixed;bottom:0`, so on the service/brief/summary/done steps it sits over the nav and the user only ever sees one bar; the nav is visible on the catalogue where the action bar is `hidden`. No JS change needed.
+  - Nav CSS is byte-for-byte the `EatOuts-Region.html`/`Orders-List.html` rule set, so `#shell`'s `display:flex;flex-direction:column` + `.scroll{flex:1 1 auto}` needs no layout change.
+- Verified: `node tests/designer-services.js` -> 34 checks, `DESIGNER-SERVICES TEST PASSED`; `node tests/brand-kit-admin.js` and `node tests/designer-dashboard.js` PASSED; `node tests/run-all.js` -> **66 passed, 0 failed**.
+- Not verified: real-device visual check of the nav/spacing (jsdom has no layout engine).
+- Errors: none.
+
+---
 ### [2026-11-03 02:22:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: Close the verification note on the v2-catalogue entry below (full suite had not finished when that entry was written)
 - Files changed:

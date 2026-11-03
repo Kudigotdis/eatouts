@@ -6,7 +6,9 @@
  * brief -> summary -> done, asserting the roster picker, the pricing summary,
  * the WhatsApp handoff, and that the submitted request lands in
  * `eatouts_jobs_v1` as `awaiting_admin`. Also guards the designer-workspace
- * entry link added to the catalogue footer.
+ * entry link in the catalogue footer, and the T21 standard-shell rework
+ * (bottom `appnav`, centred chip row, 16px type, no pill badges / icons /
+ * plus glyphs).
  */
 'use strict';
 
@@ -15,6 +17,7 @@ const path = require('path');
 const { JSDOM, VirtualConsole } = require(path.join(__dirname, 'node_modules', 'jsdom'));
 
 const APP_DIR = path.resolve(__dirname, '..');
+const HTML = fs.readFileSync(path.join(APP_DIR, 'designer-services.html'), 'utf8');
 const errors = [];
 
 function inline(file) {
@@ -75,6 +78,33 @@ setTimeout(() => {
   check('catalogue lists all 24 services', cards.length === 24, cards.length);
   const wsLink = doc.querySelector('.ds-workspace a[href="designer-dashboard.html"]');
   check('catalogue footer links the designer workspace', !!wsLink, wsLink && wsLink.getAttribute('href'));
+
+  /* ---------- T21 standard shell ---------- */
+  const nav = doc.querySelector('#shell > nav.appnav');
+  const navLinks = nav ? Array.from(nav.querySelectorAll('a')) : [];
+  check('standard bottom nav renders with 5 links', navLinks.length === 5, navLinks.length);
+  check('nav links to the shared destinations',
+    navLinks.map(a => a.getAttribute('href')).join(',') === 'index.html#promos,index.html#restaurants,index.html#reserve,index.html#gallery,index.html#about',
+    navLinks.map(a => a.getAttribute('href')).join(','));
+  check('nav sits after the scrolling view', nav && nav.previousElementSibling && nav.previousElementSibling.id === 'actionBar',
+    nav && nav.previousElementSibling && (nav.previousElementSibling.id || nav.previousElementSibling.className));
+  check('hero copy says local designers', /local designers/.test((doc.querySelector('#view .hero p') || {}).textContent || ''),
+    (doc.querySelector('#view .hero p') || {}).textContent);
+  const heroNote = doc.querySelector('#view .hero-note');
+  check('hero keeps the P120 / fee / founding line', !!heroNote && /From P120/.test(heroNote.textContent) && /15% platform fee/.test(heroNote.textContent),
+    heroNote && heroNote.textContent);
+  check('catalogue drops the pill badges', !doc.querySelector('#view .badges') && !doc.querySelector('#view .badge'), doc.querySelectorAll('#view .badge').length);
+  check('chips drop the icon spans', !doc.querySelector('#view .cat-chip .ico'), doc.querySelectorAll('#view .cat-chip .ico').length);
+  check('cards drop the plus glyph', !doc.querySelector('#view .plus'), doc.querySelectorAll('#view .plus').length);
+  check('retired pill / icon / plus rules are gone', !/\.hero \.badges|\.hero \.badge\{|\.cat-chip \.ico|\.plus\{/.test(HTML));
+  check('chip row is centred', /\.cat-chips\{[^}]*justify-content:center/.test(HTML));
+  check('card image keeps an aspect ratio', /\.card-img\{[^}]*aspect-ratio:16\/10/.test(HTML) && !/\.card-img\{[^}]*height:118px/.test(HTML));
+  check('service sub-line is 16px', /\.service-sub\{[^}]*font-size:16px/.test(HTML));
+  check('footnote is centred at 16px', /\.footnote\{[^}]*font-size:16px[^}]*text-align:center/.test(HTML));
+  const chipStyle = window.getComputedStyle(doc.querySelector('#view .cat-chips'));
+  check('chip row computes a centred flex row', chipStyle.justifyContent === 'center' && chipStyle.display === 'flex', chipStyle.display + ' / ' + chipStyle.justifyContent);
+  const noteStyle = window.getComputedStyle(doc.querySelector('#view .footnote'));
+  check('footnote computes 16px centred', noteStyle.fontSize === '16px' && noteStyle.textAlign === 'center', noteStyle.fontSize + ' / ' + noteStyle.textAlign);
 
   /* ---------- v1 -> v2 catalogue migration ---------- */
   const cats = JSON.parse(window.localStorage.getItem('eatouts_services_v1') || '{}');

@@ -23,33 +23,30 @@ img{display:block;max-width:100%}
 .hdr-back{font-size:12.5px;font-weight:800;color:var(--gold)}
 .hdr-back::before{content:"← ";font-weight:900}
 .hdr-right{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff;padding-bottom:120px}
+.scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff;padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+.appnav{flex:0 0 auto;display:flex;align-items:center;justify-content:space-around;background:#fff;border-top:1px solid var(--line);padding:9px 4px calc(9px + env(safe-area-inset-bottom))}
+.appnav a{display:grid;justify-items:center;gap:3px;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#a89a7e;text-decoration:none}
 .hero{padding:22px 16px 18px;background:#fff;border-bottom:1px solid var(--line)}
 .hero .tag{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
 .hero h1{margin:0 0 8px;font-size:24px;font-weight:900;letter-spacing:-.03em;line-height:1.15}
 .hero p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
-.hero .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
-.hero .badge{font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--soft);border:1px solid var(--line);color:#5c5547}
-.hero .badge.gold{background:#fdf9ef;border-color:#e8dfc8;color:#8a6a1a}
+.hero-note{margin:10px 0 0;font-size:12px;font-weight:700;color:var(--muted)}
 .cats{padding:12px 14px 10px;border-bottom:1px solid var(--line);background:#fff}
 .cats-h{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.cat-chips{display:flex;gap:6px;flex-wrap:wrap}
+.cat-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 .cat-chip{border:1px solid var(--line);background:#fff;padding:8px 11px;font-size:11px;font-weight:800;border-radius:999px;color:#5c5547;min-height:34px;display:inline-flex;align-items:center;gap:5px}
 .cat-chip.active{background:var(--black);border-color:var(--black);color:#fff}
-.cat-chip .ico{font-size:13px}
 .list{padding:12px 14px}
 .card{border:1px solid var(--line);background:#fff;margin-bottom:10px;overflow:hidden;border-radius:var(--r)}
-.card-img{height:118px;background:var(--soft);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;position:relative;overflow:hidden}
+.card-img{aspect-ratio:16/10;background:var(--soft);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;position:relative;overflow:hidden}
 .card-img img{width:100%;height:100%;object-fit:cover}
 .card-img .fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f1ede0 0%,#e4ddc9 100%);color:#a89a7e}
 .card-head{display:flex;align-items:flex-start;gap:10px;padding:12px 13px;width:100%;text-align:left}
 .card-head .grow{flex:1;min-width:0}
 .service-name{font-size:15px;font-weight:900;letter-spacing:-.01em;line-height:1.2}
-.service-sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:600}
+.service-sub{font-size:16px;color:var(--muted);margin-top:3px;font-weight:600}
 .price{font-size:14px;font-weight:900;color:var(--text);white-space:nowrap}
 .price.mo small{font-size:10px;font-weight:700;color:var(--muted)}
-.plus{color:var(--muted);font-size:16px;line-height:1;flex:0 0 auto;transition:transform .2s}
-.card.open .plus{transform:rotate(45deg);color:var(--black)}
 .card-body{display:none;border-top:1px solid var(--line);padding:12px 13px 14px;background:#fbfaf8}
 .card.open .card-body{display:block}
 .card-body p{margin:0 0 10px;font-size:12.5px;color:#3a3324;line-height:1.5}
@@ -127,7 +124,7 @@ img{display:block;max-width:100%}
 .toast{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;max-width:92%;text-align:center}
 .toast.on{opacity:1}
 .empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
-.footnote{padding:14px 16px 22px;font-size:10.5px;color:var(--muted);line-height:1.55}
+.footnote{padding:14px 16px 22px;font-size:16px;color:var(--muted);line-height:1.55;text-align:center}
 .ds-workspace{text-align:center;padding:0 16px 26px;font-size:11.5px;color:var(--muted)}
 .ds-workspace a{color:var(--black);font-weight:800;text-decoration:underline}
 </style>
@@ -146,6 +143,14 @@ img{display:block;max-width:100%}
     <button class="btn ghost" id="btnBackStep">Back</button>
     <button class="btn primary" id="btnNextStep">Continue</button>
   </div>
+
+  <nav class="appnav">
+    <a href="index.html#promos">Promos</a>
+    <a href="index.html#restaurants">Restaurants</a>
+    <a href="index.html#reserve">Reserve</a>
+    <a href="index.html#gallery">Gallery</a>
+    <a href="index.html#about">About</a>
+  </nav>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -237,22 +242,17 @@ img{display:block;max-width:100%}
     h += '<div class="hero">';
     h += '<div class="tag">Design Services</div>';
     h += '<h1>Get anything designed for your business.</h1>';
-    h += '<p>Logos, menus, promo graphics, event flyers, packaging and video — from Botswana designers, delivered in a few days.</p>';
-    h += '<div class="badges">';
-    h += '<span class="badge">From P120</span>';
-    h += '<span class="badge">15% platform fee</span>';
-    if(remaining > 0){
-      h += '<span class="badge gold">Founding: '+remaining+' of 20 left</span>';
-    }
-    h += '</div></div>';
+    h += '<p>Logos, menus, promo graphics, event flyers, packaging and video — from local designers, delivered in a few days.</p>';
+    h += '<p class="hero-note">From P120 · 15% platform fee';
+    if(remaining > 0) h += ' · Founding: '+remaining+' of 20 left';
+    h += '</p></div>';
 
     h += '<div class="cats">';
     h += '<div class="cats-h">What do you need?</div>';
     h += '<div class="cat-chips">';
     h += '<button class="cat-chip'+(cat?'':' active')+'" data-act="cat" data-val="">All</button>';
     cats.forEach(function(c){
-      h += '<button class="cat-chip'+(cat===c.id?' active':'')+'" data-act="cat" data-val="'+esc(c.id)+'">'+
-           '<span class="ico">'+esc(c.icon)+'</span>'+esc(c.name)+'</button>';
+      h += '<button class="cat-chip'+(cat===c.id?' active':'')+'" data-act="cat" data-val="'+esc(c.id)+'">'+esc(c.name)+'</button>';
     });
     h += '</div></div>';
 
@@ -283,7 +283,6 @@ img{display:block;max-width:100%}
          (s.delivery_days>0? s.delivery_days+' working days · ':'')+
          s.revision_rounds+' revision'+(s.revision_rounds===1?'':'s')+'</div></div>';
     h += '<div class="price'+(s.is_recurring?' mo':'')+'">'+esc(priceLabel)+'</div>';
-    h += '<span class="plus">+</span>';
     h += '</button>';
     h += '<div class="card-body">';
     h += '<p>'+esc(s.description)+'</p>';
