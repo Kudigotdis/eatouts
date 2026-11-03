@@ -1921,3 +1921,15 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `node tests/run-all.js` -> **66 passed, 0 failed** (read from the divider-framed summary line)
 - Errors: none
 
+
+### [2026-11-03 03:15:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: log the T21 step-7 (commit 2) push
+- Files changed: docs/AGENT_CHANGE_LOG.md (this entry only)
+- Commit: (this commit)
+- Notes:
+  - `802c9f3` pushed to `origin/main` (`4707fa5..802c9f3`), 4 files, +360/−52.
+  - Ledger correction: `node tests/designer-services.js` reports **63** checks (34 → 63, +29), not the 56 first written — the entry above was fixed before committing.
+  - Untracked `assets/logo/*.jpg` (9 files) were left alone: unrelated to T21 and not requested.
+- Verified: `git --no-pager log --oneline -1` -> `802c9f3`; `git push` -> `4707fa5..802c9f3  main -> main`
+- Errors: none
+
