@@ -19,8 +19,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Files changed:
   - `eatouts-suppliers.html`: removed the `owner.age` number input; added `MONTHS`, `pad2`, `dobParts`, `daysInMonth`, `ageFromDob`, `birthParts`, `setDobPart`, `ageCol`, `pickAgePart`, `openPickList`; new `.age-row` / `.age-col` / `.pick-list` / `.pick-item` CSS; `owner` default gained `dob` + `birth {y,m,d}`; `pickAge` act branch; `publishChecks()` now warns when no date of birth is on file
   - `PLATFORM UPDATE TASKS.md`: step 3 age-picker half ticked with the verified behaviour
-- Commit: PENDING
-- Push: PENDING
+- Commit: `0bceed5`
+- Push: `362c320..0bceed5  main -> main`
 - Notes:
   - Built the popup on the page's existing `.scrim`/`.sheet` (`openSheet`) instead of porting the event builder's `.fpop` — one modal system, no new CSS layer, still floats above the form and scrolls inside `.sheet-body` (`overflow-y:auto`, `max-height:80dvh`).
   - First cut stored the partial date inside `owner.dob` and reset it whenever the three parts were incomplete, which silently discarded every pick (the harness caught it: columns stayed `—`, `dob` empty). Fixed by keeping partials in `owner.birth` and only writing `owner.dob` + `owner.age` once all three are set — no sentinel strings like `0000-00-00` in saved records.
