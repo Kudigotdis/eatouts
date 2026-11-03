@@ -14,6 +14,22 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 06:20:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: Close the push notes on the two T21 entries below and record the full-suite result
+- Files changed:
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit
+- Push: `34d3b7e..b15682e  main -> main` (confirmed in terminal output — both T21 commits landed together)
+  - `3305148` — T21 steps 5 + 9 (account gate, step 3 business prefill)
+  - `b15682e` — T21 step 8 (designer WhatsApp handoff, "My design requests" on the profile)
+- Notes:
+  - `node tests/run-all.js` on the final tree: **67 passed, 0 failed** (66 suites + the new `profile-design-requests.js`). The only stderr noise is `tests/venue-slug.js`'s intentional stack trace; that suite reports ok.
+  - T21 is complete (steps 1–10); `PLATFORM UPDATE TASKS.md` header flipped to ✅.
+  - Still untracked on purpose: `assets/logo/*.jpg` (9 files) — not part of this work.
+- Verified: suite summary `67 passed, 0 failed` seen in `runall.txt`; `git push` output seen.
+- Errors: none.
+
+---
 ### [2026-11-03 06:05:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: T21 step 8 — designer handoff on the done step + "My design requests" on `eatouts-profile.html`
 - Files changed:
