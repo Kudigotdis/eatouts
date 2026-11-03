@@ -23,14 +23,14 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - copy-static.mjs (+1), scripts/html_catalog.meta.json (page id 73 + changelog) → `npm run catalog` → HTML_CATALOG.md, PAGE_INVENTORY.md (§L, page 73), HTML_PAGES.md (row)
   - tests/created-event.js (new, 49 checks), tests/run-all.js (registered), tests/back-history.js (brand-mark count 56 → 57)
   - PLATFORM UPDATE TASKS.md (T13 ticked + Result block, §3 row 20)
-- Commit: PENDING
-- Push: PENDING
+- Commit: `200432f`
+- Push: `0913854..200432f  main -> main`
 - Notes:
   - Interface first: T13 needs the saved record to carry everything the preview shows, so `snapshot` is the contract; costs/venue/supplier text are resolved in the builder and the page stays a dumb renderer (no venue, menu or supplier engines loaded).
   - `data-page="Created_Event"` rather than the brief's `created-event`: `tests/inventory.js` requires a Part-1 row's slug to equal the filename minus `.html`, and every existing page follows that.
   - Stable `id` + kept `created_at` land here (not in T12.9) because a share link that changes when the event is renamed is not a link; the T12.9 save flow builds on the same fields.
   - Known limitation: saved events live in the phone's localStorage, so a link opened on another device shows the "not on this device" state until the record syncs through the backend.
-- Verified: `node tests/created-event.js` → CREATED-EVENT TEST PASSED (49 checks); `node tests/back-history.js` → PASSED (29 checks); `npm run inventory` → INVENTORY PASSED (10 checks, 92 warnings = baseline).
+- Verified: `node tests/created-event.js` → CREATED-EVENT TEST PASSED (49 checks); `node tests/back-history.js` → PASSED (29 checks); `node tests/run-all.js` → **69 passed, 0 failed**; `npm run inventory` → INVENTORY PASSED (10 checks, 92 warnings = baseline).
 - Not verified: real-device look of the hero swipe + `.ev-meta` line (jsdom has no layout engine); the native Web Share sheet (only the `navigator.share` call shape is asserted).
 
 ---
