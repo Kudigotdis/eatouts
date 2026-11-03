@@ -20,8 +20,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - eatout_event_builder.html (+110/-8): `[data-sec="details"] .chip-row{justify-content:center}` + `.field-hint{text-align:center;font-size:14px}`; new `.dc-row/.dc-card/.dc-thumb(90px)/.dc-name/.dc-x` and `.img-gal-acts`; `eventDetails.dress:[{id,name,photos}]` (state `:1343`) with `dresscode` kept as a name mirror; `renderDetailsSection()` emits the card row + "＋ Add dress code" instead of the old textarea; helpers `dressCards()`/`syncDresscode()`/`saveDress()`/`removeDressAt()`; acts `addDress`, `editDress` (floating prompt with Delete), `removeDress`, `openDressGallery`, `galAddPhoto`, `galRemovePhoto`; `renderImageGallery()` accepts an optional `edit` footer (add/remove photo; suppliers path unchanged); `STATE.gallery.edit` reset on close; `renderPrompt()`'s thumb branch now emits a hidden `[data-prompt-field]` and `pickPromptThumb` writes it — `savePromptFromForm()` only reads `[data-prompt-field]` inputs, so picked photos never reached `onSave` before (guest thumbs were silently dropped too)
   - tests/builder-details.js (new, 32 checks), tests/run-all.js (registered)
   - PLATFORM UPDATE TASKS.md (12.5 ticked, T12 header)
-- Commit: this commit
-- Push: PENDING
+- Commit: `393072e`
+- Push: `bc3ca4a..393072e  main -> main` (12.5 and 12.6 landed together — both are small changes to the same file in the same pass)
 - Notes:
   - One request store, one gallery: the dress-code gallery reuses `STATE.gallery` + `renderImageGallery()` rather than a second lightbox, and the `edit` footer is opt-in so `builder-suppliers`' gallery assertions are untouched.
   - `dresscode` stays a comma-joined mirror of the card names so the Preview card (`:3094`) and pre-12.5 drafts (`eventDetails.dresscode` only) keep rendering; a legacy draft simply shows the empty card state.
@@ -36,8 +36,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Files changed:
   - eatout_event_builder.html (+0/-1): `renderPrompt()`'s thumb branch drops the `<span>Add photo</span>` copy, leaving the `＋` glyph (the `aria-label="Add photo"` stays)
   - tests/builder-guests.js (+17, 4 new checks), PLATFORM UPDATE TASKS.md (12.6 ticked)
-- Commit: this commit
-- Push: PENDING
+- Commit: `393072e`
+- Push: `bc3ca4a..393072e  main -> main`
 - Notes:
   - Verify-only items confirmed by the new checks rather than by assumption: the prompt already floats in `.fpop-scrim` (12.3), `.prompt-thumb` was already 150px, `.fpop-close` is absent, and `.qty-stepper button` already centres its glyphs (`display:flex` + `align-items/justify-content:center`, `:709-711`).
   - Only guests pass a `thumb` field through `openPrompt()`, so the visible change is scoped to that prompt (RSVP/links/audience prompts are unchanged).
