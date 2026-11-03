@@ -196,8 +196,8 @@ the row you fill in here.
 | 8 | Onboarding ×7 | 360 + phone | T15 :378 | — | — | — |
 | 9 | Densest-page headers | 360 | T08b :453 | — | — | — |
 | 10 | Orders badge + delivery | 360/390/430 | T06 :565 | — | — | — |
-| 11 | Suppliers | 360 + phone | T18 (new) | — | — | — |
-| 12 | Region selector | 360/390 | T22 (new) | — | — | — |
+| 11 | Suppliers | 360 + phone | T18 :637 | — | — | — |
+| 12 | Region selector | 360/390 | T22 :801 | — | — | — |
 
 ## Failures
 
