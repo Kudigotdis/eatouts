@@ -18,8 +18,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Task: D8 — close the T21 price conflict (option **A**: the shipped seed wins, doc-only)
 - Files changed:
   - `PLATFORM UPDATE TASKS.md` (+33/-31): §6 rows 1/2/15–20/24 now carry the shipped prices (Brand Kit P1,500 · Brand Kit Plus P3,200 · Business Cards P350 · Shopfront P850 · Vehicle Wrap P1,500 · Monthly Social Media P1,600 · Takeaway Bag P450 · **Full Packaging Design P1,800** · Logo Animation P450) with the stale v1 figure kept as history; new "**Closed 2026-11-03 (D8)**" paragraph naming `js/eatouts-services-seed.js` as the single source of truth; §6a mapping rows updated to the shipped `before → after` and the two "⚠️ no §6 home — confirm" rows (`svc_event_programme`, `svc_menu_refresh`) resolved to "removed by the T21 build"; §7 D8 moved from **Still open** to **Resolved**; §3 row 21 (T21) ticked ✅ DONE; T21 header's stale "29 services" corrected to 24
-- Commit: PENDING
-- Push: PENDING
+- Commit: `7acbb92`
+- Push: `4c85712..7acbb92  main -> main`
 - Notes:
   - No seed edit and no test edit: the seed already shipped 24 offers whose prices match §6 line-for-line (verified by dumping `id/category/name/base_price` out of the seed and reading the table back), so **no `tests/designer-services.js` update was needed** — it already asserts `cards.length === 24` and migrates the v1 fixtures.
   - The one place A differs from its literal wording: Menu refresh (P400) and Event programme (P350) are **not re-added** to the designer catalogue — they are absent from the shipped seed and from the authoritative 24 (D2 says do not re-add legacy services). They stay live as event-supplier services in `masterSupplierCatalogue.js` / `event_supplier_demo_catalogue.js`.
