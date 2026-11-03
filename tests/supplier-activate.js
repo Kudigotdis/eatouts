@@ -52,7 +52,7 @@ function profile(over) {
     slug: '',
     status: 'published',
     createdAt: 1, updatedAt: 1, publishedAt: 1,
-    owner: { firstName: 'Thandi', lastName: 'Molefe', age: null, headshot: '' },
+    owner: { firstName: 'Thandi', lastName: 'Molefe', age: null, photo: '' },
     business: {
       name: 'Mama Thandi Catering',
       tagline: 'Home-style catering in Gaborone',

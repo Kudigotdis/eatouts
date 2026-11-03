@@ -100,6 +100,23 @@ img{display:block;max-width:100%}
 .field .row{display:flex;gap:8px}
 .field .row > *{flex:1;min-width:0}
 .field .hint{font-size:10.5px;color:#a89a7e;margin-top:5px;line-height:1.4}
+
+/* ---------- DEVICE IMAGE PICKERS ---------- */
+.photo-pick{display:flex;flex-direction:column;align-items:center;margin:2px 0 18px}
+.photo-pick .pic{width:150px;height:150px;border-radius:24px;background:#f7f3e9;border:1.5px dashed #d9cdb4;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:44px;color:#b9ad92;padding:0}
+.photo-pick .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-pick .cap{display:block;margin-top:9px;font-size:11px;font-weight:800;letter-spacing:.08em;
+  text-transform:uppercase;color:#8a7d63;background:none;border:0;padding:4px 8px}
+.logo-pick{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 12px;
+  border:1px solid var(--border);border-radius:14px;background:#fdfbf6;margin:2px 0 14px;font:inherit}
+.logo-pick .pic{width:56px;height:56px;border-radius:13px;background:#fff;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:24px;color:#b9ad92;flex:none}
+.logo-pick .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.logo-pick .txt{flex:1;min-width:0}
+.logo-pick .txt b{display:block;font-size:12.5px;font-weight:800;color:#1a1a1a}
+.logo-pick .txt span{display:block;font-size:11px;color:var(--muted-2);margin-top:2px}
+.logo-pick .go{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#8a7d63;flex:none}
 .counter{float:right;font-size:10px;color:#a89a7e;font-weight:400}
 
 /* ---------- CHIPS ---------- */
@@ -270,6 +287,8 @@ img{display:block;max-width:100%}
 <script src="assets/data/event_supplier_demo_catalogue.js"></script>
 <script src="js/eatouts-slug.js"></script>
 <script src="js/eatouts-supplier-directory.js"></script>
+<script src="js/eatouts-image-compressor.js"></script>
+<script src="js/eatouts-upload.js"></script>
 
 <script src="js/eatouts-router.js"></script>
 
@@ -400,7 +419,7 @@ img{display:block;max-width:100%}
       pin: { salt: '', hash: '' },
 
       /* step 1 — you & business */
-      owner: { firstName: '', lastName: '', age: null, headshot: '' },
+      owner: { firstName: '', lastName: '', age: null, photo: '' },
       business: { name: '', tagline: '', about: '', since: null, logo: '' },
 
       /* step 2 — services */
@@ -716,20 +735,30 @@ img{display:block;max-width:100%}
   function renderIdentity(){
     var p = state.profile;
     var o = p.owner, b = p.business;
+    var photo = o.photo || o.headshot || '';
     var h = '';
     h += '<div class="section-title">You</div>';
+    h += '<div class="photo-pick">' +
+      '<button class="pic" data-act="pickPhoto" aria-label="Profile photo">' +
+        (photo ? '<img src="' + esc(photo) + '" alt="">' : '👤') +
+      '</button>' +
+      '<button class="cap" data-act="pickPhoto">' + (photo ? 'Change photo' : 'Add your photo') + '</button>' +
+    '</div>';
     h += '<div class="field"><label>First name</label><input data-model="owner.firstName" value="' + esc(o.firstName) + '" placeholder="e.g. Kagiso"></div>';
     h += '<div class="field"><label>Last name</label><input data-model="owner.lastName" value="' + esc(o.lastName) + '" placeholder="e.g. Molefe"></div>';
     h += '<div class="field"><label>Age</label><input data-model="owner.age" type="number" min="18" max="99" value="' + (o.age == null ? '' : o.age) + '" placeholder="Optional"><div class="hint">Not shown publicly — for internal verification only.</div></div>';
-    h += '<div class="field"><label>Headshot URL</label><input data-model="owner.headshot" value="' + esc(o.headshot) + '" placeholder="https://… or assets/…"></div>';
 
     h += '<hr class="divider">';
     h += '<div class="section-title">Your business</div>';
+    h += '<button class="logo-pick" data-act="pickLogo">' +
+      '<span class="pic">' + (b.logo ? '<img src="' + esc(b.logo) + '" alt="">' : '🏷️') + '</span>' +
+      '<span class="txt"><b>Business logo</b><span>' + (b.logo ? 'Tap to replace' : 'Tap to pick from this device') + '</span></span>' +
+      '<span class="go">' + (b.logo ? 'Change' : 'Upload') + '</span>' +
+    '</button>';
     h += '<div class="field"><label>Business name *</label><input data-model="business.name" value="' + esc(b.name) + '" placeholder="e.g. Pulse Sound & Light"></div>';
     h += '<div class="field"><label>Tagline</label><input data-model="business.tagline" maxlength="80" value="' + esc(b.tagline) + '" placeholder="One line — what you do"><div class="hint">Shown under your name in the supplier picker.</div></div>';
     h += '<div class="field"><label>About</label><textarea data-model="business.about" rows="4" placeholder="Two or three sentences about what you do and what makes you different.">' + esc(b.about) + '</textarea></div>';
     h += '<div class="field"><label>Years active (since)</label><input data-model="business.since" type="number" min="1980" max="2099" value="' + (b.since == null ? '' : b.since) + '" placeholder="e.g. 2018"></div>';
-    h += '<div class="field"><label>Logo URL</label><input data-model="business.logo" value="' + esc(b.logo) + '" placeholder="https://… or assets/…"></div>';
     return h;
   }
 
@@ -1156,6 +1185,25 @@ img{display:block;max-width:100%}
     }, 2000);
   }
 
+  /* Device photo picker shared by the profile photo and business logo.
+     Uses the app-wide EatoutsUpload layer (compress -> data URL when the
+     server upload is unavailable), so the same image path works offline. */
+  function pickDeviceImage(path, label){
+    if (!window.EatoutsUpload || typeof window.EatoutsUpload.pickImage !== 'function') {
+      toast('Image picking is not available in this browser');
+      return;
+    }
+    window.EatoutsUpload.pickImage(function(url){
+      if (!url || !state.profile) return;
+      setPath(state.profile, path, url);
+      markDirty();
+      render();
+      toast(label + ' updated');
+    }, function(err){
+      toast((err && err.message) ? err.message : 'That image could not be used');
+    }, { maxWidth: 1200, maxHeight: 1200 });
+  }
+
   /* ============================================================
      ACTION HANDLER
      ============================================================ */
@@ -1206,6 +1254,8 @@ img{display:block;max-width:100%}
     }
 
     /* ---------- onboarding nav ---------- */
+    if (act === 'pickPhoto') { pickDeviceImage('owner.photo', 'Profile photo'); return; }
+    if (act === 'pickLogo') { pickDeviceImage('business.logo', 'Business logo'); return; }
     if (act === 'toggleStep') {
       state.openStep = state.openStep === t.getAttribute('data-step') ? null : t.getAttribute('data-step');
       render();

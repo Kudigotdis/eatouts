@@ -14,6 +14,23 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 20:40:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T18 step 3 (pickers half) — device upload for the profile photo and business logo, headshot URL field removed
+- Files changed:
+  - `eatouts-suppliers.html`: added `js/eatouts-image-compressor.js` + `js/eatouts-upload.js`; new `.photo-pick` / `.logo-pick` CSS; `renderIdentity()` now opens on a 150×150 rounded square photo picker and a 56px logo row instead of two URL inputs; `owner.headshot` → `owner.photo` with an `o.headshot` read fallback; new `pickDeviceImage(path,label)` helper + `pickPhoto` / `pickLogo` branches in the click router
+  - `tests/supplier-activate.js`: fixture key `headshot` → `photo` (record shape moved)
+  - `PLATFORM UPDATE TASKS.md`: step 3 annotated (pickers done, age picker + prefill still open)
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - Reused the existing app-wide upload layer instead of a bespoke `<input type=file>`: `EatoutsUpload.pickImage()` already compresses, tries `/api/upload`, and falls back to a data URL offline, so the supplier page behaves like the five onboarding pages. No new dependency, no new abstraction.
+  - Kept the legacy `o.headshot` fallback rather than migrating: a supplier who typed a URL under the old field keeps their picture, and the dead key is ignored forever if unused.
+  - Autosave is on the page's existing 2s timer, so a freshly picked image reaches `eatouts_supplier_draft_v1` two seconds later — confirmed, not assumed.
+  - Not touched: the review/preview/public card still show `business.logo` only; the owner photo has no consumer on those screens (it did not before either).
+- Verified: `node tests/supplier-activate.js` PASSED · `node tests/smoke.js` PASSED · `node tests/appshell.js` PASSED · jsdom harness (temp) 15/15 checks — pickers rendered, `pickImage` invoked once per tap, re-render swaps the emoji for the picked image, caption flips to `Change photo`, `owner.photo` + `business.logo` land in the draft.
+
+---
+
 ### [2026-11-03 20:05:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: T18 step 8 — remove `.foot` and the whole export/JSON feature from `eatouts-suppliers.html`
 - Files changed:

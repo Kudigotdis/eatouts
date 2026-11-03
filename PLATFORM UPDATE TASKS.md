@@ -613,6 +613,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
    - remove `owner.headshot` URL field (`:746`);
    - age → mandatory 3-column Year / Month / Day picker, day list respects month + leap years; each column opens a floating scroll-list popup;
    - account-only listing; Step 1 auto-fills the account holder's personal details.
+   - ✅ **DONE 2026-11-03 (pickers half):** both pickers ship on device upload through the shared `EatoutsUpload.pickImage()` layer (the same one the onboarding pages use) — 150×150 `.photo-pick` with a `Add your photo` / `Change photo` caption, and a `.logo-pick` row (56px thumb + `Upload`/`Change`). The `Headshot URL` and `Logo URL` text inputs are gone, so nothing on step 1 is typed as a URL any more. `owner.headshot` → `owner.photo` (renderer still reads `o.headshot` as a fallback so profiles saved before this change keep their picture); nothing outside this page reads either key. New `pickDeviceImage(path,label)` helper + `pickPhoto` / `pickLogo` act branches. Verified with a jsdom harness: 15 checks, pick → re-render → draft autosave all pass. **Still open on step 3:** the mandatory Y/M/D age picker and the account-only prefill.
 4. Step 2 (`i2`):
    - `toggleService` → floating `.sheet` (G3);
    - per-service image gallery (add/remove/swipe, tap to enlarge);
