@@ -2225,3 +2225,30 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified: `git --no-pager log --oneline -1` -> `802c9f3`; `git push` -> `4707fa5..802c9f3  main -> main`
 - Errors: none
 
+### [2026-11-03 23:58:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T22 step 3 — region data gating (client slice; D1 + currency split out to the new T22b)
+- Files changed:
+  - `js/eatouts-regions.js` (62 lines changed): `code()` / `currency()` / `locale()` / `locationsFile()` and the gating helpers `recordRegion()` / `inActiveRegion()` / `filterByRegion()`; stale "no existing page loads this file yet" header note replaced with the gating contract.
+  - `js/eatouts-bridge.js` (`all()` gates through `EatoutsRegions.filterByRegion`)
+  - `js/eatouts-db.js` (`emptyRestaurant()` stamps `region`, `BW` fallback)
+  - `js/eatouts-locations.js` (dataset resolved through `locationsFile()`)
+  - `tests/region-gating.js` (new, 37 checks)
+  - `tests/run-all.js` (registers the new suite)
+  - `PLATFORM UPDATE TASKS.md` (T22 → COMPLETE, step 3 evidence, new T22b task + "Done when" status line)
+  - `docs/AGENT_CHANGE_LOG.md` (this entry)
+- Commit: `bec6689` — code+docs commit (7 files, +272/−9); this ledger entry follows in its own commit.
+- Notes:
+  - **One gate, not twenty.** `EatoutsBridge.all()` (`js/eatouts-bridge.js:207-215`) is the single read path every directory, menu and promo surface in `index.html` uses, so gating there covers all of them — no per-page filter was added and no renderer changed.
+  - **Nothing disappears.** `recordRegion()` reads a missing field *and* an unknown code as `BW`, so every venue saved before gating still loads. The new suite asserts both cases plus ordering.
+  - `EatoutsDB.emptyRestaurant()` cannot read the registry unconditionally: `index.html` loads `js/eatouts-db.js` at `:988` and `js/eatouts-regions.js` at `:999`, so it guards with `window.EatoutsRegions && typeof … === 'function'` and falls back to `'BW'`. Load order was left alone.
+  - `EatoutsLocations` keeps working with no registry present (standalone pages), and for an active region whose `locations` file is not `botswana_locations.js` it sets `DATA = null` — indexes empty, `stats().loaded === false`, selectors fall back to "Other / not listed" instead of offering Botswana towns for another country.
+  - Scope decision (user chose option A): the D1 half (migration `0016_region.sql` + `functions/api/venues.js` filter) and region-driven currency are **not** done — `migrations/` has no local test harness and every page's `money()` helper would change in one diff. Both are written up as **T22b** in `PLATFORM UPDATE TASKS.md`.
+  - Not verified: the browser. jsdom proves the gate logic, not that any visual surface changed — it does not, since all data is BW today.
+  - Untracked `assets/logo/*.jpg` (10 files) and `runall.txt` were left alone — unrelated to T22 and not requested.
+- Verified:
+  - `node tests/region-gating.js` → **REGION-GATING TEST PASSED**, 37 ok, 0 failed, 0 window errors
+  - `node tests/run-all.js` → **74 passed, 0 failed** (73 → 74)
+  - `npm run inventory` → INVENTORY PASSED (10 checks, 92 warnings = baseline; 31 screens, 73 standalone files)
+- Errors: none
+
+
