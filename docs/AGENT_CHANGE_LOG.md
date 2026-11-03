@@ -14,6 +14,23 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 05:20:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T21 steps 5 + 9 — account gate on the design request flow + step 3 business prefill
+- Files changed:
+  - designer-services.html (loads `js/eatouts-manager-db.js` / `js/eatouts-users.js` / `js/eatouts-auth.js`; new `gate` step + `renderGate()`; `pickService` is account-only and parks the service in `sessionStorage` (`eatouts_design_resume_v1`) for a post-signup resume; `submitRequest()` re-checks the account; step 3 prefills name/whatsapp/industry from the account's listed business and adds a `.seg` toggle listed business <-> "For Unlisted Business"; job payload carries `business_id` + `customer_id`)
+  - js/eatouts-brand-kit.js (`createJob()` records `customer_id`, additive)
+  - tests/designer-services.js (63 -> 82 checks: gate copy/links/action-bar/resume/back-out, signed-in recognition, step-3 prefill + listed/unlisted toggle, `customer_id`/`business_id` on the stored job)
+  - docs/AGENT_CHANGE_LOG.md (this entry)
+- Commit: this commit
+- Push: PENDING (recorded in the follow-up entry)
+- Notes:
+  - Business prefill reads `EatoutsMgrDB.find('businesses', user.businessId)` — the store that `eatouts-customer-signup.html` already writes to. No new store, no seed edits.
+  - Signed-out users can still browse the whole 24-offer catalogue; only "Choose this service" is gated, per T21 step 5.
+  - Remaining for T21: step 8 (designer WhatsApp handoff + "My Design Requests" on `eatouts-profile.html`).
+- Verified: `node tests/designer-services.js` 82 ok / PASSED (0 window errors); `tests/brand-kit-admin.js`, `tests/designer-dashboard.js`, `tests/supplier-activate.js` all PASSED.
+- Errors: none.
+
+---
 ### [2026-11-03 02:48:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: Close the push note on the T21 commit-1 entry below
 - Files changed:

@@ -9,7 +9,9 @@
  * entry link in the catalogue footer, and the T21 standard-shell rework
  * (bottom `appnav`, centred chip row, 16px type, no pill badges / icons /
  * plus glyphs) plus the step-2 rework (Available/Previous toggle, 90px
- * avatars, 3-image snap carousel, portfolio lightbox + 3-across grid).
+ * avatars, 3-image snap carousel, portfolio lightbox + 3-across grid),
+ * the account gate that guards the request flow, and step 3 prefilling
+ * from a listed business (or "For Unlisted Business").
  */
 'use strict';
 
@@ -115,12 +117,44 @@ setTimeout(() => {
   const kit = storedSvc.filter(s => s.id === 'svc_brand_kit')[0] || {};
   check('Brand Kit repriced to P1,500', kit.base_price === 1500, kit.base_price);
 
-  /* ---------- pick first service ---------- */
+  /* ---------- account gate (T21 steps 5 + 9) ---------- */
   const firstPick = doc.querySelector('#view [data-act="pickService"]');
+  const firstPickId = firstPick && firstPick.getAttribute('data-id');
   check('a service offers "Choose this service"', !!firstPick);
   click(firstPick);
+  const gateH1 = doc.querySelector('#view .hero h1');
+  check('signed-out pick opens the account gate', gateH1 && /Create a free EatOuts account/.test(gateH1.textContent), gateH1 && gateH1.textContent);
+  check('gate names the service being requested', /Brand Kit/.test((doc.querySelector('#view .hero p') || {}).textContent || ''),
+    (doc.querySelector('#view .hero p') || {}).textContent);
+  const gateLinks = Array.from(doc.querySelectorAll('#view a.btn'));
+  check('gate offers sign-up and log-in',
+    gateLinks.length === 2 &&
+    /eatouts-customer-signup\.html$/.test(gateLinks[0].getAttribute('href') || '') &&
+    /eatouts-login\.html$/.test(gateLinks[1].getAttribute('href') || ''),
+    gateLinks.map(a => a.getAttribute('href')).join(','));
+  check('gate hides the action bar', doc.getElementById('actionBar').classList.contains('hidden'), doc.getElementById('actionBar').className);
+  check('gate remembers the service to resume', window.sessionStorage.getItem('eatouts_design_resume_v1') === firstPickId,
+    window.sessionStorage.getItem('eatouts_design_resume_v1'));
+  check('signed-out pick never reaches step 2', !doc.querySelector('#view .designer-card'));
+  click(doc.querySelector('#view [data-act="gateBack"]'));
+  check('keep browsing returns to the catalogue', doc.querySelectorAll('#view .card[data-service]').length === 24,
+    doc.querySelectorAll('#view .card[data-service]').length);
+  check('keep browsing clears the pending resume', window.sessionStorage.getItem('eatouts_design_resume_v1') === null,
+    window.sessionStorage.getItem('eatouts_design_resume_v1'));
+
+  /* ---------- sign in: an owner who already has a listed business ---------- */
+  window.EatoutsMgrDB.upsert('businesses', { id: 'biz-test', name: 'Test Bistro', whatsapp: '26771234567', category: 'restaurant' });
+  const me = window.EatoutsUsers.create({
+    firstName: 'Tumi', surname: 'Molefe', whatsapp: '26771234567',
+    type: 'customer', roles: ['customer'], status: 'active', businessId: 'biz-test'
+  });
+  window.EatoutsAuth.startSession(me);
+  check('the account is recognised after signing in', !!window.EatoutsAuth.getUser(), window.EatoutsAuth.getUser() && window.EatoutsAuth.getUser().id);
+
+  /* ---------- pick first service ---------- */
+  click(doc.querySelector('#view [data-act="pickService"]'));
   const svcH1 = doc.querySelector('#view .hero h1');
-  check('service detail shows the service name', svcH1 && svcH1.textContent === 'Brand Kit', svcH1 && svcH1.textContent);
+  check('signed-in pick opens the service detail', svcH1 && svcH1.textContent === 'Brand Kit', svcH1 && svcH1.textContent);
   const svcSum = doc.querySelector('#view .summary');
   check('service detail prices a total', svcSum && /Total/.test(svcSum.textContent), svcSum ? svcSum.textContent.slice(0, 60) : 'no summary');
 
@@ -239,6 +273,25 @@ setTimeout(() => {
   click(doc.querySelector('#view [data-act="pickDesigner"]'));
   check('brief step shows the business fields', !!doc.getElementById('fName') && !!doc.getElementById('fWhats'));
   check('brief requires accepting the terms', !!doc.querySelector('[data-act="toggleTerms"]'));
+
+  /* T21 step 9: step 3 starts from the listed business, or an unlisted brief */
+  const briefSeg = Array.from(doc.querySelectorAll('#view .seg-btn')).map(b => b.textContent.trim());
+  check('step 3 offers the listed business and an unlisted option', briefSeg.join('|') === 'Test Bistro|For Unlisted Business', briefSeg.join('|'));
+  check('step 3 opens on the listed business', !!doc.querySelector('#view .seg-btn[data-val="listed"].on'));
+  check('step 3 prefills name and whatsapp from the listing',
+    doc.getElementById('fName').value === 'Test Bistro' && doc.getElementById('fWhats').value === '26771234567',
+    doc.getElementById('fName').value + ' / ' + doc.getElementById('fWhats').value);
+  check('step 3 prefills the industry', doc.getElementById('fIndustry').value === 'restaurant', doc.getElementById('fIndustry').value);
+  check('step 3 shows who is signed in', /Signed in as Tumi Molefe/.test((doc.querySelector('#view .hero-note') || {}).textContent || ''),
+    (doc.querySelector('#view .hero-note') || {}).textContent);
+  click(doc.querySelector('#view .seg-btn[data-val="unlisted"]'));
+  check('for unlisted business clears the listing fields',
+    doc.getElementById('fName').value === '' && doc.getElementById('fIndustry').value === '',
+    doc.getElementById('fName').value + ' / ' + doc.getElementById('fIndustry').value);
+  check('for unlisted business keeps the account whatsapp', doc.getElementById('fWhats').value === '26771234567', doc.getElementById('fWhats').value);
+  click(doc.querySelector('#view .seg-btn[data-val="listed"]'));
+  check('switching back restores the listing prefill', doc.getElementById('fName').value === 'Test Bistro', doc.getElementById('fName').value);
+
   type(doc.getElementById('fName'), 'Test Bistro');
   type(doc.getElementById('fWhats'), '26771234567');
   click(doc.querySelector('[data-act="toggleTerms"]'));
@@ -259,6 +312,8 @@ setTimeout(() => {
   check('job persisted to eatouts_jobs_v1', mine.length === 1 && stored.length === 3,
     JSON.stringify({ total: stored.length, mine: mine.length, status: mine[0] && mine[0].status }));
   check('job starts awaiting admin', !!mine[0] && mine[0].status === 'awaiting_admin', mine[0] && mine[0].status);
+  check('job records the signed-in customer', !!mine[0] && mine[0].customer_id === me.id, mine[0] && mine[0].customer_id);
+  check('job links the listed business', !!mine[0] && mine[0].business_id === 'biz-test', mine[0] && mine[0].business_id);
 
   console.log('\nwindow errors: ' + errors.length);
   errors.slice(0, 10).forEach(e => console.log('  ' + e.split('\n')[0]));

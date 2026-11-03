@@ -238,6 +238,7 @@
       service_name: payload.service_name,
       is_recurring: !!payload.is_recurring,
       business_id: payload.business_id || null,
+      customer_id: payload.customer_id || null,
       business_name: payload.business_name || '',
       business_whatsapp: payload.business_whatsapp || '',
       base_price: payload.base_price,

@@ -170,6 +170,9 @@ img{display:block;max-width:100%}
 <div class="toast" id="toast"></div>
 <div class="lb hide" id="lb"></div>
 
+<script src="js/eatouts-manager-db.js"></script>
+<script src="js/eatouts-users.js"></script>
+<script src="js/eatouts-auth.js"></script>
 <script src="js/eatouts-db.js"></script>
 <script src="js/eatouts-services-seed.js"></script>
 <script src="js/eatouts-designers-seed.js"></script>
@@ -184,7 +187,7 @@ img{display:block;max-width:100%}
 
   /* ---------- state ---------- */
   var state = {
-    step: 'catalogue',       /* catalogue | service | designer | brief | summary | done */
+    step: 'catalogue',       /* catalogue | service | gate | designer | brief | summary | done */
     category: null,
     serviceId: null,
     openServiceId: null,     /* which card is expanded in the list */
@@ -194,6 +197,9 @@ img{display:block;max-width:100%}
     /* brief */
     businessName: '',
     businessWhatsapp: '',
+    businessId: null,        /* set when step 3 is filled from a listed business */
+    businessPick: 'unlisted',/* listed | unlisted */
+    briefInit: false,
     industry: '',
     likes: '',
     dislikes: '',
@@ -285,6 +291,61 @@ img{display:block;max-width:100%}
     var name = (d.private && d.private.full_name) || d.portfolio_style || '?';
     return d.photo ? { src: d.photo, label: d.portfolio_style || '' }
                    : { ini: initials(name), label: d.portfolio_style || '' };
+  }
+
+  /* ---------- account ---------- */
+  var RESUME_KEY = 'eatouts_design_resume_v1';
+  function accountUser(){
+    try{
+      return (window.EatoutsAuth && typeof EatoutsAuth.getUser === 'function') ? EatoutsAuth.getUser() : null;
+    }catch(e){ return null; }
+  }
+  function accountName(u){
+    if(!u) return '';
+    return [u.firstName, u.surname].filter(Boolean).join(' ').trim() || u.name || u.username || '';
+  }
+  function myBusiness(u){
+    if(!u || !u.businessId || !window.EatoutsMgrDB) return null;
+    try{ return EatoutsMgrDB.find('businesses', u.businessId) || null; }catch(e){ return null; }
+  }
+  function bizWhatsapp(b){
+    if(!b) return '';
+    if(typeof b.whatsapp === 'string' && b.whatsapp) return b.whatsapp;
+    if(typeof b.phone === 'string' && b.phone) return b.phone;
+    return '';
+  }
+  function setResume(id){ try{ if(id) sessionStorage.setItem(RESUME_KEY, id); }catch(e){} }
+  function takeResume(){
+    try{ var v = sessionStorage.getItem(RESUME_KEY); if(v) sessionStorage.removeItem(RESUME_KEY); return v; }catch(e){ return null; }
+  }
+  /* step 3 starts from the business the account already owns, else blank */
+  function applyBusiness(pick, u){
+    var b = (pick === 'listed') ? myBusiness(u) : null;
+    state.businessPick = b ? 'listed' : 'unlisted';
+    state.businessId = b ? b.id : null;
+    state.businessName = b ? (b.name || '') : '';
+    state.industry = b ? (b.category || b.type || '') : '';
+    state.businessWhatsapp = b ? bizWhatsapp(b) : ((u && u.whatsapp) || '');
+  }
+
+  /* ---------- account gate ---------- */
+  function renderGate(){
+    var svc = S.serviceById(state.serviceId);
+    var h = '';
+    h += '<div class="hero" style="padding-bottom:14px">';
+    h += '<div class="tag">One quick step</div>';
+    h += '<h1 style="font-size:21px">Create a free EatOuts account</h1>';
+    h += '<p>'+(svc ? 'To request <strong>'+esc(svc.name)+'</strong>' : 'To send a design request')+
+         ' we need an account. It is how your request, the drafts and the invoice stay in one place.</p>';
+    h += '</div>';
+    h += '<div class="list">';
+    h += '<a class="btn primary full" href="eatouts-customer-signup.html">Create a free account</a>';
+    h += '<a class="btn full" href="eatouts-login.html">I already have an EatOuts account</a>';
+    h += '<button class="btn full" data-act="gateBack">Keep browsing</button>';
+    h += '<div class="footnote" style="font-size:14px;padding:16px 0 0">Browsing is always free. An account is only needed to send a request.</div>';
+    h += '</div>';
+    view().innerHTML = h;
+    updateActionBar();
   }
 
   /* ---------- renderers ---------- */
@@ -586,13 +647,29 @@ img{display:block;max-width:100%}
     var des = S.designerById(state.designerId);
     if(!svc || !des){ state.step='catalogue'; return renderCatalogue(); }
 
+    var u = accountUser();
+    var biz = myBusiness(u);
+    if(!state.briefInit){ applyBusiness(biz ? 'listed' : 'unlisted', u); state.briefInit = true; }
+
     var h = '';
     h += '<div class="hero" style="padding-bottom:14px">';
     h += '<div class="tag">Step 3 of 3</div>';
     h += '<h1 style="font-size:21px">Tell us about your business</h1>';
     h += '<p>Five minutes. Everything here goes straight to the EatOuts team on WhatsApp.</p>';
+    if(u){
+      var who = accountName(u) || 'your account';
+      if(u.whatsapp) who += ' · ' + u.whatsapp;
+      h += '<p class="hero-note">Signed in as '+esc(who)+'</p>';
+    }
     h += '</div>';
     h += '<div class="list">';
+
+    if(biz){
+      h += '<div class="seg">';
+      h += '<button class="seg-btn'+(state.businessPick==='listed'?' on':'')+'" data-act="bizPick" data-val="listed">'+esc(biz.name || 'My business')+'</button>';
+      h += '<button class="seg-btn'+(state.businessPick==='unlisted'?' on':'')+'" data-act="bizPick" data-val="unlisted">For Unlisted Business</button>';
+      h += '</div>';
+    }
 
     h += '<div class="field"><label>Business name *</label><input class="input" id="fName" value="'+esc(state.businessName)+'" placeholder="e.g. The Yellow Giraffe"></div>';
     h += '<div class="field"><label>WhatsApp number *</label><input class="input" id="fWhats" type="tel" value="'+esc(state.businessWhatsapp)+'" placeholder="+267 71 234 567"></div>';
@@ -711,7 +788,7 @@ img{display:block;max-width:100%}
   function updateActionBar(){
     var bar = el('actionBar');
     var step = state.step;
-    if(step === 'catalogue'){
+    if(step === 'catalogue' || step === 'gate'){
       bar.classList.add('hidden');
       return;
     }
@@ -744,6 +821,7 @@ img{display:block;max-width:100%}
   function render(){
     if(state.step === 'catalogue') return renderCatalogue();
     if(state.step === 'service')   return renderServiceDetail();
+    if(state.step === 'gate')      return renderGate();
     if(state.step === 'designer')  return renderDesignerPicker();
     if(state.step === 'brief')     return renderBrief();
     if(state.step === 'summary')   return renderSummary();
@@ -758,6 +836,8 @@ img{display:block;max-width:100%}
   }
 
   function submitRequest(){
+    var u = accountUser();
+    if(!u){ setResume(state.serviceId); goto('gate'); return; }
     if(!validateBrief()) return;
     var price = currentPrice();
     var svc = S.serviceById(state.serviceId);
@@ -768,6 +848,8 @@ img{display:block;max-width:100%}
       service_category: svc.category,
       service_name: svc.name,
       is_recurring: svc.is_recurring,
+      business_id: state.businessId || null,
+      customer_id: u.id,
       business_name: state.businessName.trim(),
       business_whatsapp: state.businessWhatsapp.trim(),
       base_price: svc.base_price,
@@ -819,10 +901,13 @@ img{display:block;max-width:100%}
       return;
     }
     if(act === 'pickService'){
-      state.serviceId = t.getAttribute('data-id');
+      var pickId = t.getAttribute('data-id');
+      state.serviceId = pickId;
       state.rush = false;
       state.extraRevisions = false;
       state.founding = false;
+      /* the request flow is account-only; browsing the catalogue is not */
+      if(!accountUser()){ setResume(pickId); goto('gate'); return; }
       goto('service');
       return;
     }
@@ -867,6 +952,12 @@ img{display:block;max-width:100%}
       window.location.href = 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
       return;
     }
+    if(act === 'bizPick'){
+      applyBusiness(t.getAttribute('data-val'), accountUser());
+      renderBrief();
+      return;
+    }
+    if(act === 'gateBack'){ takeResume(); goto('catalogue'); return; }
     if(act === 'toggleOnboard'){ state.onboardUpsell = !state.onboardUpsell; renderBrief(); return; }
     if(act === 'toggleReveal'){ state.revealOptIn = !state.revealOptIn; renderBrief(); return; }
     if(act === 'toggleTerms'){ state.termsAccepted = !state.termsAccepted; renderBrief(); return; }
@@ -912,6 +1003,14 @@ img{display:block;max-width:100%}
   });
 
   /* ---------- boot ---------- */
+  (function boot(){
+    /* back from sign-up or login: reopen the service they chose */
+    var resume = takeResume();
+    if(resume && accountUser() && S.serviceById(resume)){
+      state.serviceId = resume;
+      state.step = 'service';
+    }
+  })();
   render();
 })();
 </script>
