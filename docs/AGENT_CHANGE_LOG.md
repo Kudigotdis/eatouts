@@ -2172,6 +2172,30 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: none
 
 
+### [2026-11-03 23:55:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T18 step 4 — per-service pricing steps, floating service popup, per-service photos/packages/discounts
+- Files changed:
+  - `eatouts-suppliers.html` (service popup fields, `pricing:<cat>:<type>` fan-out, `renderServicePricingStep()`, per-service galleries, checklist + card)
+  - `tests/supplier-pricing.js` (new, 44 checks)
+  - `tests/run-all.js` (registers the new suite)
+  - `PLATFORM UPDATE TASKS.md` (T18 header, step 4 and step 9 marked done)
+  - `docs/AGENT_CHANGE_LOG.md` (this entry)
+- Commit: `0e7c840` — code+docs commit, pushed `c1277dd..0e7c840  main -> main`; this ledger entry follows in its own commit.
+- Notes:
+  - **The single `i3` is gone.** `renderOnboarding()` now emits one `step(pricingKey(s), 3, s.title, …)` per selected service and `stepBody()` routes `pricing:*` to `renderServicePricingStep(svc)`. `renderPricingStep()`, the `pricing.hourlyRate/halfDayRate/fullDayRate/depositPercent` inputs and the dead `togglePayTerm` act were deleted (it had no trigger left).
+  - `pricingKey()` / `svcByPricingKey()` keep keys stable across add/remove — the key never encodes the position, and every pricing item keeps the literal `STEP 3` badge so the checklist's "Step 3" strings stay true.
+  - The service popup is the same G3 `openSheet()` card (centred `.scrim`, 420px / 80dvh `.sheet`, plain `×`, tap-outside + `Escape`), extended to title, description, base rate, rate type, half-day, full-day, deposit % and minimum notice. `svcSheetHTML()` / `readSvcSheet()` are shared by add and edit, so the `#__svc*` ids the harnesses drive did not move.
+  - **No data migration:** `profile.pricing` and `profile.discounts` are now written by nothing and read only as fallbacks (`allPackages()`, `allDiscounts()`, card + checklist), so profiles saved before the fan-out keep their packages, codes and price instead of silently losing them.
+  - Per-service photos live on `service.images[]` (`addSvcPhoto` → `EatoutsUpload.pickImage()`, `removeSvcPhoto`, `viewSvcPhoto` tap-to-enlarge) — the same device-only path as the gallery step, no URL input.
+  - Not verified: real-device visual pass. jsdom has no layout engine, so the popup height on a short phone, the swipe feel and the photo crop need eyes. The `\.scrim{align-items:center}` / `\.sheet{max-width:420px;max-height:80dvh}` CSS is asserted from source, not measured.
+  - Untracked `assets/logo/*.jpg` (10 files) and `runall.txt` were left alone — unrelated to T18 and not requested.
+- Verified:
+  - `node tests/supplier-pricing.js` → **SUPPLIER-PRICING TEST PASSED**, 44 ok, 0 failed, 0 window errors
+  - `node tests/supplier-identity.js` → SUPPLIER-IDENTITY TEST PASSED (33 ok)
+  - `node tests/supplier-activate.js` → SUPPLIER-ACTIVATE TEST PASSED (22 ok; the jsdom "navigation to another Document" notice is pre-existing in that harness)
+  - `node tests/run-all.js` → **72 passed, 0 failed** (divider-framed summary line, read from the log)
+- Errors: none
+
 ### [2026-11-03 03:15:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: log the T21 step-7 (commit 2) push
 - Files changed: docs/AGENT_CHANGE_LOG.md (this entry only)
