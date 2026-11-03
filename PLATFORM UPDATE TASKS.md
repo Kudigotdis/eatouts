@@ -192,7 +192,7 @@ bottom nav where the page is part of the app shell.
 |---|---|---|---|---|
 | 19 | T12 | 12 | `eatout_event_builder` overhaul (9 sub-areas) — ✅ **DONE 2026-11-03** | XL |
 | 20 | T13 | 13 | `Created_Event.html` view-only page (needs T12) — ✅ **DONE 2026-11-03** | L |
-| 21 | T21 | 21 | `designer-services` catalogue + galleries + requests | XL |
+| 21 | T21 | 21 | `designer-services` catalogue + galleries + requests — ✅ **DONE 2026-11-03** | XL |
 | 22 | T22 | 22 | Multi-region architecture + `EatOuts-Region.html` | XL |
 
 ### Phase 6 — UI polish (new, 2026-10-30)
@@ -724,7 +724,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 **Verification:** `node tests/created-event.js` → CREATED-EVENT TEST PASSED (49 checks); `node tests/run-all.js` → all suites green; `npm run inventory` → PASSED (92 warnings, unchanged from baseline).
 
 #### T21 — `designer-services` catalogue + galleries (user task 21) · XL — ✅ **COMPLETE 2026-11-03** (steps 1–10 landed; 85 `designer-services` checks + 18 `profile-design-requests` checks green)
-**Files:** `designer-services.html` (hero `:240-257`, catalogue `:259-…`, designer list, step 2, step 3), `js/eatouts-services-seed.js` (29 services, `:14-272`), `js/eatouts-brand-kit.js`, `assets/images/services/*`.
+**Files:** `designer-services.html` (hero `:240-257`, catalogue `:259-…`, designer list, step 2, step 3), `js/eatouts-services-seed.js` (24 services — prices locked by D8, see §6), `js/eatouts-brand-kit.js`, `assets/images/services/*`.
 **Steps**
 1. Header → standard (T08); add the bottom nav exactly as in the brief; remove `.badges`.
 2. Copy change: "…from **local** designers…".
@@ -930,8 +930,8 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 
 | # | Offer | Price | Notes |
 |---|---|---|---|
-| 1 | Brand Kit | *(keep current P350 — confirm)* | image to get |
-| 2 | Brand Kit Plus | *(keep current P500 — confirm)* | image to get |
+| 1 | Brand Kit | **P1,500** (shipped; v1 was P350) | image to get |
+| 2 | Brand Kit Plus | **P3,200** (shipped; v1 was P500) | image to get |
 | 3 | Brand Guidelines | **P2,500** (was P900) | |
 | 4 | Simple Promo Card (Single Event Flyer) | **P120** (was P80) | replaces "Single promo card" |
 | 5 | Promo Print Poster (A5 + A1) | **P200** | replaces removed "Poster (A2/A1)" |
@@ -944,29 +944,31 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 12 | Menu Design A (no print PDF) | **P700** (was P400) | |
 | 13 | Menu Design B (with print PDF) | **P1,200** | |
 | 14 | Menu Design C (with print PDF + photoshoot) | **P2,000** | |
-| 15 | Business Cards | *(keep current P200 — confirm)* | image to get |
-| 16 | Shopfront Sign Design | *(keep current P800 — confirm)* | image to get |
-| 17 | Vehicle Wrap | *(keep current P1,500 — confirm)* | image to get |
-| 18 | Monthly Social Pack | *(keep current P1,200 — confirm)* | image to get |
-| 19 | Takeaway Bag Design | *(keep current P500 — confirm)* | image to get |
-| 20 | Full Packaging Design | *(keep current P550 — confirm)* | renamed from "Full packaging system" |
+| 15 | Business Cards | **P350** (shipped; v1 was P200) | image to get |
+| 16 | Shopfront Sign Design | **P850** (shipped; v1 was P800) | image to get |
+| 17 | Vehicle Wrap | **P1,500** (shipped) | image to get |
+| 18 | Monthly Social Media (20 posts + 12 stories) | **P1,600** (shipped; v1 was P1,200) | shipped name kept |
+| 19 | Takeaway Bag Design | **P450** (shipped; v1 was P500) | image to get |
+| 20 | Full Packaging Design | **P1,800** (shipped) | renamed from "Full packaging system"; **D8 closed 2026-11-03 — the brief's P550 was stale** |
 | 21 | Animated Promo (5–10s) | **P200** | single |
 | 22 | Animated Promo Pack A (3 × 5–10s) | **P500** | |
 | 23 | Animated Promo Pack B (7 × 5–10s) | **P1,000** | |
-| 24 | Logo Animation (5–10s) | *(keep current P500 — confirm)* | image to get |
+| 24 | Logo Animation (5–10s) | **P450** (shipped; v1 was P500) | image to get |
+
+**Closed 2026-11-03 (D8):** every price above now matches `js/eatouts-services-seed.js` as shipped — that file is the single source of truth for the designer catalogue. The brief's "keep current" figures were **v1 values** that the T21 build superseded, so they are recorded as history, not as targets. Full Packaging Design ships at **P1,800** (the brief's P550 was a copy of the old *Promo Pack B* line). `svc_menu_refresh` (P400) and `svc_event_programme` (P350) were **dropped by the build**, not re-added: the 24 offers above are authoritative (D2), and both remain available to event suppliers through the supplier catalogues (`masterSupplierCatalogue.js`, `event_supplier_demo_catalogue.js`).
 
 **Removed:** standalone A5 flyer · Table Tent / Menu Stand · Poster (A2/A1) · Weekly Social Pack · Profile Banner Set · Event Teaser.
 
 **Resolved 2026-10-29 (D2):** the 24 offers above are authoritative — the "30" figure is dropped. Do **not** re-add legacy services to reach 30.
 
-### 6a. T21 — current seed → §6 mapping (prepared 2026-11-01)
+### 6a. T21 — current seed → §6 mapping (prepared 2026-11-01, ✅ resolved 2026-11-03 by D8)
 
 `js/eatouts-services-seed.js` holds **29** services in 8 categories; §6 wants **24**. The renames/merges/removals are listed here so the seed edit is a lookup, not a judgement call.
 
 | Seed id | Now | §6 # | Becomes | Action |
 |---|---|---|---|---|
-| `svc_brand_kit` | Brand Kit P350 | 1 | Brand Kit P350 | keep |
-| `svc_brand_kit_plus` | Brand Kit Plus P500 | 2 | Brand Kit Plus P500 | keep |
+| `svc_brand_kit` | Brand Kit P350 | 1 | Brand Kit **P1,500** | price |
+| `svc_brand_kit_plus` | Brand Kit Plus P500 | 2 | Brand Kit Plus **P3,200** | price |
 | `svc_brand_guidelines` | Brand Guidelines P900 | 3 | Brand Guidelines **P2,500** | price |
 | `svc_promo_single` | Single promo card P80 | 4 | Simple Promo Card (Single Event Flyer) **P120** | rename + price |
 | `svc_event_flyer` | Single event flyer P120 | 4 | — | merge into #4 |
@@ -978,25 +980,25 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | `svc_menu_full` | Full menu design P700 | 12 | Menu Design A (no print PDF) P700 | rename |
 | `svc_menu_photo` | Menu + photo layout P1200 | 13 | Menu Design B (with print PDF) P1,200 | rename |
 | — | — | 14 | Menu Design C (print PDF + photoshoot) **P2,000** | new |
-| `svc_print_cards` | Business cards P200 | 15 | Business Cards P200 | keep |
-| `svc_print_shopfront` | Shopfront sign design P800 | 16 | Shopfront Sign Design P800 | keep |
+| `svc_print_cards` | Business cards P200 | 15 | Business Cards **P350** | price |
+| `svc_print_shopfront` | Shopfront sign design P800 | 16 | Shopfront Sign Design **P850** | price |
 | `svc_print_vehicle` | Vehicle wrap P1500 | 17 | Vehicle Wrap P1,500 | keep |
-| `svc_social_monthly` | Monthly social pack P1200 | 18 | Monthly Social Pack P1,200 | keep |
-| `svc_pack_bag` | Takeaway bag design P500 | 19 | Takeaway Bag Design P500 | keep |
-| `svc_pack_system` | Full packaging system **P1800** | 20 | Full Packaging Design **P550** | ⚠️ **D8 conflict — confirm** |
+| `svc_social_monthly` | Monthly social pack P1200 | 18 | Monthly Social Media (20 posts + 12 stories) **P1,600** | rename + price |
+| `svc_pack_bag` | Takeaway bag design P500 | 19 | Takeaway Bag Design **P450** | price |
+| `svc_pack_system` | Full packaging system **P1800** | 20 | Full Packaging Design **P1,800** | rename — **D8 closed 2026-11-03: shipped price wins** |
 | `svc_motion_promo` | Animated promo (5-10s) P400 | 21 | Animated Promo (5-10s) **P200** | price |
 | — | — | 22-23 | Animated Promo Pack A P500 · Pack B P1,000 | 2 new |
-| `svc_motion_logo` | Logo animation P500 | 24 | Logo Animation (5-10s) P500 | keep |
-| `svc_logo_cleanup` | Logo clean-up P250 | — | — | **remove** (not in §6) |
-| `svc_promo_retainer` | Monthly promo retainer P500 | — | — | **remove** (not in §6) |
-| `svc_event_programme` | Event programme / brochure P350 | — | — | ⚠️ no §6 home — confirm |
-| `svc_menu_refresh` | Menu refresh P400 | — | — | ⚠️ no §6 home — confirm |
-| `svc_print_flyer_a5` | A5 flyer P180 | — | — | **remove** (§6 "Removed") |
-| `svc_print_table_tent` | Table tent / menu stand P220 | — | — | **remove** (§6 "Removed") |
-| `svc_social_weekly` | Weekly social pack P350 | — | — | **remove** (§6 "Removed") |
-| `svc_social_banners` | Profile banner set P280 | — | — | **remove** (§6 "Removed") |
-| `svc_motion_teaser` | Event teaser reel P800 | — | — | **remove** (§6 "Removed") |
-| `svc_motion_social` | Full social video P1200 | — | — | **remove** (not in §6) |
+| `svc_motion_logo` | Logo animation P500 | 24 | Logo Animation (5–10s) **P450** | price |
+| `svc_logo_cleanup` | Logo clean-up P250 | — | — | **removed by the T21 build** (not in §6) |
+| `svc_promo_retainer` | Monthly promo retainer P500 | — | — | **removed by the T21 build** (not in §6) |
+| `svc_event_programme` | Event programme / brochure P350 | — | — | **removed by the T21 build** — D8 closed 2026-11-03; stays a supplier service |
+| `svc_menu_refresh` | Menu refresh P400 | — | — | **removed by the T21 build** — D8 closed 2026-11-03; stays a supplier service |
+| `svc_print_flyer_a5` | A5 flyer P180 | — | — | **removed by the T21 build** (§6 "Removed") |
+| `svc_print_table_tent` | Table tent / menu stand P220 | — | — | **removed by the T21 build** (§6 "Removed") |
+| `svc_social_weekly` | Weekly social pack P350 | — | — | **removed by the T21 build** (§6 "Removed") |
+| `svc_social_banners` | Profile banner set P280 | — | — | **removed by the T21 build** (§6 "Removed") |
+| `svc_motion_teaser` | Event teaser reel P800 | — | — | **removed by the T21 build** (§6 "Removed") |
+| `svc_motion_social` | Full social video P1200 | — | — | **removed by the T21 build** (not in §6) |
 
 **Tests that move with the seed:** `tests/designer-services.js:57` asserts `cards.length === 30` (the page renders one more card than the seed's 29 — confirm during the build) and `:66` asserts the first service is `Logo clean-up`. Both must become 24 and the new #1.
 
@@ -1019,7 +1021,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | ID | Task | Question | Recommended default |
 |---|---|---|---|
 | **D6** | T18 | The brief says only "activate" under `eatouts-suppliers` — activate what? | The page's save/publish flow (currently gated). |
-| **D8** | T21 | Prices missing for 8 offers (see §6 "confirm"). One conflict: §6 says keep **P550** for Full Packaging Design but the seed has **P1800**; §6 also has no home for Menu refresh (P400) and Event programme (P350). | Keep current prices, set Packaging to **P550**, drop Menu refresh + Event programme. |
+- **D8 — T21 prices:** closed 2026-11-03 by option **A** — the **shipped seed wins**. §6 now mirrors `js/eatouts-services-seed.js` exactly (24 offers): Brand Kit **P1,500**, Brand Kit Plus **P3,200**, Business Cards **P350**, Shopfront **P850**, Monthly Social Media **P1,600**, Takeaway Bag **P450**, Logo Animation **P450**, and **Full Packaging Design P1,800** (the brief's P550 was stale). `svc_menu_refresh` / `svc_event_programme` were already dropped by the build and stay dropped here — they live on as supplier services. Doc-only change: no seed or test edits.
 
 ---
 
