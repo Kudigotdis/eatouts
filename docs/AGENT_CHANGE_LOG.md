@@ -20,8 +20,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `eatouts-suppliers.html`: added `js/eatouts-image-compressor.js` + `js/eatouts-upload.js`; new `.photo-pick` / `.logo-pick` CSS; `renderIdentity()` now opens on a 150×150 rounded square photo picker and a 56px logo row instead of two URL inputs; `owner.headshot` → `owner.photo` with an `o.headshot` read fallback; new `pickDeviceImage(path,label)` helper + `pickPhoto` / `pickLogo` branches in the click router
   - `tests/supplier-activate.js`: fixture key `headshot` → `photo` (record shape moved)
   - `PLATFORM UPDATE TASKS.md`: step 3 annotated (pickers done, age picker + prefill still open)
-- Commit: PENDING
-- Push: PENDING
+- Commit: `200982c`
+- Push: `5b01157..200982c  main -> main`
 - Notes:
   - Reused the existing app-wide upload layer instead of a bespoke `<input type=file>`: `EatoutsUpload.pickImage()` already compresses, tries `/api/upload`, and falls back to a data URL offline, so the supplier page behaves like the five onboarding pages. No new dependency, no new abstraction.
   - Kept the legacy `o.headshot` fallback rather than migrating: a supplier who typed a URL under the old field keeps their picture, and the dead key is ignored forever if unused.
