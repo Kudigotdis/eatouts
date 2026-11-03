@@ -14,6 +14,27 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+### [2026-11-03 14:20:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: T13 — `Created_Event.html`, the read-only saved-event page (+ the payload contract it reads)
+- Files changed:
+  - Created_Event.html (new, 422 lines): standard shell (`#hdr` + brand-mark `data-act="backHistory"`, `.scroll`, `.appnav` × 5, G1 scrollbar hide); renders `.preview-page` exactly like the builder — flyer hero track with swipe dots, `metaLine` (title + "Saved … · Edited …"), then Venue / Date & Time / Dress Code / Menu / Suppliers / Contact / Tickets / RSVP / Guest List / Estimated Budget cards; zero edit affordances (`[data-act]` is only `backHistory` + `share`); `share()` uses `navigator.share` and falls back to `https://wa.me/?text=` with the page URL; three empty states (unknown id, no id, record without a snapshot). Loads only `js/eatouts-customer.js` + `js/eatouts-back-history.js`
+  - eatout_event_builder.html (+72/-8): `STATE.eventId` / `STATE.eventCreatedAt` (`:1311`), both persisted by `saveDraft()`/`loadDraft()`; `eventSnapshot()` (`:4596`) writes the render-relevant state with pre-resolved costs; `eventSavePayload()` (`:4657`) now sends `id`, `created_at:STATE.eventCreatedAt||Date.now()`, `updated_at` and `snapshot`; the `saveEvent` handler (`:4425`) writes the returned `item.id`/`created_at` back into STATE and re-saves the draft
+  - js/eatouts-customer.js (+4/-1): `saveEvent()` matches on the saved `id` as well as the ref, so a rename updates the record instead of writing a second copy
+  - copy-static.mjs (+1), scripts/html_catalog.meta.json (page id 73 + changelog) → `npm run catalog` → HTML_CATALOG.md, PAGE_INVENTORY.md (§L, page 73), HTML_PAGES.md (row)
+  - tests/created-event.js (new, 49 checks), tests/run-all.js (registered), tests/back-history.js (brand-mark count 56 → 57)
+  - PLATFORM UPDATE TASKS.md (T13 ticked + Result block, §3 row 20)
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - Interface first: T13 needs the saved record to carry everything the preview shows, so `snapshot` is the contract; costs/venue/supplier text are resolved in the builder and the page stays a dumb renderer (no venue, menu or supplier engines loaded).
+  - `data-page="Created_Event"` rather than the brief's `created-event`: `tests/inventory.js` requires a Part-1 row's slug to equal the filename minus `.html`, and every existing page follows that.
+  - Stable `id` + kept `created_at` land here (not in T12.9) because a share link that changes when the event is renamed is not a link; the T12.9 save flow builds on the same fields.
+  - Known limitation: saved events live in the phone's localStorage, so a link opened on another device shows the "not on this device" state until the record syncs through the backend.
+- Verified: `node tests/created-event.js` → CREATED-EVENT TEST PASSED (49 checks); `node tests/back-history.js` → PASSED (29 checks); `npm run inventory` → INVENTORY PASSED (10 checks, 92 warnings = baseline).
+- Not verified: real-device look of the hero swipe + `.ev-meta` line (jsdom has no layout engine); the native Web Share sheet (only the `navigator.share` call shape is asserted).
+
+---
+
 ### [2026-11-03 09:10:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: T12.5 — builder "Event Details": centred chips/hints + Dress-Code-Cards
 - Files changed:

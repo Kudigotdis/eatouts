@@ -191,7 +191,7 @@ bottom nav where the page is part of the app shell.
 | # | ID | User task | Task | Size |
 |---|---|---|---|---|
 | 19 | T12 | 12 | `eatout_event_builder` overhaul (9 sub-areas) | XL |
-| 20 | T13 | 13 | `Created_Event.html` view-only page (needs T12) | L |
+| 20 | T13 | 13 | `Created_Event.html` view-only page (needs T12) — ✅ **DONE 2026-11-03** | L |
 | 21 | T21 | 21 | `designer-services` catalogue + galleries + requests | XL |
 | 22 | T22 | 22 | Multi-region architecture + `EatOuts-Region.html` | XL |
 
@@ -705,15 +705,19 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 
 **Done when** every sub-item is verifiable in the UI; no glyph indicators; all popups floating; no `.fpop-close` (plain `X` only); draft survives navigation; browser gates work.
 
-#### T13 — `Created_Event.html` (user task 13) · L
+#### T13 — `Created_Event.html` (user task 13) · L — ✅ **DONE 2026-11-03**
 **Depends on:** T12.
 **Files:** new `Created_Event.html`; reuse `.preview-page` markup/JS from `eatout_event_builder.html`; `copy-static.mjs`; docs.
 **Steps**
-1. New page `data-page="created-event"`, `<!-- PAGE: Created Event -->`, standard header + bottom nav.
-2. Load a saved event by id (`?id=` → draft/published store) and render the preview markup **read-only** (no edit affordances).
-3. Share button → WhatsApp share on the user's device (Web Share API fallback to `wa.me` with the page URL).
-4. Empty/not-found state.
+1. ✅ New page `data-page="Created_Event"` (the slug matches the filename, as `tests/inventory.js` requiring `rec.slug === file - ".html"` demands; the brief said `created-event`), `<!-- PAGE: Created Event -->`, standard `#hdr` + `.appnav`.
+2. ✅ Load a saved event by id (`?id=` → `EatoutsCustomer.events`, matched on `id` / `ref` / `eventRef`) and render the preview markup **read-only** — no favourite, save, promote, close, privacy toggle or dot taps.
+3. ✅ Share button → Web Share API on the device, `wa.me` fallback with the page URL.
+4. ✅ Empty state: unknown id, no id, and a record saved before snapshots.
 **Done when** a saved event renders exactly like the builder preview, nothing is editable, share opens WhatsApp with the link, docs/tests green.
+
+**Result (2026-11-03).** `Created_Event.html` (422 lines) is the builder's preview as its own page: flyer hero with swipe dots, then Venue / Date & Time / Dress Code / Menu / Suppliers / Contact / Tickets / RSVP / Guest List / Estimated Budget in the builder's order, each privacy switch honoured. The page loads only `js/eatouts-customer.js`, so it needs none of the venue/menu/supplier engines. Contract change in the builder: `eventSavePayload()` now writes a `snapshot` (pre-resolved costs, venue, days, dress, contacts, tickets, menu, supplier lines, RSVP, guests, privacy, budget) plus `updated_at`, keeps a stable `id` (`STATE.eventId`, filled on the first save and persisted in the draft) and a kept `created_at` (`STATE.eventCreatedAt`), and `S.events.save()` in `js/eatouts-customer.js` now matches on that id as well as the ref so a rename updates the record instead of writing a second copy. Share uses `navigator.share` when present and `https://wa.me/?text=` otherwise, always carrying the page URL. Registered: `copy-static.mjs` FILES, `scripts/html_catalog.meta.json` (page 73 + changelog) → `npm run catalog`, `PAGE_INVENTORY.md` §L, `HTML_PAGES.md`; `tests/back-history.js` brand-mark count 56 → 57. New `tests/created-event.js` (49 checks) registered in `tests/run-all.js`.
+**Not verified:** a link opened on another device shows the "not on this device" state — saved events live in the phone's localStorage until the record syncs through the backend.
+**Verification:** `node tests/created-event.js` → CREATED-EVENT TEST PASSED (49 checks); `node tests/run-all.js` → all suites green; `npm run inventory` → PASSED (92 warnings, unchanged from baseline).
 
 #### T21 — `designer-services` catalogue + galleries (user task 21) · XL — ✅ **COMPLETE 2026-11-03** (steps 1–10 landed; 85 `designer-services` checks + 18 `profile-design-requests` checks green)
 **Files:** `designer-services.html` (hero `:240-257`, catalogue `:259-…`, designer list, step 2, step 3), `js/eatouts-services-seed.js` (29 services, `:14-272`), `js/eatouts-brand-kit.js`, `assets/images/services/*`.

@@ -159,6 +159,13 @@ only reads; it never rewrites this file. It warns on line drift.
 | 72 | `EatOuts-Region.html` | Region selector - the five EatOuts regions with flags, a search row, and a "This region is coming soon." card for anything but Botswana. | Direct URL; the region row on index.html About | `PAGE: Select Region` | 204 |
 
 
+## L. Events (2026-11)
+
+| # | File | What it is | How you reach it | Page marker | ~Lines |
+|---|------|-----------|------------------|-------------|--------|
+| 73 | `Created_Event.html` | View-only copy of a saved event (T13) - the builder's preview page (flyer hero, venue, dates, dress code, menu, suppliers, contacts, tickets, RSVP, guests, budget) rendered from the record's snapshot with no edit affordances, plus Web Share / WhatsApp sharing. | `?id=<saved event id>`; Web Share and WhatsApp links from the planner | `PAGE: Created Event` | 423 |
+
+
 ---
 
 # Part 2 — Screens Within index.html (SPA)

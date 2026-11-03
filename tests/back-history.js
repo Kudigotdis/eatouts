@@ -144,7 +144,7 @@ function done() {
     const legacy = pages.filter(f => /class="topbar"|topbar-row|hdr-chip/.test(src(f)));
     check('no page keeps the old .topbar / .topbar-row / .hdr-chip', legacy.length === 0, legacy.join(','));
     const branded = pages.filter(f => /class="brand-mark"/.test(src(f)) && f !== 'index.html');
-    check('fifty-six pages carry the standard brand mark', branded.length === 56, branded.length);
+    check('fifty-seven pages carry the standard brand mark', branded.length === 57, branded.length);
     const unwired = branded.filter(f => !(/data-act="backHistory"/.test(src(f)) &&
       src(f).includes('js/eatouts-back-history.js')));
     check('every standard-header page wires the button and loads the script',

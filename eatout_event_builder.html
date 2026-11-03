@@ -1308,6 +1308,8 @@ const STATE = {
   flyerIndex:0,
   eventTitle:"",
   eventDescription:"",
+  eventId:"",          // stable saved-record id, assigned on the first save (T13 link target)
+  eventCreatedAt:0,    // first-save stamp, so created_at survives edits
 
   // Schedule
   schedule:{mode:"one-day",days:[{id:"d1",startDate:"",startTime:"",endDate:"",endTime:"",noteTitle:"",noteText:""}]},
@@ -1390,6 +1392,8 @@ function saveDraft(){
       notes:STATE.notes,
       flyerImages:STATE.flyerImages,
       eventTitle:STATE.eventTitle,
+      eventId:STATE.eventId,
+      eventCreatedAt:STATE.eventCreatedAt,
       eventDescription:STATE.eventDescription,
       schedule:STATE.schedule,
       targetAudience:STATE.targetAudience,
@@ -1421,6 +1425,8 @@ function loadDraft(){
     STATE.notes=d.notes||[];
     STATE.flyerImages=d.flyerImages||[];
     STATE.eventTitle=d.eventTitle||"";
+    STATE.eventId=d.eventId||"";
+    STATE.eventCreatedAt=d.eventCreatedAt||0;
     STATE.eventDescription=d.eventDescription||"";
     if(d.schedule)STATE.schedule=d.schedule;
     STATE.targetAudience=d.targetAudience||[];
@@ -4417,7 +4423,11 @@ document.addEventListener("click",function(e){
     const S=window.EatoutsCustomer;
     if(!S||!S.getUser()){ if(confirm("Sign in to save this event to your account. Continue to sign in?")) location.href="eatouts-login.html?next="+encodeURIComponent("eatout_event_builder.html"); return; }
     S.events.save(eventSavePayload())
-      .then(function(){ toast("Event saved to your account"); })
+      .then(function(res){
+        const item=res&&res.item;
+        if(item){ STATE.eventId=item.id||""; STATE.eventCreatedAt=item.created_at||0; saveDraft(); }
+        toast("Event saved to your account");
+      })
       .catch(function(){ toast("Saved on this device"); });
     return;
   }
@@ -4581,15 +4591,82 @@ function eventFavHas(){
   try{ const S=window.EatoutsCustomer; return !!(S&&S.favourites&&S.favourites.has(eventFavItem())); }catch(e){ return false; }
 }
 function eventFavIcon(){ return "assets/icons/"+(eventFavHas()?"heart_active_icon.png":"heart_inactive_icon.png"); }
+/* T13: the read-only Created_Event.html page renders from this snapshot, so it
+   needs no venue/menu/supplier engines - costs and lookups arrive pre-resolved. */
+function eventSnapshot(){
+  const v=STATE.venue;
+  const supLines=[];
+  Object.keys(STATE.suppliers).forEach(function(fid){
+    (STATE.suppliers[fid]||[]).forEach(function(entry){
+      const s=findSupplier(entry.supplierId);
+      if(!s) return;
+      const custom=Object.keys(entry.customisations||{})
+        .filter(function(k){return entry.customisations[k];})
+        .map(function(k){return k+": "+entry.customisations[k];});
+      supLines.push({name:s.name,bucket:bucketLabel(fid),cost:supplierLineCost(entry),custom:custom});
+    });
+  });
+  return {
+    version:1,
+    description:STATE.eventDescription||"",
+    eventType:(findEventType(STATE.eventType.eventId)||{}).name||"",
+    flyerImages:(STATE.flyerImages||[]).slice(),
+    venue:v?{
+      name:v.name||"",city:v.city||"",area:v.area||"",capacity:v.capacity||"",
+      spaces:STATE.venueSpaces.map(function(sid){
+        const sp=(v.spaces||[]).find(function(x){return x.id===sid;});
+        return sp?sp.name:sid;
+      })
+    }:null,
+    days:STATE.schedule.days.map(function(d){
+      return {startDate:d.startDate||"",startTime:d.startTime||"",
+        endDate:d.endDate||"",endTime:d.endTime||""};
+    }),
+    dresscode:STATE.eventDetails.dresscode||"",
+    dress:STATE.eventDetails.dress.map(function(c){
+      return {name:c.name||"Dress code",photo:(c.photos&&c.photos[0])||""};
+    }),
+    contacts:STATE.eventDetails.contacts.map(function(c){
+      return {type:c.type||"Link",value:c.value||""};
+    }),
+    tickets:STATE.eventDetails.ticketLinks.map(function(t){
+      return {url:t.url||"",notes:t.notes||""};
+    }),
+    food:STATE.menuFood.map(function(m){
+      return {name:m.name,qty:m.qty,price:Number(m.price)||0};
+    }),
+    beverages:STATE.menuBeverages.map(function(m){
+      return {name:m.name,qty:m.qty,price:Number(m.price)||0};
+    }),
+    suppliers:supLines,
+    rsvp:STATE.rsvp.map(function(r){
+      return {title:r.title||"",note:r.note||"",contactType:r.contactType||"",contactValue:r.contactValue||""};
+    }),
+    guests:STATE.guests.map(function(g){
+      return {name:g.name||"",role:g.role||"",plus:g.plus||0};
+    }),
+    privacy:{
+      showBudget:STATE.showBudget===true,showGuests:STATE.showGuests===true,
+      showSuppliers:STATE.showSuppliers!==false,showAddress:STATE.showAddress!==false,
+      showRsvp:STATE.showRsvp!==false
+    },
+    budget:{venue:venueCost(),food:menuFoodCost(),beverages:menuBeveragesCost(),
+      suppliers:supplierCost(),total:grandTotal()}
+  };
+}
 function eventSavePayload(){
   return {
+    id:STATE.eventId||undefined,
     ref:eventRef(),
     type:"event",
     title:STATE.eventTitle||"Untitled Event",
     subtitle:(STATE.venue?STATE.venue.name:"")+(firstWhen()?(" · "+firstWhen()):""),
+    created_at:STATE.eventCreatedAt||Date.now(),
+    updated_at:Date.now(),
     meta:{venue:STATE.venue?STATE.venue.id:null,eventType:(STATE.eventType&&STATE.eventType.eventId)||null,
       when:firstWhen(),guests:totalGuests(),budget:STATE.showBudget?grandTotal():null,
-      flyer:(STATE.flyerImages&&STATE.flyerImages[0])||null}
+      flyer:(STATE.flyerImages&&STATE.flyerImages[0])||null},
+    snapshot:eventSnapshot()
   };
 }
 function buildShareMessage(){

@@ -405,7 +405,9 @@
     entry.created_at = entry.created_at || Date.now();
     var key = String(entry.eventRef || entry.event_ref || entry.id);
     var i = state.events.findIndex(function (e) {
-      return String(e.eventRef || e.event_ref || e.id) === key;
+      /* match on the saved id too, so renaming an event (which changes its ref)
+         updates the record instead of writing a second copy */
+      return String(e.eventRef || e.event_ref || e.id) === key || e.id === entry.id;
     });
     if (i >= 0) state.events[i] = entry; else state.events.unshift(entry);
     writeLocal(); emit();

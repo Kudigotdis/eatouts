@@ -22,6 +22,7 @@ const FILES = [
   // HTML pages (public)
   'index.html',
   'Orders-List.html',
+  'Created_Event.html',
   '404.html',
   'seed-demo.html',
   'restaurant-dashboard.html',

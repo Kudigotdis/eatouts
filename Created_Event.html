@@ -1,0 +1,422 @@
+<!doctype html>
+<!-- PAGE: Created Event -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Created Event · EatOuts</title>
+<style>
+::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#1a1a1a;
+  --mute:#8a8170;
+  --line:#f1ece1;
+  --paper:#f4f2ec;
+  --bg:#faf8f2;
+  --surface:#faf8f2;
+  --text:#1a1a1a;
+  --muted:#a89a7e;
+  --muted-2:#8a8170;
+  --border:#ece7db;
+  --border-soft:#f1ece1;
+}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:#fff;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+#shell{max-width:460px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative;background:#fff}
+
+/* standard header (T08) */
+#hdr{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;position:relative;z-index:20}
+.brand-mark{border:0;background:transparent;padding:0;width:34px;height:34px;border-radius:10px;overflow:hidden;
+  display:grid;place-items:center;cursor:pointer}
+.brand-mark img{width:100%;height:100%;object-fit:contain}
+
+.scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* readonly render of the builder preview - same classes, minus every control */
+.preview-page{background:var(--bg);min-height:100%}
+.preview-hero-track{display:flex;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;background:#151515}
+.preview-hero-track::-webkit-scrollbar{display:none}
+.preview-hero-slide{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;
+  display:flex;align-items:center;justify-content:center}
+.preview-hero-slide img{width:100%;height:auto;display:block}
+.preview-hero-dots{display:flex;justify-content:center;align-items:center;gap:6px;
+  padding:10px 0 4px;background:var(--bg)}
+.ev-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.22);display:block}
+.ev-dot.on{background:#1a1a1a}
+.preview-hero-ph{padding:26px 18px;text-align:center;
+  background:linear-gradient(135deg,#2c2418,#151515);color:#fff}
+.preview-hero-ph .cat{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);font-weight:800;margin-bottom:6px}
+.preview-hero-ph h1{margin:0;font-size:21px;font-weight:900;letter-spacing:-.015em;line-height:1.15}
+.preview-hero-ph .sub{font-size:11.5px;color:rgba(255,255,255,.75);margin-top:5px;font-weight:600}
+.ev-meta{padding:9px 16px 0;font-size:11px;font-weight:800;color:var(--muted-2);text-align:center}
+.ev-meta b{color:var(--text);font-weight:900}
+.preview-body{padding:14px}
+.preview-card{background:#fff;border:1px solid var(--border-soft);border-radius:14px;
+  padding:14px;margin-bottom:12px}
+.preview-card h3{margin:0 0 10px;font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);font-weight:800}
+.preview-kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;
+  border-bottom:1px solid var(--border-soft);font-size:12.5px}
+.preview-kv:last-child{border-bottom:0}
+.preview-kv .k{color:var(--muted-2);font-weight:700}
+.preview-kv .v{color:var(--text);font-weight:800;text-align:right;max-width:62%}
+.kv-note{font-style:normal;font-size:10.5px;color:var(--muted-2);font-weight:700}
+.preview-kv.total{padding-top:9px;margin-top:5px;border-top:1px solid var(--border)}
+.preview-kv.total .k{font-weight:900;color:var(--text)}
+.preview-kv.total .v{font-size:15px;font-weight:900}
+.preview-sub{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);
+  font-weight:800;margin:4px 0 6px}
+.preview-sub.gap{margin-top:10px}
+.preview-tags{display:flex;flex-wrap:wrap;gap:6px}
+.preview-tag{font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;
+  background:var(--surface);border:1px solid var(--border-soft);color:var(--muted-2)}
+.preview-social{display:flex;flex-wrap:wrap;gap:8px}
+.preview-social-item{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;
+  border-radius:20px;background:var(--surface);border:1px solid var(--border-soft);
+  font-size:11.5px;font-weight:700;color:var(--text);text-decoration:none}
+
+.ev-foot{padding:4px 14px 22px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px;font-family:inherit;font-size:15px;
+  font-weight:800;cursor:pointer;margin-top:14px;text-align:center;text-decoration:none}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn.wa-solid{background:#25D366;border:0;color:#fff}
+.btn.wa-solid:active{background:#1eb85a}
+.empty{margin:24px 6px 0;text-align:center;font-size:13px;font-weight:700;color:var(--mute);line-height:1.6}
+.btn-holder{padding:0 14px 22px}
+
+.appnav{flex:0 0 auto;display:flex;align-items:center;justify-content:space-around;background:#fff;
+  border-top:1px solid var(--line);padding:9px 4px calc(9px + env(safe-area-inset-bottom))}
+.appnav a{display:grid;justify-items:center;gap:3px;font-size:10px;font-weight:800;
+  letter-spacing:.03em;color:#8a8170;text-decoration:none}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+}
+</style>
+</head>
+
+
+<body data-page="Created_Event">
+<div id="shell">
+
+  <header id="hdr">
+    <button class="brand-mark" type="button" aria-label="EatOuts home" data-act="backHistory">
+      <img src="assets/logo/EatOuts_Logo.png" alt="EatOuts">
+    </button>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <main id="mount"></main>
+  </div>
+
+  <nav class="appnav">
+    <a href="index.html#promos">Promos</a>
+    <a href="index.html#restaurants">Restaurants</a>
+    <a href="index.html#reserve">Reserve</a>
+    <a href="index.html#gallery">Gallery</a>
+    <a href="index.html#about">About</a>
+  </nav>
+
+</div>
+
+<script src="js/eatouts-customer.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var S = window.EatoutsCustomer;
+  var mount = document.getElementById('mount');
+  var wantId = (new URLSearchParams(location.search)).get('id') || '';
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function money(v) { return 'P' + (Number(v) || 0).toFixed(2); }
+
+  /* The saved record is matched on id, ref or eventRef so an older link keeps
+     working after the title (and therefore the ref) changes. */
+  function records() {
+    return (S && S.events && S.events.list) ? S.events.list() : [];
+  }
+  function find() {
+    if (!wantId) return null;
+    var k = wantId.trim().toLowerCase();
+    var hits = records().filter(function (r) {
+      return [r.id, r.ref, r.eventRef, r.event_ref].some(function (v) {
+        return v && String(v).toLowerCase() === k;
+      });
+    });
+    return hits[0] || null;
+  }
+
+  function day(ts) {
+    if (!ts) return '';
+    var d = new Date(ts);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function savedLine(r) {
+    var made = day(r.created_at);
+    if (!made) return '';
+    var edited = day(r.updated_at);
+    return edited && edited !== made ? 'Saved ' + made + ' · Edited ' + edited : 'Saved ' + made;
+  }
+  function when(d) {
+    if (!d || !d.startDate) return '';
+    var out = d.startDate + (d.startTime ? ' ' + d.startTime : '');
+    if (d.endDate || d.endTime) out += ' → ' + (d.endDate || '') + ' ' + (d.endTime || '');
+    return out;
+  }
+  function contactHref(type, value) {
+    if (!value) return '#';
+    var v = String(value).trim();
+    if (/^(https?:|tel:|mailto:)/.test(v)) return v;
+    var t = String(type || '').toLowerCase();
+    if (t === 'call') return 'tel:' + v.replace(/[^\d+]/g, '');
+    if (t === 'whatsapp') return 'https://wa.me/' + v.replace(/[^\d]/g, '');
+    if (t === 'facebook') return 'https://facebook.com/' + v.replace(/^@/, '');
+    if (t === 'instagram') return 'https://instagram.com/' + v.replace(/^@/, '');
+    if (t === 'tiktok') return 'https://tiktok.com/@' + v.replace(/^@/, '');
+    if (t === 'twitter' || t === 'x') return 'https://x.com/' + v.replace(/^@/, '');
+    if (t === 'youtube') return 'https://youtube.com/@' + v.replace(/^@/, '');
+    if (t === 'linkedin') return 'https://linkedin.com/in/' + v.replace(/^@/, '');
+    return v;
+  }
+
+  function metaLine(r, s) {
+    var bits = [];
+    if ((s.flyerImages || []).length) bits.push('<b>' + esc(r.title || 'Untitled Event') + '</b>');
+    var line = savedLine(r);
+    if (line) bits.push(esc(line));
+    return bits.length ? '<div class="ev-meta">' + bits.join(' · ') + '</div>' : '';
+  }
+
+  /* Same markup as buildPreviewHero() in the builder, minus the dots' tap action. */
+  function hero(r, s) {
+    var imgs = s.flyerImages || [];
+    if (imgs.length) {
+      var slides = imgs.map(function (src) {
+        return '<div class="preview-hero-slide"><img src="' + esc(src) + '" alt=""></div>';
+      }).join('');
+      var dots = imgs.length > 1
+        ? '<div class="preview-hero-dots" aria-hidden="true">' + imgs.map(function (_, i) {
+            return '<span class="ev-dot' + (i === 0 ? ' on' : '') + '"></span>';
+          }).join('') + '</div>'
+        : '';
+      return '<div class="preview-hero-track" id="heroTrack">' + slides + '</div>' + dots + metaLine(r, s);
+    }
+    return '<div class="preview-hero-ph">' +
+        '<div class="cat">' + esc(s.eventType || 'Event') + '</div>' +
+        '<h1>' + esc(r.title || 'Untitled Event') + '</h1>' +
+        (s.description ? '<div class="sub">' + esc(s.description) + '</div>' : '') +
+      '</div>' + metaLine(r, s);
+  }
+
+  function kv(k, v) {
+    return '<div class="preview-kv"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>';
+  }
+  function itemLine(m) {
+    return kv(esc(m.name) + ' × ' + esc(m.qty), money((Number(m.price) || 0) * (Number(m.qty) || 0)));
+  }
+
+  /* Same card order as buildPreviewCards(); the privacy switches saved with the
+     event decide which cards exist at all. */
+  function cards(r, s) {
+    var p = s.privacy || {};
+    var showAddress = p.showAddress !== false;
+    var showSuppliers = p.showSuppliers !== false;
+    var showGuests = p.showGuests === true;
+    var showRsvp = p.showRsvp !== false;
+    var showBudget = p.showBudget === true;
+    var body = '<div class="preview-body">';
+
+    if (s.venue) {
+      var where = s.venue.city + (showAddress && s.venue.area ? ' · ' + s.venue.area : '');
+      body += '<div class="preview-card">' +
+        '<h3>Venue</h3>' +
+        kv('Name', esc(s.venue.name)) +
+        kv('Location', esc(where)) +
+        (s.venue.spaces && s.venue.spaces.length ? kv('Spaces', esc(s.venue.spaces.join(', '))) : '') +
+        kv('Capacity', 'Up to ' + esc(s.venue.capacity || '—')) +
+        '</div>';
+    }
+
+    var days = s.days || [];
+    if (days.length) {
+      body += '<div class="preview-card">' +
+        '<h3>Date &amp; Time</h3>' +
+        days.map(function (d, i) {
+          return kv(days.length > 1 ? 'Day ' + (i + 1) : 'When', esc(when(d) || '—'));
+        }).join('') +
+        days.map(function (d, i) {
+          var t = (d.startTime || '') + (d.endTime ? ' → ' + d.endTime : '');
+          return t ? kv('Timeline — Day ' + (i + 1), esc(t)) : '';
+        }).join('') +
+        '</div>';
+    }
+
+    var dress = s.dress || [];
+    if (s.dresscode || dress.length) {
+      var dressBody = s.dresscode
+        ? '<div style="font-size:13px;line-height:1.55">' + esc(s.dresscode) + '</div>'
+        : '<div class="preview-tags">' + dress.map(function (c) {
+            return '<span class="preview-tag">' + esc(c.name) + '</span>';
+          }).join('') + '</div>';
+      body += '<div class="preview-card"><h3>Dress Code</h3>' + dressBody + '</div>';
+    }
+
+    var food = s.food || [], drinks = s.beverages || [];
+    if (food.length || drinks.length) {
+      body += '<div class="preview-card"><h3>Menu</h3>';
+      if (food.length) body += '<div class="preview-sub">Food</div>' + food.map(itemLine).join('');
+      if (drinks.length) body += '<div class="preview-sub gap">Beverages</div>' + drinks.map(itemLine).join('');
+      body += '</div>';
+    }
+
+    if (showSuppliers && (s.suppliers || []).length) {
+      body += '<div class="preview-card">' +
+        '<h3>Suppliers · ' + s.suppliers.length + '</h3>' +
+        s.suppliers.map(function (l) {
+          var note = esc(l.bucket) + ((l.custom || []).length ? ' · ' + esc(l.custom.join(' · ')) : '');
+          return kv(esc(l.name) + '<br><em class="kv-note">' + note + '</em>', money(l.cost));
+        }).join('') +
+        '</div>';
+    }
+
+    if ((s.contacts || []).length) {
+      body += '<div class="preview-card"><h3>Contact</h3><div class="preview-social">' +
+        s.contacts.map(function (c) {
+          return '<a class="preview-social-item" href="' + esc(contactHref(c.type, c.value)) +
+            '" target="_blank" rel="noopener">' + esc(c.type) + ': ' + esc(c.value) + '</a>';
+        }).join('') +
+        '</div></div>';
+    }
+
+    if ((s.tickets || []).length) {
+      body += '<div class="preview-card"><h3>Tickets</h3>' +
+        s.tickets.map(function (t) { return kv(esc(t.url), esc(t.notes)); }).join('') +
+        '</div>';
+    }
+
+    if (showRsvp && (s.rsvp || []).length) {
+      body += '<div class="preview-card"><h3>RSVP</h3>' +
+        s.rsvp.map(function (x) {
+          var note = x.note ? '<br><em class="kv-note">' + esc(x.note) + '</em>' : '';
+          return kv(esc(x.title) + note,
+            (x.contactType ? esc(x.contactType) + ': ' : '') + esc(x.contactValue));
+        }).join('') +
+        '</div>';
+    }
+
+    if (showGuests && (s.guests || []).length) {
+      var heads = s.guests.reduce(function (n, g) { return n + 1 + (Number(g.plus) || 0); }, 0);
+      body += '<div class="preview-card">' +
+        '<h3>Guest List · ' + heads + '</h3>' +
+        s.guests.map(function (g) {
+          return kv(esc(g.name || 'Guest') + (g.role ? ' (' + esc(g.role) + ')' : ''),
+            g.plus ? '+' + esc(g.plus) : '');
+        }).join('') +
+        '</div>';
+    }
+
+    if (showBudget && s.budget) {
+      body += '<div class="preview-card">' +
+        '<h3>Estimated Budget</h3>' +
+        kv('Venue', money(s.budget.venue)) +
+        kv('Food', money(s.budget.food)) +
+        kv('Beverages', money(s.budget.beverages)) +
+        kv('Suppliers', money(s.budget.suppliers)) +
+        '<div class="preview-kv total"><span class="k">Total</span><span class="v">' +
+          money(s.budget.total) + '</span></div>' +
+        '</div>';
+    }
+
+    return body + '</div>';
+  }
+
+  function shareUrl(r) {
+    var id = (r && r.id) || wantId;
+    return location.origin + location.pathname + '?id=' + encodeURIComponent(id || '');
+  }
+  function shareText(r) {
+    var s = r.snapshot || {};
+    var msg = '*' + (r.title || 'Untitled Event') + '*\n';
+    if (s.eventType) msg += 'Type: ' + s.eventType + '\n';
+    if (s.venue) msg += 'Venue: ' + s.venue.name + (s.venue.city ? ' (' + s.venue.city + ')' : '') + '\n';
+    var first = (s.days || [])[0];
+    if (first && when(first)) msg += 'When: ' + when(first) + '\n';
+    if (s.description) msg += '\n' + s.description + '\n';
+    return msg;
+  }
+  /* Web Share API where the browser has it, wa.me everywhere else. */
+  function share() {
+    var r = find();
+    if (!r) return;
+    var url = shareUrl(r);
+    var text = shareText(r) + '\n' + url;
+    if (navigator.share) {
+      navigator.share({ title: r.title || 'EatOuts event', text: text, url: url })
+        .catch(function () { });
+      return;
+    }
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+  }
+
+  function heroSwipe() {
+    var track = document.getElementById('heroTrack');
+    if (!track) return;
+    track.addEventListener('scroll', function () {
+      var w = track.clientWidth;
+      if (!w) return;
+      var idx = Math.round(track.scrollLeft / w);
+      var dots = mount.querySelectorAll('.ev-dot');
+      for (var i = 0; i < dots.length; i++) dots[i].classList.toggle('on', i === idx);
+    }, { passive: true });
+  }
+
+  function empty() {
+    var msg = wantId
+      ? 'This event is not on this device.<br>Saved events live on the phone that created them.'
+      : 'No event selected.<br>Pick <b>Save Event</b> in the planner and open it from there.';
+    mount.innerHTML = '<div class="empty">' + msg + '</div>' +
+      '<div class="btn-holder"><a class="btn ghost" href="eatout_event_builder.html">Open the event planner</a></div>';
+  }
+
+  function render() {
+    var r = find();
+    var s = r && r.snapshot;
+    if (!s) { empty(); return; }
+    mount.innerHTML = '<div class="preview-page">' + hero(r, s) + cards(r, s) +
+      '<div class="ev-foot">' +
+        '<button class="btn wa-solid" type="button" data-act="share">Share this event</button>' +
+      '</div></div>';
+    heroSwipe();
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('[data-act]') : null;
+    if (!t) return;
+    if (t.getAttribute('data-act') === 'share') { e.preventDefault(); share(); }
+  });
+
+  render();
+  if (S && S.onChange) S.onChange(render);
+  /* another page or tab saved/edited an event - re-read and repaint */
+  window.addEventListener('storage', function () { if (S && S.reloadLocal) S.reloadLocal(); render(); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) return;
+    if (S && S.reloadLocal) S.reloadLocal();
+    render();
+  });
+})();
+</script>
+<script src="js/eatouts-back-history.js"></script>
+</body>
+</html>

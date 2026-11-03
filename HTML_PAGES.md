@@ -288,6 +288,7 @@ onboarding screens use the centred `.login` card with a platform logo header.
 | `eatouts-favourites.html` / `eatouts-orders.html` / `eatouts-profile.html` / `eatouts-addresses.html` | customer | Account surfaces |
 | `Orders-List.html` | customer | Saved orders, grouped by place (90px thumb on the right); header counter (T06) |
 | `EatOuts-Region.html` | customer | Region selector - five regions from `js/eatouts-regions.js`, search row, "coming soon" card for non-BW (T22) |
+| `Created_Event.html` | customer | View-only saved event - the builder's preview page rendered from the record snapshot (flyer hero, venue, dates, dress code, menu, suppliers, contacts, tickets, RSVP, guests, budget), no edit affordances; Web Share / WhatsApp (T13) |
 
 ### Spec workspaces (recovered `*1` pages)
 
