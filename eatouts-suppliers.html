@@ -130,11 +130,18 @@ img{display:block;max-width:100%}
   background:none;border:0;text-align:center}
 .pick-item:active{background:#f5f0e4}
 .pick-item.sel{background:#1a1a1a;color:#fff}
+.pick-search{width:100%;padding:11px 12px;background:#faf8f2;border:1px solid var(--border);border-radius:11px;
+  font:inherit;font-weight:700;margin-bottom:8px}
+.field-btn{width:100%;padding:11px 12px;background:#faf8f2;border:1px solid var(--border);border-radius:12px;
+  font:inherit;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;text-align:left}
+.field-btn .v{font-weight:900;color:#1a1a1a}
+.field-btn .v.empty{color:#c3b9a4}
+.field-btn .cv{font-size:16px;font-weight:900;color:#b5a887}
 .counter{float:right;font-size:10px;color:#a89a7e;font-weight:400}
 
 /* ---------- CHIPS ---------- */
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;background:#faf8f2;border:1px solid var(--border);color:#5c5547;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.chip{font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;background:#faf8f2;border:1px solid var(--border);color:#5c5547;cursor:pointer;transition:background .15s,color .15s,border-color .15s;text-align:center}
 .chip:active{background:#f4efe4}
 .chip.on{background:#0d0d0d;border-color:#0d0d0d;color:#fff}
 
@@ -211,6 +218,8 @@ img{display:block;max-width:100%}
 .gal-cell img{width:100%;height:100%;object-fit:cover;display:block}
 .gal-cell .rm{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.66);color:#fff;font-size:14px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
 .gal-cell .lbl{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.72));color:#fff;font-size:9.5px;font-weight:700;padding:14px 6px 5px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gal-strip{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;margin-bottom:12px;padding-bottom:2px}
+.gal-strip .gal-cell{flex:0 0 46%;scroll-snap-align:start}
 .gal-vid{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#0a0a0a;border:1px solid var(--border);margin-bottom:8px}
 .gal-vid video{width:100%;height:100%;object-fit:cover;display:block}
 .gal-vid .rm{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.66);color:#fff;font-size:14px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;z-index:2}
@@ -299,6 +308,8 @@ img{display:block;max-width:100%}
 <script src="assets/data/supplier_catalog.js"></script>
 <script src="assets/data/event_supplier_demo_catalogue.js"></script>
 <script src="js/eatouts-slug.js"></script>
+<script src="botswana_locations.js"></script>
+<script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-supplier-directory.js"></script>
 <script src="js/eatouts-image-compressor.js"></script>
 <script src="js/eatouts-upload.js"></script>
@@ -521,8 +532,8 @@ img{display:block;max-width:100%}
 
       /* step 5 — contact & availability */
       contact: { whatsapp: '', phone: '', email: '', preferred: 'whatsapp' },
-      location: { district: '', districtName: '', town: '', area: '', travelRadiusKm: 50, servesNationwide: false },
-      availability: { days: [], peakSeason: '', leadTimeDays: 7, notes: '' },
+      location: { district: '', districtName: '', town: '', travelRadiusKm: 50, servesNationwide: false },
+      availability: { days: [], leadTimeDays: 7, notes: '' },
 
       /* step 6 — trust */
       trust: { yearsActive: null, insured: false, licensed: false, badges: [] },
@@ -1015,10 +1026,10 @@ img{display:block;max-width:100%}
     h += '<div class="section-title">Photos</div>';
     h += '<div class="hint" style="margin-bottom:10px">Add 4–6 images: your setup, your work in action, a recent event.</div>';
     if (p.gallery.images.length) {
-      h += '<div class="gal-grid">';
+      h += '<div class="gal-strip">';
       p.gallery.images.forEach(function(im, i){
         h += '<div class="gal-cell">' +
-          '<img src="' + esc(im.url) + '" alt="">' +
+          '<img src="' + esc(im.url) + '" alt="" data-act="viewGalleryPhoto" data-i="' + i + '">' +
           (im.caption ? '<div class="lbl">' + esc(im.caption) + '</div>' : '') +
           '<button class="rm" data-act="removeImage" data-i="' + i + '" aria-label="Remove">×</button>' +
         '</div>';
@@ -1027,7 +1038,7 @@ img{display:block;max-width:100%}
     } else {
       h += '<div class="empty" style="margin-bottom:12px">No photos yet.</div>';
     }
-    h += '<button class="btn ghost full" data-act="addImage">+ Add image URL</button>';
+    h += '<button class="btn ghost full" data-act="addGalleryPhoto">+ Add a photo from this device</button>';
 
     h += '<hr class="divider">';
     h += '<div class="section-title">Videos</div>';
@@ -1057,8 +1068,12 @@ img{display:block;max-width:100%}
 
     h += '<hr class="divider">';
     h += '<div class="section-title">Location</div>';
-    h += '<div class="field"><label>Town / city *</label><input data-model="location.town" value="' + esc(l.town) + '" placeholder="Gaborone"><div class="hint">Where you\'re based. Not necessarily where you work — set the travel radius below.</div></div>';
-    h += '<div class="field"><label>Neighbourhood / area</label><input data-model="location.area" value="' + esc(l.area) + '" placeholder="Optional"></div>';
+    h += '<div class="field"><label>Town / city *</label>' +
+      '<button class="field-btn" data-act="pickTown">' +
+        '<span class="v' + (l.town ? '' : ' empty') + '">' + esc(l.town || 'Select your town') + '</span>' +
+        '<span class="cv">›</span>' +
+      '</button>' +
+      '<div class="hint">Where you\'re based. Not necessarily where you work — set the travel radius below.</div></div>';
     h += '<div class="field"><label>Travel radius (km)</label><input data-model="location.travelRadiusKm" type="number" min="0" max="1500" value="' + (l.travelRadiusKm == null ? 50 : l.travelRadiusKm) + '"></div>';
     h += '<label class="sw"><input type="checkbox" data-model="location.servesNationwide"' + (l.servesNationwide ? ' checked' : '') + '><span class="track"></span><span class="lbl">Serve nationwide<em>You travel anywhere in Botswana</em></span></label>';
 
@@ -1071,7 +1086,6 @@ img{display:block;max-width:100%}
       }).join('') +
     '</div></div>';
     h += '<div class="field"><label>Lead time required (days)</label><input data-model="availability.leadTimeDays" type="number" min="0" max="180" value="' + (a.leadTimeDays == null ? 7 : a.leadTimeDays) + '"><div class="hint">Minimum notice you need for a booking.</div></div>';
-    h += '<div class="field"><label>Peak season</label><input data-model="availability.peakSeason" value="' + esc(a.peakSeason) + '" placeholder="e.g. Oct–Dec, wedding season"></div>';
     h += '<div class="field"><label>Notes</label><textarea data-model="availability.notes" rows="3" placeholder="Anything a venue should know about your availability.">' + esc(a.notes) + '</textarea></div>';
 
     h += '<hr class="divider">';
@@ -1553,7 +1567,12 @@ img{display:block;max-width:100%}
       markDirty(); render();
       return;
     }
-    if (act === 'addImage') { editImage(-1); return; }
+    if (act === 'addGalleryPhoto') { pickGalleryImage(); return; }
+    if (act === 'viewGalleryPhoto') {
+      viewPhoto((state.profile.gallery.images[parseInt(t.getAttribute('data-i'),10)] || {}).url);
+      return;
+    }
+    if (act === 'pickTown') { pickTown(); return; }
     if (act === 'removeImage') {
       state.profile.gallery.images.splice(parseInt(t.getAttribute('data-i'),10), 1);
       markDirty(); render();
@@ -1776,21 +1795,38 @@ img{display:block;max-width:100%}
       }, i >= 0 ? 'Save' : 'Add');
   }
 
-  function editImage(i){
+  function pickGalleryImage(){
+    if (!window.EatoutsUpload || typeof window.EatoutsUpload.pickImage !== 'function') {
+      toast('Image picking is not available in this browser');
+      return;
+    }
+    window.EatoutsUpload.pickImage(function(url){
+      if (!url) return;
+      state.profile.gallery.images.push({ id: uid('img'), url: url, caption: '' });
+      markDirty();
+      render();
+    }, function(err){
+      toast((err && err.message) ? err.message : 'That image could not be used');
+    });
+  }
+
+  function pickTown(){
     var p = state.profile;
-    var im = i >= 0 ? p.gallery.images[i] : { url:'', caption:'' };
-    openSheet(i >= 0 ? 'Edit image' : 'Add image',
-      '<div class="field"><label>Image URL</label><input id="__imUrl" value="' + esc(im.url) + '" placeholder="https://… or assets/…"></div>' +
-      '<div class="field"><label>Caption</label><input id="__imCap" value="' + esc(im.caption || '') + '" placeholder="Optional"></div>' +
-      '<div class="hint">Paste the URL of an image you\'ve hosted somewhere. Direct file uploads come in a later version.</div>',
-      function(scrim){
-        var url = scrim.querySelector('#__imUrl').value.trim();
-        if (!url) { toast('Add an image URL'); return; }
-        var obj = { id: uid('img'), url: url, caption: scrim.querySelector('#__imCap').value.trim() };
-        if (i >= 0) p.gallery.images[i] = obj; else p.gallery.images.push(obj);
-        scrim.remove();
+    var towns = (window.EatoutsLocations && typeof EatoutsLocations.allTowns === 'function')
+      ? EatoutsLocations.allTowns() : [];
+    if (!towns.length) { toast('The town list could not be loaded'); return; }
+    openPickList('Select town / city',
+      towns.map(function(t){ return { v: t.value, label: t.label }; }),
+      p.location.town,
+      function(v){
+        var hit = null;
+        for (var i = 0; i < towns.length; i++) if (towns[i].value === v) { hit = towns[i]; break; }
+        if (!hit) return;
+        p.location.town = hit.value;
+        p.location.district = hit.districtCode;
+        p.location.districtName = hit.districtName;
         markDirty(); render();
-      }, i >= 0 ? 'Save' : 'Add');
+      }, { search: true });
   }
 
   function editVideo(i){
@@ -1815,16 +1851,27 @@ img{display:block;max-width:100%}
      MODAL SYSTEM
      ============================================================ */
   /* Floating scroll-list popup used by the Y / M / D columns. */
-  function openPickList(title, items, selected, onSelect){
+  function openPickList(title, items, selected, onSelect, opts){
     var h = '<div class="pick-list">';
+    if (opts && opts.search) h += '<input class="pick-search" id="__pickSearch" placeholder="Search…" autocomplete="off">';
+    h += '<div class="pick-items">';
     items.forEach(function(it){
       h += '<button class="pick-item' + (it.v === selected ? ' sel' : '') + '" data-v="' + esc(it.v) + '">' +
         esc(it.label) + '</button>';
     });
-    h += '</div>';
+    h += '</div></div>';
     var scrim = openSheet(title, h, null, null);
     var list = scrim.querySelector('.pick-list');
     if (!list) return;
+    var box = scrim.querySelector('#__pickSearch');
+    if (box) {
+      box.addEventListener('input', function(){
+        var q = box.value.trim().toLowerCase();
+        Array.prototype.forEach.call(scrim.querySelectorAll('.pick-item'), function(b){
+          b.style.display = (!q || b.textContent.toLowerCase().indexOf(q) > -1) ? '' : 'none';
+        });
+      });
+    }
     list.addEventListener('click', function(ev){
       var b = ev.target.closest('.pick-item');
       if (!b) return;

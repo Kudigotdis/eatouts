@@ -54,6 +54,7 @@ const SUITES = [
   'supplier-activate.js',
   'supplier-identity.js',
   'supplier-pricing.js',
+  'supplier-gallery-contact.js',
   'appshell.js',
   'html-catalog.js',
   'field.js',

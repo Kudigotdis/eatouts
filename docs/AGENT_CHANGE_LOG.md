@@ -14,6 +14,23 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+---
+### [2026-11-03 16:10:00] - [Agent: cline] - [Status: IN_PROGRESS]
+- Task: T18 steps 5 + 7 — device-only gallery (swipe strip, tap to enlarge) and the step-6 contact rework (Botswana town picker, area/peak-season removed, equal-width chips)
+- Files changed:
+  - `eatouts-suppliers.html`: `+ Add image URL` button and `editImage()` sheet deleted; new `pickGalleryImage()` → `EatoutsUpload.pickImage()`; gallery renders as `.gal-strip` (scroll-snap, 46% cells) with `viewGalleryPhoto` → `viewPhoto()`; town input → `.field-btn` + `pickTown()` using `EatoutsLocations.allTowns()`; `openPickList()` gained optional `opts.search`; `location.area` + `availability.peakSeason` removed from renderer and defaults; `.chips` → 3-col grid with centred `.chip`
+  - `tests/supplier-gallery-contact.js` (NEW, 36 checks): no URL input left, picker-driven add, strip + snap CSS, tap-to-enlarge, remove, town popup fed by `botswana_locations.js` (486 towns) with working search, town+district write-back, area/peak-season gone, chips grid, draft round-trip
+  - `tests/run-all.js`: registers the new suite after `supplier-pricing.js`
+  - `PLATFORM UPDATE TASKS.md`: T18 marked COMPLETE; steps 5 and 7 closed with their evidence; stale file pointers fixed
+- Commit: PENDING
+- Push: PENDING
+- Notes:
+  - Search is opt-in (`{search:true}`) rather than automatic, so the Y/M/D popups on step 1 that share `openPickList()` are untouched — a 486-item list needs a filter, a 31-item day list does not.
+  - `location.area` and `availability.peakSeason` are dropped from the defaults, not migrated: nothing else in the repo reads either key, and no saved profile is rewritten.
+  - Gallery captions still render but are no longer editable — the brief asked for add/remove/swipe only, and the caption input only existed inside the deleted URL sheet.
+  - Not verified on hardware: popup height on short phones and the swipe feel need a real-device pass (jsdom has no layout engine).
+- Errors: none
+
 ### [2026-11-03 21:55:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: T18 step 3 (final half) — account-only listing + Step 1 prefill, plus a permanent identity test
 - Files changed:
