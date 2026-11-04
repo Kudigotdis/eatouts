@@ -16,6 +16,21 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 ---
+### [2026-11-04 23:33:50] - [Agent: cline] - [Status: COMMITTED]
+- Task: commit the previously-untracked flag asset sets so the header region button renders on a fresh clone (user approved with "push them")
+- Files changed:
+  - `assets/flags-square-rounded/` (NEW, 262 SVGs, ≈382.8 KB): every flag file, all `-text`-free plain SVG, LF endings
+  - `assets/flags-circlular/` (NEW, 262 SVGs, ≈394.3 KB): the typo'd circular set, tracked as-is — no rename, no deletion, since the folder name is not referenced by any code path
+- Commit: `2a4a9a6`
+- Push: PENDING
+- Verified: `git status --short` showed exactly 524 additions and nothing else before commit · `Test-Path` confirmed all 8 registry flags (`botswana-bw`, `south-africa-za`, `zimbabwe-zw`, `malawi-mw`, `kenya-ke`, `nigeria-ng`, `ghana-gh`, `mauritius-mu`) resolve inside `assets/flags-square-rounded/` · `git check-ignore` returned "NOT ignored" for both folders · sample SVG inspected: 636 bytes, 0 CRLF pairs, so `core.autocrlf=true` normalizes to an identical blob
+- Notes:
+  - Closes the open item flagged in the `21:24:56` entry — `search_screen.html:626` builds `assets/flags-square-rounded/<flag>.svg` for `#regionBtn`, and `tests/region-selector.js` asserts the file exists, so the folder had to be tracked.
+  - No code, test, HTML or CSS file was touched; this is an assets-only diff.
+  - Not verified: rendering of the 262 flags in a browser (jsdom-based tests do not decode SVG) — spot-checked only that the 8 registry files exist.
+- Errors: none
+
+---
 ### [2026-11-04 21:24:56] - [Agent: cline] - [Status: IN_PROGRESS]
 - Task: T22 follow-up + search UX — region flag button, result-row accordion cards, photo-preview lightbox on search_screen.html; house dark nav bar + correctly sized brand mark on EatOuts-Region.html; registry grown to 8 regions
 - Files changed:
