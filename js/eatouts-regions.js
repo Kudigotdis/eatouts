@@ -1,8 +1,11 @@
 /* EatOuts region registry (T22).
  *
  * The single source of truth for which country the app is running in.
- * Botswana (BW) is the only active region today; ZA/ZW/MW/KE are listed so
- * the selector can show them, but they stay inactive until their data lands.
+ * Botswana (BW) is the only active region today; ZA/ZW/MW/KE/NG/GH/MU are
+ * listed so the selector can show them, but they stay inactive until their
+ * data lands. `flag` is the base name of the square flag in
+ * assets/flags-square-rounded/<flag>.svg (the selector list keeps using the
+ * 2-letter assets/flags/<code>.png pair).
  *
  * Nothing here activates a region on its own: setActiveRegion() refuses any
  * region not flagged active, and getActiveRegion() falls back to BW if the
@@ -28,11 +31,14 @@
 
   var REGIONS = [
     { code:"BW", name:"Botswana",     currency:"BWP", active:true,  locale:"en-BW",
-      locations:"botswana_locations.js", whatsappChannel:"" },
-    { code:"ZA", name:"South Africa", currency:"ZAR", active:false },
-    { code:"ZW", name:"Zimbabwe",     currency:"USD", active:false },
-    { code:"MW", name:"Malawi",       currency:"MWK", active:false },
-    { code:"KE", name:"Kenya",        currency:"KES", active:false }
+      locations:"botswana_locations.js", whatsappChannel:"", flag:"botswana-bw" },
+    { code:"ZA", name:"South Africa", currency:"ZAR", active:false, flag:"south-africa-za" },
+    { code:"ZW", name:"Zimbabwe",     currency:"USD", active:false, flag:"zimbabwe-zw" },
+    { code:"MW", name:"Malawi",       currency:"MWK", active:false, flag:"malawi-mw" },
+    { code:"KE", name:"Kenya",        currency:"KES", active:false, flag:"kenya-ke" },
+    { code:"NG", name:"Nigeria",      currency:"NGN", active:false, flag:"nigeria-ng" },
+    { code:"GH", name:"Ghana",        currency:"GHS", active:false, flag:"ghana-gh" },
+    { code:"MU", name:"Mauritius",    currency:"MUR", active:false, flag:"mauritius-mu" }
   ];
   window.EATOUTS_REGIONS = REGIONS;
 
@@ -77,7 +83,8 @@
   /* The letter a page prints, not the ISO code: Botswana pages have always
      written "P", and a currency with no mapping falls back to its own code so
      nothing silently prints the wrong symbol. */
-  var SYMBOLS = { BWP:"P", ZAR:"R", USD:"$", MWK:"MK", KES:"KSh" };
+  var SYMBOLS = { BWP:"P", ZAR:"R", USD:"$", MWK:"MK", KES:"KSh",
+                  NGN:"\u20a6", GHS:"\u20b5", MUR:"\u20a8" };
 
   function symbol(code){
     var cur = String(code || currency()).toUpperCase();

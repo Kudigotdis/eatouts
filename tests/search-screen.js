@@ -17,7 +17,12 @@
  *   - "zors" / "zorz" resolve to one and the same directory row (alias fold)
  *   - "ocean basket" / "bukhara" still return only their directory rows
  *   - the row carries Gaborone / Remmogo Crossing for the filters
- *   - tapping it opens its in-app menu (index.html#<slug>/menu)
+ *   - the row is an accordion: a tap opens its panel (it does not navigate),
+ *     the panel's primary action opens the in-app menu, tap-again closes it,
+ *     one card is open at a time and the rest dim
+ *   - the 90px thumb enlarges in the shared photo preview (X, outside tap,
+ *     Escape) and a letter tile does not
+ *   - the header region button shows the active region's square flag
  *   - no runtime errors
  *
  * CommonJS on purpose — tests/package.json pins this folder to CommonJS.
@@ -135,20 +140,110 @@ setTimeout(() => {
     idsFor('bukhara').every(id => id.indexOf('venue-') !== 0), idsFor('bukhara').join(' | '));
   check('"bukhara" is still exactly one row', idsFor('bukhara').length === 1, idsFor('bukhara').length);
 
-  /* ---------- D: tap opens the venue's in-app menu ---------- */
+  /* ---------- D: the row opens its panel, the panel opens the venue ---------- */
   let navUrl = null;
   doc.addEventListener('eatouts:about-nav', e => { navUrl = e.detail && e.detail.url; });
+
   rows = search('zors');
+  const card = rows[0].closest('.ritem');
+  check('the row sits in a .ritem card', !!card);
+  check('the panel starts closed',
+    !card.classList.contains('open') && rows[0].getAttribute('aria-expanded') === 'false');
+
   click(rows[0]);
-  check('tapping Zorz opens index.html#zorz-luxury-chisanyama/menu',
+  check('tapping the row opens its panel, it does not navigate',
+    navUrl === null && card.classList.contains('open'), navUrl);
+  check('the open row reports aria-expanded=true',
+    rows[0].getAttribute('aria-expanded') === 'true');
+  check('the list is dimmed around the open card',
+    doc.getElementById('results').classList.contains('has-open'));
+
+  const primOpt = card.querySelector('.ropt[data-act="openResult"]');
+  check('a restaurant panel offers "View menu"', !!primOpt && /View menu/.test(primOpt.textContent),
+    primOpt && primOpt.textContent);
+  check('a restaurant panel offers "About this venue"',
+    /About this venue/.test((card.querySelector('.ropt[data-act="openAbout"]') || {}).textContent || ''));
+
+  click(primOpt);
+  check('the panel action opens index.html#zorz-luxury-chisanyama/menu',
     navUrl === 'index.html#zorz-luxury-chisanyama/menu', navUrl);
+
+  /* tapping the same header again closes the panel and un-dims the list */
+  navUrl = null;
+  click(rows[0]);
+  check('tapping the open row again closes it',
+    !card.classList.contains('open') && !doc.getElementById('results').classList.contains('has-open'));
 
   /* a normal restaurant still keeps the in-app menu route */
   navUrl = null;
   rows = search('kfc');
   click(rows[0]);
+  click(rows[0].closest('.ritem').querySelector('.ropt[data-act="openResult"]'));
   check('a directory restaurant still opens index.html#<slug>/menu',
     /^index\.html#.+\/menu$/.test(String(navUrl)), navUrl);
+
+  /* ---------- E: one card open at a time ---------- */
+  rows = search('kfc');
+  check('"kfc" returns more than one row to compare', rows.length >= 2, rows.length);
+  click(rows[0]);
+  click(rows[1]);
+  const openCards = doc.querySelectorAll('#results .ritem.open');
+  check('opening a second row closes the first',
+    openCards.length === 1 && openCards[0].contains(rows[1]), String(openCards.length));
+  doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  check('Escape closes the open panel',
+    !doc.getElementById('results').classList.contains('has-open'));
+
+  /* ---------- F: the 90px thumb enlarges ---------- */
+  search('kfc');
+  const logoThumb = doc.querySelector('#results .result-thumb[data-src]');
+  check('a row with a real image gets the enlarge affordance', !!logoThumb,
+    doc.querySelectorAll('#results .result-thumb').length);
+  const thumbCs = window.getComputedStyle(logoThumb);
+  check('the thumb is a 90px tile', thumbCs.width === '90px' && thumbCs.height === '90px',
+    thumbCs.width + ' x ' + thumbCs.height);
+
+  click(logoThumb);
+  const layer = doc.querySelector('#previewHost .preview-layer');
+  check('tapping the thumb opens the photo preview', !!layer);
+  check('the preview shows the row image',
+    !!layer && layer.querySelector('.preview-img').getAttribute('src') === logoThumb.getAttribute('data-src'));
+  check('the thumb tap does not also open the row panel',
+    !doc.getElementById('results').classList.contains('has-open'));
+
+  click(layer.querySelector('.preview-close'));
+  check('the X closes the preview', !doc.querySelector('#previewHost .preview-layer'));
+  click(logoThumb);
+  click(doc.querySelector('#previewHost .preview-layer'));
+  check('an outside tap closes the preview', !doc.querySelector('#previewHost .preview-layer'));
+  click(logoThumb);
+  doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  check('Escape closes the preview', !doc.querySelector('#previewHost .preview-layer'));
+
+  /* a letter tile is not a preview trigger: every previewable thumb wraps a
+     real image, so "no logo" rows can never open an empty preview */
+  const previewThumbs = doc.querySelectorAll('#results .result-thumb[data-src]');
+  check('every preview thumb wraps a real image',
+    previewThumbs.length > 0 &&
+      Array.prototype.every.call(previewThumbs, t => !!t.querySelector('img')),
+    previewThumbs.length);
+
+  /* ---------- G: the header region button ---------- */
+  const pageSrc = fs.readFileSync(path.join(APP_DIR, 'search_screen.html'), 'utf8');
+  check('the search page loads the region registry',
+    /<script src="js\/eatouts-regions\.js"><\/script>/.test(pageSrc));
+  const regionBtn = doc.getElementById('regionBtn');
+  check('the header carries a region button', !!regionBtn);
+  const regionImg = regionBtn && regionBtn.querySelector('img');
+  check('the region button shows the active region square flag',
+    !!regionImg && /assets\/flags-square-rounded\/botswana-bw\.svg$/.test(regionImg.getAttribute('src')),
+    regionImg && regionImg.getAttribute('src'));
+  check('the region flag file exists on disk',
+    fs.existsSync(path.join(APP_DIR, 'assets', 'flags-square-rounded', 'botswana-bw.svg')));
+  navUrl = null;
+  click(regionBtn);
+  check('tapping the region button opens EatOuts-Region.html',
+    navUrl === 'EatOuts-Region.html', navUrl);
 
   /* ---------- E: the town filter knows the overlay venue's town ---------- */
   search('');

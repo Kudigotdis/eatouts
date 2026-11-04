@@ -149,14 +149,14 @@ only reads; it never rewrites this file. It warns on line drift.
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 71 | `search_screen.html` | Full-page search over the customer directory - restaurants, caterers, bakeries, bottle stores, promos and events in one search row. | Search icon in the index.html header; direct URL | `PAGE: Search` | 691 |
+| 71 | `search_screen.html` | Full-page search over the customer directory - restaurants, caterers, bakeries, bottle stores, promos and events in one search row. | Search icon in the index.html header; direct URL | `PAGE: Search` | 861 |
 
 
 ## K. Regions (2026-11)
 
 | # | File | What it is | How you reach it | Page marker | ~Lines |
 |---|------|-----------|------------------|-------------|--------|
-| 72 | `EatOuts-Region.html` | Region selector - the five EatOuts regions with flags, a search row, and a "This region is coming soon." card for anything but Botswana. | Direct URL; the region row on index.html About | `PAGE: Select Region` | 204 |
+| 72 | `EatOuts-Region.html` | Region selector - the eight EatOuts regions with flags, a search row, and a "This region is coming soon." card for anything but Botswana. | Direct URL; the region row on index.html About; the flag button in the search_screen.html header | `PAGE: Select Region` | 216 |
 
 
 ## L. Events (2026-11)

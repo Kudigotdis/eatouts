@@ -33,6 +33,11 @@ img{display:block;max-width:100%}
 .search-wrap input::placeholder{color:#b5a888}
 .clear-btn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#a89a7e;background:none;border:0;cursor:pointer;border-radius:50%;flex:0 0 auto;padding:0;line-height:1}
 .clear-btn:active{background:#f4efe4}
+/* active-region flag button — opens EatOuts-Region.html */
+.region-btn{flex:0 0 auto;width:40px;height:40px;border-radius:11px;overflow:hidden;padding:0;border:1px solid #ece7db;
+  background:#faf8f2;display:flex;align-items:center;justify-content:center}
+.region-btn img{width:100%;height:100%;object-fit:cover;display:block}
+.region-btn:active{background:#f4efe4}
 
 /* ---------- FILTER BAR ---------- */
 #filterBar{flex:0 0 auto;display:flex;gap:8px;padding:10px 12px;background:#ffffff;border-bottom:1px solid #ece7db;overflow-x:auto}
@@ -52,14 +57,35 @@ img{display:block;max-width:100%}
 .nav-btn.on svg{transform:translateY(-1px);filter:drop-shadow(0 0 8px rgba(255,255,255,.35))}
 .nav-btn:active{color:rgba(255,255,255,.75)}
 .result-count{padding:10px 14px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a89a7e;background:rgba(0,0,0,.02);border-bottom:1px solid #ece7db;position:sticky;top:0;z-index:2;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.result{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #f4efe4;background:#ffffff;width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit;border-left:0;border-right:0;border-top:0;-webkit-tap-highlight-color:transparent}
-.result:active{background:#faf8f2}
-.result-thumb{width:56px;height:56px;flex:0 0 auto;border-radius:10px;overflow:hidden;background:#f4efe4;display:flex;align-items:center;justify-content:center;border:1px solid #ece7db}
+/* Each result is a card: the row (.result) plus its action panel, so the panel
+   can live OUTSIDE the row button (interactive content inside a <button> is
+   invalid) and still animate via the shared .acc-wrap grid-rows transition.
+   Same recipe as .ritem/.rrow on the directory pages. */
+.ritem{width:calc(100% - 20px);margin:7px 10px;background:#ffffff;border:1px solid #ece7db;border-radius:7px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px rgba(16,24,40,.06);transition:box-shadow .25s ease,border-color .25s ease,opacity .18s ease;scroll-margin-top:36px}
+.ritem.open{border-color:#dfe3e9;box-shadow:0 2px 4px rgba(16,24,40,.06),0 18px 40px rgba(16,24,40,.10)}
+.ritem.open>.result{background:#ffffff}
+.acc-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1)}
+.acc-wrap>.acc-in{overflow:hidden;min-height:0}
+.ritem.open>.acc-wrap{grid-template-rows:1fr}
+@media (prefers-reduced-motion:reduce){.acc-wrap{transition:none}}
+/* an open card is the only lit row: the rest dim but keep taking taps, so
+   another row (or the same header) switches/closes instead of getting stuck */
+#results.has-open .ritem:not(.open){opacity:.25}
+/* room below the last card while a row is open, so it can pin to the top */
+#results.has-open::after{content:"";display:block;height:calc(100% - 120px)}
+.result{display:flex;align-items:center;gap:13px;padding:13px 14px;background:#ffffff;width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit;border:0;-webkit-tap-highlight-color:transparent}
+.result:active{background:#fafbfc}
+.result-thumb{width:90px;height:90px;flex:0 0 auto;border-radius:12px;overflow:hidden;background:#f4efe4;display:flex;align-items:center;justify-content:center;border:1px solid #ece7db;padding:0}
 .result-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.result-thumb .placeholder{font-size:22px;font-weight:900;color:#a89a7e;line-height:1}
+.result-thumb .placeholder{font-size:34px;font-weight:900;color:#a89a7e;line-height:1}
+.result-thumb[data-src]{cursor:zoom-in}
 .result-info{flex:1;min-width:0}
-.result-name{font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.01em}
-.result-meta{font-size:12px;color:#8e8e8e;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.result-name{font-size:16.5px;font-weight:700;color:#141414;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.2px}
+.result-meta{font-size:14px;color:#8e8e8e;font-weight:500;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.02em}
+/* action panel inside an open card */
+.result-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;background:#efe9db;border-top:1px solid #e2dbc9}
+.ropt{padding:11px 12px;background:#ffffff;border:1px solid #ece7db;border-radius:12px;font-size:12.5px;font-weight:800;color:#3a3324;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.ropt:active{background:#f4efe4}
 
 /* ---------- EMPTY / LOADING ---------- */
 .empty{padding:60px 24px;text-align:center;color:#a89a7e;font-size:14px;line-height:1.5}
@@ -77,12 +103,18 @@ img{display:block;max-width:100%}
 .popup button.on{background:#f2f1ee;color:#1a1a1a;font-weight:900}
 .popup button.on::after{content:"✓";float:right;color:#1a1a1a;font-weight:900}
 
+/* ---------- PHOTO PREVIEW (tap a 90px thumb to enlarge) ---------- */
+.preview-layer{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:10vh 8vw;background:rgba(20,18,12,.6);backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1);animation:fpop .18s ease}
+.preview-layer .preview-img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.55);object-fit:contain}
+.preview-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:19px;line-height:1;padding:0}
+
 .hidden{display:none !important}
 </style>
 </head>
 <body data-page="search_screen">
 <div id="shell">
   <header id="hdr">
+    <button class="region-btn" id="regionBtn" type="button" data-act="openRegion" aria-label="Choose region"></button>
     <div class="search-wrap">
       <input id="searchInput" type="search" placeholder="Search restaurants, promos, events..." autofocus autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Search EatOuts">
       <button class="clear-btn" type="button" data-act="clear" aria-label="Clear search" hidden>&times;</button>
@@ -100,6 +132,9 @@ img{display:block;max-width:100%}
 <!-- Filter popup -->
 <div id="popup-scrim" class="pop-scrim hidden" data-act="closePopup"></div>
 <div id="popup" class="popup hidden" role="listbox"></div>
+
+<!-- Photo preview (tap a result thumb) -->
+<div id="previewHost"></div>
 
 <!-- ============================================================
      DATA SCRIPTS  (same sources as index.html, minus the big
@@ -131,6 +166,7 @@ img{display:block;max-width:100%}
 <script src="js/eatouts-slug.js"></script>
 <script src="js/eatouts-router.js"></script>
 <script src="js/eatouts-analytics.js"></script>
+<script src="js/eatouts-regions.js"></script>
 
 <script>
 (function(){
@@ -172,7 +208,9 @@ img{display:block;max-width:100%}
     areaFilter: 'all',
     popup: null,
     index: [],
-    indexReady: false
+    indexReady: false,
+    resultOpen: null,   /* data-id of the row whose panel is open */
+    preview: null       /* { src, name } while the photo lightbox is up */
   };
 
   /* ============================================================
@@ -453,6 +491,7 @@ img{display:block;max-width:100%}
   function renderResults(){
     var el = document.getElementById('results');
     if (!el) return;
+    el.classList.remove('has-open');
 
     if (!state.indexReady){
       el.innerHTML = '<div class="empty"><div class="empty-title">Loading…</div><p>Building the search index.</p></div>';
@@ -473,20 +512,118 @@ img{display:block;max-width:100%}
     var html = '<div class="result-count">' + items.length + ' result' + (items.length === 1 ? '' : 's') + '</div>';
 
     items.forEach(function(item){
+      var open = state.resultOpen === item.id;
       var initial = (item.name || '?').charAt(0).toUpperCase();
       var thumbInner = item.logo
         ? '<img src="' + esc(item.logo) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=&quot;placeholder&quot;>' + esc(initial) + '</span>\'">'
         : '<span class="placeholder">' + esc(initial) + '</span>';
-      html += '<button class="result" type="button" data-act="openResult" data-id="' + esc(item.id) + '">' +
-        '<div class="result-thumb">' + thumbInner + '</div>' +
-        '<div class="result-info">' +
-          '<div class="result-name">' + esc(item.name) + '</div>' +
-          '<div class="result-meta">' + esc(item.subtitle || '') + '</div>' +
-        '</div>' +
-      '</button>';
+      /* Only rows with a real image get the enlarge affordance - a letter tile
+         has nothing to preview, so it keeps the plain thumb. */
+      var thumb = item.logo
+        ? '<div class="result-thumb" data-act="previewResult" data-src="' + esc(item.logo) + '" data-name="' + esc(item.name) + '">' + thumbInner + '</div>'
+        : '<div class="result-thumb">' + thumbInner + '</div>';
+      html += '<div class="ritem' + (open ? ' open' : '') + '" data-racc="' + esc(item.id) + '">' +
+        '<button class="result" type="button" data-act="toggleResult" data-id="' + esc(item.id) + '"' +
+          ' aria-expanded="' + (open ? 'true' : 'false') + '" aria-controls="racc-' + esc(item.id) + '">' +
+          thumb +
+          '<div class="result-info">' +
+            '<div class="result-name">' + esc(item.name) + '</div>' +
+            '<div class="result-meta">' + esc(item.subtitle || '') + '</div>' +
+          '</div>' +
+        '</button>' +
+        '<div class="acc-wrap"><div class="acc-in" id="racc-' + esc(item.id) + '">' +
+          '<div class="result-opts">' +
+            '<button class="ropt" type="button" data-act="openResult" data-id="' + esc(item.id) + '">' + esc(primaryLabel(item)) + '</button>' +
+            '<button class="ropt" type="button" data-act="openAbout" data-id="' + esc(item.id) + '">About this venue</button>' +
+          '</div>' +
+        '</div></div>' +
+      '</div>';
     });
 
     el.innerHTML = html;
+    syncResultAccordions(false);
+  }
+
+  /* ============================================================
+     RESULT CARD (accordion panel + photo preview)
+     ============================================================ */
+  /* The panel's primary action is type-aware: restaurants open their menu,
+     promos/events open promos, everything else opens its venue page. */
+  function primaryLabel(item){
+    if (item.navKind === 'restaurant' || item.type === 'mobile_kitchen') return 'View menu';
+    if (item.navKind === 'promo' || item.navKind === 'event') return 'View promos';
+    return 'View venue';
+  }
+
+  /* Same in-place .open flip the directory pages use, so .acc-wrap animates
+     the panel shut instead of the list being re-rendered. scrollIntoView is
+     guarded: a non-visual host has no layout to scroll. */
+  function syncResultAccordions(scroll){
+    var el = document.getElementById('results');
+    if (!el) return;
+    var openEl = null;
+    Array.prototype.forEach.call(el.querySelectorAll('[data-racc]'), function(it){
+      var on = state.resultOpen === it.getAttribute('data-racc');
+      if (on) openEl = it;
+      it.classList.toggle('open', on);
+      var row = it.querySelector('.result');
+      if (row) row.setAttribute('aria-expanded', on ? 'true' : 'false');
+    });
+    el.classList.toggle('has-open', !!openEl);
+    if (openEl && scroll && openEl.scrollIntoView){
+      try { openEl.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) {}
+    }
+  }
+
+  function toggleResult(id){
+    state.resultOpen = (state.resultOpen === id) ? null : id;
+    syncResultAccordions(true);
+  }
+
+  function openPreview(src, name){
+    if (!src) return;
+    state.preview = { src: src, name: name || 'Preview' };
+    renderPreviewLayer();
+  }
+  function closePreview(){
+    state.preview = null;
+    renderPreviewLayer();
+  }
+  function renderPreviewLayer(){
+    var host = document.getElementById('previewHost');
+    if (!host) return;
+    var p = state.preview;
+    host.innerHTML = !p ? '' :
+      '<div class="preview-layer" data-act="closePreview" role="dialog" aria-modal="true" aria-label="Photo preview">' +
+        '<img class="preview-img" src="' + esc(p.src) + '" alt="' + esc(p.name) + '">' +
+        '<button class="preview-close" type="button" data-act="closePreview" aria-label="Close preview">&times;</button>' +
+      '</div>';
+  }
+
+  /* "About this venue" - the standalone venue page, the same route the
+     overlay-only venues already use inside openResult(). */
+  function openAbout(id){
+    var item = state.index.filter(function(x){ return x.id === id; })[0];
+    if (!item) return;
+    var slug = item.venueSlug || item.slug || '';
+    if (!slug){ go('index.html#restaurants'); return; }
+    go('venue-about.html?link=' + encodeURIComponent(slug));
+  }
+
+  /* Header region button: the active region's square flag. Falls back to
+     Botswana when the registry is absent, so the header never renders empty. */
+  function currentRegion(){
+    var R = window.EatoutsRegions;
+    return (R && R.getActiveRegion) ? R.getActiveRegion() : null;
+  }
+  function renderRegionButton(){
+    var btn = document.getElementById('regionBtn');
+    if (!btn) return;
+    var r = currentRegion();
+    var flag = (r && r.flag) || 'botswana-bw';
+    btn.setAttribute('data-code', r ? r.code : 'BW');
+    btn.setAttribute('aria-label', 'Region: ' + (r ? r.name : 'Botswana'));
+    btn.innerHTML = '<img src="assets/flags-square-rounded/' + flag + '.svg" alt="' + esc(r ? r.name : 'Botswana') + '">';
   }
 
   /* ============================================================
@@ -621,6 +758,7 @@ img{display:block;max-width:100%}
      ============================================================ */
   function init(){
     initBridge();
+    renderRegionButton();
     loadDirectory().then(function(){
       state.index = buildIndex();
       state.indexReady = true;
@@ -657,11 +795,41 @@ img{display:block;max-width:100%}
     // Popup scrim
     document.getElementById('popup-scrim').addEventListener('click', closePopup);
 
-    // Result taps (event-delegated)
+    // Result taps (event-delegated): the thumb enlarges, the row toggles its
+    // panel, and the panel's own actions open the venue.
     document.getElementById('results').addEventListener('click', function(e){
-      var t = e.target.closest && e.target.closest('[data-act="openResult"]');
-      if (t) openResult(t.getAttribute('data-id'));
+      if (!e.target.closest) return;
+      var thumb = e.target.closest('[data-act="previewResult"]');
+      if (thumb){
+        openPreview(thumb.getAttribute('data-src'), thumb.getAttribute('data-name'));
+        return;
+      }
+      var row = e.target.closest('[data-act="toggleResult"]');
+      if (row){
+        toggleResult(row.getAttribute('data-id'));
+        return;
+      }
+      var act = e.target.closest('[data-act]');
+      if (!act) return;
+      var kind = act.getAttribute('data-act');
+      var id = act.getAttribute('data-id');
+      if (kind === 'openResult') openResult(id);
+      else if (kind === 'openAbout') openAbout(id);
     });
+
+    // Header region button
+    var regionBtn = document.getElementById('regionBtn');
+    if (regionBtn){
+      regionBtn.addEventListener('click', function(){ go('EatOuts-Region.html'); });
+    }
+
+    // Photo preview: the backdrop and the X both carry data-act=closePreview
+    var previewHost = document.getElementById('previewHost');
+    if (previewHost){
+      previewHost.addEventListener('click', function(e){
+        if (e.target.closest && e.target.closest('[data-act="closePreview"]')) closePreview();
+      });
+    }
 
     // Nav buttons
     document.querySelectorAll('#nav .nav-btn').forEach(function(btn){
@@ -674,7 +842,9 @@ img{display:block;max-width:100%}
     // Keyboard
     document.addEventListener('keydown', function(e){
       if (e.key === 'Escape' || e.keyCode === 27){
-        if (state.popup) closePopup();
+        if (state.preview){ closePreview(); return; }
+        if (state.popup){ closePopup(); return; }
+        if (state.resultOpen){ state.resultOpen = null; syncResultAccordions(false); return; }
       }
       if ((e.key === 'Enter') && e.target === input){
         var first = document.querySelector('.result');

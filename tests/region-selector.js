@@ -66,20 +66,28 @@ const brand = doc.querySelector('#hdr button.brand-mark');
 check('header is the standard brand mark',
   !!brand && brand.getAttribute('data-act') === 'backHistory' && brand.getAttribute('aria-label') === 'EatOuts home');
 check('brand mark shows the EatOuts logo', !!brand && /assets\/logo\/EatOuts_Logo\.png/.test(brand.innerHTML));
+const brandCs = w.getComputedStyle(brand);
+check('brand mark is a 34px-tall logo sized by its own aspect ratio',
+  brandCs.height === '34px' && /aspect-ratio:\s*1172\s*\/\s*504/.test(src), brandCs.height);
 const brandLink = doc.querySelector('#hdr a.brand-mark');
 check('brand mark is a button, not a link', !brandLink);
 check('page loads the back-history script', /<script src="js\/eatouts-back-history\.js"><\/script>/.test(src));
-const nav = Array.from(doc.querySelectorAll('.appnav a')).map(el => el.getAttribute('href'));
+const navEl = doc.getElementById('nav');
+const navCs = navEl ? w.getComputedStyle(navEl) : null;
+check('bottom nav is the house dark bar',
+  !!navCs && navCs.backgroundColor === 'rgb(10, 10, 10)' && navCs.display === 'flex',
+  navCs && [navCs.display, navCs.backgroundColor].join(' / '));
+const nav = Array.from(doc.querySelectorAll('#nav .nav-btn')).map(el => el.getAttribute('data-tab'));
 check('bottom nav is the house five', nav.length === 5 && nav.join(',') ===
-  'index.html#promos,index.html#restaurants,index.html#reserve,index.html#gallery,index.html#about', nav.join(','));
+  'promos,restaurants,reserve,gallery,about', nav.join(','));
 
 
 /* ---------- every region renders ---------- */
 const items = () => Array.from(doc.querySelectorAll('#regionList .rs-item'));
 const item = code => doc.querySelector('#regionList .rs-item[data-code="' + code + '"]');
-check('all five registry regions render', items().length === 5, String(items().length));
+check('all eight registry regions render', items().length === 8, String(items().length));
 check('regions render in registry order',
-  items().map(b => b.getAttribute('data-code')).join(',') === 'BW,ZA,ZW,MW,KE',
+  items().map(b => b.getAttribute('data-code')).join(',') === 'BW,ZA,ZW,MW,KE,NG,GH,MU',
   items().map(b => b.getAttribute('data-code')).join(','));
 check('Botswana is the active row',
   !!item('BW') && item('BW').getAttribute('aria-pressed') === 'true' && /Selected/.test(item('BW').textContent));
@@ -89,11 +97,22 @@ check('header echoes the active region code', doc.getElementById('regionCode').t
 
 const flags = items().map(b => b.querySelector('.rs-flag').getAttribute('src'));
 check('flags come from assets/flags/',
-  flags.length === 5 && flags.every(s => /^assets\/flags\/[a-z]{2}\.png$/.test(s)), flags.join(','));
+  flags.length === 8 && flags.every(s => /^assets\/flags\/[a-z]{2}\.png$/.test(s)), flags.join(','));
 const missing = flags.map(s => path.join(APP_DIR, s.replace(/\//g, path.sep))).filter(f => !fs.existsSync(f));
 check('every rendered flag file exists on disk', missing.length === 0, missing.join(', '));
 check('flag alt text is the region name',
   item('KE').querySelector('.rs-flag').getAttribute('alt') === 'Kenya');
+
+/* the registry's `flag` base name feeds the square flag the search header
+   shows (search_screen.html#regionBtn), so every one of them must resolve */
+const sqFlags = w.EatoutsRegions.all().map(r => r.flag);
+check('every region carries a square-flag base name',
+  sqFlags.every(f => /^[a-z]+(-[a-z]+)*$/.test(f)), sqFlags.join(','));
+const sqMissing = sqFlags
+  .map(f => path.join(APP_DIR, 'assets', 'flags-square-rounded', f + '.svg'))
+  .filter(f => !fs.existsSync(f));
+check('every region square flag exists on disk', sqMissing.length === 0,
+  sqMissing.map(f => path.basename(f)).join(', '));
 check('row name uses the 16px body size',
   w.getComputedStyle(item('BW').querySelector('.rs-name')).fontSize === '16px');
 
@@ -108,7 +127,7 @@ type('atlantis');
 check('no-match shows an empty state',
   !items().length && /No region matches/.test(doc.getElementById('regionList').textContent));
 type('');
-check('clearing search restores all five', items().length === 5);
+check('clearing search restores all eight', items().length === 8);
 
 /* ---------- coming-soon card (G3) ---------- */
 const scrim = doc.getElementById('soonScrim');
@@ -160,7 +179,7 @@ check('Botswana stays the selected row',
 
 /* ---------- registry API ---------- */
 const R = w.EatoutsRegions;
-check('registry exposes the five regions', !!R && R.all().length === 5);
+check('registry exposes the eight regions', !!R && R.all().length === 8);
 check('getActiveRegion() defaults to Botswana', R.getActiveRegion().code === 'BW');
 check('isActive is true for BW and false for ZA', R.isActive('BW') === true && R.isActive('ZA') === false);
 check('setActiveRegion refuses an inactive region',
