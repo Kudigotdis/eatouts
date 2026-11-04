@@ -14,6 +14,27 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ```
 
 ---
+
+---
+### [2026-11-04 21:24:56] - [Agent: cline] - [Status: IN_PROGRESS]
+- Task: T22 follow-up + search UX — region flag button, result-row accordion cards, photo-preview lightbox on search_screen.html; house dark nav bar + correctly sized brand mark on EatOuts-Region.html; registry grown to 8 regions
+- Files changed:
+  - `js/eatouts-regions.js`: added NG (NGN ₦), GH (GHS ₵), MU (MUR ₨) as inactive regions and a `flag` base name on all 8 (the square-flag file in `assets/flags-square-rounded/<flag>.svg`); `SYMBOLS` gained the three currencies
+  - `EatOuts-Region.html`: `.brand-mark` is now `height:34px;width:auto;aspect-ratio:1172/504` (≈79.06×34, no more stretched logo); the old `.appnav`/`.nav-x` bar was replaced with the house `#nav` (background `#0a0a0a`, 23px / 1.9-stroke icons, `.nav-btn.on` glow) and 5 `data-tab` buttons that route to `index.html#<tab>`, with `about` lit
+  - `search_screen.html`: new `.region-btn` (40px) in `#hdr` → renders the active region's square flag (`#regionBtn`, `renderRegionButton()`) and opens `EatOuts-Region.html`; each result is now a `.ritem` card = `.result` row + `.acc-wrap`/`.acc-in` panel (panel lives OUTSIDE the `<button>` to avoid invalid interactive nesting) holding two `.ropt` actions; row tap toggles the panel (`toggleResult()` / `syncResultAccordions()`, one open at a time, `aria-expanded`, `#results.has-open` dims the rest, `scroll-margin-top:36px` keeps the sticky count bar off the pinned card); primary action is type-aware (`primaryLabel()`: View menu / View promos / View venue) and routed through the existing `openResult()`, second action is "About this venue" → `openAbout()` → `venue-about.html?link=<slug>`; thumbnails are 90px and carry `data-src`, so tapping one opens the `.preview-layer` lightbox (X, outside tap, Escape) via `openPreview()`/`closePreview()` in `#previewHost`; Escape now unwinds preview → filter popup → open card
+  - `tests/region-selector.js` (51 checks): expects eight regions in registry order, `#nav .nav-btn` `data-tab` list, computed 34px brand mark + dark `#nav` bar, and a guard that every region's `flag` resolves to a real `assets/flags-square-rounded/*.svg`
+  - `tests/search-screen.js` (45 checks): row is a card that toggles instead of navigating, `aria-expanded`, list dimming, one-open-at-a-time, tap-again/Escape close, both panel actions, type-aware label, 90px thumb computed size, preview open/close (X / outside tap / Escape) and "every preview thumb wraps a real image", header region button flag + route
+  - `PAGE_INVENTORY.md`: refreshed the `search_screen.html` (691→861) and `EatOuts-Region.html` (204→216) row counts and the "five regions" description
+- Commit: `e2a3aa4`
+- Push: PENDING
+- Verified: `node tests/search-screen.js` PASSED (45 checks) · `node tests/region-selector.js` PASSED (51 checks) · `npm test` PASSED (74 suites, 0 failed) · `npm run inventory` PASSED (10 checks, 91 warnings)
+- Notes:
+  - `assets/flags-square-rounded/` (262 SVGs) is still UNTRACKED. The header button and the new registry guard depend on it, so it must be committed for the flag to render on a fresh clone — left out here because adding 262 files is a separate, much larger diff than this task. Ask before committing it.
+  - The accordion does not use `position:sticky`, so the open card is scrolled to the top but may scroll away again; the directory pages' pin behaviour was not copied to keep the diff small.
+  - Preview only applies to rows with a real logo (`data-src`); letter tiles stay inert by design.
+- Errors: none
+
+---
 ---
 ### [2026-11-03 16:10:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: T18 steps 5 + 7 — device-only gallery (swipe strip, tap to enlarge) and the step-6 contact rework (Botswana town picker, area/peak-season removed, equal-width chips)
