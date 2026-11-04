@@ -1,8 +1,8 @@
 /* ============================================================
    /<country>/<slug>  public business link router (Cloudflare Pages).
 
-   www.eatouts.online/bw/<businessname>   ->  the business's profile.
-   www.eatouts.online/zw/<businessname>   ->  the same, in Zimbabwe's namespace.
+   www.eatouts.site/bw/<businessname>   ->  the business's profile.
+   www.eatouts.site/zw/<businessname>   ->  the same, in Zimbabwe's namespace.
 
    One implementation for every region. The country comes from the first path
    segment, and resolveLink() only ever answers from that country's namespace.

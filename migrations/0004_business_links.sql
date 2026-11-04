@@ -1,5 +1,5 @@
 -- EatOuts schema v4 (Cloudflare D1 / SQLite)
--- Public business links:  www.eatouts.online/<country>/<slug>
+-- Public business links:  www.eatouts.site/<country>/<slug>
 -- Applied with:  npx wrangler d1 migrations apply eatouts --remote
 --                npx wrangler d1 migrations apply eatouts --local
 --

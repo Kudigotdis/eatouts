@@ -468,7 +468,7 @@
       '<label class="field"><span>Address (optional)</span><input id="p-addr"' + n('addr', v.address) + '></label>' +
       '<label class="field"><span>Description</span><textarea id="p-desc" placeholder="What do you serve? What makes you special?">' + esc(v.description) + '</textarea></label>' +
       '<label class="field"><span>Your EatOuts link</span>' +
-        '<span class="sg-hint" style="margin:0 0 6px">www.eatouts.online/bw/<strong id="p-link-slug">' + esc(slugOf(v)) + '</strong></span>' +
+        '<span class="sg-hint" style="margin:0 0 6px">www.eatouts.site/bw/<strong id="p-link-slug">' + esc(slugOf(v)) + '</strong></span>' +
         '<input id="p-link" value="' + esc(slugOf(v)) + '" placeholder="e.g. kgalekitchen" autocapitalize="none" autocomplete="off" spellcheck="false">' +
         '<span class="sg-hint" id="p-link-status" style="margin:6px 0 0">Letters and numbers only \u2014 no spaces. This is the address you can share.</span>' +
       '</label>' +
@@ -601,7 +601,7 @@
               headers: { 'content-type': 'application/json' },
               body: JSON.stringify({ country: 'bw', type: linkTypeOf(S.type), refId: id, slug: slug, name: (vv0 && vv0.name) || '' })
             }).then(function (r) { return r.json(); }).then(function (d) {
-              if (d && d.ok && d.link) toast('Link saved \u2014 www.eatouts.online/bw/' + d.link.slug);
+              if (d && d.ok && d.link) toast('Link saved \u2014 www.eatouts.site/bw/' + d.link.slug);
               if (d && d.ok) {
                 var venue = F.venueById(id);
                 if (venue) {

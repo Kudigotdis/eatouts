@@ -216,7 +216,7 @@ const ADMIN = { userId: 'usr_admin', type: 'customer', isAdmin: true };
   check('isValid max length', Slug.isValid('a'.repeat(41)) === false && Slug.isValid('a'.repeat(40)) === true);
   check('reason explains short', /at least/.test(Slug.reason('ab')), Slug.reason('ab'));
   check('reason reserved', /reserved/.test(Slug.reason('api')), Slug.reason('api'));
-  check('url builds pretty link', Slug.url('bw', 'tops') === 'www.eatouts.online/bw/tops', Slug.url('bw', 'tops'));
+  check('url builds pretty link', Slug.url('bw', 'tops') === 'www.eatouts.site/bw/tops', Slug.url('bw', 'tops'));
   check('display capitalizes segments', Slug.display('brightstar.bakery') === 'Brightstar.Bakery', Slug.display('brightstar.bakery'));
 
   /* ===================== B. client router ===================== */
@@ -398,7 +398,7 @@ const ADMIN = { userId: 'usr_admin', type: 'customer', isAdmin: true };
   /* ===================== I. edge function /bw/<slug> ===================== */
   const edgeMod = await import(pathToFileURL(path.resolve(__dirname, '..', 'functions', 'bw', '[[path]].js')).href);
   async function edge(pathname, e) {
-    const r = await edgeMod.onRequest({ request: new Request('https://www.eatouts.online' + pathname), env: e || env });
+    const r = await edgeMod.onRequest({ request: new Request('https://www.eatouts.site' + pathname), env: e || env });
     return { status: r.status, location: r.headers.get('location'), body: await r.text() };
   }
   let e1 = await edge('/bw/kfc');
@@ -456,6 +456,20 @@ const ADMIN = { userId: 'usr_admin', type: 'customer', isAdmin: true };
     Object.keys(shipped.byCountry[cc]).every((k) => shipped.byCountry[cc][k].country === cc)));
   check('artifact is populated', Object.keys(bwMap).length >= 800, Object.keys(bwMap).length);
   check('artifact keeps multinational slugs', !!bwMap.kfc && !!bwMap.nandos, Object.keys(bwMap).filter((k) => k === 'kfc' || k === 'nandos').join(','));
+
+  /* ===================== M. public host drift guard ===================== */
+  /* The canonical host lives in wrangler.toml (PUBLIC_BASE). The stale TLD is
+     assembled from parts so this assertion never itself contains the string
+     it hunts for. */
+  const staleHost = 'eatouts' + '.' + 'online';
+  const hostFiles = [
+    'js/eatouts-slug.js', 'js/eatouts-business-signup.js', 'functions/api/_vanity.js',
+    'index.html', 'eatouts-suppliers.html', 'scripts/build_link_registry.mjs',
+    'scripts/seeds/business_links.sql'
+  ];
+  const drifted = hostFiles.filter((rel) =>
+    fs.readFileSync(path.resolve(__dirname, '..', rel), 'utf8').indexOf(staleHost) !== -1);
+  check('no stale public host in shipped files', drifted.length === 0, drifted.join(','));
 
   console.log('');
   console.log(fails ? (fails + ' FAILED') : (checks + ' checks passed'));

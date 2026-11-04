@@ -1,8 +1,8 @@
 /* ============================================================
    EATOUTS SLUG - public link-name rules (single source of truth)
 
-   A business link is  https://www.eatouts.online/<country>/<slug>
-   e.g. www.eatouts.online/bw/brightstarbakery
+   A business link is  https://www.eatouts.site/<country>/<slug>
+   e.g. www.eatouts.site/bw/brightstarbakery
 
    Rules (per product spec):
      - lowercase canonical, case-insensitive when resolved
@@ -87,9 +87,9 @@
     return '/' + String(country || 'bw').toLowerCase() + '/' + normalize(slug);
   }
 
-  /** Full pretty URL incl. host, e.g. www.eatouts.online/bw/tops. */
+  /** Full pretty URL incl. host, e.g. www.eatouts.site/bw/tops. */
   function url(country, slug) {
-    return 'www.eatouts.online' + path(country, slug);
+    return 'www.eatouts.site' + path(country, slug);
   }
 
   var API = {
