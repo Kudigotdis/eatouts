@@ -231,6 +231,11 @@ const ADMIN = { userId: 'usr_admin', type: 'customer', isAdmin: true };
   const metaDoc = { querySelector: (sel) => sel === 'meta[name="eatouts-vanity"]' ? { getAttribute: () => 'supplier|demo_supplier_001|tebogomolefeeventplanning' } : null };
   const metaTarget = Router.detect({ search: '', pathname: '/bw/whatever' }, metaDoc);
   check('detect prefers meta hint', metaTarget && metaTarget.type === 'supplier' && metaTarget.refId === 'demo_supplier_001', JSON.stringify(metaTarget));
+  check('detect defaults meta country to bw', metaTarget && metaTarget.country === 'bw', JSON.stringify(metaTarget));
+
+  const metaZwDoc = { querySelector: (sel) => sel === 'meta[name="eatouts-vanity"]' ? { getAttribute: () => 'restaurant|rest_zw_kfc|kfczw|zw' } : null };
+  const metaZw = Router.detect({ search: '', pathname: '/zw/kfczw' }, metaZwDoc);
+  check('detect reads country from 4-field meta', metaZw && metaZw.country === 'zw' && metaZw.refId === 'rest_zw_kfc', JSON.stringify(metaZw));
 
   const pathTarget = Router.detect({ search: '', pathname: '/bw/tops' }, { querySelector: () => null });
   check('detect falls to path + needsResolve', pathTarget && pathTarget.slug === 'tops' && pathTarget.needsResolve === 1, JSON.stringify(pathTarget));
@@ -399,7 +404,7 @@ const ADMIN = { userId: 'usr_admin', type: 'customer', isAdmin: true };
   let e1 = await edge('/bw/kfc');
   check('edge found -> 200', e1.status === 200, e1.status);
   check('edge injects <base href="/">', e1.body.indexOf('<base href="/">') >= 0);
-  check('edge injects vanity meta', /<meta name="eatouts-vanity" content="restaurant\|rest_kfc\|kfc">/.test(e1.body), e1.body.slice(0, 200));
+  check('edge injects vanity meta', /<meta name="eatouts-vanity" content="restaurant\|rest_kfc\|kfc\|bw">/.test(e1.body), e1.body.slice(0, 200));
 
   let e2 = await edge('/bw/oldkfc', envD);
   check('edge redirect -> 301', e2.status === 301 && e2.location === '/bw/kfc', e2.status + ' ' + e2.location);
@@ -409,6 +414,48 @@ const ADMIN = { userId: 'usr_admin', type: 'customer', isAdmin: true };
 
   let e4 = await edge('/bw/');
   check('edge no slug -> 404', e4.status === 404, e4.status);
+
+  /* ============ J. multi-region scoping (one registry, many countries) ============ */
+  check('countryOf lowercases a region', linksMod.countryOf('BW') === 'bw', linksMod.countryOf('BW'));
+  check('countryOf keeps a valid code', linksMod.countryOf('zw') === 'zw', linksMod.countryOf('zw'));
+  check('countryOf falls back for junk',
+    linksMod.countryOf('zimbabwe') === 'bw' && linksMod.countryOf('') === 'bw' && linksMod.countryOf(null) === 'bw',
+    linksMod.countryOf('zimbabwe') + '/' + linksMod.countryOf(null));
+
+  const bwKfc = { type: 'restaurant', refId: 'rest_kfc', name: 'KFC', slug: 'kfc', country: 'bw' };
+  const zwKfc = { type: 'restaurant', refId: 'rest_zw_kfc', name: 'KFC Zimbabwe', slug: 'kfc', country: 'zw' };
+  const both = { byCountry: { bw: { kfc: bwKfc }, zw: { kfc: zwKfc } }, bySlug: { kfc: bwKfc } };
+  check('slugMapFor bw gets its own slug', linksMod.slugMapFor(both, 'bw').kfc.refId === 'rest_kfc');
+  check('slugMapFor zw gets its own slug', linksMod.slugMapFor(both, 'zw').kfc.refId === 'rest_zw_kfc');
+  check('slugMapFor empty region -> empty map', Object.keys(linksMod.slugMapFor(both, 'za')).length === 0);
+
+  const legacyReg = { bySlug: { kfc: bwKfc } };
+  check('slugMapFor legacy bySlug still answers bw', linksMod.slugMapFor(legacyReg, 'bw').kfc.refId === 'rest_kfc');
+  check('slugMapFor legacy bySlug never answers zw', Object.keys(linksMod.slugMapFor(legacyReg, 'zw')).length === 0);
+  check('slugMapFor no registry -> empty map', Object.keys(linksMod.slugMapFor(null, 'bw')).length === 0);
+
+  /* End to end on the legacy-shaped fake registry: /zw/... must resolve to
+     nothing rather than to a Botswana business. */
+  hit = await linksMod.resolveLink({ env: env, request: req('https://eatouts.test/zw/nandos') }, 'zw', 'nandos');
+  check('resolveLink zw never serves a bw registry slug', hit.found === false, JSON.stringify(hit));
+
+  /* ===================== K. edge /zw/<slug> ===================== */
+  let z = await edge('/zw/kfc');
+  check('edge /zw/kfc -> 404, no bw leak', z.status === 404, z.status);
+  z = await edge('/zw/');
+  check('edge /zw/ -> 404', z.status === 404, z.status);
+  z = await edge('/zw/thisisnotavenue');
+  check('edge /zw/<miss> -> 404', z.status === 404, z.status);
+
+  /* ===================== L. shipped registry artifact ===================== */
+  const shipped = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'assets', 'data', 'link_registry.json'), 'utf8'));
+  check('artifact is country keyed', !!(shipped.byCountry && shipped.byCountry.bw), Object.keys(shipped.byCountry || {}).join(','));
+  const bwMap = (shipped.byCountry || {}).bw || {};
+  check('artifact bySlug mirrors byCountry.bw', JSON.stringify(shipped.bySlug) === JSON.stringify(bwMap));
+  check('artifact buckets agree with entry country', Object.keys(shipped.byCountry || {}).every((cc) =>
+    Object.keys(shipped.byCountry[cc]).every((k) => shipped.byCountry[cc][k].country === cc)));
+  check('artifact is populated', Object.keys(bwMap).length >= 800, Object.keys(bwMap).length);
+  check('artifact keeps multinational slugs', !!bwMap.kfc && !!bwMap.nandos, Object.keys(bwMap).filter((k) => k === 'kfc' || k === 'nandos').join(','));
 
   console.log('');
   console.log(fails ? (fails + ' FAILED') : (checks + ' checks passed'));

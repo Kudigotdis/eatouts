@@ -195,6 +195,7 @@ bottom nav where the page is part of the app shell.
 | 21 | T21 | 21 | `designer-services` catalogue + galleries + requests — ✅ **DONE 2026-11-03** | XL |
 | 22 | T22 | 22 | Multi-region architecture + `EatOuts-Region.html` — ✅ **COMPLETE 2026-11-03** (steps 1–2, 4–6 done; step 3 shipped client-side, with the server/currency half split out to T22b and finished the same day) | XL |
 | 22b | T22b | 22 | Region gating part 2: D1 `region` column + `functions/api/venues.js` filter + region-driven currency — ✅ **DONE 2026-11-03** | M |
+| 22c | T22c | 22 | Multi-region business links: country-keyed registry + `/zw/` edge route — ✅ **DONE 2026-11-04** (Phases 3–5 still open) | M |
 
 ### Phase 6 — UI polish (new, 2026-10-30)
 | # | ID | User task | Task | Size |
@@ -821,6 +822,30 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 - `node tests/run-all.js` → see the progress-log row; `npm run inventory` at baseline.
 **Boundary, stated so it is not mistaken for done work:** the 16 root pages that still carry their own `money()` helper keep printing `P` — they do not load `js/eatouts-regions.js`, and their output would not change today if they did. They are not blocked by anything; converting them is a 16-file sweep that should ride with the first non-BW region, not with this task.
 
+#### T22c — Multi-region business links: country-keyed registry + `/zw/` edge route · M — ✅ **DONE 2026-11-04**
+**Why:** `/bw/<slug>` worked, but the layer was single-country in four places: the builder held `const COUNTRY = 'bw'`; slug uniqueness was **global** (Zimbabwe's KFC would have been published as `/zw/kfc2`); brand groups merged across countries (a Harare KFC would have been folded into the Gaborone link); and the registry fallback dropped the country, so `/zw/kfc` would have served Botswana's `rest_kfc`.
+**Files:** `scripts/build_link_registry.mjs`; `assets/data/link_registry.json` + `scripts/seeds/business_links.sql` (regenerated); `functions/api/_links.js` (`slugMapFor()`); new `functions/api/_vanity.js` (handler moved out of `functions/bw/[[path]].js`, which is now a one-line re-export); new `functions/zw/[[path]].js`; `js/eatouts-router.js`; `functions/api/business/link.js`; `functions/api/links/check.js`; `tests/router.js` (73 → 92 checks).
+**Steps**
+1. **Builder is per-country** — `DEFAULT_COUNTRY` + `countryOf(record)` (reads `region`, lowercases, defaults `bw`); `seen` and brand `groups` are keyed `country|slug` and `country|brandKey`.
+2. **Artifact is country-keyed** — emits `byCountry: { bw: { … } }`; `bySlug` survives as the default country's flat map only. The seed writes each row's own `country_code`, and a row `id` gets a country prefix **only** when a bare id would be shared.
+3. **Resolver never borrows another country's namespace** — `slugMapFor(reg, cc)` reads `byCountry[cc]` and falls back to `bySlug` **only when `cc === 'bw'`**; `resolveLink`, `/api/links/check` and `/api/business/link` all go through it.
+4. **One handler, one directory per live region** — `functions/api/_vanity.js` holds the logic; `functions/bw/[[path]].js` and `functions/zw/[[path]].js` are one-line re-exports. Deliberately *not* a dynamic `functions/[region]/[[path]].js`: that also matches `/assets/logo/x.jpg` and `/js/x.js` and would shadow every asset on the site.
+5. **Client learns the country** — the edge meta gained a 4th field (`type|refId|slug|country`); `js/eatouts-router.js` reads it and defaults a 3-field meta to `bw`, replacing the hardcoded `country:'bw'`.
+**Done when** `/zw/kfc` cannot return a Botswana business, `/bw/*` is unchanged, and adding a region is one line plus data.
+**Phase 0 casing contract (locked here):** `business_links.country_code`, URL segments and registry keys are **lowercase** (`'bw'`); `restaurants.region` is **uppercase** (`'BW'`). `countryOf()` is the single converter (`'BW'` → `'bw'`, junk → `'bw'`).
+**Verified 2026-11-04**
+- Artifact diffed against the committed HEAD baseline: 839 → 839 links, **identical slug set**, 0 mismatches on `slug → type|refId|name`, every entry tagged `country:'bw'`, only `bw` emitted, `bySlug` mirrors `byCountry.bw`.
+- `scripts/seeds/business_links.sql`: 839 INSERTs, **every row byte-identical** to HEAD — only the `-- Public business links:` header line changed, so re-applying it to D1 is a no-op.
+- `node tests/router.js` → **92 checks passed** (19 new): `countryOf` casing, `slugMapFor` for both shapes (including the legacy `bySlug` leak guard), `resolveLink('zw','nandos')` → not found, `/zw/kfc` + `/zw/` + `/zw/<miss>` → 404 through the edge function, 4-field meta and the `bw` default, and the shipped-artifact contract.
+- `node tests/run-all.js` → **74 passed / 0 failed**; `tests/catering-directory.js` (reads `registry.bySlug`) PASSED; `tests/venue-slug.js` 31 checks, `tests/venue-slug-integration.js` all PASSED.
+**Not verified:** browser rendering (status + meta inspected, not painted); no ZW listing data exists yet, so every `/zw/<slug>` is a 404 by design.
+**Still open (Phases 3–5 — nothing written)**
+- [ ] **Phase 3** — `/bw` and `/zw` region home pages (the bare region prefix 404s today): land on a region directory / featured venues instead of the 404 page.
+- [ ] **Phase 4** — gate routing on the registry's `active:true`: add `za`/`mw`/`ke` directories (one line each) as those regions activate.
+- [ ] **Phase 5** — seed ZW venues: a record carrying `region:'ZW'` lands in `byCountry.zw` with **no** code change.
+
+
+
 
 
 
@@ -1116,6 +1141,7 @@ Get-ChildItem -Filter *.html -File | Select-String -Pattern 'border-radius:[^;}]
 | 2026-11-03 | docs + T16 | DONE | new `docs/DEVICE-PASS-CHECKLIST.md` — the 11 open "device pass" boxes grouped into 12 screens with widths, pass rules and a sign-off table, plus new rows for T18 and T22; `index.html` — `const ACTIVE_REGION='BW'` replaced by `activeRegionCode()` (reads `EatoutsRegions.code()`, falls back to `BW`), so the WhatsApp Channel row follows the region selector; `tests/about.js` — the `ACTIVE_REGION` assertion swapped for "the live region comes from the registry" + "no constant remains" + a ZA round-trip that proves the URL follows the region; `PLATFORM UPDATE TASKS.md` — T05 header marked DONE, T16's handed-to-T22 box closed, device-pass boxes written for T18 and T22 | `node tests/about.js` PASSED (65 checks) · `node tests/run-all.js` 74 passed / 0 failed · `npm run inventory` 10 checks / 92 warnings (= baseline) | (this commit) |
 
 | 2026-11-03 | T22b | DONE | new `migrations/0016_region.sql`; `functions/api/venues.js`; `js/eatouts-regions.js` (`symbol()`/`money()`); `js/eatouts-brand-kit.js`; `js/eatouts-manager.js`; `tests/api-venues.js` (18 → 34 checks); `tests/region-gating.js` (37 → 43); `tests/money.js` (33 → 38); `README.md` | `npm run db:migrate:local` → 0016 applied on top of 0001–0015 · `region TEXT NOT NULL DEFAULT 'BW'` + `idx_restaurants_region` · 567/567 seeded venues read BW · a row inserted with `region='ZA'` is invisible to the BW filter (test row removed) · `node tests/api-venues.js` 34 checks · `region-gating` 43 · `region-selector` · `money` 38 · `node tests/run-all.js` **74 passed / 0 failed** · `npm run inventory` 10 checks / 92 warnings (= baseline). Not verified: the `--remote` apply — human step after push | (this commit) |
+| 2026-11-04 | T22c | DONE | `scripts/build_link_registry.mjs`; `assets/data/link_registry.json`; `scripts/seeds/business_links.sql`; `functions/api/_links.js`; new `functions/api/_vanity.js`; `functions/bw/[[path]].js` (now a re-export); new `functions/zw/[[path]].js`; `js/eatouts-router.js`; `functions/api/business/link.js`; `functions/api/links/check.js`; `tests/router.js` (73 → 92 checks) | regenerated artifact vs HEAD baseline: 839 → 839 links, identical slug set, 0 mapping mismatches, only `bw` emitted, `bySlug` mirrors `byCountry.bw` · seed 839 INSERTs **byte-identical** (header line only) · `node tests/router.js` **92 checks** · `node tests/run-all.js` **74 passed / 0 failed** · `catering-directory` PASSED · `venue-slug` 31 · `venue-slug-integration` PASSED. Not verified: browser paint | (this commit) |
 
 ### Per-task completion template
 

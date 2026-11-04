@@ -8,7 +8,7 @@
         a later claimer on an already-owned venue gets a pending claim for
         admin review instead. */
 import { json, readJson, now } from './../_shared.js';
-import { requireSession, normalizeSlug, slugReason, countryOf, getRegistry, linkOut } from './../_links.js';
+import { requireSession, normalizeSlug, slugReason, countryOf, getRegistry, slugMapFor, linkOut } from './../_links.js';
 import { grantClaimMembership } from './../_business.js';
 
 /* Accept every spelling a client has ever shipped, store the canonical slug.
@@ -74,7 +74,7 @@ export async function onRequestPost(context) {
       });
     }
   } else {
-    var reg = await getRegistry(c.env, c.request);
+    var reg = slugMapFor(await getRegistry(c.env, c.request), cc);
     if (reg[s] && reg[s].refId !== refId) {
       return json({ ok: false, error: 'That link is already taken.' }, 409);
     }

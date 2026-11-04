@@ -87,11 +87,25 @@ export async function getRegistry(env, request) {
     var res = await env.ASSETS.fetch(new Request(url.toString()));
     if (!res || !res.ok) { _registry = {}; return _registry; }
     var data = await res.json();
-    _registry = (data && data.bySlug) || {};
+    _registry = (data && typeof data === 'object') ? data : {};
   } catch (e) {
     _registry = {};
   }
   return _registry;
+}
+
+/**
+ * The slug -> link map for ONE country.
+ * byCountry is authoritative. A flat bySlug is the default country's namespace
+ * and must never answer for another country - that is exactly how /zw/kfc would
+ * otherwise hand out Botswana's KFC.
+ */
+export function slugMapFor(reg, country) {
+  var cc = countryOf(country);
+  if (!reg) return {};
+  if (reg.byCountry && reg.byCountry[cc]) return reg.byCountry[cc];
+  if (cc === 'bw' && reg.bySlug) return reg.bySlug;
+  return {};
 }
 
 /**
@@ -127,7 +141,7 @@ export async function resolveLink(context, country, slug) {
   }
 
   var reg = await getRegistry(env, context.request);
-  var item = reg[s];
+  var item = slugMapFor(reg, cc)[s];
   if (item && item.type && item.refId) {
     return { found: true, type: item.type, refId: item.refId, name: item.name || null, slug: s, source: 'registry' };
   }

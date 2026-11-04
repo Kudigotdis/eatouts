@@ -2329,3 +2329,31 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `git ls-files -ci --exclude-standard` → empty. `git status --short` → clean (only this commit's own changes).
   - No test run: no executable code touched.
 - Errors: none
+
+
+### [2026-11-04 13:52:25] - [Agent: cline] - [Status: COMMITTED]
+- Task: T22c — make `/bw/<slug>` and `/zw/<slug>` genuinely multi-region: a country-keyed link registry plus a `/zw/` edge route
+- Files changed:
+  - `scripts/build_link_registry.mjs`: `COUNTRY` → `DEFAULT_COUNTRY` + `countryOf(record)` (reads `region`, lowercases, defaults `bw` — the same rule as `EatoutsRegions.recordRegion()`). `push()` takes a country; the uniqueness `Set` is keyed `cc|slug` and brand `groups` are keyed `cc|brandKey`. Emits `byCountry` **and** keeps `bySlug` as the default country's flat map. The seed writes each row's `country_code`, and a row `id` is country-prefixed only when a bare id would be shared. The content digest input is deliberately unchanged, so the epoch did not move.
+  - `assets/data/link_registry.json`, `scripts/seeds/business_links.sql`: regenerated.
+  - `functions/api/_links.js`: `getRegistry()` returns the whole artifact; new `slugMapFor(reg, cc)` reads `byCountry[cc]` and falls back to `bySlug` **only when `cc === 'bw'`**. `resolveLink()` uses it — this is the line that stops `/zw/kfc` handing out Botswana's `rest_kfc`.
+  - `functions/api/_vanity.js` (new): the `/bw/<slug>` handler moved here verbatim, plus a 4th meta field (`type|refId|slug|country`). `functions/bw/[[path]].js` and new `functions/zw/[[path]].js` are one-line re-exports.
+  - `js/eatouts-router.js`: `readMeta()` reads the country from a 4-field meta and defaults a 3-field one to `bw` (replaces the hardcoded `country:'bw'`).
+  - `functions/api/business/link.js`, `functions/api/links/check.js`: registry lookups go through `slugMapFor(…, cc)`, so a slug taken in BW no longer blocks the same slug in ZW.
+  - `tests/router.js`: 73 → **92 checks**.
+  - `PLATFORM UPDATE TASKS.md`: T22c row + brief (Phase 0 casing contract, Phases 3–5 left open), progress-log row.
+  - `docs/AGENT_CHANGE_LOG.md` (this entry)
+- Notes:
+  - Three single-country assumptions were fixed, not just the resolver: global slug uniqueness (Zimbabwe's KFC would have shipped as `/zw/kfc2`), brand grouping with no country dimension (a Harare KFC would have been folded into Gaborone's link, which prefers a `'gaborone'` branch), and the `bw` constant feeding the seed.
+  - `functions/[region]/[[path]].js` was rejected on purpose: it also matches `/assets/logo/<file>.jpg` and `/js/<file>.js` (two segments), which would shadow every asset on the site. Regions are explicit directories instead.
+  - Casing contract (Phase 0): `business_links.country_code`, URL segments and registry keys are lowercase; `restaurants.region` is uppercase. `countryOf()` is the only converter.
+  - Deliberately **not** touched: `tests/catering-directory.js` (it reads `registry.bySlug`, which the artifact still provides) and `functions/api/venues.js` (T22b territory).
+- Verified:
+  - Regenerated artifact diffed against `HEAD`: 839 → 839 links, identical slug set, 0 mismatches on `slug → type|refId|name`, all 839 entries tagged `country:'bw'`, only `bw` emitted, `bySlug` deep-equals `byCountry.bw`.
+  - `scripts/seeds/business_links.sql`: 839 INSERTs, **every row byte-identical** to `HEAD`; only the `-- Public business links:` header line differs, so re-applying it to D1 is a no-op.
+  - `node tests/router.js` → **92 checks passed**; `node tests/run-all.js` → **74 passed / 0 failed**; `tests/catering-directory.js` PASSED; `tests/venue-slug.js` 31; `tests/venue-slug-integration.js` PASSED.
+  - New tests that would have caught the original bug: `resolveLink('zw','nandos')` → not found, `edge('/zw/kfc')` → 404, `slugMapFor({bySlug:{kfc}}, 'zw')` → `{}`.
+- Not verified:
+  - Browser paint of `/bw/nandos` and `/zw/kfc` (status codes + injected meta inspected, not rendered).
+  - Remote D1 still has no `restaurants.region` column until a human runs `npm run db:migrate` against `--remote` (T22b leftover; unrelated to this change — the link layer reads the client JSON, not D1).
+- Errors: none

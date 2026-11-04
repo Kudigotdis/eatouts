@@ -1,9 +1,10 @@
 /* ============================================================
    EATOUTS ROUTER - public business links on the client.
 
-   The edge function (functions/bw/[[path]].js) already resolved the slug
-   and left a hint in the served HTML:
-       <meta name="eatouts-vanity" content="type|refId|slug">
+   The edge function (functions/api/_vanity.js, re-exported per region from
+   functions/<cc>/[[path]].js) already resolved the slug and left a hint in
+   the served HTML:
+       <meta name="eatouts-vanity" content="type|refId|slug|country">
    This module reads that hint (or, as a fallback for the Cloudflare Pages
    static path / shared links, ?link=<slug> and the /bw/<slug> path) and hands
    the calling page a plain target to open:
@@ -24,7 +25,12 @@
       if (!m) return null;
       var parts = String(m.getAttribute('content') || '').split('|');
       if (parts.length < 3) return null;
-      return { type: parts[0], refId: parts[1], slug: parts[2], country: 'bw' };
+      /* 3 fields = an edge build from before regions existed; 4 = type|refId|slug|country */
+      var cc = String(parts[3] || 'bw').trim().toLowerCase();
+      return {
+        type: parts[0], refId: parts[1], slug: parts[2],
+        country: /^[a-z]{2}$/.test(cc) ? cc : 'bw'
+      };
     } catch (e) { return null; }
   }
 

@@ -20,7 +20,8 @@
  * clashes fall back to name+town, then a trailing number.
  *
  * Emits:
- *   assets/data/link_registry.json    - slug -> { type, refId, name } (edge + client)
+ *   assets/data/link_registry.json    - byCountry[cc][slug] -> { type, refId, name }
+ *                                       (plus bySlug, the default country's flat map)
  *   scripts/seeds/business_links.sql  - INSERT OR IGNORE seed for D1
  *
  * Usage:  npm run link-registry
@@ -34,7 +35,17 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const COUNTRY = 'bw';
+
+/* A record may declare a region. Anything written before regions existed has no
+   field and reads as the default - the same rule the client applies in
+   js/eatouts-regions.js (recordRegion). Codes are lowercase because they are
+   both a URL segment and business_links.country_code. */
+const DEFAULT_COUNTRY = 'bw';
+
+function countryOf(record) {
+  const code = String((record && record.region) || '').trim().toLowerCase();
+  return /^[a-z]{2}$/.test(code) ? code : DEFAULT_COUNTRY;
+}
 
 const BRAND_JS = path.join(ROOT, 'js', 'eatouts-brand.js');
 const RESTAURANTS_JSON = path.join(ROOT, 'assets', 'data', 'restaurant_listings', 'directory_runtime_data.json');
@@ -121,10 +132,13 @@ function main() {
   const canonicalKey = (slug) => (Brand && Brand.canonicalKey ? Brand.canonicalKey(slug) : String(slug || '').toLowerCase());
 
   const candidates = [];
+  /* Uniqueness is per COUNTRY: /bw/kfc and /zw/kfc are different businesses.
+     Keying on the bare slug would publish Zimbabwe's KFC as "/zw/kfc2". */
   const seen = new Set();
 
-  function push(type, refId, name, fallbackParts) {
+  function push(type, refId, name, fallbackParts, country) {
     if (!refId || !name) return;
+    const cc = country || DEFAULT_COUNTRY;
     const base = slugFromParts([name]);
     const alt = slugFromParts([name].concat(fallbackParts || []));
     if (!base && !alt) return;
@@ -133,13 +147,14 @@ function main() {
     if (RESERVED.has(seed)) seed += 'biz';
     let candidate = seed;
     let n = 2;
-    while (seen.has(candidate)) {
+    while (seen.has(cc + '|' + candidate)) {
       candidate = (alt && alt !== seed && n === 2) ? alt : (alt || seed) + String(n);
       n++;
     }
-    seen.add(candidate);
+    seen.add(cc + '|' + candidate);
     candidates.push({
       slug: candidate,
+      country: cc,
       type: type,
       refId: String(refId),
       name: String(name).trim(),
@@ -170,19 +185,25 @@ function main() {
   restaurants.forEach((r) => {
     const key = brandKeyOf(r);
     if (!key) return;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(r);
+    /* A brand does not span regions: a Harare KFC is not a branch of the
+       Gaborone one, so the group key carries the country too. */
+    const gk = countryOf(r) + '|' + key;
+    if (!groups.has(gk)) groups.set(gk, []);
+    groups.get(gk).push(r);
   });
   // sorted for deterministic output
   const groupEntries = Array.from(groups.entries())
     .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
-  groupEntries.forEach(([key, branches]) => {
+  groupEntries.forEach(([gk, branches]) => {
+    const sep = gk.indexOf('|');
+    const cc = gk.slice(0, sep);
+    const key = gk.slice(sep + 1);
     const owned = branches.find((b) => b.slug === key);
     const gaborone = branches.find((b) => String(b.town || '').toLowerCase() === 'gaborone');
     const primary = owned || gaborone || branches[0];
     const name = (owned && owned.name) || branches[0].name || key;
     const refId = primary.id || ('rest_' + primary.slug);
-    push('restaurant', refId, name, [primary.town || primary.area]);
+    push('restaurant', refId, name, [primary.town || primary.area], cc);
   });
 
   /* ---- bottle / liquor stores (brand level) ---- */
@@ -213,14 +234,23 @@ function main() {
     });
   }
 
-  const bySlug = {};
-  candidates.forEach((c) => { bySlug[c.slug] = c; });
+  /* Two views of one dataset. byCountry is authoritative - the resolver only
+     ever reads byCountry[cc]. bySlug stays the flat map of the default country
+     so older consumers (tests/catering-directory.js, cached copies) keep
+     working, and it must stay the default country only. */
+  const byCountry = {};
+  candidates.forEach((c) => {
+    if (!byCountry[c.country]) byCountry[c.country] = {};
+    byCountry[c.country][c.slug] = c;
+  });
+  const bySlug = byCountry[DEFAULT_COUNTRY] || {};
 
   fs.writeFileSync(OUT_JSON, JSON.stringify({
     generatedAt: null,
-    country: COUNTRY,
+    country: DEFAULT_COUNTRY,
     count: candidates.length,
-    bySlug: bySlug
+    bySlug: bySlug,
+    byCountry: byCountry
   }), 'utf8');
 
   /* content-derived epoch (was Date.now()) - deterministic; changes iff inputs change.
@@ -229,9 +259,16 @@ function main() {
     .update(candidates.map((c) => [c.type, c.slug, c.refId, c.name].join('|')).sort().join('\n'))
     .digest('hex');
   const now = Number(1_000_000_000_000n + (BigInt('0x' + inputDigest.slice(0, 16)) % 9_000_000_000_000n));
+  /* id is only a primary key; (country_code, slug) is the real identity. The
+     country is prefixed only when the bare id would be shared, so a slug that
+     exists in two regions cannot collide on the PK while today's seed - where
+     every slug is unique - stays byte for byte identical. */
+  const idCount = {};
+  candidates.forEach((c) => { idCount['blk_' + c.slug] = (idCount['blk_' + c.slug] || 0) + 1; });
+  const rowId = (c) => (idCount['blk_' + c.slug] > 1 ? 'blk_' + c.country + '_' + c.slug : 'blk_' + c.slug);
   const lines = [
     '-- Auto-generated by scripts/build_link_registry.mjs',
-    '-- Public business links: www.eatouts.online/' + COUNTRY + '/<slug>',
+    '-- Public business links: www.eatouts.online/<country>/<slug>',
     '-- Entries: ' + candidates.length,
     '-- Apply with: npx wrangler d1 execute eatouts --file scripts/seeds/business_links.sql --remote',
     ''
@@ -241,7 +278,7 @@ function main() {
       'INSERT OR IGNORE INTO business_links ' +
       '(id, country_code, slug, type, ref_id, display_slug, name, status, created_at, updated_at) VALUES (' +
       [
-        sqlStr('blk_' + c.slug), sqlStr(COUNTRY), sqlStr(c.slug), sqlStr(c.type), sqlStr(c.refId),
+        sqlStr(rowId(c)), sqlStr(c.country), sqlStr(c.slug), sqlStr(c.type), sqlStr(c.refId),
         sqlStr(c.display), sqlStr(c.name), sqlStr('active'), String(now), String(now)
       ].join(', ') + ');'
     );

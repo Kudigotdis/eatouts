@@ -2,7 +2,7 @@
    Public availability probe for the custom-link picker.
    -> { ok, country, normalized, available, reason } */
 import { json, rateLimit, clientIp } from './../_shared.js';
-import { normalizeSlug, slugReason, countryOf, getRegistry } from './../_links.js';
+import { normalizeSlug, slugReason, countryOf, getRegistry, slugMapFor } from './../_links.js';
 
 export async function onRequestGet(context) {
   var env = context.env;
@@ -39,7 +39,7 @@ export async function onRequestGet(context) {
     } catch (e) { /* fall through to the registry */ }
   }
 
-  var reg = await getRegistry(env, request);
+  var reg = slugMapFor(await getRegistry(env, request), cc);
   if (reg[s]) {
     if (refId && reg[s].refId === refId) {
       out.available = true; out.reason = 'That is your listing.';
