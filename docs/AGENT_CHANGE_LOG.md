@@ -2312,3 +2312,19 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - Rail CSS read directly at `index.html:717-719` (scrollbar hidden, `touch-action:none`, `flex:1 1 0` letters) before the tick was written.
   - No test suite run: no code changed.
 - Errors: none
+
+
+### [2026-11-03 20:05:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: housekeeping — the 10 untracked duplicate logo jpgs and the stray `runall.txt` are now ignored, so `git status` is clean without deleting anything
+- Files changed:
+  - `.gitignore`: one labelled block naming the ten exact paths (`assets/logo/{Boxer_Liqours_Logo,EatOuts_Logo,Nandos-Logo,butter_chicken_indian_restaurant,chicken_licken_logo,cresta-hotel-logo,pub_20_two,the_beef_baron,tops_logo}.jpg` + `assets/logo/zen_cafe_logo (1).jpg`) and `runall.txt`. Deliberately **exact paths, not `assets/logo/*.jpg`** — 100+ real venue logos in that folder are `.jpg` and tracked, so a blanket pattern would have hidden live assets.
+  - `docs/AGENT_CHANGE_LOG.md` (this entry)
+- Notes:
+  - Re-audited before ignoring (the earlier audit is at this file's `:414`): every live logo reference resolves to a committed sibling — `Boxer_Liqours_Logo.png`, `tops_logo.png`, `Nandos-Logo.png`, `zen_cafe_logo.jpg`, `*.webp` for butter chicken / chicken licken / pub_20_two — and `assets/data/BottleLliquorStoresDatabase.js:26-27` + `tests/bottle-stores.js:84-86` assert the `.png` spellings. `EatOuts_Logo.png` (72 KB, tracked) is the brand mark; `EatOuts_Logo.jpg` (7.8 KB) is not referenced by anything.
+  - Nothing was deleted: the files stay on disk as source art, they just stop appearing as untracked noise.
+  - `git ls-files -ci --exclude-standard` prints nothing, i.e. no tracked file became ignored — the check that matters when editing `.gitignore`.
+- Verified:
+  - `git check-ignore -v` → all ten jpgs and `runall.txt` resolve to the new lines; `assets/logo/EatOuts_Logo.png` does **not**.
+  - `git ls-files -ci --exclude-standard` → empty. `git status --short` → clean (only this commit's own changes).
+  - No test run: no executable code touched.
+- Errors: none
