@@ -223,7 +223,7 @@ bottom nav where the page is part of the app shell.
 **Done when**
 - [x] No window scrollbar on any page at 360/390/430px width — §5 audit #1 prints nothing (re-run 2026-11-02; it resolves linked `assets/*.css`, so the manager pages count too).
 - [x] `eatouts-login` shows no scrollbar — in that same sweep.
-- [ ] A–Z rail (`.az-rail`) "still scrolls and is the only visible affordance" — **no longer matches the shipped rail**: `index.html:717` deliberately hides the rail's scrollbar and the letters are a tap strip (`flex:1 1 0`, no scrolling). Needs a decision on the intended behaviour, not a tick.
+- [x] A–Z rail (`.az-rail`) — **decided 2026-11-03: keep the shipped tap strip.** `index.html:717` is the intended behaviour, not a regression: the rail hides its own scrollbar (`scrollbar-width:none` + `::-webkit-scrollbar{display:none}` at `:718`), takes `touch-action:none`, and the letters are `flex:1 1 0` tap targets (`:719`), so the full A–Z set fits at 360px without scrolling. The §G1 audit line ("still scrolls and is the only visible affordance") predates that redesign and is **stale**; it is not a defect. No code changed for this tick.
 - [x] `npm test` green.
 
 #### G2 — No accordion indicators

@@ -2297,3 +2297,18 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `node tests/run-all.js` → **74 passed, 0 failed**
   - `npm run inventory` → INVENTORY PASSED (10 checks, 92 warnings = baseline)
 - Errors: none
+
+
+### [2026-11-03 19:52:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: G1 — the A–Z rail decision, closed as "keep what shipped"
+- Files changed:
+  - `PLATFORM UPDATE TASKS.md` `:226`: box ticked. The decision plus the evidence — `index.html:717` is the intended behaviour (hides its own scrollbar, `touch-action:none`), `:718` kills the WebKit scrollbar, `:719` makes every letter a `flex:1 1 0` tap target so the whole A–Z set fits at 360px without scrolling. The §G1 audit line it came from predates that redesign and is now recorded as stale, not as a defect.
+  - `docs/AGENT_CHANGE_LOG.md` (this entry)
+- Notes:
+  - No code changed. This was a documentation/decision tick, which is why there is no test run in Verified: nothing executable moved.
+  - The roadmap is now **13 open boxes, all of them device passes**, and zero open build or decision work. The remaining 13 are for a human with a phone (`docs/DEVICE-PASS-CHECKLIST.md`, 12 screens).
+  - Untracked `assets/logo/*.jpg` (10) and `runall.txt` are still untouched — they are unrelated to every task in this session and were never requested.
+- Verified:
+  - Rail CSS read directly at `index.html:717-719` (scrollbar hidden, `touch-action:none`, `flex:1 1 0` letters) before the tick was written.
+  - No test suite run: no code changed.
+- Errors: none
