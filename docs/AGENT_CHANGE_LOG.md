@@ -22,7 +22,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `assets/flags-square-rounded/` (NEW, 262 SVGs, ≈382.8 KB): every flag file, all `-text`-free plain SVG, LF endings
   - `assets/flags-circlular/` (NEW, 262 SVGs, ≈394.3 KB): the typo'd circular set, tracked as-is — no rename, no deletion, since the folder name is not referenced by any code path
 - Commit: `2a4a9a6`
-- Push: PENDING
+- Push: `dab7b55..542ea0f  main -> main`
 - Verified: `git status --short` showed exactly 524 additions and nothing else before commit · `Test-Path` confirmed all 8 registry flags (`botswana-bw`, `south-africa-za`, `zimbabwe-zw`, `malawi-mw`, `kenya-ke`, `nigeria-ng`, `ghana-gh`, `mauritius-mu`) resolve inside `assets/flags-square-rounded/` · `git check-ignore` returned "NOT ignored" for both folders · sample SVG inspected: 636 bytes, 0 CRLF pairs, so `core.autocrlf=true` normalizes to an identical blob
 - Notes:
   - Closes the open item flagged in the `21:24:56` entry — `search_screen.html:626` builds `assets/flags-square-rounded/<flag>.svg` for `#regionBtn`, and `tests/region-selector.js` asserts the file exists, so the folder had to be tracked.
