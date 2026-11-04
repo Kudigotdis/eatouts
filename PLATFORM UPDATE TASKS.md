@@ -816,6 +816,7 @@ CSS swapped for the `venue-about.html:63-67` block (`#hdr` 58px sticky, `.brand-
 **Verified 2026-11-03**
 - `npm run db:migrate:local` → 0016 applied on top of 0001–0015 · `PRAGMA table_info` → `region TEXT NOT NULL DEFAULT 'BW'` · `idx_restaurants_region` present · 567 venues / 567 BW · a row inserted with `region='ZA'` reads ZA and is invisible to the BW filter (test row deleted afterwards).
 - `node tests/api-venues.js` → **34 checks passed** (16 new: default, explicit + lowercase + unknown code, `q` × region, `limit`, `mine` 401 / BW / ZA, no backend).
+- The three statements from `functions/api/venues.js` were also run **verbatim against the local D1** (not just the fake), to prove the SQL parses against the real schema: bare list → 3 rows (LIMIT), `q` + region → 3 rows, `mine` join for a non-member → 0 rows.
 - `node tests/region-gating.js` (43) · `node tests/region-selector.js` · `node tests/money.js` (38) → all PASSED.
 - `node tests/run-all.js` → see the progress-log row; `npm run inventory` at baseline.
 **Boundary, stated so it is not mistaken for done work:** the 16 root pages that still carry their own `money()` helper keep printing `P` — they do not load `js/eatouts-regions.js`, and their output would not change today if they did. They are not blocked by anything; converting them is a 16-file sweep that should ride with the first non-BW region, not with this task.

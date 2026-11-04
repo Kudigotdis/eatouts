@@ -2294,6 +2294,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Verified:
   - `npm run db:migrate:local` → 0016 applied; `npx wrangler d1 execute ... --local` → column, index, 567 BW rows, ZA row filtered out
   - `node tests/api-venues.js` → **34 checks passed** · `node tests/region-gating.js` → PASSED (43) · `node tests/region-selector.js` → PASSED · `node tests/money.js` → **38 checks passed**
+  - The three `functions/api/venues.js` statements run verbatim against the local D1 (real schema, not the fake): bare → 3 rows, `q` + region → 3 rows, `mine` join for a non-member → 0 rows.
   - `node tests/run-all.js` → **74 passed, 0 failed**
   - `npm run inventory` → INVENTORY PASSED (10 checks, 92 warnings = baseline)
 - Errors: none
