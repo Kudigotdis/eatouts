@@ -26,7 +26,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `tests/search-screen.js` (45 checks): row is a card that toggles instead of navigating, `aria-expanded`, list dimming, one-open-at-a-time, tap-again/Escape close, both panel actions, type-aware label, 90px thumb computed size, preview open/close (X / outside tap / Escape) and "every preview thumb wraps a real image", header region button flag + route
   - `PAGE_INVENTORY.md`: refreshed the `search_screen.html` (691→861) and `EatOuts-Region.html` (204→216) row counts and the "five regions" description
 - Commit: `e2a3aa4`
-- Push: PENDING
+- Push: `74064bd..6a7973b  main -> main`
 - Verified: `node tests/search-screen.js` PASSED (45 checks) · `node tests/region-selector.js` PASSED (51 checks) · `npm test` PASSED (74 suites, 0 failed) · `npm run inventory` PASSED (10 checks, 91 warnings)
 - Notes:
   - `assets/flags-square-rounded/` (262 SVGs) is still UNTRACKED. The header button and the new registry guard depend on it, so it must be committed for the flag to render on a fresh clone — left out here because adding 262 files is a separate, much larger diff than this task. Ask before committing it.
