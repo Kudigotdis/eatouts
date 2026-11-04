@@ -82,10 +82,25 @@ img{display:block;max-width:100%}
 .result-info{flex:1;min-width:0}
 .result-name{font-size:16.5px;font-weight:700;color:#141414;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.2px}
 .result-meta{font-size:14px;color:#8e8e8e;font-weight:500;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.02em}
-/* action panel inside an open card */
-.result-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;background:#efe9db;border-top:1px solid #e2dbc9}
-.ropt{padding:11px 12px;background:#ffffff;border:1px solid #ece7db;border-radius:12px;font-size:12.5px;font-weight:800;color:#3a3324;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-.ropt:active{background:#f4efe4}
+/* The open card's body: verbatim .ropts.brows from index.html, so a result
+   panel and a directory panel are the same 5 rows - two read-only location
+   lines, Menu, Promos, then the centred heart / WhatsApp / info icons. */
+.ropts{display:flex;flex-direction:column;gap:9px;padding:2px 14px 16px;background:#ffffff}
+.line{appearance:none;-webkit-appearance:none;width:100%;min-height:48px;padding:0 14px;border-radius:14px;border:1px solid #ece7db;background:#fbfbfc;display:flex;align-items:center;justify-content:center;text-align:center;font:inherit;font-size:15px;font-weight:600;letter-spacing:.1px;color:#6b7280;cursor:pointer;transition:background .16s,border-color .16s,color .16s,transform .08s;-webkit-tap-highlight-color:transparent}
+.line:active{transform:scale(.985)}
+.line span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.line-select.is-set{color:#111827;background:#ffffff;border-color:#cfd6df}
+.line-select.is-disabled{color:#aab1bb;background:#f3f4f6;border-color:#ebedf1}
+.line-action{background:#ffffff;color:#111827;border-color:#dfe3e9}
+.line-action.is-disabled{color:#aab1bb;background:#f3f4f6;border-color:#ebedf1}
+.line-action.is-disabled:active{transform:none}
+.card-ico-row{display:flex;align-items:center;justify-content:center;gap:18px;padding-top:3px}
+.card-ico-row .ico-btn{width:54px;height:54px;border-radius:50%;border:1px solid #ece7db;background:#ffffff;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;transition:transform .1s,background .18s,border-color .18s;-webkit-tap-highlight-color:transparent}
+.card-ico-row .ico-btn:active{transform:scale(.93)}
+.card-ico-row .ico-btn img{width:25px;height:25px;object-fit:contain;display:block}
+.card-ico-row .ico-btn .ico-info-img{opacity:.5}
+.card-ico-row .ico-btn.is-disabled{opacity:.4;cursor:default}
+.card-ico-row .ico-btn.is-disabled:active{transform:none}
 
 /* ---------- EMPTY / LOADING ---------- */
 .empty{padding:60px 24px;text-align:center;color:#a89a7e;font-size:14px;line-height:1.5}
@@ -222,6 +237,31 @@ img{display:block;max-width:100%}
       .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
   function norm(s){ return String(s || '').trim().toLowerCase(); }
+  /* Digits of a venue's WhatsApp number, or '' when the record has none.
+     Directory rows keep it as a labelled contact ("WhatsApp", label + value);
+     the curated lists (catering, bakeries) carry a plain phone field. A land
+     line is not a WhatsApp line, so only the WhatsApp-labelled contact counts.
+     Anything longer than a full international number is a concatenated list of
+     several numbers and is dropped rather than dialled. */
+  function waDigits(rec){
+    if (!rec) return '';
+    function clean(v){ return String(v || '').replace(/[^\d]/g, ''); }
+    function ok(d){ return d && d.length >= 8 && d.length <= 15 ? d : ''; }
+    var direct = clean(rec.whatsapp || rec.contactWhatsapp || rec.phone || '');
+    if (ok(direct)) return direct;
+    /* db records keep the directory contacts under .directory; the curated
+       lists carry them at the top level */
+    var list = (Array.isArray(rec.contacts) ? rec.contacts : []).concat(
+      rec.directory && Array.isArray(rec.directory.contacts) ? rec.directory.contacts : []);
+    for (var i = 0; i < list.length; i++){
+      var c = list[i] || {};
+      if (/whatsapp/i.test(String(c.label || ''))) {
+        var d = clean(c.value || c.number || '');
+        if (ok(d)) return d;
+      }
+    }
+    return '';
+  }
   function uniqueSorted(arr){
     var seen = {}, out = [];
     arr.forEach(function(v){
@@ -291,7 +331,8 @@ img{display:block;max-width:100%}
       area: loc.area || '',
       badge: isMobile ? TYPE_LABEL.mobile_kitchen : (types[0] || 'Restaurant'),
       slug: r.slug || r.id,
-      navKind: 'restaurant'
+      navKind: 'restaurant',
+      whatsapp: waDigits(r)
     });
   }
   function pushCatering(out, b){
@@ -302,7 +343,8 @@ img{display:block;max-width:100%}
       subtitle: ['Catering', br.town, br.area].filter(Boolean).join(' · '),
       searchText: [b.name, 'catering', b.type || '', br.town || '', br.area || ''].join(' ').toLowerCase(),
       logo: b.logo || null, town: br.town || '', area: br.area || '',
-      badge: 'Catering', slug: b.slug, navKind: 'catering'
+      badge: 'Catering', slug: b.slug, navKind: 'catering',
+      whatsapp: waDigits(b)
     });
   }
   function pushBakery(out, r){
@@ -314,7 +356,8 @@ img{display:block;max-width:100%}
       subtitle: ['Bakery', town, area].filter(Boolean).join(' · '),
       searchText: [r.businessName, 'bakery bread pastry cake', town, area].join(' ').toLowerCase(),
       logo: null, town: town, area: area,
-      badge: 'Bakery', slug: 'bakery-' + r.id, navKind: 'bakery'
+      badge: 'Bakery', slug: 'bakery-' + r.id, navKind: 'bakery',
+      whatsapp: waDigits(r)
     });
   }
   function pushBottleStore(out, b){
@@ -325,7 +368,8 @@ img{display:block;max-width:100%}
       subtitle: ['Bottle Store', br.town, br.area].filter(Boolean).join(' · '),
       searchText: [b.name, 'bottle store liquor alcohol beer wine spirits', br.town || '', br.area || ''].join(' ').toLowerCase(),
       logo: b.logo || null, town: br.town || '', area: br.area || '',
-      badge: 'Bottle Store', slug: b.slug, navKind: 'bottle_store'
+      badge: 'Bottle Store', slug: b.slug, navKind: 'bottle_store',
+      whatsapp: waDigits(b)
     });
   }
   /* Curated overlay-only venues (e.g. Zors) have no directory record: their
@@ -364,7 +408,8 @@ img{display:block;max-width:100%}
       badge: 'Restaurant',
       slug: slug,
       navKind: 'restaurant',
-      overlay: true
+      overlay: true,
+      whatsapp: waDigits(oe)
     });
     have[slug] = out[out.length - 1];
   }
@@ -388,7 +433,8 @@ img{display:block;max-width:100%}
           subtitle: ['Promo · ' + day, r.name].filter(Boolean).join(' · '),
           searchText: [p.title, p.desc || '', p.type || '', 'promo special deal', day, r.name, loc.town || ''].join(' ').toLowerCase(),
           logo: r.logo || null, town: loc.town || '', area: loc.area || '',
-          badge: 'Promo', slug: r.slug || r.id, venueSlug: r.slug || r.id, navKind: 'promo'
+          badge: 'Promo', slug: r.slug || r.id, venueSlug: r.slug || r.id, navKind: 'promo',
+          whatsapp: waDigits(r)
         });
       });
     });
@@ -408,7 +454,8 @@ img{display:block;max-width:100%}
           subtitle: ['Event · ' + day, r.name].filter(Boolean).join(' · '),
           searchText: [nm, ev.desc || '', 'event live music show', day, r.name, loc.town || ''].join(' ').toLowerCase(),
           logo: r.logo || null, town: loc.town || '', area: loc.area || '',
-          badge: 'Event', slug: r.slug || r.id, venueSlug: r.slug || r.id, navKind: 'event'
+          badge: 'Event', slug: r.slug || r.id, venueSlug: r.slug || r.id, navKind: 'event',
+          whatsapp: waDigits(r)
         });
       });
     });
@@ -532,10 +579,7 @@ img{display:block;max-width:100%}
           '</div>' +
         '</button>' +
         '<div class="acc-wrap"><div class="acc-in" id="racc-' + esc(item.id) + '">' +
-          '<div class="result-opts">' +
-            '<button class="ropt" type="button" data-act="openResult" data-id="' + esc(item.id) + '">' + esc(primaryLabel(item)) + '</button>' +
-            '<button class="ropt" type="button" data-act="openAbout" data-id="' + esc(item.id) + '">About this venue</button>' +
-          '</div>' +
+          resultOptions(item) +
         '</div></div>' +
       '</div>';
     });
@@ -554,6 +598,137 @@ img{display:block;max-width:100%}
     if (item.navKind === 'promo' || item.navKind === 'event') return 'View promos';
     return 'View venue';
   }
+
+  /* ---------- the card body: 5 rows, 7 buttons ----------
+     Ported 1:1 from bakeryOptions() in index.html: a search row is one venue,
+     not a brand with a branch picker, so town/area are read-only lines. */
+  var HEART_ON  = 'assets/icons/heart_active_icon.png';
+  var HEART_OFF = 'assets/icons/heart_inactive_icon.png';
+  var ICON_WA   = 'assets/icons/whatsApp_icon_on.png';
+  var ICON_INFO = 'assets/icons/information-icon.svg';
+
+  /* index.html#<slug>/promos only resolves for a venue that lives in the
+     database. A promo/event row already IS the promos entry and a curated-only
+     venue has no db row, so both use the About fallback instead. */
+  function hasPromosRoute(item){
+    if (!item || item.overlay) return false;
+    if (item.navKind !== 'restaurant') return false;
+    return !!(item.venueSlug || item.slug);
+  }
+  function locationLine(value, empty){
+    var v = String(value || '').trim();
+    return '<button type="button" class="line line-select' + (v ? ' is-set' : ' is-disabled') + '"' +
+      ' aria-haspopup="false"' + (v ? '' : ' aria-disabled="true"') + '>' +
+      '<span>' + esc(v || empty) + '</span></button>';
+  }
+  /* Favourites are keyed on type + reference, so the same venue saved from the
+     directory pages and from here lands on one entry. Restaurant rows use the
+     brand key the Restaurants list uses, which is what keeps a chain single. */
+  function favType(item){
+    if (item.type === 'mobile_kitchen') return 'restaurant';
+    return item.type || 'restaurant';
+  }
+  function favRef(item){
+    if (item.type === 'promo' || item.type === 'event') return item.id;
+    var slug = item.slug || item.venueSlug || item.id;
+    try {
+      if (item.type === 'restaurant' || item.type === 'mobile_kitchen'){
+        var B = window.EatoutsBrand;
+        if (B && typeof B.canonicalKey === 'function') return B.canonicalKey(slug) || slug;
+      }
+    } catch(e){}
+    return slug;
+  }
+  function favIsOn(item){
+    var s = window.EatoutsCustomer;
+    return !!(s && s.favourites && s.favourites.has({ type: favType(item), refId: favRef(item) }));
+  }
+  function favIco(item){
+    var on = favIsOn(item);
+    return '<button class="ico-btn' + (on ? ' fav-on' : '') + '" type="button" data-act="toggleFav"' +
+      ' data-id="' + esc(item.id) + '" aria-pressed="' + (on ? 'true' : 'false') + '"' +
+      ' aria-label="' + (on ? 'Remove from favourites' : 'Save to favourites') + '"' +
+      ' title="' + (on ? 'Saved' : 'Save') + '"><img src="' + (on ? HEART_ON : HEART_OFF) + '" alt=""></button>';
+  }
+  function waIco(item){
+    return '<button class="ico-btn" type="button" data-act="sendWhatsApp" data-id="' + esc(item.id) + '"' +
+      ' aria-label="WhatsApp ' + esc(item.name) + '" title="WhatsApp"><img src="' + ICON_WA + '" alt=""></button>';
+  }
+  function infoIco(item){
+    return '<button class="ico-btn" type="button" data-act="openAbout" data-id="' + esc(item.id) + '"' +
+      ' aria-label="Details for ' + esc(item.name) + '" title="Details">' +
+      '<img class="ico-info-img" src="' + ICON_INFO + '" alt=""></button>';
+  }
+  function resultOptions(item){
+    var menuBtn = '<button class="line line-action" type="button" data-act="openResult" data-id="' + esc(item.id) + '">' +
+      esc(primaryLabel(item)) + '</button>';
+    var promosBtn = hasPromosRoute(item)
+      ? '<button class="line line-action" type="button" data-act="openPromos" data-id="' + esc(item.id) + '">Promos</button>'
+      : '<button class="line line-action" type="button" data-act="openAbout" data-id="' + esc(item.id) + '">About this venue</button>';
+    return '<div class="ropts">' +
+      locationLine(item.town, 'Select Town') +
+      locationLine(item.area, 'Select Area') +
+      menuBtn + promosBtn +
+      '<div class="card-ico-row">' + favIco(item) + waIco(item) + infoIco(item) + '</div>' +
+      '</div>';
+  }
+
+  /* ---------- card-body actions ---------- */
+  function itemById(id){
+    for (var i = 0; i < state.index.length; i++){ if (state.index[i].id === id) return state.index[i]; }
+    return null;
+  }
+  function openPromos(id){
+    var item = itemById(id);
+    if (!item){ return; }
+    var slug = item.venueSlug || item.slug || '';
+    if (!slug){ openAbout(id); return; }
+    go('index.html#' + encodeURIComponent(slug) + '/promos');
+  }
+  function toggleFavResult(id){
+    var item = itemById(id);
+    if (!item) return;
+    var s = window.EatoutsCustomer;
+    if (!s || !s.favourites) return;
+    if (!s.getUser()){
+      if (confirm('Sign in to save this to your favourites. Continue to sign in?')) window.location.href = 'eatouts-login.html';
+      return;
+    }
+    s.favourites.toggle({
+      type: favType(item), refId: favRef(item),
+      title: item.name, subtitle: item.subtitle || '',
+      imageRef: item.logo || null, venueId: item.slug || null
+    });
+    /* Rebuilt in place: renderResults() restores the open card from
+       state.resultOpen, so a save reads as the heart flipping, not a jump. */
+    renderResults();
+  }
+  /* Every venue has a WhatsApp route: its own line when the record carries
+     one, otherwise the platform line - the same fallback resolveVenueWhatsapp()
+     uses in index.html. */
+  function platformWhatsapp(){
+    try {
+      var d = window.EatoutsDB && typeof window.EatoutsDB.load === 'function' ? window.EatoutsDB.load() : null;
+      var n = d && d.settings && d.settings.whatsapp ? String(d.settings.whatsapp).replace(/[^\d]/g, '') : '';
+      if (n) return n;
+    } catch(e){}
+    return '';
+  }
+  function sendWhatsApp(id){
+    var item = itemById(id);
+    if (!item) return;
+    var digits = String(item.whatsapp || '').replace(/[^\d]/g, '') || platformWhatsapp();
+    if (!digits) return;
+    var where = [item.name, [item.town, item.area].filter(Boolean).join(', ')].filter(Boolean).join(' — ');
+    var msg = '*ENQUIRY*\n' + where + '\n\nHi, I found you on EatOuts and would like to know more.';
+    try {
+      if (window.EatoutsAnalytics && typeof window.EatoutsAnalytics.track === 'function'){
+        window.EatoutsAnalytics.track('wa.click', { template: 'search_enquiry', venueId: item.slug || item.id, context: 'search_screen' });
+      }
+    } catch(e){}
+    go('https://wa.me/' + digits + '?text=' + encodeURIComponent(msg));
+  }
+
 
   /* Same in-place .open flip the directory pages use, so .acc-wrap animates
      the panel shut instead of the list being re-rendered. scrollIntoView is
@@ -815,6 +990,9 @@ img{display:block;max-width:100%}
       var id = act.getAttribute('data-id');
       if (kind === 'openResult') openResult(id);
       else if (kind === 'openAbout') openAbout(id);
+      else if (kind === 'openPromos') openPromos(id);
+      else if (kind === 'toggleFav') toggleFavResult(id);
+      else if (kind === 'sendWhatsApp') sendWhatsApp(id);
     });
 
     // Header region button

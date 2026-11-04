@@ -2425,3 +2425,27 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - This entry deliberately never spells the stale host, so the documented repo-wide drift grep returns **0 matches** rather than tripping on its own record.
 - Errors: none
 
+
+### [2026-11-05 01:53:26] - [Agent: cline] - [Status: COMMITTED]
+- Task: Rebuild the open `.ritem` panel in `search_screen.html` so a result card is the directory card verbatim (`bakeryOptions()` in `index.html`): two read-only location lines + Menu + Promos + the centred heart / WhatsApp / info row — 5 rows, 7 buttons. User picked **exact directory parity** for row 4: type-aware Menu label, Promos deep link, About fallback where no promos route exists (bakery / curated-only / promo / event rows).
+- Files changed:
+  - `search_screen.html` (+193 −15)
+    - CSS: `.result-opts`/`.ropt` (2-up grid) replaced by `.ropts` / `.line` / `.line-select.is-set|.is-disabled` / `.line-action` / `.card-ico-row` / `.ico-btn`, copied from `index.html` l.787–805, plus `.ico-btn.is-disabled` for the inert WhatsApp variant
+    - `waDigits(rec)` helper: the WhatsApp-labelled contact (`rec.contacts` **and** `rec.directory.contacts`, where `EatoutsSeed.mergeDirectory` actually stores it), plain `phone` for the curated lists, digits-only with an 8–15 length guard so a concatenated two-number `Phone` value can never be dialled
+    - `whatsapp: waDigits(...)` now carried on every index row (restaurant, promo, event, catering, bakery, bottle store, overlay venue) so rendering never re-reads the db
+    - `resultOptions(item)` + `hasPromosRoute` / `locationLine` / `favType` / `favRef` / `favIsOn` / `favIco` / `waIco` / `infoIco`
+    - `itemById` / `openPromos` / `toggleFavResult` / `platformWhatsapp` / `sendWhatsApp`, wired into the `#results` click delegate (`openPromos`, `toggleFav`, `sendWhatsApp`)
+  - `tests/search-screen.js` (+114 −5): `.ropt` selectors replaced by the 5-row / 7-button contract, the Promos route, the sign-in gate, the signed-in save (heart fills, panel stays open, store gains one entry), venue number vs platform number, and the bakery About fallback
+- Verified:
+  - `node tests/search-screen.js` → **SEARCH SCREEN TEST PASSED**, **60 checks** (45 before)
+  - `npm test` (`node tests/run-all.js`) → exit code **0**; `inventory`, `restloc` and `bottle-stores` (which assert the *directory's* `.ropts.brows`) are untouched and still pass
+  - Accordion mechanics, thumb preview, region button and filters all still green in the same suite
+- Not verified:
+  - Real-browser paint/feel of the panel on `search_screen.html` (jsdom asserts structure, computed `.result-thumb`/row geometry and the CSS text only)
+  - A signed-in backend round-trip: the store is exercised through `EatoutsCustomer.favourites` in localStorage mode (the test stubs `getUser`, and stubs `window.confirm` because jsdom has no dialog)
+- Notes:
+  - WhatsApp is never a dead tap: the venue's own line when the record carries one, otherwise `EatoutsDB.load().settings.whatsapp` — the same fallback `resolveVenueWhatsapp()` uses in `index.html`. `wa.click` is tracked through `EatoutsAnalytics` with `context:'search_screen'`.
+  - Favourites are keyed `type:refId`; restaurant rows use `EatoutsBrand.canonicalKey(slug)` so a chain saved here and on the Restaurants list collapses to one entry. Branch rows that only `EatoutsBridge.brandKeyOf()` aliases (`BRAND_ALIAS`, not exported) can still key per-branch.
+  - Town/Area are display-only lines (`is-disabled` + "Select Town"/"Select Area" when empty) — no re-filtering, matching the single-venue nature of a search row.
+- Errors: none
+

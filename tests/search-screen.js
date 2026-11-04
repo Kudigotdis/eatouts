@@ -86,6 +86,18 @@ function click(el) {
   if (el) el.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
 }
 
+/* Search, then make sure the row's panel is open (a card that is already open
+   would close on a second header tap). `name` picks an exact row. */
+function openRow(query, name) {
+  const rows = search(query);
+  const row = name
+    ? rows.filter(r => ((r.querySelector('.result-name') || {}).textContent || '') === name)[0]
+    : rows[0];
+  if (!row) return null;
+  if (row.getAttribute('aria-expanded') !== 'true') click(row);
+  return row.closest('.ritem');
+}
+
 setTimeout(() => {
   let fails = 0;
   const check = (label, cond, extra) => {
@@ -158,15 +170,47 @@ setTimeout(() => {
   check('the list is dimmed around the open card',
     doc.getElementById('results').classList.contains('has-open'));
 
-  const primOpt = card.querySelector('.ropt[data-act="openResult"]');
-  check('a restaurant panel offers "View menu"', !!primOpt && /View menu/.test(primOpt.textContent),
+  /* the panel is the directory card's body: 5 rows, 7 buttons */
+  const panel = card.querySelector('.ropts');
+  check('the panel is the directory card body (5 rows)',
+    !!panel && panel.children.length === 5, panel && panel.children.length);
+  check('the panel carries 7 buttons',
+    !!panel && panel.querySelectorAll('button').length === 7,
+    panel && panel.querySelectorAll('button').length);
+
+  const townLine = panel && panel.children[0];
+  check('row 1 is the town, read-only',
+    !!townLine && /Gaborone/.test(townLine.textContent) &&
+      townLine.getAttribute('aria-haspopup') === 'false' && townLine.classList.contains('is-set'),
+    townLine && townLine.textContent);
+  const areaLine = panel && panel.children[1];
+  check('row 2 is the area',
+    !!areaLine && /Remmogo Crossing/.test(areaLine.textContent),
+    areaLine && areaLine.textContent);
+
+  const primOpt = panel.querySelector('.line[data-act="openResult"]');
+  check('row 3 is the Menu action', !!primOpt && /View menu/.test(primOpt.textContent),
     primOpt && primOpt.textContent);
-  check('a restaurant panel offers "About this venue"',
-    /About this venue/.test((card.querySelector('.ropt[data-act="openAbout"]') || {}).textContent || ''));
+  const promosOpt = panel.querySelector('.line[data-act="openPromos"]');
+  check('row 4 is Promos for a venue that lives in the database',
+    !!promosOpt && /Promos/.test(promosOpt.textContent), promosOpt && promosOpt.textContent);
+
+  const icoRow = panel.querySelector('.card-ico-row');
+  check('row 5 is the heart / WhatsApp / info icon row',
+    !!icoRow && icoRow.querySelectorAll('.ico-btn').length === 3 &&
+      !!icoRow.querySelector('[data-act="toggleFav"]') &&
+      !!icoRow.querySelector('[data-act="sendWhatsApp"]') &&
+      !!icoRow.querySelector('.ico-btn[data-act="openAbout"]'),
+    icoRow && icoRow.querySelectorAll('.ico-btn').length);
 
   click(primOpt);
   check('the panel action opens index.html#zorz-luxury-chisanyama/menu',
     navUrl === 'index.html#zorz-luxury-chisanyama/menu', navUrl);
+
+  navUrl = null;
+  click(promosOpt);
+  check('Promos opens index.html#zorz-luxury-chisanyama/promos',
+    navUrl === 'index.html#zorz-luxury-chisanyama/promos', navUrl);
 
   /* tapping the same header again closes the panel and un-dims the list */
   navUrl = null;
@@ -178,9 +222,74 @@ setTimeout(() => {
   navUrl = null;
   rows = search('kfc');
   click(rows[0]);
-  click(rows[0].closest('.ritem').querySelector('.ropt[data-act="openResult"]'));
+  click(rows[0].closest('.ritem').querySelector('.line[data-act="openResult"]'));
   check('a directory restaurant still opens index.html#<slug>/menu',
     /^index\.html#.+\/menu$/.test(String(navUrl)), navUrl);
+
+  /* ---------- D2: the icon row (heart + WhatsApp) ---------- */
+  /* jsdom has no dialog, so capture the sign-in prompt instead of blocking */
+  let askedToSignIn = false;
+  window.confirm = () => { askedToSignIn = true; return false; };
+  const favsBefore = window.EatoutsCustomer.favourites.list().length;
+
+  rows = search('zors');
+  click(rows[0]);
+  let heartBtn = rows[0].closest('.ritem').querySelector('.ico-btn[data-act="toggleFav"]');
+  check('the heart starts unsaved',
+    !!heartBtn && heartBtn.getAttribute('aria-pressed') === 'false' &&
+      /heart_inactive_icon\.png$/.test(heartBtn.querySelector('img').getAttribute('src')),
+    heartBtn && heartBtn.getAttribute('aria-pressed'));
+
+  click(heartBtn);
+  check('saving asks a visitor with no account to sign in', askedToSignIn);
+  check('nothing is saved while signed out',
+    window.EatoutsCustomer.favourites.list().length === favsBefore,
+    window.EatoutsCustomer.favourites.list().length);
+
+  /* the same tap with a customer present saves the row and fills the heart */
+  window.EatoutsCustomer.getUser = () => ({ id: 'test-customer' });
+  click(doc.querySelector('#results .ritem.open .ico-btn[data-act="toggleFav"]'));
+
+  const savedCard = doc.querySelector('#results .ritem.open');
+  heartBtn = savedCard && savedCard.querySelector('.ico-btn[data-act="toggleFav"]');
+  check('a signed-in tap fills the heart',
+    !!heartBtn && heartBtn.getAttribute('aria-pressed') === 'true' &&
+      /heart_active_icon\.png$/.test(heartBtn.querySelector('img').getAttribute('src')),
+    heartBtn && heartBtn.getAttribute('aria-pressed'));
+  check('the panel stays open while the heart flips', !!savedCard);
+  const saved = window.EatoutsCustomer.favourites.list();
+  check('the venue is in the customer favourites store',
+    saved.length === favsBefore + 1 &&
+      saved[saved.length - 1].title === 'Zorz Luxury Chisanyama',
+    saved.length);
+
+  /* WhatsApp: a venue's own line when the record carries one, otherwise the
+     platform line - never a dead tap */
+  navUrl = null;
+  click(savedCard.querySelector('.ico-btn[data-act="sendWhatsApp"]'));
+  check('a venue with no WhatsApp contact falls back to the platform line',
+    /^https:\/\/wa\.me\/26771844129\?text=/.test(String(navUrl)), navUrl);
+
+  /* a directory row that carries a real WhatsApp contact dials that number */
+  const dirRows = (window.DIRECTORY_RUNTIME_DATA || {}).restaurants || [];
+  const waVenue = dirRows.filter(r => (r.contacts || []).some(c => /whatsapp/i.test(String(c.label || ''))))[0];
+  const waContact = waVenue && waVenue.contacts.filter(c => /whatsapp/i.test(String(c.label || '')))[0];
+  const waExpected = String((waContact || {}).value || '').replace(/[^\d]/g, '');
+  const waCard = openRow(waVenue.name, waVenue.name);
+  navUrl = null;
+  click(waCard.querySelector('.ico-btn[data-act="sendWhatsApp"]'));
+  check('a venue with a WhatsApp contact dials its own number',
+    String(navUrl).indexOf('https://wa.me/' + waExpected + '?text=') === 0,
+    navUrl + ' | expected ' + waExpected);
+
+  /* a curated-only row (bakery) has no promos route: row 4 falls back to About */
+  const bakeryName = ((window.BAKERY_BUSINESSES_DATA || [])[0] || {}).businessName;
+  const bakeryCard = bakeryName ? openRow(bakeryName, bakeryName) : null;
+  const bakeryPanel = bakeryCard && bakeryCard.querySelector('.ropts');
+  check('a bakery panel offers About instead of Promos',
+    !!bakeryPanel && !bakeryPanel.querySelector('[data-act="openPromos"]') &&
+      /About this venue/.test((bakeryPanel.querySelector('.line[data-act="openAbout"]') || {}).textContent || ''),
+    bakeryPanel && bakeryPanel.textContent);
 
   /* ---------- E: one card open at a time ---------- */
   rows = search('kfc');
