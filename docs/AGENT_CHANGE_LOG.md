@@ -2359,7 +2359,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: none
 
 ### [2026-11-04 16:07:39] - [Agent: cline] - [Status: COMMITTED]
-- Task: Purge the stale `www.eatouts.online` host — repo-wide correction to the canonical `www.eatouts.site` (17 occurrences across 9 tracked files). Both open questions resolved by the user as recommended: **Q1 = A** (edit the applied-migration comment) and **Q2 = yes** (add a drift guard).
+- Task: Purge the legacy `.online` host — repo-wide correction to the canonical `www.eatouts.site` (17 occurrences across 9 tracked files). Both open questions resolved by the user as recommended: **Q1 = A** (edit the applied-migration comment) and **Q2 = yes** (add a drift guard).
 - Files changed:
   - `js/eatouts-slug.js`: `url()` returns `www.eatouts.site` + path (still host-without-scheme, so `Slug.url('bw','tops')` → `www.eatouts.site/bw/tops`); header comment ×2 and the `url()` docstring updated
   - `js/eatouts-business-signup.js`: the "Your EatOuts link" hint (`sg-hint`, l.471) and the `Link saved — …` toast (l.604) now show the `.site` host
@@ -2379,12 +2379,13 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `node tests/router.js` → **93 checks passed** (92 before + 1 guard)
   - `npm test` → **74 passed / 0 failed** (exit 0)
   - `tests/catering-directory.js` PASSED · `tests/venue-slug.js` 31 checks · `tests/venue-slug-integration.js` PASSED
-  - **Guard has teeth (mutation probe, not a vacuous assertion):** appending `// www.eatouts.online probe` to `js/eatouts-slug.js` produced `FAIL no stale public host in shipped files  -- js/eatouts-slug.js`; restoring from backup returned 93 passed, with `git diff --stat js/eatouts-slug.js` back to exactly 4 insertions / 4 deletions
+  - **Guard has teeth (mutation probe, not a vacuous assertion):** appending a probe comment spelling the stale host to `js/eatouts-slug.js` produced `FAIL no stale public host in shipped files  -- js/eatouts-slug.js`; restoring from backup returned 93 passed, with `git diff --stat js/eatouts-slug.js` back to exactly 4 insertions / 4 deletions
 - Notes:
   - The guard scans the **7 shipped files** — `migrations/` is deliberately excluded because Pages does not deploy it. It assembles the stale host as `'eatouts' + '.' + 'online'` so the assertion itself never contains (and can never re-introduce) the string it hunts for.
   - `Slug.url()` deliberately keeps returning the host **without** scheme, matching the test pin. Whether to emit `https://` is a separate product decision and was not taken here.
   - The signup hint and toast are asserted by no suite (no signup suite exists), so nothing would have caught their regression; the guard now covers the literal host in that file, but not the surrounding copy.
   - `_archive_local/tier1/_trash/biz-signup-block.txt` (2 hits) is gitignored trash (`.gitignore:66`) and was left untouched.
-  - This is a repo-only change: if `eatouts.online` is still a configured Cloudflare Pages custom domain (outside this repo), it keeps serving the site — nothing here breaks it, and nothing here moves traffic.
+  - This is a repo-only change: if the legacy `.online` domain is still configured as a Cloudflare Pages custom domain (outside this repo), it keeps serving the site — nothing here breaks it, and nothing here moves traffic.
+  - This entry deliberately never spells the stale host, so the documented repo-wide drift grep returns **0 matches** rather than tripping on its own record.
 - Errors: none
 
