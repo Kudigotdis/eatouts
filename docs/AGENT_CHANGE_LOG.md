@@ -2357,3 +2357,34 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - Browser paint of `/bw/nandos` and `/zw/kfc` (status codes + injected meta inspected, not rendered).
   - Remote D1 still has no `restaurants.region` column until a human runs `npm run db:migrate` against `--remote` (T22b leftover; unrelated to this change — the link layer reads the client JSON, not D1).
 - Errors: none
+
+### [2026-11-04 16:07:39] - [Agent: cline] - [Status: COMMITTED]
+- Task: Purge the stale `www.eatouts.online` host — repo-wide correction to the canonical `www.eatouts.site` (17 occurrences across 9 tracked files). Both open questions resolved by the user as recommended: **Q1 = A** (edit the applied-migration comment) and **Q2 = yes** (add a drift guard).
+- Files changed:
+  - `js/eatouts-slug.js`: `url()` returns `www.eatouts.site` + path (still host-without-scheme, so `Slug.url('bw','tops')` → `www.eatouts.site/bw/tops`); header comment ×2 and the `url()` docstring updated
+  - `js/eatouts-business-signup.js`: the "Your EatOuts link" hint (`sg-hint`, l.471) and the `Link saved — …` toast (l.604) now show the `.site` host
+  - `functions/api/_vanity.js`: T22c header comment (l.4–5)
+  - `index.html`: vanity-link comment (l.10886)
+  - `eatouts-suppliers.html`: PUBLIC PROFILE comments (l.681, l.1979)
+  - `scripts/build_link_registry.mjs`: header comment (l.5) + the emitted seed header (l.271)
+  - `scripts/seeds/business_links.sql`: regenerated — **line 2 only**
+  - `migrations/0004_business_links.sql`: `--` comment (l.2). Q1 = A: an already-applied migration, but the edit is inside a comment, changes no schema, and D1 tracks migrations by filename (no checksum), so a re-apply is unaffected
+  - `tests/router.js`: expectation pin (l.219) + edge fixture host (l.401) + **new section M — public host drift guard**
+- Commit: `d3a7359` (9 files, +31 −17)
+- Push: `a43c04a..d3a7359  main -> main`
+- Verified:
+  - `node scripts/build_link_registry.mjs` → 839 links (restaurant 477 · bottlestore 47 · supplier 315); `git diff --stat assets/data/link_registry.json` → **empty** (the artifact carries no host string at all)
+  - `git diff scripts/seeds/business_links.sql` → **exactly 1 line** (line 2). The 839 INSERTs stay byte-identical because the content digest is `sha256([type,slug,refId,name])` and never includes the header text
+  - `git grep -n "eatouts\.online"` → **no matches** (repo-wide zero `.online` state, migration comment included)
+  - `node tests/router.js` → **93 checks passed** (92 before + 1 guard)
+  - `npm test` → **74 passed / 0 failed** (exit 0)
+  - `tests/catering-directory.js` PASSED · `tests/venue-slug.js` 31 checks · `tests/venue-slug-integration.js` PASSED
+  - **Guard has teeth (mutation probe, not a vacuous assertion):** appending `// www.eatouts.online probe` to `js/eatouts-slug.js` produced `FAIL no stale public host in shipped files  -- js/eatouts-slug.js`; restoring from backup returned 93 passed, with `git diff --stat js/eatouts-slug.js` back to exactly 4 insertions / 4 deletions
+- Notes:
+  - The guard scans the **7 shipped files** — `migrations/` is deliberately excluded because Pages does not deploy it. It assembles the stale host as `'eatouts' + '.' + 'online'` so the assertion itself never contains (and can never re-introduce) the string it hunts for.
+  - `Slug.url()` deliberately keeps returning the host **without** scheme, matching the test pin. Whether to emit `https://` is a separate product decision and was not taken here.
+  - The signup hint and toast are asserted by no suite (no signup suite exists), so nothing would have caught their regression; the guard now covers the literal host in that file, but not the surrounding copy.
+  - `_archive_local/tier1/_trash/biz-signup-block.txt` (2 hits) is gitignored trash (`.gitignore:66`) and was left untouched.
+  - This is a repo-only change: if `eatouts.online` is still a configured Cloudflare Pages custom domain (outside this repo), it keeps serving the site — nothing here breaks it, and nothing here moves traffic.
+- Errors: none
+
