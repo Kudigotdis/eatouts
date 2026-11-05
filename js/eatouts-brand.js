@@ -27,6 +27,32 @@ var LOGOS = {
     placeholder: 'assets/logo/logo_placement_image.png'
   };
 
+  /* Botswana Halaal Authority certification. Kept as a static list because
+     certification is controlled by the authority, not the venue record. */
+  var HALAAL_LOGO = 'assets/halaal-logos/Botswana_Halaal_Logo.jpg';
+  var HALAAL_PREFIXES = [
+    'kfc',
+    'nando',
+    'chicken-licken',
+    'hungry-lion',
+    'barcelos',
+    'wimpy',
+    'kebabish',
+    'sip-and-grill',
+    'ashoka',
+    'df-50-ashoka',
+    'the-downstairs',
+    'downstairs',
+    'vida-e-caf',
+    'jimmy-s-killer',
+    'the-sultan',
+    'sultan',
+    'quatro',
+    'quattro',
+    'bukhara',
+    'butter-chicken'
+  ];
+
   /* Restaurants with a real logo file, keyed by slug. */
   var REAL_LOGOS = {
     soya: LOGOS.soya,
@@ -69,6 +95,50 @@ kfc: 'assets/logo/kfc.jpg',
        name, so both spellings have to land on the same brand key. */
     if (s === 'zors' || s === 'zorz') return 'zorz-luxury-chisanyama';
     return s;
+  }
+
+  function isHalaalKey(value) {
+    var key = slugify(String(value || ''));
+    if (!key) return false;
+    for (var i = 0; i < HALAAL_PREFIXES.length; i++) {
+      var prefix = HALAAL_PREFIXES[i];
+      if (key === prefix || key.indexOf(prefix) === 0) return true;
+    }
+    return false;
+  }
+
+  /**
+   * True when a venue, brand group, or plain slug is on the Botswana Halaal
+   * Authority list. Branch slugs (kfc-maun, nando-s-phakalane, ...) match by
+   * prefix, while the canonical key covers Nando's name variants.
+   */
+  function isHalaalVenue(venue) {
+    if (!venue) return false;
+    if (typeof venue === 'string') return isHalaalKey(venue);
+    var parts = [
+      venue.brandKey,
+      venue.key,
+      venue.slug,
+      venue.id,
+      venue.name
+    ];
+    for (var i = 0; i < parts.length; i++) {
+      var raw = parts[i];
+      if (!raw) continue;
+      if (isHalaalKey(raw)) return true;
+      var canonical = canonicalKey(raw);
+      if (canonical !== raw && isHalaalKey(canonical)) return true;
+    }
+    return false;
+  }
+
+  function halaalBadgeHtml(opts) {
+    opts = opts || {};
+    var cls = 'halaal-badge' + (opts.className ? ' ' + opts.className : '');
+    return '<button type="button" class="' + esc(cls) + '"' + (opts.attrs || '') +
+      ' aria-label="Certified Halaal" title="Certified Halaal">' +
+      '<img src="' + esc(HALAAL_LOGO) + '" alt="Certified Halaal">' +
+      '</button>';
   }
 
   /**
@@ -285,7 +355,14 @@ function hasRealLogo(slug) {
     '.eo-thumb-sm{width:40px;height:40px;border-radius:11px}',
     '.eo-thumb-sm .eo-thumb-letter{font-size:18px}',
     '.eo-thumb-lg{width:80px;height:80px;border-radius:18px}',
-    '.eo-thumb-lg .eo-thumb-letter{font-size:34px}'
+    '.eo-thumb-lg .eo-thumb-letter{font-size:34px}',
+    '.halaal-badge{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;',
+    '  width:34px;height:34px;padding:2px;border:1px solid #e3dccb;border-radius:50%;',
+    '  background:#fff;box-shadow:0 1px 4px rgba(16,24,40,.12);cursor:pointer;',
+    '  -webkit-tap-highlight-color:transparent;transition:transform .08s ease}',
+    '.halaal-badge img{width:100%;height:100%;object-fit:contain;display:block;border-radius:50%}',
+    '.halaal-badge:active{transform:scale(.94)}',
+    '.halaal-badge-status{width:28px;height:28px;padding:1px;vertical-align:middle}'
   ].join('');
 
   /** Idempotent: safe to call from every page that loads this file. */
@@ -312,6 +389,9 @@ hasRealLogo: hasRealLogo,
     logoFor: logoFor,
     manifestLogo: manifestLogo,
     canonicalKey: canonicalKey,
+    isHalaalVenue: isHalaalVenue,
+    halaalBadgeHtml: halaalBadgeHtml,
+    HALAAL_LOGO: HALAAL_LOGO,
     isUsableLogo: isUsableLogo,
     isPlaceholderLogo: isPlaceholderLogo,
     thumbHtml: thumbHtml,

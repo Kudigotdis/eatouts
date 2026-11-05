@@ -505,6 +505,58 @@ setTimeout(() => {
      branch's town even though it shows a single row */
   check('town filter lists a town only one branch has (Maun)', /Maun/.test(popupText),
     popupText.slice(0, 160));
+  click(doc.getElementById('popup-scrim'));
+
+  /* ---------- H: Halaal certification filter ---------- */
+  const isHalaal = window.EatoutsBrand.isHalaalVenue;
+  const certified = [
+    ['kfc-maun', 'KFC'],
+    ['chicken-licken-station', 'Chicken Licken'],
+    ['nando-s-phakalane', "Nando's"],
+    ['hungry-lion-take-aways', 'Hungry Lion'],
+    ['wimpy-orapa', 'Wimpy'],
+    ['barcelos-mochudi', 'Barcelos'],
+    ['the-sultan-restaurant', 'The Sultan Restaurant'],
+    ['kebabish-curry-and-grill', 'Kebabish Curry and Grill'],
+    ['sip-and-grill', 'Sip & Grill'],
+    ['df-50-ashoka-restaurant', 'DF 50 Ashoka Restaurant'],
+    ['ashoka-palace', 'Ashoka Palace'],
+    ['downstairs-bw', 'Downstairs BW'],
+    ['the-downstairs', 'The Downstairs'],
+    ['quatro-s', "Quatro's"],
+    ['vida-e-cafe', 'Vida e Café'],
+    ['jimmy-s-killer-express', "Jimmy's Killer Express"],
+    ['butter-chicken-indian-restaurant', 'Butter Chicken Indian Restaurant'],
+    ['bukhara', 'Bukhara']
+  ];
+  check('the shared helper recognises every certified listing',
+    certified.every(pair => isHalaal({ slug: pair[0], name: pair[1] })),
+    certified.filter(pair => !isHalaal({ slug: pair[0], name: pair[1] })).map(pair => pair[0]).join(' | '));
+  check('the shared helper leaves non-certified venues alone',
+    !isHalaal({ slug: 'steers', name: 'Steers' }) &&
+      !isHalaal({ slug: 'ocean-basket', name: 'Ocean Basket' }));
+
+  const halaalBtn = doc.querySelector('.filter-btn[data-halaal-toggle]');
+  check('the filter bar carries a Halaal chip', !!halaalBtn);
+  search('');
+  click(halaalBtn);
+  check('the Halaal chip switches on', halaalBtn.classList.contains('on') &&
+    halaalBtn.getAttribute('aria-pressed') === 'true');
+  let halaalNames = names(search(''));
+  check('the Halaal filter keeps a certified chain', halaalNames.indexOf('KFC') > -1,
+    halaalNames.slice(0, 8).join(' | '));
+  check('the Halaal filter removes a non-certified venue',
+    halaalNames.indexOf('Steers') === -1 && halaalNames.indexOf('Ocean Basket') === -1,
+    halaalNames.slice(0, 8).join(' | '));
+  click(halaalBtn);
+  check('the Halaal chip switches off', !halaalBtn.classList.contains('on') &&
+    halaalBtn.getAttribute('aria-pressed') === 'false');
+  check('switching the Halaal filter off restores other venues',
+    names(search('')).indexOf('Steers') > -1);
+
+  const searchSrc = fs.readFileSync(path.join(APP_DIR, 'search_screen.html'), 'utf8');
+  check('the search page reads the ?halaal=1 deep link',
+    /URLSearchParams\(location\.search\)\.get\('halaal'\) === '1'/.test(searchSrc));
 
   check('no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '));
 

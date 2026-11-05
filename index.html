@@ -285,7 +285,9 @@ img{display:block;max-width:100%}
 /* Restaurant-Card: replaces the breadcrumb at the top of both Menu views.
    White card, faint 4% black border, a 90px logo (tap for the large view)
    and the venue name + tagline (tap for the venue info page). */
-.restcard{display:flex;align-items:center;gap:13px;padding:12px 14px;margin:12px 14px 0;background:#ffffff;border:1px solid rgba(0,0,0,.04);border-radius:14px}
+.restcard{position:relative;display:flex;align-items:center;gap:13px;padding:12px 14px;margin:12px 14px 0;background:#ffffff;border:1px solid rgba(0,0,0,.04);border-radius:14px}
+.restcard.has-halaal .restcard-main{padding-right:42px}
+.restcard .halaal-badge{position:absolute;top:9px;right:10px;z-index:2}
 .restcard-thumb{width:90px;height:90px;flex:0 0 auto;border-radius:8px;overflow:hidden;border:1px solid #ece7db;background:#faf8f2;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .restcard-thumb:active{opacity:.85}
 .restcard-thumb img{width:100%;height:100%;object-fit:contain;display:block}
@@ -728,9 +730,12 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 /* .ritem wraps the row + its options so the options can live OUTSIDE the
    row button (interactive content inside a <button> is invalid) and still
    animate via the shared .acc-wrap grid-rows transition. */
-.ritem{width:calc(100% - 20px);margin:7px 10px;background:#ffffff;border:1px solid #ece7db;border-radius:7px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px rgba(16,24,40,.06);transition:box-shadow .25s ease,border-color .25s ease,opacity .18s ease}
+.ritem{position:relative;width:calc(100% - 20px);margin:7px 10px;background:#ffffff;border:1px solid #ece7db;border-radius:7px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px rgba(16,24,40,.06);transition:box-shadow .25s ease,border-color .25s ease,opacity .18s ease}
 .ritem.open{border-color:#dfe3e9;box-shadow:0 2px 4px rgba(16,24,40,.06),0 18px 40px rgba(16,24,40,.10)}
 .ritem.open>.rrow{background:#ffffff}
+.ritem .halaal-badge-row{position:absolute;top:11px;right:12px;z-index:2;display:none}
+.ritem.open .halaal-badge-row{display:inline-flex}
+.ritem.has-halaal.open>.rrow{padding-right:54px}
 /* T03 — an open row is the only lit row: the rest dim so the opened card is
    the one in focus. The list is never scroll-locked and the dimmed rows keep
    taking taps, so a tall panel stays reachable and tapping another row (or the
@@ -829,6 +834,10 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 .card-alert{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:79;width:100%;max-width:316px;max-height:calc(100% - 40px);overflow-y:auto;background:#ffffff;border-radius:24px;padding:24px 22px 18px;text-align:center;box-shadow:0 28px 64px rgba(0,0,0,.34),0 2px 6px rgba(0,0,0,.08);animation:fpop .18s ease}
 .card-alert-icon{width:50px;height:50px;margin:0 auto 14px;border-radius:50%;background:#fdecef;display:flex;align-items:center;justify-content:center;color:#e11d2e;font-size:22px;font-weight:800}
 .card-alert-logo{width:56px;height:56px;margin:0 auto 14px;border-radius:14px;display:block;object-fit:contain}
+.card-alert-logo.halaal{width:96px;height:96px;border-radius:50%;border:1px solid #ece7db;padding:4px;background:#fff}
+.card-alert-close{position:absolute;top:10px;right:10px;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:#f3efe6;color:#4b463a;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.card-alert-close:active{background:#e8e1d2}
+.card-alert-dismiss{display:block;width:100%;margin-top:10px;padding:4px;border:0;background:transparent;color:#8a8170;font:inherit;font-size:13px;font-weight:700;text-decoration:underline;cursor:pointer}
 .card-alert h3{margin:0;font-size:17.5px;font-weight:700;letter-spacing:-.2px;color:#111827}
 .card-alert p{margin:9px 0 0;font-size:14px;line-height:1.55;color:#6b7280;white-space:pre-line}
 .card-alert-options{margin-top:16px;display:flex;flex-direction:column;gap:8px}
@@ -6124,13 +6133,15 @@ function closeAllRitemAccordions(){
    branch drives the Menu/Promos/About buttons and the town/area labels. */
 function restaurantItem(g,now){
   const open=state.restaurantOpen===g.brandKey;
+  const halaal=isHalaalVenue(g);
   const meta=g.locationCount>1?(g.locationCount+" places"):(g.placeLabel||"");
-  let h='<div class="ritem'+(open?" open":"")+'" data-racc="'+esc(g.brandKey)+'">';
+  let h='<div class="ritem'+(open?" open":"")+(halaal?" has-halaal":"")+'" data-racc="'+esc(g.brandKey)+'">';
   h+='<button class="rrow" data-act="toggleRestaurant" data-id="'+esc(g.brandKey)+'" aria-expanded="'+(open?"true":"false")+'">';
   h+='<div class="rthumb">'+(g.thumbHtml||"")+'</div>';
   h+='<div class="rinfo"><div class="rname">'+esc(g.name)+'</div>';
   h+='<div class="rmeta">'+esc(g.category)+' · '+esc(meta)+'</div></div>';
   h+='</button>';
+  if(halaal)h+=halaalBadgeHtml(' data-act="openHalaalPopup"','halaal-badge-row');
   h+='<div class="acc-wrap"><div class="acc-in">'+restaurantOptions(g,activeBranchRecord(g))+'</div></div>';
   h+='</div>';
   return h;
@@ -6455,7 +6466,7 @@ function renderRestaurantSubView(){
       state.menuCat=null;state.menuOpen=null;
     }
     /* PAGE: venue-menu — Menu */
-    return page("venue-menu",'<div class="scroll menu-view">'+restaurantCard(r)+renderMenuCategories(true)+
+    return page("venue-menu",'<div class="scroll menu-view">'+restaurantCard(r,true)+renderMenuCategories(true)+
       '<div class="pad" style="padding-top:0"><button class="btn ghost full" data-act="backFromRestView">Back</button></div>'+
       '<div style="height:10px"></div></div>');
   }
@@ -8034,7 +8045,15 @@ function renderBevSplit(){
    ================================================================ */
 /* Restaurant-Card shown at the top of both Menu views in place of the
    old breadcrumb: logo (tap = large view) + name/tagline (tap = info page). */
-function restaurantCard(r){
+function isHalaalVenue(r){
+  const B=window.EatoutsBrand;
+  return !!(B&&typeof B.isHalaalVenue==="function"&&B.isHalaalVenue(r));
+}
+function halaalBadgeHtml(attrs,className){
+  const B=window.EatoutsBrand;
+  return (B&&typeof B.halaalBadgeHtml==="function")?B.halaalBadgeHtml({attrs:attrs,className:className}):"";
+}
+function restaurantCard(r,showHalaal){
   r=r||curRestaurant();
   if(!r) return "";
   const b=curBundle();
@@ -8042,7 +8061,8 @@ function restaurantCard(r){
   const name=(b&&b.name)||r.name||"";
   const tag=p.tagline||(r.directory&&r.directory.description)||r.category||EatoutsBridge.placeLabel(r)||"";
   const logo=restLogo(r);
-  return '<div class="restcard">'+
+  const halaal=showHalaal&&isHalaalVenue(r);
+  return '<div class="restcard'+(halaal?" has-halaal":"")+'">'+
     '<button class="restcard-thumb" data-act="previewRestLogo" data-id="'+esc(r.id)+'" aria-label="View '+esc(name)+' logo">'+
       (logo?'<img src="'+esc(logo)+'" alt="">':'<span class="restcard-ph">'+esc((name[0]||"?").toUpperCase())+'</span>')+
     '</button>'+
@@ -8050,6 +8070,7 @@ function restaurantCard(r){
       '<span class="restcard-name">'+esc(name)+'</span>'+
       (tag?'<span class="restcard-tag">'+esc(tag)+'</span>':'')+
     '</button>'+
+    (halaal?halaalBadgeHtml(' data-act="openHalaalPopup"','halaal-badge-card'):'')+
   '</div>';
 }
 function renderMenuCategories(noWrap){
@@ -8375,7 +8396,8 @@ function renderCardAlert(){
   const dismissAct=a.dismissAct||"dismissCardAlert";
   let h='<div class="card-alert-scrim" data-act="'+esc(dismissAct)+'"></div>';
   h+='<div class="card-alert" role="alertdialog" aria-modal="true">';
-  if(a.logo)h+='<img class="card-alert-logo" src="'+esc(a.logo)+'" alt="">';
+  if(a.close)h+='<button class="card-alert-close" data-act="'+esc(dismissAct)+'" aria-label="Dismiss">&times;</button>';
+  if(a.logo)h+='<img class="card-alert-logo'+(a.logoClass?' '+esc(a.logoClass):'')+'" src="'+esc(a.logo)+'" alt="">';
   else h+='<div class="card-alert-icon">'+esc(a.icon||"!")+'</div>';
   if(a.title)h+='<h3>'+esc(a.title)+'</h3>';
   if(a.message)h+='<p>'+esc(a.message)+'</p>';
@@ -8401,8 +8423,27 @@ function renderCardAlert(){
       (a.axis?' data-axis="'+esc(a.axis)+'"':'')+'>'+esc(a.label||"Continue")+'</button>';
   }
   if(!a.noDismiss)h+='<button class="dlg-btn" data-act="dismissCardAlert">Not now</button>';
-  h+='</div></div>';
+  h+='</div>';
+  if(a.dismissText)h+='<button class="card-alert-dismiss" data-act="'+esc(dismissAct)+'">'+esc(a.dismissText)+'</button>';
+  h+='</div>';
   return h;
+}
+
+function openHalaalPopup(){
+  const B=window.EatoutsBrand;
+  state.cardAlert={
+    logo:(B&&B.HALAAL_LOGO)||"assets/halaal-logos/Botswana_Halaal_Logo.jpg",
+    logoClass:"halaal",
+    title:"Certified Halaal",
+    message:"This business is certified by the Botswana Halaal Authority. It complies with strict Islamic dietary laws and quality standards for preparation.",
+    close:true,
+    dismissText:"Dismiss",
+    noDismiss:true,
+    actions:[
+      {label:"View All Halaal Options",href:"search_screen.html?halaal=1",primary:true}
+    ]
+  };
+  render();
 }
 
 /* ---------- ABOUT TAB POPUPS (guest explainer + profile options) ---------- */
@@ -9838,6 +9879,7 @@ document.addEventListener("click",function(e){
     render();return;
   }
   if(act==="dismissCardAlert"){state.cardAlert=null;render();return;}
+  if(act==="openHalaalPopup"){openHalaalPopup();return;}
 
   /* Close the photo preview; tapping the image itself stays inert */
   if(act==="closePreview"){if(e.target.closest(".preview-img"))return;state.preview=null;render();return;}

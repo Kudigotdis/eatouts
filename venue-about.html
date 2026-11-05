@@ -611,7 +611,17 @@
   .popup-head{
     padding:20px 22px 12px;
     flex:0 0 auto;
+    position:relative;
   }
+  .popup.has-close .popup-head{padding-right:56px}
+  .popup-close{
+    display:none;position:absolute;top:12px;right:12px;
+    width:32px;height:32px;padding:0;border:0;border-radius:50%;
+    background:#f3efe6;color:#4b463a;font-size:20px;line-height:1;
+    align-items:center;justify-content:center;cursor:pointer;
+  }
+  .popup.has-close .popup-close{display:flex}
+  .popup-close:active{background:#e8e1d2}
   .popup-title{
     margin:0;
     font-size:18px;font-weight:800;
@@ -623,6 +633,20 @@
     -webkit-overflow-scrolling:touch;
   }
   .popup-body p{margin:0 0 12px;color:var(--ink-2);font-size:14.5px;line-height:1.6}
+  .halaal-pop-logo{
+    display:block;width:112px;height:112px;margin:2px auto 14px;padding:4px;
+    border:1px solid var(--border);border-radius:50%;background:#fff;object-fit:contain;
+  }
+  .halaal-pop-cta{
+    display:block;width:100%;margin-top:6px;padding:15px 16px;
+    border:0;border-radius:12px;background:#0d0d0d;color:#fff;
+    text-align:center;text-decoration:none;font-size:16px;font-weight:800;
+  }
+  .halaal-pop-dismiss{
+    display:block;width:100%;margin-top:12px;padding:8px;border:0;
+    background:transparent;color:var(--muted);font:inherit;
+    font-size:13px;font-weight:700;text-decoration:underline;cursor:pointer;
+  }
 
   .sheet-section{margin:14px 0 4px}
   .sheet-section:first-child{margin-top:0}
@@ -934,6 +958,7 @@
 <div class="popup" id="popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
   <div class="popup-head">
     <h2 class="popup-title" id="popupTitle">—</h2>
+    <button class="popup-close" id="popupClose" type="button" aria-label="Close">&times;</button>
   </div>
   <div class="popup-body" id="popupBody"></div>
 </div>
@@ -1104,14 +1129,30 @@
     var s = document.getElementById('popupScrim'); if (s) s.classList.remove('open');
     var p = document.getElementById('popup'); if (p) p.classList.remove('open');
   }
-  function openPopup(title, html) {
+  function openPopup(title, html, showClose) {
     var t = document.getElementById('popupTitle'); if (t) t.textContent = title;
     var b = document.getElementById('popupBody'); if (b) b.innerHTML = html;
     var s = document.getElementById('popupScrim'); if (s) s.classList.add('open');
-    var p = document.getElementById('popup'); if (p) p.classList.add('open');
+    var p = document.getElementById('popup'); if (p) { p.classList.add('open'); p.classList.toggle('has-close', !!showClose); }
+  }
+  function openHalaalPopup() {
+    var B = window.EatoutsBrand;
+    var logo = (B && B.HALAAL_LOGO) || 'assets/halaal-logos/Botswana_Halaal_Logo.jpg';
+    var html = '<img class="halaal-pop-logo" src="' + logo + '" alt="Botswana Halaal Authority">' +
+      '<p>This business is certified by the Botswana Halaal Authority. It complies with strict Islamic dietary laws and quality standards for preparation.</p>' +
+      '<a class="halaal-pop-cta" href="search_screen.html?halaal=1">View All Halaal Options</a>' +
+      '<button class="halaal-pop-dismiss" type="button" data-halaal-close="1">Dismiss</button>';
+    openPopup('Certified Halaal', html, true);
   }
   var scrim = document.getElementById('popupScrim');
   if (scrim) scrim.addEventListener('click', closePopup);
+  var popupClose = document.getElementById('popupClose');
+  if (popupClose) popupClose.addEventListener('click', closePopup);
+  var popupBody = document.getElementById('popupBody');
+  if (popupBody) popupBody.addEventListener('click', function(e) {
+    var d = e.target.closest('[data-halaal-close]');
+    if (d) { e.preventDefault(); closePopup(); }
+  });
 
   /* ---- No business resolved: hand back to the directory, no placeholder ---- */
   if (!biz) { window.location.replace('index.html#restaurants'); return; }
@@ -1197,7 +1238,14 @@
     else if (hour >= o && hour < c) { txt = 'Open till ' + f(c); dc = 'open'; }
     else if (hour < o) { txt = 'Closed - Opens at ' + f(o); dc = 'closed'; }
     else { txt = 'Closed - Opens ' + (day === 6 ? 'Mon 07:30' : 'tomorrow 07:30'); dc = 'closed'; }
-    sl.innerHTML = '<span class="status-dot ' + dc + '"></span><span>' + txt + '</span>';
+    var halaal = window.EatoutsBrand && typeof EatoutsBrand.isHalaalVenue === 'function' &&
+      EatoutsBrand.isHalaalVenue(biz.record || biz.branch || biz);
+    var badge = halaal && window.EatoutsBrand && typeof EatoutsBrand.halaalBadgeHtml === 'function'
+      ? EatoutsBrand.halaalBadgeHtml({ className: 'halaal-badge-status', attrs: ' id="halaalBadge"' })
+      : '';
+    sl.innerHTML = badge + '<span class="status-dot ' + dc + '"></span><span>' + txt + '</span>';
+    var hb = document.getElementById('halaalBadge');
+    if (hb) hb.addEventListener('click', openHalaalPopup);
   }
 
   /* ---- Build CONTACTS from resolved business ---- */
