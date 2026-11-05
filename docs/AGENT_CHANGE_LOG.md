@@ -29,6 +29,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `docs/AGENT_CHANGE_LOG.md`: this entry.
 - Commit: `db80789`
 - Push: `origin/main` `faad152..db80789` (Pages auto-deploys this; `ACCESS_GATE=off`, so the gate stays inert)
+- Deployment: verified live after the push — `https://www.eatouts.site/admin/login` **503** `text/html`, `x-robots-tag: noindex, nofollow`, `Cache-Control: no-store`, the form posting to `/api/admin/login` and the "Access is not configured yet." notice (the three admin secrets are still unset, so this is the expected state); `/eatouts-about` **200**, `/eatouts-about.html` **308** → `/eatouts-about`, `/api/health` **200** — i.e. pages still serve correctly with `/*.html` no longer excluded and the middleware in front of them
 - Verified:
   - `node tests/access-gate.js` → **ACCESS-GATE PASSED (77 checks)**
   - `npm test` (`node tests/run-all.js`) → **78 passed, 0 failed** (exit 0)
