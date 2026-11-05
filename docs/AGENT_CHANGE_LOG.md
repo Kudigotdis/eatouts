@@ -2741,3 +2741,21 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: none
 
 - Errors: none
+
+### [2026-11-05 22:25:18] - [Agent: opencode] - [Status: COMMITTED]
+- Task: Narrow the Halaal allowlist so only `Ashoka Palace` is certified. `Ashoka Palace Restaurant` is a separate directory record and must not inherit the badge from the shared `ashoka` prefix.
+- Files changed:
+  - `js/eatouts-brand.js`: `ashoka-palace` moved from `HALAAL_PREFIXES` into a new `HALAAL_EXACT` list, checked before the prefixes. The broad `ashoka` prefix is gone; `df-50-ashoka` stays as a prefix so `DF 50 Ashoka Restaurant` remains certified.
+  - `tests/search-screen.js`: regression checks that `Ashoka Palace` is certified, `Ashoka Palace Restaurant` is not, the Halaal filter keeps the former, and the filter excludes the latter.
+- Commit: `259f01a`
+- Push: `origin/main` (included in the subsequent pushes through `086ef1b`)
+- Deployment: verified live on `https://www.eatouts.site/js/eatouts-brand.js` — **200**, `HALAAL_EXACT = ['ashoka-palace']`, `df-50-ashoka` still in `HALAAL_PREFIXES`, and `HALAAL_EXACT` is tested before the prefixes
+- Verified:
+  - `node tests/search-screen.js` -> **SEARCH SCREEN TEST PASSED** (includes "Ashoka Palace remains certified" and "Ashoka Palace Restaurant is not certified")
+  - `node tests/halaal.js` -> **HALAAL TEST PASSED** (40 checks)
+- Not verified:
+  - A real-browser tap-through of both Ashoka rows; jsdom proves the helper and filter output, not the painted badge
+- Notes:
+  - Exact-match-before-prefix is what keeps the longer name out: `ashoka-palace-restaurant` no longer matches any prefix, while `ashoka-palace` matches the exact key.
+  - The certification list stays static in `js/eatouts-brand.js`; no D1 or admin change.
+- Errors: none
