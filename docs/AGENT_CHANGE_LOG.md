@@ -15,7 +15,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
-### [2026-11-05 17:52:25] - [Agent: cline] - [Status: IN_PROGRESS]
+### [2026-11-05 17:52:25] - [Agent: cline] - [Status: COMMITTED]
 - Task: Milestone B2 — the admin side of the access-control gate. Adds `GET /api/admin/access` and the "Access & security" panel inside `eatouts-admin-dashboard.html`: "bypass active until …", a revoke-all button, the device list, and a read-only `denial_log` view. Twilio step-up (D5) deliberately **not** built.
 - Files changed:
   - `functions/api/admin/access.js` (NEW): the only new read. `requireAdmin` (platform_admin session, like `/api/admin/links`) — **not** the bypass cookie, because a Botswana admin has no cookie and must still be able to see and revoke browsers. Returns `{ gate, epoch, windowDays, bypass:{active,user,expires,device,current}, devices[], denied:{total,byRule,recent}, warnings[] }`. `?days=` clamped 1–90 (default 7). `ip_hash`/`ua_hash`/`fp_hash` are never selected. A missing table becomes a `warnings` entry, never a 500. Gate mode comes from `gateMode()` in `_middleware.js`, so the panel and the gate cannot disagree.
@@ -25,8 +25,9 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `tests/run-all.js`: registers `dashboard-access-panel.js`.
   - `docs/ACCESS-CONTROL-PLAN.md`: B2 rows marked done / deferred, new §5.3 "Milestone B2 — the management screen" (C/D renumbered to §5.4/§5.5), §7 counts refreshed (104 / 79 / 17, 79 suites) and a `curl.exe` check for the new endpoint added, Milestone B DoD updated.
   - `docs/AGENT_CHANGE_LOG.md`: this entry.
-- Commit: PENDING
-- Push: PENDING
+- Commit: `f1151f4`
+- Push: `origin/main` `a5a48d9..f1151f4` (Pages auto-deploys)
+- Deployment: verified live after the push — `https://www.eatouts.site/api/admin/access` **401** `{"ok":false,"error":"not_authenticated"}` (the route deployed and is session-guarded, not a 404); `/eatouts-admin-dashboard` **200** with the new "Access & security" section and the "Revoke all bypasses" button in the served HTML; `/admin/login` **503** and `/eatouts-about` **200** (unchanged — the three secrets are still unset and `ACCESS_GATE` is still `off`)
 - Verified:
   - `node tests/security-admin.js` → **SECURITY-ADMIN PASSED (104 checks)**
   - `node tests/dashboard-access-panel.js` → **DASHBOARD-ACCESS-PANEL PASSED (17 checks)**
