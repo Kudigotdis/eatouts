@@ -16,6 +16,39 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 ---
+### [2026-11-05 15:05:47] - [Agent: opencode] - [Status: COMMITTED]
+- Task: Add the Botswana Halaal certification badge, tap-through explanation popup, and Halaal search filter for the certified venue list.
+- Files changed:
+  - `js/eatouts-brand.js`: shared `isHalaalVenue()` / `halaalBadgeHtml()` helpers, static certification prefixes, URL-safe `HALAAL_LOGO`, badge CSS, and public exports.
+  - `index.html`: venue-menu `.restcard` badge, restaurants-pager open-row badge, `venue-about`-independent Halaal popup via the card-alert system, and close/dismiss support.
+  - `venue-about.html`: status-line badge immediately before the open/closed text, Halaal popup with logo/message/CTA/Dismiss, and a scoped top-right X for that popup.
+  - `search_screen.html`: `Halaal` filter chip, `halaalOnly` state, brand-row certification flag, filtered results, and `?halaal=1` deep-link handling.
+  - `tests/halaal.js` (NEW, 40 checks): shared helper, all three badge placements, popup contents/close paths, open-row visibility, and the runtime `?halaal=1` deep link.
+  - `tests/search-screen.js`: Halaal helper/filter coverage.
+  - `tests/run-all.js`: registers `halaal.js`.
+  - `assets/halaal-logos/Botswana_Halaal_Logo.jpg` (NEW): URL-safe copy of the supplied logo.
+  - `assets/halaal logos/Botswana_Halaal_Logo.jpg` (NEW): original supplied asset retained at its exact path.
+- Commit: `575427b`
+- Push: `origin/main @ 575427b`
+- Deployment: `https://9545966a.eatouts.pages.dev`
+- Verified:
+  - `node tests/halaal.js` -> **HALAAL TEST PASSED** (40 checks).
+  - `node tests/search-screen.js` -> **SEARCH SCREEN TEST PASSED**.
+  - `npm test` -> **77 passed, 0 failed**.
+  - `npm run build` -> succeeded; `dist/assets/halaal-logos/Botswana_Halaal_Logo.jpg` is present at 53,365 bytes.
+  - `npx wrangler pages deploy dist` -> succeeded, uploaded 3 changed files, deployment `9545966a`.
+  - Production asset `https://www.eatouts.site/assets/halaal-logos/Botswana_Halaal_Logo.jpg` -> **200**, `image/jpeg`, 53,365 bytes.
+  - Production `index.html` -> 200 and contains `openHalaalPopup` + the Halaal logo path.
+  - Production `search_screen.html` -> 200 and contains `data-halaal-toggle` + the `?halaal=1` reader.
+  - Production `venue-about.html?link=kfc` -> 200 and contains `halaal-pop-cta` + `id="halaalBadge"`.
+- Notes:
+  - Certification is a static list keyed by brand/name/slug prefixes; branch slugs such as `kfc-maun`, `chicken-licken-station`, and `nando-s-phakalane` match.
+  - **Assumption to confirm:** directory records `Ashoka Palace` / `Ashoka Palace Restaurant` are treated as `DF 50 Ashoka Restaurant`, and `The Downstairs` as `Downstairs BW`. Remove those aliases if the names refer to different businesses.
+  - Badge scope follows the request exactly: venue-menu card only (not venue-menu-item), restaurants-pager only while the accordion row is open, and venue-about immediately before the status text.
+  - No D1, admin, or dependency changes.
+- Errors: none.
+
+---
 ### [2026-11-05 14:13:55] - [Agent: opencode] - [Status: COMMITTED]
 - Task: Production rollout for the venue-interest feature: apply the pending remote D1 migrations and deploy the pushed build to Cloudflare Pages.
 - Files changed:
