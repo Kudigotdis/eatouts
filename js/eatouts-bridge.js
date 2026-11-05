@@ -251,6 +251,9 @@
    */
   function brandKeyOf(r) {
     if (!r) return null;
+    /* Directory rows state their brand outright: Zimbabwe ships brandKey so a
+       chain's Harare and Bulawayo rows both resolve the same menu. */
+    if (r.brandKey) return String(r.brandKey);
     var slug = String(r.slug || '');
     var alias = BRAND_ALIAS[slug];
     if (alias) return alias;
@@ -283,8 +286,12 @@
      roster order. The customer app composes a display row per group; the
      owner pages keep the raw branch-level listing(). */
   function groups() {
-    var d = db();
-    var rows = DB.byLastActive(d);
+    /* Through all(), never DB.byLastActive(): the grouped listing is what
+       index.html's Restaurants list renders, so it has to obey the same region
+       gate. Reading the database directly let Botswana's seed roster (the
+       flagship, Chicken Licken, The Game Reserve…) show up under Zimbabwe,
+       where the ZW payload has no such venue and About bounces back home. */
+    var rows = all();
     var byKey = {};
     var order = [];
     rows.forEach(function (r) {
@@ -390,11 +397,19 @@
    * Falling back to the shared template keeps this safe even when the
    * directory has not loaded yet.
    */
+  /** Region code of a row, resolved the same way the data gate resolves it. */
+  function regionOf(r) {
+    var R = window.EatoutsRegions;
+    if (R && typeof R.recordRegion === 'function') return R.recordRegion(r);
+    return String((r && r.region) || 'BW').toUpperCase();
+  }
+
   function menuFor(content, r, sharing) {
     if (!r || !sharing || FLAGSHIP_SLUGS.indexOf(r.slug) > -1) {
       return unflattenMenu(content);
     }
     var M = window.EatoutsMenus;
+    var zimbabwe = regionOf(r) === 'ZW';
     if (M) {
       var key = brandKeyOf(r);
       var town = (r.location && r.location.town) || '';
@@ -407,8 +422,12 @@
       if (override && override.length) return override;
       var imported = menus ? menus[key] : null;
       if (imported && imported.length) return imported;
-      if (M.demo && M.demo.length) return M.demo;
+      /* Zimbabwe has no shared template of its own, so an unmapped brand
+         returns an empty menu and the app shows "menu not yet available"
+         instead of borrowing the Botswana demo menu. */
+      if (!zimbabwe && M.demo && M.demo.length) return M.demo;
     }
+    if (zimbabwe) return [];
     return unflattenMenu(content);
   }
 

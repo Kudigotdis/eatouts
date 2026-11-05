@@ -209,6 +209,7 @@ one-liner, e.g. `PAGE: venue-menu-item — Menu · Item  [rest_pizza-perfect:bur
 | Screen | Description | State condition | Render function | Page marker | Line |
 |--------|------------|-----------------|-----------------|-------------|------|
 | Menu (Categories) | Restaurant card + list of categories | `rv.view === "menu"` | Inline | `PAGE: venue-menu — Menu` | 5411 |
+| Menu (Not Published) | Zimbabwe venue that has not published a menu — alert dialog on first open, quiet card after dismissal | `venueMenuMissing()` | `renderVenueMenuMissing(r)` | `PAGE: venue-menu-empty — Menu` | 6495 |
 | Menu (Locked) | Locked listing placeholder | `listingLocked(r)` | `renderMenuLocked(r)` | `PAGE: venue-locked — Menu (locked)` | 4663 |
 | Menu Item | Items in a category with steppers + cart | `state.menuCat` set | `renderMenuCategory()` | `PAGE: venue-menu-item — Menu · Item` | 7047 |
 | Checkout / Order Summary | Review cart + delivery + send | `state.checkoutView` truthy | `renderCheckout()` | `PAGE: venue-checkout — Checkout` | 7130 |

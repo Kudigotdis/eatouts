@@ -20,8 +20,9 @@ function check(label, cond, extra) {
 
 const APP_DIR = path.resolve(__dirname, '..');
 
-/* the pages that ship with the app */
-const SKIP_DIR = /[\\/](node_modules|dist|staging|reference|\.wrangler|SORT THIS)[\\/]/i;
+/* the pages that ship with the app (sources/ holds raw scraped material,
+   gitignored, and never ships) */
+const SKIP_DIR = /[\\/](node_modules|dist|staging|reference|sources|\.wrangler|SORT THIS)[\\/]/i;
 const SKIP_FILE = /^(HTML_CATALOG|SORT_REDESIGNS|UPLOAD)/i;
 
 function shippedFiles(extensions) {

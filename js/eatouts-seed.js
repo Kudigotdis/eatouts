@@ -99,6 +99,20 @@
         area: area || ''
       },
       types: Array.isArray(source.types) && source.types.length ? source.types.slice() : typesFor(name),
+      /* Directory rows state their own region, brand key and rating. Keeping
+         them is what lets EatoutsRegions.filterByRegion() gate Zimbabwe rows
+         and EatoutsBridge resolve a ZW chain's menu by brand.
+
+         Only a directory row states a region. The seed roster, the flagship
+         profile and the Botswana demo databases (bottle stores, catering,
+         bakeries) arrive without one, so they are Botswana data and must NOT
+         inherit the ACTIVE region: a roster row stamped ZW survives the region
+         gate, shows up in Zimbabwe's list, and its About page bounces back to
+         #restaurants because the ZW payload has no such venue. */
+      region: String(source.region || 'BW').toUpperCase(),
+      brandKey: source.brandKey || null,
+      rating: Number(source.rating) || 0,
+      reviewCount: Number(source.reviewCount) || 0,
       directory: {
         areas: source.areas || [],
         addresses: source.addresses || [],

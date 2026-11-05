@@ -3,6 +3,7 @@ const path = require('path');
 const { JSDOM, VirtualConsole } = require(path.join(__dirname, 'node_modules', 'jsdom'));
 
 const APP_DIR = path.resolve(__dirname, '..');
+const withRegionPayload = require('./_region-payload');
 const errors = [];
 let html = fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8');
 html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, src) => {
@@ -10,6 +11,9 @@ html = html.replace(/<script\s+src="([^"]+)"\s*><\/script>/g, (m, src) => {
   if (!fs.existsSync(f)) { errors.push('missing script file: ' + src); return '<!-- missing ' + src + ' -->'; }
   return '<script>' + fs.readFileSync(f, 'utf8') + '</script>';
 });
+/* The directory payload is document.write()n by js/eatouts-region-data.js, which
+   jsdom never fetches — hand the page the Botswana payload the browser gets. */
+html = withRegionPayload(html, 'BW');
 
 const vc = new VirtualConsole();
 vc.on('jsdomError', e => errors.push('jsdomError: ' + (e.stack || e.message)));

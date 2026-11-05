@@ -30,6 +30,7 @@ const path = require('path');
 const { JSDOM, VirtualConsole } = require(path.join(__dirname, 'node_modules', 'jsdom'));
 
 const APP_DIR = path.resolve(__dirname, '..');
+const withRegionPayload = require('./_region-payload');
 
 let fails = 0;
 function check(label, cond, extra) {
@@ -44,6 +45,9 @@ function loadPage(slug) {
     if (!fs.existsSync(f)) return '<!-- missing ' + src + ' -->';
     return '<script>' + fs.readFileSync(f, 'utf8') + '</script>';
   });
+  /* The directory payload is document.write()n by js/eatouts-region-data.js, which
+     jsdom never fetches — hand the page the Botswana payload the browser gets. */
+  html = withRegionPayload(html, 'BW');
   const errors = [];
   const navs = [];
   const vc = new VirtualConsole();

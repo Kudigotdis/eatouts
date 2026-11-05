@@ -15,6 +15,46 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
+### [2026-11-05 23:52:37] - [Agent: cline] - [Status: IN_PROGRESS]
+- Task: Finish the Zimbabwe region wiring — the suite went red after the region-data refactor; restore it to the HEAD baseline (80/0) without giving up the "one region, one payload" download, and land the last pieces (screen inventory, sign-in scan, test harnesses).
+- Root cause: `index.html` / `search_screen.html` pulled the locations file in with `document.write()` (`EatoutsRegionData.injectLocationsSync()`). jsdom never fetches a document.write()-injected `<script src>`, so every harness that boots a page saw zero towns (486 → 0) and lost the directory payload along with it.
+- Files changed:
+  - `index.html`, `search_screen.html`: both locations files are plain `<script>` tags again (`botswana_locations.js`, `assets/Zimbabwe/zimbabwe_locations.js`); `injectLocationsSync()` is gone. 51 KB rides along for the other country, which is cheaper than a synchronous fetch hook and keeps the town selectors parse-time-ordered. The **payload** keeps its region-exclusive `document.write()` injection — that is the 711 KB / 2.4 MB file that actually matters.
+  - `js/eatouts-region-data.js`: dropped `injectLocationsSync()`, `LOCATIONS_SCRIPTS` and `locationsUrl()` (dead once the tags are static). `injectSync()` / `payload()` / `jsonUrl()` unchanged.
+  - `js/eatouts-locations.js`: resolves the active region's file through `window.EatoutsRegions.locationsFile()` and indexes that global — `null` (a region with no file) now builds an empty index instead of falling back to Botswana's towns. No registry at all (module on its own) still defaults to `botswana_locations.js`.
+  - `tests/_region-payload.js` (NEW): inlines the region's payload (`data/restaurant_listings/{directory,zimbabwe}_runtime_data.js`) into a page's HTML before any app script, for the harnesses. Documents why (document.write is a browser-only path; jsdom ignores it).
+  - `tests/restloc.js`, `tests/popups.js` (via locations only), `tests/menu-nav-state.js`, `tests/halaal.js`, `tests/search-screen.js`, `tests/venue-about-options.js`, `tests/venue-about-about.js`: one `withRegionPayload(html, 'BW')` call each, right after the `<script src>` inlining — the harnesses run as Botswana, exactly as before.
+  - `tests/region-gating.js`: the "locations adapter gates through the registry" assertion now checks the resolution (`REGIONS.locationsFile()` + `LOCATIONS_SOURCES[LOCATIONS_FILE]`) instead of a per-call filename comparison the adapter no longer does.
+  - `tests/login.js`: `sources/` added to `SKIP_DIR` — it holds raw scraped material (gitignored, never shipped), and a scraped sample menu's `/login` link was being scanned as a shipped page.
+  - `index.html`: `/* PAGE: venue-menu-empty — Menu */` banner above `renderVenueMenuMissing()`; `PAGE_INVENTORY.md`: the matching row in the "within a restaurant" table (inventory.js: 31 → 32 screens).
+  - `.gitignore`: `sources/` (raw ZW scrape, local-only) and `test-out.txt` (full-suite dump).
+  - `docs/AGENT_CHANGE_LOG.md`: this entry.
+  - `js/eatouts-seed.js`: **defect fix** — `toRestaurant()` no longer inherits the ACTIVE region. Only a directory row states its own `region`; the seed roster, the flagship profile and the Botswana demo databases (bottle stores, catering, bakeries) arrive without one, so they are Botswana data and must not be stamped ZW.
+  - `js/eatouts-bridge.js`: **defect fix** — `groups()` (the only source of index.html's Restaurants list) now reads through the same region-gated `all()` instead of `DB.byLastActive(db())`, which bypassed the gate entirely.
+  - `tests/region-about.js` (NEW, 21 checks): boots `index.html` as ZW, then as BW, and asserts `EatoutsBridge.all()` is exactly the region's payload, the Restaurants list carries no Botswana-only venue under ZW (`the-yellow-giraffe`, `chicken-licken`, `the-game-reserve`), the flagship and demo roster are still listed under BW, and that a listed venue really opens `venue-about.html` instead of navigating away.
+  - `tests/run-all.js`: registers `region-about.js`.
+- Defect fixed (reported symptom: *with Zimbabwe active, tapping About on a venue dropped the visitor back on the Restaurants list*):
+  - `venue-about.html` resolves `?link=<slug>` against the ACTIVE region's payload, so a listed venue the ZW payload does not contain has nothing to resolve and bounces to `index.html#restaurants`.
+  - Under ZW the list held **1126 brand rows** against a **977-row** ZW payload: ~256 Botswana seed/demo rows had been stamped `region: "ZW"` by the region inheritance above, and `groups()` handed them to the list regardless of the gate. `EatoutsBridge.all()` was 1233 rows (977 ZW + 256 BW) before the fix, 977 after; the grouped list is 881 (one per ZW brand key) with the canaries gone.
+  - Botswana is unchanged: 568 bridged rows / 477 grouped rows, flagship and demo roster still listed — the BW payload carries no `region` field at all, so the `'BW'` fallback is exactly the old behaviour.
+- Verified:
+  - `node tests/run-all.js` → **81 passed, 0 failed** (exit 0), including the new `region-about.js` (21 checks).
+  - `node tests/region-about.js` → **REGION ABOUT TEST PASSED** (21 checks).
+  - Pre-fix reproduction, captured in jsdom before the change: BW boot 8/8 About taps resolve; ZW boot resolved `nandos`/`kfc`/`hungry-lion`/`rocomamas`/`mozambik` but bounced on `the-yellow-giraffe`, `chicken-licken`, `the-game-reserve`. After the fix those three are not listed under ZW and a ZW venue (`golden-peacock-villa-hotel`) opens About with 0 navigations.
+  - Re-ran after the final edits: `popups`, `restloc`, `search-screen`, `halaal`, `venue-about-options`, `venue-about-about`, `region-gating`, `inventory` (21 checks, 73 pages, 32 screens), `login` (30 checks, 0 failures) — all green.
+  - `node --check js/eatouts-region-data.js js/eatouts-locations.js` → clean.
+- Not verified:
+  - **the About tap itself in a real browser** (ZW venue → About page, no bounce back to the list) — the fix is proved in jsdom against the same payload files, but jsdom cannot exercise the `document.write()` payload injection the browser uses
+  - the rest of the browser smoke test (BW↔ZW switch, currency pill / ZiG cycle, venue open, missing-menu dialog, town selectors, order history `fmt(s.total)`, split checkout)
+  - `wrangler pages functions build` / a real deploy
+- Known gap (not fixed here): `data/link_registry.json` holds 839 `bw` links and **0** `zw`, so the public `/zw/<slug>` URL 404s. `scripts/build_link_registry.mjs` only reads `directory_runtime_data.json`; the downstream is country-generic, so feeding `zimbabwe_runtime_data.json` in is a one-file change.
+- Notes: the payload stays region-exclusive in production (a ZW visitor never downloads the 711 KB Botswana file, a BW visitor never downloads the 2.4 MB Zimbabwe one); only the 51 KB locations file is shared, and `js/eatouts-locations.js` gates it by region.
+- Commit: PENDING
+- Push: NOT PUSHED — the browser smoke test has not run yet, and a push deploys
+- Errors: none
+
+---
+
 ### [2026-11-05 17:52:25] - [Agent: cline] - [Status: COMMITTED]
 - Task: Milestone B2 — the admin side of the access-control gate. Adds `GET /api/admin/access` and the "Access & security" panel inside `eatouts-admin-dashboard.html`: "bypass active until …", a revoke-all button, the device list, and a read-only `denial_log` view. Twilio step-up (D5) deliberately **not** built.
 - Files changed:

@@ -97,6 +97,7 @@ const SUITES = [
   'security-admin.js',
   'dashboard-access-panel.js',
   'data-payload.js',
+  'region-about.js',
   'access-gate.js'
 ];
 

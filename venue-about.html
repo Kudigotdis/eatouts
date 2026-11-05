@@ -743,7 +743,13 @@
   }
 </style>
 <script src="js/eatouts-brand.js"></script>
-<script src="/data/restaurant_listings/directory_runtime_data.js"></script>
+<script src="js/eatouts-region-data.js"></script>
+<script>
+/* The active region's directory payload — Botswana's or Zimbabwe's — so a
+   ZW venue resolves against the ZW listings. */
+EatoutsRegionData.injectSync();
+</script>
+<script src="js/eatouts-currency.js"></script>
 <script src="/data/BottleLliquorStoresDatabase.js"></script>
 <script src="js/eatouts-bottle-stores.js"></script>
 <script src="/data/CateringServicesDatabase.js"></script>
@@ -1002,7 +1008,7 @@
   function resolve(s) {
     if (!s) return null;
     var target = canon(s);
-    var dir = (window.DIRECTORY_RUNTIME_DATA && window.DIRECTORY_RUNTIME_DATA.restaurants) || [];
+    var dir = ((window.EatoutsRegionData ? EatoutsRegionData.payload() : window.DIRECTORY_RUNTIME_DATA) || {}).restaurants || [];
 
     for (var i = 0; i < dir.length; i++) {
       var r = dir[i] || {};
@@ -1456,7 +1462,7 @@
       rec.branches.forEach(function (b) { out.push({ town: b.town || (b.location && b.location.town) || '', area: b.area || (b.location && b.location.area) || '' }); });
       return out;
     }
-    var dir = (window.DIRECTORY_RUNTIME_DATA && window.DIRECTORY_RUNTIME_DATA.restaurants) || [];
+    var dir = ((window.EatoutsRegionData ? EatoutsRegionData.payload() : window.DIRECTORY_RUNTIME_DATA) || {}).restaurants || [];
     for (var i = 0; i < dir.length; i++) {
       var r = dir[i] || {};
       if (canon(r.name) !== canon(biz.name)) continue;
@@ -1509,10 +1515,11 @@
   }
 
   /* Menu availability, from the same directory payload index.html uses.
-     directory_runtime_data.js carries menusRaw/menuFiles keyed by the
-     canonical brand slug (e.g. "kfc", "nandos", "the-yellow-giraffe-..."). */
+     The payload (directory_runtime_data.js in Botswana,
+     zimbabwe_runtime_data.js in Zimbabwe) carries menusRaw/menuFiles keyed by
+     the canonical brand slug (e.g. "kfc", "nandos", "the-yellow-giraffe-..."). */
   function importedMenusFor() {
-    var src = window.DIRECTORY_RUNTIME_DATA || {};
+    var src = (window.EatoutsRegionData ? EatoutsRegionData.payload() : window.DIRECTORY_RUNTIME_DATA) || {};
     var raw = src.menusRaw || {};
     var files = src.menuFiles || {};
     var out = [];
@@ -1655,6 +1662,7 @@
   function money(n) {
     var v = Number(n);
     if (!isFinite(v)) return '';
+    if (window.EatoutsCurrency) return EatoutsCurrency.fmt(v);
     var s = String(Math.round(v * 100) / 100).split('.');
     s[0] = s[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return 'P' + s.join('.');

@@ -168,7 +168,6 @@ img{display:block;max-width:100%}
      the directory runtime data instead)
      ============================================================ -->
 <script src="/data/restaurant_listings/restaurant_types_filter.js"></script>
-<script src="/data/restaurant_listings/directory_runtime_data.js"></script>
 <script src="/data/restaurant_listings/eatouts_manifest.js"></script>
 <script src="/data/event_types.js"></script>
 <script src="/data/venue-provider-list.js"></script>
@@ -176,7 +175,11 @@ img{display:block;max-width:100%}
 <script src="/data/CateringServicesDatabase.js?v=20261021"></script>
 <script src="/data/bakery_services_database.js?v=20261021"></script>
 <script src="/data/venue_about_info.js"></script>
+<script src="js/eatouts-region-data.js"></script>
+<!-- Both location files ship as plain scripts; js/eatouts-locations.js reads
+     only the active region's global. -->
 <script src="botswana_locations.js"></script>
+<script src="assets/Zimbabwe/zimbabwe_locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-brand.js"></script>
 <script src="js/eatouts-bottle-stores.js"></script>
@@ -193,6 +196,10 @@ img{display:block;max-width:100%}
 <script src="js/eatouts-router.js"></script>
 <script src="js/eatouts-analytics.js"></script>
 <script src="js/eatouts-regions.js"></script>
+<script>
+/* Only the active region's directory payload is downloaded. */
+EatoutsRegionData.injectSync();
+</script>
 
 <script>
 (function(){
@@ -316,9 +323,10 @@ img{display:block;max-width:100%}
           try { window.EatoutsSeed.mergeDirectory(dir); } catch(e){ console.warn('[Search] mergeDirectory:', e); }
         }
       }
-      if (window.DIRECTORY_RUNTIME_DATA){ merge(window.DIRECTORY_RUNTIME_DATA); resolve(); return; }
+      var preloaded = window.EatoutsRegionData ? EatoutsRegionData.payload() : window.DIRECTORY_RUNTIME_DATA;
+      if (preloaded){ merge(preloaded); resolve(); return; }
       if (typeof fetch !== 'function'){ resolve(); return; }
-      fetch('/data/restaurant_listings/directory_runtime_data.json')
+      fetch(window.EatoutsRegionData ? EatoutsRegionData.jsonUrl() : '/data/restaurant_listings/directory_runtime_data.json')
         .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function(dir){ merge(dir); resolve(); })
         .catch(function(e){ console.warn('[Search] directory unavailable:', e); resolve(); });

@@ -1,6 +1,8 @@
 /* ============================================================
    EATOUTS LOCATIONS
-   Adapter over botswana_locations.js (window.BOTSWANA_LOCATIONS_DATA).
+   Adapter over the active region's locations file —
+   botswana_locations.js (window.BOTSWANA_LOCATIONS_DATA) or
+   zimbabwe_locations.js (window.ZIMBABWE_LOCATIONS_DATA).
 
    Source shape:
      { districts: [ { name, code, towns: [ { name, areas: [string] } ] } ] }
@@ -21,19 +23,25 @@
 (function () {
   'use strict';
 
-  var DATA = (typeof window !== 'undefined' && window.BOTSWANA_LOCATIONS_DATA) || null;
-
   /* T22 step 3 — the dataset is resolved through the region registry rather
-     than assumed. This adapter only understands Botswana's file, so when the
-     active region points at another one the indexes stay empty and every
-     selector degrades to "Other / not listed" instead of offering Botswana
-     towns for a country whose data has not landed yet. */
-  var LOCATIONS_FILE = 'botswana_locations.js';
+     than assumed: each active region reads its own window global. A region
+     whose file is not registered here (or has not loaded) leaves the indexes
+     empty and every selector degrades to "Other / not listed" instead of
+     offering another country's towns. */
   var REGIONS = (typeof window !== 'undefined' && window.EatoutsRegions) || null;
-  if (DATA && REGIONS && typeof REGIONS.locationsFile === 'function' &&
-      REGIONS.locationsFile() !== LOCATIONS_FILE) {
-    DATA = null;
-  }
+  var LOCATIONS_SOURCES = {
+    'botswana_locations.js': (typeof window !== 'undefined' && window.BOTSWANA_LOCATIONS_DATA) || null,
+    'zimbabwe_locations.js': (typeof window !== 'undefined' && window.ZIMBABWE_LOCATIONS_DATA) || null
+  };
+  /* The registry is the source of truth. Without it (an old page, or the
+     adapter on its own) Botswana's file is the historical default; a region the
+     registry maps to no file resolves to null. */
+  var LOCATIONS_FILE = (REGIONS && typeof REGIONS.locationsFile === 'function')
+    ? REGIONS.locationsFile()
+    : 'botswana_locations.js';
+  /* A region with no file of its own gets the index built from nothing, never
+     from another country's towns. */
+  var DATA = (LOCATIONS_FILE && LOCATIONS_SOURCES[LOCATIONS_FILE]) || null;
 
   var OTHER_LABEL = 'Other / not listed';
 

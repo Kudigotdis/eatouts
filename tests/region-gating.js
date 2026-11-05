@@ -131,8 +131,12 @@ check('ordering is preserved', seen[0].name === 'Alpha Grill' && seen[1].name ==
   seen.map(r => r.name).join(','));
 
 /* ================= locations follow the region ================= */
+/* The adapter no longer compares filenames at every call — it indexes the one
+   file the registry names for the active region (and nothing when it names
+   none), so gating is a property of the resolution itself. */
 check('the locations adapter gates through the registry',
-  /locationsFile\(\) !== LOCATIONS_FILE/.test(LOC_SRC));
+  /EatoutsRegions/.test(LOC_SRC) && /REGIONS\.locationsFile\(\)/.test(LOC_SRC) &&
+  /LOCATIONS_SOURCES\[LOCATIONS_FILE\]/.test(LOC_SRC));
 check('Botswana locations load', Loc.stats().loaded === true, Loc.stats().loaded);
 check('every Botswana district is indexed', Loc.allDistricts().length === 28, Loc.allDistricts().length);
 check('every Botswana town is indexed', Loc.allTowns().length === 486, Loc.allTowns().length);
