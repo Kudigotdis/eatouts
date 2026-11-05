@@ -30,8 +30,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `tests/run-all.js`: registers `security-admin.js`.
   - `_headers`: `X-Robots-Tag: noindex, nofollow` + `Cache-Control: no-store` on `/api/admin/*`.
   - `docs/ACCESS-CONTROL-PLAN.md` (NEW): Phase 0 findings, the 7-stage pipeline, Milestone A detail, Milestones B/C/D, fail-closed matrix, privacy stance, verification, DoD, rollback.
-- Commit: PENDING
-- Push: PENDING
+- Commit: `0f345a2`
+- Push: `origin/main` (ref recorded in the follow-up log commit)
 - Verified:
   - `node tests/security-admin.js` → **SECURITY-ADMIN PASSED (89 checks)**
   - `npm test` (`node tests/run-all.js`) → **76 passed, 0 failed** (75 before + this suite)
