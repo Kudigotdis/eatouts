@@ -27,8 +27,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `tests/run-all.js`: registers `access-gate.js`.
   - `docs/ACCESS-CONTROL-PLAN.md`: §5 rewritten as “Milestone B — the gate (DONE, ships off)” with the `ACCESS_GATE` matrix, the SEO consequence, what Stage 3 does and does not skip, and C/D renumbered to §5.3/§5.4; §6 gains the gate rows; §7 gains the B verification + the gate `curl.exe` checks + a Milestone B DoD; §8 gains two rollback rows.
   - `docs/AGENT_CHANGE_LOG.md`: this entry.
-- Commit: PENDING
-- Push: PENDING
+- Commit: `db80789`
+- Push: `origin/main` `faad152..db80789` (Pages auto-deploys this; `ACCESS_GATE=off`, so the gate stays inert)
 - Verified:
   - `node tests/access-gate.js` → **ACCESS-GATE PASSED (77 checks)**
   - `npm test` (`node tests/run-all.js`) → **78 passed, 0 failed** (exit 0)
