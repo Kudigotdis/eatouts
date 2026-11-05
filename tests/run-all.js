@@ -96,6 +96,7 @@ const SUITES = [
   'money.js',
   'security-admin.js',
   'dashboard-access-panel.js',
+  'data-payload.js',
   'access-gate.js'
 ];
 

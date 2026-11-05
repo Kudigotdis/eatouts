@@ -143,8 +143,12 @@ const missing = [];
 // Milestone B: "/*.html" is deliberately NOT excluded any more. Excluding it
 // kept page requests away from Functions entirely, which also kept them away
 // from functions/_middleware.js - the geo-gate could never see a page. Pages
-// now pay one Function invocation so the gate can run; the asset folders stay
-// excluded (the 728 KB directory payload moves behind the gate in Milestone C).
+// now pay one Function invocation so the gate can run.
+//
+// Milestone C: /assets/* stays excluded, so DO NOT add "/data/*" to this list.
+// The 4.9 MB catalogue is published at /data/* and only ever reaches a visitor
+// through functions/data/[[path]].js, behind the gate. Excluding it would hand
+// the whole payload back to any scraper that asked.
 const staticExcludes = [
   '/assets/*', '/js/*', '/css/*', '/img/*',
   '/_headers', '/_redirects', '/_routes.json',
@@ -169,6 +173,18 @@ for (const folder of FOLDERS) {
   await cp(folder, `${OUT}/${folder}`, { recursive: true });
   console.log(`✓ copied folder: ${folder}/`);
   copied++;
+}
+
+// ---- Data payload ----------------------------------------------------------
+// Milestone C: assets/data/* is published at /data/* (NOT /assets/data/*).
+// The source folder keeps its name so the suites that read it as a disk path
+// stay valid; only the URL moves. functions/data/[[path]].js serves it.
+if (existsSync('assets/data')) {
+  await cp('assets/data', `${OUT}/data`, { recursive: true });
+  console.log('✓ copied folder: assets/data -> data/');
+  copied++;
+} else {
+  missing.push('assets/data/');
 }
 
 // ---- Copy files ----
