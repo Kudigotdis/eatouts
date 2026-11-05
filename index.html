@@ -3740,6 +3740,10 @@ profilePhoto:null,
   restLocPicker:null,
   restNotice:null,
   cardAlert:null,
+  interestNoticeBag:[],
+  interestNudgeBag:[],
+  interestNoticeLast:-1,
+  interestNudgeLast:-1,
   /* About tab popups: null | guest-main | guest-feature | profile-options |
      favourites | orders | summaries | gallery */
   about:null,
@@ -8155,12 +8159,221 @@ function renderRestNotice(){
   return '<div class="rest-notice" data-act="dismissRestNotice" role="status">'+esc(state.restNotice)+'</div>';
 }
 
+/* ================================================================
+   VENUE INTEREST COPY + HELPERS
+   Two sequential popups for venues that are not participating yet.
+   Each list is served through a shuffle bag so the copy is random but
+   never repeats until the bag is empty.
+   ================================================================ */
+const VENUE_INTEREST_NOTICE=[
+  {title:"Not in our kitchen... yet!",body:`This spot isn't officially on EatOuts just yet, so direct ordering is locked. You can still send this exact checkout summary to your WhatsApp contacts!`},
+  {title:"Cooking up the connection!",body:`We're still getting this spot fully onboarded. For now, hit the WhatsApp button below to send your order summary to a friend or contact.`},
+  {title:"Almost on the menu!",body:`This restaurant hasn't joined the party official-like. Tap below to fire your order selection straight to your WhatsApp contacts.`},
+  {title:"Playing hard to get",body:`This establishment isn't participating directly on EatOuts yet. Send your saved summary over WhatsApp to sort out your meal!`},
+  {title:"In the waiting room...",body:`We've pulled this menu together for you, but direct vendor messaging activates once they join! Send your order summary to your squad on WhatsApp.`},
+  {title:"Half-baked direct ordering!",body:`We have their menu, but they aren't on our instant-order grid yet. Forward your checkout layout to your friends on WhatsApp to get the ball rolling!`},
+  {title:"The chef is still prepping...",body:`Direct restaurant checkout isn't live for this location yet. Use the WhatsApp shortcut below to share your order list!`},
+  {title:"A quick pit stop before the feast",body:`This spot hasn't joined our official network. Pass your selection over to your WhatsApp contact so everyone knows what you're craving!`},
+  {title:"No hot-line just yet!",body:`We haven't wired up direct order dispatch with this joint yet. Hit WhatsApp to pass your order summary to your designated pick-up pal!`},
+  {title:"Fresh off the public press",body:`We gathered this menu for your viewing pleasure! Direct store communication opens once they claim their spot. Share your summary via WhatsApp for now.`},
+  {title:"Don't leave your appetite hanging!",body:`This restaurant isn't signed up officially yet. Tap WhatsApp to drop this summary into a chat with your tablemates or delivery buddy.`},
+  {title:"We're working on 'em!",body:`Help us get their attention! Send your order summary via WhatsApp, and tell them to join EatOuts so you can order direct next time!`},
+  {title:"Hold your forks!",body:`Direct vendor checkout unlocks when this restaurant joins EatOuts. Send your order summary over to WhatsApp to keep the plan moving.`},
+  {title:"Off-grid (for now)!",body:`This eatery is still unofficial on our system. Share your curated order summary to WhatsApp to coordinate your meal.`},
+  {title:"Making introductions...",body:`We've got their public menu ready for you, but direct messaging is pending. Send your current selection over WhatsApp to make it happen!`},
+  {title:"Public Menu Only",body:`Direct ordering activates when this spot joins EatOuts! Forward your summary via WhatsApp below.`},
+  {title:"Not officially cooking with us yet!",body:`Pass your order summary to a contact on WhatsApp to get things moving.`},
+  {title:"Order pending activation",body:`Share this checkout list on WhatsApp while we work on bringing this store onboard!`},
+  {title:"Menu ready, direct line incoming",body:`Use the WhatsApp button to send your items to a friend or contact.`},
+  {title:"Almost there!",body:`Direct ordering opens when they claim their page. Send your order summary via WhatsApp for now!`}
+];
+const VENUE_INTEREST_NUDGE=[
+  {title:"Help us get 'em on board!",body:`When you place your order, ask them: "When are you joining EatOuts?" The more they hear it, the faster direct ordering goes live!`},
+  {title:"Help this menu go live",body:`Give the restaurant a quick nudge when you order. Ask them when they're claiming their spot on EatOuts!`},
+  {title:"Help your favorite spot",body:`Tell the manager or cashier: "I found your menu on EatOuts—when are you guys signing up?"`},
+  {title:"Mare, why wait?",body:`Let them know their menu is already live on EatOuts! Ask them to join officially so you can order direct next time.`},
+  {title:"Give 'em a quick nudge",body:`Ask the staff when they're coming to EatOuts. Your request might just be the push they need to get listed!`},
+  {title:"Hungry for fast checkout?",body:`When you send this over, drop them a quick line: "Love the food, but when are you joining EatOuts for easy ordering?"`},
+  {title:"Drop them a hint!",body:`Mention EatOuts when you pick up or order. Tell them: "Get on EatOuts so I can order in two taps!"`},
+  {title:"Bona, spill the tea!",body:`Ask the restaurant if they know they're on EatOuts yet! Tell them to claim their page so you get live order updates.`},
+  {title:"Give 'em a polite nudge.",body:`Ask them when they're officially joining EatOuts. A hungry customer's voice is the best pitch we have!`},
+  {title:"Cook up some peer pressure.",body:`Next time you talk to them, ask: "Why aren't you on EatOuts yet?" Let's make direct ordering happen!`},
+  {title:"Sharing is caring.",body:`Remind the store that you're using EatOuts to browse! Ask them when they'll be participating officially.`},
+  {title:"Make your life easier.",body:`Ask the spot when they're joining EatOuts. If enough foodies ask, they'll hop on board faster!`},
+  {title:"Bring your favorites online.",body:`Mention EatOuts when you reach out to them! Let them know their customers are already here waiting.`},
+  {title:"but holla at them also.",body:`Tell them you found their menu on EatOuts and want to see them official! Every nudge counts.`},
+  {title:"Also neh...",body:`Ask the restaurant owner or staff when they're getting on EatOuts. Let's get them connected!`},
+  {title:"Love this spot?",body:`Tell them to join EatOuts so you can order direct next time!`},
+  {title:"Tag! You're it.",body:`Ask them when they're joining EatOuts so we can unlock instant ordering.`},
+  {title:"Help this menu go live.",body:`Ask the team when they're joining EatOuts!`},
+  {title:"Save the world like a cheerleader.",body:`Mention EatOuts to the staff today so they jump on board sooner!`}
+];
+let interestVisitorMemory="";
+
+function interestNext(copy,bagKey,lastKey){
+  let bag=state[bagKey];
+  if(!Array.isArray(bag)||!bag.length){
+    bag=copy.map(function(_,i){return i;});
+    for(let i=bag.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      const t=bag[i];bag[i]=bag[j];bag[j]=t;
+    }
+    if(bag.length>1&&bag[bag.length-1]===state[lastKey]){
+      const t=bag[0];bag[0]=bag[bag.length-1];bag[bag.length-1]=t;
+    }
+    state[bagKey]=bag;
+  }
+  const idx=bag.pop();
+  state[lastKey]=idx;
+  return copy[idx];
+}
+
+function interestVisitorId(){
+  const KEY="eatouts_visitor_id_v1";
+  if(interestVisitorMemory)return interestVisitorMemory;
+  try{
+    let id=window.localStorage.getItem(KEY);
+    if(!id){
+      id=(window.crypto&&window.crypto.randomUUID)?window.crypto.randomUUID():"v"+Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+      window.localStorage.setItem(KEY,id);
+    }
+    interestVisitorMemory=id;
+    return id;
+  }catch(e){
+    interestVisitorMemory="v"+Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+    return interestVisitorMemory;
+  }
+}
+
+function interestAgeBand(dob){
+  if(!dob)return "";
+  const d=new Date(dob);
+  if(isNaN(d.getTime()))return "";
+  const now=new Date();
+  let age=now.getFullYear()-d.getFullYear();
+  const m=now.getMonth()-d.getMonth();
+  if(m<0||(m===0&&now.getDate()<d.getDate()))age--;
+  if(age<18)return "Under 18";
+  if(age<25)return "18-24";
+  if(age<35)return "25-34";
+  if(age<45)return "35-44";
+  if(age<55)return "45-54";
+  if(age<65)return "55-64";
+  return "65+";
+}
+
+function interestBrowserMeta(){
+  const n=window.navigator||{},s=window.screen||{};
+  let tz="";
+  try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";}catch(e){}
+  let region="";
+  try{region=(window.EatoutsRegions&&EatoutsRegions.code&&EatoutsRegions.code())||"";}catch(e){}
+  return {
+    language:n.language||"",
+    timezone:tz,
+    screen:(s.width||0)+"x"+(s.height||0),
+    pixelRatio:window.devicePixelRatio||1,
+    platform:n.platform||"",
+    mobile:!!(n.userAgentData&&n.userAgentData.mobile)||/Mobi|Android|iPhone|iPad/i.test(n.userAgent||""),
+    touch:(n.maxTouchPoints||0)>0,
+    referrer:document.referrer||"",
+    region:region
+  };
+}
+
+function interestServerUser(){
+  try{
+    return !!(window.EatoutsCustomer&&EatoutsCustomer.state&&EatoutsCustomer.state.backend&&aboutUser()&&aboutUser().id);
+  }catch(e){return false;}
+}
+
+function isParticipatingVenue(r){
+  if(!r)return false;
+  if(r.participating===true||r.participating===1)return true;
+  if(r.claimed===true||r.claimed===1)return true;
+  if(String(r.status||"").toLowerCase()==="claimed")return true;
+  return false;
+}
+
+function logVenueInterest(bundle){
+  try{
+    const b=bundle||{};
+    const r=b.restaurant||{};
+    const u=aboutUser();
+    const signed=interestServerUser();
+    const p=(signed&&u&&u.profile)||{};
+    const visitor=interestVisitorId();
+    const props={
+      venueId:String(r.id||b.id||""),
+      venueSlug:String(r.slug||""),
+      venueName:String(r.name||b.name||curRestaurantName()||""),
+      venueTown:String(r.town||(r.location&&r.location.town)||""),
+      venueArea:String(r.area||(r.location&&r.location.area)||""),
+      venueStatus:String(r.status||""),
+      personKey:signed?("u:"+u.id):("b:"+visitor),
+      userType:signed?"user":"browser",
+      gender:signed?String(p.gender||""):"",
+      ageBand:signed?interestAgeBand(p.dob):"",
+      town:signed?String(p.town||""):"",
+      area:signed?String(p.area||""):"",
+      browser:interestBrowserMeta()
+    };
+    if(window.EatoutsAnalytics&&typeof EatoutsAnalytics.track==="function"){
+      EatoutsAnalytics.track("venue.interest",props,{userId:signed?u.id:null});
+    }
+    if(typeof fetch==="function"){
+      fetch("/api/venue-interest",{
+        method:"POST",
+        credentials:"same-origin",
+        headers:{"content-type":"application/json"},
+        body:JSON.stringify({
+          venueId:props.venueId,
+          venueSlug:props.venueSlug,
+          visitorId:visitor,
+          browser:props.browser
+        })
+      }).catch(function(){});
+    }
+  }catch(e){}
+}
+
+function showInterestNotice(){
+  const c=interestNext(VENUE_INTEREST_NOTICE,"interestNoticeBag","interestNoticeLast");
+  state.cardAlert={
+    icon:"!",
+    title:c.title,
+    message:c.body,
+    noDismiss:true,
+    dismissAct:"interestNoticeClose",
+    actions:[
+      {label:"Continue to WhatsApp",act:"interestNoticeContinue",primary:true},
+      {label:"Close",act:"interestNoticeClose"}
+    ]
+  };
+  render();
+}
+
+function showInterestNudge(){
+  const c=interestNext(VENUE_INTEREST_NUDGE,"interestNudgeBag","interestNudgeLast");
+  state.cardAlert={
+    icon:"!",
+    title:c.title,
+    message:c.body,
+    actions:[
+      {label:"Send on WhatsApp",act:"interestSend",primary:true},
+      {label:"Not now",act:"dismissCardAlert"}
+    ]
+  };
+  render();
+}
+
 /* Card alert: explains a disabled card action and offers a primary button that
    jumps straight into the location picker. Mirrors the menu-selector demo. */
 function renderCardAlert(){
   const a=state.cardAlert;
   if(!a)return "";
-  let h='<div class="card-alert-scrim" data-act="dismissCardAlert"></div>';
+  const dismissAct=a.dismissAct||"dismissCardAlert";
+  let h='<div class="card-alert-scrim" data-act="'+esc(dismissAct)+'"></div>';
   h+='<div class="card-alert" role="alertdialog" aria-modal="true">';
   if(a.logo)h+='<img class="card-alert-logo" src="'+esc(a.logo)+'" alt="">';
   else h+='<div class="card-alert-icon">'+esc(a.icon||"!")+'</div>';
@@ -8187,7 +8400,7 @@ function renderCardAlert(){
       (a.brand?' data-brand="'+esc(a.brand)+'"':'')+
       (a.axis?' data-axis="'+esc(a.axis)+'"':'')+'>'+esc(a.label||"Continue")+'</button>';
   }
-  h+='<button class="dlg-btn" data-act="dismissCardAlert">Not now</button>';
+  if(!a.noDismiss)h+='<button class="dlg-btn" data-act="dismissCardAlert">Not now</button>';
   h+='</div></div>';
   return h;
 }
@@ -8419,7 +8632,6 @@ function renderCheckout(){
     h+='</div>';
     h+='<div class="pad">';
     h+='<div class="fld"><label>Your Name</label><input id="orderName" type="text" placeholder="e.g. Kagiso M." value="'+esc(state.orderName)+'"></div>';
-    h+='<div class="fld"><label>Contact Number</label><input id="orderContact" type="tel" placeholder="e.g. +267 71 234 567" value="'+esc(state.orderContact)+'"></div>';
     h+='<div class="fld"><label>Notes</label><textarea id="orderNotes" rows="3" placeholder="e.g. extra spicy, pickup time, table number">'+esc(state.orderNotes)+'</textarea></div>';
     h+='<button class="btn full" style="margin-bottom:9px" data-act="goDelivery">'+(foodDelivery?'Edit delivery':'Add Delivery Details')+'</button>';
     if(foodDelivery) h+='<div class="co-dl">'+esc(foodDelivery.label)+(foodDelivery.area?' · '+esc(foodDelivery.area):'')+' · <b>'+fmt(foodDelivery.fee)+'</b></div>';
@@ -8589,7 +8801,6 @@ function buildFullBillMessage(){
   const restName=curRestaurantName();
   let msg="*NEW MENU ORDER*\nVenue: "+restName;
   if(state.orderName.trim())    msg+="\nName: "+state.orderName.trim();
-  if(state.orderContact.trim()) msg+="\nContact: "+state.orderContact.trim();
   if(state.orderNotes.trim())   msg+="\nNotes: "+state.orderNotes.trim();
   msg+="\n\n*Order Summary:*\n";
   lines.forEach(function(l){
@@ -10328,13 +10539,11 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
   }
   if(act==="waSplitRestaurant"){
     const nameEl=document.getElementById("orderName");
-    const contactEl=document.getElementById("orderContact");
     const notesEl=document.getElementById("orderNotes");
     if(nameEl)state.orderName=nameEl.value;
-    if(contactEl)state.orderContact=contactEl.value;
     if(notesEl)state.orderNotes=notesEl.value;
-    if(!state.orderName.trim()||!state.orderContact.trim()){
-      alert("Please enter your name and contact number.");return;
+    if(!state.orderName.trim()){
+      alert("Please enter your name.");return;
     }
     bridgeDraftOrder("menu");
     notifyFieldOrder(curRestaurant());
@@ -10351,12 +10560,10 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
 
   if(act==="waOrder"){
     const nameEl=document.getElementById("orderName");
-    const contactEl=document.getElementById("orderContact");
     const notesEl=document.getElementById("orderNotes");
     if(nameEl)state.orderName=nameEl.value;
-    if(contactEl)state.orderContact=contactEl.value;
     if(notesEl)state.orderNotes=notesEl.value;
-    if(!state.orderName.trim()||!state.orderContact.trim()){alert("Please enter your name and contact number.");return;}
+    if(!state.orderName.trim()){alert("Please enter your name.");return;}
     if(cartTotal()<=0){alert("Your cart is empty.");return;}
     bridgeDraftOrder("menu");
     notifyFieldOrder(curRestaurant());
@@ -10370,8 +10577,24 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
     render();return;
   }
   if(act==="waSendVenue"){
+    const b=curBundle();
+    const r=b&&b.restaurant;
+    if(isParticipatingVenue(r)){
+      state.cardAlert=null;
+      window.location.href=waLink(buildFullBillMessage(),r,"order_checkout","act=waOrder");
+      return;
+    }
+    logVenueInterest(b);
+    showInterestNotice();
+    return;
+  }
+  if(act==="interestNoticeContinue"||act==="interestNoticeClose"){
+    showInterestNudge();
+    return;
+  }
+  if(act==="interestSend"){
     state.cardAlert=null;
-    window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_checkout","act=waOrder");
+    window.location.href=waShareLink(buildFullBillMessage());
     return;
   }
   if(act==="waSendContact"){
@@ -10385,12 +10608,10 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
   }
   if(act==="openWaReview"){
     const nameEl=document.getElementById("orderName");
-    const contactEl=document.getElementById("orderContact");
     const notesEl=document.getElementById("orderNotes");
     if(nameEl)state.orderName=nameEl.value;
-    if(contactEl)state.orderContact=contactEl.value;
     if(notesEl)state.orderNotes=notesEl.value;
-    if(!state.orderName.trim()||!state.orderContact.trim()){alert("Please enter your name and contact number.");return;}
+    if(!state.orderName.trim()){alert("Please enter your name.");return;}
     if(cartTotal()<=0){alert("Your cart is empty.");return;}
     state.checkoutReview=true;render();return;
   }

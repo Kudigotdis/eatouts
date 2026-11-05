@@ -16,6 +16,29 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 ---
+### [2026-11-05 12:27:58] - [Agent: opencode] - [Status: IN_PROGRESS]
+- Task: Redesign venue checkout WhatsApp hand-off for non-participating venues and add the admin venue-interest report.
+- Files changed:
+  - `index.html`: removed the checkout contact field and contact validation/message line; added the 20-message notice bank and 19-message nudge bank (emoji-free, shuffle-bag random, no immediate repeat); added `isParticipatingVenue()`, `logVenueInterest()`, `showInterestNotice()`, `showInterestNudge()`, coarse browser metadata and a stable hashed visitor id; `waSendVenue` now checks participation, logs interest and shows the two sequential popups for non-participating venues, while participating venues keep the direct venue-number send; the final non-participating send uses `waShareLink()` (WhatsApp contact picker); `renderCardAlert()` gained `noDismiss` and `dismissAct`.
+  - `migrations/0017_venue_interest.sql` (NEW): adds `restaurants.participating`, creates `venue_interest`, and adds venue/person/time indexes.
+  - `functions/api/venue-interest.js` (NEW): public `POST` (hashed person key, server-derived signed-in demographics, coarse browser metadata, rate limit), admin `GET` aggregate (distinct people, taps, repeats, users/browsers, gender/age/town/area, browser buckets, first/last, today/7-day), and admin `PATCH` participation toggle.
+  - `functions/api/_business.js`: `restaurantOut()` exposes `participating`.
+  - `js/eatouts-content.js`: `profileFrom()` carries `claimed`/`participating`; `applyVenue()` syncs `claimed`, `participating` and `status` before its empty-content and operator-fork early returns.
+  - `eatouts-platform-analytics.html`: new "Venue interest" accordion section with totals, per-venue people/taps/repeats/demographics/browser signals/first-last, a participation toggle, a copyable outreach pitch, server-report fallback to local analytics labelled "This device only", and progress-count update.
+  - `tests/venue-interest.js` (NEW, 55 checks): copy/wiring, privacy, aggregate math, POST/GET/PATCH, `restaurantOut`, and jsdom flag-sync coverage.
+  - `tests/run-all.js`: registers `venue-interest.js`.
+  - `docs/AGENT_CHANGE_LOG.md`: this entry.
+- Commit: PENDING
+- Push: PENDING
+- Verified: `node tests/venue-interest.js` -> 55 checks passed; `npm test` -> 75 suites passed, 0 failed; `npm run db:migrate:local` -> `0017_venue_interest.sql` applied (7 commands); `PRAGMA table_info(restaurants)` and `PRAGMA table_info(venue_interest)` confirm the new column/table; inline-script syntax checks for `index.html` and `eatouts-platform-analytics.html` -> 0 errors.
+- Notes:
+  - Participation = `claimed` OR admin `participating` OR `status = 'claimed'`; `published` alone does not suppress the popups.
+  - Server stores no IP, raw UA, name, phone, email or raw DOB. The IP is used only for the KV rate limit.
+  - Remote D1 migration is not applied yet: `npm run db:migrate` is the human step after this commit/push.
+  - The admin report falls back to this device's local events when no server admin session is present; participation writes are disabled in that mode.
+- Errors: none
+
+---
 ### [2026-11-05 02:34:44] - [Agent: cline] - [Status: COMMITTED]
 - Task: search_screen.html - stop a chain filling the results with one row per branch (KFC showed 13 "KFC" rows); a result row is now one BRAND, and the card's Town / Area rows became real branch pickers (same contract as the Restaurants tab card)
 - Files changed:

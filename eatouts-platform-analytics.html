@@ -461,6 +461,42 @@
 #hdr + .progress .progress-label,#hdr + .progress-row span{color:#8a7d64}
 #hdr + .progress .progress-count,#hdr + .progress-row strong{color:#c84513}
 #hdr + .progress .progress-track{background:#ece7db}
+
+  /* ============ VENUE INTEREST ============ */
+  .interest-source{
+    font-size:10.5px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--faint);text-align:right;margin:-2px 0 8px;
+  }
+  .interest-source.live{color:var(--green)}
+  .interest-item{padding:12px 0;border-bottom:1px solid var(--line-2)}
+  .interest-item:last-child{border-bottom:0;padding-bottom:0}
+  .interest-item:first-child{padding-top:0}
+  .interest-item .town-row{padding:0;border:0}
+  .interest-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+  .interest-pill{
+    font-size:10.5px;font-weight:700;color:var(--muted);background:#F4F1EA;
+    border-radius:999px;padding:4px 8px;line-height:1;
+  }
+  .interest-details{margin-top:8px}
+  .interest-details summary{
+    font-size:11.5px;font-weight:750;color:var(--orange);cursor:pointer;list-style:none;
+  }
+  .interest-details summary::-webkit-details-marker{display:none}
+  .interest-details summary:before{content:"+ ";font-weight:850}
+  .interest-details[open] summary:before{content:"– "}
+  .interest-body{
+    margin-top:8px;font-size:11.5px;line-height:1.55;color:var(--muted);
+    display:grid;gap:4px;
+  }
+  .interest-body b{color:var(--ink-2);font-weight:750}
+  .interest-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+  .interest-btn{
+    border:1px solid var(--line);background:#fff;color:var(--ink-2);
+    font:inherit;font-size:11px;font-weight:750;border-radius:9px;
+    padding:7px 10px;cursor:pointer;
+  }
+  .interest-btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
+  .interest-btn:disabled{opacity:.5;cursor:wait}
 </style>
 </head>
 <body data-page="eatouts-platform-analytics">
@@ -549,6 +585,11 @@ document.addEventListener("DOMContentLoaded", function () {
   /* Orders grouped by town via business lookup */
   var bizById = {};
   bizList.forEach(function(b){ if (b && b.id) bizById[String(b.id)] = b; });
+
+  /* Cross-device venue interest. The server report is used when this browser
+     has an admin session cookie; otherwise the section falls back to the
+     local analytics buffer and says so. */
+  var interest = { loading: true, source: 'server', data: null };
 
   var orderByTown = {};
   var revenueByTown = {};
@@ -671,6 +712,440 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /* ============================================================
+     VENUE INTEREST
+     ============================================================ */
+  function interestSub(){
+    if (interest.loading) return "Loading cross-device report";
+    var t = (interest.data && interest.data.totals) || {};
+    var suffix = interest.source === "server" ? "" : " · this device only";
+    return (t.people || 0) + " people · " + (t.taps || 0) + " taps" + suffix;
+  }
+
+  function interestSourceNote(){
+    if (interest.loading) return "";
+    if (interest.source === "server") {
+      return '<div class="interest-source live">Cross-device report</div>';
+    }
+    return '<div class="interest-source">This device only · sign in with a server admin session for all devices</div>';
+  }
+
+  function interestMetric(value, label){
+    return '<div class="metric"><b>' + esc(value) + '</b><span>' + esc(label) + '</span></div>';
+  }
+
+  function interestBreakdown(obj){
+    var entries = Object.entries(obj || {}).sort(function(a,b){ return b[1] - a[1]; });
+    if (!entries.length) return "No data yet";
+    return entries.map(function(p){ return String(p[0]) + " " + p[1]; }).join(" · ");
+  }
+
+  function interestTop(obj){
+    var entries = Object.entries(obj || {}).sort(function(a,b){ return b[1] - a[1]; });
+    return entries.length ? entries[0][0] : "";
+  }
+
+  function interestShortTime(ms){
+    try {
+      return new Date(Number(ms)).toLocaleString(undefined, {
+        day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"
+      });
+    } catch (e) { return ""; }
+  }
+
+  function interestShortDate(ms){
+    try {
+      return new Date(Number(ms)).toLocaleDateString(undefined, {
+        day:"numeric", month:"short", year:"numeric"
+      });
+    } catch (e) { return ""; }
+  }
+
+  function interestPitch(v){
+    var people = Number(v.people) || 0;
+    var taps = Number(v.taps) || 0;
+    var repeatPeople = Number(v.repeatPeople) || 0;
+    var repeatTaps = Number(v.repeatTaps) || 0;
+    var users = Number(v.users) || 0;
+    var browsers = Number(v.browsers) || 0;
+    var period = v.firstAt ? ("since " + interestShortDate(v.firstAt)) : "recently";
+    var repeat = repeatPeople
+      ? (repeatPeople + " people came back more than once (" + repeatTaps + " extra taps)")
+      : "No repeat taps yet";
+    var topTown = interestTop(v.towns);
+    var topAge = interestTop(v.ageBands);
+    return "Hi " + (v.venueName || "there") + ", " + people +
+      " people on EatOuts tapped to order from you " + period + ". " + taps +
+      " taps in total; " + repeat + ". " + users + " signed-in customers and " +
+      browsers + " browsers showed interest" +
+      (topTown ? " — most from " + topTown : "") +
+      (topAge ? ", mostly aged " + topAge : "") +
+      ". Join EatOuts to turn that demand into direct orders.";
+  }
+
+  function interestBrowserBreakdown(b){
+    if (!b) return "No browser signals yet";
+    var bits = [];
+    if (b.family && Object.keys(b.family).length) bits.push("Browser " + interestBreakdown(b.family));
+    if (b.os && Object.keys(b.os).length) bits.push("OS " + interestBreakdown(b.os));
+    if (b.device && Object.keys(b.device).length) bits.push("Device " + interestBreakdown(b.device));
+    if (b.language && Object.keys(b.language).length) bits.push("Language " + interestBreakdown(b.language));
+    if (b.timezone && Object.keys(b.timezone).length) bits.push("Time " + interestBreakdown(b.timezone));
+    if (b.screen && Object.keys(b.screen).length) bits.push("Screen " + interestBreakdown(b.screen));
+    return bits.length ? bits.join(" · ") : "No browser signals yet";
+  }
+
+  function interestVenue(v, max){
+    var people = Number(v.people) || 0;
+    var taps = Number(v.taps) || 0;
+    var repeatPeople = Number(v.repeatPeople) || 0;
+    var repeatTaps = Number(v.repeatTaps) || 0;
+    var users = Number(v.users) || 0;
+    var browsers = Number(v.browsers) || 0;
+    var pct = Math.round((people / (max || 1)) * 100);
+    var meta = [taps + " taps"];
+    if (repeatPeople) meta.push(repeatPeople + " repeat people");
+    if (repeatTaps) meta.push(repeatTaps + " extra taps");
+    meta.push(users + " signed in");
+    meta.push(browsers + " browsers");
+    var when = [];
+    if (v.firstAt) when.push("First " + interestShortTime(v.firstAt));
+    if (v.lastAt) when.push("Last " + interestShortTime(v.lastAt));
+    var status = v.participating
+      ? (v.claimed ? "Claimed · participating" : "Participating")
+      : "Not participating";
+    var toggle = interest.source !== "server"
+      ? '<button class="interest-btn" type="button" disabled>Sign in to manage</button>'
+      : (v.claimed
+        ? '<button class="interest-btn" type="button" disabled>Claimed · always participating</button>'
+        : '<button class="interest-btn primary" type="button" data-act="interestToggle" data-venue-id="' +
+          escapeAttr(v.venueId) + '" data-next="' + (v.participating ? "0" : "1") + '">' +
+          (v.participating ? "Mark not participating" : "Mark participating") + '</button>');
+
+    return '<div class="interest-item">' +
+      '<div class="town-row">' +
+        '<div class="town-info">' +
+          '<b>' + esc(v.venueName || v.venueId) + '</b>' +
+          '<span>' + people + ' ' + (people === 1 ? "person" : "people") + ' · ' +
+            esc(v.venueTown || "Town unknown") + '</span>' +
+          '<span>' + esc(meta.join(" · ")) + '</span>' +
+          (when.length ? '<span>' + esc(when.join(" · ")) + '</span>' : '') +
+        '</div>' +
+        '<div class="town-bar-wrap">' +
+          '<span class="town-pct">' + people + '</span>' +
+          '<div class="town-bar"><div class="fill" style="width:' + pct + '%"></div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="interest-meta">' +
+        '<span class="interest-pill">' + esc(status) + '</span>' +
+        '<span class="interest-pill">' + (Number(v.today) || 0) + ' today</span>' +
+        '<span class="interest-pill">' + (Number(v.last7) || 0) + ' in 7 days</span>' +
+      '</div>' +
+      '<details class="interest-details">' +
+        '<summary>Breakdown & pitch</summary>' +
+        '<div class="interest-body">' +
+          '<div><b>Gender:</b> ' + esc(interestBreakdown(v.gender)) + '</div>' +
+          '<div><b>Age:</b> ' + esc(interestBreakdown(v.ageBands)) + '</div>' +
+          '<div><b>Towns:</b> ' + esc(interestBreakdown(v.towns)) + '</div>' +
+          '<div><b>Areas:</b> ' + esc(interestBreakdown(v.areas)) + '</div>' +
+          '<div><b>Browsers:</b> ' + esc(interestBrowserBreakdown(v.browser)) + '</div>' +
+          '<div><b>First:</b> ' + (v.firstAt ? esc(interestShortTime(v.firstAt)) : "—") +
+            ' · <b>Last:</b> ' + (v.lastAt ? esc(interestShortTime(v.lastAt)) : "—") + '</div>' +
+        '</div>' +
+        '<div class="interest-actions">' +
+          toggle +
+          '<button class="interest-btn" type="button" data-act="interestPitch" data-venue-id="' +
+            escapeAttr(v.venueId) + '">Copy pitch</button>' +
+        '</div>' +
+      '</details>' +
+    '</div>';
+  }
+
+  function interestModule(){
+    if (interest.loading) {
+      return '<div class="module"><div class="empty-note">Loading venue interest…</div></div>';
+    }
+    var data = interest.data || {};
+    var totals = data.totals || {};
+    var venues = Array.isArray(data.venues) ? data.venues : [];
+    if (!venues.length) {
+      return '<div class="module">' + interestSourceNote() +
+        '<div class="empty-note">No venue interest recorded yet. When someone taps to order from a venue that is not participating, it will show here.</div>' +
+      '</div>';
+    }
+    var max = Number(venues[0].people) || 1;
+    return '<div class="module">' +
+      interestSourceNote() +
+      '<div class="metric-grid">' +
+        interestMetric(totals.people || 0, "People") +
+        interestMetric(totals.taps || 0, "Taps") +
+        interestMetric(totals.repeatPeople || 0, "Repeat people") +
+        interestMetric(totals.repeatTaps || 0, "Extra taps") +
+        interestMetric(totals.users || 0, "Signed in") +
+        interestMetric(totals.browsers || 0, "Browsers") +
+      '</div>' +
+      venues.map(function(v){ return interestVenue(v, max); }).join("") +
+    '</div>';
+  }
+
+  function interestIncrement(obj, key){
+    var k = key || "Unknown";
+    obj[k] = (obj[k] || 0) + 1;
+  }
+
+  function interestParseBrowser(raw){
+    if (!raw) return {};
+    if (typeof raw === "object") return raw;
+    try {
+      var parsed = JSON.parse(String(raw));
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (e) { return {}; }
+  }
+
+  function interestBrowserBuckets(){
+    return { family:{}, os:{}, device:{}, language:{}, timezone:{}, screen:{} };
+  }
+
+  function interestAggregate(rows){
+    var list = Array.isArray(rows) ? rows : [];
+    var current = Date.now();
+    var todayStart = new Date(current);
+    todayStart.setHours(0,0,0,0);
+    var todayMs = todayStart.getTime();
+    var weekMs = current - 7 * 24 * 60 * 60 * 1000;
+    var venues = {};
+    var globalPeople = {};
+    var globalPersonTaps = {};
+    var globalLatest = {};
+    var totals = {
+      people:0, taps:0, repeatPeople:0, repeatTaps:0,
+      users:0, browsers:0, firstAt:null, lastAt:null, today:0, last7:0
+    };
+
+    list.forEach(function(r){
+      var at = Number(r.at) || 0;
+      var vid = String(r.venue_id || "unknown");
+      var pk = String(r.person_key || "unknown");
+      var v = venues[vid];
+      if (!v) {
+        var status = String(r.current_status || r.venue_status || "");
+        var claimed = !!(Number(r.current_claimed) || String(r.current_claimed) === "true" ||
+          status.toLowerCase() === "claimed");
+        v = venues[vid] = {
+          venueId: vid,
+          venueName: r.venue_name || vid,
+          venueTown: r.venue_town || "",
+          venueArea: r.venue_area || "",
+          venueStatus: status,
+          participating: !!(Number(r.current_participating) || String(r.current_participating) === "true" ||
+            claimed || status.toLowerCase() === "claimed"),
+          claimed: claimed,
+          people:{}, personTaps:{}, taps:0, firstAt:null, lastAt:null,
+          today:0, last7:0, users:0, browsers:0,
+          gender:{}, ageBands:{}, towns:{}, areas:{},
+          browser:interestBrowserBuckets(), latest:{}
+        };
+      }
+
+      v.taps++;
+      v.personTaps[pk] = (v.personTaps[pk] || 0) + 1;
+      v.people[pk] = true;
+      if (!v.firstAt || at < v.firstAt) v.firstAt = at;
+      if (!v.lastAt || at > v.lastAt) v.lastAt = at;
+      if (at >= todayMs) v.today++;
+      if (at >= weekMs) v.last7++;
+      if (!v.latest[pk] || at > v.latest[pk].at) v.latest[pk] = { row:r, at:at };
+
+      globalPeople[pk] = true;
+      globalPersonTaps[pk] = (globalPersonTaps[pk] || 0) + 1;
+      totals.taps++;
+      if (!totals.firstAt || at < totals.firstAt) totals.firstAt = at;
+      if (!totals.lastAt || at > totals.lastAt) totals.lastAt = at;
+      if (at >= todayMs) totals.today++;
+      if (at >= weekMs) totals.last7++;
+      if (!globalLatest[pk] || at > globalLatest[pk].at) globalLatest[pk] = { row:r, at:at };
+    });
+
+    Object.keys(venues).forEach(function(key){
+      var v = venues[key];
+      v.people = Object.keys(v.people).length;
+      var repeatPeople = 0;
+      Object.keys(v.personTaps).forEach(function(pk){
+        if (v.personTaps[pk] > 1) repeatPeople++;
+      });
+      v.repeatPeople = repeatPeople;
+      v.repeatTaps = v.taps - v.people;
+
+      Object.keys(v.latest).forEach(function(pk){
+        var row = v.latest[pk].row;
+        if (String(row.user_type) === "user") v.users++;
+        else v.browsers++;
+        interestIncrement(v.gender, row.gender || "Unknown");
+        interestIncrement(v.ageBands, row.age_band || "Unknown");
+        interestIncrement(v.towns, row.town || "Unknown");
+        interestIncrement(v.areas, row.area || "Unknown");
+        if (String(row.user_type) !== "user") {
+          var b = interestParseBrowser(row.browser_json);
+          interestIncrement(v.browser.family, b.browser || "Other");
+          interestIncrement(v.browser.os, b.os || "Other");
+          interestIncrement(v.browser.device, b.device || "Other");
+          interestIncrement(v.browser.language, b.language || "Unknown");
+          interestIncrement(v.browser.timezone, b.timezone || "Unknown");
+          interestIncrement(v.browser.screen, b.screen || "Unknown");
+        }
+      });
+
+      delete v.personTaps;
+      delete v.latest;
+    });
+
+    totals.people = Object.keys(globalPeople).length;
+    Object.keys(globalPersonTaps).forEach(function(pk){
+      if (globalPersonTaps[pk] > 1) totals.repeatPeople++;
+    });
+    totals.repeatTaps = totals.taps - totals.people;
+    Object.keys(globalLatest).forEach(function(pk){
+      if (String(globalLatest[pk].row.user_type) === "user") totals.users++;
+      else totals.browsers++;
+    });
+
+    var venueList = Object.keys(venues).map(function(key){ return venues[key]; })
+      .sort(function(a,b){
+        if (b.people !== a.people) return b.people - a.people;
+        if (b.taps !== a.taps) return b.taps - a.taps;
+        return String(a.venueName).localeCompare(String(b.venueName));
+      });
+
+    return { totals:totals, venues:venueList };
+  }
+
+  function localInterest(){
+    var list = [];
+    try { list = EatoutsAnalytics.all ? EatoutsAnalytics.all() : []; } catch (e) { list = []; }
+    var rows = (Array.isArray(list) ? list : []).filter(function(e){
+      return e && e.eventName === "venue.interest";
+    }).map(function(e){
+      var p = e.properties || {};
+      return {
+        venue_id: String(p.venueId || p.venueSlug || "unknown"),
+        venue_name: String(p.venueName || p.venueId || "Unknown venue"),
+        venue_town: String(p.venueTown || ""),
+        venue_area: String(p.venueArea || ""),
+        venue_status: String(p.venueStatus || ""),
+        person_key: String(p.personKey || e.userId || "unknown"),
+        user_type: String(p.userType || (e.userId ? "user" : "browser")),
+        gender: String(p.gender || ""),
+        age_band: String(p.ageBand || ""),
+        town: String(p.town || ""),
+        area: String(p.area || ""),
+        browser_json: p.browser ? JSON.stringify(p.browser) : "",
+        at: Date.parse(e.at) || 0,
+        current_status: String(p.venueStatus || ""),
+        current_claimed: 0,
+        current_participating: p.participating ? 1 : 0
+      };
+    });
+    return interestAggregate(rows);
+  }
+
+  function loadInterest(){
+    if (typeof fetch !== "function") {
+      interest.data = localInterest();
+      interest.source = "local";
+      interest.loading = false;
+      render();
+      return;
+    }
+    fetch("/api/venue-interest", { credentials:"same-origin", headers:{ accept:"application/json" } })
+      .then(function(r){
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function(j){
+        if (!j || !j.ok) throw new Error((j && j.error) || "bad payload");
+        interest.data = {
+          totals: j.totals || {},
+          venues: Array.isArray(j.venues) ? j.venues : []
+        };
+        interest.source = "server";
+      })
+      .catch(function(){
+        interest.data = localInterest();
+        interest.source = "local";
+      })
+      .then(function(){
+        interest.loading = false;
+        render();
+      });
+  }
+
+  function interestCopyText(text){
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function(resolve, reject){
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (ok) resolve(); else reject(new Error("Copy failed"));
+      } catch (e) { reject(e); }
+    });
+  }
+
+  function interestCopyPitch(venueId){
+    var list = (interest.data && interest.data.venues) || [];
+    var v = null;
+    for (var i = 0; i < list.length; i++) {
+      if (String(list[i].venueId) === String(venueId)) { v = list[i]; break; }
+    }
+    if (!v) return;
+    interestCopyText(interestPitch(v)).then(function(){
+      toast("Pitch copied.");
+    }, function(){
+      toast("Copy failed.");
+    });
+  }
+
+  function interestToggle(venueId, next, btn){
+    if (interest.source !== "server") {
+      toast("Open this page with a server admin session to change participation.");
+      return;
+    }
+    if (btn) btn.disabled = true;
+    fetch("/api/venue-interest", {
+      method:"PATCH",
+      credentials:"same-origin",
+      headers:{ "content-type":"application/json" },
+      body:JSON.stringify({ venueId:venueId, participating:!!next })
+    }).then(function(r){
+      return r.json().then(function(j){ return { ok:r.ok, j:j }; });
+    }).then(function(x){
+      if (!x.ok || !x.j || !x.j.ok) {
+        throw new Error((x.j && x.j.error) || "Could not update venue.");
+      }
+      var list = (interest.data && interest.data.venues) || [];
+      for (var i = 0; i < list.length; i++) {
+        if (String(list[i].venueId) === String(venueId)) {
+          list[i].participating = !!next;
+          if (x.j && typeof x.j.claimed === "boolean") list[i].claimed = x.j.claimed;
+          break;
+        }
+      }
+      render();
+      toast(next ? "Venue marked participating." : "Venue marked not participating.");
+    }).catch(function(e){
+      if (btn) btn.disabled = false;
+      toast((e && e.message) || "Could not update venue.");
+    });
+  }
+
+  /* ============================================================
      ACCORDION BUILDER
      ============================================================ */
   function section(key, letter, title, sub, body){
@@ -718,12 +1193,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateProgress(){
     /* Progress = share of sections that have data */
-    var sections = 4;
+    var sections = 5;
     var filled = 0;
     if (orders.length) filled++;
     if (bizList.length) filled++;
     if (townEntries.length) filled++;
     if (gmv > 0) filled++;
+    if (interest.data && interest.data.totals && interest.data.totals.taps > 0) filled++;
     var pct = Math.round((filled / sections) * 100);
     document.getElementById('progressFill').style.width = pct + '%';
     document.getElementById('progressCount').textContent =
@@ -743,6 +1219,7 @@ document.addEventListener("DOMContentLoaded", function () {
         section('towns',           '2', 'Businesses by town',    townsSub(),          townsModule()) +
         section('ordersByTown',    '3', 'Orders by town',        ordersByTownSub(),   ordersByTownModule()) +
         section('revenueByTown',   '4', 'Revenue by town',       revenueByTownSub(),  revenueByTownModule()) +
+        section('venueInterest',   '5', 'Venue interest',        interestSub(),       interestModule()) +
       '</div>';
 
     updateProgress();
@@ -775,6 +1252,18 @@ document.addEventListener("DOMContentLoaded", function () {
      DELEGATED CLICKS
      ============================================================ */
   mount.addEventListener('click', function(e){
+    var action = e.target.closest('[data-act]');
+    if (action){
+      var act = action.getAttribute('data-act');
+      if (act === 'interestToggle'){
+        interestToggle(action.getAttribute('data-venue-id'), action.getAttribute('data-next') === '1', action);
+        return;
+      }
+      if (act === 'interestPitch'){
+        interestCopyPitch(action.getAttribute('data-venue-id'));
+        return;
+      }
+    }
     var head = e.target.closest('.acc-head');
     if (head){
       var acc = head.closest('.acc');
@@ -786,6 +1275,7 @@ document.addEventListener("DOMContentLoaded", function () {
      BOOT
      ============================================================ */
   render();
+  loadInterest();
 });
 </script>
 <script src="js/eatouts-back-history.js"></script></body>

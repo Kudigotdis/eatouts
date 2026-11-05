@@ -66,6 +66,7 @@ const SUITES = [
   'api-auth-flow.js',
   'api-business.js',
   'api-venues.js',
+  'venue-interest.js',
   'api-upload.js',
   'promo-submissions.js',
   'router.js',

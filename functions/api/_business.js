@@ -157,6 +157,7 @@ export function restaurantOut(r) {
     status: r.status,
     plan: r.plan,
     claimed: !!r.claimed,
+    participating: !!r.participating,
     verified: !!r.verified,
     town: r.town || null,
     district: r.district || null,

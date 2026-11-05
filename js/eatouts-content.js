@@ -98,7 +98,9 @@
       category: v.category || null,
       contacts: v.contacts || [],
       socials: v.socials || [],
-      status: v.status || null
+      status: v.status || null,
+      claimed: !!v.claimed,
+      participating: !!v.participating
     };
   }
 
@@ -251,6 +253,23 @@
     var r = (venue.id && d.getRestaurant(venue.id, db)) || (venue.slug && d.getRestaurantBySlug(venue.slug, db));
     if (!r) return false;
     var id = r.id;
+
+    /* Participation is server-owned and must land even when the venue has no
+       content to hydrate (or is a locally authored operator fork). */
+    var flagsChanged = false;
+    if (typeof venue.claimed === 'boolean' && r.claimed !== venue.claimed) {
+      r.claimed = venue.claimed;
+      flagsChanged = true;
+    }
+    if (typeof venue.participating === 'boolean' && r.participating !== venue.participating) {
+      r.participating = venue.participating;
+      flagsChanged = true;
+    }
+    if (venue.status && r.status !== venue.status) {
+      r.status = venue.status;
+      flagsChanged = true;
+    }
+    if (flagsChanged) d.save(db);
 
     /* Never clobber locally authored content (operator fork / flagship). */
     if (r.ownContent && r.contentSource !== SOURCE) return false;
