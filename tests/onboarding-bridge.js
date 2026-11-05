@@ -2,13 +2,13 @@
    Covers:
    * js/eatouts-onboarding-bridge.js exposes EOPlaces / EOHosting / EOPublish / EOOnboard
    * EOPlaces indexes towns (botswana_locations.js) and malls
-     (assets/data/botswana_shopping_malls_and_shopping_centres.js) and suggests
-   * EOHosting reads assets/data/event_types.js and normalises capacity rows
+     (data/botswana_shopping_malls_and_shopping_centres.js) and suggests
+   * EOHosting reads data/event_types.js and normalises capacity rows
    * EOPublish builds the eatouts.venue.v1 submission and the customer-directory
      row, and pushes the row into the local directory (eatouts_db_v2)
    * the six business onboarding forms load the bridge and the datasets
    * business-onboarding1.html is gone and nothing links to it
-   * assets/data/business_types.js maps every business type to its own form
+   * data/business_types.js maps every business type to its own form
  */
 'use strict';
 
@@ -63,8 +63,8 @@ const BUSINESS_PAGES = [
 const DATA_SCRIPTS = [
   'botswana_locations.js',
   'js/eatouts-locations.js',
-  'assets/data/botswana_shopping_malls_and_shopping_centres.js',
-  'assets/data/event_types.js',
+  'data/botswana_shopping_malls_and_shopping_centres.js',
+  'data/event_types.js',
   'js/eatouts-pricing-source.js',
   'js/eatouts-onboarding-bridge.js'
 ];
@@ -90,7 +90,7 @@ check(CATERER_PAGE + ' manages branches', /branch/i.test(catererSrc));
 check(CATERER_PAGE + ' can publish the profile', /publish/i.test(catererSrc));
 
 /* business type -> onboarding page */
-const btSrc = read('assets/data/business_types.js');
+const btSrc = read('data/business_types.js');
 check('business_types.js exposes onboardingPage', /onboardingPage\s*[:=]/.test(btSrc));
 const EXPECTED = {
   restaurant: 'restaurant-onboarding.html',
@@ -144,8 +144,8 @@ vc.on('error', (...a) => errors.push('console.error: ' + a.join(' ')));
 const scripts = [
   'botswana_locations.js',
   'js/eatouts-locations.js',
-  'assets/data/botswana_shopping_malls_and_shopping_centres.js',
-  'assets/data/event_types.js',
+  'data/botswana_shopping_malls_and_shopping_centres.js',
+  'data/event_types.js',
   'js/eatouts-pricing-source.js',
   'js/eatouts-db.js',
   'js/eatouts-onboarding-bridge.js'

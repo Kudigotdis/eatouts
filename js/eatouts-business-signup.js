@@ -276,7 +276,7 @@
     function done() { if (--left === 0) { S.demoLoaded = true; cb(); } }
     ['business.js', 'menu.js'].forEach(function (f) {
       var s = document.createElement('script');
-      s.src = 'assets/data/demo/the-food-place/' + f;
+      s.src = '/data/demo/the-food-place/' + f;
       s.onload = done;
       s.onerror = done;
       document.body.appendChild(s);

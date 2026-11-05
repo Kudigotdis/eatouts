@@ -9,7 +9,7 @@
      E. revalidation      - ETag passthrough and a real 304
      F. failure modes     - no asset binding, store errors, upstream 404
      G. routes contract   - /data/* is NOT excluded, so the gate still runs
-     H. consumers         - no app file still points at /assets/data
+     H. consumers         - no app file still points at /data
 
    In-memory fake of env.ASSETS only: no wrangler, no network, no dist needed.
    The Functions are ESM, so they are imported through pathToFileURL (same
@@ -192,14 +192,32 @@ async function main() {
     check('/data/* is not excluded, so the gate sees it',
       block.indexOf("'/data/*'") === -1 && block.indexOf('"/data/*"') === -1);
     check('/assets/* is still excluded', block.indexOf("'/assets/*'") !== -1);
-    check('copy-static publishes assets/data at dist/data',
-      /cp\('assets\/data', `\$\{OUT\}\/data`/.test(src));
+    check('the payload folder is published by name', /const FOLDERS = \[[\s\S]*?'data'/.test(src));
+    check('no /assets/data special case is left',
+      src.indexOf("'assets/data'") === -1 && src.indexOf('"assets/data"') === -1);
   }
 
   /* ------------------------------------------------ H. consumers ---- */
-  /* Section H (no app file still requests /assets/data) lands with the commit
-     that moves the 53 consumers - until then it would be describing a state
-     that is deliberately not there yet. */
+  console.log('\n-- H. consumers --');
+  {
+    const consumers = []
+      .concat(fs.readdirSync(ROOT).filter(f => /\.html$/.test(f)).map(f => path.join(ROOT, f)))
+      .concat(fs.readdirSync(path.join(ROOT, 'js')).filter(f => /\.js$/.test(f)).map(f => path.join(ROOT, 'js', f)))
+      .concat(fs.readdirSync(path.join(ROOT, 'functions')).filter(f => /\.js$/.test(f)).map(f => path.join(ROOT, 'functions', f)));
+    const offenders = consumers.filter(f => {
+      const text = fs.readFileSync(f, 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, '')   /* a block comment may still explain the old layout */
+        .replace(/^\s*\/\/.*$/gm, '');      /* ... and so may a line comment */
+      return /['"]\/?assets\/data\//.test(text);
+    });
+    check('no app file still requests /assets/data', offenders.length === 0,
+      offenders.map(f => path.basename(f)).join(' | '));
+
+    /* The payload only reaches a visitor through the Function now, so the app
+       has to actually be asking for /data/*. */
+    const asking = consumers.filter(f => /['"]\/data\/[A-Za-z0-9._/-]+/.test(fs.readFileSync(f, 'utf8')));
+    check('the app asks for /data/* instead', asking.length > 20, String(asking.length));
+  }
 
   /* -------------------------------------------------------- summary */
   console.log('');

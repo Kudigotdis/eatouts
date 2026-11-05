@@ -75,7 +75,7 @@ function fakeAssets(files) {
 }
 
 const ASSETS = fakeAssets({
-  '/assets/data/link_registry.json': JSON.stringify({ country: 'bw', count: 4, bySlug: REGISTRY }),
+  '/data/link_registry.json': JSON.stringify({ country: 'bw', count: 4, bySlug: REGISTRY }),
   '/index.html': '<!doctype html><html><head><title>EatOuts</title></head><body>app</body></html>',
   '/404.html': '<!doctype html><title>Not found</title>'
 });
@@ -448,7 +448,7 @@ const ADMIN = { userId: 'usr_admin', type: 'customer', isAdmin: true };
   check('edge /zw/<miss> -> 404', z.status === 404, z.status);
 
   /* ===================== L. shipped registry artifact ===================== */
-  const shipped = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'assets', 'data', 'link_registry.json'), 'utf8'));
+  const shipped = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'data', 'link_registry.json'), 'utf8'));
   check('artifact is country keyed', !!(shipped.byCountry && shipped.byCountry.bw), Object.keys(shipped.byCountry || {}).join(','));
   const bwMap = (shipped.byCountry || {}).bw || {};
   check('artifact bySlug mirrors byCountry.bw', JSON.stringify(shipped.bySlug) === JSON.stringify(bwMap));

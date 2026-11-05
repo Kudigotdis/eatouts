@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Delivery zones — unit checks for assets/data/delivery_zones.js.
+ * Delivery zones — unit checks for data/delivery_zones.js.
  *
  * Loaded through jsdom so the file runs the same way it does in the
  * browser (it attaches window.EatoutsDelivery). The root package is
@@ -13,7 +13,7 @@ const path = require('path');
 const { JSDOM } = require(path.join(__dirname, 'node_modules', 'jsdom'));
 
 const APP_DIR = path.resolve(__dirname, '..');
-const src = fs.readFileSync(path.join(APP_DIR, 'assets', 'data', 'delivery_zones.js'), 'utf8');
+const src = fs.readFileSync(path.join(APP_DIR, 'data', 'delivery_zones.js'), 'utf8');
 
 const dom = new JSDOM('<!doctype html><html><head></head><body></body></html>', {
   url: 'http://localhost/',

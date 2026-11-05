@@ -93,7 +93,7 @@ kfc: 'assets/logo/kfc.jpg',
     if (s === 'game-reserve' || s === 'the-game-reserve') return 'the-game-reserve';
     if (s === 'bull-and-bush-maun') return 'bull-and-bush';
     /* The curated overlay entry for Zorz is keyed 'zors'
-       (assets/data/venue_about_info.js), while its directory row is the full
+       (/data/venue_about_info.js), while its directory row is the full
        name, so both spellings have to land on the same brand key. */
     if (s === 'zors' || s === 'zorz') return 'zorz-luxury-chisanyama';
     return s;
@@ -243,7 +243,7 @@ function hasRealLogo(slug) {
   }
 
   /**
-   * User-managed logo override (assets/data/restaurant_listings/
+   * User-managed logo override (/data/restaurant_listings/
    * eatouts_manifest.json -> eatouts_manifest.js). Loaded via a <script>
    * tag, so it works both over http:// and from file://.
    * Exact slug wins, then a brand-key prefix (kfc, nando, mugg, ...).

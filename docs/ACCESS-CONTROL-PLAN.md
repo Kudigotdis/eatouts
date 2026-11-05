@@ -248,12 +248,30 @@ Twilio step-up (D5) is **not** built: it is optional, it sits on the single logi
 and it cannot be verified without live `TWILIO_*` credentials. Shipping it inert and
 unverified would put untested code in front of the only way into the site.
 
-### 5.4 Milestone C — the payload
+### 5.4 Milestone C — the payload (DONE)
 
-Move `assets/data/*` to `/data/*` served by `functions/data/[[path]].js`, behind the
-same gate, with `Cache-Control: private, no-store` and an ETag. Update every consumer
-(`js/…` readers) in the same commit — this is the change that actually stops the
-728 KB scrape, and it is the one with the widest blast radius.
+The payload is now **`/data/*`**, served by `functions/data/[[path]].js` behind the same
+gate, with `Cache-Control: private, no-store, must-revalidate`, `X-Content-Type-Options:
+nosniff`, `X-Robots-Tag: noindex, nofollow` and the asset's own ETag passed through (`If-None-Match`
+→ real `304`, so a repeat load costs headers, not 4.9 MB).
+
+- **The folder moved, not just the URL.** `assets/data/` is now `data/` at the repo root,
+  copied to `dist/data/` by `copy-static.mjs` (added to `FOLDERS`, no special case). URL,
+  disk path and Function path all say the same thing, which also keeps the jsdom harnesses
+  honest: they inline `<script src="/data/x.js">` straight off disk.
+- **Why it had to move:** `_routes.json` excludes `/assets/*` from Functions, so nothing
+  could ever gate it there. `/data/*` is *not* excluded — `tests/data-payload.js` asserts
+  that, because adding `/data/*` to `staticExcludes` would silently re-open the payload.
+- **Size correction:** the 728 KB above was the JSON index alone. The folder is **4.9 MB /
+  60 files**, which is what made this the widest blast radius change in the plan: 113
+  references in 55 files (`*.html`, `js/*.js`, `functions/api/_links.js`, `tests/router.js`).
+- **The endpoint is defensive:** GET/HEAD only (405 otherwise), path allowlist (no `..`,
+  no `//`, no `%`), extension allowlist (`.json/.js/.txt/.csv`, so the `.db`/`.bak`
+  leftovers 404), path normalisation (`.`/`..` segments are collapsed by the URL parser
+  before the Function sees them, so `/data/./x` *is* `/data/x` — the test asserts
+  normalisation rather than rejection), generic 404 body, and never a 500.
+- `functions/[slug].js` gained `data` in `RESERVED`, so `/data` can never resolve as a
+  venue slug.
 
 ### 5.5 Milestone D — media, tiers, canaries
 
@@ -296,7 +314,10 @@ are never logged.
 node tests/security-admin.js     # SECURITY-ADMIN PASSED (104 checks)
 node tests/access-gate.js        # ACCESS-GATE PASSED (79 checks)
 node tests/dashboard-access-panel.js   # DASHBOARD-ACCESS-PANEL PASSED (17 checks)
-node tests/run-all.js            # 79 passed, 0 failed
+node tests/data-payload.js       # DATA-PAYLOAD PASSED (43 checks)
+node tests/run-all.js            # 80 suites: 79 passed, 1 failed
+                                 #   login.js, on the untracked assets/Zimbabwe/ sample drop,
+                                 #   which predates this work - not related to /data/*
 npx wrangler pages functions build --outdir=.tmp-functions-build   # Compiled Worker successfully
 ```
 
@@ -349,6 +370,20 @@ Milestone B2 adds one:
 curl.exe -s -o NUL -w "%{http_code}\n" https://www.eatouts.site/api/admin/access
 #   ... with a signed-in browser it answers {gate, bypass, devices, denied}
 #   ... and never contains ip_hash, ua_hash or fp_hash
+
+# 8. the payload answers only through the Function
+curl.exe -s -D - -o NUL https://www.eatouts.site/data/alcohols.json
+#   expect: 200 + cache-control: private, no-store, must-revalidate
+#           + x-content-type-options: nosniff + x-robots-tag: noindex, nofollow
+curl.exe -s -o NUL -w "%{http_code}\n" https://www.eatouts.site/assets/data/alcohols.json
+#   expect: 404   (a 200 here means the payload is still shipping unguarded)
+curl.exe -s -o NUL -w "%{http_code}\n" https://www.eatouts.site/data/../data/alcohols.json
+#   expect: 200 - the URL parser collapses the dot segments before the Function
+#   sees the path (that is normalisation, not a bypass)
+curl.exe -s -o NUL -w "%{http_code}\n" --path-as-is https://www.eatouts.site/data/../../etc/passwd
+#   expect: 404, and never a 500 and never a file body
+curl.exe -s -o NUL -w "%{http_code}\n" https://www.eatouts.site/data/CateringServicesDatabase.js.bak
+#   expect: 404 - the extension allowlist drops the .bak/.db leftovers
 ```
 
 ### Definition of done for Milestone A

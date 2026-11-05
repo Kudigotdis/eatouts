@@ -1,7 +1,7 @@
 /* ============================================================
    EATOUTS BOTTLE STORES
    Filter / search / sort layer over the bottle & liquor store
-   directory in assets/data/BottleLliquorStoresDatabase.js
+   directory in /data/BottleLliquorStoresDatabase.js
    (window.EATOUTS_BOTTLE_STORES).
 
    The data file expands every chain branch into its own store and

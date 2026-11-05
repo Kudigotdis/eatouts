@@ -18,7 +18,7 @@ const check = (label, cond, extra) => {
   else console.log('ok    ' + label);
 };
 
-const DEMO_DIR = path.join(APP_DIR, 'assets', 'data', 'demo', 'the-food-place');
+const DEMO_DIR = path.join(APP_DIR, 'data', 'demo', 'the-food-place');
 const BUNDLE = path.join(DEMO_DIR, 'demo-data.js');
 
 /* ---------------- Part A: static bundle + renamed assets ---------------- */
@@ -35,7 +35,7 @@ const BUNDLE = path.join(DEMO_DIR, 'demo-data.js');
   const legacy = demoFiles.filter((f) => /yellow_giraffe|Yellow Giraffe/i.test(fs.readFileSync(f, 'utf8')));
   check('no demo file references the old brand', legacy.length === 0, legacy.map((f) => path.basename(f)).join(','));
 
-  const deliv = path.join(APP_DIR, 'assets', 'data', 'deliveries');
+  const deliv = path.join(APP_DIR, 'data', 'deliveries');
   const renamed = [
     'the_food_place_50_scheduled_deliveries.js',
     'the_food_place_50_scheduled_deliveries.json',
@@ -96,7 +96,7 @@ const DEMO_KEYS = [
 ];
 
 load('js/eatouts-manager-db.js');
-load('assets/data/demo/the-food-place/demo-data.js');
+load('data/demo/the-food-place/demo-data.js');
 
 const D = window.EATOUTS_DEMO;
 check('EATOUTS_DEMO exposes all 21 keys',

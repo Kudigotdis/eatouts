@@ -1,6 +1,6 @@
 /* ============================================================
    BOTTLE STORES test
-   Part A - the data file (assets/data/BottleLliquorStoresDatabase.js)
+   Part A - the data file (data/BottleLliquorStoresDatabase.js)
             and the API layer (js/eatouts-bottle-stores.js) in plain Node.
    Part B - the Beverages landing UI in index.html (jsdom): the store
             card list, expand-to-options, branch picker, town/area
@@ -25,7 +25,7 @@ const check = (label, cond, extra) => {
 (function dataAndApi() {
   const w = {};
   global.window = w;
-  require(path.join(APP_DIR, 'assets', 'data', 'BottleLliquorStoresDatabase.js'));
+  require(path.join(APP_DIR, 'data', 'BottleLliquorStoresDatabase.js'));
   const D = w.EATOUTS_BOTTLE_STORES;
   require(path.join(APP_DIR, 'js', 'eatouts-bottle-stores.js'));
   const A = w.EatoutsBottleStores;

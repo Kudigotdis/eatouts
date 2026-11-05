@@ -1,7 +1,7 @@
 /* ============================================================
    EATOUTS BLOG ENGINE
    Composer + reader for the EatOuts blog. Runs entirely in
-   the browser. Public feed lives at assets/data/blog_posts.json.
+   the browser. Public feed lives at /data/blog_posts.json.
    Admin drafts live in localStorage under eatouts_blog_v1.
 
    Exposes: window.EatoutsBlog
@@ -14,7 +14,7 @@
 
   var STORE_KEY  = 'eatouts_blog_v1';
   var CACHE_KEY  = 'eatouts_blog_cache_v1';
-  var FEED_PATH  = 'assets/data/blog_posts.json';
+  var FEED_PATH  = '/data/blog_posts.json';
   var AUTOSAVE_MS = 2500;
   var MAX_POSTS   = 200;
   var MAX_BLOCKS  = 40;

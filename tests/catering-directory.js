@@ -2,7 +2,7 @@
    Catering directory coverage.
 
    Guards the curated catering businesses added to
-   assets/data/CateringServicesDatabase.js (window.EATOUTS_CATERING):
+   data/CateringServicesDatabase.js (window.EATOUTS_CATERING):
      - the new brands exist with the expected slug
      - each new brand carries its real logo (not the placeholder)
      - the public link registry exposes their no-hyphen deep-link slugs
@@ -35,7 +35,7 @@ const check = (label, cond, extra) => {
   }
 };
 
-const CATERING = loadWindowGlobal('assets/data/CateringServicesDatabase.js', 'EATOUTS_CATERING');
+const CATERING = loadWindowGlobal('data/CateringServicesDatabase.js', 'EATOUTS_CATERING');
 const brands = (CATERING && CATERING.brands) || [];
 const bySlug = {};
 brands.forEach(b => { if (b && b.slug) bySlug[b.slug] = b; });
@@ -90,7 +90,7 @@ check('Kels Foods has its logo',
   bySlug['kels-foods-pty-ltd'] && bySlug['kels-foods-pty-ltd'].logo);
 
 /* Public link registry: the no-hyphen deep-link slug resolves to the brand. */
-const registry = JSON.parse(fs.readFileSync(path.join(APP_DIR, 'assets', 'data', 'link_registry.json'), 'utf8'));
+const registry = JSON.parse(fs.readFileSync(path.join(APP_DIR, 'data', 'link_registry.json'), 'utf8'));
 const reg = registry.bySlug || {};
 
 function slugFromName(name) {

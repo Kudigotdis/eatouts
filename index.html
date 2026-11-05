@@ -978,16 +978,16 @@ a.dlg-btn{text-decoration:none}
   <nav id="nav"></nav>
 </div>
 
-<script src="assets/data/restaurant_listings/restaurant_types_filter.js"></script>
-<script src="assets/data/restaurant_listings/directory_runtime_data.js"></script>
-<script src="assets/data/restaurant_listings/eatouts_manifest.js"></script>
-<script src="assets/data/eatouts_terms_of_service.js"></script>
-<script src="assets/data/eatouts_privacy_policy.js"></script>
-<script src="assets/data/event_types.js"></script>
-<script src="assets/data/venue-provider-list.js"></script>
-<script src="assets/data/BottleLliquorStoresDatabase.js"></script>
-<script src="assets/data/CateringServicesDatabase.js?v=20261021"></script>
-<script src="assets/data/bakery_services_database.js?v=20261021"></script>
+<script src="/data/restaurant_listings/restaurant_types_filter.js"></script>
+<script src="/data/restaurant_listings/directory_runtime_data.js"></script>
+<script src="/data/restaurant_listings/eatouts_manifest.js"></script>
+<script src="/data/eatouts_terms_of_service.js"></script>
+<script src="/data/eatouts_privacy_policy.js"></script>
+<script src="/data/event_types.js"></script>
+<script src="/data/venue-provider-list.js"></script>
+<script src="/data/BottleLliquorStoresDatabase.js"></script>
+<script src="/data/CateringServicesDatabase.js?v=20261021"></script>
+<script src="/data/bakery_services_database.js?v=20261021"></script>
 <script src="js/bakery-types.js?v=20261101"></script>
 <script src="botswana_locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
@@ -3021,7 +3021,7 @@ const HH_INFO=DATA_MENU.happy_hour_info||"";
    still sharing the template; owner-edited restaurants and The Yellow
    Giraffe keep their own menus.
    ================================================================ */
-const DIRECTORY_DATA_PATH="assets/data/restaurant_listings/directory_runtime_data.json";
+const DIRECTORY_DATA_PATH="/data/restaurant_listings/directory_runtime_data.json";
 const DEMO_MENU_PATH="demo_info_menu-items-food-beverages.json";
 const EATOUTS_MENUS={};
 let EATOUTS_IMAGE_INDEX={};
@@ -3655,7 +3655,7 @@ function galleryRestLabel(){
    RESERVE CATEGORIES
    ================================================================ */
 /* Event catalogue: category -> subCategory groups -> event types.
-   Sourced from assets/data/event_types.js (window.EATOUTS_EVENT_TAXONOMY). */
+   Sourced from /data/event_types.js (window.EATOUTS_EVENT_TAXONOMY). */
 const RESERVE = Object.keys(window.EATOUTS_EVENT_TAXONOMY||{}).map(function(k){
   const cat=window.EATOUTS_EVENT_TAXONOMY[k];
   return {id:cat.id,name:cat.id==="weddings_cultural"?"Wedding":cat.name,icon:cat.icon,
@@ -4483,7 +4483,7 @@ function promoPassesFilter(entry){
   return true;
 }
 
-/* ---------- the bar & bottle promo catalogue (assets/data/...json) ---------- */
+/* ---------- the bar & bottle promo catalogue (/data/...json) ---------- */
 function beveragePromoRecord(p){
   return {
     id:"bevp-"+p.id,
@@ -4868,7 +4868,7 @@ function loadRestaurantTypeFilters(){
     renderControlBar();
     return;
   }
-  fetch("assets/data/restaurant_listings/restaurant_types_filter.json")
+  fetch("/data/restaurant_listings/restaurant_types_filter.json")
     .then(function(response){if(!response.ok)throw new Error("HTTP "+response.status);return response.json();})
     .then(function(data){
       if(!data||!Array.isArray(data.filterGroups))throw new Error("Invalid restaurant type filter data");
@@ -5660,7 +5660,7 @@ function switchRestPanel(panel){
 /* ================================================================
    CATERING DIRECTORY (Catering landing)
    Flat list of catering businesses from
-   assets/data/CateringServicesDatabase.js (window.EATOUTS_CATERING),
+   /data/CateringServicesDatabase.js (window.EATOUTS_CATERING),
    rendered with the same row + options pattern as the restaurants list.
    Businesses with several branches collapse to one card with a branch
    picker. Menu currently opens the flagship venue menu as a stand-in.
@@ -5913,7 +5913,7 @@ function syncCateringAccordions(){
 }
 /* ================================================================
    BAKERY DIRECTORY (Bakeries landing)
-   Flat list of bakeries from assets/data/bakery_services_database.js
+   Flat list of bakeries from /data/bakery_services_database.js
    (window.BAKERY_BUSINESSES_DATA), rendered with the same ritem
    accordion pattern as the restaurants + catering lists. No brand
    logos yet — every row uses assets/logo/logo_placement_image.png
@@ -6196,7 +6196,7 @@ function restaurantOptions(g,active){
 /* ================================================================
    BOTTLE STORE DIRECTORY (Beverages landing)
    Flat list of bottle / liquor stores from
-   assets/data/BottleLliquorStoresDatabase.js (window.EATOUTS_BOTTLE_STORES),
+   /data/BottleLliquorStoresDatabase.js (window.EATOUTS_BOTTLE_STORES),
    rendered with the same row + 4-button pattern as the restaurants list.
    Chains (Liquorama, Segwana, Tops at Spar) collapse to one card with a
    branch picker. Menu opens the shared Drinks/Liquors grid.
@@ -7613,9 +7613,9 @@ function loadBeverageData(){
     return window._BEV_LOAD;
   }
   window._BEV_LOAD=Promise.all([
-    fetch('assets/data/beverages.json',{cache:'no-cache'}).then(function(r){return r.json();}).catch(function(){return {items:[],subcats:[]};}),
-    fetch('assets/data/alcohols.json',{cache:'no-cache'}).then(function(r){return r.json();}).catch(function(){return {items:[],buckets:[]};}),
-    fetch('assets/data/beverage-and-bar-promotions.json',{cache:'no-cache'}).then(function(r){return r.json();}).catch(function(){return {promotions:[]};})
+    fetch('/data/beverages.json',{cache:'no-cache'}).then(function(r){return r.json();}).catch(function(){return {items:[],subcats:[]};}),
+    fetch('/data/alcohols.json',{cache:'no-cache'}).then(function(r){return r.json();}).catch(function(){return {items:[],buckets:[]};}),
+    fetch('/data/beverage-and-bar-promotions.json',{cache:'no-cache'}).then(function(r){return r.json();}).catch(function(){return {promotions:[]};})
   ]).then(function(a){
     window._BEV={beverages:a[0]||{items:[]},alcohols:a[1]||{items:[]},promos:a[2]||{promotions:[]}};
     return window._BEV;

@@ -1,7 +1,7 @@
 /* ============================================================
    EATOUTS CATERING
    Filter / search / sort layer over the catering services
-   directory in assets/data/CateringServicesDatabase.js
+   directory in /data/CateringServicesDatabase.js
    (window.EATOUTS_CATERING).
 
    The data file expands every business location into its own branch and

@@ -16,7 +16,7 @@
      EOPlaces   live typeahead for city / area / place
                 · city  <- botswana_locations.js (towns, 28 districts)
                 · area  <- botswana_locations.js (areas, filtered by town)
-                · place <- assets/data/botswana_shopping_malls_and_shopping_centres.js
+                · place <- /data/botswana_shopping_malls_and_shopping_centres.js
 
      EOHosting  event-type + capacity helpers shared by the
                 "Hosting Services" section (was "Reservation Services")
@@ -33,8 +33,8 @@
 
      botswana_locations.js
      js/eatouts-locations.js
-     assets/data/botswana_shopping_malls_and_shopping_centres.js
-     assets/data/event_types.js
+     /data/botswana_shopping_malls_and_shopping_centres.js
+     /data/event_types.js
      js/eatouts-onboarding-bridge.js
 
    (each one as a separate script tag, in that order)

@@ -4,7 +4,7 @@
    A link is  /<country>/<slug>  ->  { type, refId, name }.
    Resolution order:
      1) D1 business_links (claims, custom slugs, redirects)
-     2) assets/data/link_registry.json (auto-derived for every listing)
+     2) /data/link_registry.json (auto-derived for every listing)
 
    Slug rules mirror js/eatouts-slug.js exactly.
    ============================================================ */
@@ -83,7 +83,7 @@ export async function getRegistry(env, request) {
   if (_registry) return _registry;
   try {
     if (!env || !env.ASSETS || !env.ASSETS.fetch) { _registry = {}; return _registry; }
-    var url = new URL('/assets/data/link_registry.json', request.url);
+    var url = new URL('/data/link_registry.json', request.url);
     var res = await env.ASSETS.fetch(new Request(url.toString()));
     if (!res || !res.ok) { _registry = {}; return _registry; }
     var data = await res.json();

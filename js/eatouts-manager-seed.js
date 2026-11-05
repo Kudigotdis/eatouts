@@ -1,5 +1,5 @@
 /* EatoutsManagerSeed — merges the generated demo dataset
-   (window.EATOUTS_DEMO, from assets/data/demo/the-food-place/demo-data.js) into
+   (window.EATOUTS_DEMO, from /data/demo/the-food-place/demo-data.js) into
    the manager store (EatoutsMgrDB / "eatouts_manager_v1").
 
    Safe and idempotent:

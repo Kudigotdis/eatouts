@@ -2651,3 +2651,52 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - Town/Area are display-only lines (`is-disabled` + "Select Town"/"Select Area" when empty) — no re-filtering, matching the single-venue nature of a search row.
 - Errors: none
 
+
+### [2026-11-05 19:12:44] - [Agent: cline] - [Status: COMMITTED]
+- Task: Milestone C1 - publish the directory payload at `/data/*` behind a Functions endpoint (inert; nothing requests it yet). Part 1 of 2.
+- Files changed:
+  - `functions/data/[[path]].js` (new, +150)
+    - GET/HEAD only (405 otherwise), path allowlist `^[A-Za-z0-9][A-Za-z0-9._/-]*$` rejecting `..`/`//`/`%`, extension allowlist `.json/.js/.txt/.csv`, `env.ASSETS.fetch('/data/' + rel)`, streamed body, `cache-control: private, no-store, must-revalidate`, `nosniff`, `x-robots-tag: noindex`, ETag passthrough + `If-None-Match` -> real 304, generic 404 body, never a 500
+  - `copy-static.mjs`: publish the payload at `dist/data` and warn that `_routes.json` must never exclude `/data/*`
+  - `functions/[slug].js`: `data: 1` added to `RESERVED` so `/data` can never resolve as a venue slug
+  - `tests/data-payload.js` (new): sections A-G - method, path safety incl. dot-segment normalisation, extension gate, serving, revalidation, failure modes, routes contract (section H reserved for C2)
+  - `tests/run-all.js`: register `data-payload.js`
+- Verified:
+  - `node tests/data-payload.js` -> **DATA-PAYLOAD PASSED (40 checks)**
+  - `node copy-static.mjs` -> `_routes.json (10 excludes)` unchanged, `assets/data -> data/` copied
+  - `node tests/run-all.js` -> 79 passed, 1 failed. The single failure is **not** from this change: `login.js` trips on the untracked `assets/Zimbabwe/…/sample.html` drop (visible at HEAD before this commit); every suite this commit touches is green
+- Not verified:
+  - The deployed behaviour (curl checks in `docs/ACCESS-CONTROL-PLAN.md` §7 item 8) - needs a deploy, and the switch lands in C2
+- Notes:
+  - Deliberately inert: `assets/data/*` is still served at its old URL and still copied into `dist`, so this commit can ship and roll back without touching a single consumer
+  - The payload is **4.9 MB / 60 files**, not the 728 KB the plan recorded - that figure was the JSON index only
+- Errors: none
+
+
+
+
+### [2026-11-05 19:52:10] - [Agent: cline] - [Status: COMMITTED]
+- Task: Milestone C2 - switch every consumer from `/assets/data/*` to `/data/*`, and move the folder itself so the URL, the disk path and the Function path agree. Part 2 of 2 (C1 shipped the endpoint inert).
+- Files changed: 140 (85 renames, 55 edits)
+  - `assets/data/**` -> `data/**` (85 files, `git mv`): the source folder is now `data/` at the repo root, so `path.join(APP_DIR, '/data/x.js')` in the jsdom harnesses resolves to the real file instead of a phantom. Also the only way `dist/data` and `/data` can be the same thing.
+  - `copy-static.mjs`: the `assets/data -> dist/data` special case is gone; `'data'` is in `FOLDERS`. `assets/data` is no longer published at all, so the old URL is dead (404, not a second copy).
+  - 53 app files (`index.html`, `search_screen.html`, `venue-about.html`, 42 other `*.html`, 9 `js/*.js`): 113 references `assets/data/...` -> `/data/...` (absolute, so subdirectory pages resolve them the same way).
+  - `functions/api/_links.js`: `env.ASSETS.fetch('/data/link_registry.json')` - the server-side reader follows the consumer.
+  - `tests/router.js`: the fake-asset key moves to `/data/link_registry.json` (and the served copy is read from `data/`).
+  - 10 test files: disk paths `path.join(APP_DIR, 'assets', 'data', …)` -> `path.join(APP_DIR, 'data', …)` - 10 joined-string refs plus 10 separate-segment refs (`'assets', 'data'`).
+  - `tests/data-payload.js`: section G now asserts the folder is published by `FOLDERS` and that no `assets/data` special case survives; section H enabled - a repo-wide sweep proving no `*.html` / `js/**` / `functions/**` file still requests `/assets/data/` (comments excluded, since they legitimately explain the old layout) and that >20 files now ask for `/data/*`.
+  - `docs/ACCESS-CONTROL-PLAN.md`: §5.4 rewritten as DONE with the real numbers (4.9 MB / 60 files, not 728 KB), why `/assets/*` could never be gated there, and the endpoint's defensive rules; §7 gains a payload curl block (200 + no-store + noindex, old href 404, `/data/../../etc/passwd` 404, `.bak` 404) and the new suite count.
+  - `docs/AGENT_CHANGE_LOG.md`: this entry + the C1 entry.
+- Verified:
+  - `node tests/data-payload.js` -> **DATA-PAYLOAD PASSED (43 checks)** (was 40: +3 in section G, +2 in the new section H)
+  - `node copy-static.mjs` -> `_routes.json (10 excludes)` unchanged, `copied folder: data/`; `dist/data/alcohols.json` exists, `dist/assets/data` **gone**
+  - `node tests/run-all.js` -> **79 passed, 1 failed** across 80 suites. Every consumer suite is green with the moved payload: `search-screen`, `beverages`, `blog`, `catering-directory`, `demo-seed`, `delivery`, `bottle-stores`, `age-gate`, `supplier-pricing`, `router`, `access-gate` (79 checks). The one failure is `login.js`, tripping on the untracked `assets/Zimbabwe/…/sample.html` drop - present before this work, unrelated to `/data/*`
+  - `npx wrangler pages functions build --outdir=.tmp-functions-build` -> `Compiled Worker successfully`; the bundle carries the `data/[[path]].js` route with `cache-control: private, no-store, must-revalidate` and `x-robots-tag: noindex, nofollow` (artifact deleted afterwards)
+- Not verified:
+  - Deployed behaviour. The curl block in `docs/ACCESS-CONTROL-PLAN.md` §7 item 8 is the acceptance test and needs `npm run deploy` plus 5 requests from outside: `/data/alcohols.json` 200 with `no-store`/`noindex`; `/assets/data/alcohols.json` 404; `/data/../data/alcohols.json` 200 (normalisation, not a bypass); `/data/../../etc/passwd` 404; `/data/CateringServicesDatabase.js.bak` 404
+  - A real browser pass over the 53 pages (jsdom proves the module wiring and the requests, not the painted pages)
+- Notes:
+  - `login.js` is red on `main` before this work and stays red: the fix is either removing the untracked `assets/Zimbabwe/` sample or teaching `login.js` to skip it - neither is in this scope
+  - `html_catalog.meta.json` still describes pages with the words `assets/data/...`; it is generated prose, not code, and is regenerated by `npm run catalog`
+  - Rollback is one revert: nothing else reads `/data/*`, and C1 leaves the Function in place (it 404s harmlessly) if the switch is backed out
+- Errors: none

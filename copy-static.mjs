@@ -12,6 +12,11 @@ const FOLDERS = [
   'js',
   'assets',
   'dashboards',
+  // Milestone C: the runtime payload lives at /data/*, NOT /assets/data/*.
+  // /assets/* is excluded from Functions, so serving it from there handed 4.9 MB
+  // to any scraper; /data/* is not excluded, so functions/_middleware.js gates
+  // it and functions/data/[[path]].js serves it with private, no-store headers.
+  'data',
 ];
 
 // ---- SINGLE FILES to copy (root-level) ----
@@ -176,16 +181,11 @@ for (const folder of FOLDERS) {
 }
 
 // ---- Data payload ----------------------------------------------------------
-// Milestone C: assets/data/* is published at /data/* (NOT /assets/data/*).
-// The source folder keeps its name so the suites that read it as a disk path
-// stay valid; only the URL moves. functions/data/[[path]].js serves it.
-if (existsSync('assets/data')) {
-  await cp('assets/data', `${OUT}/data`, { recursive: true });
-  console.log('✓ copied folder: assets/data -> data/');
-  copied++;
-} else {
-  missing.push('assets/data/');
-}
+// Milestone C: the payload is a top-level `data/` folder caught by FOLDERS
+// above, so it is published at /data/* and never at /assets/data/*. The URL,
+// the disk path and functions/data/[[path]].js all say the same thing - which
+// is also what lets the jsdom harnesses resolve "<script src='/data/x.js'>"
+// straight off disk.
 
 // ---- Copy files ----
 for (const file of FILES) {

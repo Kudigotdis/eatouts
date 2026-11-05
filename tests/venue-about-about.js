@@ -5,7 +5,7 @@
  * The overlay (#logoOverlay) stacks the enlarged logo, #aboutBtn and the
  * <details id="settingsAcc"> accordion. Tapping About pushes the logo up
  * (logo-overlay.about-open) and reveals #aboutPanel — a white card whose copy
- * comes from assets/data/venue_about_info.js, falling back to the
+ * comes from data/venue_about_info.js, falling back to the
  * directory/branch record for venues without curated text.
  *
  * The card is copy-only by design: .about-eyebrow, .about-title and .about-p.

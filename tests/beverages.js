@@ -32,8 +32,8 @@ const ev = s => window.eval(s);
 const evj = s => JSON.parse(JSON.stringify(ev(s)));
 
 const readJson = f => JSON.parse(fs.readFileSync(path.join(APP_DIR, f), 'utf8'));
-const bevData = readJson('assets/data/beverages.json');
-const alcData = readJson('assets/data/alcohols.json');
+const bevData = readJson('data/beverages.json');
+const alcData = readJson('data/alcohols.json');
 
 setTimeout(() => {
   let fails = 0;

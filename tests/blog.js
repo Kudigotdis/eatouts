@@ -3,7 +3,7 @@ const path = require('path');
 const { JSDOM, VirtualConsole } = require(path.join(__dirname, 'node_modules', 'jsdom'));
 
 const APP_DIR = path.resolve(__dirname, '..');
-const feed = JSON.parse(fs.readFileSync(path.join(APP_DIR, 'assets', 'data', 'blog_posts.json'), 'utf8'));
+const feed = JSON.parse(fs.readFileSync(path.join(APP_DIR, 'data', 'blog_posts.json'), 'utf8'));
 const posts = Array.isArray(feed.posts) ? feed.posts : [];
 const first = posts.filter(p => p.status === 'published')[0] || posts[0];
 const sleep = ms => new Promise(r => setTimeout(r, ms));

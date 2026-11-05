@@ -45,7 +45,7 @@ const SOURCE = inline(PAGE);
 /* the catalogue the page renders its service picks from */
 function loadCatalog() {
   const win = {};
-  new Function('window', fs.readFileSync(path.join(APP_DIR, 'assets', 'data', 'supplier_catalog.js'), 'utf8'))(win);
+  new Function('window', fs.readFileSync(path.join(APP_DIR, 'data', 'supplier_catalog.js'), 'utf8'))(win);
   return win.EATOUTS_SUPPLIER_CATALOG || [];
 }
 

@@ -167,15 +167,15 @@ img{display:block;max-width:100%}
      inline PROMOS / EVENTS / MENU blobs — the bridge seeds from
      the directory runtime data instead)
      ============================================================ -->
-<script src="assets/data/restaurant_listings/restaurant_types_filter.js"></script>
-<script src="assets/data/restaurant_listings/directory_runtime_data.js"></script>
-<script src="assets/data/restaurant_listings/eatouts_manifest.js"></script>
-<script src="assets/data/event_types.js"></script>
-<script src="assets/data/venue-provider-list.js"></script>
-<script src="assets/data/BottleLliquorStoresDatabase.js"></script>
-<script src="assets/data/CateringServicesDatabase.js?v=20261021"></script>
-<script src="assets/data/bakery_services_database.js?v=20261021"></script>
-<script src="assets/data/venue_about_info.js"></script>
+<script src="/data/restaurant_listings/restaurant_types_filter.js"></script>
+<script src="/data/restaurant_listings/directory_runtime_data.js"></script>
+<script src="/data/restaurant_listings/eatouts_manifest.js"></script>
+<script src="/data/event_types.js"></script>
+<script src="/data/venue-provider-list.js"></script>
+<script src="/data/BottleLliquorStoresDatabase.js"></script>
+<script src="/data/CateringServicesDatabase.js?v=20261021"></script>
+<script src="/data/bakery_services_database.js?v=20261021"></script>
+<script src="/data/venue_about_info.js"></script>
 <script src="botswana_locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-brand.js"></script>
@@ -318,7 +318,7 @@ img{display:block;max-width:100%}
       }
       if (window.DIRECTORY_RUNTIME_DATA){ merge(window.DIRECTORY_RUNTIME_DATA); resolve(); return; }
       if (typeof fetch !== 'function'){ resolve(); return; }
-      fetch('assets/data/restaurant_listings/directory_runtime_data.json')
+      fetch('/data/restaurant_listings/directory_runtime_data.json')
         .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function(dir){ merge(dir); resolve(); })
         .catch(function(e){ console.warn('[Search] directory unavailable:', e); resolve(); });
@@ -478,7 +478,7 @@ img{display:block;max-width:100%}
     });
   }
   /* Curated overlay-only venues (e.g. Zors) have no directory record: their
-     identity lives in assets/data/venue_about_info.js. A venue that already
+     identity lives in /data/venue_about_info.js. A venue that already
      has a directory row is never repeated - the directory stays the source
      of truth, the overlay only fills the gap. */
   function pushOverlayVenue(out, key, oe, have){

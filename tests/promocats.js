@@ -28,9 +28,9 @@ const change = el => el.dispatchEvent(new window.Event('change', { bubbles: true
 const ev = s => window.eval(s);
 
 const readJson = f => JSON.parse(fs.readFileSync(path.join(APP_DIR, f), 'utf8'));
-const bevData = readJson('assets/data/beverages.json');
-const alcData = readJson('assets/data/alcohols.json');
-const promoData = readJson('assets/data/beverage-and-bar-promotions.json');
+const bevData = readJson('data/beverages.json');
+const alcData = readJson('data/alcohols.json');
+const promoData = readJson('data/beverage-and-bar-promotions.json');
 
 setTimeout(() => {
   let fails = 0;

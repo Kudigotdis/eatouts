@@ -6,13 +6,13 @@
    could see it.
 
    This file turns every published profile into one directory
-   record — the same shape assets/data/event_supplier_demo_catalogue.js
+   record — the same shape /data/event_supplier_demo_catalogue.js
    ships — and appends it to window.EATOUTS_SUPPLIERS. The planner
    (eatout_event_builder.html) reads that array, so an activated
    supplier becomes pickable and costable with no server involved.
 
-   Load AFTER assets/data/event_supplier_demo_catalogue.js and
-   AFTER assets/data/supplier_catalog.js. Safe on pages that have
+   Load AFTER /data/event_supplier_demo_catalogue.js and
+   AFTER /data/supplier_catalog.js. Safe on pages that have
    neither: it then only exposes window.EatoutsSupplierDirectory.
    ============================================================ */
 (function(){

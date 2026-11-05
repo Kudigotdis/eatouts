@@ -155,8 +155,8 @@ const Age = sandbox.window.EatoutsAge;
   }
 
   /* ---------- the wording ---------- */
-  const tos = fs.readFileSync(path.join(APP_DIR, 'assets', 'data', 'eatouts_terms_of_service.js'), 'utf8');
-  const privacy = fs.readFileSync(path.join(APP_DIR, 'assets', 'data', 'eatouts_privacy_policy.js'), 'utf8');
+  const tos = fs.readFileSync(path.join(APP_DIR, 'data', 'eatouts_terms_of_service.js'), 'utf8');
+  const privacy = fs.readFileSync(path.join(APP_DIR, 'data', 'eatouts_privacy_policy.js'), 'utf8');
   check('the terms explain the age rules', /10 or older/.test(tos) && /18 or older/.test(tos));
   check('the privacy policy explains the age rules', /10 and over/.test(privacy));
 
