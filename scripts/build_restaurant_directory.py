@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-LISTINGS_DIR = ROOT / "assets" / "data" / "restaurant_listings"
+LISTINGS_DIR = ROOT / 'data' / "restaurant_listings"
 DB_PATH = LISTINGS_DIR / "directory_data.db"
 CSV_PATH = LISTINGS_DIR / "listings_export.csv"
 CURATED_PATH = LISTINGS_DIR / "eatouts_restaurants_list.json"
@@ -23,7 +23,7 @@ FILTER_JS_PATH = LISTINGS_DIR / "restaurant_types_filter.js"
 MANIFEST_JS_PATH = LISTINGS_DIR / "eatouts_manifest.js"
 DEMO_MENU_PATH = ROOT / "demo_info_menu-items-food-beverages.json"
 LOGO_DIR = ROOT / "assets" / "logo"
-MENU_DIR = ROOT / "assets" / "data" / "menus_data"
+MENU_DIR = ROOT / 'data' / "menus_data"
 MENU_IMAGE_DIR = ROOT / "assets" / "images" / "menu_images"
 
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"}

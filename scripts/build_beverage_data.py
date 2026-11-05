@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """Build the app-ready beverage, alcohol and bar-promo data sets.
 
-Sources (raw) live under assets/data/source/ after the Phase 0 move:
+Sources (raw) live under data/source/ after the Phase 0 move:
   - Beverages.json                    (231 rows, echoppies + juice merged)
   - Alcohols.json                     (402 rows, Makro)
   - beverage_and_bar_promotions.js    (ES module <-> rewritten with images)
 
 Outputs (consumed by index.html):
-  - assets/data/beverages.json
-  - assets/data/alcohols.json
-  - assets/data/beverage-and-bar-promotions.json
-  - assets/data/source/beverage_and_bar_promotions.js (regenerated in sync)
+  - data/beverages.json
+  - data/alcohols.json
+  - data/beverage-and-bar-promotions.json
+  - data/source/beverage_and_bar_promotions.js (regenerated in sync)
 
 Image files are matched by basename against the real local folders:
   - assets/images/beverages/   (was assets/images/beverage_images/)
@@ -28,8 +28,8 @@ import sys
 from datetime import datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, "assets", "data", "source")
-OUT = os.path.join(ROOT, "assets", "data")
+SRC = os.path.join(ROOT, 'data', "source")
+OUT = os.path.join(ROOT, 'data')
 IMG_BEV = os.path.join(ROOT, "assets", "images", "beverages")
 IMG_ALC = os.path.join(ROOT, "assets", "images", "alcohol")
 IMG_BEV_PROMO = os.path.join(ROOT, "assets", "images", "beverage-promos")
@@ -359,7 +359,7 @@ def parse_promo_js(path: str):
 
 def write_promo_js(path: str, promos, days):
     """Regenerate the ES module so `subtype` and `images` stay in sync with
-    assets/data/beverage-and-bar-promotions.json."""
+    data/beverage-and-bar-promotions.json."""
     lines = [
         "// ============================================================",
         "//  BEVERAGE & BAR PROMOTIONS CATALOG  (auto generated)",

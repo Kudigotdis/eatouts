@@ -3,8 +3,8 @@
 Merge owner_submissions/venue_*.json into directory_runtime_data.json.
 
 Input:  owner_submissions/venue_<slug>_<YYYYMMDD>.json  (eatouts.venue.v1)
-Output: assets/data/restaurant_listings/directory_runtime_data.json
-        assets/data/restaurant_listings/directory_runtime_data.js
+Output: data/restaurant_listings/directory_runtime_data.json
+        data/restaurant_listings/directory_runtime_data.js
 
 Run this AFTER scripts/build_restaurant_directory.py — that script rebuilds
 the directory from the source listings and would otherwise drop whatever the
@@ -21,8 +21,8 @@ import json, glob, os, sys, re
 from datetime import datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RUNTIME = os.path.join(ROOT, 'assets/data/restaurant_listings/directory_runtime_data.json')
-RUNTIME_JS = os.path.join(ROOT, 'assets/data/restaurant_listings/directory_runtime_data.js')
+RUNTIME = os.path.join(ROOT, 'data/restaurant_listings/directory_runtime_data.json')
+RUNTIME_JS = os.path.join(ROOT, 'data/restaurant_listings/directory_runtime_data.js')
 SUBMISSIONS = os.path.join(ROOT, 'owner_submissions')
 SCHEMA = 'eatouts.venue.v1'
 

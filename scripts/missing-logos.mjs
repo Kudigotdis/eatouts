@@ -25,7 +25,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const DOC = path.join(ROOT, 'RESTAURANTS_WITHOUT_LOGOS.md');
 const INDEX = path.join(ROOT, 'index.html');
-const DIRECTORY = path.join(ROOT, 'assets', 'data', 'restaurant_listings', 'directory_runtime_data.json');
+const DIRECTORY = path.join(ROOT, 'data', 'restaurant_listings', 'directory_runtime_data.json');
 const LOGO_DIR = path.join(ROOT, 'assets', 'logo');
 
 const require = createRequire(import.meta.url);
@@ -112,7 +112,7 @@ function main() {
     out.push('manual checkboxes below are reset to unticked.');
     out.push('');
     out.push('A venue counts as logo\'d when `EatoutsBrand.logoFor()` resolves to real art');
-    out.push('via the manifest (`assets/data/restaurant_listings/eatouts_manifest.js`), a');
+    out.push('via the manifest (`data/restaurant_listings/eatouts_manifest.js`), a');
     out.push('record `logo` field, or `REAL_LOGOS` in `js/eatouts-brand.js`. Everything');
     out.push('else renders the grey letter tile `assets/logo/logo_placement_image.png`.');
     out.push('');
@@ -129,7 +129,7 @@ function main() {
     out.push('## How to fix a venue');
     out.push('');
     out.push('1. Drop the art in `assets/logo/` (square, under ~200KB).');
-    out.push('2. Add one key to `logos` in `assets/data/restaurant_listings/eatouts_manifest.js`.');
+    out.push('2. Add one key to `logos` in `data/restaurant_listings/eatouts_manifest.js`.');
     out.push('   Use the venue slug exactly, or a brand prefix that also covers its branches');
     out.push('   (`milky-lane` covers `milky-lane-francistown` and friends).');
     out.push('3. Re-run `npm run missing-logos` — the venue should disappear from this list.');

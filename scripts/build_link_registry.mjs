@@ -5,9 +5,9 @@
  * Derives the public link namespace for  www.eatouts.site/<country>/<slug>
  * from the real data the app already ships:
  *
- *   restaurants   assets/data/restaurant_listings/directory_runtime_data.json
- *   bottle/liquor assets/data/BottleLliquorStoresDatabase.js (window.EATOUTS_BOTTLE_STORES)
- *   suppliers     assets/data/event_supplier_demo_catalogue.js (window.EATOUTS_SUPPLIERS)
+ *   restaurants   data/restaurant_listings/directory_runtime_data.json
+ *   bottle/liquor data/BottleLliquorStoresDatabase.js (window.EATOUTS_BOTTLE_STORES)
+ *   suppliers     data/event_supplier_demo_catalogue.js (window.EATOUTS_SUPPLIERS)
  *
  * Restaurants are grouped into BRANDS exactly like the customer app
  * (EatoutsBridge.brandKeyOf): all KFC branches become one "/bw/kfc" link that
@@ -20,7 +20,7 @@
  * clashes fall back to name+town, then a trailing number.
  *
  * Emits:
- *   assets/data/link_registry.json    - byCountry[cc][slug] -> { type, refId, name }
+ *   data/link_registry.json    - byCountry[cc][slug] -> { type, refId, name }
  *                                       (plus bySlug, the default country's flat map)
  *   scripts/seeds/business_links.sql  - INSERT OR IGNORE seed for D1
  *
@@ -48,17 +48,17 @@ function countryOf(record) {
 }
 
 const BRAND_JS = path.join(ROOT, 'js', 'eatouts-brand.js');
-const RESTAURANTS_JSON = path.join(ROOT, 'assets', 'data', 'restaurant_listings', 'directory_runtime_data.json');
-const BOTTLE_JS = path.join(ROOT, 'assets', 'data', 'BottleLliquorStoresDatabase.js');
-const SUPPLIERS_JS = path.join(ROOT, 'assets', 'data', 'event_supplier_demo_catalogue.js');
-const CATERING_JS = path.join(ROOT, 'assets', 'data', 'CateringServicesDatabase.js');
-const OUT_JSON = path.join(ROOT, 'assets', 'data', 'link_registry.json');
+const RESTAURANTS_JSON = path.join(ROOT, 'data', 'restaurant_listings', 'directory_runtime_data.json');
+const BOTTLE_JS = path.join(ROOT, 'data', 'BottleLliquorStoresDatabase.js');
+const SUPPLIERS_JS = path.join(ROOT, 'data', 'event_supplier_demo_catalogue.js');
+const CATERING_JS = path.join(ROOT, 'data', 'CateringServicesDatabase.js');
+const OUT_JSON = path.join(ROOT, 'data', 'link_registry.json');
 const OUT_SQL = path.join(ROOT, 'scripts', 'seeds', 'business_links.sql');
 
 /* Reserved words mirrored from js/eatouts-slug.js - a derived slug must never
    shadow a real route. */
 const RESERVED = new Set([
-  'api', 'assets', 'js', 'css', 'img', 'static', 'cdn', 'mail', 'bw', 'www',
+  'api', 'assets', 'data', 'js', 'css', 'img', 'static', 'cdn', 'mail', 'bw', 'www',
   'app', 'admin', 'root', 'public', 'about', 'blog', 'help', 'support',
   'terms', 'privacy', 'login', 'logout', 'signup', 'register', 'account',
   'settings', 'index', 'home', 'new', 'edit', 'me', 'my', 'null', 'undefined',

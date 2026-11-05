@@ -3,8 +3,8 @@
  * EatOuts demo-data bundler.
  *
  * Concatenates the individual per-domain data files in
- * assets/data/demo/the-food-place/ into a single loadable bundle
- * (assets/data/demo/the-food-place/demo-data.js) which defines the global
+ * data/demo/the-food-place/ into a single loadable bundle
+ * (data/demo/the-food-place/demo-data.js) which defines the global
  * window.EATOUTS_DEMO. The bundle is consumed by js/eatouts-manager-seed.js,
  * which merges the records into EatoutsMgrDB.
  *
@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const DIR = path.join(ROOT, 'assets', 'data', 'demo', 'the-food-place');
+const DIR = path.join(ROOT, 'data', 'demo', 'the-food-place');
 const OUT = path.join(DIR, 'demo-data.js');
 
 const FILES = [
@@ -54,7 +54,7 @@ for (const f of FILES) {
 const today = new Date().toISOString().slice(0, 10);
 const header = [
   '/* The Food Place — generated demo-data bundle. DO NOT EDIT DIRECTLY.',
-  '   Source: assets/data/demo/the-food-place/*.js',
+  '   Source: data/demo/the-food-place/*.js',
   '   Rebuild: npm run demo-data',
   '   Generated: ' + today + ' */',
   'window.EATOUTS_DEMO = window.EATOUTS_DEMO || {};',

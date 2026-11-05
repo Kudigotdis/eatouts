@@ -23,7 +23,7 @@
 
   /* Route segments and platform words that must never be a business link. */
   var RESERVED = {
-    api: 1, assets: 1, js: 1, css: 1, img: 1, static: 1, cdn: 1, mail: 1,
+    api: 1, assets: 1, data: 1, js: 1, css: 1, img: 1, static: 1, cdn: 1, mail: 1,
     bw: 1, www: 1, app: 1, admin: 1, root: 1, public: 1,
     about: 1, blog: 1, help: 1, support: 1, terms: 1, privacy: 1,
     login: 1, logout: 1, signup: 1, register: 1, account: 1, settings: 1,
