@@ -92,7 +92,8 @@ const SUITES = [
   'region-selector.js',
   'region-gating.js',
   'created-event.js',
-  'money.js'
+  'money.js',
+  'security-admin.js'
 ];
 
 function pad(n, width) {

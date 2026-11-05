@@ -9,3 +9,9 @@
 
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
+
+# Admin access-control endpoints (Milestone A). Never indexed, never cached:
+# these are the only routes that mint or check the geo-gate bypass cookie.
+/api/admin/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store

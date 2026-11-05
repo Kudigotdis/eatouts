@@ -16,6 +16,42 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 ---
+### [2026-11-05 13:40:45] - [Agent: cline] - [Status: COMMITTED]
+- Task: Milestone A of the locked A→B→C→D access-control roadmap — the revocable admin exception for the Zimbabwe-based operator (Phase 3), built on a shared `_security.js` that Stages 4–7 will import in Milestone B.
+- Files changed:
+  - `migrations/0018_admin_access.sql` (NEW): `admin_devices`, `admin_audit`, `denial_log`, `canary_tokens` — every statement `CREATE … IF NOT EXISTS` so the file is re-runnable; indexes on device hash, audit time/action, denial time/rule/country, canary kind.
+  - `functions/api/_security.js` (NEW): `signToken` / `verifyToken` (`v1.<b64url payload>.<b64url HMAC-SHA256>`), `readCookie` / `cookie` / `jsonWithCookies`, `deny()`, `geo`, `uaFamily`, `deviceId`, `sha256Hex`, `adminGate`, `adminConfigured`, `verifyAdminCredentials`, `readEpoch` / `bumpEpoch`, `rememberDevice`, `audit`, `logDenial`, `DATACENTER_ASNS`. Reuses `hashPassword`/`safeEqual`/`toHex`/`PBKDF2_ITER` from `_auth.js` and `isProduction`/`clientIp`/`uid` from `_shared.js` — no new crypto, no new dependency.
+  - `functions/api/admin/login.js` (NEW): `POST /api/admin/login` — 503 when unconfigured, KV rate limit 6/15 min per IP, PBKDF2 verify, mints the 30-day bypass cookie + the 365-day device cookie, records the device row and an `admin_login` audit row, returns `route: eatouts-admin-dashboard.html`.
+  - `functions/api/admin/session.js` (NEW): `GET /api/admin/session` → `{ user, expires, epoch, device }`; 403 through the same generic denial for every failure; 405 on POST.
+  - `functions/api/admin/revoke-all.js` (NEW): `POST /api/admin/revoke-all` — admin-gated, bumps `admin:epoch`, stamps `admin_devices.revoked_at`, clears both cookies, writes `admin_revoke_all`.
+  - `functions/api/admin/logout.js` (NEW): `POST /api/admin/logout` — always 200, clears both cookies, audits as anonymous when the cookie no longer verifies.
+  - `scripts/hash-admin-password.mjs` (NEW): PBKDF2-SHA256 600k (OWASP 2023), 16-byte salt, prints only `600000:<saltHex>:<hashHex>` on stdout (hint text on stderr), rejects passphrases under 12 characters, never echoes the password.
+  - `tests/security-admin.js` (NEW, 89 checks): token crypto, cookie parsing/attributes, device binding, `adminGate`, credentials, all four endpoints, rate limiting, `denial_log` privacy, migration + script contracts.
+  - `tests/run-all.js`: registers `security-admin.js`.
+  - `_headers`: `X-Robots-Tag: noindex, nofollow` + `Cache-Control: no-store` on `/api/admin/*`.
+  - `docs/ACCESS-CONTROL-PLAN.md` (NEW): Phase 0 findings, the 7-stage pipeline, Milestone A detail, Milestones B/C/D, fail-closed matrix, privacy stance, verification, DoD, rollback.
+- Commit: PENDING
+- Push: PENDING
+- Verified:
+  - `node tests/security-admin.js` → **SECURITY-ADMIN PASSED (89 checks)**
+  - `npm test` (`node tests/run-all.js`) → **76 passed, 0 failed** (75 before + this suite)
+  - `node scripts/hash-admin-password.mjs 'test-passphrase-123'` → 104-char `600000:<32 hex>:<64 hex>`; that exact line verified through the runtime `verifyAdminCredentials` → `roundtrip-good=true wrong-password=false`
+  - `npx wrangler pages functions build --outdir=.tmp-functions-build` → **Compiled Worker successfully** (build dir deleted afterwards)
+- Not verified:
+  - `npx wrangler d1 migrations apply eatouts --remote` — needs D1 credentials; the local apply was **not** run either because it rewrites the local D1 state used by other suites
+  - The three Pages secrets and the `curl.exe` smoke tests in `docs/ACCESS-CONTROL-PLAN.md` §7 — need a deployed build
+  - The Stage 0 edge WAF rule — a dashboard action, scheduled for Milestone B
+- Notes:
+  - The bypass is a signed cookie, not an IP allow-list: the operator's ZW ISP uses dynamic CGNAT and the client IP is not stable behind the edge. `dev` binds the token to `sha256("adm-dev:" + browser|platform)`, so a browser version bump does not lock the operator out.
+  - Global revocation is one KV counter (`admin:epoch`) compared inside `adminGate`, so it needs no DB read on the hot path and works on any Pages plan — which is why the plan-tier check (D1) is deferred to Milestone D.
+  - Every failure path returns the same `Forbidden` 403 with no country, ASN, rule or reason, and `denial_log` stores only salted SHA-256 hashes of IP/UA (same stance as `0017_venue_interest.sql`).
+  - Nothing is gated yet: this milestone only builds the exception. The actual gate (`functions/_middleware.js` + dropping `/*.html` from the `_routes.json` excludes) is Milestone B, and the 728 KB `assets/data/*` payload stays scrapeable until Milestone C.
+  - Deliberately did **not** add a new admin HTML page: every root page needs a `scripts/html_catalog.meta.json` entry, a `<!-- PAGE: -->` banner, `data-page` and a `copy-static.mjs` line, so the login UI ships with the dashboard wiring in Milestone B.
+- Errors: none
+
+---
+
+
 ### [2026-11-05 12:27:58] - [Agent: opencode] - [Status: COMMITTED]
 - Task: Redesign venue checkout WhatsApp hand-off for non-participating venues and add the admin venue-interest report.
 - Files changed:
