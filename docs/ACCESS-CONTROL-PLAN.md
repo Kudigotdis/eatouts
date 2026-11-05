@@ -1,6 +1,6 @@
 # Access Control Plan — www.eatouts.site
 
-**Status:** Milestones A + B implemented (not yet deployed; the gate ships **off**) · **Last updated:** 2026-11-05
+**Status:** Milestones A + B + C implemented; C deployed and verified live on www.eatouts.site (the gate still ships **off**) · **Last updated:** 2026-11-05
 **Scope:** geo-gate for Botswana, revocable admin exception for the Zimbabwe operator,
 anti-scrape hardening, structured denial logging.
 **Stack:** Cloudflare Pages + Pages Functions, D1, KV (`OPS_KV`), Supabase Storage. No framework.
@@ -152,6 +152,12 @@ npx wrangler pages secret put ADMIN_USERNAME
 3. `npx wrangler pages secret put …` — secrets before the code that needs them.
 4. `git push` — Pages builds and deploys automatically.
 5. `curl.exe` the checks in §7.
+
+`npm run deploy` (a direct `wrangler pages deploy dist` upload) is *not* the deployment
+path for this project and currently fails from the dev workstation — wrangler uploads the
+whole 179 MB `dist` (3.8k files) and the uplink drops the new TLS handshakes
+(`ConnectTimeoutError`, `ECONNRESET`, "Failed to upload files"). Push to `main` and let the
+Git-connected build do it; that deploy is the one the live checks in §7 come from.
 
 Deploying the code before the migration is the one order that must not happen: the
 endpoints swallow DB errors, so the site would look fine while `admin_devices` and
@@ -377,14 +383,18 @@ curl.exe -s -D - -o NUL https://www.eatouts.site/data/alcohols.json
 #           + x-content-type-options: nosniff + x-robots-tag: noindex, nofollow
 curl.exe -s -o NUL -w "%{http_code}\n" https://www.eatouts.site/assets/data/alcohols.json
 #   expect: 404   (a 200 here means the payload is still shipping unguarded)
-curl.exe -s -o NUL -w "%{http_code}\n" https://www.eatouts.site/data/../data/alcohols.json
-#   expect: 200 - the URL parser collapses the dot segments before the Function
-#   sees the path (that is normalisation, not a bypass)
+curl.exe -s -o NUL -w "%{http_code}\n" --path-as-is https://www.eatouts.site/data/../data/alcohols.json
+#   expect: 200 - the dot segments are collapsed before the Function sees the
+#   path (that is normalisation, not a bypass)
 curl.exe -s -o NUL -w "%{http_code}\n" --path-as-is https://www.eatouts.site/data/../../etc/passwd
-#   expect: 404, and never a 500 and never a file body
+#   expect: 400 (Pages rejects the traversal outright), never a 500, never a file body
 curl.exe -s -o NUL -w "%{http_code}\n" https://www.eatouts.site/data/CateringServicesDatabase.js.bak
 #   expect: 404 - the extension allowlist drops the .bak/.db leftovers
+curl.exe -s -o NUL -w "%{http_code}\n" https://www.eatouts.site/data/alcohols.JSON
+#   expect: 404 - the allowlist is case-sensitive
 ```
+
+**Verified live on 2026-11-05** (deployment `e5e51d5`, Git-connected build): 200 / 404 / 200 / 400 / 404 / 404 exactly as above, and `/data/restaurant_listings/directory_runtime_data.js` answers `200 text/javascript` with `private, no-store, must-revalidate` + `noindex, nofollow` + `nosniff`. `index.html`, `search_screen` and `venue-about` all still render (200).
 
 ### Definition of done for Milestone A
 
