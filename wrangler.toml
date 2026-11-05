@@ -12,6 +12,15 @@ pages_build_output_dir = "dist"
 ENV = "development"
 PUBLIC_BASE = "https://www.eatouts.site"
 
+# Access-control gate (Milestone B, functions/_middleware.js).
+#   "off"      gate disabled - nothing logged, nothing blocked (the default)
+#   "monitor"  run every stage, log every would-be denial, still serve the page
+#   "enforce"  a denial is the generic 403
+# Roll it out as monitor -> watch denial_log -> enforce. Override per
+# environment in the dashboard: Workers & Pages -> eatouts -> Settings ->
+# Variables and Secrets.
+ACCESS_GATE = "off"
+
 # D1 database  ->  npx wrangler d1 create eatouts
 # Replace <D1_DATABASE_ID> with the database_id it prints.
 [[d1_databases]]
@@ -49,6 +58,9 @@ id = "315b0ddf742046eaab81843535adaf65"
 [env.production.vars]
 ENV = "production"
 PUBLIC_BASE = "https://www.eatouts.site"
+# Milestone B gate. "off" until the operator has a bypass cookie and the
+# denial_log review is clean; then "monitor", then "enforce".
+ACCESS_GATE = "off"
 
 # Bindings are NOT inherited by environments, so the D1 database and
 # KV namespace are repeated for the production environment.

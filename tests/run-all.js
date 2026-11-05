@@ -94,7 +94,8 @@ const SUITES = [
   'region-gating.js',
   'created-event.js',
   'money.js',
-  'security-admin.js'
+  'security-admin.js',
+  'access-gate.js'
 ];
 
 function pad(n, width) {

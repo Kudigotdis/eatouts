@@ -137,11 +137,17 @@ const missing = [];
 // functions/[slug].js is a catch-all for /<slug>, so it shadows every static
 // page (and the _redirects rules, which only run when no Function matches).
 // The Function itself now falls through via context.next() when the path is a
-// real asset; these excludes keep static/asset traffic off the Function
-// entirely (and keep the file within the 100-rule cap).
+// real asset (including "*.html", which fails the slug regex and goes straight
+// to context.next()).
+//
+// Milestone B: "/*.html" is deliberately NOT excluded any more. Excluding it
+// kept page requests away from Functions entirely, which also kept them away
+// from functions/_middleware.js - the geo-gate could never see a page. Pages
+// now pay one Function invocation so the gate can run; the asset folders stay
+// excluded (the 728 KB directory payload moves behind the gate in Milestone C).
 const staticExcludes = [
   '/assets/*', '/js/*', '/css/*', '/img/*',
-  '/*.html', '/_headers', '/_redirects', '/_routes.json',
+  '/_headers', '/_redirects', '/_routes.json',
   '/robots.txt', '/manifest.json', '/favicon.ico',
 ];
 

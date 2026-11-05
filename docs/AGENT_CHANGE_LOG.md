@@ -16,6 +16,40 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 ---
+### [2026-11-05 16:10:16] - [Agent: cline] - [Status: COMMITTED]
+- Task: Milestone B of the layered access-control plan — the actual gate. Adds `functions/_middleware.js` (Stages 1–4), a reachable `/admin/login` page, and stops excluding `/*.html` from `_routes.json` so page requests finally reach Functions. Ships **inert**: `ACCESS_GATE` defaults to `off`, so nothing is blocked and nothing is logged until the operator turns it on.
+- Files changed:
+  - `functions/_middleware.js` (NEW): Stage 1 UA sanity → Stage 2 datacenter-ASN sanity → Stage 3 revocable admin bypass → Stage 4 country must be BW; skip list for `/api/admin/*`, `/api/auth/*`, `/api/health`, `/admin/*`, `_headers`, `_redirects`, `_routes.json`, `robots.txt`, `manifest.json`, `favicon.ico`; exports `gateMode()` / `isSkipPath()` / `badUa()` / `onRequest`; one `blocked()` helper that writes the `denial_log` row then either serves (monitor) or returns the generic `deny()`; whole body wrapped in try/catch that denies on any throw.
+  - `functions/admin/login.js` (NEW): `GET /admin/login`. Served by a Function rather than a root `.html` file on purpose — the gate could otherwise block the only page that hands out the cookie that unlocks the gate. Posts to `/api/admin/login`, follows the returned route, 503 when the admin secrets are absent, 405 for anything but GET/HEAD, `no-store` + `X-Robots-Tag: noindex`, and it echoes no configuration.
+  - `copy-static.mjs`: `_routes.json` excludes `/*.html` no longer (10 excludes, was 11); the asset folders stay excluded, so the 728 KB directory payload remains scrapeable until Milestone C.
+  - `wrangler.toml`: `ACCESS_GATE = "off"` added to `[vars]` and `[env.production.vars]` with the off → monitor → enforce rollout note.
+  - `tests/access-gate.js` (NEW, 77 checks): mode resolution, skip list, Stage 1 (7 UAs), Stage 2, Stage 3 (valid / wrong device / wrong kind / bumped epoch / wrong secret / expired / curl / AWS-ASN), Stage 4 (denial body, no-set-cookie, lowercase country, missing `cf`, JSON API), monitor vs off, fail-closed, `denial_log` privacy, the `_routes.json` contract, `/admin/login`.
+  - `tests/run-all.js`: registers `access-gate.js`.
+  - `docs/ACCESS-CONTROL-PLAN.md`: §5 rewritten as “Milestone B — the gate (DONE, ships off)” with the `ACCESS_GATE` matrix, the SEO consequence, what Stage 3 does and does not skip, and C/D renumbered to §5.3/§5.4; §6 gains the gate rows; §7 gains the B verification + the gate `curl.exe` checks + a Milestone B DoD; §8 gains two rollback rows.
+  - `docs/AGENT_CHANGE_LOG.md`: this entry.
+- Commit: PENDING
+- Push: PENDING
+- Verified:
+  - `node tests/access-gate.js` → **ACCESS-GATE PASSED (77 checks)**
+  - `npm test` (`node tests/run-all.js`) → **78 passed, 0 failed** (exit 0)
+  - `node copy-static.mjs` → `_routes.json` regenerated with **10 excludes**, `/*.html` absent, `/assets/* | /js/* | /css/* | /img/*` still excluded
+  - `npx wrangler pages dev dist` (ACCESS_GATE=off) → `/` 200, `/eatouts-about` 200, `/eatouts-admin-dashboard` 200, `/venue-about` 200, `/kfc` 200, `/api/venues` 200, `/eatouts-about.html` 308 → `/eatouts-about` (Pages' own pretty-URL redirect), `/admin/login` 503 (unconfigured locally), `/api/health` 200
+  - `npx wrangler pages dev dist --binding ACCESS_GATE=enforce` → `/eatouts-about` **403 `Forbidden`** (body is exactly `Forbidden`), `/index.html` 403, `/api/admin/session` 403 (reached the endpoint — the gate did not swallow it), `/admin/login` 503 (still reachable), `/api/health` 200, `/js/eatouts-db.js` 200
+- Not verified:
+  - The four remote `curl.exe` gate checks in §7 — they need a deployed build with the three secrets set
+  - A real-browser round trip of `/admin/login` (the page is asserted as HTML text and headers only)
+  - Cloudflare's geo/ASN values for a real Zimbabwe/Botswana request; the suite uses fakes
+- Notes:
+  - **The gate ships off by design.** `ACCESS_GATE=off` means zero checks and zero `denial_log` rows, so pushing this commit changes no visitor's experience. Rollout stays monitor → read `denial_log` → enforce, and `ACCESS_GATE=off` is the rollback (a variable, not a deploy).
+  - **Enforcing will de-index the site.** Googlebot and Bingbot crawl from US datacenter ASNs, so Stage 2/4 deny them. That is a product decision, not a defect; `monitor` is how you measure it first, and the suite pins the behaviour (`googlebot is denied by stage 2`).
+  - Stage 3 deliberately runs *after* Stages 1–2 (as §3 specifies), so a stolen cookie on a `curl` client or a hosting-network ASN still 403s.
+  - Every HTML page now costs one extra Function invocation (the middleware) so the gate can see it; the asset folders are untouched, which is why the payload is still scrapeable until Milestone C.
+  - The admin dashboard UI (“bypass active until …”, revoke-all, device list, `denial_log` view) and the optional Twilio step-up are **B2** and were not started — they need design work in `eatouts-admin-dashboard.html`, not just wiring.
+  - `js/eatouts-brand.js` and `tests/search-screen.js` were already dirty in the working tree before this task started (Halaal work) and were left untouched and uncommitted.
+- Errors: none
+
+
+
 ### [2026-11-05 15:05:47] - [Agent: opencode] - [Status: COMMITTED]
 - Task: Add the Botswana Halaal certification badge, tap-through explanation popup, and Halaal search filter for the certified venue list.
 - Files changed:

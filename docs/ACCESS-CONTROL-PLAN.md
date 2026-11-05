@@ -1,6 +1,6 @@
 # Access Control Plan — www.eatouts.site
 
-**Status:** Milestone A implemented (not yet deployed) · **Last updated:** 2026-04-22
+**Status:** Milestones A + B implemented (not yet deployed; the gate ships **off**) · **Last updated:** 2026-11-05
 **Scope:** geo-gate for Botswana, revocable admin exception for the Zimbabwe operator,
 anti-scrape hardening, structured denial logging.
 **Stack:** Cloudflare Pages + Pages Functions, D1, KV (`OPS_KV`), Supabase Storage. No framework.
@@ -70,7 +70,9 @@ request
 
 Stages 5–7 are Milestones C and D. Milestone A ships Stage 3 plus the shared module
 every later stage imports, because a gate with no way in for the operator would lock
-the site for the only person who can fix it.
+the site for the only person who can fix it. Milestone B ships Stages 1–4 in
+`functions/_middleware.js` — but behind `ACCESS_GATE`, so deploying the code changes
+nothing until the operator turns it on (see §5).
 
 **Every stage fails closed.** Missing secret, missing binding, unparsable cookie, KV
 error → deny. There is exactly one denial body (`Forbidden`, 403) and it never names
@@ -157,26 +159,59 @@ endpoints swallow DB errors, so the site would look fine while `admin_devices` a
 
 ---
 
-## 5. Milestones B, C, D (not started)
+## 5. Milestone B — the gate (DONE, ships off)
 
-### Milestone B — the actual gate
+The whole pipeline lives in `functions/_middleware.js` (Pages root scope, so it runs
+before every Function) and every stage reuses `functions/api/_security.js`. Nothing is
+re-implemented, and `_routes.json` no longer excludes `/*.html`, which is what finally
+lets the middleware see a page request.
 
-| Item | Detail |
-|------|--------|
-| `functions/_middleware.js` | Stages 1–4 for every matched route. Wrapped in try/catch that denies on any throw. Skips `/api/auth/*`, `/api/health`, `_headers`, and the admin endpoints |
-| `_routes.json` | `copy-static.mjs` must stop excluding `/*.html` (or exclude only the pages that stay public, e.g. `404.html`), otherwise the middleware never sees a page request |
-| Admin UI | Login + "bypass active until …" + revoke-all + device list, wired into `eatouts-admin-dashboard.html`; needs the F10 catalog entry work |
-| Denial logging live | `logDenial` called from each stage with `{ stage, rule, confidence }`, plus a read-only view of `denial_log` for the operator |
-| Step-up (D5) | Twilio Verify only when `TWILIO_*` env vars exist; otherwise the password alone is enough |
+| Item | Detail | Status |
+|------|--------|--------|
+| `functions/_middleware.js` | Stages 1–4, `off` / `monitor` / `enforce`, one try/catch that denies on any throw, one generic 403 | done |
+| Skip list | `/api/admin/*` (login must work from ZW), `/api/auth/*`, `/api/health`, `/admin/*`, `_headers`, `_redirects`, `_routes.json`, `robots.txt`, `manifest.json`, `favicon.ico` | done |
+| `_routes.json` | `copy-static.mjs` no longer excludes `/*.html`; the asset folders (`/assets/*`, `/js/*`, `/css/*`, `/img/*`) stay excluded until Milestone C | done |
+| `functions/admin/login.js` | `GET /admin/login` — the one page a non-BW operator can load. A Function, not a `.html` file, so the gate can never block its own only way in. Posts to `/api/admin/login`; 503 when the secrets are absent; 405 for anything but GET/HEAD | done |
+| Denial logging live | every stage calls `logDenial` with `{ stage, rule, confidence }`; in `monitor` mode the record is written and the page is still served | done |
+| Admin UI | "bypass active until …" + revoke-all + device list inside `eatouts-admin-dashboard.html`, plus a read-only `denial_log` view | **B2 — not started** |
+| Step-up (D5) | Twilio Verify only when `TWILIO_*` env vars exist | **B2 — not started** |
 
-### Milestone C — the payload
+### 5.1 `ACCESS_GATE` — why the gate ships off
+
+| Value | Behaviour |
+|-------|-----------|
+| unset / `off` (deployed default) | the gate is inert: no checks, no rows, no denials |
+| `monitor` | every stage runs and each would-be denial is written to `denial_log`, but the request is served |
+| `enforce` / `on` / `true` | a denial is the generic 403 |
+
+Two reasons it is not on by default:
+
+1. **Deploy order.** The gate needs the three secrets and a bypass cookie to exist before
+   it can be enforced; flipping a variable is reversible in seconds, `git revert` is not.
+2. **SEO.** Stage 2 and Stage 4 deny Googlebot and Bingbot (they crawl from US datacenter
+   ASNs), so `enforce` takes the site out of search results. That is a product decision,
+   not a bug — `monitor` is how you measure it before it happens (`rule='datacenter_asn'`,
+   `country` in the row).
+
+Rollout: deploy with `off` → log in at `/admin/login` → set `monitor` → read `denial_log`
+for a week and confirm no Botswana visitor and no wanted crawler is in it → set `enforce`.
+
+### 5.2 What Stage 3 does and does not skip
+
+`adminGate` runs *after* Stages 1–2 and *before* Stage 4, exactly as §3 specifies: a valid
+bypass cookie skips the geo check only. A request that looks like `curl` or arrives on a
+hosting-network ASN is still refused, cookie or not — the operator's own browser is a
+normal Chrome/Safari/Edge, so this costs the operator nothing and keeps a stolen cookie
+from turning a scraper into a resident.
+
+### 5.3 Milestone C — the payload
 
 Move `assets/data/*` to `/data/*` served by `functions/data/[[path]].js`, behind the
 same gate, with `Cache-Control: private, no-store` and an ETag. Update every consumer
 (`js/…` readers) in the same commit — this is the change that actually stops the
 728 KB scrape, and it is the one with the widest blast radius.
 
-### Milestone D — media, tiers, canaries
+### 5.4 Milestone D — media, tiers, canaries
 
 | Item | Detail |
 |------|--------|
@@ -196,6 +231,9 @@ same gate, with `Cache-Control: private, no-store` and an ETag. Update every con
 | Cookie expired / tampered / wrong `kind` | 403, indistinguishable from "no cookie" |
 | Epoch bumped | every existing cookie → 403 |
 | Sixth + login attempt from one IP in 15 min | 429 |
+| `ACCESS_GATE` unset (the deployed default) | no stage runs, no row is written |
+| `ACCESS_GATE=monitor` | the request is served, one `denial_log` row is written |
+| `ACCESS_GATE=enforce`, no `cf.country` (local `wrangler pages dev`) | `country_missing` → 403, so the gate is never silently open |
 | Any unexpected exception in a handler | 403 (never a 500 that leaks a stack) |
 
 **Privacy stance (same as `0017_venue_interest.sql`):** IP addresses and user agents are
@@ -212,7 +250,8 @@ are never logged.
 
 ```powershell
 node tests/security-admin.js     # SECURITY-ADMIN PASSED (89 checks)
-node tests/run-all.js            # 76 passed, 0 failed
+node tests/access-gate.js        # ACCESS-GATE PASSED (77 checks)
+node tests/run-all.js            # 78 passed, 0 failed
 npx wrangler pages functions build --outdir=.tmp-functions-build   # Compiled Worker successfully
 ```
 
@@ -243,18 +282,49 @@ curl.exe -i -X POST https://www.eatouts.site/api/admin/login `
   -H "content-type: application/json" -d '{\"username\":\"ops\",\"password\":\"nope\"}'
 ```
 
+Milestone B adds:
+
+```powershell
+# 5. the way in is reachable from anywhere, the denial is generic
+curl.exe -i https://www.eatouts.site/admin/login          # 200 html, no-store, noindex
+curl.exe -i https://www.eatouts.site/eatouts-about.html   # 200 while ACCESS_GATE=off
+# after ACCESS_GATE=enforce, from outside BW without the cookie:
+curl.exe -s -o NUL -w "%{http_code}\n" https://www.eatouts.site/eatouts-about.html   # 403
+#   ... and the body is exactly "Forbidden" - no country, no rule, no "blocked"
+
+# 6. after flipping ACCESS_GATE=monitor the denials are attributable
+npx wrangler d1 execute eatouts --remote `
+  --command "SELECT rule, stage, country, COUNT(*) c FROM denial_log GROUP BY rule, stage, country ORDER BY c DESC LIMIT 20"
+```
+
 ### Definition of done for Milestone A
 
 - [x] `_security.js` signs, verifies, denies and fails closed — 89 automated checks
 - [x] login / session / revoke-all / logout behave as specified, with no secret leakage
 - [x] migration 0018 creates all four tables idempotently
 - [x] `hash-admin-password.mjs` output verifies against the runtime
-- [x] full suite green (76 passed, 0 failed)
+- [x] full suite green (78 passed, 0 failed)
 - [x] Functions bundle compiles
 - [ ] `--remote` migration applied — **needs a human with D1 credentials**
 - [ ] the three secrets set in Pages — **needs a human**
 - [ ] the `curl.exe` checks above — **need a deployed build**
-- [ ] edge WAF rule (Stage 0) created in the dashboard — Milestone B
+- [ ] edge WAF rule (Stage 0) created in the dashboard — still not done
+
+### Definition of done for Milestone B
+
+- [x] `functions/_middleware.js` runs Stages 1–4, fails closed, and emits one 403 body
+- [x] `ACCESS_GATE` keeps the gate inert until the operator turns it on
+- [x] `/api/admin/*`, `/api/auth/*`, `/api/health` and `/admin/*` are never gated
+- [x] `copy-static.mjs` stops excluding `/*.html` so pages reach the middleware
+- [x] `/admin/login` serves the sign-in page as a Function (no catalog entry, no
+      gate-able `.html` file) and answers 503 when the secrets are absent
+- [x] `tests/access-gate.js` — 77 checks across modes, stages, privacy and the routes contract
+- [x] full suite green (78 passed, 0 failed)
+- [ ] admin UI inside `eatouts-admin-dashboard.html` (B2)
+- [ ] Twilio step-up (B2, optional per D5)
+- [ ] the four `curl.exe` gate checks above — **need a deployed build**
+- [ ] `ACCESS_GATE` set to `monitor`, then `enforce` — **needs the operator**
+
 
 ---
 
@@ -265,6 +335,8 @@ curl.exe -i -X POST https://www.eatouts.site/api/admin/login `
 | Cookie leaked | `POST /api/admin/revoke-all` (or bump `admin:epoch` in KV directly) |
 | Secret leaked | `npx wrangler pages secret put ADMIN_BYPASS_SECRET` with a new value → all cookies die |
 | Endpoints misbehaving | `git revert` the commit and push; the migration stays, and it is additive so nothing breaks |
+| Gate blocking real visitors | set `ACCESS_GATE=off` (or `monitor`) in Pages → *Settings* → *Variables and Secrets* — no deploy needed |
+| Gate blocking the operator by mistake | `/api/admin/revoke-all` does not help; the operator needs `monitor`/`off`, or a fresh login at `/admin/login` from a normal browser |
 | Admin locked out entirely | set `ADMIN_PASSWORD_PBKDF2` for a fresh passphrase; the login endpoint only needs the secret to be present |
 
 The tables are additive (`CREATE TABLE IF NOT EXISTS`) and nothing else in the app reads
