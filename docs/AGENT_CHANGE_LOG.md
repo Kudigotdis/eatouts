@@ -15,7 +15,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
-### [2026-11-05 23:52:37] - [Agent: cline] - [Status: IN_PROGRESS]
+### [2026-11-05 23:52:37] - [Agent: cline] - [Status: COMMITTED]
 - Task: Finish the Zimbabwe region wiring — the suite went red after the region-data refactor; restore it to the HEAD baseline (80/0) without giving up the "one region, one payload" download, and land the last pieces (screen inventory, sign-in scan, test harnesses).
 - Root cause: `index.html` / `search_screen.html` pulled the locations file in with `document.write()` (`EatoutsRegionData.injectLocationsSync()`). jsdom never fetches a document.write()-injected `<script src>`, so every harness that boots a page saw zero towns (486 → 0) and lost the directory payload along with it.
 - Files changed:
@@ -49,7 +49,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `wrangler pages functions build` / a real deploy
 - Known gap (not fixed here): `data/link_registry.json` holds 839 `bw` links and **0** `zw`, so the public `/zw/<slug>` URL 404s. `scripts/build_link_registry.mjs` only reads `directory_runtime_data.json`; the downstream is country-generic, so feeding `zimbabwe_runtime_data.json` in is a one-file change.
 - Notes: the payload stays region-exclusive in production (a ZW visitor never downloads the 711 KB Botswana file, a BW visitor never downloads the 2.4 MB Zimbabwe one); only the 51 KB locations file is shared, and `js/eatouts-locations.js` gates it by region.
-- Commit: PENDING
+- Commit: `f975e2c`
 - Push: NOT PUSHED — the browser smoke test has not run yet, and a push deploys
 - Errors: none
 
