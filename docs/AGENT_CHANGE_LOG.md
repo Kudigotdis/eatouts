@@ -16,7 +16,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 ---
-### [2026-11-05 12:27:58] - [Agent: opencode] - [Status: IN_PROGRESS]
+### [2026-11-05 12:27:58] - [Agent: opencode] - [Status: COMMITTED]
 - Task: Redesign venue checkout WhatsApp hand-off for non-participating venues and add the admin venue-interest report.
 - Files changed:
   - `index.html`: removed the checkout contact field and contact validation/message line; added the 20-message notice bank and 19-message nudge bank (emoji-free, shuffle-bag random, no immediate repeat); added `isParticipatingVenue()`, `logVenueInterest()`, `showInterestNotice()`, `showInterestNudge()`, coarse browser metadata and a stable hashed visitor id; `waSendVenue` now checks participation, logs interest and shows the two sequential popups for non-participating venues, while participating venues keep the direct venue-number send; the final non-participating send uses `waShareLink()` (WhatsApp contact picker); `renderCardAlert()` gained `noDismiss` and `dismissAct`.
@@ -28,8 +28,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `tests/venue-interest.js` (NEW, 55 checks): copy/wiring, privacy, aggregate math, POST/GET/PATCH, `restaurantOut`, and jsdom flag-sync coverage.
   - `tests/run-all.js`: registers `venue-interest.js`.
   - `docs/AGENT_CHANGE_LOG.md`: this entry.
-- Commit: PENDING
-- Push: PENDING
+- Commit: `5f72342`
+- Push: `origin/main` (`ca39dcf..5f72342`)
 - Verified: `node tests/venue-interest.js` -> 55 checks passed; `npm test` -> 75 suites passed, 0 failed; `npm run db:migrate:local` -> `0017_venue_interest.sql` applied (7 commands); `PRAGMA table_info(restaurants)` and `PRAGMA table_info(venue_interest)` confirm the new column/table; inline-script syntax checks for `index.html` and `eatouts-platform-analytics.html` -> 0 errors.
 - Notes:
   - Participation = `claimed` OR admin `participating` OR `status = 'claimed'`; `published` alone does not suppress the popups.
