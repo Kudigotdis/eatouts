@@ -16,6 +16,29 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 ---
+### [2026-11-05 02:34:44] - [Agent: cline] - [Status: COMMITTED]
+- Task: search_screen.html - stop a chain filling the results with one row per branch (KFC showed 13 "KFC" rows); a result row is now one BRAND, and the card's Town / Area rows became real branch pickers (same contract as the Restaurants tab card)
+- Files changed:
+  - `search_screen.html`:
+    - `buildIndex()`: the directory's branch records are folded with `EatoutsBridge.brandKeyOf()` into one row per brand before `pushRestaurantBrand()` builds it, so KFC 13 -> 1, Nando's 14 -> 1, Chicken Licken 11 -> 1, Steers 8 -> 1; 568 directory records -> 477 brand rows; index 827 -> 735 rows
+    - `pushRestaurantBrand(out, key, branches)`: reuses `pushRestaurant()` for the row shape, then adds `brandKey` / `branches` / `branch` / `towns` / `areas`, a "Fast Food · 13 places" subtitle for chains (single-branch rows keep the old "town · area" line), a WhatsApp number (display branch first, else any branch) and aggregated search text (every branch's name, type, town and area, so "maun" and "kfc francistown" still find the brand)
+    - `brandKeyOfRecord()`, `branchTown()`, `branchArea()`, `defaultBranch()`, `activeBranch()`: display branch = the record owning the brand slug, else `EatoutsBridge.primaryBranch()` (Gaborone-first) - the same default the Restaurants tab card uses
+    - `passesLocation()` / `townOptions()` / `areaOptions()`: match ANY branch, so the town filter still lists Maun and the area filter still lists a single branch's neighbourhood
+    - the panel's Town / Area rows (`pickLine()`, `areaLineLabel()`): `aria-haspopup="listbox"` + `data-act="openLocPicker"`, town = active branch's town, area = its neighbourhood or "N locations" when that town holds several (mirrors index.html's `restaurantOptions()`)
+    - `openLocPicker()` / `branchOptions()` / `pickBranch()`: reuse the filter-popup shell (`#popup` + `#popup-scrim` + `.popup-scroll`); the town axis lists every town the chain trades in with a branch count pill (`.opt-count`, new CSS), the area axis lists the branches inside the active town with the town as `.opt-sub`; the pick is stored in `state.branchOf[data-id]`, so it is per-row and survives re-render
+    - `activeSlug()`: menu / promos / about / WhatsApp now resolve through `activeBranch()`, so picking Maun opens `index.html#kfc-maun/menu`; `favRef()` keys a brand row on `brandKey`; Escape closes the picker; a town / area filter change clears the picks
+    - `pushCatering()` id is now `catering-<slug>` and `buildIndex()` drops any row whose id is already taken (a few catering businesses are listed twice under one slug - LLwapa Gaborone/Bobonong), so a row id is unique again
+  - `tests/search-screen.js`: KFC assertions moved to the brand contract (one row, "13 places", `maun` / `kfc francistown` still find it), new section C2 (chain collapse + no duplicate ids), new section D3 (town / area pickers: option lists, counts, `.on` marker, Maun pick -> `#kfc-maun/menu`, Escape, Nando's area pick -> `#<riverwalk-slug>/menu|promos`), `optLabel()` helper, "one card open" test now uses a multi-brand query, town filter asserts Maun. 90 checks.
+- Commit: PENDING
+- Push: PENDING
+- Verified: `npm test` -> 75 test files, 0 failed (`=== search-screen.js ===` ... `SEARCH SCREEN TEST PASSED`, 90 checks); jsdom reports no runtime errors on the page
+- Notes:
+  - Promo / event rows are now indexed from the brand's display branch only (they used to be one row per branch, which multiplied the same promos); the card's Promos action still targets the picked branch.
+  - The picker keeps the "disabled stays tappable" behaviour of the directory card (an area row with no listing is still clickable, it just has nothing to offer yet).
+  - Not verified: how the 13-town list scrolls inside the popup on a real phone (jsdom does not lay out); the CSS reuses `.popup-scroll`, the same list the town filter uses.
+- Errors: none
+
+---
 ### [2026-11-04 23:33:50] - [Agent: cline] - [Status: COMMITTED]
 - Task: commit the previously-untracked flag asset sets so the header region button renders on a fresh clone (user approved with "push them")
 - Files changed:

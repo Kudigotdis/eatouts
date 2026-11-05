@@ -117,6 +117,16 @@ img{display:block;max-width:100%}
 .popup button:active{background:#faf8f2}
 .popup button.on{background:#f2f1ee;color:#1a1a1a;font-weight:900}
 .popup button.on::after{content:"✓";float:right;color:#1a1a1a;font-weight:900}
+/* Branch picker rows (a panel's town / area line): the same shape as the
+   directory card's .loc-town-main / .loc-area-option rows - label on the left,
+   branch count on the right. The ✓ is suppressed there because the count pill
+   owns that slot. */
+.popup button.opt-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.popup button.opt-row>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.popup button.opt-row.on::after{content:none}
+.popup .opt-count{flex:0 0 auto;min-width:22px;padding:3px 9px;border-radius:11px;background:#f4efe4;color:#645b48;font-size:11.5px;font-weight:900;text-align:center}
+.popup .opt-sub{display:block;font-size:10.5px;font-weight:600;color:#a89a7e;margin-top:2px}
+.popup .opt-note{padding:12px 14px;font-size:11px;color:#a89a7e}
 
 /* ---------- PHOTO PREVIEW (tap a 90px thumb to enlarge) ---------- */
 .preview-layer{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:10vh 8vw;background:rgba(20,18,12,.6);backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1);animation:fpop .18s ease}
@@ -225,6 +235,8 @@ img{display:block;max-width:100%}
     index: [],
     indexReady: false,
     resultOpen: null,   /* data-id of the row whose panel is open */
+    branchOf: {},       /* data-id -> branch record id chosen in the panel */
+    locPicker: null,    /* { id, axis } while the branch popup is up */
     preview: null       /* { src, name } while the photo lightbox is up */
   };
 
@@ -334,12 +346,95 @@ img{display:block;max-width:100%}
       navKind: 'restaurant',
       whatsapp: waDigits(r)
     });
+    return out[out.length - 1];
+  }
+  /* ---------- brand grouping ----------
+     The directory stores one record per BRANCH, so KFC alone would fill the
+     results with 13 rows. A search row therefore stands for a brand: the raw
+     branch records are folded into one row and kept on it (`branches`), which
+     is what the panel's town / area pickers choose between. brandKeyOf() is
+     the key the Restaurants tab groups on, so a chain collapses here exactly
+     as it does there. */
+  function brandKeyOfRecord(r){
+    if (!r) return '';
+    try {
+      if (window.EatoutsBridge && typeof window.EatoutsBridge.brandKeyOf === 'function'){
+        var k = window.EatoutsBridge.brandKeyOf(r);
+        if (k) return k;
+      }
+    } catch(e){}
+    var slug = String(r.slug || r.id || '');
+    try {
+      var B = window.EatoutsBrand;
+      if (B && typeof B.canonicalKey === 'function') return B.canonicalKey(slug) || slug;
+    } catch(e){}
+    return slug;
+  }
+  function branchTown(b){ return String((b && b.location && b.location.town) || '').trim(); }
+  function branchArea(b){ return String((b && b.location && b.location.area) || '').trim(); }
+  /* The row's default branch: the record that owns the brand slug when one
+     does (the name the Restaurants tab shows), else the primary branch -
+     Gaborone first, mirroring EatoutsBridge.primaryBranch(). */
+  function defaultBranch(key, branches){
+    for (var i = 0; i < branches.length; i++){ if (branches[i].slug === key) return branches[i]; }
+    try {
+      if (window.EatoutsBridge && typeof window.EatoutsBridge.primaryBranch === 'function'){
+        var p = window.EatoutsBridge.primaryBranch(branches);
+        if (p) return p;
+      }
+    } catch(e){}
+    return branches[0] || null;
+  }
+  /* The branch a row currently means: the town / area the visitor picked in
+     the panel, else the default branch. Every panel action (menu, promos,
+     WhatsApp, about) resolves through this. */
+  function activeBranch(item){
+    if (!item || !item.branches || !item.branches.length) return null;
+    var sel = state.branchOf[item.id];
+    if (sel){
+      for (var i = 0; i < item.branches.length; i++){ if (item.branches[i].id === sel) return item.branches[i]; }
+    }
+    return item.branch || defaultBranch(item.brandKey, item.branches);
+  }
+  function pushRestaurantBrand(out, key, branches){
+    if (!branches || !branches.length) return null;
+    var head = defaultBranch(key, branches);
+    var item = pushRestaurant(out, head);
+    if (!item) return null;
+    var towns = [], areas = [], names = [], words = [];
+    branches.forEach(function(b){
+      var t = branchTown(b), a = branchArea(b);
+      if (t && towns.indexOf(t) < 0) towns.push(t);
+      if (a && areas.indexOf(a) < 0) areas.push(a);
+      if (b.name && names.indexOf(b.name) < 0) names.push(b.name);
+      ((b.types && b.types.length) ? b.types : []).forEach(function(x){
+        if (x && words.indexOf(String(x).toLowerCase()) < 0) words.push(String(x).toLowerCase());
+      });
+    });
+    /* one WhatsApp line for the whole row: the display branch's, else the
+       first branch that carries one */
+    var wa = item.whatsapp;
+    if (!wa){
+      for (var i = 0; i < branches.length; i++){ wa = waDigits(branches[i]); if (wa) break; }
+    }
+    item.brandKey = key;
+    item.branches = branches;
+    item.branch = head;
+    item.towns = towns;
+    item.areas = areas;
+    item.whatsapp = wa;
+    /* a chain reads as "Fast Food · 13 places"; a single branch keeps the
+       directory's "town · area" line */
+    if (branches.length > 1) item.subtitle = [item.badge, branches.length + ' places'].join(' · ');
+    /* every branch stays searchable: "kfc francistown", "maun", "chicken" */
+    item.searchText += ' ' + [names.join(' '), words.join(' '), towns.join(' '), areas.join(' ')].join(' ').toLowerCase();
+    return item;
   }
   function pushCatering(out, b){
     if (!b || !b.name) return;
     var br = (b.branches && b.branches[0]) || {};
     out.push({
-      type: 'catering', id: b.slug, name: b.name,
+      type: 'catering', id: 'catering-' + b.slug, name: b.name,
       subtitle: ['Catering', br.town, br.area].filter(Boolean).join(' · '),
       searchText: [b.name, 'catering', b.type || '', br.town || '', br.area || ''].join(' ').toLowerCase(),
       logo: b.logo || null, town: br.town || '', area: br.area || '',
@@ -464,12 +559,21 @@ img{display:block;max-width:100%}
   function buildIndex(){
     var out = [];
 
-    // Restaurants (+ mobile kitchens)
+    // Restaurants (+ mobile kitchens) - one row per BRAND, not per branch
     if (window.EatoutsBridge && typeof window.EatoutsBridge.all === 'function'){
       try {
+        var byKey = {}, order = [];
         window.EatoutsBridge.all().forEach(function(r){
-          pushRestaurant(out, r);
-          pushBundleContent(out, r);
+          var k = brandKeyOfRecord(r);
+          if (!k) return;
+          if (!byKey[k]){ byKey[k] = []; order.push(k); }
+          byKey[k].push(r);
+        });
+        order.forEach(function(k){
+          var row = pushRestaurantBrand(out, k, byKey[k]);
+          /* once per brand: the bundles are per branch, so walking every
+             branch would multiply the same promos and events */
+          if (row) pushBundleContent(out, row.branch);
         });
       } catch(e){ console.warn('[Search] restaurants/bundles:', e); }
     }
@@ -503,6 +607,15 @@ img{display:block;max-width:100%}
       } catch(e){ console.warn('[Search] overlay venues:', e); }
     }
 
+    /* One row per id. A row id is the key the open card and the town / area
+       picks are stored under, so two rows must never share one - a few
+       catering businesses are listed twice under the same slug. */
+    var seenId = {};
+    out = out.filter(function(it){
+      if (seenId[it.id]) return false;
+      seenId[it.id] = 1;
+      return true;
+    });
     return out;
   }
 
@@ -518,8 +631,20 @@ img{display:block;max-width:100%}
     return item.type === state.typeFilter;
   }
   function passesLocation(item){
-    if (state.townFilter !== 'all' && norm(item.town) !== norm(state.townFilter)) return false;
-    if (state.areaFilter !== 'all' && norm(item.area) !== norm(state.areaFilter)) return false;
+    var t = norm(state.townFilter), a = norm(state.areaFilter);
+    if (state.townFilter === 'all' && state.areaFilter === 'all') return true;
+    /* a brand row stands for every branch of the chain, so the filter asks
+       whether ANY branch is in the chosen town (and area) - not just the one
+       the row currently shows */
+    if (item.branches && item.branches.length){
+      return item.branches.some(function(b){
+        if (state.townFilter !== 'all' && norm(branchTown(b)) !== t) return false;
+        if (state.areaFilter !== 'all' && norm(branchArea(b)) !== a) return false;
+        return true;
+      });
+    }
+    if (state.townFilter !== 'all' && norm(item.town) !== t) return false;
+    if (state.areaFilter !== 'all' && norm(item.area) !== a) return false;
     return true;
   }
   function filteredResults(){
@@ -621,6 +746,34 @@ img{display:block;max-width:100%}
       ' aria-haspopup="false"' + (v ? '' : ' aria-disabled="true"') + '>' +
       '<span>' + esc(v || empty) + '</span></button>';
   }
+  /* Town / Area are real pickers on a brand row: the chain has one record per
+     branch, so the card lets the visitor say which branch they mean and every
+     action below the picker follows it. The labels mirror the directory card -
+     the active town, and either the neighbourhood or "N locations" when that
+     town holds several of them. */
+  function pickLine(item, axis){
+    var label = axis === 'town' ? branchTown(activeBranch(item)) : areaLineLabel(item);
+    var empty = axis === 'town' ? 'Select Town' : 'Select Area';
+    return '<button type="button" class="line line-select' + (label ? ' is-set' : ' is-disabled') + '"' +
+      ' data-act="openLocPicker" data-id="' + esc(item.id) + '" data-axis="' + axis + '"' +
+      ' aria-haspopup="listbox"' + (label ? '' : ' aria-disabled="true"') + '>' +
+      '<span>' + esc(label || empty) + '</span></button>';
+  }
+  function areaLineLabel(item){
+    var b = activeBranch(item);
+    if (!b) return '';
+    /* an explicit pick names that branch's own neighbourhood */
+    if (state.branchOf[item.id]) return branchArea(b) || branchTown(b);
+    var town = norm(branchTown(b));
+    var seen = {}, list = [];
+    (item.branches || []).forEach(function(x){
+      var a = branchArea(x);
+      if (!a || norm(branchTown(x)) !== town || seen[norm(a)]) return;
+      seen[norm(a)] = 1; list.push(a);
+    });
+    if (list.length > 1) return list.length + ' locations';
+    return list.length ? list[0] : '';
+  }
   /* Favourites are keyed on type + reference, so the same venue saved from the
      directory pages and from here lands on one entry. Restaurant rows use the
      brand key the Restaurants list uses, which is what keeps a chain single. */
@@ -630,6 +783,9 @@ img{display:block;max-width:100%}
   }
   function favRef(item){
     if (item.type === 'promo' || item.type === 'event') return item.id;
+    /* a brand row is keyed on the brand, which is what keeps a chain single in
+       the favourites list */
+    if (item.brandKey) return item.brandKey;
     var slug = item.slug || item.venueSlug || item.id;
     try {
       if (item.type === 'restaurant' || item.type === 'mobile_kitchen'){
@@ -665,9 +821,11 @@ img{display:block;max-width:100%}
     var promosBtn = hasPromosRoute(item)
       ? '<button class="line line-action" type="button" data-act="openPromos" data-id="' + esc(item.id) + '">Promos</button>'
       : '<button class="line line-action" type="button" data-act="openAbout" data-id="' + esc(item.id) + '">About this venue</button>';
+    var locRows = (item.branches && item.branches.length)
+      ? pickLine(item, 'town') + pickLine(item, 'area')
+      : locationLine(item.town, 'Select Town') + locationLine(item.area, 'Select Area');
     return '<div class="ropts">' +
-      locationLine(item.town, 'Select Town') +
-      locationLine(item.area, 'Select Area') +
+      locRows +
       menuBtn + promosBtn +
       '<div class="card-ico-row">' + favIco(item) + waIco(item) + infoIco(item) + '</div>' +
       '</div>';
@@ -678,10 +836,16 @@ img{display:block;max-width:100%}
     for (var i = 0; i < state.index.length; i++){ if (state.index[i].id === id) return state.index[i]; }
     return null;
   }
+  /* The slug an action navigates to: the branch the card currently shows, so a
+     town pick on a chain lands on that branch's menu / promos / about page. */
+  function activeSlug(item){
+    var b = activeBranch(item);
+    return (b && b.slug) || item.venueSlug || item.slug || '';
+  }
   function openPromos(id){
     var item = itemById(id);
     if (!item){ return; }
-    var slug = item.venueSlug || item.slug || '';
+    var slug = activeSlug(item);
     if (!slug){ openAbout(id); return; }
     go('index.html#' + encodeURIComponent(slug) + '/promos');
   }
@@ -717,9 +881,11 @@ img{display:block;max-width:100%}
   function sendWhatsApp(id){
     var item = itemById(id);
     if (!item) return;
-    var digits = String(item.whatsapp || '').replace(/[^\d]/g, '') || platformWhatsapp();
+    /* the branch the card shows dials its own line when it has one */
+    var branch = activeBranch(item);
+    var digits = String(waDigits(branch) || item.whatsapp || '').replace(/[^\d]/g, '') || platformWhatsapp();
     if (!digits) return;
-    var where = [item.name, [item.town, item.area].filter(Boolean).join(', ')].filter(Boolean).join(' — ');
+    var where = [item.name, [branchTown(branch) || item.town, branchArea(branch) || item.area].filter(Boolean).join(', ')].filter(Boolean).join(' — ');
     var msg = '*ENQUIRY*\n' + where + '\n\nHi, I found you on EatOuts and would like to know more.';
     try {
       if (window.EatoutsAnalytics && typeof window.EatoutsAnalytics.track === 'function'){
@@ -780,7 +946,7 @@ img{display:block;max-width:100%}
   function openAbout(id){
     var item = state.index.filter(function(x){ return x.id === id; })[0];
     if (!item) return;
-    var slug = item.venueSlug || item.slug || '';
+    var slug = activeSlug(item);
     if (!slug){ go('index.html#restaurants'); return; }
     go('venue-about.html?link=' + encodeURIComponent(slug));
   }
@@ -827,16 +993,32 @@ img{display:block;max-width:100%}
   /* ============================================================
      FILTER POPUP
      ============================================================ */
+  /* The filter lists are built from every town / area a row covers, so a chain
+     that has a Maun branch still lists Maun after collapsing to one row. */
+  function townValues(item){
+    if (item.branches && item.branches.length) return item.towns || [];
+    return [item.town];
+  }
   function townOptions(){
-    return uniqueSorted(state.index.map(function(i){ return i.town; }));
+    var all = [];
+    state.index.forEach(function(i){ all = all.concat(townValues(i)); });
+    return uniqueSorted(all);
   }
   function areaOptions(){
-    var filtered = state.index;
-    if (state.townFilter !== 'all'){
-      var t = norm(state.townFilter);
-      filtered = filtered.filter(function(i){ return norm(i.town) === t; });
-    }
-    return uniqueSorted(filtered.map(function(i){ return i.area; }));
+    var town = norm(state.townFilter);
+    var all = [];
+    state.index.forEach(function(i){
+      if (state.townFilter !== 'all' && !townValues(i).some(function(x){ return norm(x) === town; })) return;
+      if (i.branches && i.branches.length){
+        i.branches.forEach(function(b){
+          if (state.townFilter !== 'all' && norm(branchTown(b)) !== town) return;
+          all.push(branchArea(b));
+        });
+        return;
+      }
+      all.push(i.area);
+    });
+    return uniqueSorted(all);
   }
   function currentValue(kind){
     if (kind === 'type') return state.typeFilter;
@@ -845,6 +1027,7 @@ img{display:block;max-width:100%}
   }
   function openFilterPopup(kind){
     state.popup = kind;
+    state.locPicker = null;
     var scrim = document.getElementById('popup-scrim');
     var popup = document.getElementById('popup');
     var scroll = document.createElement('div');
@@ -871,8 +1054,8 @@ img{display:block;max-width:100%}
       if (current === opt.value) b.className = 'on';
       b.addEventListener('click', function(){
         if (kind === 'type') state.typeFilter = opt.value;
-        else if (kind === 'town'){ state.townFilter = opt.value; state.areaFilter = 'all'; }
-        else state.areaFilter = opt.value;
+        else if (kind === 'town'){ state.townFilter = opt.value; state.areaFilter = 'all'; state.branchOf = {}; }
+        else { state.areaFilter = opt.value; state.branchOf = {}; }
         closePopup();
         updateFilterButtons();
         renderResults();
@@ -887,10 +1070,88 @@ img{display:block;max-width:100%}
   }
   function closePopup(){
     state.popup = null;
+    state.locPicker = null;
     document.getElementById('popup-scrim').classList.add('hidden');
     var p = document.getElementById('popup');
     p.classList.add('hidden');
     p.innerHTML = '';
+  }
+
+  /* ============================================================
+     BRANCH PICKER (a panel's town / area line)
+     ============================================================ */
+  /* The two lists the directory card's picker shows: every town the chain has
+     a branch in, and - scoped to the active town - the branches inside it. */
+  function branchOptions(item, axis){
+    var branches = item.branches || [];
+    var opts = [];
+    if (axis === 'town'){
+      var seen = {};
+      branches.forEach(function(b){
+        var t = branchTown(b);
+        if (!t || seen[norm(t)]) return;
+        seen[norm(t)] = { branch: b, label: t, town: t, count: 0 };
+        opts.push(seen[norm(t)]);
+      });
+      opts.forEach(function(o){
+        branches.forEach(function(b){ if (norm(branchTown(b)) === norm(o.town)) o.count++; });
+      });
+    } else {
+      var town = norm(branchTown(activeBranch(item)));
+      branches.forEach(function(b){
+        if (town && norm(branchTown(b)) !== town) return;
+        opts.push({ branch: b, label: branchArea(b) || branchTown(b), town: branchTown(b), count: 0 });
+      });
+    }
+    opts.sort(function(a, b){ return a.label.localeCompare(b.label); });
+    return opts;
+  }
+  function openLocPicker(id, axis){
+    var item = itemById(id);
+    if (!item || !item.branches || !item.branches.length) return;
+    state.popup = null;
+    state.locPicker = { id: id, axis: axis === 'area' ? 'area' : 'town' };
+    var scrim = document.getElementById('popup-scrim');
+    var popup = document.getElementById('popup');
+    if (!scrim || !popup) return;
+    var act = state.locPicker.axis;
+    var active = activeBranch(item);
+    var scroll = document.createElement('div');
+    scroll.className = 'popup-scroll';
+    var opts = branchOptions(item, act);
+    if (!opts.length){
+      scroll.innerHTML = '<div class="opt-note">' +
+        (act === 'town' ? 'No towns listed for this brand yet.' : 'No neighbourhoods listed for this town.') +
+        '</div>';
+    }
+    opts.forEach(function(o){
+      var on = !!(active && o.branch && active.id === o.branch.id);
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'opt-row' + (on ? ' on' : '');
+      b.setAttribute('role', 'option');
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      /* area rows carry the town underneath, so two branches in different
+         towns never look like the same pick */
+      b.innerHTML = act === 'area'
+        ? '<span>' + esc(o.label) + '<span class="opt-sub">' + esc(o.town) + '</span></span>'
+        : '<span>' + esc(o.label) + '</span>' + (o.count > 1 ? '<span class="opt-count">' + o.count + '</span>' : '');
+      b.addEventListener('click', function(){ pickBranch(id, o.branch.id); });
+      scroll.appendChild(b);
+    });
+    popup.innerHTML = '';
+    popup.appendChild(scroll);
+    popup.classList.remove('hidden');
+    scrim.classList.remove('hidden');
+  }
+  /* The pick only retargets the open card: the list keeps its row, the panel
+     keeps its state, and the town / area lines re-read the new branch. */
+  function pickBranch(id, branchId){
+    if (!itemById(id)) return;
+    if (branchId) state.branchOf[id] = branchId;
+    else delete state.branchOf[id];
+    closePopup();
+    renderResults();
   }
 
   /* ============================================================
@@ -908,7 +1169,7 @@ img{display:block;max-width:100%}
   function openResult(id){
     var item = state.index.filter(function(x){ return x.id === id; })[0];
     if (!item) return;
-    var slug = item.venueSlug || item.slug || '';
+    var slug = activeSlug(item);
     /* Overlay-only venues resolve on their standalone page (same data file).
        Their menu does not exist in the app yet, so index.html#<slug>/menu
        would silently bounce back to the Restaurants list. */
@@ -991,6 +1252,7 @@ img{display:block;max-width:100%}
       if (kind === 'openResult') openResult(id);
       else if (kind === 'openAbout') openAbout(id);
       else if (kind === 'openPromos') openPromos(id);
+      else if (kind === 'openLocPicker') openLocPicker(id, act.getAttribute('data-axis'));
       else if (kind === 'toggleFav') toggleFavResult(id);
       else if (kind === 'sendWhatsApp') sendWhatsApp(id);
     });
@@ -1021,7 +1283,7 @@ img{display:block;max-width:100%}
     document.addEventListener('keydown', function(e){
       if (e.key === 'Escape' || e.keyCode === 27){
         if (state.preview){ closePreview(); return; }
-        if (state.popup){ closePopup(); return; }
+        if (state.popup || state.locPicker){ closePopup(); return; }
         if (state.resultOpen){ state.resultOpen = null; syncResultAccordions(false); return; }
       }
       if ((e.key === 'Enter') && e.target === input){

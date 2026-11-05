@@ -23,6 +23,12 @@
  *   - the 90px thumb enlarges in the shared photo preview (X, outside tap,
  *     Escape) and a letter tile does not
  *   - the header region button shows the active region's square flag
+ *   - one row per BRAND: a 13-branch chain (KFC) is a single row reading
+ *     "13 places", every branch town / name stays in its search text, and no
+ *     two rows share an id
+ *   - the panel's Town / Area rows are real branch pickers: the popup lists
+ *     every town the chain trades in (counted) or the branches inside the
+ *     active town, Escape closes it, and menu / promos follow the pick
  *   - no runtime errors
  *
  * CommonJS on purpose — tests/package.json pins this folder to CommonJS.
@@ -86,6 +92,18 @@ function click(el) {
   if (el) el.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
 }
 
+/* A picker option's own label: the text of its first span, minus the town line
+   an area option carries underneath (and minus any count pill beside it). */
+function optLabel(b) {
+  const first = b.querySelector('span');
+  if (!first) return '';
+  const sub = first.querySelector('.opt-sub');
+  const pill = b.querySelector('.opt-count');
+  let t = first.textContent || '';
+  if (sub) t = t.slice(0, t.length - (sub.textContent || '').length);
+  return t.replace(pill ? String(pill.textContent || '') : '', '').trim();
+}
+
 /* Search, then make sure the row's panel is open (a card that is already open
    would close on a second header tap). `name` picks an exact row. */
 function openRow(query, name) {
@@ -113,7 +131,7 @@ setTimeout(() => {
   check('index built from the directory (results render)', all.length > 50, all.length);
   check('no "Loading…" placeholder left behind',
     !/Loading/.test((doc.getElementById('results') || {}).textContent || ''));
-  check('directory rows still present (KFC found)', search('kfc').length >= 1, search('kfc').length);
+  check('directory rows still present (KFC found)', search('kfc').length === 1, search('kfc').length);
 
   /* ---------- B: Zorz is findable by the typed alias ---------- */
   const ZORZ = 'Zorz Luxury Chisanyama';
@@ -144,13 +162,41 @@ setTimeout(() => {
   check('"zors" and "zorz" resolve to that same single row',
     idsFor('zors').length === 1 && idsFor('zorz').join() === idsFor('zors').join(),
     idsFor('zors').join(' | ') + ' vs ' + idsFor('zorz').join(' | '));
-  /* Ocean Basket has two real directory branches, so two rows are correct -
-     the overlay entry for it must NOT add a third ("venue-ocean-basket"). */
+  /* Ocean Basket has two real directory branches, but a chain is ONE row now,
+     and the overlay entry for it must NOT add a second ("venue-ocean-basket"). */
   check('"ocean basket" adds no overlay duplicate',
     idsFor('ocean basket').every(id => id.indexOf('venue-') !== 0), idsFor('ocean basket').join(' | '));
+  check('"ocean basket" collapses to one row', idsFor('ocean basket').length === 1, idsFor('ocean basket').join(' | '));
   check('"bukhara" adds no overlay duplicate',
     idsFor('bukhara').every(id => id.indexOf('venue-') !== 0), idsFor('bukhara').join(' | '));
   check('"bukhara" is still exactly one row', idsFor('bukhara').length === 1, idsFor('bukhara').length);
+
+  /* ---------- C2: one row per BRAND (a chain does not repeat per branch) ---------- */
+  /* KFC has 13 directory branches. The results must show the brand once and
+     let the card's town / area pickers choose the branch (section D3). */
+  check('"kfc" collapses its 13 branches into one row', search('kfc').length === 1,
+    names(search('kfc')).join(' | '));
+  check('the collapsed row is the brand, not a branch', names(search('kfc'))[0] === 'KFC',
+    names(search('kfc'))[0]);
+  check('a chain row says how many places it covers', /13 places/.test(metaOf(search('kfc'), 'KFC')),
+    metaOf(search('kfc'), 'KFC'));
+  check('"nando" is one row too', names(search('nando')).join(' | ') === "Nando's",
+    names(search('nando')).join(' | '));
+  check('"chicken licken" is one row', search('chicken licken').length === 1,
+    names(search('chicken licken')).join(' | '));
+  check('"steers" is one row', search('steers').length === 1, names(search('steers')).join(' | '));
+
+  /* every branch's town and name stay searchable on the collapsed row */
+  check('a branch town still finds the brand ("maun")',
+    names(search('maun')).indexOf('KFC') > -1, names(search('maun')).slice(0, 6).join(' | '));
+  check('a branch name still finds the brand ("kfc francistown")',
+    names(search('kfc francistown')).indexOf('KFC') > -1, names(search('kfc francistown')).join(' | '));
+
+  /* the whole index must be free of repeated rows */
+  const everyId = search('').map(r => r.getAttribute('data-id'));
+  check('no row id appears twice in the index',
+    everyId.length === new Set(everyId).size,
+    everyId.length + ' rows, ' + new Set(everyId).size + ' unique');
 
   /* ---------- D: the row opens its panel, the panel opens the venue ---------- */
   let navUrl = null;
@@ -179,13 +225,16 @@ setTimeout(() => {
     panel && panel.querySelectorAll('button').length);
 
   const townLine = panel && panel.children[0];
-  check('row 1 is the town, read-only',
+  check('row 1 is the town, a branch picker',
     !!townLine && /Gaborone/.test(townLine.textContent) &&
-      townLine.getAttribute('aria-haspopup') === 'false' && townLine.classList.contains('is-set'),
+      townLine.getAttribute('aria-haspopup') === 'listbox' &&
+      townLine.getAttribute('data-act') === 'openLocPicker' && townLine.classList.contains('is-set'),
     townLine && townLine.textContent);
   const areaLine = panel && panel.children[1];
-  check('row 2 is the area',
-    !!areaLine && /Remmogo Crossing/.test(areaLine.textContent),
+  check('row 2 is the area, a branch picker',
+    !!areaLine && /Remmogo Crossing/.test(areaLine.textContent) &&
+      areaLine.getAttribute('data-act') === 'openLocPicker' &&
+      areaLine.getAttribute('data-axis') === 'area',
     areaLine && areaLine.textContent);
 
   const primOpt = panel.querySelector('.line[data-act="openResult"]');
@@ -225,6 +274,98 @@ setTimeout(() => {
   click(rows[0].closest('.ritem').querySelector('.line[data-act="openResult"]'));
   check('a directory restaurant still opens index.html#<slug>/menu',
     /^index\.html#.+\/menu$/.test(String(navUrl)), navUrl);
+
+  /* ---------- D3: the town / area rows are real branch pickers ---------- */
+  /* KFC trades in 13 towns, so one row cannot show them all: the card opens on
+     the brand's default branch and the pickers retarget it. */
+  const kfcGroup = window.EatoutsBridge.groupedListing().filter(g => g.brandKey === 'kfc')[0];
+  let kfcCard = openRow('kfc');
+  let kfcPanel = kfcCard.querySelector('.ropts');
+  check('a chain card opens on the default branch town',
+    /Gaborone/.test(kfcPanel.children[0].textContent), kfcPanel.children[0].textContent);
+
+  click(kfcPanel.children[0]);
+  const pop = doc.getElementById('popup');
+  const scrim = doc.getElementById('popup-scrim');
+  check('tapping the town opens the branch popup',
+    !pop.classList.contains('hidden') && !scrim.classList.contains('hidden'));
+  const townOpts = Array.prototype.slice.call(pop.querySelectorAll('button.opt-row'));
+  const kfcTowns = [];
+  kfcGroup.branches.forEach(b => {
+    const t = (b.location || {}).town;
+    if (t && kfcTowns.indexOf(t) < 0) kfcTowns.push(t);
+  });
+  check('the popup lists every town the chain trades in',
+    townOpts.length === kfcTowns.length, townOpts.length + ' of ' + kfcTowns.length);
+  check('a town with several branches carries its count',
+    townOpts.some(b => !!b.querySelector('.opt-count')),
+    townOpts.map(b => b.textContent).join(' | '));
+  check('the branch the card shows is marked',
+    townOpts.some(b => b.classList.contains('on') && optLabel(b) === 'Gaborone'),
+    townOpts.map(b => b.className + ':' + optLabel(b)).join(' | '));
+
+  const kfcMaun = kfcGroup.branches.filter(b => (b.location || {}).town === 'Maun')[0];
+  click(townOpts.filter(b => optLabel(b) === 'Maun')[0]);
+  check('picking a town closes the popup', pop.classList.contains('hidden'));
+  kfcPanel = doc.querySelector('#results .ritem.open .ropts');
+  check('the town row follows the pick',
+    kfcPanel.children[0].textContent === 'Maun', kfcPanel.children[0].textContent);
+  check('the card keeps its one row while the branch changes',
+    doc.querySelectorAll('#results .result').length === 1,
+    doc.querySelectorAll('#results .result').length);
+
+  navUrl = null;
+  click(kfcPanel.querySelector('.line[data-act="openResult"]'));
+  check('the menu action opens the picked branch',
+    navUrl === 'index.html#' + kfcMaun.slug + '/menu', navUrl);
+
+  /* reopening the picker shows the pick, Escape leaves it alone */
+  click(kfcPanel.children[0]);
+  const pickedOpt = doc.querySelector('#popup button.opt-row.on');
+  check('the popup marks the picked branch',
+    !!pickedOpt && optLabel(pickedOpt) === 'Maun', pickedOpt && optLabel(pickedOpt));
+  doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  check('Escape closes the branch popup',
+    doc.getElementById('popup').classList.contains('hidden') &&
+      doc.getElementById('popup-scrim').classList.contains('hidden'));
+  check('the pick survives closing the popup',
+    doc.querySelector('#results .ritem.open .ropts').children[0].textContent === 'Maun');
+
+  /* the area axis is scoped to the picked town: Nando's has two Gaborone
+     branches, so the area row opens the branches inside Gaborone */
+  const nandoGroup = window.EatoutsBridge.groupedListing().filter(g => g.brandKey === 'nandos')[0];
+  const riverwalk = nandoGroup.branches.filter(b => (b.location || {}).town === 'Gaborone' && (b.location || {}).area === 'Riverwalk')[0];
+  let nandoCard = openRow('nando');
+  click(nandoCard.querySelector('.ropts').children[0]);
+  const gabsOpt = Array.prototype.slice.call(doc.querySelectorAll('#popup button.opt-row'))
+    .filter(b => optLabel(b) === 'Gaborone')[0];
+  check('Gaborone is one of the chain towns', !!gabsOpt);
+  click(gabsOpt);
+  let nandoPanel = doc.querySelector('#results .ritem.open .ropts');
+  click(nandoPanel.children[1]);
+  const areaOpts = Array.prototype.slice.call(doc.querySelectorAll('#popup button.opt-row'));
+  check('the area popup lists the branches inside the active town',
+    areaOpts.length > 1 &&
+      areaOpts.every(b => ((b.querySelector('.opt-sub') || {}).textContent || '') === 'Gaborone'),
+    areaOpts.map(b => b.textContent).join(' | '));
+  const rwOpt = areaOpts.filter(b => optLabel(b) === 'Riverwalk')[0];
+  check('a neighbourhood row is listed for its branch', !!rwOpt,
+    areaOpts.map(b => b.textContent).join(' | '));
+  click(rwOpt);
+  nandoPanel = doc.querySelector('#results .ritem.open .ropts');
+  check('the area row shows the picked neighbourhood',
+    nandoPanel.children[1].textContent === 'Riverwalk', nandoPanel.children[1].textContent);
+  check('the town row stays on that town',
+    /Gaborone/.test(nandoPanel.children[0].textContent), nandoPanel.children[0].textContent);
+
+  navUrl = null;
+  click(nandoPanel.querySelector('.line[data-act="openResult"]'));
+  check('the menu action follows the area pick',
+    navUrl === 'index.html#' + riverwalk.slug + '/menu', navUrl);
+  navUrl = null;
+  click(nandoPanel.querySelector('.line[data-act="openPromos"]'));
+  check('Promos follows the area pick too',
+    navUrl === 'index.html#' + riverwalk.slug + '/promos', navUrl);
 
   /* ---------- D2: the icon row (heart + WhatsApp) ---------- */
   /* jsdom has no dialog, so capture the sign-in prompt instead of blocking */
@@ -292,8 +433,9 @@ setTimeout(() => {
     bakeryPanel && bakeryPanel.textContent);
 
   /* ---------- E: one card open at a time ---------- */
-  rows = search('kfc');
-  check('"kfc" returns more than one row to compare', rows.length >= 2, rows.length);
+  /* "pizza" spans several brands, so there are two rows to compare */
+  rows = search('pizza');
+  check('the list has more than one row to compare', rows.length >= 2, rows.length);
   click(rows[0]);
   click(rows[1]);
   const openCards = doc.querySelectorAll('#results .ritem.open');
@@ -359,6 +501,10 @@ setTimeout(() => {
   click(doc.querySelector('.filter-btn[data-filter="town"]'));
   const popupText = (doc.getElementById('popup') || {}).textContent || '';
   check('town filter lists Gaborone', /Gaborone/.test(popupText));
+  /* a town only one branch trades in still lists: the chain row keeps every
+     branch's town even though it shows a single row */
+  check('town filter lists a town only one branch has (Maun)', /Maun/.test(popupText),
+    popupText.slice(0, 160));
 
   check('no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '));
 
