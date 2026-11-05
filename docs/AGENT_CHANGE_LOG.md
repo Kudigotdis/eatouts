@@ -29,9 +29,9 @@ This file is the source of truth for all agent-initiated changes. Every time an 
     - `activeSlug()`: menu / promos / about / WhatsApp now resolve through `activeBranch()`, so picking Maun opens `index.html#kfc-maun/menu`; `favRef()` keys a brand row on `brandKey`; Escape closes the picker; a town / area filter change clears the picks
     - `pushCatering()` id is now `catering-<slug>` and `buildIndex()` drops any row whose id is already taken (a few catering businesses are listed twice under one slug - LLwapa Gaborone/Bobonong), so a row id is unique again
   - `tests/search-screen.js`: KFC assertions moved to the brand contract (one row, "13 places", `maun` / `kfc francistown` still find it), new section C2 (chain collapse + no duplicate ids), new section D3 (town / area pickers: option lists, counts, `.on` marker, Maun pick -> `#kfc-maun/menu`, Escape, Nando's area pick -> `#<riverwalk-slug>/menu|promos`), `optLabel()` helper, "one card open" test now uses a multi-brand query, town filter asserts Maun. 90 checks.
-- Commit: PENDING
+- Commit: `27ee58c`
 - Push: PENDING
-- Verified: `npm test` -> 75 test files, 0 failed (`=== search-screen.js ===` ... `SEARCH SCREEN TEST PASSED`, 90 checks); jsdom reports no runtime errors on the page
+- Verified: `npm test` -> `74 passed, 0 failed` (every suite, including `=== search-screen.js ===` ... `SEARCH SCREEN TEST PASSED`, 90 checks); jsdom reports no runtime errors on the page
 - Notes:
   - Promo / event rows are now indexed from the brand's display branch only (they used to be one row per branch, which multiplied the same promos); the card's Promos action still targets the picked branch.
   - The picker keeps the "disabled stays tappable" behaviour of the directory card (an area row with no listing is still clickable, it just has nothing to offer yet).
