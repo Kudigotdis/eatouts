@@ -16,6 +16,27 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 ---
 
 ---
+### [2026-11-05 14:13:55] - [Agent: opencode] - [Status: COMMITTED]
+- Task: Production rollout for the venue-interest feature: apply the pending remote D1 migrations and deploy the pushed build to Cloudflare Pages.
+- Files changed:
+  - `docs/AGENT_CHANGE_LOG.md`: this entry.
+- Commit: `c168e61` (deployed HEAD)
+- Push: `origin/main @ c168e61`
+- Verified:
+  - `npm run db:migrate` → applied four pending remote migrations: `0015_canonical_business_types.sql`, `0016_region.sql`, `0017_venue_interest.sql`, `0018_admin_access.sql`.
+  - Remote `PRAGMA table_info(restaurants)` confirms `participating`, `claimed`, `status`, `region`; remote `PRAGMA table_info(venue_interest)` confirms `venue_id`, `venue_status`, `person_key`, `user_type`, `browser_json`, `at`.
+  - First deploy attempt (`npm run deploy`) compiled and uploaded to 2786/2864 files, then failed with `Failed to upload files. Please try again. Error: {})`; the Wrangler log shows `fetch failed` / `ECONNRESET`.
+  - Retry with `npx wrangler pages deploy dist` succeeded: **Uploaded 78 files (2786 already uploaded)**, deployment `https://5795499e.eatouts.pages.dev`.
+  - Production smoke checks: `https://www.eatouts.site/` → 200; `/eatouts-platform-analytics.html` → 200 and contains `Venue interest` + `/api/venue-interest`; home page contains `showInterestNotice`.
+  - `POST https://www.eatouts.site/api/venue-interest` with a non-existent venue → 404 `{"ok":false,"error":"venue_not_found"}` (no row inserted); unauthenticated `GET` → 401.
+- Notes:
+  - Remote migration applied three additional pending migrations (`0015`, `0016`, `0018`) alongside `0017`; this also validates the Milestone A `0018_admin_access.sql` remote apply.
+  - `copy-static.mjs` copies the whole `assets/` folder, so the untracked `assets/halaal logos/` folder was included in `dist/` and the Pages deployment. It remains untracked in git.
+  - The deployed code includes the venue-interest checkout popups and the admin report; the production endpoint and page checks passed.
+  - A real-browser click-through of the checkout/admin UI was not performed; the earlier jsdom flow/admin checks remain the UI verification.
+- Errors: first deploy attempt failed with `Failed to upload files ... ECONNRESET`; retried successfully.
+
+---
 ### [2026-11-05 13:40:45] - [Agent: cline] - [Status: COMMITTED]
 - Task: Milestone A of the locked A→B→C→D access-control roadmap — the revocable admin exception for the Zimbabwe-based operator (Phase 3), built on a shared `_security.js` that Stages 4–7 will import in Milestone B.
 - Files changed:
