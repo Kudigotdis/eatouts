@@ -196,13 +196,20 @@ Two reasons it is not on by default:
 Rollout: deploy with `off` → log in at `/admin/login` → set `monitor` → read `denial_log`
 for a week and confirm no Botswana visitor and no wanted crawler is in it → set `enforce`.
 
-### 5.2 What Stage 3 does and does not skip
+### 5.2 Stage order, and why the bypass is not on the hot path
 
-`adminGate` runs *after* Stages 1–2 and *before* Stage 4, exactly as §3 specifies: a valid
-bypass cookie skips the geo check only. A request that looks like `curl` or arrives on a
-hosting-network ASN is still refused, cookie or not — the operator's own browser is a
-normal Chrome/Safari/Edge, so this costs the operator nothing and keeps a stolen cookie
-from turning a scraper into a resident.
+Stages 1–2 always run first, so a request that looks like `curl` or arrives on a
+hosting-network ASN is refused *whether or not* it carries a valid cookie — a stolen cookie
+cannot turn a scraper into a resident, and the operator's own browser is a normal
+Chrome/Safari/Edge, so this costs the operator nothing.
+
+Stage 4's test then runs before Stage 3, but only as a short-circuit: a request whose country
+is already `BW` cannot need the exception, so it is served immediately and the KV read that
+validates the cookie never happens. Stage 3 is therefore evaluated for exactly the traffic
+Stage 4 would deny. The set of allowed requests is identical to the §3 ordering; what changes
+is that KV reads scale with cross-border traffic instead of with page views (KV has a daily
+read quota, and this is the difference between "a few hundred" and "one per page view").
+
 
 ### 5.3 Milestone C — the payload
 
@@ -250,7 +257,7 @@ are never logged.
 
 ```powershell
 node tests/security-admin.js     # SECURITY-ADMIN PASSED (89 checks)
-node tests/access-gate.js        # ACCESS-GATE PASSED (77 checks)
+node tests/access-gate.js        # ACCESS-GATE PASSED (79 checks)
 node tests/run-all.js            # 78 passed, 0 failed
 npx wrangler pages functions build --outdir=.tmp-functions-build   # Compiled Worker successfully
 ```
@@ -318,7 +325,7 @@ npx wrangler d1 execute eatouts --remote `
 - [x] `copy-static.mjs` stops excluding `/*.html` so pages reach the middleware
 - [x] `/admin/login` serves the sign-in page as a Function (no catalog entry, no
       gate-able `.html` file) and answers 503 when the secrets are absent
-- [x] `tests/access-gate.js` — 77 checks across modes, stages, privacy and the routes contract
+- [x] `tests/access-gate.js` — 79 checks across modes, stages, privacy and the routes contract
 - [x] full suite green (78 passed, 0 failed)
 - [ ] admin UI inside `eatouts-admin-dashboard.html` (B2)
 - [ ] Twilio step-up (B2, optional per D5)

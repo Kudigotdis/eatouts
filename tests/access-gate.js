@@ -46,7 +46,8 @@ function fakeKV() {
   const map = new Map();
   return {
     map,
-    async get(k) { return map.has(k) ? map.get(k) : null; },
+    reads: 0,
+    async get(k) { this.reads++; return map.has(k) ? map.get(k) : null; },
     async put(k, v) { map.set(k, String(v)); },
     async delete(k) { map.delete(k); },
     async list() { return { keys: [] }; }
@@ -201,6 +202,8 @@ async function main() {
   res = await mw.onRequest(ctx);
   check('a Botswana visitor on a Botswana ISP ASN is served',
     res.status === 200 && ctx.state.next === 1 && denialRows(ctx.env).length === 0);
+  check('a Botswana page view costs no KV read at all',
+    ctx.env.OPS_KV.reads === 0, 'reads=' + ctx.env.OPS_KV.reads);
 
   ctx = fakeContext({ env: gateEnv({ ACCESS_GATE: 'enforce' }), request: fakeRequest({
     headers: { 'User-Agent': UA_WIN }, cf: { country: 'BW', asn: 0 }
@@ -239,6 +242,8 @@ async function main() {
   res = await mw.onRequest(ctx);
   check('a valid bypass cookie opens the gate from Zimbabwe',
     res.status === 200 && ctx.state.next === 1 && denialRows(ctx.env).length === 0);
+  check('a cross-border request does read the epoch from KV',
+    ctx.env.OPS_KV.reads > 0, 'reads=' + ctx.env.OPS_KV.reads);
 
   ctx = await bypassCtx({ ua: UA_MAC });
   res = await mw.onRequest(ctx);

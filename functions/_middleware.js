@@ -136,15 +136,19 @@ async function gate(context) {
   var g = geo(request);
   if (g.asn && isDatacenterAsn(g.asn)) return blocked(2, 'datacenter_asn');
 
-  /* Stage 3 - the operator exception. It skips Stage 4 only: a client that
-     looks like curl, or a hosting-network ASN, is still refused above. */
+  /* Stage 4's cheap test comes next, but only to short-circuit: a request that is
+     already in Botswana cannot need the exception, so the KV read that validates
+     the cookie is skipped entirely. Stage 3 therefore runs for exactly the traffic
+     the exception exists for (everything Stage 4 would deny) and never on the
+     Botswana hot path, which keeps KV reads proportional to cross-border traffic
+     rather than to page views. */
+  if (g.country === 'BW') return context.next();
+
   var admin = await adminGate(env, request);
   if (admin && admin.ok) return context.next();
 
   if (!g.country) return blocked(4, 'country_missing');
-  if (g.country !== 'BW') return blocked(4, 'country_not_bw');
-
-  return context.next();
+  return blocked(4, 'country_not_bw');
 }
 
 /* Never a 500 with a stack in it: any surprise above is a denial. */
