@@ -15,6 +15,35 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ---
 
+### [2026-11-05 17:52:25] - [Agent: cline] - [Status: IN_PROGRESS]
+- Task: Milestone B2 — the admin side of the access-control gate. Adds `GET /api/admin/access` and the "Access & security" panel inside `eatouts-admin-dashboard.html`: "bypass active until …", a revoke-all button, the device list, and a read-only `denial_log` view. Twilio step-up (D5) deliberately **not** built.
+- Files changed:
+  - `functions/api/admin/access.js` (NEW): the only new read. `requireAdmin` (platform_admin session, like `/api/admin/links`) — **not** the bypass cookie, because a Botswana admin has no cookie and must still be able to see and revoke browsers. Returns `{ gate, epoch, windowDays, bypass:{active,user,expires,device,current}, devices[], denied:{total,byRule,recent}, warnings[] }`. `?days=` clamped 1–90 (default 7). `ip_hash`/`ua_hash`/`fp_hash` are never selected. A missing table becomes a `warnings` entry, never a 500. Gate mode comes from `gateMode()` in `_middleware.js`, so the panel and the gate cannot disagree.
+  - `eatouts-admin-dashboard.html`: new `access` accordion section (`accessBody`, `acBannerHTML`, `acDeviceRow`, `acRuleRow`, `acRecentRow`, `renderAccess`, `loadAccess`, `revokeAll`), wired through the existing `wireFilters()` delegation and loaded on boot. Revoke confirms first and spells out that the operator's own browser loses the bypass too. No new CSS — it reuses `.item-row` / `.item-badge` / `.pill` / `.mini-btn`.
+  - `tests/security-admin.js`: new section I (15 checks, 89 → 104) — 503/401/405, gate-mode resolution, `?days=` clamping, device mapping with the current browser flagged, grouped + recent denials, and two privacy checks that the hash keys never appear in the payload, plus the degrade-to-warning paths.
+  - `tests/dashboard-access-panel.js` (NEW, 17 checks): boots the dashboard in jsdom with a stubbed `/api/admin/access` payload and asserts the rendered banner, gate pill, both devices, the revoked label, the grouped denial, the section dot, and that the revoke button POSTs to `/api/admin/revoke-all` and reloads.
+  - `tests/run-all.js`: registers `dashboard-access-panel.js`.
+  - `docs/ACCESS-CONTROL-PLAN.md`: B2 rows marked done / deferred, new §5.3 "Milestone B2 — the management screen" (C/D renumbered to §5.4/§5.5), §7 counts refreshed (104 / 79 / 17, 79 suites) and a `curl.exe` check for the new endpoint added, Milestone B DoD updated.
+  - `docs/AGENT_CHANGE_LOG.md`: this entry.
+- Commit: PENDING
+- Push: PENDING
+- Verified:
+  - `node tests/security-admin.js` → **SECURITY-ADMIN PASSED (104 checks)**
+  - `node tests/dashboard-access-panel.js` → **DASHBOARD-ACCESS-PANEL PASSED (17 checks)**
+  - `node tests/run-all.js` → **79 passed, 0 failed** (exit 0)
+  - `npx wrangler pages functions build` → `Compiled Worker successfully` (the API route imports `_middleware.js`, so the bundle was the real risk)
+  - the dashboard's inline script passes `node --check` after extraction
+- Not verified:
+  - the panel in a real browser against a real session/D1 (`access` returns 401 until the operator signs in)
+  - Twilio step-up — not built
+- Notes:
+  - **Read-only by construction.** Minting stays in `/api/admin/login`, revocation in `/api/admin/revoke-all`; nothing in the new endpoint can widen access, which is what makes it safe to show every platform admin.
+  - **Only the revoke button needs the bypass cookie.** A session alone can never bump the epoch, so an attacker with a hijacked platform_admin session still cannot revoke (or extend) the operator's bypass.
+  - Two new files (`access.js` + its suite) rather than three: the panel could have grown its own endpoint per feature, but one read keeps the dashboard to a single request and one place to audit.
+- Errors: none
+
+---
+
 ---
 ### [2026-11-05 16:10:16] - [Agent: cline] - [Status: COMMITTED]
 - Task: Milestone B of the layered access-control plan — the actual gate. Adds `functions/_middleware.js` (Stages 1–4), a reachable `/admin/login` page, and stops excluding `/*.html` from `_routes.json` so page requests finally reach Functions. Ships **inert**: `ACCESS_GATE` defaults to `off`, so nothing is blocked and nothing is logged until the operator turns it on.

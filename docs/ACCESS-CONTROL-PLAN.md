@@ -173,8 +173,8 @@ lets the middleware see a page request.
 | `_routes.json` | `copy-static.mjs` no longer excludes `/*.html`; the asset folders (`/assets/*`, `/js/*`, `/css/*`, `/img/*`) stay excluded until Milestone C | done |
 | `functions/admin/login.js` | `GET /admin/login` — the one page a non-BW operator can load. A Function, not a `.html` file, so the gate can never block its own only way in. Posts to `/api/admin/login`; 503 when the secrets are absent; 405 for anything but GET/HEAD | done |
 | Denial logging live | every stage calls `logDenial` with `{ stage, rule, confidence }`; in `monitor` mode the record is written and the page is still served | done |
-| Admin UI | "bypass active until …" + revoke-all + device list inside `eatouts-admin-dashboard.html`, plus a read-only `denial_log` view | **B2 — not started** |
-| Step-up (D5) | Twilio Verify only when `TWILIO_*` env vars exist | **B2 — not started** |
+| Admin UI | "bypass active until …" + revoke-all + device list inside `eatouts-admin-dashboard.html`, plus a read-only `denial_log` view — see §5.3 | done |
+| Step-up (D5) | Twilio Verify only when `TWILIO_*` env vars exist | deferred: optional, unverifiable without live credentials |
 
 ### 5.1 `ACCESS_GATE` — why the gate ships off
 
@@ -211,14 +211,51 @@ is that KV reads scale with cross-border traffic instead of with page views (KV 
 read quota, and this is the difference between "a few hundred" and "one per page view").
 
 
-### 5.3 Milestone C — the payload
+### 5.3 Milestone B2 — the management screen
+
+`GET /api/admin/access?days=7` (new, `functions/api/admin/access.js`) is the only new
+read. The dashboard's "Access & security" accordion renders all four parts of B2 from
+that one response.
+
+| Panel | Source | Guard |
+|-------|--------|-------|
+| "Bypass active until …" | `adminGate()` on the request itself | platform_admin session |
+| Revoke-all button | `POST /api/admin/revoke-all` (unchanged) | the bypass cookie |
+| Device list | `admin_devices` | platform_admin session |
+| Refusals, grouped + latest | `denial_log`, `?days=` clamped 1–90 | platform_admin session |
+
+Three decisions worth keeping:
+
+1. **The panel reads with the platform_admin session, not the bypass cookie.** A
+   Botswana admin has no bypass cookie and must still be able to see which browsers may
+   bypass and revoke a lost one. So the endpoint *reports* the bypass (`active`,
+   `expires`, `device`, `current`) instead of requiring it, and only the revoke button
+   demands a live cookie — a session alone can never bump the epoch.
+2. **It reads; it never writes.** Minting stays in `/api/admin/login`, revocation in
+   `/api/admin/revoke-all`. Nothing here can widen access, which is what makes it safe
+   to expose to every platform admin.
+3. **`ip_hash`, `ua_hash` and `fp_hash` are never selected**, and the suite asserts those
+   keys cannot appear in the payload — so this screen cannot become a second, readable
+   copy of the identifiers `denial_log` deliberately only stores as hashes. A missing
+   table is a `warnings` entry, not a 500: before migration 0018 is applied this panel is
+   exactly how you see that it has not been applied.
+
+The gate mode is shown as a pill (`gate off|monitor|enforce`) read through the same
+`gateMode()` the middleware uses, so the operator can tell which mode a deployment is in
+without opening the Cloudflare dashboard.
+
+Twilio step-up (D5) is **not** built: it is optional, it sits on the single login path,
+and it cannot be verified without live `TWILIO_*` credentials. Shipping it inert and
+unverified would put untested code in front of the only way into the site.
+
+### 5.4 Milestone C — the payload
 
 Move `assets/data/*` to `/data/*` served by `functions/data/[[path]].js`, behind the
 same gate, with `Cache-Control: private, no-store` and an ETag. Update every consumer
 (`js/…` readers) in the same commit — this is the change that actually stops the
 728 KB scrape, and it is the one with the widest blast radius.
 
-### 5.4 Milestone D — media, tiers, canaries
+### 5.5 Milestone D — media, tiers, canaries
 
 | Item | Detail |
 |------|--------|
@@ -256,9 +293,10 @@ are never logged.
 ### Automated (run, passing)
 
 ```powershell
-node tests/security-admin.js     # SECURITY-ADMIN PASSED (89 checks)
+node tests/security-admin.js     # SECURITY-ADMIN PASSED (104 checks)
 node tests/access-gate.js        # ACCESS-GATE PASSED (79 checks)
-node tests/run-all.js            # 78 passed, 0 failed
+node tests/dashboard-access-panel.js   # DASHBOARD-ACCESS-PANEL PASSED (17 checks)
+node tests/run-all.js            # 79 passed, 0 failed
 npx wrangler pages functions build --outdir=.tmp-functions-build   # Compiled Worker successfully
 ```
 
@@ -304,6 +342,15 @@ npx wrangler d1 execute eatouts --remote `
   --command "SELECT rule, stage, country, COUNT(*) c FROM denial_log GROUP BY rule, stage, country ORDER BY c DESC LIMIT 20"
 ```
 
+Milestone B2 adds one:
+
+```powershell
+# 7. the management endpoint exists and needs a session (401, never 404)
+curl.exe -s -o NUL -w "%{http_code}\n" https://www.eatouts.site/api/admin/access
+#   ... with a signed-in browser it answers {gate, bypass, devices, denied}
+#   ... and never contains ip_hash, ua_hash or fp_hash
+```
+
 ### Definition of done for Milestone A
 
 - [x] `_security.js` signs, verifies, denies and fails closed — 89 automated checks
@@ -326,9 +373,12 @@ npx wrangler d1 execute eatouts --remote `
 - [x] `/admin/login` serves the sign-in page as a Function (no catalog entry, no
       gate-able `.html` file) and answers 503 when the secrets are absent
 - [x] `tests/access-gate.js` — 79 checks across modes, stages, privacy and the routes contract
-- [x] full suite green (78 passed, 0 failed)
-- [ ] admin UI inside `eatouts-admin-dashboard.html` (B2)
-- [ ] Twilio step-up (B2, optional per D5)
+- [x] full suite green (79 passed, 0 failed)
+- [x] admin UI inside `eatouts-admin-dashboard.html` (B2): bypass banner, revoke-all,
+      device list and a read-only `denial_log` view, fed by `GET /api/admin/access`
+      — 15 new checks in `security-admin.js` (104 total) and `tests/dashboard-access-panel.js`
+      (17 checks, the rendered panel plus the revoke wiring)
+- [ ] Twilio step-up (B2, optional per D5) — deliberately deferred until live credentials exist
 - [ ] the four `curl.exe` gate checks above — **need a deployed build**
 - [ ] `ACCESS_GATE` set to `monitor`, then `enforce` — **needs the operator**
 

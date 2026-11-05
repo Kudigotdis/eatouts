@@ -417,6 +417,208 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /* ============================================================
+     ACCESS & SECURITY BODY  (Milestone B2)
+     Bypass state, the browsers allowed to bypass, and what the gate refused.
+     Read-only apart from the revoke button, which posts to the existing
+     /api/admin/revoke-all.
+     ============================================================ */
+  var AC = null;        /* last /api/admin/access payload */
+  var acDays = 7;       /* denial_log window */
+
+  var acErrorText = {
+    not_authenticated: "Sign in as a platform admin to see access state.",
+    not_admin: "This account is not a platform admin.",
+    backend_not_configured: "The database binding is missing.",
+    "default": "Could not load access state."
+  };
+
+  function acWhen(ms){
+    var n = Number(ms || 0);
+    if (!n) return "—";
+    var d = new Date(n);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleString();
+  }
+
+  function acHead(text){
+    return '<div class="item-sub" style="margin:14px 0 6px;text-transform:uppercase;' +
+      'letter-spacing:.09em;font-weight:800">' + esc(text) + '</div>';
+  }
+
+  function acBannerHTML(a){
+    var b = a.bypass || {};
+    var gateName = String(a.gate || "off");
+    var gatePill = '<span class="pill ' +
+      (gateName === "enforce" ? "green" : (gateName === "monitor" ? "amber" : "")) +
+      '">gate ' + esc(gateName) + '</span>';
+    var title = b.active
+      ? ("Bypass active until " + acWhen(b.expires))
+      : "No bypass cookie in this browser";
+    var sub = b.active
+      ? (esc(b.user || "admin") + " · device " + esc(String(b.device || "").slice(0, 8)) +
+         " · this browser " + esc(String(b.current || "").slice(0, 8)))
+      : "Log in at /admin/login to mint one. Reading this panel only needs a platform admin session.";
+    return '<div class="item-row">' +
+      '<div class="item-badge ' + (b.active ? "green" : "muted") + '">A</div>' +
+      '<div class="item-body">' +
+        '<div class="item-title">' + esc(title) + '</div>' +
+        '<div class="item-sub">' + sub + '</div>' +
+        '<div class="item-meta">' +
+          (b.active ? '<span class="pill green">Active</span>' : '<span class="pill amber">No bypass</span>') +
+          gatePill +
+          '<span class="pill">epoch ' + esc(a.epoch) + '</span>' +
+        '</div>' +
+        '<div class="item-actions">' +
+          '<button class="mini-btn danger" type="button" data-ac-act="revoke">Revoke all bypasses</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function acDeviceRow(d){
+    var meta = d.current
+      ? '<span class="pill green">This browser</span>'
+      : '<span class="pill">Other browser</span>';
+    if (d.revokedAt) meta += '<span class="pill revoked">Revoked</span>';
+    if (d.country) meta += '<span class="pill">' + esc(d.country) + '</span>';
+    if (d.asn) meta += '<span class="pill">AS' + esc(d.asn) + '</span>';
+    var bits = [];
+    bits.push(esc(d.label || "unknown browser") + " · " + esc(String(d.device || "").slice(0, 8)));
+    bits.push("seen " + esc(acWhen(d.lastSeenAt || d.createdAt)));
+    return '<div class="item-row">' +
+      '<div class="item-badge ' + (d.revokedAt ? "muted" : (d.current ? "green" : "blue")) + '">D</div>' +
+      '<div class="item-body">' +
+        '<div class="item-title">' + esc(d.user || "admin") + '</div>' +
+        '<div class="item-sub">' + bits.join(" · ") + '</div>' +
+        '<div class="item-meta">' + meta + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function acRuleRow(r){
+    return '<div class="item-row">' +
+      '<div class="item-badge amber">S' + esc(r.stage) + '</div>' +
+      '<div class="item-body">' +
+        '<div class="item-title">' + esc(r.rule) + '</div>' +
+        '<div class="item-sub">' + esc(r.country || "unknown country") +
+          ' · ' + esc(r.count) + ' refusal' + (r.count === 1 ? '' : 's') +
+          ' · last ' + esc(acWhen(r.last)) + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function acRecentRow(r){
+    return '<div class="item-row">' +
+      '<div class="item-badge red">S' + esc(r.stage) + '</div>' +
+      '<div class="item-body">' +
+        '<div class="item-title">' + esc(r.rule) + ' · ' + esc(r.path || "—") + '</div>' +
+        '<div class="item-sub">' + esc(acWhen(r.at)) + ' · ' + esc(r.country || "unknown country") +
+          (r.asn ? ' · AS' + esc(r.asn) : '') + ' · confidence ' + esc(r.confidence) + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderAccess(a, errText){
+    var box = document.getElementById("ac");
+    if (!box) return;
+
+    if (!a || !a.ok){
+      box.innerHTML = '<div class="empty-note">' + esc(errText || acErrorText["default"]) + '</div>';
+      setSectionSub("access", "Unavailable");
+      setSectionDot("access", "red");
+      return;
+    }
+
+    AC = a;
+    var html = acBannerHTML(a);
+
+    var warns = a.warnings || [];
+    if (warns.length){
+      html += '<div class="empty-note" style="text-align:left;color:var(--amber);margin-top:8px">' +
+        'Partial data: ' + esc(warns.join(", ")) + '</div>';
+    }
+
+    var devices = a.devices || [];
+    html += acHead("Browsers allowed to bypass (" + devices.length + ")");
+    html += devices.length
+      ? devices.map(acDeviceRow).join("")
+      : '<div class="empty-note">No bypass has ever been minted.</div>';
+
+    var denied = a.denied || {};
+    var byRule = denied.byRule || [];
+    var recent = denied.recent || [];
+    html += acHead("Refused in the last " + a.windowDays + " day" +
+      (a.windowDays === 1 ? "" : "s") + " (" + esc(denied.total || 0) + ")");
+    html += byRule.length
+      ? byRule.map(acRuleRow).join("")
+      : '<div class="empty-note">Nothing refused in this window.</div>';
+
+    if (recent.length){
+      html += acHead("Latest " + Math.min(10, recent.length) + " refusals");
+      html += recent.slice(0, 10).map(acRecentRow).join("");
+    }
+
+    box.innerHTML = html;
+
+    var active = !!(a.bypass && a.bypass.active);
+    setSectionSub("access", (active ? "bypass until " + acWhen(a.bypass.expires) : "no bypass") +
+      " · gate " + (a.gate || "off"));
+    setSectionDot("access", active ? "green" : "off");
+  }
+
+  function loadAccess(){
+    if (!window.fetch){
+      renderAccess(null, "Sign in as a platform admin to see access state.");
+      return;
+    }
+    fetch("/api/admin/access?days=" + encodeURIComponent(acDays), { credentials:"include" })
+      .then(function(r){ return r.json().catch(function(){ return {}; }); })
+      .then(function(j){
+        if (j && j.ok === true) renderAccess(j);
+        else renderAccess(null, acErrorText[(j && j.error) || ""] || acErrorText["default"]);
+      })
+      .catch(function(){
+        renderAccess(null, "Could not reach the server. Check your connection.");
+      });
+  }
+
+  async function revokeAll(btn){
+    var b = (AC && AC.bypass) || {};
+    var msg = "Revoke every admin bypass now?\n\n" +
+      (b.active
+        ? "This browser loses its bypass too, so from outside Botswana the site stops loading until you log in again at /admin/login."
+        : "Every browser will have to log in again at /admin/login.") +
+      "\n\nThis cannot be undone from here.";
+    var ok = false;
+    try { ok = window.confirm(msg); } catch (e) { ok = false; }
+    if (!ok) return;
+
+    if (btn) btn.disabled = true;
+    try {
+      var r = await fetch("/api/admin/revoke-all", { method:"POST", credentials:"include" });
+      var j = await r.json().catch(function(){ return {}; });
+      if (!r.ok || !j.ok){
+        toast(r.status === 403
+          ? "Revoke needs a live bypass cookie in this browser."
+          : "Could not revoke. Try again.");
+        if (btn) btn.disabled = false;
+        return;
+      }
+      toast("All admin bypasses revoked.");
+      loadAccess();
+    } catch (e) {
+      toast("Could not reach the server.");
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function accessBody(){
+    return '<div class="module">' +
+      '<div id="ac"><div class="empty-note">Loading access state…</div></div>' +
+    '</div>';
+  }
+
+  /* ============================================================
      PROMO SUBMISSIONS BODY
      ============================================================ */
   function promosBody(){
@@ -500,6 +702,7 @@ document.addEventListener("DOMContentLoaded", function () {
       renderMeta() +
       '<div class="stack">' +
         section('controls', 'C', 'Platform controls', 'Jump into any admin surface', controlsBody(), 'off', 0) +
+        section('access',   'A', 'Access & security',  'Loading…',                 accessBody(),   '',   0) +
         section('promos',   'P', 'Promo submissions', 'Loading…',                 promosBody(),   '',   0) +
         section('links',    'L', 'Business links',    'Loading…',                 linksBody(),    'off', 0) +
         section('invoices', 'I', 'Invoices',          'Loading…',                 invoicesBody(), 'off', 0) +
@@ -1004,6 +1207,16 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
+    /* access & security actions */
+    var acBox = document.getElementById('ac');
+    if (acBox){
+      acBox.addEventListener('click', function(e){
+        var b = e.target.closest('[data-ac-act]');
+        if (!b) return;
+        if (b.getAttribute('data-ac-act') === 'revoke') revokeAll(b);
+      });
+    }
+
     /* invoice filter */
     var invF = document.getElementById('inv-filter');
     if (invF){
@@ -1074,6 +1287,7 @@ document.addEventListener("DOMContentLoaded", function () {
      BOOT
      ============================================================ */
   render();
+  loadAccess();
   loadPromos();
   loadLinks();
   loadInvoices();

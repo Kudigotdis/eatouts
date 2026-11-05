@@ -95,6 +95,7 @@ const SUITES = [
   'created-event.js',
   'money.js',
   'security-admin.js',
+  'dashboard-access-panel.js',
   'access-gate.js'
 ];
 

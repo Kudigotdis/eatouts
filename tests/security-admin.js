@@ -439,6 +439,124 @@ async function run() {
     /process\.stdout\.write\(ITER \+ ':' \+ saltHex \+ ':' \+ hashHex/.test(script));
   check('the hash script refuses short passwords',
     /length < 12/.test(script));
+
+  /* -------------------------------------------- I. access overview (B2) */
+  console.log('\n-- I. access overview (B2) --');
+  const accessMod = await import(pathToFileURL(path.join(ROOT, 'functions/api/admin/access.js')).href);
+  const ACCESS_URL = 'https://www.eatouts.site/api/admin/access';
+
+  const accessNoDb = await accessMod.onRequestGet({
+    env: { ENV: 'production' },
+    request: fakeRequest({ method: 'GET', url: ACCESS_URL })
+  });
+  check('GET /api/admin/access is 503 without the DB binding', accessNoDb.status === 503);
+
+  const accessAnon = await accessMod.onRequestGet({
+    env: configuredEnv(),
+    request: fakeRequest({ method: 'GET', url: ACCESS_URL })
+  });
+  check('GET /api/admin/access is 401 without an admin session', accessAnon.status === 401);
+  check('POST /api/admin/access is 405', (await accessMod.onRequestPost()).status === 405);
+
+  /* A DB whose queries actually answer, so the row mapping is exercised. The
+     denial row deliberately carries hash columns that must never come out. */
+  function rowsDB(rows) {
+    return {
+      prepare(sql) {
+        const stmt = {
+          sql,
+          args: [],
+          bind(...args) { stmt.args = args; return stmt; },
+          async run() { return { success: true }; },
+          async first() { return null; },
+          async all() {
+            const s = norm(sql);
+            if (/FROM admin_devices/.test(s)) return { results: rows.devices || [] };
+            if (/FROM denial_log/.test(s)) {
+              return { results: /GROUP BY/.test(s) ? (rows.rules || []) : (rows.recent || []) };
+            }
+            return { results: [] };
+          }
+        };
+        return stmt;
+      }
+    };
+  }
+
+  const ovEnv = configuredEnv({
+    DB: rowsDB({
+      devices: [
+        { id: 'adev_1', user_ref: 'ops', device_hash: devId, label: 'chrome|windows', created_at: 1000, last_seen_at: 5000, last_country: 'ZW', last_asn: 1221, revoked_at: null },
+        { id: 'adev_2', user_ref: 'ops', device_hash: 'f'.repeat(64), label: 'safari|mac', created_at: 2000, last_seen_at: null, last_country: 'BW', last_asn: 37662, revoked_at: 9000 }
+      ],
+      rules: [{ rule: 'datacenter_asn', stage: 2, country: 'US', n: 41, last: 7000 }],
+      recent: [{ at: 7000, stage: 2, rule: 'datacenter_asn', country: 'US', asn: 16509, path: '/eatouts-about', confidence: 80, ip_hash: 'LEAK1', ua_hash: 'LEAK2', fp_hash: 'LEAK3' }]
+    })
+  });
+  const ovReq = fakeRequest({ method: 'GET', headers: { 'User-Agent': UA_WIN } });
+  const ov = await accessMod.accessOverview(ovEnv, ovReq, { days: '7' });
+
+  check('the overview reports the gate mode and the window',
+    ov.ok === true && ov.gate === 'off' && ov.windowDays === 7,
+    JSON.stringify({ gate: ov.gate, days: ov.windowDays }));
+  check('a request with no cookie is not a bypass', ov.bypass.active === false && ov.bypass.user === 'ops');
+  check('devices are mapped with the current browser flagged',
+    ov.devices.length === 2 && ov.devices[0].current === true && ov.devices[0].revokedAt === null &&
+    ov.devices[1].current === false && ov.devices[1].revokedAt === 9000,
+    JSON.stringify(ov.devices.map((d) => [d.current, d.revokedAt])));
+  check('denials are grouped and totalled',
+    ov.denied.byRule.length === 1 && ov.denied.byRule[0].count === 41 && ov.denied.total === 41);
+  check('a recent denial is mapped without its hashes',
+    ov.denied.recent.length === 1 && ov.denied.recent[0].rule === 'datacenter_asn' &&
+    JSON.stringify(ov).indexOf('LEAK') === -1, JSON.stringify(ov.denied.recent[0]));
+  check('the overview never exposes ip_hash, ua_hash or fp_hash',
+    !/ip_hash|ua_hash|fp_hash/.test(JSON.stringify(ov)));
+
+  const ovBypass = await accessMod.accessOverview(
+    ovEnv,
+    fakeRequest({ method: 'GET', headers: { Cookie: 'eatouts_admin_bypass=' + bypass, 'User-Agent': UA_WIN } }),
+    { days: '7' }
+  );
+  check('a live bypass cookie is reported as active with its expiry',
+    ovBypass.bypass.active === true && ovBypass.bypass.user === 'ops' &&
+    ovBypass.bypass.expires > Date.now() && ovBypass.bypass.device === devId,
+    JSON.stringify(ovBypass.bypass));
+  check('a bypass minted for another browser is not reported as active',
+    (await accessMod.accessOverview(
+      ovEnv,
+      fakeRequest({ method: 'GET', headers: { Cookie: 'eatouts_admin_bypass=' + bypass, 'User-Agent': UA_IPHONE } }),
+      {}
+    )).bypass.active === false);
+
+  const gateOf = async (v) => (await accessMod.accessOverview(
+    configuredEnv({ ACCESS_GATE: v }), fakeRequest({ headers: { 'User-Agent': UA_WIN } }), {}
+  )).gate;
+  check('the gate mode comes from ACCESS_GATE and fails safe',
+    (await gateOf('monitor')) === 'monitor' && (await gateOf('enforce')) === 'enforce' &&
+    (await gateOf('nonsense')) === 'off' && (await gateOf(undefined)) === 'off');
+
+  check('?days= is clamped to 1..90 with a 7-day default',
+    accessMod.clampDays('30') === 30 && accessMod.clampDays('999') === 90 &&
+    accessMod.clampDays('0') === 7 && accessMod.clampDays('-3') === 7 && accessMod.clampDays('abc') === 7);
+
+  const ovBroken = await accessMod.accessOverview(
+    configuredEnv({ DB: { prepare() { throw new Error('no such table: denial_log'); } } }),
+    fakeRequest({ headers: { 'User-Agent': UA_WIN } }),
+    {}
+  );
+  check('a missing table degrades to a warning instead of a 500',
+    ovBroken.ok === true && ovBroken.warnings.indexOf('admin_devices_unavailable') >= 0 &&
+    ovBroken.warnings.indexOf('denial_log_unavailable') >= 0 && ovBroken.denied.total === 0,
+    JSON.stringify(ovBroken.warnings));
+
+  const ovNoDb = await accessMod.accessOverview(
+    { ENV: 'production', ADMIN_USERNAME: 'ops' },
+    fakeRequest({ headers: { 'User-Agent': UA_WIN } }),
+    {}
+  );
+  check('without a DB the overview still answers with a warning',
+    ovNoDb.ok === true && ovNoDb.warnings.indexOf('backend_not_configured') >= 0 &&
+    ovNoDb.devices.length === 0);
 }
 
 run().then(() => {
