@@ -3,8 +3,8 @@
  * Search screen — the result index must include EVERY discoverable venue.
  *
  * Zorz (slug `zors`) used to be an overlay-only venue: it had no row in
- * directory_runtime_data.js, so its identity lived in
- * assets/data/venue_about_info.js. It is now a real directory row
+ * directory_runtime_data.js, so its identity lived only in the curated venue
+ * copy (venue_about_info.js). It is now a real directory row
  * (`rest_zorz-luxury-chisanyama`, seeded from the `extras` block of
  * eatouts_manifest.json), so buildIndex() must NOT add a second, overlay-only
  * row for it - the curated slug/aliases are folded into the directory row's
@@ -534,7 +534,12 @@ setTimeout(() => {
     certified.filter(pair => !isHalaal({ slug: pair[0], name: pair[1] })).map(pair => pair[0]).join(' | '));
   check('the shared helper leaves non-certified venues alone',
     !isHalaal({ slug: 'steers', name: 'Steers' }) &&
-      !isHalaal({ slug: 'ocean-basket', name: 'Ocean Basket' }));
+      !isHalaal({ slug: 'ocean-basket', name: 'Ocean Basket' }) &&
+      !isHalaal({ slug: 'ashoka-palace-restaurant', name: 'Ashoka Palace Restaurant' }));
+  check('Ashoka Palace remains certified',
+    isHalaal({ slug: 'ashoka-palace', name: 'Ashoka Palace' }));
+  check('Ashoka Palace Restaurant is not certified',
+    !isHalaal({ slug: 'ashoka-palace-restaurant', name: 'Ashoka Palace Restaurant' }));
 
   const halaalBtn = doc.querySelector('.filter-btn[data-halaal-toggle]');
   check('the filter bar carries a Halaal chip', !!halaalBtn);
@@ -545,6 +550,10 @@ setTimeout(() => {
   let halaalNames = names(search(''));
   check('the Halaal filter keeps a certified chain', halaalNames.indexOf('KFC') > -1,
     halaalNames.slice(0, 8).join(' | '));
+  check('the Halaal filter keeps Ashoka Palace',
+    halaalNames.indexOf('Ashoka Palace') > -1, halaalNames.slice(0, 8).join(' | '));
+  check('the Halaal filter excludes Ashoka Palace Restaurant',
+    halaalNames.indexOf('Ashoka Palace Restaurant') === -1, halaalNames.slice(0, 8).join(' | '));
   check('the Halaal filter removes a non-certified venue',
     halaalNames.indexOf('Steers') === -1 && halaalNames.indexOf('Ocean Basket') === -1,
     halaalNames.slice(0, 8).join(' | '));

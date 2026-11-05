@@ -30,6 +30,9 @@ var LOGOS = {
   /* Botswana Halaal Authority certification. Kept as a static list because
      certification is controlled by the authority, not the venue record. */
   var HALAAL_LOGO = 'assets/halaal-logos/Botswana_Halaal_Logo.jpg';
+  var HALAAL_EXACT = [
+    'ashoka-palace'
+  ];
   var HALAAL_PREFIXES = [
     'kfc',
     'nando',
@@ -39,7 +42,6 @@ var LOGOS = {
     'wimpy',
     'kebabish',
     'sip-and-grill',
-    'ashoka',
     'df-50-ashoka',
     'the-downstairs',
     'downstairs',
@@ -100,6 +102,7 @@ kfc: 'assets/logo/kfc.jpg',
   function isHalaalKey(value) {
     var key = slugify(String(value || ''));
     if (!key) return false;
+    if (HALAAL_EXACT.indexOf(key) !== -1) return true;
     for (var i = 0; i < HALAAL_PREFIXES.length; i++) {
       var prefix = HALAAL_PREFIXES[i];
       if (key === prefix || key.indexOf(prefix) === 0) return true;
