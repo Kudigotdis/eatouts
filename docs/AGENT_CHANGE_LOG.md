@@ -2807,7 +2807,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `assets/Kenya/Kenya_Locations.js` (NEW): `window.KENYA_LOCATIONS_DATA`; 47 counties -> 288 sub-counties -> 9,735 named areas. County codes are zero-padded `01`-`47` from `kenyan_counties.json`; `Taita-Taveta`/`Trans-Nzoia` match their canonical county names.
   - `assets/Mauritius/Mauritius_Locations.js` (NEW): `window.MAURITIUS_LOCATIONS_DATA`; 11 districts -> 23 cities/towns -> 396 named areas. Because `adm2`/`adm3` are empty, areas are assigned to the nearest city/town centroid; `North Islands` falls back to the district name as its town.
 - Commit: `3d9a245`
-- Push: `origin/main` (pending)
+- Push: `origin/main` (`788dff2`)
 - Verified:
   - `node --check` -> clean on all three files.
   - Loaded each file with a stub `window` -> expected global assigned, schema valid, no empty names, no case-insensitive duplicate areas within a town.
