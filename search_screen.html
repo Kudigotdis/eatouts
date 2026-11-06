@@ -574,6 +574,14 @@ EatoutsRegionData.injectSync();
     });
   }
 
+  /* Catering / bakery / beverage data is per region. Until a region's
+     directory lands, its records must not leak into search results. */
+  function directoryDataAvailable(kind){
+    var R = window.EatoutsRegions;
+    if (!R || typeof R.hasDirectory !== 'function') return true;
+    return R.hasDirectory(kind);
+  }
+
   function buildIndex(){
     var out = [];
 
@@ -597,19 +605,19 @@ EatoutsRegionData.injectSync();
     }
 
     // Catering
-    if (window.EatoutsCatering && typeof window.EatoutsCatering.all === 'function'){
+    if (directoryDataAvailable('catering') && window.EatoutsCatering && typeof window.EatoutsCatering.all === 'function'){
       try { window.EatoutsCatering.all().forEach(function(b){ pushCatering(out, b); }); }
       catch(e){ console.warn('[Search] catering:', e); }
     }
 
     // Bakeries
-    if (Array.isArray(window.BAKERY_BUSINESSES_DATA)){
+    if (directoryDataAvailable('bakery') && Array.isArray(window.BAKERY_BUSINESSES_DATA)){
       try { window.BAKERY_BUSINESSES_DATA.forEach(function(r){ pushBakery(out, r); }); }
       catch(e){ console.warn('[Search] bakeries:', e); }
     }
 
     // Bottle stores
-    if (window.EatoutsBottleStores && typeof window.EatoutsBottleStores.all === 'function'){
+    if (directoryDataAvailable('beverages') && window.EatoutsBottleStores && typeof window.EatoutsBottleStores.all === 'function'){
       try { window.EatoutsBottleStores.all().forEach(function(b){ pushBottleStore(out, b); }); }
       catch(e){ console.warn('[Search] bottle stores:', e); }
     }

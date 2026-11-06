@@ -92,6 +92,7 @@ const SUITES = [
   'promo-pricing.js',
   'region-selector.js',
   'region-gating.js',
+  'directory-region-empty.js',
   'created-event.js',
   'money.js',
   'security-admin.js',

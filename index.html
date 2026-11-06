@@ -5705,6 +5705,28 @@ function switchRestPanel(panel){
 }
 
 /* ================================================================
+   DIRECTORY AVAILABILITY
+   Catering, bakery and beverage data is per region. Until a region's
+   directory lands, its panel says the businesses are yet to be listed
+   instead of showing another country's businesses.
+   ================================================================ */
+function directoryDataAvailable(kind){
+  const R=window.EatoutsRegions;
+  if(!R||typeof R.hasDirectory!=="function") return true;
+  return R.hasDirectory(kind);
+}
+function directoryRegionName(){
+  try{
+    const R=window.EatoutsRegions;
+    const region=R&&typeof R.getActiveRegion==="function"?R.getActiveRegion():null;
+    return (region&&region.name)||"your region";
+  }catch(e){return "your region";}
+}
+function directoryYetToListed(label){
+  return '<div class="empty"><strong>'+esc(label+' in '+directoryRegionName()+' are yet to be listed.')+'</strong><br>We are onboarding local businesses. Please check back soon.</div>';
+}
+
+/* ================================================================
    CATERING DIRECTORY (Catering landing)
    Flat list of catering businesses from
    /data/CateringServicesDatabase.js (window.EATOUTS_CATERING),
@@ -5714,6 +5736,7 @@ function switchRestPanel(panel){
    ================================================================ */
 function cateringAPI(){return window.EatoutsCatering||null;}
 function cateringBrands(){
+  if(!directoryDataAvailable("catering")) return [];
   const api=cateringAPI();
   if(!api) return [];
   return api.all();
@@ -5851,6 +5874,7 @@ function renderCateringTypePicker(){
 }
 function renderCatering(){
   let h='<div class="scroll">';
+  if(!directoryDataAvailable("catering")){return h+directoryYetToListed("Catering businesses")+'</div>';}
   if(!cateringAPI()){h+='<div class="empty">Catering services are loading…</div></div>';return h;}
   const brands=filteredCateringBrands();
   if(!brands.length){
@@ -5968,6 +5992,7 @@ function syncCateringAccordions(){
    proper contact numbers land in the database.
    ================================================================ */
 function bakeryBrands(){
+  if(!directoryDataAvailable("bakery")) return [];
   const rows=(window.BAKERY_BUSINESSES_DATA)||[];
   return rows.map(function(r){
     const name=String(r.businessName||"").trim()||"Bakery";
@@ -6101,6 +6126,7 @@ function renderBakeryTypePicker(){
 }
 function renderBakeries(){
   let h='<div class="scroll">';
+  if(!directoryDataAvailable("bakery")){return h+directoryYetToListed("Bakeries")+'</div>';}
   const brands=filteredBakeries();
   if(!brands.length){
     h+='<div class="empty">'+(bakeryFilterActive()?"No bakeries match these filters.":"No bakeries found.")+'</div></div>';
@@ -6250,6 +6276,7 @@ function restaurantOptions(g,active){
    ================================================================ */
 function bottleAPI(){return window.EatoutsBottleStores||null;}
 function bottleBrands(){
+  if(!directoryDataAvailable("beverages")) return [];
   const api=bottleAPI();
   if(!api) return [];
   return api.filter({town:state.bottleTown,area:state.bottleArea,query:state.bottleQuery});
@@ -6268,6 +6295,7 @@ function bottleThumb(brand){
 /* PAGE: beverages — Beverages */
 function renderBottleStores(){
   let h='<div class="scroll">';
+  if(!directoryDataAvailable("beverages")){return h+directoryYetToListed("Beverage businesses")+'</div>';}
   if(!bottleAPI()){h+='<div class="empty">Bottle stores are loading…</div></div>';return h;}
   const brands=bottleBrands();
   if(!brands.length){h+='<div class="empty">No bottle stores match your search.</div></div>';return h;}
@@ -6861,6 +6889,19 @@ function renderControlBarInner(){
 
   /* ---- Restaurants tab: food filters, beverage filters, search ---- */
   if(state.tab==="restaurants"){
+    /* A directory with no data for this region has no filters to show. */
+    const noDirectoryData =
+      (state.restPanel==='catering' && !directoryDataAvailable("catering")) ||
+      (state.restPanel==='bakery' && !directoryDataAvailable("bakery")) ||
+      (state.restPanel==='beverages' && !directoryDataAvailable("beverages"));
+    if(noDirectoryData){
+      cb.classList.remove("on"); cb.innerHTML="";
+      state.cateringFilterOpen=false;state.bakeryFilterOpen=false;state.bevFilterOpen=false;
+      state.cateringTownPicker=false;state.cateringAreaPicker=false;state.cateringTypePicker=false;
+      state.bakeryTownPicker=false;state.bakeryAreaPicker=false;state.bakeryTypePicker=false;
+      state.bevTypePicker=false;state.bottleTownFilter=false;state.bottleAreaFilter=false;
+      return;
+    }
     /* Catering panel: its own bar (search + Town | Area | Cuisines),
        hidden unless the nav tap toggled it open. */
     if(state.restPanel==='catering'){

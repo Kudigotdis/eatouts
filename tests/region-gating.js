@@ -103,6 +103,10 @@ check('filterByRegion keeps BW + legacy records only',
   R.filterByRegion([{ region: 'ZA' }, { region: 'BW' }, {}]).length === 2);
 check('filterByRegion never returns a non-array',
   Array.isArray(R.filterByRegion(null)) && R.filterByRegion(undefined).length === 0);
+check('BW has its catering / bakery / beverage directories',
+  R.hasDirectory('catering') === true && R.hasDirectory('bakery') === true &&
+  R.hasDirectory('beverages') === true);
+check('an unknown directory stays available', R.hasDirectory('not-a-directory') === true);
 
 /* ================= the DB stamps a new venue ================= */
 const db = DB.load();
@@ -149,6 +153,9 @@ check('currency follows the new region', R.currency() === 'ZAR', R.currency());
 check('money() prints the new region\'s symbol', R.symbol() === 'R' && R.money(12) === 'R12.00',
   R.symbol() + ' / ' + R.money(12));
 check('a region without a location file reports none', R.locationsFile() === null, R.locationsFile());
+check('ZA has no catering / bakery / beverage directory yet',
+  R.hasDirectory('catering') === false && R.hasDirectory('bakery') === false &&
+  R.hasDirectory('beverages') === false);
 check('the default stamp follows the active region',
   DB.addRestaurant('Delta Grill', db).region === 'ZA');
 
@@ -170,8 +177,19 @@ check('the bridge now serves the other region',
   !zaSeen.some(r => r.name === 'Alpha Grill') && !zaSeen.some(r => r.name === 'Gamma Tavern'),
   zaSeen.map(r => r.name + ':' + r.region).join(','));
 
+['KE', 'MU'].forEach(function (code) {
+  w.EATOUTS_REGIONS.forEach(function (r) { if (r.code === code) r.active = true; });
+  check(code + ' can be activated for this check', R.setActiveRegion(code) === true);
+  check(code + ' has no catering / bakery / beverage directory yet',
+    R.hasDirectory('catering') === false && R.hasDirectory('bakery') === false &&
+    R.hasDirectory('beverages') === false);
+});
+
 /* and back */
 check('BW can be restored', R.setActiveRegion('BW') === true);
+check('BW directories return with the region',
+  R.hasDirectory('catering') === true && R.hasDirectory('bakery') === true &&
+  R.hasDirectory('beverages') === true);
 rerun(w, 'js/eatouts-locations.js');
 check('Botswana towns come back', w.EatoutsLocations.allTowns().length === 486,
   w.EatoutsLocations.allTowns().length);

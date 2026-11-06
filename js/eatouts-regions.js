@@ -29,6 +29,15 @@
   var STORE_KEY    = "eatouts.region.v1";
   var DEFAULT_CODE = "BW";
 
+  /* Which regions actually carry data for each directory. A region that is
+     missing here gets the "yet to be listed" state instead of another
+     country's businesses. Add a code when that directory's data lands. */
+  var DIRECTORY_REGIONS = {
+    catering:  ["BW"],
+    bakery:    ["BW"],
+    beverages: ["BW"]
+  };
+
   var REGIONS = [
     { code:"BW", name:"Botswana",     currency:"BWP", active:true,  locale:"en-BW",
       locations:"botswana_locations.js", whatsappChannel:"", flag:"botswana-bw" },
@@ -108,6 +117,14 @@
     return (r && r.locations) || null;
   }
 
+  /** Does the active region have data for this directory? Unknown kinds stay
+      available so a typo never hides a working directory. */
+  function hasDirectory(kind){
+    var list = DIRECTORY_REGIONS[String(kind || "").toLowerCase()];
+    if (!list) return true;
+    return list.indexOf(activeCode()) !== -1;
+  }
+
   /* ---------- data gating ---------- */
 
   /**
@@ -142,6 +159,7 @@
     money: money,
     locale: locale,
     locationsFile: locationsFile,
+    hasDirectory: hasDirectory,
     recordRegion: recordRegion,
     inActiveRegion: inActiveRegion,
     filterByRegion: filterByRegion,
