@@ -2900,6 +2900,8 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 
 ### [2026-11-07 12:00:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: Make the empty listing panels impossible to misread (BW catering/bakeries/beverages; KE/MU/SA/ZW restaurants) and print the Botswana Halaal mark as the bare icon — `.png`, no circular container, 48×48 on venue-about.
+- Commit: `747dbc7`
+- Push: `origin/main` (this ledger entry follows in the next commit)
 - Root causes fixed:
   1. `js/eatouts-brand.js` pointed `HALAAL_LOGO` at `Botswana_Halaal_Logo.jpg`, a file that never shipped (only the transparent `.png` exists) — every badge rendered as a broken image inside a 34px white circle.
   2. The badge had no region gate, so a ZW/KE/MU/ZA record sharing a certified brand slug (`kfc-`, `nando-`, …) would print a Botswana certificate it does not hold.
