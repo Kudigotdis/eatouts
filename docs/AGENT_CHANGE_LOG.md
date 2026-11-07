@@ -12,6 +12,59 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: <reasoning>
 - Errors: <exact error if any>
 ```
+### [2026-11-07 00:00:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: Activate Kenya, Mauritius and South Africa as full app regions beside Botswana and Zimbabwe — region-scoped restaurants/menus/locations/currency, a corrected region selector, a cleaned index header, Eish empty states — and fix `venue-about.html` so every restaurant is reachable from a deep link with its description.
+- Root causes fixed:
+  1. `js/eatouts-locations.js` resolved `REGIONS.locationsFile()` **once at load**, and `index.html` loaded it *before* `js/eatouts-regions.js` → `LOCATIONS_FILE` was frozen to Botswana for every region.
+  2. `js/eatouts-regions.js` had `active:false` for KE/MU/ZA, so `setActiveRegion()` refused them.
+  3. `EatoutsBridge.menuFor()` treated only ZW as "no demo menu", so KE/MU/ZA would have borrowed Botswana's demo dishes.
+  4. `venue-about.html` resolved `?link=` only against the active payload's slug/id and bounced to `index.html#restaurants` for brand keys, renamed branch slugs and anything in the local database; and `aboutParagraphs()` read only `rec.description`.
+- Files changed:
+  - `js/eatouts-regions.js`: KE, MU and ZA are `active:true` with their own `locale` + `locations` file; five live regions, MW/NG/GH still listed-only.
+  - `js/eatouts-locations.js`: file→global map (`LOCATIONS_GLOBALS`) read at build time, not load time; `ensure()` builds (and rebuilds, when the region file changes) on first use, so a late registry or a region switch can never serve another country's towns; `stats().loaded` follows the built file.
+  - `js/eatouts-region-data.js`: `PAYLOADS` gains ZA/KE/MU (`southafrica_runtime_data` → `SOUTH_AFRICA_RUNTIME_DATA`, etc.).
+  - `js/eatouts-bridge.js`: `menuFor()` inlines the demo menu for **Botswana only**; every other region returns the "menu not yet available" empty state instead of Botswana's dishes.
+  - `js/eatouts-empty-notice.js` (NEW, ~120 LOC): the one Eish card — 7 mascot images at 180px, 20-line copy pool, rotating cursor in `sessionStorage`, held for 1.5 s so a re-render/keystroke does not flicker the text.
+  - `index.html`: registry moved above the payload/locations scripts and the three new location files added; `#curPill` + `#ordCount` (and their CSS, `cycleCurrency`) removed; search/section empties and `directoryYetToListed()` now render the Eish card; `openRestAbout` passes the tapped venue's id (resolvable exactly) instead of a brand key.
+  - `search_screen.html`: same script order, the three location files, Eish card for a zero-result search.
+  - `EatOuts-Region.html`: renders only the five live regions, the current one first and the rest alphabetically, unselected rows at 40 % opacity but tappable; tapping switches `eatouts.region.v1` and hands off to `index.html#restaurants`; the "coming soon" card, its CSS hooks and its handlers are gone.
+  - `venue-about.html`: loads `js/eatouts-regions.js` before the payload and adds `js/eatouts-db.js`; `resolve()` falls back slug/id → brand key → slug prefix → the region-gated local database (via a `storedHit()` adapter that flattens `location`/`directory` into the payload-row shape); `aboutParagraphs()` reads `rec.description || rec.directory.description` before the generated line.
+  - `scripts/build_regional_directories.py` (NEW): builds `data/restaurant_listings/{kenya,mauritius,southafrica}_runtime_data.{json,js}` in the Zimbabwe envelope, pinning every row to that country's own gazetteer (KE 79/131 towns, MU 262/262, ZA 1 379/1 470 provinces+towns); ZA menus are inlined most-complete-first under a 1.5 MB budget (15 MB of scrape does not belong in one script).
+  - `data/restaurant_listings/{kenya,mauritius,southafrica}_runtime_data.*` (NEW, generated).
+  - `assets/images/notices/Eish (1-7).png`: the mascot art the notice uses.
+
+---
+
+- Tests:
+  - `tests/region-selector.js`: five live rows, selected-first ordering, 40 % opacity, no coming-soon card, switch + hand-off, registry accepts every live region and refuses MW.
+  - `tests/region-gating.js`: ZA/KE/MU selectable, `locationsFile()` follows the region, and a new check proves the adapter re-indexes when the region (and its late-loaded gazetteer) changes without a page reload.
+  - `tests/orders-list.js`: `index.html` dropped from `BADGE_PAGES` (its header is brand mark + search now).
+  - `tests/venue-about-menu.js`: the About target is the tapped venue's id or brand key (both resolve), never the flagship.
+  - `tests/_region-payload.js`: KE/MU/ZA payloads available to every harness.
+  - `tests/regional-directories.js` (NEW): envelope, `window.<GLOBAL>` wrapper, per-row region/currency, unique ids/slugs, every district+town present in the region's gazetteer, inline menus only, menu rows priced or described, payload size budget.
+  - `tests/venue-about-resolve.js` (NEW): slug, id, brand key and slug-prefix deep links resolve; an unknown link still bounces; the About card shows a South Africa venue's own description; a Botswana-only slug does not resolve in Zimbabwe.
+  - `tests/run-all.js`: registers both new suites.
+- Commit: `d2ff4e2` (app + payloads), `0d0da07` (tests)
+- Push: origin/main
+- Verified:
+  - `python scripts/build_regional_directories.py` → KE 131 listings / 13 279 menu items / 1.42 MB; MU 262 / 0.22 MB; ZA 1 470 listings / 10 142 menu items / 2.62 MB (0.49 MB gzipped).
+  - `node tests/regional-directories.js` → **REGIONAL-DIRECTORIES TEST PASSED**.
+  - `node tests/venue-about-resolve.js` → **VENUE-ABOUT-RESOLVE TEST PASSED** (11 checks).
+  - `node tests/region-selector.js`, `node tests/region-gating.js`, `node tests/venue-about-menu.js` → green.
+  - `node tests/run-all.js` → **84 passed, 0 failed**, exit 0.
+  - `npm run build` → exit 0, 86 items staged; `dist/data/restaurant_listings/` carries all five payloads and `dist/js/eatouts-empty-notice.js` ships.
+- Not verified:
+  - A real-browser walk-through of all five regions (tap-through, About on chain/flagship/onboarded venues, Eish rotation). jsdom proves the rendered HTML and state, not the painted layout.
+  - Home-screen/iPhone parse speed with the 2.6 MB South Africa payload (0.49 MB gzipped) — measured size only.
+- Notes:
+  - KE menu source data is degraded (its `category` repeats the dish name and sized dishes emit a "Small Medium Large" row); the generator keeps one "Menu" category, drops the artefact rows, strips the `sizes …` tail from descriptions and drops rows with no price and no description. 13 279 items survive.
+  - ZA town resolution maps the scrape's metro/suburb names onto municipality-level gazetteer towns (`Cape Town` → `City of Cape Town`, `Paarl` → `Drakenstein`, …); rows whose town cannot be resolved keep their province and an empty town rather than inventing a place.
+  - MU's source carries no menu items at all, so every Mauritian venue shows the existing "menu not yet available" state; 262/262 rows still resolve a town.
+  - Left out of the commit on purpose: the `assets/{Kenya,Mauritius,South Africa}/` raw scrapes (large local sources), the pre-existing BW payload regeneration and the pre-existing `assets/halaal-logos/` rename, none of which belong to this task.
+- Errors: none
+
+---
+
 
 ---
 
