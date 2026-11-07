@@ -44,10 +44,11 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;backgrou
   border:1px solid var(--line);border-radius:14px;text-align:left;font-family:inherit;cursor:pointer}
 .rs-item:active{transform:scale(.99)}
 .rs-item[aria-pressed="true"]{border-color:var(--green);box-shadow:0 0 0 1px var(--green)}
+/* Regions you are not in stay visible but recede — still tappable. */
+.rs-item[aria-pressed="false"]{opacity:.4}
 .rs-flag{flex:0 0 48px;width:48px;height:32px;border-radius:3px;object-fit:cover;border:1px solid var(--line);background:var(--paper)}
 .rs-name{flex:1 1 auto;min-width:0;font-size:16px;font-weight:900;color:var(--ink)}
 .rs-tag{flex:0 0 auto;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--green)}
-.rs-tag.is-soon{color:#a89a7e}
 .rs-empty{margin:18px 4px 0;text-align:center;font-size:13px;font-weight:700;color:var(--mute)}
 
 /* G3 floating popup - 420px / 80dvh / 16px, centred, plain X */
@@ -105,17 +106,6 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;backgrou
 
 </div>
 
-<div class="fpop-scrim" id="soonScrim" hidden>
-  <div class="fpop" role="dialog" aria-modal="true" aria-labelledby="soonTitle">
-    <div class="fpop-hdr">
-      <h3 id="soonTitle">This region is coming soon.</h3>
-      <button class="fpop-x" type="button" data-act="closeSoon" aria-label="Close">×</button>
-    </div>
-    <div class="fpop-body" id="soonBody">Botswana is the only region live today.</div>
-    <div class="fpop-foot"><button class="fpop-btn" type="button" data-act="closeSoon">Got it</button></div>
-  </div>
-</div>
-
 <script src="js/eatouts-back-history.js"></script>
 <script src="js/eatouts-regions.js"></script>
 <script>
@@ -126,8 +116,6 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;backgrou
   var listEl = document.getElementById('regionList');
   var searchEl = document.getElementById('regionSearch');
   var codeEl = document.getElementById('regionCode');
-  var scrim = document.getElementById('soonScrim');
-  var soonBody = document.getElementById('soonBody');
 
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -144,7 +132,7 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;backgrou
     return '<button class="rs-item" type="button" data-code="' + esc(r.code) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
       '<img class="rs-flag" src="assets/flags/' + esc(String(r.code).toLowerCase()) + '.png" alt="' + esc(r.name) + '" loading="lazy">' +
       '<span class="rs-name">' + esc(r.name) + '</span>' +
-      '<span class="rs-tag' + (r.active ? '' : ' is-soon') + '">' + (r.active ? 'Selected' : 'Coming soon') + '</span>' +
+      (on ? '<span class="rs-tag">Selected</span>' : '') +
     '</button>';
   }
 
@@ -155,35 +143,35 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;backgrou
     }
     var active = current();
     var term = String(q || '').trim().toLowerCase();
-    var rows = R.all().filter(function(r){
-      if (!term) return true;
-      return r.name.toLowerCase().indexOf(term) !== -1 || String(r.code).toLowerCase().indexOf(term) !== -1;
+    /* Every live region is selectable. The one you are in comes first, the
+       rest follow alphabetically. */
+    var rows = R.all().filter(function(r){ return !!r.active; }).sort(function(a, b){
+      var aOn = !!(active && active.code === a.code);
+      var bOn = !!(active && active.code === b.code);
+      if (aOn !== bOn) return aOn ? -1 : 1;
+      return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
     });
+    if (term){
+      rows = rows.filter(function(r){
+        return r.name.toLowerCase().indexOf(term) !== -1 || String(r.code).toLowerCase().indexOf(term) !== -1;
+      });
+    }
     codeEl.textContent = active ? active.code : '';
     listEl.innerHTML = rows.length
       ? rows.map(function(r){ return rowHtml(r, active); }).join('')
       : '<div class="rs-empty">No region matches "' + esc(term) + '".</div>';
   }
 
-  function openSoon(name){
-    soonBody.textContent = name + ' is not open yet. Botswana is the only region live today.';
-    scrim.hidden = false;
-    scrim.classList.add('open');
-  }
-  function closeSoon(){
-    scrim.classList.remove('open');
-    scrim.hidden = true;
-  }
-
-  /* tapping a row: the active region selects, anything else explains itself */
+  /* tapping a row switches region and drops the user into that region's
+     restaurants — the payload, currency and towns are chosen at page load, so
+     the switch has to be a navigation. */
   listEl.addEventListener('click', function(ev){
     var btn = ev.target.closest ? ev.target.closest('.rs-item') : null;
     if (!btn) return;
     var r = (R && R.get) ? R.get(btn.getAttribute('data-code')) : null;
-    if (!r) return;
-    if (!r.active){ openSoon(r.name); return; }
+    if (!r || !r.active) return;
     if (R.setActiveRegion) R.setActiveRegion(r.code);
-    render(searchEl.value);
+    window.location.href = 'index.html#restaurants';
   });
 
   /* bottom nav: the five house tabs */
@@ -198,15 +186,6 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;backgrou
   }
 
   searchEl.addEventListener('input', function(){ render(this.value); });
-
-  scrim.addEventListener('click', function(ev){
-    if (ev.target.closest('.fpop') && !ev.target.closest('.fpop-x') && !ev.target.closest('.fpop-btn')) return;
-    closeSoon();
-  });
-
-  document.addEventListener('keydown', function(ev){
-    if ((ev.key === 'Escape' || ev.keyCode === 27) && scrim.classList.contains('open')) closeSoon();
-  });
 
   render('');
 })();

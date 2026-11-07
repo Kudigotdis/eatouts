@@ -7,6 +7,12 @@
  *       -> window.DIRECTORY_RUNTIME_DATA
  *   ZW  /data/restaurant_listings/zimbabwe_runtime_data.{js,json}
  *       -> window.ZIMBABWE_RUNTIME_DATA
+ *   ZA  /data/restaurant_listings/southafrica_runtime_data.{js,json}
+ *       -> window.SOUTH_AFRICA_RUNTIME_DATA
+ *   KE  /data/restaurant_listings/kenya_runtime_data.{js,json}
+ *       -> window.KENYA_RUNTIME_DATA
+ *   MU  /data/restaurant_listings/mauritius_runtime_data.{js,json}
+ *       -> window.MAURITIUS_RUNTIME_DATA
  *
  * Only the active region's file is ever downloaded: index.html calls
  * injectSync() while the page is parsing, so a ZW user never fetches the
@@ -25,7 +31,10 @@
 
   var PAYLOADS = {
     BW: { globalName: "DIRECTORY_RUNTIME_DATA", file: "directory_runtime_data" },
-    ZW: { globalName: "ZIMBABWE_RUNTIME_DATA", file: "zimbabwe_runtime_data" }
+    ZW: { globalName: "ZIMBABWE_RUNTIME_DATA", file: "zimbabwe_runtime_data" },
+    ZA: { globalName: "SOUTH_AFRICA_RUNTIME_DATA", file: "southafrica_runtime_data" },
+    KE: { globalName: "KENYA_RUNTIME_DATA", file: "kenya_runtime_data" },
+    MU: { globalName: "MAURITIUS_RUNTIME_DATA", file: "mauritius_runtime_data" }
   };
 
   /* EatoutsRegions is the source of truth, but the payload is injected while

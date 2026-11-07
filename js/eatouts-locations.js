@@ -28,32 +28,56 @@
      whose file is not registered here (or has not loaded) leaves the indexes
      empty and every selector degrades to "Other / not listed" instead of
      offering another country's towns. */
-  var REGIONS = (typeof window !== 'undefined' && window.EatoutsRegions) || null;
-  var LOCATIONS_SOURCES = {
-    'botswana_locations.js': (typeof window !== 'undefined' && window.BOTSWANA_LOCATIONS_DATA) || null,
-    'zimbabwe_locations.js': (typeof window !== 'undefined' && window.ZIMBABWE_LOCATIONS_DATA) || null
+  /* File name -> the window global that file defines. The global is read when
+     the indexes are built, never at load time: a page that loads this adapter
+     before its location file still sees the data. */
+  var LOCATIONS_GLOBALS = {
+    'botswana_locations.js': 'BOTSWANA_LOCATIONS_DATA',
+    'zimbabwe_locations.js': 'ZIMBABWE_LOCATIONS_DATA',
+    'kenya_locations.js': 'KENYA_LOCATIONS_DATA',
+    'mauritius_locations.js': 'MAURITIUS_LOCATIONS_DATA',
+    'south_africa_locations.js': 'SOUTH_AFRICA_LOCATIONS_DATA'
   };
+
+  function dataset(file) {
+    if (!file || typeof window === 'undefined') return null;
+    var name = LOCATIONS_GLOBALS[file];
+    return (name && window[name]) || null;
+  }
   /* The registry is the source of truth. Without it (an old page, or the
      adapter on its own) Botswana's file is the historical default; a region the
-     registry maps to no file resolves to null. */
-  var LOCATIONS_FILE = (REGIONS && typeof REGIONS.locationsFile === 'function')
-    ? REGIONS.locationsFile()
-    : 'botswana_locations.js';
-  /* A region with no file of its own gets the index built from nothing, never
-     from another country's towns. */
-  var DATA = (LOCATIONS_FILE && LOCATIONS_SOURCES[LOCATIONS_FILE]) || null;
+     registry maps to no file resolves to null.
+
+     Resolved on every build, never once at load: a page that loads this adapter
+     before js/eatouts-regions.js used to snapshot "Botswana" forever. */
+  function locationsFile() {
+    var R = (typeof window !== 'undefined' && window.EatoutsRegions) || null;
+    if (R && typeof R.locationsFile === 'function') return R.locationsFile();
+    return 'botswana_locations.js';
+  }
 
   var OTHER_LABEL = 'Other / not listed';
 
-  /* ---------- indexes (built once) ---------- */
+  /* ---------- indexes (built once per region file) ---------- */
 
   var districts = [];
   var districtByCode = {};
   var districtByName = {};
   var townIndex = {};   /* lower town name -> [{district, town}] */
   var areaIndex = {};   /* lower area name -> [{district, town}] */
+  var builtFile = null; /* which file the current indexes came from */
 
-  if (DATA && Array.isArray(DATA.districts)) {
+  function build(file) {
+    var DATA = dataset(file);
+
+    districts = [];
+    districtByCode = {};
+    districtByName = {};
+    townIndex = {};
+    areaIndex = {};
+
+    if (!DATA || !Array.isArray(DATA.districts)) return;
+
     DATA.districts.forEach(function (d) {
       var district = {
         name: d.name,
@@ -89,10 +113,20 @@
     });
   }
 
+  /** Build the indexes for the active region the first time they are needed
+      (and again if the region file changes, e.g. a test switching region). */
+  function ensure() {
+    var file = locationsFile();
+    if (builtFile === file) return;
+    builtFile = file;
+    build(file);
+  }
+
   /* ---------- public API ---------- */
 
   /** All 28 districts, sorted by code. */
   function allDistricts() {
+    ensure();
     return districts.slice().sort(function (a, b) {
       return a.code < b.code ? -1 : a.code > b.code ? 1 : 0;
     });
@@ -109,6 +143,7 @@
 
   /** Towns within a district (by code). Empty array if unknown. */
   function towns(districtCode) {
+    ensure();
     var d = districtByCode[String(districtCode)];
     if (!d) return [];
     return d.towns.slice().sort(function (a, b) {
@@ -125,6 +160,7 @@
 
   /** Areas within a district+town. Empty array when the town has none. */
   function areas(districtCode, townName) {
+    ensure();
     var d = districtByCode[String(districtCode)];
     if (!d) return [];
     var t = null;
@@ -162,6 +198,7 @@
 
   /** Does this town actually exist in the source? */
   function townExists(districtCode, townName) {
+    ensure();
     if (!districtByCode[String(districtCode)]) return false;
     return towns(districtCode).some(function (t) {
       return String(t.name).toLowerCase() === String(townName).toLowerCase();
@@ -182,6 +219,7 @@
    * and downgrades rather than rejects when a level is unknown.
    */
   function resolve(districtCode, townName, area) {
+    ensure();
     var warnings = [];
     var out = {
       district: '',
@@ -226,6 +264,7 @@
    * Used by the customer-app location filter.
    */
   function search(query, limit) {
+    ensure();
     var q = String(query || '').trim().toLowerCase();
     var max = limit || 25;
     var out = [];
@@ -261,6 +300,7 @@
    * "Village / Town / City" filter.
    */
   function allTowns() {
+    ensure();
     var out = [];
     districts.forEach(function (d) {
       d.towns.forEach(function (t) {
@@ -280,6 +320,7 @@
 
   /** Distinct town names across all 28 districts. */
   function uniqueTownNames() {
+    ensure();
     var seen = {};
     var out = [];
     districts.forEach(function (d) {
@@ -295,6 +336,7 @@
 
   /** Distinct district names. */
   function uniqueDistrictNames() {
+    ensure();
     return districts.map(function (d) {
       return d.name;
     });
@@ -303,6 +345,7 @@
   /* ---------- stats, for the verification harness ---------- */
 
   function stats() {
+    ensure();
     var towns = 0;
     var areas = 0;
     var districtsNoAreas = [];
@@ -328,7 +371,7 @@
     });
 
     return {
-      loaded: !!DATA,
+      loaded: !!dataset(builtFile),
       districts: districts.length,
       towns: towns,
       areas: areas,

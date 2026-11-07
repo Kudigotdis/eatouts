@@ -53,8 +53,6 @@ img{display:block;max-width:100%}
 .hdr-right{margin-left:auto}
 /* T06: orders counter in the header right slot */
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:4px}
-.ord-count{border:0;background:transparent;padding:4px 6px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:.02em;color:#b9b1a2;cursor:pointer}
-.ord-count[hidden]{display:none}
 /* T-SEARCH: search icon in the header right slot */
 .hdr-search{border:0;background:transparent;padding:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;-webkit-tap-highlight-color:transparent}
 .hdr-search:active{background:#f4efe4}
@@ -651,6 +649,11 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 .menu-view .phead{padding-top:8px;padding-bottom:8px}
 .menu-view .phead h2{margin-bottom:0}
 .empty{padding:44px 20px;text-align:center;color:#a89a7e;font-size:12.5px;line-height:1.6}
+/* The Eish card: mascot + one line of copy (js/eatouts-empty-notice.js). */
+.empty-notice{padding:30px 22px 40px;text-align:center}
+.empty-notice img{display:block;width:180px;max-width:64%;height:auto;margin:0 auto 14px}
+.empty-notice-title{font-size:15px;font-weight:900;color:#1a1a1a;margin:0 0 6px;letter-spacing:-.01em}
+.empty-notice p{margin:0;font-size:13.5px;font-weight:700;line-height:1.55;color:#6b6353}
 
 /* ---------- PROMO FILTER BAR (rises above nav) ---------- */
 #filter-bar{flex:0 0 auto;background:#ffffff;border-top:1px solid #ece7db;position:relative;display:none}
@@ -959,10 +962,6 @@ a.dlg-btn{text-decoration:none}
 .locktitle{font-size:15px;font-weight:800;color:#1a1a1a}
 .lockp{margin:6px 0 12px;font-size:12.5px;line-height:1.5;color:#6b6353}
 .lockcard .btn.full{display:block;width:100%}
-/* Region currency switch (Zimbabwe only — hidden everywhere else). */
-.cur-pill{height:32px;padding:0 10px;border:1px solid #ece7db;border-radius:16px;background:#faf8f2;font:inherit;font-size:12px;font-weight:800;color:#3a3324;letter-spacing:.01em;white-space:nowrap;cursor:pointer}
-.cur-pill:active{background:#f1ece1}
-.cur-pill[hidden]{display:none}
 /* Centred "menu not yet available" notice, reusing the dialog shell. */
 .menu-empty-card{margin:4px 0 16px;padding:22px 18px;border:1px solid #f1ece1;border-radius:18px;background:#fffdf7;text-align:center}
 .menu-empty-card h3{margin:0;font-size:17px;font-weight:800;color:#1a1a1a}
@@ -974,8 +973,6 @@ a.dlg-btn{text-decoration:none}
   <header id="hdr" data-act="closePickers">
     <button class="brand-mark" type="button" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
     <div class="hdr-right">
-      <button class="cur-pill" type="button" id="curPill" data-act="cycleCurrency" aria-label="Switch currency" hidden>$ USD</button>
-      <button class="ord-count" type="button" id="ordCount" data-act="ordersCount" aria-label="Your orders" hidden>0</button>
       <button class="hdr-search" type="button" data-act="openSearchScreen" aria-label="Search EatOuts">
         <img src="assets/icons/search_icon.webp" alt="Search">
       </button>
@@ -999,12 +996,18 @@ a.dlg-btn{text-decoration:none}
 <script src="/data/CateringServicesDatabase.js?v=20261021"></script>
 <script src="/data/bakery_services_database.js?v=20261021"></script>
 <script src="js/bakery-types.js?v=20261101"></script>
+<!-- The region registry loads FIRST: the payload, the location selectors and
+     currency all read the active region, and a page that resolved them once at
+     load time froze Botswana for every other country. -->
+<script src="js/eatouts-regions.js"></script>
 <script src="js/eatouts-region-data.js"></script>
-<!-- Both location files ship as plain scripts; js/eatouts-locations.js reads
-     only the active region's global, so the selectors never mix the two
-     countries' towns. -->
+<!-- Every location file ships as a plain script; js/eatouts-locations.js reads
+     only the active region's global, so the selectors never mix countries. -->
 <script src="botswana_locations.js"></script>
 <script src="assets/Zimbabwe/zimbabwe_locations.js"></script>
+<script src="assets/Kenya/Kenya_Locations.js"></script>
+<script src="assets/Mauritius/Mauritius_Locations.js"></script>
+<script src="assets/South Africa/South_Africa_Locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-brand.js"></script>
 <script src="js/eatouts-bottle-stores.js"></script>
@@ -1020,7 +1023,7 @@ a.dlg-btn{text-decoration:none}
 <script src="js/eatouts-slug.js"></script>
 <script src="js/eatouts-router.js"></script>
 <script src="js/eatouts-analytics.js"></script>
-<script src="js/eatouts-regions.js"></script>
+<script src="js/eatouts-empty-notice.js"></script>
 <script src="js/eatouts-currency.js"></script>
 <script>
 /* Only the active region's directory payload is downloaded: BW users never
@@ -5526,7 +5529,7 @@ function buildRestaurantsHTML(){
   let h='<div class="scroll">';
 
   if(!rows.length){
-    h+='<div class="empty">No restaurants match your search.</div>';
+    h+=emptyNoticeHtml();
     h+='</div>';
     return h;
   }
@@ -5723,7 +5726,12 @@ function directoryRegionName(){
   }catch(e){return "your region";}
 }
 function directoryYetToListed(label){
-  return '<div class="empty"><strong>'+esc(label+' in '+directoryRegionName()+' are yet to be listed.')+'</strong><br>We are onboarding local businesses. Please check back soon.</div>';
+  return emptyNoticeHtml({message: label+' in '+directoryRegionName()+' are yet to be listed. We are onboarding local businesses — check back soon.'});
+}
+/** The Eish card every empty state uses; degrades to plain text without the script. */
+function emptyNoticeHtml(opts){
+  const N=window.EatoutsEmptyNotice;
+  return (N&&typeof N.html==="function") ? N.html(opts||{}) : '<div class="empty">Nothing to show here yet.</div>';
 }
 
 /* ================================================================
@@ -10263,7 +10271,7 @@ document.addEventListener("click",function(e){
 if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMenuAccordions();return;}
   if(act==="openRestView"){const bid=id;const brand=t.getAttribute("data-brand")||state.restaurantOpen||bid;state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:t.getAttribute("data-view")||"menu",promoId:null};state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   /* Restaurant-Card name/tagline tap: open the venue information page. */
-  if(act==="openRestAbout"){const rid=id||(state.restaurantView&&state.restaurantView.id);if(!rid)return;const brand=(state.restaurantView&&state.restaurantView.brand)||state.restaurantOpen||rid;gotoVenueAbout(brand);return;}
+  if(act==="openRestAbout"){const rid=id||(state.restaurantView&&state.restaurantView.id)||state.restaurantOpen;if(!rid)return;gotoVenueAbout(rid);return;}
   if(act==="openRestFromSearch"){const bid=id;const brand=t.getAttribute("data-brand")||bid;state.restTypePicker=false;state.restTypeSearch="";state.restaurantOpen=brand;state.restaurantView={id:bid,brand:brand,view:"menu",promoId:null};state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;if(hasBridge())EatoutsBridge.setActive(bid);render();return;}
   if(act==="backFromRestView"){resetSeoMeta();state.restaurantView=null;state.restaurantOpen=null;state.menuCat=null;state.menuOpen=null;state.checkoutView=false;state.splitOpen=false;state.splitPeople=[];state.splitAssign={};state.restLocPicker=null;state.restNotice=null;state.delivery=null;render();return;}
   /* Promos on an expanded restaurant row opens the Gallery tab scoped to
@@ -10295,7 +10303,6 @@ if(act==="toggleVenueMenu"){state.venueMenuOpen=!state.venueMenuOpen;syncVenueMe
   }
   if(act==="dismissRestNotice"){if(restNoticeTimer)clearTimeout(restNoticeTimer);state.restNotice=null;render();return;}
 if(act==="dismissMenuNotice"){state.menuNotice=(state.restaurantView&&state.restaurantView.id)||null;render();return;}
-if(act==="cycleCurrency"){if(window.EatoutsCurrency)EatoutsCurrency.cycle();render();return;}
   if(act==="openRestLocPicker"){
     const brand=t.getAttribute("data-brand")||"";
     const axis=t.getAttribute("data-axis")||"town";

@@ -409,7 +409,7 @@
       return unflattenMenu(content);
     }
     var M = window.EatoutsMenus;
-    var zimbabwe = regionOf(r) === 'ZW';
+    var demoAllowed = regionOf(r) === 'BW';
     if (M) {
       var key = brandKeyOf(r);
       var town = (r.location && r.location.town) || '';
@@ -422,12 +422,12 @@
       if (override && override.length) return override;
       var imported = menus ? menus[key] : null;
       if (imported && imported.length) return imported;
-      /* Zimbabwe has no shared template of its own, so an unmapped brand
-         returns an empty menu and the app shows "menu not yet available"
-         instead of borrowing the Botswana demo menu. */
-      if (!zimbabwe && M.demo && M.demo.length) return M.demo;
+      /* Only Botswana has a shared demo menu. Every other region — Zimbabwe,
+         Kenya, Mauritius, South Africa — shows "menu not yet available" for an
+         unmapped brand instead of borrowing Botswana's demo dishes. */
+      if (demoAllowed && M.demo && M.demo.length) return M.demo;
     }
-    if (zimbabwe) return [];
+    if (!demoAllowed) return [];
     return unflattenMenu(content);
   }
 

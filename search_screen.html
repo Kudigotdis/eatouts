@@ -104,6 +104,11 @@ img{display:block;max-width:100%}
 
 /* ---------- EMPTY / LOADING ---------- */
 .empty{padding:60px 24px;text-align:center;color:#a89a7e;font-size:14px;line-height:1.5}
+/* The Eish card: mascot + one line of copy (js/eatouts-empty-notice.js). */
+.empty-notice{padding:30px 22px 40px;text-align:center}
+.empty-notice img{display:block;width:180px;max-width:64%;height:auto;margin:0 auto 14px}
+.empty-notice-title{font-size:15px;font-weight:900;color:#1a1a1a;margin:0 0 6px;letter-spacing:-.01em}
+.empty-notice p{margin:0;font-size:13.5px;font-weight:700;line-height:1.55;color:#6b6353}
 .empty-title{font-size:17px;font-weight:900;color:#1a1a1a;margin-bottom:8px;letter-spacing:-.01em}
 .empty p{margin:0;color:#8a8170}
 
@@ -175,11 +180,17 @@ img{display:block;max-width:100%}
 <script src="/data/CateringServicesDatabase.js?v=20261021"></script>
 <script src="/data/bakery_services_database.js?v=20261021"></script>
 <script src="/data/venue_about_info.js"></script>
+<!-- Region registry first: the payload, the location selectors and currency
+     all read the active region. -->
+<script src="js/eatouts-regions.js"></script>
 <script src="js/eatouts-region-data.js"></script>
-<!-- Both location files ship as plain scripts; js/eatouts-locations.js reads
+<!-- Every location file ships as a plain script; js/eatouts-locations.js reads
      only the active region's global. -->
 <script src="botswana_locations.js"></script>
 <script src="assets/Zimbabwe/zimbabwe_locations.js"></script>
+<script src="assets/Kenya/Kenya_Locations.js"></script>
+<script src="assets/Mauritius/Mauritius_Locations.js"></script>
+<script src="assets/South Africa/South_Africa_Locations.js"></script>
 <script src="js/eatouts-locations.js"></script>
 <script src="js/eatouts-brand.js"></script>
 <script src="js/eatouts-bottle-stores.js"></script>
@@ -195,7 +206,7 @@ img{display:block;max-width:100%}
 <script src="js/eatouts-slug.js"></script>
 <script src="js/eatouts-router.js"></script>
 <script src="js/eatouts-analytics.js"></script>
-<script src="js/eatouts-regions.js"></script>
+<script src="js/eatouts-empty-notice.js"></script>
 <script>
 /* Only the active region's directory payload is downloaded. */
 EatoutsRegionData.injectSync();
@@ -704,7 +715,9 @@ EatoutsRegionData.injectSync();
 
     if (!items.length){
       if (state.query.trim()){
-        el.innerHTML = '<div class="empty"><div class="empty-title">No matches</div><p>Try a different search or clear your filters.</p></div>';
+        el.innerHTML = window.EatoutsEmptyNotice
+          ? window.EatoutsEmptyNotice.html()
+          : '<div class="empty"><div class="empty-title">No matches</div><p>Try a different search or clear your filters.</p></div>';
       } else {
         el.innerHTML = '<div class="empty"><div class="empty-title">Search EatOuts</div><p>Find restaurants, promos, events, bottle stores, catering and more.</p></div>';
       }

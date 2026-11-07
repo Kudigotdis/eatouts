@@ -743,13 +743,17 @@
   }
 </style>
 <script src="js/eatouts-brand.js"></script>
+<!-- The region registry must load before anything that reads the active region
+     (the payload, the local database, currency). -->
+<script src="js/eatouts-regions.js"></script>
 <script src="js/eatouts-region-data.js"></script>
 <script>
-/* The active region's directory payload — Botswana's or Zimbabwe's — so a
-   ZW venue resolves against the ZW listings. */
+/* The active region's directory payload — Botswana's, Zimbabwe's, Kenya's,
+   Mauritius' or South Africa's — so a venue resolves against its own listings. */
 EatoutsRegionData.injectSync();
 </script>
 <script src="js/eatouts-currency.js"></script>
+<script src="js/eatouts-db.js"></script>
 <script src="/data/BottleLliquorStoresDatabase.js"></script>
 <script src="js/eatouts-bottle-stores.js"></script>
 <script src="/data/CateringServicesDatabase.js"></script>
@@ -1005,6 +1009,48 @@ EatoutsRegionData.injectSync();
     return null;
   }
 
+  function payloadHit(r, s) {
+    var rs = String(r.slug || '').toLowerCase();
+    return { kind: 'restaurant', slug: rs || s, name: r.name || s, logo: r.logo || null, record: r, branch: null };
+  }
+
+  /* A venue taken from the local database (the seed roster, the flagship, or
+     anything onboarded in the app) stores its address book under `directory`
+     and its place under `location`; flatten it into the payload-row shape the
+     rest of this page reads. */
+  function storedHit(rec, s) {
+    var loc = rec.location || {};
+    var dirInfo = rec.directory || {};
+    return {
+      kind: 'restaurant',
+      slug: rec.slug || s,
+      name: rec.name || s,
+      logo: rec.logo || null,
+      record: {
+        id: rec.id,
+        slug: rec.slug,
+        name: rec.name,
+        brandKey: rec.brandKey || null,
+        region: rec.region,
+        town: loc.town || '',
+        district: loc.district || '',
+        districtName: loc.districtName || '',
+        area: loc.area || '',
+        landmark: rec.landmark || '',
+        types: rec.types || [],
+        category: (rec.types && rec.types[0]) || '',
+        logo: rec.logo || null,
+        description: rec.description || dirInfo.description || '',
+        website: dirInfo.website || '',
+        addresses: dirInfo.addresses || [],
+        contacts: (rec.contacts && rec.contacts.length ? rec.contacts : dirInfo.contacts) || [],
+        socials: (rec.socials && rec.socials.length ? rec.socials : dirInfo.socials) || [],
+        sources: dirInfo.sources || []
+      },
+      branch: null
+    };
+  }
+
   function resolve(s) {
     if (!s) return null;
     var target = canon(s);
@@ -1015,7 +1061,38 @@ EatoutsRegionData.injectSync();
       var rs = String(r.slug || '').toLowerCase();
       var rid = String(r.id || '').toLowerCase();
       if (rs === s || rid === s || canon(rs) === target || canon(rid) === target) {
-        return { kind: 'restaurant', slug: rs || s, name: r.name || s, logo: r.logo || null, record: r, branch: null };
+        return payloadHit(r, s);
+      }
+    }
+
+    /* The payload keeps one row per branch, so a chain's brand key ("kfc") and
+       a branch slug spelled differently ("kfc-maun") both point at a row that is
+       already loaded: resolve them to that row instead of bouncing the visitor
+       back to the directory. */
+    for (var b = 0; b < dir.length; b++) {
+      var rb = dir[b] || {};
+      if (rb.brandKey && canon(rb.brandKey) === target) return payloadHit(rb, s);
+    }
+    for (var p = 0; p < dir.length; p++) {
+      var rp = dir[p] || {};
+      var rslug = canon(rp.slug);
+      if (rslug.length >= 3 && target.indexOf(rslug) === 0) return payloadHit(rp, s);
+    }
+
+    /* Finally the local database: roster rows, the flagship and onboarded
+       venues are not in the payload at all. Region-gated, so a Botswana-only row
+       never answers a Zimbabwe deep link. */
+    var DB = window.EatoutsDB;
+    if (DB && typeof DB.load === 'function') {
+      var stored = (DB.load() || {}).restaurants || [];
+      var Reg = window.EatoutsRegions;
+      for (var d = 0; d < stored.length; d++) {
+        var rec = stored[d] || {};
+        if (Reg && typeof Reg.inActiveRegion === 'function' && !Reg.inActiveRegion(rec)) continue;
+        if (canon(rec.id) === target || canon(rec.slug) === target ||
+            canon(rec.name) === target || String(rec.slug || '').toLowerCase() === s) {
+          return storedHit(rec, s);
+        }
       }
     }
 
@@ -1962,7 +2039,11 @@ EatoutsRegionData.injectSync();
     else if (typeof e.about === 'string' && e.about) paras = [e.about];
     if (paras.length) return paras;
     var rec = biz.record || {}, br = biz.branch || {};
-    if (rec.description) return [rec.description];
+    /* The directory row keeps its prose at `description`; a venue from the local
+       database keeps it in `directory.description`. Either is the venue's own
+       words, so it wins over the generated line below. */
+    var prose = rec.description || (rec.directory && rec.directory.description) || br.description || '';
+    if (prose) return [prose];
     var kinds = ((rec.types && rec.types.length) ? rec.types : (rec.category ? [rec.category] : [])).filter(Boolean);
     var place = [rec.area || br.area, rec.town || br.town].filter(Boolean).join(', ');
     return [biz.name + (kinds.length ? ' \u2014 ' + kinds.join(' \u00b7 ') : '') + (place ? ' in ' + place + '.' : '.')];
