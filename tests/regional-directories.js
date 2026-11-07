@@ -42,7 +42,7 @@ const REGIONS = {
   KE: { file: 'kenya_runtime_data', global: 'KENYA_RUNTIME_DATA', currency: 'KES',
         locations: 'assets/Kenya/Kenya_Locations.js', budget: 2.0 },
   MU: { file: 'mauritius_runtime_data', global: 'MAURITIUS_RUNTIME_DATA', currency: 'MUR',
-        locations: 'assets/Mauritius/Mauritius_Locations.js', budget: 1.0 },
+        locations: 'assets/Mauritius/Mauritius_Locations.js', budget: 2.5 },
   ZA: { file: 'southafrica_runtime_data', global: 'SOUTH_AFRICA_RUNTIME_DATA', currency: 'ZAR',
         locations: 'assets/South Africa/South_Africa_Locations.js', budget: 3.2 }
 };
@@ -139,7 +139,7 @@ Object.keys(REGIONS).forEach(code => {
   });
   check(code + ' every menu row has a name, a category and a price, variants or description',
     !badRow, badRow);
-  check(code + ' menus carry real items', menuRowCount > 0 || code === 'MU', menuRowCount);
+  check(code + ' menus carry real items', menuRowCount > 0, menuRowCount);
 
   const mb = fs.statSync(jsonPath).size / 1048576;
   check(code + ' payload stays inside the mobile budget', mb < spec.budget, mb.toFixed(2) + ' MB');

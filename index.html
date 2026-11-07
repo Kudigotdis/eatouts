@@ -8238,6 +8238,17 @@ function restaurantCard(r,showHalaal){
     (halaal?halaalBadgeHtml(' data-act="openHalaalPopup"','halaal-badge-card'):'')+
   '</div>';
 }
+/* A scraped menu can arrive as one unnamed "Menu" bucket — Kenya's scrape has
+   no section names at all. Show something meaningful there (the venue's own
+   name) instead of the generic word, so the card reads "Amigos · 24 items"
+   rather than "Menu · 24 items". */
+function menuCatLabel(cat){
+  const name=String((cat&&cat.name)||"").trim();
+  if(name&&!/^(menu|main|main menu|full menu|items|all items|food|other|misc)$/i.test(name))return name;
+  const single=curMenu().length<=1;
+  const venue=single?curRestaurantName():"";
+  return venue||(single?"Full Menu":"Other");
+}
 function renderMenuCategories(noWrap){
   const M=curMenu();
   let h=noWrap?"":'<div class="scroll">';
@@ -8247,7 +8258,7 @@ function renderMenuCategories(noWrap){
     h+='<div class="cat-wrap">'+
       '<button class="cat-row" data-act="openCat" data-id="'+c.id+'">'+
       '<div class="cat-ico'+(cth?" has-thumb":"")+'" style="'+artStyle(c.id)+'">'+(cth?'<img src="'+esc(cth)+'" alt="">':c.icon)+'</div>'+
-      '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div>'+
+      '<div class="minfo"><div class="cat-name">'+esc(menuCatLabel(c))+'</div>'+
       '<div class="cat-meta">'+c.items.length+' items</div></div></button>'+
       '</div>';
   });
@@ -8263,13 +8274,13 @@ function renderMenuCategory(){
   if(!cat)return '<div class="empty">Category not found.</div>';
   let h='<div class="scroll menu-view">';
   h+=restaurantCard();
-  h+='<div class="phead"><h2>'+esc(cat.name)+'</h2><p>'+cat.items.length+' items</p></div>';
+  h+='<div class="phead"><h2>'+esc(menuCatLabel(cat))+'</h2><p>'+cat.items.length+' items</p></div>';
   if(cat.note) h+='<div class="pad" style="padding-top:0;padding-bottom:0"><div class="ctr"><div class="lbl"><em style="margin:0">'+esc(cat.note)+'</em></div></div></div>';
   cat.items.forEach(it=>{
     const open=state.menuOpen===it[0];
     const sizes=itemSizes(it);
     h+='<div class="mitem'+(open?" open":"")+'" data-macc="'+it[0]+'">';
-    h+=favButton("item",activeRestId()+":"+it[0],{title:it[1],subtitle:curRestaurantName(),price:itemSizes(it)[0][1],imageRef:menuPhoto(it[1],it[0]-1),venueId:activeRestId(),payload:{menu:cat.name}},"Save");
+    h+=favButton("item",activeRestId()+":"+it[0],{title:it[1],subtitle:curRestaurantName(),price:itemSizes(it)[0][1],imageRef:menuPhoto(it[1],it[0]-1),venueId:activeRestId(),payload:{menu:menuCatLabel(cat)}},"Save");
     h+='<button class="mrow" data-act="toggleItem" data-id="'+it[0]+'" aria-expanded="'+(open?"true":"false")+'">'+
       '<div class="mthumb">'+imgTag(menuPhoto(it[1],it[0]-1),it[1])+'</div>'+
       '<div class="minfo"><div class="mtitle">'+esc(it[1])+'</div>'+
@@ -10081,7 +10092,7 @@ document.addEventListener("click",function(e){
     const r=hasBridge()?EatoutsBridge.byId(rid):null;const s=favStore();
     if(!r||!s||!s.getUser()){if(confirm("Sign in to save a summary. Continue to sign in?"))location.href="eatouts-login.html";return;}
     const items=[];
-    curMenu().forEach(function(c){c.items.forEach(function(it){const sz=itemSizes(it)[0];items.push({name:it[1],price:sz[1]||0,size:sz[0]||null,menu:c.name});});});
+    curMenu().forEach(function(c){c.items.forEach(function(it){const sz=itemSizes(it)[0];items.push({name:it[1],price:sz[1]||0,size:sz[0]||null,menu:menuCatLabel(c)});});});
     const total=items.reduce(function(x,i){return x+(Number(i.price)||0);},0);
     s.summaries.add({orderRef:r.id,venueName:r.name,venueLogo:r.logo||null,itemCount:items.length,total:total,source:"menu",payload:{items:items,total:total,venueName:r.name}});
     alert("Summary saved to your account.");

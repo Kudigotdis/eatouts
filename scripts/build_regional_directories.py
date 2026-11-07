@@ -443,6 +443,28 @@ MU_TOWN_ALIAS = {
 }
 
 
+def mauritius_menu(item) -> list:
+    """restaurants.json menu sections -> [{category, name, price, description}].
+
+    ordermanzer ships a real sectioned menu ("Starters", "Value Box", ...), so
+    unlike Kenya the section name is a trustworthy heading and is kept.
+    """
+    out = []
+    for section in item.get("menu") or []:
+        category = clean_text((section or {}).get("name")) or "Menu"
+        for entry in (section or {}).get("items") or []:
+            name = clean_text(entry.get("name"))
+            price = parse_amount(entry.get("price"))
+            if not name or price is None:
+                continue            # nothing to order
+            row_item = {"category": category, "name": name, "price": price}
+            description = shorten(entry.get("description"), 320)
+            if description:
+                row_item["description"] = description
+            out.append(row_item)
+    return out
+
+
 def build_mauritius() -> str:
     spec = SPEC_MU
     gaz = Gazetteer(ROOT / "assets" / "Mauritius" / "Mauritius_Locations.js")
@@ -451,6 +473,7 @@ def build_mauritius() -> str:
     restaurants, menu_files, menus_raw = [], {}, {}
     used = set()
     resolved = 0
+    menu_venues = 0
 
     for item in source:
         name = clean_text(item.get("name"))
@@ -469,6 +492,12 @@ def build_mauritius() -> str:
             resolved += 1
 
         slug = unique_slug(name, used, town)
+
+        menu = mauritius_menu(item)
+        if menu:
+            menus_raw[slug] = {"menu": menu}
+            menu_files[slug] = "inline"
+            menu_venues += 1
 
         areas = []
         for area in item.get("delivery_areas") or []:
@@ -495,7 +524,9 @@ def build_mauritius() -> str:
         ))
 
     report = write_payload(spec, restaurants, menu_files, menus_raw, {})
-    return report + " | towns resolved %d/%d, no menu data in source" % (resolved, len(restaurants))
+    return report + " | towns resolved %d/%d, menus %d" % (
+        resolved, len(restaurants), menu_venues,
+    )
 
 
 # The dining-out hierarchy is inconsistent: some rows are [province, city, suburb,
