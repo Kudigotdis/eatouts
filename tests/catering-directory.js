@@ -190,7 +190,10 @@ try {
   const cbar = d2.getElementById('cbar');
   check('catering filter bar hidden by default', !cbar.classList.contains('on') && !cbar.querySelector('.rest-filter-controls'));
   d2.querySelector('[data-tab="restaurants"]').click();
-  check('2nd Restaurants tap opens the catering filter bar',
+  check('2nd Restaurants tap leaves the catering filter bar closed',
+    ev2('state.cateringFilterOpen') === false && !cbar.classList.contains('on'), ev2('state.cateringFilterOpen'));
+  d2.getElementById('hdrFilter').click();
+  check('header filter button opens the catering filter bar',
     ev2('state.cateringFilterOpen') === true && cbar.classList.contains('on'), ev2('state.cateringFilterOpen'));
   check('catering bar uses the shared renderFilterBar', !!cbar.querySelector('.rest-filter-controls'));
   check('catering search input renders', !!cbar.querySelector('#cateringSearch'));
@@ -208,8 +211,8 @@ try {
   check('catering search filters the list',
     ev2('(function(){state.cateringQuery="zzzznotacaterer";var n=filteredCateringBrands().length;state.cateringQuery="";return n===0;})()'));
   check('clearing the search restores the list', ev2('filteredCateringBrands().length') > 0, ev2('filteredCateringBrands().length'));
-  d2.querySelector('[data-tab="restaurants"]').click();
-  check('2nd tap hides the catering filter bar again',
+  d2.getElementById('hdrFilter').click();
+  check('header filter button hides the catering filter bar again',
     ev2('state.cateringFilterOpen') === false && !cbar.classList.contains('on'), ev2('state.cateringFilterOpen'));
   check('index.html booted without errors for the filter-bar probe', bootErrors.length === 0, bootErrors.slice(0, 2).join(' | '));
 } catch (e) {

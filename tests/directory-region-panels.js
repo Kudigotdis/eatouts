@@ -162,6 +162,8 @@ check('a missing payload never leaks a Botswana venue',
 
 check('no runtime errors (Botswana)', bw.errors.length === 0, bw.errors.join(' | '));
 
+if (global.gc) { global.gc(); global.gc(); }
+console.log('HEAP end: ' + Math.round(process.memoryUsage().heapUsed / 1048576) + 'MB');
 console.log('');
 console.log(fails === 0 ? 'DIRECTORY REGION PANELS TEST PASSED' : 'DIRECTORY REGION PANELS TEST FAILED (' + fails + ')');
 process.exit(fails === 0 ? 0 : 1);

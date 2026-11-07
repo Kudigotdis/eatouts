@@ -225,9 +225,9 @@ setTimeout(() => {
   click(doc.querySelector('[data-tab="restaurants"]'));
   ev('state.restPanel="beverages";state.bevView=null;state.tab="restaurants";render()');
 
-  /* ---- town / area filter bar (2nd Restaurants tap) ---- */
-  click(doc.querySelector('[data-tab="restaurants"]'));
-  check('2nd Restaurants tap opens the store filter bar', ev('state.bevFilterOpen') === true);
+  /* ---- town / area filter bar (explicit header filter button) ---- */
+  click(doc.getElementById('hdrFilter'));
+  check('header filter button opens the store filter bar', ev('state.bevFilterOpen') === true);
   const cbar = doc.getElementById('cbar');
   check('filter bar has a live search box', !!cbar.querySelector('#bottleSearch'));
   click(cbar.querySelector('[data-act="openBottleTownFilter"]'));

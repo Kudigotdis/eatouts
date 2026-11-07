@@ -1,3 +1,13 @@
+/* The app is one big single page and this suite renders nearly all of it, so
+   jsdom needs more than node's default ~2GB old space - the final food-panel
+   render dies with "Ineffective mark-compacts near heap limit". Re-exec once
+   with a bigger heap; the flag in execArgv stops the loop. */
+if (process.execArgv.join(' ').indexOf('max-old-space-size') === -1) {
+  const { spawnSync } = require('child_process');
+  const run = spawnSync(process.execPath, ['--max-old-space-size=4096', __filename], { stdio: 'inherit' });
+  process.exit(run.status === null ? 1 : run.status);
+}
+
 const fs = require('fs');
 const path = require('path');
 const { JSDOM, VirtualConsole } = require(path.join(__dirname, 'node_modules', 'jsdom'));

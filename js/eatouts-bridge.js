@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    EATOUTS BRIDGE
    Translates between index.html's runtime shapes and the
    normalised v2 content stored in localStorage.
@@ -67,13 +67,13 @@
     var byCat = {};
     (content.menuCategories || []).forEach(function (c) {
       byCat[c.id] = {
-        id: c.id, name: c.name, icon: c.icon || '🍽',
+        id: c.id, name: c.name, icon: c.icon || 'ðŸ½',
         note: c.note || '', items: []
       };
     });
     (content.menuItems || []).forEach(function (it) {
       var c = byCat[it.categoryId];
-      if (!c) { c = byCat[it.categoryId] = { id: it.categoryId, name: it.categoryId, icon: '🍽', note: '', items: [] }; }
+      if (!c) { c = byCat[it.categoryId] = { id: it.categoryId, name: it.categoryId, icon: 'ðŸ½', note: '', items: [] }; }
       var variantPrice = it.variants && it.variants.length ? it.variants[0].price : null;
       c.items.push([it.id, it.name, it.description || '', it.price != null ? it.price : (variantPrice != null ? variantPrice : it.basePrice), it.extras || []]);
     });
@@ -206,7 +206,7 @@
 
   function all() {
     var list = DB.byLastActive(db());
-    /* T22 step 3 — the region gate. Every directory, menu and promo surface in
+    /* T22 step 3 â€” the region gate. Every directory, menu and promo surface in
        index.html reads venues through this one function, so filtering here
        covers them all. Records saved before gating carry no `region` and read
        as BW (EatoutsRegions.recordRegion), so nothing disappears today. */
@@ -249,21 +249,58 @@
    * remaps (Nando's -> nandos, ...), then the name slug (Wimpy -> wimpy
    * even when the slug is wimpy-orapa), then the slug itself.
    */
-  function brandKeyOf(r) {
-    if (!r) return null;
-    /* Directory rows state their brand outright: Zimbabwe ships brandKey so a
-       chain's Harare and Bulawayo rows both resolve the same menu. */
-    if (r.brandKey) return String(r.brandKey);
-    var slug = String(r.slug || '');
-    var alias = BRAND_ALIAS[slug];
-    if (alias) return alias;
-    var nameSlug = Brand ? (Brand.slugify ? Brand.slugify(r.name || slug) : slug) : slug;
-    var canonical = Brand && typeof Brand.canonicalKey === 'function' ? Brand.canonicalKey(slug) : slug;
-    if (canonical && canonical !== slug) return canonical;
-    if (nameSlug && nameSlug !== slug) return nameSlug;
-    return slug;
+function brandKeyOf(r) {
+  if (!r) return null;
+  var name = String(r.name || '').toLowerCase();
+  var key = String(r.brandKey || '').toLowerCase();
+  var KNOWN = {
+    "ocean basket": "ocean-basket", "spur": "spur", "mugg & bean": "mugg-bean", "mugg and bean": "mugg-bean",
+    "panarottis": "panarottis", "simply asia": "simply-asia", "nando": "nandos", "chicken inn": "chicken-inn",
+    "bakers inn": "bakers-inn", "hungry lion": "hungry-lion", "java house": "java-house", "artcaffe": "artcaffe",
+    "chopit express": "chopit-express", "mbuzi munch": "mbuzi-munch", "blue room": "blue-room", "munch": "munch",
+    "snack attack": "snack-attack", "lakers chicken": "lakers-chicken", "mcdonald": "mcdonalds", "kfc": "kfc",
+    "steers": "steers", "pizza inn": "pizza-inn", "pizza hut": "pizza-hut", "creamy inn": "creamy-inn",
+    "chicken slice": "chicken-slice", "jojo": "jojos", "sushi box": "sushi-box", "taste of asia": "taste-of-asia",
+    "potato chef": "potato-chef", "tacos & co": "tacos-co", "sausage saloon": "sausage-saloon", "la parada": "la-parada",
+    "the hussar grill": "the-hussar-grill", "doppio zero": "doppio-zero", "cattle baron": "cattle-baron",
+    "colcacchio": "colcacchio", "col'cacchio": "colcacchio", "tashas": "tashas", "news cafe": "news-cafe",
+    "jimmy's killer prawns": "jimmys-killer-prawns", "brazen head": "the-brazen-head", "buffalo creek spur": "spur",
+    "buffalo hills spur": "spur", "buffalo ridge spur": "spur", "running buffalo spur": "spur", "amazon spur": "spur",
+    "7 eagles spur": "spur", "apache peak spur": "spur", "arrow creek spur": "spur", "casdena spur": "spur",
+    "clear waters spur": "spur", "eagle ridge spur": "spur", "key largo spur": "spur", "lone star spur": "spur",
+    "nashville spur": "spur", "rapid river spur": "spur", "soaring falcon spur": "spur", "tuscarora spur": "spur",
+    "wykato spur": "spur", "yellowstone spur": "spur", "desert wolf spur": "spur", "apalachee spur": "spur",
+    "red oak spur": "spur", "cape town fish market": "cape-town-fish-market", "fournos bakery": "fournos-bakery",
+    "rocomamas": "rocomamas", "tiger's milk": "tiger-s-milk", "tiger milk": "tiger-s-milk", "mozambik": "mozambik",
+    "primi": "primi", "mikes kitchen": "mikes-kitchen", "john dory's": "john-dorys", "bunny burger": "bunny-burger",
+    "pizza time": "pizza-time", "namo india": "namo-india", "flavor's of paradise": "flavors-of-paradise",
+    "flavors of paradise": "flavors-of-paradise", "chicken hut": "chicken-hut", "coffee republik": "coffee-republik",
+    "meat grill": "meat-grill", "fairy cafe": "fairy-cafe", "kadoma ranch motel": "kadoma-ranch-motel",
+    "holiday inn": "holiday-inn", "the three monkeys": "the-three-monkeys", "the smokehouse": "the-smokehouse",
+    "the place": "the-place", "china town": "china-town", "cinnova": "cinnova", "kuku kulture": "kuku-kulture",
+    "the fresh market": "the-fresh-market", "origin coffee": "origin-coffee", "connect coffee": "connect-coffee",
+    "bakers point": "bakers-point", "big square": "big-square", "doppio": "doppio-zero", "mugg": "mugg-bean",
+    "spur steak ranch": "spur", "nando's": "nandos"
+  };
+  for (var b in KNOWN) {
+    if (name.indexOf(b) === 0 || key.indexOf(b.replace(/ /g, "-")) === 0) return KNOWN[b];
   }
-
+  var dashIdx = name.indexOf(" - ");
+  if (dashIdx < 0) dashIdx = name.indexOf(" \u2013 ");
+  if (dashIdx > 0) {
+    var baseName = name.substring(0, dashIdx).trim();
+    if (baseName) return Brand.slugify(baseName);
+  }
+  if (r.brandKey) return String(r.brandKey);
+  var slug = String(r.slug || "");
+  var alias = BRAND_ALIAS[slug];
+  if (alias) return alias;
+  var nameSlug = Brand ? (Brand.slugify ? Brand.slugify(r.name || slug) : slug) : slug;
+  var canonical = Brand && typeof Brand.canonicalKey === "function" ? Brand.canonicalKey(slug) : slug;
+  if (canonical && canonical !== slug) return canonical;
+  if (nameSlug && nameSlug !== slug) return nameSlug;
+  return slug;
+}
   function sameTown(a, b) {
     return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
   }
@@ -289,7 +326,7 @@
     /* Through all(), never DB.byLastActive(): the grouped listing is what
        index.html's Restaurants list renders, so it has to obey the same region
        gate. Reading the database directly let Botswana's seed roster (the
-       flagship, Chicken Licken, The Game Reserve…) show up under Zimbabwe,
+       flagship, Chicken Licken, The Game Reserveâ€¦) show up under Zimbabwe,
        where the ZW payload has no such venue and About bounces back home. */
     var rows = all();
     var byKey = {};
@@ -299,9 +336,52 @@
       if (!(k in byKey)) { byKey[k] = []; order.push(k); }
       byKey[k].push(r);
     });
-    return order.map(function (k) {
+    var out = order.map(function (k) {
       return { key: k, branches: byKey[k] };
     });
+
+    /* Restaurants with a real menu lead the list; the rest follow in
+       newest-active order. A venue has a real menu when an imported menu
+       exists for its brand (or brand+town), or its own content carries menu
+       items. The shared template/demo menu does NOT count. */
+    function townSlug(t) {
+      return t ? String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "";
+    }
+    function menuHasContent(m) {
+      if (!m) return false;
+      if (Array.isArray(m)) {
+        return m.some(function (c) { return !!(c && (c.items || []).length); });
+      }
+      if ((m.menuItems || []).length) return true;
+      if ((m.menuCategories || []).length) return true;
+      return false;
+    }
+    function hasRealMenu(g) {
+      var k = g.key;
+      var M = window.EatoutsMenus && window.EatoutsMenus.menus;
+      if (M) {
+        if (menuHasContent(M[k])) return true;
+        for (var i = 0; i < g.branches.length; i++) {
+          var b = g.branches[i];
+          var tw = b && b.location && b.location.town;
+          var tk = tw ? townSlug(tw) : "";
+          if (tk && menuHasContent(M[k + "-" + tk])) return true;
+        }
+      }
+      return g.branches.some(function (b) {
+        var c = b && (b.ownContent || b.content);
+        return menuHasContent(c);
+      });
+    }
+    out.sort(function (a, b) {
+      var am = hasRealMenu(a) ? 1 : 0;
+      var bm = hasRealMenu(b) ? 1 : 0;
+      if (am !== bm) return bm - am;
+      var aa = (a.branches[0] && a.branches[0].lastActive) || 0;
+      var bb = (b.branches[0] && b.branches[0].lastActive) || 0;
+      return bb - aa;
+    });
+    return out;
   }
 
   /* Display name for a group: the branch that owns the brand slug when
@@ -324,7 +404,7 @@
         name: r.name,
         slug: r.slug,
         types: r.types && r.types.length ? r.types : ['Restaurant'],
-        category: (r.types && r.types.length ? r.types : ['Restaurant']).join(' · '),
+        category: (r.types && r.types.length ? r.types : ['Restaurant']).join(' Â· '),
         location: r.location || {},
         placeLabel: placeLabel(r),
         landmark: r.landmark || '',
@@ -353,7 +433,7 @@
         name: name,
         slug: g.key,
         types: primaryTypes,
-        category: primaryTypes.join(' · '),
+        category: primaryTypes.join(' Â· '),
         location: primary ? (primary.location || {}) : {},
         placeLabel: placeLabel(primary || {}),
         landmark: primary ? (primary.landmark || '') : '',
@@ -373,14 +453,14 @@
     });
   }
 
-  /** "Gaborone · Kgale View" or "Gaborone · Acacia Mall" */
+  /** "Gaborone Â· Kgale View" or "Gaborone Â· Acacia Mall" */
   function placeLabel(r) {
     var loc = r.location || {};
     var bits = [];
     if (loc.town) bits.push(loc.town);
     if (loc.area) bits.push(loc.area);
     if (!bits.length && r.landmark) bits.push(r.landmark);
-    return bits.join(' · ');
+    return bits.join(' Â· ');
   }
 
   /**
@@ -405,37 +485,44 @@
   }
 
   function menuFor(content, r, sharing) {
-    if (!r || !sharing || FLAGSHIP_SLUGS.indexOf(r.slug) > -1) {
+      if (!r || !sharing || FLAGSHIP_SLUGS.indexOf(r.slug) > -1) {
+        return unflattenMenu(content);
+      }
+      var M = window.EatoutsMenus;
+      var demoAllowed = regionOf(r) === 'BW';
+      if (M) {
+        var menus = M.menus;
+        var key = brandKeyOf(r);
+        var town = (r.location && r.location.town) || '';
+        var townKey = town && Brand ? Brand.slugify(town) : '';
+
+        // 1. Exact branch slug (fixes South Africa: ocean-basket-muizenberg)
+        var exactSlug = String(r.slug || '');
+        if (exactSlug && menus && menus[exactSlug] && menus[exactSlug].length) {
+          return menus[exactSlug];
+        }
+
+        // 2. Exact brandKey if it differs from the grouped key
+        var rawKey = String(r.brandKey || '');
+        if (rawKey && rawKey !== key && menus && menus[rawKey] && menus[rawKey].length) {
+          return menus[rawKey];
+        }
+
+        // 3. Brand + town override
+        var override = townKey && menus ? menus[key + '-' + townKey] : null;
+        if (override && override.length) return override;
+
+        // 4. Brand key (fixes Zimbabwe: ocean-basket)
+        var imported = menus ? menus[key] : null;
+        if (imported && imported.length) return imported;
+
+        // 5. Demo fallback
+        if (demoAllowed && M.demo && M.demo.length) return M.demo;
+      }
+      if (!demoAllowed) return [];
       return unflattenMenu(content);
     }
-    var M = window.EatoutsMenus;
-    var demoAllowed = regionOf(r) === 'BW';
-    if (M) {
-      var key = brandKeyOf(r);
-      var town = (r.location && r.location.town) || '';
-      var townKey = town && Brand ? Brand.slugify(town) : '';
-      /* A location-specific menu (menus_data/{brand}-{town}.json) wins
-         when one exists; otherwise every branch of the chain shares the
-         brand menu (kfc-maun -> kfc), else the demo, else the template. */
-      var menus = M.menus;
-      var override = townKey && menus ? menus[key + '-' + townKey] : null;
-      if (override && override.length) return override;
-      var imported = menus ? menus[key] : null;
-      if (imported && imported.length) return imported;
-      /* Only Botswana has a shared demo menu. Every other region — Zimbabwe,
-         Kenya, Mauritius, South Africa — shows "menu not yet available" for an
-         unmapped brand instead of borrowing Botswana's demo dishes. */
-      if (demoAllowed && M.demo && M.demo.length) return M.demo;
-    }
-    if (!demoAllowed) return [];
-    return unflattenMenu(content);
-  }
-
-  /**
-   * The nested bundle for one restaurant, in the exact shapes
-   * index.html's existing renderers expect.
-   */
-  function bundleOf(id) {
+function bundleOf(id) {
     var r = byId(id);
     if (!r) return null;
     var content = DB.resolveContent(id, db()) || DB.emptyContent();
@@ -728,3 +815,4 @@
     unflattenEvents: unflattenEvents
   };
 })();
+

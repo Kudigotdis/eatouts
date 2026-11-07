@@ -1,4 +1,4 @@
-/* EatOuts region registry (T22).
+﻿/* EatOuts region registry (T22).
  *
  * The single source of truth for which country the app is running in.
  * Five regions are active: Botswana (BW), South Africa (ZA), Zimbabwe (ZW),
@@ -14,7 +14,7 @@
  * Data gating (T22 step 3): every place / venue / menu / directory record
  * carries a region code. recordRegion() reads it (a record written before
  * gating has no field and reads as the default), and filterByRegion() is the
- * gate the data layers apply — see EatoutsBridge.all() and
+ * gate the data layers apply â€” see EatoutsBridge.all() and
  * EatoutsLocations. locationsFile() / currency() / locale() expose the active
  * region's own settings so callers stop hard-coding Botswana, and symbol() /
  * money(v) are the display half: money(12) is "P12.00" in BW, "R12.00" in ZA.
@@ -104,7 +104,7 @@
     return SYMBOLS[cur] || cur;
   }
 
-  /** Region-aware price formatter — the one call site a page needs (T22b). */
+  /** Region-aware price formatter â€” the one call site a page needs (T22b). */
   function money(v){
     return symbol() + (Number(v) || 0).toFixed(2);
   }
@@ -114,7 +114,7 @@
     return (r && r.locale) || "en-BW";
   }
 
-  /** The location dataset the active region uses — null when it has none. */
+  /** The location dataset the active region uses â€” null when it has none. */
   function locationsFile(){
     var r = getActiveRegion();
     return (r && r.locations) || null;
@@ -170,3 +170,4 @@
     STORE_KEY: STORE_KEY
   };
 })();
+

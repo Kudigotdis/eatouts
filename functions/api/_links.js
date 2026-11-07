@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    Shared helpers for public business links. Import-only.
 
    A link is  /<country>/<slug>  ->  { type, refId, name }.
@@ -54,7 +54,7 @@ export function slugReason(input) {
 }
 
 export function countryOf(value) {
-  var c = String(value || 'bw').trim().toLowerCase();
+  var c = 'bw'; /* Forced to Botswana by user */
   return /^[a-z]{2}$/.test(c) ? c : 'bw';
 }
 
@@ -156,3 +156,4 @@ export async function requireSession(context) {
   if (!session) return { error: json({ ok: false, error: 'not_authenticated' }, 401) };
   return { session: session, userId: session.userId, env: env, db: env.DB };
 }
+

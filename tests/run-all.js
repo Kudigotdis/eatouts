@@ -74,6 +74,7 @@ const SUITES = [
   'router.js',
   'menuview.js',
   'menu-nav-state.js',
+  'nav-active-tap.js',
   'customer.js',
   'customer-local-login.js',
   'business-client.js',
