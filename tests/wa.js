@@ -81,8 +81,10 @@ const linkVenue = w.waLink('hello', { whatsapp: '26771111111' });
     if (!/(?<!function\s)waLink\(/.test(l)) return;
     const ctx = lines.slice(Math.max(0, i - 14), i + 1).join('\n');
     const flagshipIntended = /act==="waPoetry"|act==="waFeatEvent"|act==="waAbout"|act==="bevSendWaGeneric"|function renderAboutSocialRow/.test(ctx);
+    /* BEV_WHATSAPP is the documented flagship beverage line, not a missing venue. */
+    const flagshipTarget = /,\s*BEV_WHATSAPP\s*,/.test(l);
     const venueAware = /,\s*(r|f&&f\.restaurant|evInfo\.restaurant|curRestaurant\(\))\s*[,)]/.test(l);
-    if (!flagshipIntended && !venueAware) flagged.push('line ' + (i + 1) + ': ' + l.trim().slice(0, 90));
+    if (!flagshipIntended && !flagshipTarget && !venueAware) flagged.push('line ' + (i + 1) + ': ' + l.trim().slice(0, 90));
     /* every hand-off must name its template, so wa.click rows stay attributable */
     if (!/waLink\(.*,\s*['"][a-z_]+['"]\s*,/.test(l)) untagged.push('line ' + (i + 1) + ': ' + l.trim().slice(0, 90));
   });

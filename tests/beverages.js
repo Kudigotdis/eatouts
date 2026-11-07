@@ -248,27 +248,34 @@ setTimeout(() => {
   check('order text lists items', /×\s*\d/.test(text), text.slice(0, 120));
   check('order text shows a Pula total', /Total: P\d/.test(text), text.slice(-80));
 
-  /* ---------- split the bill ---------- */
+  /* ---------- split the bill (iframe hand-off) ---------- */
   const splitBtn = doc.querySelector('[data-act="bevOpenSplit"]');
   check('split entry point on checkout', !!splitBtn);
+  check('split is open to guests', !!splitBtn && !splitBtn.classList.contains('is-locked') &&
+    splitBtn.getAttribute('aria-disabled') !== 'true', splitBtn ? splitBtn.className : 'missing');
   click(splitBtn);
-  check('split view opens', ev('state.bevSplitOpen') === true);
-  doc.getElementById('bevSplitNewName').value = 'Kagiso';
-  click(doc.querySelector('[data-act="bevAddSplitPerson"]'));
-  check('person added', ev('state.bevSplitPeople.length') === 1, ev('state.bevSplitPeople.length'));
-  check('name field clears after adding', doc.getElementById('bevSplitNewName').value === '',
-    doc.getElementById('bevSplitNewName').value);
-  ev('(function(){var l=bevLines()[0];bevSetSplitQty(l.key,state.bevSplitPeople[0].id,l.qty);render();})()');
-  check('assigning every unit clears the unassigned total', ev('bevUnassignedTotal()') === 0, ev('bevUnassignedTotal()'));
-  check('person total covers the whole cart',
-    Math.abs(ev('bevPersonTotal(state.bevSplitPeople[0].id)') - ev('bevCartTotal()')) < 0.005,
-    ev('bevPersonTotal(state.bevSplitPeople[0].id)') + ' vs ' + ev('bevCartTotal()'));
-  check('split order text carries the share', /Share total: P/.test(ev('bevPersonMessage(state.bevSplitPeople[0])')),
-    ev('bevPersonMessage(state.bevSplitPeople[0])').slice(-60));
-  click(doc.querySelector('[data-act="bevBackFromSplit"]'));
-  check('back returns to checkout', ev('state.bevSplitOpen') === false);
-  check('split preview shown on checkout', !!doc.querySelector('.split-preview'));
-  check('order text now carries the split', /Split:/.test(ev('bevOrderText()')));
+  check('split overlay opens', ev('state.splitOpen') === true);
+  check('split remembers the beverage source', ev('state.billSplitFrom') === 'bev', ev('state.billSplitFrom'));
+  check('split host is shown', doc.getElementById('billSplitHost').classList.contains('on'));
+
+  const frameSrc = doc.getElementById('billSplitFrame').getAttribute('src') || '';
+  check('iframe loads the standalone split page', /bill-split\.html\?v=\d+/.test(frameSrc), frameSrc);
+
+  check('bridge exposes the live snapshot',
+    ev('typeof window.EatoutsBillSplitBridge.snapshot === "function"'));
+  check('bridge snapshot carries the live cart',
+    ev('window.EatoutsBillSplitBridge.snapshot().itemCount') === ev('bevCartCount()'),
+    ev('window.EatoutsBillSplitBridge.snapshot().itemCount') + ' vs ' + ev('bevCartCount()'));
+  check('bridge snapshot total matches the cart',
+    Math.abs(ev('window.EatoutsBillSplitBridge.snapshot().total') - ev('bevCartTotal()')) < 0.005);
+  check('guest is not signed in', ev('window.EatoutsBillSplitBridge.signedIn()') === false);
+  check('guest sends are refused by the bridge',
+    ev('window.EatoutsBillSplitBridge.sharePerson("nobody")') === 'auth_required');
+  check('guest save is refused by the bridge',
+    ev('window.EatoutsBillSplitBridge.saveSummary()') === 'auth_required');
+
+  click(doc.querySelector('[data-act="closeBillSplit"]'));
+  check('Done closes the split overlay', ev('state.splitOpen') === false);
 
   click(doc.querySelector('[data-act="bevBackFromCheckout"]'));
   check('back returns to the list', ev('state.bevCheckout') === false);
@@ -287,11 +294,15 @@ setTimeout(() => {
   const dupIds = evj('(()=>{const a=window._BEV.beverages.items.map(i=>i.id),b=window._BEV.alcohols.items.map(i=>i.id);return a.length-new Set(a).size+(b.length-new Set(b).size)})()');
   check('item ids are unique', dupIds === 0, dupIds);
 
-  /* ---------- beverage filter bar (2nd tap of Restaurants nav) ---------- */
+  /* ---------- beverage filter bar (explicit header filter button) ---------- */
   const cbarEl = doc.getElementById('cbar');
   check('beverage filter bar hidden by default', ev('state.bevFilterOpen') === false && !cbarEl.classList.contains('on'));
+  /* the bottom nav only navigates - a 2nd Restaurants tap must not toggle it */
   click(doc.querySelector('[data-tab="restaurants"]'));
-  check('2nd Restaurants tap opens the beverage filter bar',
+  check('2nd Restaurants tap leaves the beverage filter bar closed',
+    ev('state.bevFilterOpen') === false && !cbarEl.classList.contains('on'), ev('state.bevFilterOpen'));
+  click(doc.getElementById('hdrFilter'));
+  check('header filter button opens the beverage filter bar',
     ev('state.bevFilterOpen') === true && cbarEl.classList.contains('on'), ev('state.bevFilterOpen'));
   const controls = cbarEl.querySelector('.rest-filter-controls');
   const townBtn = cbarEl.querySelector('[data-act="openBottleTownFilter"]');

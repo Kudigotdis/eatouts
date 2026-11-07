@@ -2978,3 +2978,27 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Errors: none
 
 
+
+### [2026-11-07 16:40:00] - [Agent: big-pickle] - [Status: IN_PROGRESS]
+- Task: Let guests use Split the Bill in full; lock only the WhatsApp sends and Save Order behind a free account.
+- Files changed:
+  - `index.html`: checkout "Split the Bill" no longer renders `is-locked`/`aria-disabled` and `openSplit` no longer calls `summarySignup()`; the host bridge gains `signedIn()` and returns the `auth_required` sentinel from `sharePerson`, `sendFullBill`, `sendStandardOrder` and `saveSummary` for guests.
+  - `bill-split.html` (NEW, landing the pending iframe migration): bridge lookup now prefers `window.parent.EatoutsBillSplitBridge` over its demo bridge (the demo was shadowing the live cart inside the iframe); guest nudge under the hero; locked styling plus an in-page account sheet (z-index 90) on the three send buttons and Save Order; `call()` turns an `auth_required` reply into that sheet; demo bridge reports `signedIn:true` so the standalone page is unchanged; `.brand-mark` renamed `.bs-brand` so the page is not counted as a standard-header page.
+  - `index.html` (pre-existing migration breakage, fixed to reach the beverage split path at all): `resetBevSplit()` was deleted but still called from the tab handler, `bevGoCheckout` and `bevBackFromCheckout` - added `resetSplitState()` and pointed the three call sites at it; removed the dead `bevNormalizeSplitAssign()` call from `bevInc/bevDec`; `renderBeveragesCheckout()` preview now reads the unified `state.splitPeople` / `personTotal(id, bevLines())` / `unassignedTotal(bevLines())` instead of the deleted `bevSplitPeople` model.
+  - `tests/beverages.js`: replaced the stale in-SPA `bevSplitOpen` block with the iframe contract - guest-visible split button, `state.splitOpen`, `billSplitFrom="bev"`, host `.on`, `bill-split.html?v=` src, live snapshot totals, `signedIn()===false` and the four `auth_required` refusals.
+  - `tests/wa.js`: the flagged-call guard now accepts `BEV_WHATSAPP` as an intentional flagship target (the migration routed beverage orders to that dedicated line and the guard was never updated).
+  - `scripts/html_catalog.meta.json`, `PAGE_INVENTORY.md`: registered `bill-split.html` as page 74 (new section M) with its `PAGE: Split the Bill` marker.
+  - `copy-static.mjs` (pre-existing migration edit, committed with the page): stages `bill-split.html` for deploy.
+- Verified:
+  - `node --max-old-space-size=6144 tests/beverages.js` -> BEVERAGES TEST PASSED, 0 window errors (112 checks).
+  - `node tests/wa.js`, `html-catalog.js` (74 pages), `inventory.js` (74 pages), `back-history.js` -> all green.
+  - `NODE_OPTIONS=--max-old-space-size=6144 node tests/run-all.js` -> 85 passed, 1 failed (only `regional-directories.js` KE/MU/ZA data parity, pre-existing and untouched here).
+  - Temp jsdom iframe harness (deleted): guest sees the real totals, nudge, four locked buttons and the account sheet; locked taps never reach the bridge; members can share/order; food checkout opens Split the Bill for a guest with the real venue + cart and all four bridge refusals return `auth_required`.
+- Not verified:
+  - Real-browser paint of the account sheet and the lock glyph inside the 100 z-index host overlay (jsdom proves state and markup only).
+- Notes:
+  - Cart survives the sign-up/login round-trip via localStorage, but in-memory split assignments do not; a member who signs up returns to the venue manually (signup lands on `eatouts-profile.html`).
+  - `tests/beverages.js` still OOMs at Node's default heap inside `run-all.js`; `NODE_OPTIONS=--max-old-space-size=6144` is required in this environment.
+- Commit: `5b64404`
+- Push: PENDING
+- Errors: none

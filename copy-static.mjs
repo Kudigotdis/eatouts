@@ -28,6 +28,7 @@ const FILES = [
   'index.html',
   'Orders-List.html',
   'Created_Event.html',
+  'bill-split.html',
   '404.html',
   'seed-demo.html',
   'restaurant-dashboard.html',

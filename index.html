@@ -57,6 +57,15 @@ img{display:block;max-width:100%}
 .hdr-search{border:0;background:transparent;padding:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;-webkit-tap-highlight-color:transparent}
 .hdr-search:active{background:#f4efe4}
 .hdr-search img{width:22px;height:22px;object-fit:contain;display:block}
+/* The bottom nav only navigates, so this header button is the explicit control
+   that opens the current tab/panel's search + filter bar. */
+.hdr-filter{border:0;background:transparent;padding:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;-webkit-tap-highlight-color:transparent}
+.hdr-filter[hidden]{display:none}
+.hdr-filter:active{background:#f4efe4}
+.hdr-filter svg{width:22px;height:22px;stroke:#171717;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;display:block}
+.hdr-filter.on{background:#0a0a0a}
+.hdr-filter.on:active{background:#222}
+.hdr-filter.on svg{stroke:#ffffff}
 /* Region chip: the header always shows the active country, because an empty
    panel in Zimbabwe read as "Botswana has no businesses" once the pill was
    dropped. Tapping it opens the region selector. */
@@ -939,24 +948,6 @@ a.dlg-btn{text-decoration:none}
 .split-line-meta{font-size:11px;color:#8a8170;margin-top:3px}
 .split-line-unit{font-size:10.5px;color:#a89a7e;font-weight:700;margin:4px 0 8px;letter-spacing:.02em}
 .split-line-rows{display:flex;flex-direction:column;gap:6px}
-.split-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:9px;background:#faf8f2}
-.split-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
-.split-row-name{flex:1;font-size:12px;font-weight:800;color:#3a3324;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.split-row-sub{font-size:11.5px;font-weight:900;color:#1a1a1a;flex:0 0 auto;min-width:56px;text-align:right}
-.split-row .stp button{width:30px;height:28px;font-size:15px}
-.split-row .stp .val{min-width:24px;font-size:12.5px;padding:0 2px}
-.split-unrow{display:flex;align-items:center;gap:8px;padding:6px 8px;font-size:11.5px;color:#a89a7e}
-.split-unrow.zero{opacity:.35}
-.split-unrow .split-row-name{color:#a89a7e;font-weight:800}
-.split-unrow .split-row-sub{color:#8a8170;font-weight:800}
-.split-unrow .split-row-sub em{font-style:normal;font-weight:600;color:#a89a7e;margin-left:4px}
-.split-hint{font-size:11.5px;color:#a89a7e;padding:6px 0;font-style:italic}
-.split-sumrow{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-left:3px solid #1a1a1a;background:#faf8f2;border-radius:0 9px 9px 0;margin-bottom:6px;font-size:12.5px;font-weight:800;color:#3a3324}
-.split-sumrow b{font-size:14px;font-weight:900;color:#1a1a1a}
-.split-sumrow.muted{border-left-color:#d6cfbf;color:#a89a7e}
-.split-sumrow.muted b{color:#8a8170}
-.split-note{font-size:10.5px;color:#a89a7e;line-height:1.5;margin:8px 0 0}
-.split-actions{display:flex;flex-direction:column;gap:8px}
 .split-preview{margin:-2px 0 12px;padding:10px 12px;background:#faf8f2;border:1px solid #f1ece1;border-radius:12px}
 .split-preview .sp-row{display:flex;justify-content:space-between;font-size:11.5px;font-weight:800;color:#3a3324;padding:2px 0}
 .split-preview .sp-row b{color:#1a1a1a}
@@ -972,6 +963,14 @@ a.dlg-btn{text-decoration:none}
 .menu-empty-card{margin:4px 0 16px;padding:22px 18px;border:1px solid #f1ece1;border-radius:18px;background:#fffdf7;text-align:center}
 .menu-empty-card h3{margin:0;font-size:17px;font-weight:800;color:#1a1a1a}
 .menu-empty-card p{margin:9px 0 0;font-size:13.5px;line-height:1.55;color:#6b6353}
+/* Bill split host: bill-split.html runs full-screen in an iframe over the app,
+   so the SPA keeps its cart/state and the page owns its own UI. */
+#billSplitHost{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;background:#fff}
+#billSplitHost.on{display:flex}
+#billSplitHost .bs-bar{flex:0 0 auto;display:flex;align-items:center;gap:12px;min-height:52px;padding:env(safe-area-inset-top) 14px 0;border-bottom:1px solid #ece7db;background:#fff}
+#billSplitHost .bs-title{font-size:15px;font-weight:800;color:#171717;letter-spacing:-.01em}
+#billSplitHost .bs-close{margin-left:auto;border:1px solid #ece7db;background:#f6f3ec;border-radius:8px;padding:8px 12px;font-size:14px;font-weight:750;color:#171717}
+#billSplitHost iframe{flex:1 1 auto;width:100%;min-height:0;border:0;display:block;background:#fff}
 </style>
 </head>
 <body data-page="index">
@@ -985,12 +984,27 @@ a.dlg-btn{text-decoration:none}
       <button class="hdr-search" type="button" data-act="openSearchScreen" aria-label="Search EatOuts">
         <img src="assets/icons/search_icon.webp" alt="Search">
       </button>
+      <!-- Explicit filter control: the bottom nav no longer toggles filter bars,
+           so this opens the current tab/panel's search + filter bar. -->
+      <button class="hdr-filter" type="button" id="hdrFilter" data-act="toggleFilterBar" aria-label="Filters" aria-expanded="false" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+      </button>
     </div>
   </header>
   <div id="viewport"></div>
   <div id="cbar"></div>
   <div id="filter-bar"></div>
   <nav id="nav"></nav>
+</div>
+<!-- Split the Bill: the standalone bill-split.html page mounted full-screen.
+     Its bridge (window.EatoutsBillSplitBridge) reads/writes the live cart, so
+     the SPA never needs its own split screen. -->
+<div id="billSplitHost" role="dialog" aria-modal="true" aria-label="Split the Bill" aria-hidden="true">
+  <div class="bs-bar">
+    <span class="bs-title">Split the Bill</span>
+    <button class="bs-close" type="button" data-act="closeBillSplit">Done</button>
+  </div>
+  <iframe id="billSplitFrame" title="Split the Bill" src="about:blank"></iframe>
 </div>
 
 <script src="/data/restaurant_listings/restaurant_types_filter.js"></script>
@@ -3231,11 +3245,11 @@ function menuItemPhoto(itemName){
     const k=photoNormalize(idx.list[i].key);
     if(k&&(k.indexOf(needle)>-1||needle.indexOf(k)>-1))return idx.list[i].path;
   }
-  return null;
+  return 'assets/logo/logo_placement_image.png';
 }
 function menuPhoto(name,fallbackIdx){
   const p=menuItemPhoto(name);
-  return p||foodImg(fallbackIdx);
+  return p||'assets/logo/logo_placement_image.png';
 }
 function menuPhotoStrip(it){
   const name=typeof it==="string"?it:(it?it[1]:"");
@@ -3256,7 +3270,7 @@ function menuCatThumb(cat){
     const p=menuItemPhoto(name);
     if(p) return p;
   }
-  return null;
+  return 'assets/logo/logo_placement_image.png';
 }
 
 function loadMenus(payload){
@@ -3746,7 +3760,8 @@ const state = {
   splitOpen:false,
   splitPeople:[],
   splitAssign:{},
-  splitNewName:"",
+  /* which cart the standalone split page is billing for: "menu" | "bev" */
+  billSplitFrom:"menu",
   reserveCat:null,
   reserveGroup:null,
   reserveSub:null,
@@ -3829,11 +3844,7 @@ profilePhoto:null,
   bevView:null,
   bevCheckout:false,
   bevCart:{},
-  bevSplitOpen:false,
-  bevSplitPeople:[],
-  bevSplitAssign:{},
-  bevSplitNewName:"",
-  /* beverages filter bar (2nd tap of the Restaurants nav icon) */
+  /* beverages filter bar (header filter button) */
   bevFilterOpen:false,
   bevTypePicker:false,
   bevTypeDraft:[],
@@ -3858,7 +3869,7 @@ profilePhoto:null,
   cateringLocPicker:null,
   bakeryOpen:null,
   cateringQuery:"",
-  /* Catering + bakery filter bars (2nd tap of the Restaurants nav icon).
+  /* Catering + bakery filter bars (opened from the header filter button).
      Their own town/area/type state so filtering one directory never
      filters the food or beverage lists. */
   cateringFilterOpen:false,
@@ -4198,21 +4209,23 @@ function setSplitQty(key,pid,q){if(!state.splitAssign[key])state.splitAssign[key
 function lineAssignedQty(key){const a=state.splitAssign[key]||{};return Object.keys(a).reduce(function(s,p){return s+(a[p]||0);},0);}
 function lineUnassignedQty(line){return Math.max(0,line.qty-lineAssignedQty(line.key));}
 function lineUnitPrice(line){return line.qty>0?(line.total/line.qty):0;}
-function personLines(pid){
+function personLines(pid,lines){
   const out=[];
-  checkoutLines().forEach(function(line){
+  (lines||checkoutLines()).forEach(function(line){
     const q=splitQty(line.key,pid);
     if(!q) return;
     out.push({line:line,qty:q,subtotal:q*lineUnitPrice(line)});
   });
   return out;
 }
-function personTotal(pid){return personLines(pid).reduce(function(s,x){return s+x.subtotal;},0);}
-function unassignedTotal(){return checkoutLines().reduce(function(s,line){return s+lineUnassignedQty(line)*lineUnitPrice(line);},0);}
-function splitInUse(){return state.splitPeople.length>0;}
+function personTotal(pid,lines){return personLines(pid,lines).reduce(function(s,x){return s+x.subtotal;},0);}
+function unassignedTotal(lines){return (lines||checkoutLines()).reduce(function(s,line){return s+lineUnassignedQty(line)*lineUnitPrice(line);},0);}
+/* The line set being split: the restaurant cart, or the beverage cart once the
+   standalone page was opened from the beverage checkout. */
+function splitLines(){return state.billSplitFrom==="bev"?bevLines():checkoutLines();}
 /* if a cart qty drops below what has been assigned, clamp first-come-first-served */
 function normalizeSplitAssignments(){
-  checkoutLines().forEach(function(line){
+  splitLines().forEach(function(line){
     const a=state.splitAssign[line.key];if(!a) return;
     let sum=0;state.splitPeople.forEach(function(p){sum+=(a[p.id]||0);});
     if(sum<=line.qty) return;
@@ -4222,6 +4235,293 @@ function normalizeSplitAssignments(){
       const take=Math.min(q,remaining);a[p.id]=take;remaining-=take;
     });
   });
+}
+/* ================================================================
+   SPLIT BRIDGE — the standalone bill-split.html page
+   The SPA no longer draws its own split screen. bill-split.html is
+   mounted in #billSplitHost and talks back through this object, its
+   only door into the cart. The contract mirrors the demo bridge in
+   that page one-for-one, so the page cannot tell the two apart.
+   ================================================================ */
+const BEV_WHATSAPP="26771829765"; /* beverages route to the flagship line */
+/* The venue the split page is billing for: the restaurant in view, or the
+   flagship beverages line. */
+function splitVenue(){
+  if(state.billSplitFrom==="bev")
+    return {name:"EatOuts Beverages",display:String(CONFIG.displayNumber||("+"+BEV_WHATSAPP))};
+  const rc=restaurantContact();
+  return {name:curRestaurantName(),display:rc.display};
+}
+function openBillSplit(from){
+  const host=document.getElementById("billSplitHost");
+  const frame=document.getElementById("billSplitFrame");
+  if(!host||!frame) return;
+  state.billSplitFrom=(from==="bev")?"bev":"menu";
+  state.splitOpen=true;
+  host.classList.add("on");
+  host.setAttribute("aria-hidden","false");
+  /* a fresh load re-reads the bridge snapshot, so ?v busts any cached copy */
+  frame.src="bill-split.html?v="+Date.now();
+}
+function closeBillSplit(){
+  const host=document.getElementById("billSplitHost");
+  const frame=document.getElementById("billSplitFrame");
+  if(host){host.classList.remove("on");host.setAttribute("aria-hidden","true");}
+  if(frame) frame.src="about:blank";
+  state.splitOpen=false;
+  state.billSplitFrom="menu";
+  render();
+}
+/* One split model for food and beverages: clear it when a new split starts. */
+function resetSplitState(){
+  state.splitPeople=[];state.splitAssign={};state.splitOpen=false;state.billSplitFrom="menu";
+}
+/* Everything the page can add from its own "Add from Menu" screen, in the
+   page's flat catalog shape. */
+function billSplitCatalog(){
+  const out=[];
+  if(state.billSplitFrom==="bev"){
+    const bev=window._BEV||{};
+    const all=((bev.beverages&&bev.beverages.items)||[]).concat((bev.alcohols&&bev.alcohols.items)||[]);
+    all.forEach(function(it){
+      const price=bevPrice(it);
+      out.push({id:String(it.id),name:it.name,category:it.category||"Beverages",price:price,
+        desc:it.desc||"",photo:it.image||"",
+        sizes:[{index:0,label:it.size||"Each",price:price,priceText:formatBWP(price)}]});
+    });
+    return out;
+  }
+  curMenu().forEach(function(cat){
+    (cat.items||[]).forEach(function(row){
+      const it=getMenuItem(row[0]);if(!it)return;
+      const sizes=itemSizes(it).map(function(sz,i){
+        return {index:i,label:sz[0]||"Regular",price:sz[1],priceText:fmt(sz[1])};
+      });
+      if(!sizes.length)return;
+      out.push({id:String(it.id),name:it.name,category:cat.name||cat.id,price:sizes[0].price,
+        desc:it.desc||"",photo:"",sizes:sizes});
+    });
+  });
+  return out;
+}
+
+
+/* The live cart + split state, in the exact shape bill-split.html renders. */
+function billSplitSnapshot(){
+  const source=splitLines();
+  const venue=splitVenue();
+  const rest=(state.billSplitFrom==="bev")?null:curRestaurant();
+  const lines=source.map(function(l){
+    const assignedById={};
+    state.splitPeople.forEach(function(p){
+      const q=splitQty(l.key,p.id);
+      if(q>0) assignedById[p.id]=q;
+    });
+    const extras=[];
+    Object.keys(l.extras||{}).forEach(function(ei){
+      const q=l.extras[ei];const ex=l.it&&l.it.extras&&l.it.extras[ei];
+      if(q>0&&ex) extras.push({name:ex[0],qty:q,price:ex[1]});
+    });
+    const unit=lineUnitPrice(l);
+    const assigned=Object.keys(assignedById).reduce(function(s,k){return s+assignedById[k];},0);
+    return {key:l.key,name:l.name,size:l.size||"",qty:l.qty,unit:unit,unitText:fmt(unit),
+      photo:String((l.it&&l.it.image)||""),desc:String((l.it&&l.it.desc)||""),
+      extras:extras,assignedById:assignedById,unassigned:Math.max(0,l.qty-assigned)};
+  });
+  const people=state.splitPeople.map(function(p){
+    const mine=lines.filter(function(l){return (l.assignedById[p.id]||0)>0;});
+    const total=mine.reduce(function(s,l){return s+l.assignedById[p.id]*l.unit;},0);
+    const count=mine.reduce(function(s,l){return s+l.assignedById[p.id];},0);
+    return {id:p.id,name:p.name,photo:"",phone:"",gender:"",ageBand:"",relationship:"",
+      paymentMethod:"",occasion:"",note:"",itemCount:count,total:total,totalText:fmt(total)};
+  });
+  const total=lines.reduce(function(s,l){return s+l.qty*l.unit;},0);
+  const itemCount=lines.reduce(function(s,l){return s+l.qty;},0);
+  const catalog=billSplitCatalog();
+  const categories=[];
+  catalog.forEach(function(it){ if(categories.indexOf(it.category)<0) categories.push(it.category); });
+  return {
+    restaurant:{name:venue.name,logo:String((rest&&restLogo(rest))||"")},
+    people:people,lines:lines,itemCount:itemCount,total:total,totalText:fmt(total),
+    catalog:catalog,categories:categories,
+    orderName:state.orderName||"",orderNotes:state.orderNotes||""
+  };
+}
+window.EatoutsBillSplitBridge={
+  format:fmt,
+  snapshot:billSplitSnapshot,
+  /* Guests can explore the whole split screen; only sends/saves need an account. */
+  signedIn:function(){return !!aboutUser();},
+
+  addPerson:function(name){return addSplitPerson(name)||null;},
+  removePerson:function(id){removeSplitPerson(id);return true;},
+  /* The SPA split model keeps a name and a colour only: the page's optional
+     profile fields are accepted (so nothing breaks) but not stored. */
+  updatePerson:function(arg){
+    if(!arg) return false;
+    const p=state.splitPeople.filter(function(x){return x.id===arg.id;})[0];
+    if(!p) return false;
+    if(arg.field!=="name") return true;
+    const name=String(arg.value||"").trim().slice(0,24);
+    if(!name) return false;
+    if(state.splitPeople.some(function(x){return x.id!==p.id&&x.name.toLowerCase()===name.toLowerCase();})) return false;
+    p.name=name;
+    return true;
+  },
+  assignQty:function(arg){
+    if(!arg) return false;
+    const line=splitLines().filter(function(l){return l.key===arg.key;})[0];
+    if(!line) return false;
+    let others=0;
+    state.splitPeople.forEach(function(p){if(p.id!==arg.id) others+=splitQty(arg.key,p.id);});
+    setSplitQty(arg.key,arg.id,Math.max(0,Math.min(Number(arg.qty)||0,Math.max(0,line.qty-others))));
+    return true;
+  },
+  moveOneTo:function(arg){
+    if(!arg) return false;
+    const line=splitLines().filter(function(l){return l.key===arg.key;})[0];
+    if(!line) return false;
+    const donors=state.splitPeople.filter(function(p){return p.id!==arg.id&&splitQty(arg.key,p.id)>0;});
+    if(!donors.length) return false;
+    donors.sort(function(a,b){return splitQty(arg.key,b.id)-splitQty(arg.key,a.id);});
+    setSplitQty(arg.key,donors[0].id,splitQty(arg.key,donors[0].id)-1);
+    setSplitQty(arg.key,arg.id,splitQty(arg.key,arg.id)+1);
+    return true;
+  },
+  /* Whole items only: the dearest unit goes to whoever is cheapest so far. */
+  balanceShares:function(){
+    const lines=splitLines();
+    const prev=lines.map(function(l){
+      const assignedById={};
+      state.splitPeople.forEach(function(p){const q=splitQty(l.key,p.id);if(q>0) assignedById[p.id]=q;});
+      return {key:l.key,assignedById:assignedById};
+    });
+    if(state.splitPeople.length<2) return prev;
+    const units=[];
+    lines.forEach(function(l){
+      state.splitAssign[l.key]={};
+      for(let i=0;i<l.qty;i++) units.push({key:l.key,unit:lineUnitPrice(l)});
+    });
+    units.sort(function(a,b){return b.unit-a.unit;});
+    const totals={};
+    state.splitPeople.forEach(function(p){totals[p.id]=0;});
+    units.forEach(function(u){
+      let best=state.splitPeople[0].id;
+      state.splitPeople.forEach(function(p){if(totals[p.id]<totals[best]) best=p.id;});
+      totals[best]+=u.unit;
+      setSplitQty(u.key,best,splitQty(u.key,best)+1);
+    });
+    return prev;
+  },
+  restoreAssignments:function(prev){
+    if(!prev) return false;
+    prev.forEach(function(entry){state.splitAssign[entry.key]=Object.assign({},entry.assignedById);});
+    return true;
+  },
+  /* "Add from Menu" inside the page grows the cart exactly like the menu does. */
+  addMenuItem:function(arg){
+    if(!arg) return false;
+    const pid=String(arg.personId||"");
+    if(!pid) return false;
+    let key="";
+    if(state.billSplitFrom==="bev"){
+      const it=bevFindItem(arg.itemId);
+      if(!it) return false;
+      key=getBeverageCartKey(it);
+      if(!state.bevCart[key]) state.bevCart[key]={item:it,qty:0};
+      state.bevCart[key].qty+=1;
+      bevCartPersist();
+    }else{
+      const itemId=parseInt(arg.itemId,10);
+      const it=getMenuItem(itemId);
+      if(!it) return false;
+      const sizeIdx=Number(arg.sizeIdx)||0;
+      if(!itemSizes(it)[sizeIdx]) return false;
+      key=cartKey(itemId,sizeIdx);
+      const line=cartLine(itemId,sizeIdx);
+      line.qty=(line.qty||0)+1;
+      cartPersist();
+    }
+    setSplitQty(key,pid,splitQty(key,pid)+1);
+    return true;
+  },
+  sharePerson:function(id){
+    if(!aboutUser()) return "auth_required";
+    const p=state.splitPeople.filter(function(x){return x.id===id;})[0];
+    if(!p||!personLines(id,splitLines()).length) return false;
+    /* no phone number -> WhatsApp opens its built-in contact picker */
+    window.location.href=waShareLink(buildPersonMessage(p,splitLines()));
+    return true;
+  },
+  sendFullBill:function(vals){
+    if(!aboutUser()) return "auth_required";
+    const name=String((vals&&vals.name)||"").trim();
+    if(!name){window.alert("Please enter your name.");return false;}
+    state.orderName=name;
+    state.orderNotes=String((vals&&vals.notes)||"");
+    if(state.billSplitFrom==="bev"){
+      window.location.href=waLink(bevOrderText(),BEV_WHATSAPP,"beverage_order","act=sendFullBill");
+      return true;
+    }
+    bridgeDraftOrder("menu");
+    notifyFieldOrder(curRestaurant());
+    window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_split_bill","act=sendFullBill");
+    return true;
+  },
+  sendStandardOrder:function(vals){
+    if(!aboutUser()) return "auth_required";
+    const name=String((vals&&vals.name)||"").trim();
+    if(!name){window.alert("Please enter your name.");return false;}
+    state.orderName=name;
+    state.orderNotes=String((vals&&vals.notes)||"");
+    if(state.billSplitFrom==="bev"){
+      window.location.href=waLink(bevOrderText(),BEV_WHATSAPP,"beverage_order","act=sendStandardOrder");
+      return true;
+    }
+    bridgeDraftOrder("menu");
+    notifyFieldOrder(curRestaurant());
+    window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_checkout","act=sendStandardOrder");
+    return true;
+  },
+  /* "Review" is this app's own checkout review screen. */
+  openReview:function(vals){
+    const name=String((vals&&vals.name)||"").trim();
+    if(name) state.orderName=name;
+    if(vals&&vals.notes!=null) state.orderNotes=String(vals.notes||"");
+    const from=state.billSplitFrom;
+    closeBillSplit();
+    if(from!=="bev"){state.checkoutView=true;state.checkoutReview=true;render();}
+    return true;
+  },
+  saveSummary:function(){
+    if(!aboutUser()) return "auth_required";
+    closeBillSplit();
+    fireAct("saveSummary");
+    return true;
+  },
+  requestDeleteSummary:function(){
+    closeBillSplit();
+    fireAct("deleteSummary");
+    return true;
+  },
+  addDelivery:function(){
+    const from=state.billSplitFrom;
+    closeBillSplit();
+    goDelivery(from);
+    return true;
+  },
+  returnToCheckout:function(){closeBillSplit();return true;},
+  backToMenu:function(){closeBillSplit();return true;}
+};
+/* Fire an existing data-act handler — bill-split.html reuses the checkout
+   screen's own actions rather than reimplementing them. */
+function fireAct(act){
+  const el=document.createElement("button");
+  el.setAttribute("data-act",act);
+  el.hidden=true;
+  document.body.appendChild(el);
+  el.click();
+  el.remove();
 }
 /* WhatsApp contact for the venue in view (flagship only as fallback) */
 function restaurantContact(venue){
@@ -4371,7 +4671,7 @@ function saveOrderContext(source){
     base.bev={cart:state.bevCart};
     base.items=orderItemsFromBev();
     base.subtotal=bevCartTotal();
-    base.split=(state.bevSplitPeople||[]).map(function(p){return {name:p.name,total:bevPersonTotal(p.id)};});
+    base.split=(state.splitPeople||[]).map(function(p){return {name:p.name,total:personTotal(p.id,bevLines())};});
     base.restaurant.whatsapp="26771829765"; /* beverages route to the flagship line */
   }else{
     base.menu={restId:activeRestId(),cart:state.cart};
@@ -4404,7 +4704,7 @@ function restoreOrder(){
     state.tab="restaurants";
     state.restPanel="beverages";
     state.bevView=null;
-    state.bevSplitOpen=false;
+    state.billSplitFrom="bev";
     state.bevCheckout=Object.keys(state.bevCart||{}).length>0;
     return true;
   }
@@ -6569,10 +6869,51 @@ function renderRestLocPicker(){
 
 
 
+/* The bottom nav only navigates; the header filter button (#hdrFilter) is the
+   explicit control for the search + Town/Area/Type bar of the current tab or
+   panel. filterBarKey() returns the state key that owns that bar, or null when
+   the current screen has no filter bar at all. */
+function filterBarKey(){
+  if(state.tab==="promos") return state.promoView==="feed"?"promoFilterOpen":null;
+  if(state.tab!=="restaurants") return null;
+  if(state.restaurantView||state.bevView||state.bevCheckout) return null;
+  if(state.restPanel==="beverages") return directoryDataAvailable("beverages")?"bevFilterOpen":null;
+  if(state.restPanel==="catering") return directoryDataAvailable("catering")?"cateringFilterOpen":null;
+  if(state.restPanel==="bakery") return directoryDataAvailable("bakery")?"bakeryFilterOpen":null;
+  return "restFilterOpen";
+}
+function syncFilterBtn(){
+  const b=document.getElementById("hdrFilter");
+  if(!b) return;
+  const key=filterBarKey();
+  if(!key){b.hidden=true;b.classList.remove("on");b.setAttribute("aria-expanded","false");return;}
+  const on=!!state[key];
+  b.hidden=false;
+  b.classList.toggle("on",on);
+  b.setAttribute("aria-expanded",on?"true":"false");
+}
+/* Open/close the current tab/panel filter bar, closing any picker that hung
+   off it (a full render() would flash the list just to toggle one class). */
+function toggleFilterBar(){
+  const key=filterBarKey();
+  if(!key) return;
+  state[key]=!state[key];
+  if(!state[key]){
+    if(key==="promoFilterOpen"){state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;}
+    else if(key==="restFilterOpen"){state.filterOpen=false;}
+    else if(key==="bevFilterOpen"){state.bevTypePicker=false;state.bottleTownFilter=false;state.bottleAreaFilter=false;}
+    else if(key==="cateringFilterOpen"){state.cateringTownPicker=false;state.cateringAreaPicker=false;state.cateringTypePicker=false;}
+    else if(key==="bakeryFilterOpen"){state.bakeryTownPicker=false;state.bakeryAreaPicker=false;state.bakeryTypePicker=false;}
+  }
+  renderControlBar();
+  syncFilterBtn();
+}
+
 function renderHeader(){
     const hdr=document.getElementById("hdr");
     if(state.tab==="about" && state.aboutView==="gallery"){hdr.classList.add("hide");}
     else{hdr.classList.remove("hide");}
+    syncFilterBtn();
   }
 
 /* PAGE: venue-menu-empty — Menu */
@@ -6607,7 +6948,7 @@ function renderRestaurantSubView(){
     if(listingLocked(r)) return page("venue-locked",renderMenuLocked(r));
     if(venueMenuMissing()) return page("venue-menu-empty",renderVenueMenuMissing(r));
     /* renderMenuCategory supplies its own scroll + restaurant card */
-    if(state.splitOpen) return page("venue-checkout-split",renderCheckoutSplit());
+    
     if(state.checkoutView) return state.checkoutReview
       ? page("venue-checkout-review",renderCheckoutReview())
       : page("venue-checkout",renderCheckout());
@@ -6961,7 +7302,7 @@ function renderControlBarInner(){
       return;
     }
     /* Catering panel: its own bar (search + Town | Area | Cuisines),
-       hidden unless the nav tap toggled it open. */
+       hidden unless the header filter button opened it. */
     if(state.restPanel==='catering'){
       if(state.restaurantView||!state.cateringFilterOpen){
         cb.classList.remove("on"); cb.innerHTML="";
@@ -7111,7 +7452,7 @@ function viewKey(){
     state.reserveVenueTown,state.reserveVenueQuery,state.reserveVenueTownPicker,
     state.galleryView,state.aboutView,
     state.operatorView,state.legalView,state.checkoutView,state.splitOpen,
-    state.restPanel,state.bevCheckout,state.bevSplitOpen,(state.bevView&&state.bevView.type+":"+state.bevView.id)||"",
+    state.restPanel,state.bevCheckout,state.billSplitFrom,(state.bevView&&state.bevView.type+":"+state.bevView.id)||"",
     state.cateringOpen||"",JSON.stringify(state.cateringLocPicker)].join("|");
 }
 
@@ -7825,12 +8166,12 @@ function bevOrderText(){
     out+="• "+row.item.name+(row.item.size?" ("+row.item.size+")":"")+" × "+row.qty+" — "+formatBWP(bevPrice(row.item)*row.qty)+"\n";
   });
   out+="Total: "+formatBWP(bevCartTotal())+" ("+bevCartCount()+" items)\n";
-  if(state.bevSplitPeople.length){
+  if(state.splitPeople.length){
     out+="\nSplit:\n";
-    state.bevSplitPeople.forEach(function(p){
-      out+="• "+p.name+": "+formatBWP(bevPersonTotal(p.id))+"\n";
+    state.splitPeople.forEach(function(p){
+      out+="• "+p.name+": "+formatBWP(personTotal(p.id,bevLines()))+"\n";
     });
-    const un=bevUnassignedTotal();
+    const un=unassignedTotal(bevLines());
     if(un>0.005)out+="• Unassigned: "+formatBWP(un)+"\n";
   }
   const dl=deliverySummaryLine();
@@ -8006,59 +8347,9 @@ function bevLines(){
   });
   return out;
 }
-function bevAddSplitPerson(name){
-  name=String(name||"").trim().slice(0,24);
-  if(!name)return null;
-  if(state.bevSplitPeople.some(function(p){return p.name.toLowerCase()===name.toLowerCase();}))return null;
-  const id="p"+(++_splitSeq);
-  state.bevSplitPeople.push({id:id,name:name,color:SPLIT_COLORS[state.bevSplitPeople.length%SPLIT_COLORS.length]});
-  return id;
-}
-function bevRemoveSplitPerson(id){
-  state.bevSplitPeople=state.bevSplitPeople.filter(function(p){return p.id!==id;});
-  Object.keys(state.bevSplitAssign).forEach(function(k){
-    if(state.bevSplitAssign[k]&&state.bevSplitAssign[k][id]!==undefined)delete state.bevSplitAssign[k][id];
-  });
-}
-function bevSplitQty(key,pid){const a=state.bevSplitAssign[key];return (a&&a[pid])||0;}
-function bevSetSplitQty(key,pid,q){if(!state.bevSplitAssign[key])state.bevSplitAssign[key]={};state.bevSplitAssign[key][pid]=Math.max(0,q|0);}
-function bevLineAssignedQty(key){const a=state.bevSplitAssign[key]||{};return Object.keys(a).reduce(function(s,p){return s+(a[p]||0);},0);}
-function bevPersonTotal(pid){
-  return bevLines().reduce(function(s,l){return s+bevSplitQty(l.key,pid)*l.price;},0);
-}
-function bevUnassignedTotal(){
-  return bevLines().reduce(function(s,l){return s+Math.max(0,l.qty-bevLineAssignedQty(l.key))*l.price;},0);
-}
-function bevSplitAssignedLines(pid){
-  return bevLines().filter(function(l){return bevSplitQty(l.key,pid)>0;});
-}
-function bevNormalizeSplitAssign(){
-  bevLines().forEach(function(line){
-    const a=state.bevSplitAssign[line.key];if(!a)return;
-    let sum=0;state.bevSplitPeople.forEach(function(p){sum+=(a[p.id]||0);});
-    if(sum<=line.qty)return;
-    let rem=line.qty;
-    state.bevSplitPeople.forEach(function(p){
-      const q=a[p.id]||0;if(!q)return;
-      const take=Math.min(q,rem);a[p.id]=take;rem-=take;
-    });
-  });
-}
-function bevPersonMessage(p){
-  let out="EatOuts beverage order - "+p.name+"'s share:\n";
-  bevLines().forEach(function(l){
-    const q=bevSplitQty(l.key,p.id);
-    if(q>0)out+="• "+l.name+(l.size?" ("+l.size+")":"")+" × "+q+" — "+formatBWP(q*l.price)+"\n";
-  });
-  out+="Share total: "+formatBWP(bevPersonTotal(p.id))+"\nFull order total: "+formatBWP(bevCartTotal());
-  return out;
-}
-function resetBevSplit(){
-  state.bevSplitOpen=false;state.bevSplitPeople=[];state.bevSplitAssign={};state.bevSplitNewName="";
-}
 /* PAGE: bev-checkout — Beverages · Checkout */
 function renderBeveragesCheckout(){
-  if(state.bevSplitOpen)return renderBevSplit();
+  
   let h='<div class="scroll">';
   h+='<div class="crumb"><button data-act="bevBackFromCheckout">Beverages</button><span class="sep">/</span><span class="cur">Checkout</span></div>';
   h+='<div class="phead" style="padding-top:12px"><h2>Review & Send</h2><p>'+bevCartCount()+' items · '+formatBWP(bevCartTotal())+'</p></div>';
@@ -8090,17 +8381,17 @@ function renderBeveragesCheckout(){
   /* split-the-bill entry point + a compact preview once names exist */
   if(keys.length){
     h+='<div class="pad" style="padding-top:0">';
-    if(state.bevSplitPeople.length){
+    if(state.splitPeople.length){
       h+='<div class="split-preview">';
-      state.bevSplitPeople.forEach(function(p){
-        h+='<div class="sp-row"><span>'+esc(p.name)+'</span><b>'+formatBWP(bevPersonTotal(p.id))+'</b></div>';
+      state.splitPeople.forEach(function(p){
+        h+='<div class="sp-row"><span>'+esc(p.name)+'</span><b>'+formatBWP(personTotal(p.id,bevLines()))+'</b></div>';
       });
-      const un=bevUnassignedTotal();
+      const un=unassignedTotal(bevLines());
       if(un>0.005)h+='<div class="sp-row muted"><span>Unassigned</span><b>'+formatBWP(un)+'</b></div>';
       h+='</div>';
     }
     h+='<button class="btn full" data-act="bevOpenSplit">Split the Bill'+
-       (state.bevSplitPeople.length?' <span style="color:#a89a7e;font-weight:700;margin-left:4px">· '+state.bevSplitPeople.length+' '+(state.bevSplitPeople.length===1?'person':'people')+'</span>':'')+
+       (state.splitPeople.length?' <span style="color:#a89a7e;font-weight:700;margin-left:4px">· '+state.splitPeople.length+' '+(state.splitPeople.length===1?'person':'people')+'</span>':'')+
        '</button>';
     h+='</div>';
   }
@@ -8843,7 +9134,7 @@ function renderCheckout(){
       if(un>0.005) h+='<div class="sp-row muted"><span>Unassigned</span><b>'+fmt(un)+'</b></div>';
       h+='</div>';
     }
-    h+='<button class="btn full'+(acct?'':' is-locked')+'" data-act="openSplit" aria-disabled="'+(acct?'false':'true')+'">Split the Bill'+
+    h+='<button class="btn full" data-act="openSplit">Split the Bill'+
        (state.splitPeople.length?' <span style="color:#a89a7e;font-weight:700;margin-left:4px">· '+state.splitPeople.length+' '+(state.splitPeople.length===1?'person':'people')+'</span>':'')+
        '</button>';
     h+='</div>';
@@ -9056,29 +9347,29 @@ function buildFullBillMessage(){
   }
   return msg;
 }
-function buildPersonMessage(p){
-  const restName=curRestaurantName();
-  const rc=restaurantContact();
-  const lines=personLines(p.id);
-  const myTotal=personTotal(p.id);
-  const grand=cartTotal();
-  let msg="*BILL SPLIT — "+restName+"*\n\n"+
+function buildPersonMessage(p,lines){
+  const src=lines||checkoutLines();
+  const venue=splitVenue();
+  const rows=personLines(p.id,src);
+  const myTotal=personTotal(p.id,src);
+  const grand=(state.billSplitFrom==="bev")?bevCartTotal():cartTotal();
+  let msg="*BILL SPLIT — "+venue.name+"*\n\n"+
     "Hi "+p.name+", here's your share:\n\n"+
     "*Your Items:*\n";
-  lines.forEach(function(x){
+  rows.forEach(function(x){
     msg+=x.qty+"x "+x.line.name+(x.line.size?" ("+x.line.size+")":"")+" — "+fmt(x.subtotal)+"\n";
     Object.keys(x.line.extras||{}).forEach(function(ei){
       const q=x.line.extras[ei];const ex=x.line.it.extras&&x.line.it.extras[ei];
       if(q>0&&ex) msg+=" + "+q+"x "+ex[0]+"\n";
     });
   });
-  if(!lines.length) msg+="(Nothing assigned yet)\n";
+  if(!rows.length) msg+="(Nothing assigned yet)\n";
   msg+="\n*Your Total: "+fmt(myTotal)+"*\n"+
     "Full order: "+fmt(grand)+"\n\n"+
     "---\n"+
     "To pay, or forward to the restaurant:\n"+
-    restName+"\n"+
-    "WhatsApp: "+rc.display;
+    venue.name+"\n"+
+    "WhatsApp: "+venue.display;
   return msg;
 }
 
@@ -9915,6 +10206,19 @@ function render(){
   setTimeout(armTownRails,0);
 }
 
+/* True when `tab` is showing its own root screen - no venue, promo detail,
+   photo, bottle store, checkout or picker open. A nav tap on the tab you are
+   already on is a no-op at the root and "back to the root" below it. */
+function tabAtRoot(tab){
+  if(tab==="promos") return state.promoView==="feed" && !state.promoExpanded;
+  if(tab==="restaurants") return !state.restaurantView && !state.bevView && !state.bevCheckout;
+  if(tab==="reserve") return !state.reserveCat && !state.reserveGroup && !state.reserveSub;
+  if(tab==="gallery") return state.galleryView!=="photo";
+  if(tab==="about") return state.aboutView==="main" && !state.about;
+  if(tab==="menu") return !state.menuCat && !state.menuOpen && !state.checkoutView;
+  return true;
+}
+
 /* ================================================================
    EVENT HANDLING
    ================================================================ */
@@ -9933,46 +10237,17 @@ document.addEventListener("click",function(e){
   const nav=e.target.closest("[data-tab]");
   if(nav){
     const nextTab=nav.getAttribute("data-tab");
-    /* tapping Promos again while on Promos shows/hides the promo filter bar */
-    if(nextTab==="promos" && state.tab==="promos"){
-      state.promoFilterOpen=!state.promoFilterOpen;
-      if(!state.promoFilterOpen){state.promoTownPicker=false;state.promoAreaPicker=false;state.promoTypePicker=false;}
-      /* only the filter bar changes here - a full render() was flashing the
-         whole promo feed just to toggle one CSS class */
-      renderControlBar();return;
-    }
-    /* same deal on Restaurants, but only from the list itself - inside a
-       restaurant sub-view the tap means "take me back to the list".
-       On the Beverages panel the same tap toggles the beverage filter bar. */
-    if(nextTab==="restaurants" && state.tab==="restaurants" && !state.restaurantView){
-      if(state.restPanel==="beverages" && !state.bevView && !state.bevCheckout){
-        state.bevFilterOpen=!state.bevFilterOpen;
-        if(!state.bevFilterOpen){
-          state.bevTypePicker=false;state.restTownPicker=false;state.restAreaPicker=false;
-          state.bottleTownFilter=false;state.bottleAreaFilter=false;
-        }
-      }else if(state.restPanel==="catering"){
-        state.cateringFilterOpen=!state.cateringFilterOpen;
-        if(!state.cateringFilterOpen){
-          state.cateringTownPicker=false;state.cateringAreaPicker=false;state.cateringTypePicker=false;
-        }
-      }else if(state.restPanel==="bakery"){
-        state.bakeryFilterOpen=!state.bakeryFilterOpen;
-        if(!state.bakeryFilterOpen){
-          state.bakeryTownPicker=false;state.bakeryAreaPicker=false;state.bakeryTypePicker=false;
-        }
-      }else{
-        state.restFilterOpen=!state.restFilterOpen;
-        if(!state.restFilterOpen){state.filterOpen=false;}
-      }
-      renderControlBar();return;
-    }
+    /* The bottom nav only navigates. Tapping the tab you are already on used to
+       toggle that tab's filter bar, which made the button look dead; the bars
+       now open from the header filter button (#hdrFilter). At the tab root the
+       tap is a no-op, and from a sub-view it means "back to the root". */
+    if(nextTab===state.tab && tabAtRoot(nextTab)) return;
     state.tab=nextTab;
     closeAllRitemAccordions();
     state.restPanel='food';
     state.bevView=null;
     state.bevCheckout=false;
-    resetBevSplit();
+    resetSplitState();
     state.promoFilterOpen=false;
     state.operatorView="about";
     state.preview=null;
@@ -10057,6 +10332,7 @@ document.addEventListener("click",function(e){
   if(act==="dismissCardAlert"){state.cardAlert=null;render();return;}
   if(act==="openHalaalPopup"){openHalaalPopup();return;}
   if(act==="openRegionScreen"){location.href="EatOuts-Region.html";return;}
+  if(act==="closeBillSplit"){closeBillSplit();return;}
   if(act==="retryDirectory"){location.reload();return;}
 
   /* Close the photo preview; tapping the image itself stays inert */
@@ -10123,6 +10399,10 @@ document.addEventListener("click",function(e){
   if(act==="openProfilePhoto"){state.profilePhotoOpen=true;render();return;}
   if(act==="closeProfilePhoto"){if(e.target&&e.target.tagName==="IMG")return;state.profilePhotoOpen=false;render();return;}
   if(act==="customerLogout"){if(window.EatoutsCustomer)EatoutsCustomer.logout().then(function(){state.profileCardOpen=false;state.about=null;state.aboutFeature=null;state.aboutPreview=null;render();});return;}
+
+  /* HEADER */
+  /* The bottom nav only navigates, so this is the explicit filter control. */
+  if(act==="toggleFilterBar"){toggleFilterBar();return;}
 
   /* PROMOS */
   if(act==="pickDay"){state.promoDay=parseInt(t.getAttribute("data-day"),10);state.promoExpanded=null;render();return;}
@@ -10633,11 +10913,10 @@ if(act==="dismissMenuNotice"){state.menuNotice=(state.restaurantView&&state.rest
     if(act==='bevDec')state.bevCart[key].qty=Math.max(0,state.bevCart[key].qty-1);
     else state.bevCart[key].qty+=1;
     if(!state.bevCart[key].qty)delete state.bevCart[key];
-    if(state.bevSplitPeople.length)bevNormalizeSplitAssign();
     render();return;
   }
-  if(act==="bevGoCheckout"){if(bevCartCount()<=0)return;state.bevCheckout=true;resetBevSplit();render();return;}
-  if(act==="bevBackFromCheckout"){state.bevCheckout=false;resetBevSplit();render();return;}
+  if(act==="bevGoCheckout"){if(bevCartCount()<=0)return;state.bevCheckout=true;resetSplitState();render();return;}
+  if(act==="bevBackFromCheckout"){state.bevCheckout=false;resetSplitState();render();return;}
   if(act==="bevGoDelivery"){goDelivery("bev");return;}
   if(act==="bevPhoto"){
     const it=bevFindItem(id);
@@ -10652,7 +10931,7 @@ if(act==="dismissMenuNotice"){state.menuNotice=(state.restaurantView&&state.rest
   }
 
   /* BEVERAGE SPLIT THE BILL */
-  if(act==="bevOpenSplit"){if(bevCartCount()<=0)return;state.bevSplitOpen=true;render();return;}
+  if(act==="bevOpenSplit"){if(bevCartCount()<=0)return;openBillSplit("bev");return;}
   if(act==="bevBackFromSplit"){state.bevSplitOpen=false;render();return;}
   if(act==="bevAddSplitPerson"){
     const el=document.getElementById("bevSplitNewName");
@@ -10697,10 +10976,7 @@ if(act==="dismissMenuNotice"){state.menuNotice=(state.restaurantView&&state.rest
   if(act==="toggleCheckoutRow"){const k=t.getAttribute("data-key");state.checkoutOpen=(state.checkoutOpen===k?null:k);render();return;}
 
   /* SPLIT THE BILL */
-  if(act==="openSplit"){
-    if(!aboutUser()){summarySignup("Split the bill with an account","Create a free EatOuts account to split this bill between friends and send each person their share.");return;}
-    state.splitOpen=true;render();return;
-  }
+  if(act==="openSplit"){openBillSplit("menu");return;}
   if(act==="saveSummary"){
     if(!aboutUser()){summarySignup("Save this order","Create a free EatOuts account to save this order and come back to it any time.");return;}
     const s=favStore();
@@ -11396,5 +11672,54 @@ window.addEventListener("eatouts:venue-active",function(e){
 });
 </script>
 <script src="js/eatouts-orders-badge.js"></script>
-</body>
+<script>
+(function(){
+  function menuHasContent(m){
+    if(!m)return false;
+    if(Array.isArray(m))return m.some(function(c){return !!(c&&(c.items||[]).length);});
+    if((m.menuItems||[]).length)return true;
+    if((m.menuCategories||[]).length)return true;
+    return false;
+  }
+  function hasMenuForId(id){
+    var M=window.EatoutsMenus&&window.EatoutsMenus.menus;
+    if(!M)return false;
+    if(menuHasContent(M[id]))return true;
+    var parts=id.split('-');
+    for(var n=parts.length-1;n>0;n--){
+      if(menuHasContent(M[parts.slice(0,n).join('-')]))return true;
+    }
+    return false;
+  }
+  function reorder(){
+    var vp=document.getElementById('viewport');
+    if(!vp)return;
+    var screens=vp.querySelectorAll('.screen[data-page="restaurants-pager"]');
+    Array.prototype.forEach.call(screens,function(screen){
+      var items=Array.prototype.slice.call(screen.querySelectorAll('.ritem[data-racc]'));
+      if(items.length<2)return;
+      var orig=items.slice();
+      items.sort(function(a,b){
+        var ha=hasMenuForId(a.getAttribute('data-racc'))?1:0;
+        var hb=hasMenuForId(b.getAttribute('data-racc'))?1:0;
+        if(ha!==hb)return hb-ha;
+        return orig.indexOf(a)-orig.indexOf(b);
+      });
+      var changed=false;
+      for(var i=0;i<items.length;i++){if(items[i]!==orig[i]){changed=true;break;}}
+      if(!changed)return;
+      var parent=orig[0].parentNode;
+      items.forEach(function(el){parent.appendChild(el);});
+    });
+  }
+  var mo=new MutationObserver(function(){reorder();});
+  var target=document.getElementById('viewport')||document.body;
+  mo.observe(target,{childList:true,subtree:true});
+  document.addEventListener('click',function(){setTimeout(reorder,100);});
+  setTimeout(reorder,300);
+  setTimeout(reorder,1000);
+  setTimeout(reorder,2500);
+  console.log('[menu-sort] active');
+})();
+</script></body>
 </html>

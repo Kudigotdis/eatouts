@@ -928,6 +928,18 @@
       "auth": false,
       "status": "FULL",
       "notes": "Renders from the record's `snapshot` (written by eventSavePayload() in eatout_event_builder.html), so the page loads only js/eatouts-customer.js and needs none of the venue/menu/supplier engines. Saved events live in the phone's localStorage, so a link opened on another device shows the 'not on this device' state until the record syncs through the backend. Covered by tests/created-event.js."
+    },
+    {
+      "id": 74,
+      "file": "bill-split.html",
+      "group": "public-customer",
+      "purpose": "Full-screen Split the Bill screen mounted in #billSplitHost; reads and writes the live cart through window.EatoutsBillSplitBridge so the SPA keeps one split model.",
+      "audience": "Customers",
+      "entry": "Checkout → Split the Bill (food or beverages); also opens standalone with demo data when no bridge is present.",
+      "interactions": "Adds and removes people, assigns item quantities, balances shares and undoes it, edits optional person details and photos, adds items from the menu, edits order name/notes, and hands off to delivery, review or WhatsApp. Every bridge action is delegated to the host; guests can use the whole screen but the three send buttons and Save Order show a lock and open an in-page account sheet instead of leaving the page.",
+      "auth": false,
+      "status": "FULL",
+      "notes": "Inside the app the page prefers window.parent.EatoutsBillSplitBridge over its own demo bridge, so the iframe never shows demo data. The host bridge refuses sharePerson, sendFullBill, sendStandardOrder and saveSummary for guests with the 'auth_required' sentinel, which the page turns into the account sheet. Covered by tests/beverages.js."
     }
   ],
   "changelog": [

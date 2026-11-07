@@ -165,6 +165,12 @@ only reads; it never rewrites this file. It warns on line drift.
 |---|------|-----------|------------------|-------------|--------|
 | 73 | `Created_Event.html` | View-only copy of a saved event (T13) - the builder's preview page (flyer hero, venue, dates, dress code, menu, suppliers, contacts, tickets, RSVP, guests, budget) rendered from the record's snapshot with no edit affordances, plus Web Share / WhatsApp sharing. | `?id=<saved event id>`; Web Share and WhatsApp links from the planner | `PAGE: Created Event` | 423 |
 
+## M. Split the Bill (2026-11)
+
+| # | File | What it is | How you reach it | Page marker | ~Lines |
+|---|------|-----------|------------------|-------------|--------|
+| 74 | `bill-split.html` | Full-screen Split the Bill screen mounted in `#billSplitHost`; reads and writes the live cart through `window.EatoutsBillSplitBridge`. Guests can split freely; the WhatsApp sends and Save Order open an in-page account sheet. | Checkout → Split the Bill (food or beverages); also opens standalone with demo data | `PAGE: Split the Bill` | 1,076 |
+
 
 ---
 
