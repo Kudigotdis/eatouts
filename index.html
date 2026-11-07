@@ -60,10 +60,9 @@ img{display:block;max-width:100%}
 /* Region chip: the header always shows the active country, because an empty
    panel in Zimbabwe read as "Botswana has no businesses" once the pill was
    dropped. Tapping it opens the region selector. */
-.hdr-region{display:flex;align-items:center;gap:5px;border:1px solid #e8e2d4;background:#fff;border-radius:999px;padding:4px 9px 4px 5px;cursor:pointer;font:inherit;font-size:12.5px;font-weight:800;color:#1A1A1A;max-width:42vw;-webkit-tap-highlight-color:transparent}
+.hdr-region{display:flex;align-items:center;justify-content:center;border:0;background:transparent;border-radius:50%;padding:5px;cursor:pointer;font:inherit;-webkit-tap-highlight-color:transparent}
 .hdr-region:active{background:#f4efe4}
-.hdr-region img{width:17px;height:17px;border-radius:50%;object-fit:cover;display:block;flex:0 0 auto}
-.hdr-region span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hdr-region img{width:24px;height:24px;border-radius:50%;object-fit:cover;display:block;flex:0 0 auto}
 
 /* ---------- VIEWPORT (WHITE) ---------- */
 #viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#ffffff;padding-top:0;view-transition-name:app-vp}
@@ -981,8 +980,7 @@ a.dlg-btn{text-decoration:none}
     <button class="brand-mark" type="button" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
     <div class="hdr-right">
       <button class="hdr-region" type="button" id="hdrRegion" data-act="openRegionScreen" aria-label="Change country">
-        <img id="hdrRegionFlag" src="assets/flags/bw.png" alt="">
-        <span id="hdrRegionName">Botswana</span>
+        <img id="hdrRegionFlag" src="assets/flags-circlular/botswana-bw.svg" alt="">
       </button>
       <button class="hdr-search" type="button" data-act="openSearchScreen" aria-label="Search EatOuts">
         <img src="assets/icons/search_icon.webp" alt="Search">
@@ -5752,12 +5750,10 @@ function renderRegionChip(){
   const R=window.EatoutsRegions;
   const region=(R&&typeof R.getActiveRegion==="function")?R.getActiveRegion():null;
   const name=(region&&region.name)||"Botswana";
+  const flagKey=(region&&region.flag)||"botswana-bw";
   const flag=document.getElementById("hdrRegionFlag");
-  const label=document.getElementById("hdrRegionName");
-  if(label)label.textContent=name;
   if(flag){
-    const code=String((region&&region.code)||"BW").toLowerCase();
-    flag.src="assets/flags/"+code+".png";
+    flag.src="assets/flags-circlular/"+flagKey+".svg";
     flag.alt=name;
   }
   chip.setAttribute("aria-label","Country: "+name+". Change country");

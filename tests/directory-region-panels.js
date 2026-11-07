@@ -82,9 +82,11 @@ const w = bw.w;
 const doc = bw.doc;
 
 check('Botswana is the active region', w.EatoutsRegions.code() === 'BW', w.EatoutsRegions.code());
-check('the header chip names the active region',
-  (doc.getElementById('hdrRegionName') || {}).textContent === 'Botswana',
-  (doc.getElementById('hdrRegionName') || {}).textContent);
+check('the header chip shows the active region flag',
+  /assets\/flags-circlular\/botswana-bw\.svg$/.test((doc.getElementById('hdrRegionFlag') || {}).src || ''),
+  (doc.getElementById('hdrRegionFlag') || {}).src);
+check('the header no longer prints the region name',
+  !doc.getElementById('hdrRegionName'));
 check('the header chip is tappable to change country',
   !!doc.querySelector('[data-act="openRegionScreen"]'));
 
@@ -121,9 +123,9 @@ check('Restaurants: no bogus "did not load" card',
   const page = boot(index.html, region);
   const cw = page.w;
   check(name + ' is the active region', cw.EatoutsRegions.code() === region, cw.EatoutsRegions.code());
-  check(name + ': the header chip follows the region',
-    (page.doc.getElementById('hdrRegionName') || {}).textContent === name,
-    (page.doc.getElementById('hdrRegionName') || {}).textContent);
+  check(name + ': the header flag follows the region',
+    new RegExp('/assets/flags-circlular/' + page.w.EatoutsRegions.get(region).flag + '\\.svg$').test((page.doc.getElementById('hdrRegionFlag') || {}).src || ''),
+    (page.doc.getElementById('hdrRegionFlag') || {}).src);
   cw.eval('state.tab="restaurants"; state.restPanel="food"; render();');
   const rows = page.doc.querySelectorAll('.bevpage[data-page="food"] [data-racc]').length;
   const el = page.doc.querySelector('.bevpage[data-page="food"]');
