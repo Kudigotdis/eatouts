@@ -2949,3 +2949,32 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `data/restaurant_listings/directory_runtime_data.js` / `.json` were already modified before this task and are deliberately left out of the commit.
 - Errors: none
 
+### [2026-11-07 15:58:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: `data-page="venue-menu"` prints real menu section names on every region instead of the generic "Menu · N items", and South Africa / Mauritius no longer claim a menu is missing when the venue does have one.
+- Root causes fixed:
+  1. The menu category card and the category page header printed `cat.name` verbatim. Kenya's scrape carries no section names at all (and South Africa shares that shape), so every one of those venues rendered a single bucket literally named "Menu".
+  2. `build_mauritius()` never emitted menus — `assets/Mauritius/restaurants.json` ships real sections ("Starters", "Value Box", …) but the generator wrote an empty `menus`, so every MU venue fell into the "menu not yet available" empty state.
+- Files changed:
+  - `index.html`: new `menuCatLabel(cat)` (~line 8245) — a real section name passes through; a generic bucket (`menu`, `main`, `main menu`, `full menu`, `items`, `all items`, `food`, `other`, `misc`) resolves to the venue's own name when the menu has a single section, else "Other". Applied to the category card, the category page header, the item favourite payload (`payload.menu`) and the favourites/order summary export, so a saved row matches the heading the user saw.
+  - `scripts/build_regional_directories.py`: new `mauritius_menu(item)` — section name → `category`, name/price/description rows, dropping rows with no name or no price; `build_mauritius()` inlines the result as `menusRaw[slug]` + `menuFiles[slug] = "inline"` and reports `menus <n>` instead of "no menu data in source".
+  - `data/restaurant_listings/mauritius_runtime_data.{json,js}` (regenerated): **258 menu keys / 17 418 items / 665 distinct sections / 2.02 MB**.
+  - `tests/regional-directories.js`: MU payload budget 1.0 → 2.5 MB (it now carries menus), and the stale MU exemption in *"menus carry real items"* is removed — every region must ship menu rows.
+- Verified:
+  - `python scripts/build_regional_directories.py` → MU `towns resolved 262/262, menus 258`.
+  - `node tests/regional-directories.js` → **REGIONAL-DIRECTORIES TEST PASSED** (68 checks).
+  - `node tests/directory-region-panels.js`, `node tests/menu-nav-state.js`, `node tests/venue-about-menu.js` → green.
+  - `node tests/run-all.js` → **86 passed, 0 failed**, exit 0 (Botswana, Zimbabwe, Kenya, Mauritius and South Africa panels all list their own restaurants with no failure card).
+  - Targeted render harness (temporary, deleted): a Mauritius venue lists its 23 real sections ("Starters", "Value Box"), a Kenya generic bucket renders as "Koffi Koffi Restaurant", a Zimbabwe generic bucket as "068 Grill Hub", and the category pages repeat the same heading; zero runtime errors.
+- Not verified:
+  - A real-browser tap-through of a Mauritius menu card → category page on a phone-sized viewport. jsdom proves the labels, markup and state, not the painted layout.
+- Notes:
+  - `EatoutsBridge.listing()` returns display rows **without `brandKey`**, so `brandKeyOf` collapses `amigos-vacoas-phoenix` → `amigos` and never matches the menu key. The app and the tests read `window.DIRECTORY_DATA.restaurants`, which does carry `brandKey`. Recorded here so the mismatch is not re-diagnosed later.
+  - `tests/directory-region-panels.js` failed once inside an earlier `run-all.js` run with the 2 MB MU payload in memory, then passed standalone and in the clean full run above — a jsdom flake, not a code defect.
+  - `data/restaurant_listings/directory_runtime_data.js` / `.json` (Botswana) were already modified before this task and are deliberately left out of the commit.
+- Tests:
+  - `tests/regional-directories.js` keeps enforcing envelope, per-row region/currency, unique ids/slugs, gazetteer coverage, priced-or-described menu rows, and the mobile size budget — now including "MU must carry menu rows".
+- Commit: `d736749`
+- Push: `origin/main` (this ledger entry follows in the next commit)
+- Errors: none
+
+
