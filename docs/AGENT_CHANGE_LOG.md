@@ -3000,5 +3000,5 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - Cart survives the sign-up/login round-trip via localStorage, but in-memory split assignments do not; a member who signs up returns to the venue manually (signup lands on `eatouts-profile.html`).
   - `tests/beverages.js` still OOMs at Node's default heap inside `run-all.js`; `NODE_OPTIONS=--max-old-space-size=6144` is required in this environment.
 - Commit: `e42e0ed`
-- Push: PENDING
+- Push: `origin/main` (`164f4e9`; this docs line follows in a ledger-only commit)
 - Errors: none
