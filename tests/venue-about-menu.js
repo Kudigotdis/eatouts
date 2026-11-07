@@ -67,9 +67,14 @@ setTimeout(() => {
   check('inline venue-about screen is truly gone', doc.querySelector('#viewport .screen[data-page="venue-about"]') === null);
   check('About tap targets the standalone venue-about page',
     !!navUrl && navUrl.indexOf('venue-about.html?link=') === 0, navUrl);
+  /* the About page resolves a venue id, a slug or a brand key; the tapped
+     button carries the venue id, so that is what the link should hold */
+  const infoId = infoBtn && infoBtn.getAttribute('data-id');
   check('About target carries the chosen venue (not the flagship)',
     !!navUrl && navUrl.indexOf('the-yellow-giraffe') === -1 &&
-    navUrl.indexOf(encodeURIComponent(brand)) > -1, navUrl + ' :: brand=' + brand);
+    (navUrl.indexOf(encodeURIComponent(infoId)) > -1 ||
+      navUrl.indexOf(encodeURIComponent(brand)) > -1),
+    navUrl + ' :: id=' + infoId + ' brand=' + brand);
 
   check('no runtime errors', appErrors.length === 0, appErrors.slice(0, 3).join(' | '));
 

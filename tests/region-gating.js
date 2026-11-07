@@ -135,24 +135,24 @@ check('ordering is preserved', seen[0].name === 'Alpha Grill' && seen[1].name ==
   seen.map(r => r.name).join(','));
 
 /* ================= locations follow the region ================= */
-/* The adapter no longer compares filenames at every call — it indexes the one
-   file the registry names for the active region (and nothing when it names
-   none), so gating is a property of the resolution itself. */
+/* The adapter resolves the file the registry names for the active region on
+   every build (never once at load), so gating is a property of the resolution
+   itself — and switching region re-indexes without a page reload. */
 check('the locations adapter gates through the registry',
-  /EatoutsRegions/.test(LOC_SRC) && /REGIONS\.locationsFile\(\)/.test(LOC_SRC) &&
-  /LOCATIONS_SOURCES\[LOCATIONS_FILE\]/.test(LOC_SRC));
+  /window\.EatoutsRegions/.test(LOC_SRC) && /locationsFile\(\)/.test(LOC_SRC) &&
+  /function dataset\(file\)/.test(LOC_SRC) && /dataset\(file\)/.test(LOC_SRC));
 check('Botswana locations load', Loc.stats().loaded === true, Loc.stats().loaded);
 check('every Botswana district is indexed', Loc.allDistricts().length === 28, Loc.allDistricts().length);
 check('every Botswana town is indexed', Loc.allTowns().length === 486, Loc.allTowns().length);
 
-/* activate ZA — only to prove the gate; the selector refuses this in the UI */
-w.EATOUTS_REGIONS.forEach(r => { if (r.code === 'ZA') r.active = true; });
-check('ZA can be activated for this check', R.setActiveRegion('ZA') === true);
+/* switch to South Africa — every live region is selectable from the UI */
+check('ZA can be selected', R.setActiveRegion('ZA') === true);
 check('the active code follows', R.code() === 'ZA', R.code());
 check('currency follows the new region', R.currency() === 'ZAR', R.currency());
 check('money() prints the new region\'s symbol', R.symbol() === 'R' && R.money(12) === 'R12.00',
   R.symbol() + ' / ' + R.money(12));
-check('a region without a location file reports none', R.locationsFile() === null, R.locationsFile());
+check('the location file follows the region', R.locationsFile() === 'south_africa_locations.js',
+  R.locationsFile());
 check('ZA has no catering / bakery / beverage directory yet',
   R.hasDirectory('catering') === false && R.hasDirectory('bakery') === false &&
   R.hasDirectory('beverages') === false);
@@ -178,12 +178,24 @@ check('the bridge now serves the other region',
   zaSeen.map(r => r.name + ':' + r.region).join(','));
 
 ['KE', 'MU'].forEach(function (code) {
-  w.EATOUTS_REGIONS.forEach(function (r) { if (r.code === code) r.active = true; });
-  check(code + ' can be activated for this check', R.setActiveRegion(code) === true);
+  check(code + ' can be selected', R.setActiveRegion(code) === true);
   check(code + ' has no catering / bakery / beverage directory yet',
     R.hasDirectory('catering') === false && R.hasDirectory('bakery') === false &&
     R.hasDirectory('beverages') === false);
 });
+
+/* the lazy rebuild: a gazetteer that arrives AFTER the adapter loaded is picked
+   up by the next call, which is what keeps a page that loads js/eatouts-regions.js
+   late (or a region switched in-session) from serving Botswana's towns. */
+w.MAURITIUS_LOCATIONS_DATA = {
+  districts: [{ name: 'Port Louis', code: 'MU11', towns: [{ name: 'Port Louis', areas: ['Harbour View Flats'] }] }]
+};
+R.setActiveRegion('MU');
+check('the adapter indexes the new region without a reload',
+  w.EatoutsLocations.allDistricts().length === 1 && w.EatoutsLocations.allTowns()[0].label === 'Port Louis',
+  w.EatoutsLocations.allTowns().map(t => t.label).join(','));
+check('and resolves the new region\'s places',
+  w.EatoutsLocations.resolve('MU11', 'Port Louis', 'Harbour View Flats').area === 'Harbour View Flats');
 
 /* and back */
 check('BW can be restored', R.setActiveRegion('BW') === true);

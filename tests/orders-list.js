@@ -96,8 +96,9 @@ setTimeout(() => {
     empty && empty.textContent);
   check('counter hidden for a browser', counter.hasAttribute('hidden'));
 
-  /* T06b: the counter widget on the #hdr pages that carry a customer session */
-  const BADGE_PAGES = ['index.html', 'eatout_event_builder.html', 'eatouts-login.html', 'operator-businesses.html'];
+  /* T06b: the counter widget on the #hdr pages that carry a customer session.
+     index.html deliberately dropped it — its header is brand mark + search. */
+  const BADGE_PAGES = ['eatout_event_builder.html', 'eatouts-login.html', 'operator-businesses.html'];
   BADGE_PAGES.forEach(file => {
     const src = fs.readFileSync(path.join(APP_DIR, file), 'utf8');
     check(file + ' has the orders counter slot', /id="ordCount"[^>]*data-act="ordersCount"/.test(src));

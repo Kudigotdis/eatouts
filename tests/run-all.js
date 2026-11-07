@@ -93,6 +93,8 @@ const SUITES = [
   'region-selector.js',
   'region-gating.js',
   'directory-region-empty.js',
+  'regional-directories.js',
+  'venue-about-resolve.js',
   'created-event.js',
   'money.js',
   'security-admin.js',

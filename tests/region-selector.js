@@ -4,13 +4,14 @@
  * Proves:
  *   - the page carries the PAGE banner / <title> / data-page the inventory
  *     validator demands, plus the standard EatOuts header and bottom nav;
- *   - every region in the registry renders with a real flag file behind it,
- *     Botswana marked as the active one;
+ *   - only the LIVE regions render (Botswana, Kenya, Mauritius, South Africa,
+ *     Zimbabwe), each with a real flag file behind it, the one you are in first;
+ *   - the selected row is marked and the others recede (40% opacity) but stay
+ *     tappable — no "coming soon" card, no dead rows;
  *   - search filters by name and by code, and says so when nothing matches;
- *   - tapping an inactive region opens the "coming soon" floating card
- *     (G3: 420px / 16px, plain X, closes on X, outside tap and Escape);
- *   - tapping the active region persists 'eatouts.region.v1' = BW;
- *   - the registry refuses to activate anything still flagged inactive.
+ *   - tapping another region persists 'eatouts.region.v1' and hands off to
+ *     index.html#restaurants, where that region's payload is loaded;
+ *   - the registry still refuses Malawi / Nigeria / Ghana.
  */
 const fs = require('fs');
 const path = require('path');
@@ -82,26 +83,35 @@ check('bottom nav is the house five', nav.length === 5 && nav.join(',') ===
   'promos,restaurants,reserve,gallery,about', nav.join(','));
 
 
-/* ---------- every region renders ---------- */
+/* ---------- every live region renders ---------- */
 const items = () => Array.from(doc.querySelectorAll('#regionList .rs-item'));
 const item = code => doc.querySelector('#regionList .rs-item[data-code="' + code + '"]');
-check('all eight registry regions render', items().length === 8, String(items().length));
-check('regions render in registry order',
-  items().map(b => b.getAttribute('data-code')).join(',') === 'BW,ZA,ZW,MW,KE,NG,GH,MU',
+check('only the five live regions render', items().length === 5, String(items().length));
+check('the region you are in comes first, the rest alphabetically',
+  items().map(b => b.getAttribute('data-code')).join(',') === 'BW,KE,MU,ZA,ZW',
   items().map(b => b.getAttribute('data-code')).join(','));
+check('no inactive region is offered',
+  !item('MW') && !item('NG') && !item('GH') && !/Coming soon/.test(doc.getElementById('regionList').textContent));
 check('Botswana is the active row',
   !!item('BW') && item('BW').getAttribute('aria-pressed') === 'true' && /Selected/.test(item('BW').textContent));
-check('active row is marked, inactive rows are not',
-  item('ZA').getAttribute('aria-pressed') === 'false' && /Coming soon/.test(item('ZA').textContent));
+check('the other rows are unselected and carry no Selected tag',
+  item('ZA').getAttribute('aria-pressed') === 'false' && !/Selected/.test(item('ZA').textContent));
+check('unselected rows recede to 40% but stay tappable', (() => {
+  const z = item('ZA');
+  return w.getComputedStyle(z).opacity === '0.4' && !z.disabled &&
+    z.getAttribute('aria-disabled') !== 'true';
+})(), w.getComputedStyle(item('ZA')).opacity);
 check('header echoes the active region code', doc.getElementById('regionCode').textContent === 'BW');
 
 const flags = items().map(b => b.querySelector('.rs-flag').getAttribute('src'));
 check('flags come from assets/flags/',
-  flags.length === 8 && flags.every(s => /^assets\/flags\/[a-z]{2}\.png$/.test(s)), flags.join(','));
+  flags.length === 5 && flags.every(s => /^assets\/flags\/[a-z]{2}\.png$/.test(s)), flags.join(','));
 const missing = flags.map(s => path.join(APP_DIR, s.replace(/\//g, path.sep))).filter(f => !fs.existsSync(f));
 check('every rendered flag file exists on disk', missing.length === 0, missing.join(', '));
 check('flag alt text is the region name',
   item('KE').querySelector('.rs-flag').getAttribute('alt') === 'Kenya');
+check('row name uses the 16px body size',
+  w.getComputedStyle(item('BW').querySelector('.rs-name')).fontSize === '16px');
 
 /* the registry's `flag` base name feeds the square flag the search header
    shows (search_screen.html#regionBtn), so every one of them must resolve */
@@ -113,8 +123,6 @@ const sqMissing = sqFlags
   .filter(f => !fs.existsSync(f));
 check('every region square flag exists on disk', sqMissing.length === 0,
   sqMissing.map(f => path.basename(f)).join(', '));
-check('row name uses the 16px body size',
-  w.getComputedStyle(item('BW').querySelector('.rs-name')).fontSize === '16px');
 
 /* ---------- search ---------- */
 const search = doc.getElementById('regionSearch');
@@ -127,68 +135,45 @@ type('atlantis');
 check('no-match shows an empty state',
   !items().length && /No region matches/.test(doc.getElementById('regionList').textContent));
 type('');
-check('clearing search restores all eight', items().length === 8);
+check('clearing search restores all five', items().length === 5);
 
-/* ---------- coming-soon card (G3) ---------- */
-const scrim = doc.getElementById('soonScrim');
-check('scrim starts closed', !scrim.classList.contains('open') && scrim.hidden);
-click(w, item('ZA'));
-check('tapping an inactive region opens the popup', scrim.classList.contains('open') && !scrim.hidden);
-check('popup headline is the coming-soon line',
-  /This region is coming soon\./.test(doc.getElementById('soonTitle').textContent));
-check('popup body names the tapped region',
-  /South Africa/.test(doc.getElementById('soonBody').textContent) &&
-  /Botswana is the only region live today/.test(doc.getElementById('soonBody').textContent));
-const scrimCs = w.getComputedStyle(scrim);
-check('popup scrim is the centred flex layer',
-  scrimCs.display === 'flex' && scrimCs.alignItems === 'center' && scrimCs.justifyContent === 'center',
-  [scrimCs.display, scrimCs.alignItems, scrimCs.justifyContent].join(' / '));
-const card = scrim.querySelector('.fpop');
-const cs = w.getComputedStyle(card);
-check('popup card is 420px wide with 16px corners', cs.maxWidth === '420px' && cs.borderRadius === '16px',
-  cs.maxWidth + ' / ' + cs.borderRadius);
-check('popup card is capped at 80dvh', /max-height:\s*80dvh/.test(src));
-const x = card.querySelector('.fpop-hdr .fpop-x');
-const xCs = x ? w.getComputedStyle(x) : null;
-check('close is a plain X glyph, no beige circle',
-  !!x && x.textContent.trim() === '\u00d7' && !!xCs &&
-  (xCs.backgroundColor === 'transparent' || xCs.backgroundColor === 'rgba(0, 0, 0, 0)') &&
-  (xCs.borderRadius === '' || xCs.borderRadius === '0px'),
-  xCs ? [x.textContent.trim(), xCs.backgroundColor, xCs.borderRadius].join(' / ') : 'no .fpop-x');
-check('no .fpop-close anywhere', !doc.querySelector('.fpop-close'));
-
-click(w, x);
-check('the X closes the popup', !scrim.classList.contains('open') && scrim.hidden);
-click(w, item('ZW'));
-click(w, scrim);
-check('an outside tap closes the popup', !scrim.classList.contains('open'));
-click(w, item('MW'));
-key(w, doc, 'Escape');
-check('Escape closes the popup', !scrim.classList.contains('open'));
+/* ---------- switching region ---------- */
+check('the coming-soon card is gone',
+  !doc.getElementById('soonScrim') && !/This region is coming soon/.test(src));
 click(w, item('KE'));
-click(w, card.querySelector('.fpop-btn'));
-check('the Got it button closes the popup', !scrim.classList.contains('open'));
+check('tapping another region persists it',
+  w.localStorage.getItem('eatouts.region.v1') === 'KE', String(w.localStorage.getItem('eatouts.region.v1')));
 
-/* ---------- selecting the active region ---------- */
-click(w, item('BW'));
-check('tapping the active region writes eatouts.region.v1',
-  w.localStorage.getItem('eatouts.region.v1') === 'BW', String(w.localStorage.getItem('eatouts.region.v1')));
-check('selecting does not open the popup', !scrim.classList.contains('open'));
-check('Botswana stays the selected row',
-  item('BW').getAttribute('aria-pressed') === 'true' && item('ZA').getAttribute('aria-pressed') === 'false');
+/* the page leaves for the restaurants tab: jsdom cannot navigate, so the
+   attempt is recorded as a jsdomError instead */
+check('tapping a region hands off to index.html#restaurants',
+  a.errors.some(e => /Not implemented: navigation|index\.html#restaurants/.test(e) ||
+    /index\.html#restaurants/.test(w.location.href)),
+  a.errors.join(' | ') + ' :: ' + w.location.href);
 
 /* ---------- registry API ---------- */
 const R = w.EatoutsRegions;
+R.setActiveRegion('BW');            /* the tap above left Kenya stored */
 check('registry exposes the eight regions', !!R && R.all().length === 8);
-check('getActiveRegion() defaults to Botswana', R.getActiveRegion().code === 'BW');
-check('isActive is true for BW and false for ZA', R.isActive('BW') === true && R.isActive('ZA') === false);
+check('five regions are live, three are still listed only',
+  R.all().filter(r => r.active).map(r => r.code).join(',') === 'BW,ZA,ZW,KE,MU',
+  R.all().filter(r => r.active).map(r => r.code).join(','));
+check('every live region names its own location file',
+  R.all().filter(r => r.active).every(r => /_locations\.js$/.test(String(r.locations))),
+  R.all().filter(r => r.active).map(r => r.locations).join(','));
+check('getActiveRegion() falls back to Botswana', R.getActiveRegion().code === 'BW');
+check('isActive is true for the four new regions',
+  ['KE', 'MU', 'ZA', 'ZW'].every(c => R.isActive(c) === true));
+check('isActive is false for Malawi, Nigeria and Ghana',
+  R.isActive('MW') === false && R.isActive('NG') === false && R.isActive('GH') === false);
 check('setActiveRegion refuses an inactive region',
-  R.setActiveRegion('ZA') === false && R.getActiveRegion().code === 'BW');
-check('setActiveRegion accepts BW', R.setActiveRegion('BW') === true && R.getActiveRegion().code === 'BW');
+  R.setActiveRegion('MW') === false && R.getActiveRegion().code === 'BW');
+check('setActiveRegion accepts every live region',
+  ['KE', 'MU', 'ZA', 'ZW', 'BW'].every(c => R.setActiveRegion(c) === true && R.getActiveRegion().code === c));
 
 /* ---------- a stale stored region falls back ---------- */
 const b = boot();
-b.w.localStorage.setItem('eatouts.region.v1', 'ZA');
+b.w.localStorage.setItem('eatouts.region.v1', 'MW');
 const fallback = b.w.EatoutsRegions.getActiveRegion();
 check('a stored inactive region falls back to BW', fallback && fallback.code === 'BW', fallback && fallback.code);
 b.w.localStorage.setItem('eatouts.region.v1', 'XX');
@@ -196,6 +181,3 @@ check('an unknown stored code falls back to BW', b.w.EatoutsRegions.getActiveReg
 
 console.log('\nREGION-SELECTOR TEST ' + (fails ? 'FAILED (' + fails + ')' : 'PASSED'));
 process.exit(fails ? 1 : 0);
-
-type('');
-check('clearing search restores all five', items().length === 5);

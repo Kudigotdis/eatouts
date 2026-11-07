@@ -17,13 +17,17 @@ const APP_DIR = path.resolve(__dirname, '..');
 
 const PAYLOADS = {
   BW: 'data/restaurant_listings/directory_runtime_data.js',
-  ZW: 'data/restaurant_listings/zimbabwe_runtime_data.js'
+  ZW: 'data/restaurant_listings/zimbabwe_runtime_data.js',
+  KE: 'data/restaurant_listings/kenya_runtime_data.js',
+  MU: 'data/restaurant_listings/mauritius_runtime_data.js',
+  ZA: 'data/restaurant_listings/southafrica_runtime_data.js'
 };
 
 /**
  * Add the region's payload to a page's HTML, before any app script runs.
  * @param {string} html the page markup, script tags already inlined
- * @param {string} [region] "BW" (the default every suite runs as) or "ZW"
+ * @param {string} [region] "BW" (the default every suite runs as), "ZW", "KE",
+ *   "MU" or "ZA"
  * @returns {string} html with the payload inlined
  */
 function withRegionPayload(html, region) {
