@@ -28,8 +28,10 @@ var LOGOS = {
   };
 
   /* Botswana Halaal Authority certification. Kept as a static list because
-     certification is controlled by the authority, not the venue record. */
-  var HALAAL_LOGO = 'assets/halaal-logos/Botswana_Halaal_Logo.jpg';
+     certification is controlled by the authority, not the venue record.
+     The mark is printed as the bare icon: transparent PNG, no circular
+     container, no border and no shadow (see the .halaal-badge CSS below). */
+  var HALAAL_LOGO = 'assets/halaal-logos/Botswana_Halaal_Logo.png';
   var HALAAL_EXACT = [
     'ashoka-palace'
   ];
@@ -110,6 +112,26 @@ kfc: 'assets/logo/kfc.jpg',
     return false;
   }
 
+  /* The halaal mark belongs to the Botswana Halaal Authority, so only Botswana
+     venues may carry it: a Zimbabwe / Kenya / Mauritius / South Africa record
+     with a matching brand slug (kfc-, nando-, ...) would otherwise be printed
+     with a Botswana certificate it does not hold. */
+  function activeRegionCode() {
+    var R = (typeof window !== 'undefined') ? window.EatoutsRegions : null;
+    if (R && typeof R.code === 'function') {
+      try { return String(R.code()).toUpperCase(); } catch (e) { /* fall through */ }
+    }
+    try { return String(localStorage.getItem('eatouts.region.v1') || 'BW').toUpperCase(); }
+    catch (e) { return 'BW'; }
+  }
+
+  /** False only when the record explicitly belongs to another region. */
+  function recordIsBotswana(venue) {
+    var R = (typeof window !== 'undefined') ? window.EatoutsRegions : null;
+    if (!R || typeof R.recordRegion !== 'function') return true;
+    try { return R.recordRegion(venue) === 'BW'; } catch (e) { return true; }
+  }
+
   /**
    * True when a venue, brand group, or plain slug is on the Botswana Halaal
    * Authority list. Branch slugs (kfc-maun, nando-s-phakalane, ...) match by
@@ -117,7 +139,9 @@ kfc: 'assets/logo/kfc.jpg',
    */
   function isHalaalVenue(venue) {
     if (!venue) return false;
+    if (activeRegionCode() !== 'BW') return false;
     if (typeof venue === 'string') return isHalaalKey(venue);
+    if (!recordIsBotswana(venue)) return false;
     var parts = [
       venue.brandKey,
       venue.key,
@@ -360,12 +384,12 @@ function hasRealLogo(slug) {
     '.eo-thumb-lg{width:80px;height:80px;border-radius:18px}',
     '.eo-thumb-lg .eo-thumb-letter{font-size:34px}',
     '.halaal-badge{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;',
-    '  width:34px;height:34px;padding:2px;border:1px solid #e3dccb;border-radius:50%;',
-    '  background:#fff;box-shadow:0 1px 4px rgba(16,24,40,.12);cursor:pointer;',
+    '  width:34px;height:34px;padding:0;border:0;border-radius:0;',
+    '  background:transparent;box-shadow:none;cursor:pointer;',
     '  -webkit-tap-highlight-color:transparent;transition:transform .08s ease}',
-    '.halaal-badge img{width:100%;height:100%;object-fit:contain;display:block;border-radius:50%}',
+    '.halaal-badge img{width:100%;height:100%;object-fit:contain;display:block;border-radius:0}',
     '.halaal-badge:active{transform:scale(.94)}',
-    '.halaal-badge-status{width:28px;height:28px;padding:1px;vertical-align:middle}'
+    '.halaal-badge-status{width:48px;height:48px;padding:0;vertical-align:middle}'
   ].join('');
 
   /** Idempotent: safe to call from every page that loads this file. */

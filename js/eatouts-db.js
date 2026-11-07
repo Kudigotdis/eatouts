@@ -246,8 +246,12 @@
   function save(db) {
     try {
       db.version = VERSION;
-      localStorage.setItem(KEY, JSON.stringify(db));
+      /* Cache before the write: when localStorage is full (the region payloads
+         are 0.5-1.8 MB each and they accumulate) the write throws, and caching
+         afterwards used to throw the merged rows away — an empty region list
+         that survived every re-render. */
       _loadCache = db;
+      localStorage.setItem(KEY, JSON.stringify(db));
       if (typeof window !== 'undefined' && window.dispatchEvent) {
         window.dispatchEvent(new CustomEvent('eatouts:db-saved', { detail: db }));
       }

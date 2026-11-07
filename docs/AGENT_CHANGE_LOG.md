@@ -2897,3 +2897,35 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - Botswana output is unchanged: the map lists `BW`, and all existing directory/search tests pass.
   - `data/restaurant_listings/directory_runtime_data.js` / `.json` were already modified before this task and were deliberately left out of the commit.
 - Errors: none
+
+### [2026-11-07 12:00:00] - [Agent: cline] - [Status: COMMITTED]
+- Task: Make the empty listing panels impossible to misread (BW catering/bakeries/beverages; KE/MU/SA/ZW restaurants) and print the Botswana Halaal mark as the bare icon — `.png`, no circular container, 48×48 on venue-about.
+- Root causes fixed:
+  1. `js/eatouts-brand.js` pointed `HALAAL_LOGO` at `Botswana_Halaal_Logo.jpg`, a file that never shipped (only the transparent `.png` exists) — every badge rendered as a broken image inside a 34px white circle.
+  2. The badge had no region gate, so a ZW/KE/MU/ZA record sharing a certified brand slug (`kfc-`, `nando-`, …) would print a Botswana certificate it does not hold.
+  3. `js/eatouts-db.js` `save()` cached the merged DB *after* `localStorage.setItem`; a quota throw (ZA payload ~1.8 MB) discarded the merged rows, so `DB.load()` returned a DB without the active region and every re-render painted an empty list.
+  4. `loadDirectoryMenus()` ran `mergeDirectory()` unprotected before the second render, so one throw left `DIRECTORY_LOADED` false and `onReady()` never fired — first paint empty, never repainted.
+  5. The header had no region indicator after `#curPill` was removed, so a stale/foreign region made its empty panels read as "Botswana has no catering/bakeries", and a failed payload had no explanation at all.
+- Files changed:
+  - `js/eatouts-brand.js`: `HALAAL_LOGO` → `assets/halaal-logos/Botswana_Halaal_Logo.png`; new `activeRegionCode()` / `recordIsBotswana()`; `isHalaalVenue()` returns false outside BW and for a record whose `region` is another country; `.halaal-badge` is icon-only (no border, no plate, no shadow, no radius), `.halaal-badge img` unrounded, `.halaal-badge-status` 28×28 → **48×48**.
+  - `index.html`: `.card-alert-logo.halaal` loses the circle; the popup fallback uses the `.png`; `loadDirectoryMenus()` wraps `mergeDirectory()` + `indexImages()` in try/catch and gives `loadMenus()` a rejection handler, so `DIRECTORY_LOADED = true` and `onReady()` always run; new `directoryPayloadMissing()` / `directoryFailureNotice()` ("Listings did not load" + **Try again**) used by the empty restaurant list; new header region chip (`#hdrRegion`, flag + country name, `data-act="openRegionScreen"`) with `renderRegionChip()` called at boot; new `retryDirectory` action.
+  - `venue-about.html`: `.halaal-pop-logo` loses border/background/radius (`padding:0`) and the popup fallback uses the `.png`.
+  - `js/eatouts-db.js`: `save()` fills `_loadCache` **before** the `setItem` so a quota failure can never empty the in-memory DB.
+  - `assets/halaal-logos/Botswana_Halaal_Logo.png` (the only shipping mark); the dead `Botswana_Halaal_Logo.jpg` reference removed everywhere.
+- Tests:
+  - `tests/halaal-badge.js` (NEW): the `.png` path and file, region gating (BW true, ZW false, per-record `region` gate), badge markup, the CSS contract (no circle / plate / border / shadow, unrounded img, 48×48 status), and source guards for both pages.
+  - `tests/directory-region-panels.js` (NEW): BW catering ≥ 100 / bakeries ≥ 90 / beverages ≥ 40 rows with a known business named, BW restaurants ≥ 400; ZW/KE/MU/ZA each list restaurants with the header chip naming the region; a simulated **full localStorage** still lists the merged rows; a missing payload shows "Listings did not load" + a retry and never leaks a Botswana venue.
+  - `tests/halaal.js`: the one existing assertion that expected the dead `.jpg` now expects the `.png`.
+  - `tests/run-all.js`: registers both new suites.
+- Verified:
+  - `node tests/halaal-badge.js` → **HALAAL BADGE TEST PASSED** (28 checks).
+  - `node tests/directory-region-panels.js` → **DIRECTORY REGION PANELS TEST PASSED** (41 checks).
+  - `node tests/halaal.js`, `node tests/directory-region-empty.js` → green.
+  - `npm test` → **86 passed, 0 failed**, exit 0.
+- Not verified:
+  - A real-browser tap-through (the 48px badge next to venue-about's status line, the chip's flag rendering, the retry card with the device truly offline). jsdom proves markup/state, not the painted layout.
+- Notes:
+  - The panels themselves were never broken: with the real payloads BW renders 477 restaurants / 115 catering / 97 bakeries / 47 beverage rows and KE/ZW/ZA/MU render their own lists. The failures were the stale-region illusion plus the two silent-failure paths above, all now covered by tests.
+  - `data/restaurant_listings/directory_runtime_data.js` / `.json` were already modified before this task and were deliberately left out of the commit.
+- Errors: none
+

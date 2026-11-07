@@ -57,6 +57,13 @@ img{display:block;max-width:100%}
 .hdr-search{border:0;background:transparent;padding:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;-webkit-tap-highlight-color:transparent}
 .hdr-search:active{background:#f4efe4}
 .hdr-search img{width:22px;height:22px;object-fit:contain;display:block}
+/* Region chip: the header always shows the active country, because an empty
+   panel in Zimbabwe read as "Botswana has no businesses" once the pill was
+   dropped. Tapping it opens the region selector. */
+.hdr-region{display:flex;align-items:center;gap:5px;border:1px solid #e8e2d4;background:#fff;border-radius:999px;padding:4px 9px 4px 5px;cursor:pointer;font:inherit;font-size:12.5px;font-weight:800;color:#1A1A1A;max-width:42vw;-webkit-tap-highlight-color:transparent}
+.hdr-region:active{background:#f4efe4}
+.hdr-region img{width:17px;height:17px;border-radius:50%;object-fit:cover;display:block;flex:0 0 auto}
+.hdr-region span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ---------- VIEWPORT (WHITE) ---------- */
 #viewport{flex:1 1 auto;position:relative;overflow:hidden;background:#ffffff;padding-top:0;view-transition-name:app-vp}
@@ -837,7 +844,7 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 .card-alert{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:79;width:100%;max-width:316px;max-height:calc(100% - 40px);overflow-y:auto;background:#ffffff;border-radius:24px;padding:24px 22px 18px;text-align:center;box-shadow:0 28px 64px rgba(0,0,0,.34),0 2px 6px rgba(0,0,0,.08);animation:fpop .18s ease}
 .card-alert-icon{width:50px;height:50px;margin:0 auto 14px;border-radius:50%;background:#fdecef;display:flex;align-items:center;justify-content:center;color:#e11d2e;font-size:22px;font-weight:800}
 .card-alert-logo{width:56px;height:56px;margin:0 auto 14px;border-radius:14px;display:block;object-fit:contain}
-.card-alert-logo.halaal{width:96px;height:96px;border-radius:50%;border:1px solid #ece7db;padding:4px;background:#fff}
+.card-alert-logo.halaal{width:96px;height:96px;border:0;border-radius:0;padding:0;background:transparent}
 .card-alert-close{position:absolute;top:10px;right:10px;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:#f3efe6;color:#4b463a;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .card-alert-close:active{background:#e8e1d2}
 .card-alert-dismiss{display:block;width:100%;margin-top:10px;padding:4px;border:0;background:transparent;color:#8a8170;font:inherit;font-size:13px;font-weight:700;text-decoration:underline;cursor:pointer}
@@ -973,6 +980,10 @@ a.dlg-btn{text-decoration:none}
   <header id="hdr" data-act="closePickers">
     <button class="brand-mark" type="button" aria-label="EatOuts home"><img src="assets/logo/EatOuts_Logo.png" alt="EatOuts"></button>
     <div class="hdr-right">
+      <button class="hdr-region" type="button" id="hdrRegion" data-act="openRegionScreen" aria-label="Change country">
+        <img id="hdrRegionFlag" src="assets/flags/bw.png" alt="">
+        <span id="hdrRegionName">Botswana</span>
+      </button>
       <button class="hdr-search" type="button" data-act="openSearchScreen" aria-label="Search EatOuts">
         <img src="assets/icons/search_icon.webp" alt="Search">
       </button>
@@ -3283,11 +3294,19 @@ function loadDirectoryMenus(onReady){
   if (preloaded) {
     const directory = preloaded;
     window.DIRECTORY_DATA=directory;
-    if(window.EatoutsSeed&&typeof window.EatoutsSeed.mergeDirectory==="function"){
-      DIRECTORY_MERGE_REPORT=window.EatoutsSeed.mergeDirectory(directory);
-    }
-    indexImages();
+    /* A merge must never be able to strand the page: it used to sit between the
+       payload landing and the second render, so one throw left the list empty
+       with DIRECTORY_LOADED stuck at false and no retry path. */
+    try{
+      if(window.EatoutsSeed&&typeof window.EatoutsSeed.mergeDirectory==="function"){
+        DIRECTORY_MERGE_REPORT=window.EatoutsSeed.mergeDirectory(directory);
+      }
+      indexImages();
+    }catch(e){console.warn("[EatOuts] directory merge failed: "+e);}
     loadMenus(directory).then(function(){
+      DIRECTORY_LOADED=true;if(onReady)onReady();
+    }).catch(function(e){
+      console.warn("[EatOuts] menus unavailable: "+e);
       DIRECTORY_LOADED=true;if(onReady)onReady();
     });
     return;
@@ -5529,7 +5548,7 @@ function buildRestaurantsHTML(){
   let h='<div class="scroll">';
 
   if(!rows.length){
-    h+=emptyNoticeHtml();
+    h+=directoryFailureNotice()||emptyNoticeHtml();
     h+='</div>';
     return h;
   }
@@ -5725,8 +5744,43 @@ function directoryRegionName(){
     return (region&&region.name)||"your region";
   }catch(e){return "your region";}
 }
+/* The header chip is the active country, always visible: an empty panel in
+   Zimbabwe must never read as "Botswana has no businesses". */
+function renderRegionChip(){
+  const chip=document.getElementById("hdrRegion");
+  if(!chip)return;
+  const R=window.EatoutsRegions;
+  const region=(R&&typeof R.getActiveRegion==="function")?R.getActiveRegion():null;
+  const name=(region&&region.name)||"Botswana";
+  const flag=document.getElementById("hdrRegionFlag");
+  const label=document.getElementById("hdrRegionName");
+  if(label)label.textContent=name;
+  if(flag){
+    const code=String((region&&region.code)||"BW").toLowerCase();
+    flag.src="assets/flags/"+code+".png";
+    flag.alt=name;
+  }
+  chip.setAttribute("aria-label","Country: "+name+". Change country");
+}
 function directoryYetToListed(label){
   return emptyNoticeHtml({message: label+' in '+directoryRegionName()+' are yet to be listed. We are onboarding local businesses — check back soon.'});
+}
+/** True when the active region ships a restaurant directory but its payload
+    never landed (offline, 404, blocked script) — the case that used to paint a
+    blank list with no explanation. */
+function directoryPayloadMissing(){
+  if(window.DIRECTORY_DATA) return false;
+  const R=window.EatoutsRegions,D=window.EatoutsRegionData;
+  if(!R||typeof R.hasDirectory!=="function") return false;
+  if(!D||typeof D.scriptUrl!=="function") return false;
+  return !!R.hasDirectory("restaurants");
+}
+function directoryFailureNotice(){
+  if(!directoryPayloadMissing()) return null;
+  return emptyNoticeHtml({
+    title:"Listings did not load",
+    message:"We couldn't load "+directoryRegionName()+" businesses on this connection. Check your data or Wi-Fi, then try again."
+  })+'<div class="pad"><button class="btn primary full" data-act="retryDirectory">Try again</button></div>';
 }
 /** The Eish card every empty state uses; degrades to plain text without the script. */
 function emptyNoticeHtml(opts){
@@ -8547,7 +8601,7 @@ function renderCardAlert(){
 function openHalaalPopup(){
   const B=window.EatoutsBrand;
   state.cardAlert={
-    logo:(B&&B.HALAAL_LOGO)||"assets/halaal-logos/Botswana_Halaal_Logo.jpg",
+    logo:(B&&B.HALAAL_LOGO)||"assets/halaal-logos/Botswana_Halaal_Logo.png",
     logoClass:"halaal",
     title:"Certified Halaal",
     message:"This business is certified by the Botswana Halaal Authority. It complies with strict Islamic dietary laws and quality standards for preparation.",
@@ -9995,6 +10049,8 @@ document.addEventListener("click",function(e){
   }
   if(act==="dismissCardAlert"){state.cardAlert=null;render();return;}
   if(act==="openHalaalPopup"){openHalaalPopup();return;}
+  if(act==="openRegionScreen"){location.href="EatOuts-Region.html";return;}
+  if(act==="retryDirectory"){location.reload();return;}
 
   /* Close the photo preview; tapping the image itself stays inert */
   if(act==="closePreview"){if(e.target.closest(".preview-img"))return;state.preview=null;render();return;}
@@ -11309,6 +11365,7 @@ cartHydrate();
 openVenueFromSlug(readVenueMeta());
 if(window.EatoutsCurrency)EatoutsCurrency.mount();
 render();
+renderRegionChip();
 loadRestaurantTypeFilters();
 loadDirectoryMenus(function(){
   if((new URLSearchParams(window.location.search||"")).get("resume")) restoreOrder();

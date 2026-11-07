@@ -89,7 +89,7 @@ setTimeout(() => {
   check('venue-menu card carries the Halaal badge', !!menuBadge,
     card && card.textContent);
   check('the badge is the Botswana Halaal logo',
-    !!menuBadge && /assets\/halaal-logos\/Botswana_Halaal_Logo\.jpg$/.test(menuBadge.querySelector('img').getAttribute('src')),
+    !!menuBadge && /assets\/halaal-logos\/Botswana_Halaal_Logo\.png$/.test(menuBadge.querySelector('img').getAttribute('src')),
     menuBadge && menuBadge.querySelector('img').getAttribute('src'));
 
   /* popup */
