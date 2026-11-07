@@ -1,0 +1,286 @@
+## 1. PLAN
+
+**Heads-up before anything else:** I do not have `venue-about.html` or `index.html` in my context — the only files I can see are the change log, `PLATFORM UPDATE TASKS.md`, `run-all.js`, `eatouts-suppliers.html`, `AGENTS.md`, `package.json` and `botswana_locations.js`. I also have no shell/tool access in this session, so I cannot run `Select-String`, `npm run inventory`, `npm run catalog` or `npm test` myself.
+
+So the diff below is a **template that must be reconciled against the actual files**. Everything I would add is shown; every line that depends on the real `venue-about.html` / `index.html` internals is marked **⚠ verify**. This honours AGENTS.md — "INACCURATE SELF-REPORTING: never claim done without running the specific command" — while still giving you a complete, reviewable plan.
+
+**Task T09 — Promo thumb → Add to Order. D10 = A confirmed (`eatouts_cart_v1`).**
+
+Three parts:
+
+- **Part A — `index.html`:** add `CART_KEY`, `cartRead()`, `cartWrite()`, `cartHydrate()`; hydrate at boot; write at end of `syncCart()`; listen on `storage` so another tab's write (from venue-about) is picked up without reload.
+- **Part B — `venue-about.html` CSS:** add `.plb-*` lightbox rules (centred, `min(92vw,420px)`, `max-height:80dvh`, dots row, "Add to Order" pill, toast). Uses the G3 recipe; no `fpop-close`, no `border-radius:… 0 0`.
+- **Part C — `venue-about.html` markup + JS:** tap `.promo-thumb` → open lightbox with dots + swipe + Add to Order; outside-tap and Escape close; Add writes exactly one line to `eatouts_cart_v1` (increments `qty` if present) and toasts.
+- **Part D — verification:** new `tests/venue-about-promo.js` (jsdom) + 1-line registration in `tests/run-all.js`.
+
+Files touched: **4** (`venue-about.html`, `index.html`, `tests/venue-about-promo.js`, `tests/run-all.js`). That is 1 over the AGENTS.md "3 files → ask approval" threshold — flagged in Q3.
+
+## 2. ASSUMPTIONS
+
+- A1: `state.cart` exists in `index.html` (per T04 entry and the T09 brief) and `syncCart()` is already called from every cart mutator.
+- A2: `venue-about.html` promo carousel already renders multiple images per promo and holds the promo id/title/price on or near `.promo-thumb` (either as a data attribute or via a state object). I cannot see which; the patch below defaults to "read data attributes from `.promo-thumb`, fall back to whatever element holds the carousel images".
+- A3: `venue-about.html` and `index.html` are same-origin, so `localStorage` is shared between tabs.
+- A4: 🔴 I have not seen either file. Every patch line marked **⚠ verify** must be checked against the real source before being applied.
+- A5: 🔴 I cannot execute `npm test` in this session. The "DONE" gate will be met on your machine (or a session where I have shell).
+
+## 3. QUESTIONS (2)
+
+- **Q1 (critical):** please paste the two file slices so I can turn this template into a real diff:
+  - `venue-about.html` — lines **:340-700** (CSS for `.promo-thumb` + markup for the promos accordion) **and** the carousel JS block (search `promoCarousel`).
+  - `index.html` — the `var state = {…}` block around `cart`, plus the full `syncCart()` function (search `function syncCart`).
+- **Q2:** after adding to the order, do we (a) **stay on venue-about.html** with a toast ("Added to order") and let the user navigate, or (b) **auto-navigate** to `index.html#restaurants` after ~1.2s? The brief says "returns to the venue/checkout with a toast" — I read this as (a) (stay, toast, offer manual navigation), which is the minimal diff and testable. Confirm.
+- **Q3:** 4-file change is 1 over the AGENTS.md ask-approval line. OK to proceed with the new test file, or drop it (rely on existing suites + manual device check)?
+
+## 4. PATCH
+
+> **Caveat:** every hunk below is a **template**. Lines marked **⚠ verify** depend on the actual code in `venue-about.html` / `index.html`. Once you paste the two slices I will regenerate this as the final unified diff.
+
+### 4a — `index.html` — cart persistence (D10 option A)
+
+Near the `state.cart` definition (**⚠ verify exact name — change log calls it `state.cart`**):
+
+```diff
+--- a/index.html
++++ b/index.html
+@@ state definition @@
+   var state = {
+     ...
+     cart: {},
+     ...
+   };
+
++  /* ------------------------------------------------------------
++     Cart persistence (D10 option A) — writes on every mutation,
++     hydrates on boot, mirrors across tabs via `storage`.
++     Shared key with venue-about.html ("Add to Order").
++     ------------------------------------------------------------ */
++  var CART_KEY = 'eatouts_cart_v1';
++  function cartRead(){
++    try { var raw = localStorage.getItem(CART_KEY); return raw ? JSON.parse(raw) : null; }
++    catch (e) { return null; }
++  }
++  function cartWrite(){
++    try { localStorage.setItem(CART_KEY, JSON.stringify(state.cart || {})); }
++    catch (e) { /* quota / disabled — memory state stays authoritative */ }
++  }
++  function cartHydrate(){
++    var saved = cartRead();
++    if (saved && typeof saved === 'object') state.cart = saved;
++  }
++  /* Hydrate before first render so totals/badges are correct on load. */
++  cartHydrate();
++  /* Pick up cross-tab writes (venue-about "Add to Order", other SPA tab). */
++  window.addEventListener('storage', function (e) {
++    if (!e || e.key !== CART_KEY) return;
++    var next = cartRead();
++    if (next && typeof next === 'object') {
++      state.cart = next;
++      try { if (typeof syncCart === 'function') syncCart(); } catch (_) {}
++      try { if (typeof render === 'function')    render();   } catch (_) {}
++    }
++  });
+```
+
+Inside `syncCart()` (**⚠ verify function name — T04 entry uses `syncCart()`**), append at the end:
+
+```diff
+ function syncCart(){
+   ...
++  cartWrite();
+ }
+```
+
+### 4b — `venue-about.html` — CSS (insert after `.promo-thumb` rules at **⚠ :352-363**)
+
+```diff
+--- a/venue-about.html
++++ b/venue-about.html
+@@ after .promo-thumb { ... } @@
++.plb-scrim{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:250;display:flex;align-items:center;justify-content:center;padding:16px}
++.plb-box{width:min(92vw,420px);max-height:80dvh;display:flex;flex-direction:column;align-items:center;gap:14px}
++.plb-track{width:100%;max-height:60dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:pan-y}
++.plb-img{max-width:100%;max-height:60dvh;object-fit:contain;border-radius:12px;display:block;user-select:none;-webkit-user-drag:none}
++.plb-dots{display:flex;gap:6px;justify-content:center}
++.plb-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35);transition:background .18s}
++.plb-dot.on{background:#fff}
++.plb-add{background:#1a1a1a;color:#fff;border:0;border-radius:999px;padding:13px 26px;font-size:13.5px;font-weight:800;letter-spacing:.02em;min-height:46px}
++.plb-add:active{background:#000}
++.plb-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:11px 20px;border-radius:11px;font-size:12.5px;font-weight:700;z-index:260;opacity:0;transition:opacity .2s;pointer-events:none}
++.plb-toast.on{opacity:1}
+```
+
+### 4c — `venue-about.html` — markup (**⚠ exact shape at :663-673 unknown**)
+
+The `.promo-thumb` element currently holds the carousel image(s). It needs `role`/`tabindex`/`aria-label` and one or more data attributes so the click handler can find the promo:
+
+```diff
+-<div class="promo-thumb">
+-  <img src="..." alt="">
+-</div>
++<div class="promo-thumb" role="button" tabindex="0"
++     aria-label="View promo images and add to order"
++     data-promo-id="ID_HERE"
++     data-promo-title="TITLE_HERE"
++     data-promo-price="PRICE_HERE"
++     data-promo-images='["URL1","URL2","..."]'>
++  <img src="URL1" alt="">
++</div>
+```
+
+> **⚠ verify** — if the promo data is not available at render time as a literal, the click handler should read it from whatever state object holds the current promo (see C2 below). Either way, the lightbox needs `{ id, title, price, images }`; I have deliberately not invented a state variable name.
+
+### 4d — `venue-about.html` — JS (insert near the promo carousel block)
+
+```diff
++/* ------------------------------------------------------------
++   T09 — promo lightbox + "Add to Order" (D10 option A)
++   Persists to `eatouts_cart_v1` — same key index.html hydrates.
++   ------------------------------------------------------------ */
++var PLB_INDEX = 0;
++var PLB_IMAGES = [];
++var PLB_PROMO = null;   // { id, title, price }
++var PLB_NODE = null;
++var PLB_CART_KEY = 'eatouts_cart_v1';
++
++function plbReadCart(){
++  try { var raw = localStorage.getItem(PLB_CART_KEY); return raw ? JSON.parse(raw) : {}; }
++  catch (e) { return {}; }
++}
++function plbWriteCart(cart){
++  try { localStorage.setItem(PLB_CART_KEY, JSON.stringify(cart || {})); } catch (e) {}
++}
++function plbToast(msg){
++  var t = document.querySelector('.plb-toast');
++  if (!t) { t = document.createElement('div'); t.className = 'plb-toast'; document.body.appendChild(t); }
++  t.textContent = msg;
++  t.classList.add('on');
++  clearTimeout(plbToast._t);
++  plbToast._t = setTimeout(function(){ t.classList.remove('on'); }, 1800);
++}
++function plbPaint(){
++  if (!PLB_NODE) return;
++  var img = PLB_NODE.querySelector('.plb-img');
++  var dots = PLB_NODE.querySelector('.plb-dots');
++  if (img)  img.src = PLB_IMAGES[PLB_INDEX] || '';
++  if (dots) dots.innerHTML = PLB_IMAGES.map(function (_, i) {
++    return '<span class="plb-dot' + (i === PLB_INDEX ? ' on' : '') + '"></span>';
++  }).join('');
++}
++function plbClose(){
++  if (PLB_NODE && PLB_NODE.parentNode) PLB_NODE.parentNode.removeChild(PLB_NODE);
++  PLB_NODE = null;
++  document.removeEventListener('keydown', plbKeydown);
++}
++function plbKeydown(e){
++  if (!e) return;
++  if (e.key === 'Escape' || e.keyCode === 27) return plbClose();
++  if (e.key === 'ArrowRight' && PLB_INDEX < PLB_IMAGES.length - 1) { PLB_INDEX++; plbPaint(); }
++  if (e.key === 'ArrowLeft'  && PLB_INDEX > 0)                    { PLB_INDEX--; plbPaint(); }
++}
++function plbAddToOrder(){
++  if (!PLB_PROMO) { plbToast('Promo not available'); return; }
++  var id    = String(PLB_PROMO.id    || '').trim() || ('promo_' + Date.now());
++  var title = String(PLB_PROMO.title || 'Promo');
++  var price = Number(PLB_PROMO.price != null ? PLB_PROMO.price : 0) || 0;
++  var cart  = plbReadCart();
++  if (cart[id]) cart[id].qty = (Number(cart[id].qty) || 1) + 1;
++  else          cart[id] = { id: id, title: title, price: price, qty: 1, addedAt: Date.now() };
++  plbWriteCart(cart);
++  plbToast('Added to order');
++  plbClose();
++}
++function plbOpen(promo, images){
++  if (!images || !images.length) return;
++  PLB_PROMO = promo || null;
++  PLB_IMAGES = images.slice();
++  PLB_INDEX = 0;
++  var scrim = document.createElement('div');
++  scrim.className = 'plb-scrim';
++  scrim.setAttribute('role', 'dialog');
++  scrim.setAttribute('aria-modal', 'true');
++  scrim.setAttribute('aria-label', 'Promo image');
++  scrim.innerHTML =
++    '<div class="plb-box">' +
++      '<div class="plb-track"><img class="plb-img" alt=""></div>' +
++      '<div class="plb-dots" aria-hidden="true"></div>' +
++      '<button type="button" class="plb-add">Add to Order</button>' +
++    '</div>';
++  document.body.appendChild(scrim);
++  PLB_NODE = scrim;
++  plbPaint();
++
++  /* swipe */
++  var x0 = 0, y0 = 0;
++  var track = scrim.querySelector('.plb-track');
++  track.addEventListener('touchstart', function (e) {
++    if (e.touches && e.touches[0]) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }
++  }, { passive: true });
++  track.addEventListener('touchend', function (e) {
++    if (!e.changedTouches || !e.changedTouches[0]) return;
++    var dx = e.changedTouches[0].clientX - x0;
++    var dy = e.changedTouches[0].clientY - y0;
++    if (Math.abs(dx) < 30 || Math.abs(dx) < Math.abs(dy)) return;
++    if (dx < 0) PLB_INDEX = Math.min(PLB_IMAGES.length - 1, PLB_INDEX + 1);
++    else        PLB_INDEX = Math.max(0, PLB_INDEX - 1);
++    plbPaint();
++  }, { passive: true });
++
++  /* outside tap */
++  scrim.addEventListener('click', function (e) { if (e.target === scrim) plbClose(); });
++  document.addEventListener('keydown', plbKeydown);
++  scrim.querySelector('.plb-add').addEventListener('click', plbAddToOrder);
++}
++
++/* Delegated click on the promo thumb */
++document.addEventListener('click', function (e) {
++  var t = e.target.closest && e.target.closest('.promo-thumb');
++  if (!t) return;
++  e.preventDefault();
++  var promo = {
++    id:    t.getAttribute('data-promo-id'),
++    title: t.getAttribute('data-promo-title'),
++    price: parseFloat(t.getAttribute('data-promo-price')) || 0
++  };
++  var images = [];
++  try { images = JSON.parse(t.getAttribute('data-promo-images') || '[]'); } catch (_) {}
++  if (!images.length) images = Array.prototype.map.call(
++    t.querySelectorAll('img'), function (i) { return i.getAttribute('src'); }
++  ).filter(Boolean);
++  plbOpen(promo, images);
++});
+```
+
+### 4e — `tests/venue-about-promo.js` (new) and `tests/run-all.js` (1 line)
+
+New test file — jsdom boot of `venue-about.html`, simulate thumb tap, assert `.plb-scrim` + dots + Add button appear, click Add, read `localStorage.eatouts_cart_v1`, then `Escape`, then repeat to confirm `qty === 2`. Register one line in `tests/run-all.js` (`'venue-about-promo.js',` next to `'venue-about-options.js',`).
+
+```diff
+--- a/tests/run-all.js
++++ b/tests/run-all.js
+@@ SUITES array @@
+   'venue-about-options.js',
++  'venue-about-promo.js',
+   'blog.js',
+```
+
+## 5. VERIFICATION
+
+```powershell
+npm run inventory ; npm run catalog ; npm test
+```
+
+I cannot run these in this session. On your machine (or in a shell-enabled session) I will paste the tail of `npm test` before claiming done.
+
+Manual checks after applying:
+- 360 / 390 / 430 px: lightbox is centred with equal 16px side gaps, image fits, dots visible, Add button fully tappable.
+- Tap outside the image → closes. `Escape` → closes. Swipe left/right → image + dots advance.
+- First Add → `localStorage.eatouts_cart_v1` gains one key with `qty:1`. Second Add → `qty:2` (still one line).
+- Navigate to `index.html`: cart badge and Order Summary totals reflect the added line.
+- In `index.html`, opening a second tab and calling `plbWriteCart` (or manually editing `eatouts_cart_v1`) → `state.cart` updates via the `storage` listener without a reload.
+
+## 6. NOTES
+
+- **Not verified:** the entire patch — I have not seen the real `venue-about.html` or `index.html`. Every ⚠ marker must be reconciled before applying. The commit is not made; no ledger entry appended (I have not performed the task).
+- **Trade-offs:** (1) I chose `state.cart = saved` at hydration rather than `Object.assign`, because hydration runs at boot before any mutation — merging would bring back deleted items. (2) The `storage` listener is 6 extra lines; without it, a cart added in venue-about.html is invisible to an already-open `index.html` tab until reload. Worth the lines. (3) Q2 (auto-navigate vs. stay-and-toast) is a product call — the current template stays put; a follow-up could add `location.href='index.html#restaurants'` after 1.2s.
+- **Risks:** (1) If `state.cart` is not a flat `{ id: {qty, …} }` map in the real `index.html`, the merge into `eatouts_cart_v1` shape must be adjusted; (2) if the promo carousel stores images via CSS `background-image` rather than `<img src>`, the image collector needs to read `style.backgroundImage`; (3) if `venue-about.html` is served from a different origin to `index.html` in production, `localStorage` will not be shared — the change log says the same static deploy (`copy-static.mjs` L49), so this should not apply, but flagging it.
+- **Not touched:** `docs/AGENT_CHANGE_LOG.md` — I will append the entry in the same commit as the task, once the real diff is produced and verified, per AGENTS.md commit discipline. No `.gitignore` change, no `copy-static.mjs` change (no new root page), no hand-edits to `HTML_CATALOG.md` / `PAGE_INVENTORY.md`.
