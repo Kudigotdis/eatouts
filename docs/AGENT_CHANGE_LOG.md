@@ -2931,3 +2931,21 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `data/restaurant_listings/directory_runtime_data.js` / `.json` were already modified before this task and were deliberately left out of the commit.
 - Errors: none
 
+### [2026-11-07 14:26:25] - [Agent: big-pickle] - [Status: COMMITTED]
+- Task: Header region chip shows only the circular country flag - drop `#hdrRegionName`, point `#hdrRegionFlag` at `assets/flags-circlular/<region.flag>.svg`, and remove the pill border.
+- Commit: `875b26b`
+- Push: `origin/main` (this ledger entry follows in the next commit)
+- Files changed:
+  - `index.html`: `.hdr-region` loses the 1px border + white pill and the dead `span` rule; `.hdr-region img` 17px -> 24px; the `#hdrRegionName` element is removed; `renderRegionChip()` now builds `assets/flags-circlular/<region.flag>.svg`; the static markup already points at `botswana-bw.svg`, so the first paint is circular too; the region name survives in the button's `aria-label`.
+  - `tests/directory-region-panels.js`: header assertions now check the circular `src` (BW plus ZW/KE/MU/ZA) and that `#hdrRegionName` is gone, instead of reading its text.
+- Verified:
+  - `node tests/directory-region-panels.js` -> **DIRECTORY REGION PANELS TEST PASSED**.
+  - `node tests/region-selector.js` -> **REGION-SELECTOR TEST PASSED**.
+  - `npm test` -> **86 passed, 0 failed**, exit 0.
+- Not verified:
+  - Real-browser paint of the borderless 24px circular flag; jsdom proves the `src` and the removed name, not the rendered layout.
+- Notes:
+  - Scope limited to the header chip on `index.html`; the region selector (`EatOuts-Region.html`, PNG flags) and the search screen (square flags) are unchanged.
+  - `data/restaurant_listings/directory_runtime_data.js` / `.json` were already modified before this task and are deliberately left out of the commit.
+- Errors: none
+
