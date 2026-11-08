@@ -187,7 +187,7 @@ via `page("<id>", html)`, listed in `PAGE_TITLES`, and written to the rendered
 
 The same values are mirrored onto `<body>` (`document.body.dataset.page` /
 `pageRef`). Type `eoPage()` in the DevTools console to print a paste-ready
-one-liner, e.g. `PAGE: venue-menu-item — Menu · Item  [rest_pizza-perfect:burgers]`.
+one-liner, e.g. `PAGE: venue-menu-item — Menu · Item`.
 
 ---
 
@@ -298,7 +298,7 @@ Open DevTools → Elements and select the `.screen` element inside `#viewport`:
 - `data-page` is the screen template — use this id when asking which page to edit.
 - `data-page-ref` is the live instance (venue id, category, promo/store/photo id).
 - Or run `eoPage()` in the console to print a paste-ready line:
-  `PAGE: venue-menu-item — Menu · Item  [rest_pizza-perfect:burgers]`.
+  `PAGE: venue-menu-item — Menu · Item`.
 
 ### Why the id + marker and not just a line number?
 

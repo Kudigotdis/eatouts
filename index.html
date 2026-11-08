@@ -8801,9 +8801,10 @@ function renderAboutPreview(){
 }
 
 /* T04: account-only checkout actions share one floating sign-up popup. */
-function summarySignup(title,message){
+function summarySignup(title,message,withLogin){
   state.cardAlert={icon:"\uD83D\uDD12",title:title,message:message,
-    actions:[{label:"Sign Up",primary:true,href:"eatouts-customer-signup.html"}]};
+    actions:[{label:"Sign Up",primary:true,href:"eatouts-customer-signup.html"}].concat(
+      withLogin?[{label:"Log In",href:"eatouts-login.html"}]:[])};
   render();
 }
 /* PAGE: venue-checkout â€” Checkout */
@@ -11748,6 +11749,19 @@ window.addEventListener("eatouts:venue-active",function(e){
       }
       bridgeDraftOrder("menu"); notifyFieldOrder(curRestaurant());
       window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_split_bill","act=sendFullBill");
+      return true;
+    },
+    sendWhatsApp:function(vals){
+      const name=String((vals&&vals.name)||"").trim();
+      if(name) state.orderName=name;
+      if(vals&&vals.notes!=null) state.orderNotes=String(vals.notes||"");
+      if(!aboutUser()){
+        closeBillSplit();
+        summarySignup("Send this bill via WhatsApp","Create a free EatOuts account or log in to send the full bill via WhatsApp.",true);
+        return "auth_required";
+      }
+      closeBillSplit();
+      window.location.href=waShareLink(state.billSplitFrom==="bev"?bevOrderText():buildFullBillMessage());
       return true;
     },
     sendStandardOrder:function(vals){

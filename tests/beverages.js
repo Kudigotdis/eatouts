@@ -283,6 +283,13 @@ setTimeout(() => {
     ev('window.EatoutsBillSplitBridge.sharePerson("nobody")') === 'auth_required');
   check('guest save is refused by the bridge',
     ev('window.EatoutsBillSplitBridge.saveSummary()') === 'auth_required');
+  check('bridge exposes WhatsApp sending',
+    ev('typeof window.EatoutsBillSplitBridge.sendWhatsApp === "function"'));
+  check('guest WhatsApp send is refused by the bridge',
+    ev('window.EatoutsBillSplitBridge.sendWhatsApp()') === 'auth_required');
+  check('guest WhatsApp prompt offers signup and login',
+    ev('!!(state.cardAlert && state.cardAlert.actions && state.cardAlert.actions.length === 2 && state.cardAlert.actions[0].href === "eatouts-customer-signup.html" && state.cardAlert.actions[1].href === "eatouts-login.html")'));
+  ev('state.cardAlert=null; render()');
 
   ev('window.closeBillSplit()');
   check('split overlay closes', ev('state.splitOpen') === false &&

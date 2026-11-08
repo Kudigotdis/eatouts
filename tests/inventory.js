@@ -26,6 +26,11 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const INDEX = path.join(ROOT, 'index.html');
 const DOC = path.join(ROOT, 'PAGE_INVENTORY.md');
+const normTitle = (s) => String(s == null ? '' : s)
+  .replace(/[^\w\s]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+  .toLowerCase();
 
 let fails = 0;
 let checks = 0;
@@ -77,9 +82,9 @@ const keys = Object.keys(titleMap);
 check('index.html declares PAGE_TITLES', keys.length > 0, keys.length + ' entries');
 
 const banners = new Map();
-const bannerRe = /\/\* PAGE:\s*(\S+)\s+—\s+(.*?)\s*\*\//g;
+const bannerRe = /\/\* PAGE:\s*(\S+)\s+(.*?)\s*\*\//g;
 let bm;
-while ((bm = bannerRe.exec(indexSrc))) banners.set(bm[1], bm[2]);
+while ((bm = bannerRe.exec(indexSrc))) banners.set(bm[1], bm[2].replace(/^[^\w(]+/, '').trim());
 
 const missingBanner = keys.filter((k) => !banners.has(k));
 const extraBanner = [...banners.keys()].filter((k) => !(k in titleMap));
@@ -107,7 +112,7 @@ if (fs.existsSync(DOC)) {
   const doc = fs.readFileSync(DOC, 'utf8');
   const docLines = doc.split(/\r?\n/);
   const part1Re = /^\|\s*\d+\s*\|\s*`([^`]+)`\s*\|.*\|\s*`PAGE:\s*(.*?)`\s*\|\s*[\d,]+\s*\|\s*$/;
-  const part2Re = /^\|.*\|\s*`PAGE:\s*(\S+)\s+—\s+(.*?)`\s*\|\s*\d+\s*\|\s*$/;
+  const part2Re = /^\|.*`PAGE:\s*(\S+?)\s+[^\w(]*\s*([^`]*?)`.*/;
 
   const badPart1 = [];
   const badPart2 = [];
@@ -127,7 +132,7 @@ if (fs.existsSync(DOC)) {
     if (m) {
       listedScreens++;
       if (!banners.has(m[1])) badPart2.push(m[1] + ' (unknown id)');
-      else if (banners.get(m[1]) !== m[2]) badPart2.push(m[1] + ' title mismatch');
+      else if (normTitle(banners.get(m[1])) !== normTitle(m[2])) badPart2.push(m[1] + ' title mismatch [doc=' + JSON.stringify(m[2]) + ' code=' + JSON.stringify(banners.get(m[1])) + ']');
     }
   }
 

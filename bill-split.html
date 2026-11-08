@@ -25,8 +25,6 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,#bill-main::-webkit-scrollbar,.t
 @media(min-width:520px){#shell{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
 #hdr{flex:0 0 auto;height:58px;display:flex;align-items:center;gap:12px;padding:0 14px;padding-top:env(safe-area-inset-top);border-bottom:1px solid var(--line);background:#fff;z-index:5}
 .bs-brand{height:32px;display:flex;align-items:center;font-weight:950;font-size:22px;letter-spacing:-.04em;color:#171717;user-select:none}
-.hdr-right{margin-left:auto}
-.hdr-cancel{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:8px 12px;font-size:16px;font-weight:750}
 #bill-main{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;background:#fff;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .bill-screen{min-height:100%;padding:14px 14px calc(22px + env(safe-area-inset-bottom));}
 body.embedded #bill-main{height:100%;flex:1;min-height:0}
@@ -46,7 +44,6 @@ button,.person-head-main,.item-head,.menu-person-card{-webkit-touch-callout:none
 .smart-row{display:flex;align-items:center;justify-content:center;gap:10px;margin:4px 0 16px;flex-wrap:wrap}
 .smart-btn,.smart-undo{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;font-size:16px;font-weight:800}
 .smart-btn{background:#111;color:#fff;border-color:#111}
-.group-title{font-size:16px;text-transform:uppercase;letter-spacing:.12em;font-weight:850;color:#9a907d;margin:16px 2px 9px}
 .people-stack{display:flex;flex-direction:column;gap:10px}
 .person-card{border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.025)}
 .person-head{display:flex;align-items:center;gap:12px;padding:12px;min-height:114px}
@@ -165,7 +162,6 @@ input[type=file]{display:none}
 <div id="shell">
   <header id="hdr">
     <div class="bs-brand" aria-label="EatOuts">EatOuts</div>
-    <div class="hdr-right"><button class="hdr-cancel" data-act="cancel-split" type="button">Cancel</button></div>
   </header>
   <main id="bill-main">
     <section class="bill-screen" data-page="bill-split" id="bill-screen" aria-label="Split the bill">
@@ -490,6 +486,11 @@ input[type=file]{display:none}
       return true;
     },
 
+    sendWhatsApp: function(){
+      window.alert("Demo: this would send the split bill via WhatsApp.");
+      return true;
+    },
+
     saveSummary: function(){
       window.alert("Demo: bill saved locally.");
       return true;
@@ -582,7 +583,8 @@ window.onerror = function(msg, src, line, col){
     (snap.lines || []).forEach(function(l){
       assigned += Object.keys(l.assignedById || {}).reduce(function(a,k){ return a + (Number(l.assignedById[k])||0); }, 0);
     });
-    return {total:total, assigned:assigned, unassigned:Math.max(0,total-assigned)};
+    var assignedTotal = (snap.people || []).reduce(function(s,p){ return s + (Number(p.total)||0); }, 0);
+    return {total:total, assigned:assigned, assignedTotal:assignedTotal, unassigned:Math.max(0,total-assigned)};
   }
 
   /* ---- Renderers ------------------------------------------------------- */
@@ -593,7 +595,7 @@ window.onerror = function(msg, src, line, col){
     return '<section class="hero">'+
       '<div class="eyebrow">Total bill</div>'+
       '<div class="hero-total">'+esc(amount(snap.total, snap.totalText))+'</div>'+
-      '<div class="hero-summary"><strong>'+m.total+'</strong> item'+(m.total===1?"":"s")+' across <strong>'+personText+'</strong></div>'+
+      '<div class="hero-summary"><strong>'+esc(amount(m.assignedTotal))+'</strong> assigned · <strong>'+m.assigned+'</strong> item'+(m.assigned===1?"":"s")+' across <strong>'+personText+'</strong></div>'+
       '<div class="progress-copy">'+(m.unassigned ? m.unassigned+" item"+(m.unassigned===1?"":"s")+" still to assign" : "Every item has a person")+'</div>'+
       '<div class="progress-track" aria-label="'+pct+' percent assigned"><div class="progress-fill" style="width:'+pct+'%"></div></div>'+
       '</section>';
@@ -709,8 +711,8 @@ window.onerror = function(msg, src, line, col){
   function renderAddPerson(){
     return '<article class="person-card add-card'+(ui.openAdd?" open":"")+'">'+
       '<div class="person-head">'+
-        '<button class="person-avatar" type="button" data-act="toggle-addperson" aria-label="Add person"><span class="avatar-initials">ADD</span></button>'+
-        '<button class="person-head-main" type="button" data-act="toggle-addperson" aria-expanded="'+(ui.openAdd?"true":"false")+'"><span class="person-name">Add Person</span><span class="person-sub">Create another share for your group</span></button>'+
+        '<button class="person-avatar" type="button" data-act="toggle-addperson" aria-label="Add person"><span class="avatar-initials">+</span></button>'+
+        '<button class="person-head-main" type="button" data-act="toggle-addperson" aria-expanded="'+(ui.openAdd?"true":"false")+'"><span class="person-name">Add Person</span></button>'+
       '</div>'+
       (ui.openAdd ? '<div class="person-body"><form class="add-person-form" id="add-person-form">'+
         '<div class="field"><label for="new-person-name">Person’s name</label><input id="new-person-name" type="text" maxlength="32" placeholder="e.g. Kagiso M." autocomplete="off" autocapitalize="words"></div>'+
@@ -742,12 +744,13 @@ window.onerror = function(msg, src, line, col){
   function renderMain(){
     var h = renderHero();
     h += renderSmartBalance();
-    h += '<div class="group-title">Your group</div><div class="people-stack">';
+    h += '<div class="people-stack">';
     (snap.people || []).forEach(function(p,i){ h += renderPersonCard(p,i); });
     h += renderAddPerson() + '</div>';
     h += renderOrderOptions();
     h += '<div class="footer-actions">'+
       '<button class="primary-action" type="button" data-act="send-full">Send Full Bill to Restaurant</button>'+
+      '<button class="wa-action" type="button" data-act="send-whatsapp">Send via WhatsApp</button>'+
       '<button class="secondary-action" type="button" data-act="save-bill">Save Bill</button>'+
       '<button class="secondary-action" type="button" data-act="cancel-split">Cancel Split Bill · Return to Checkout</button>'+
       '</div>';
@@ -951,6 +954,11 @@ window.onerror = function(msg, src, line, col){
       if (!sent) toast("Enter your name in Order & delivery options first.");
       return;
     }
+    if (act === "send-whatsapp") {
+      var waResult = call("sendWhatsApp", orderValues());
+      if (waResult === false) toast("Could not send this bill via WhatsApp.");
+      return;
+    }
     if (act === "save-bill" || act === "save-summary") {
       var saveResult = call("saveSummary");
       if (saveResult === "auth_required") toast("Sign in to save this order.");
@@ -1068,13 +1076,6 @@ window.onerror = function(msg, src, line, col){
       }
     }
   }, true);
-
-  var hdr = document.getElementById("hdr");
-  if (hdr) {
-    hdr.addEventListener("click", function(e){
-      if (e.target.closest('[data-act="cancel-split"]')) call("returnToCheckout");
-    });
-  }
 
   if (bridge) {
     try {

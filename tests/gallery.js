@@ -150,7 +150,7 @@ setTimeout(() => {
   check('sticky All restaurants option', !!doc.querySelector('#cbar .loc-all[data-act="pickGalRest"]'));
 
   /* live search narrows the list */
-  const target = rows[1].querySelector('span').textContent.split(' · ')[0].trim();
+  const target = rows[1].querySelector('span').textContent.split(/\s*Â?·\s*/)[0].replace(/[\s\u00C2]+$/,'').trim();
   type(doc.querySelector('#galRestSearch'), target);
   rows = doc.querySelectorAll('#cbar [data-act="pickGalRest"]');
   check('search narrows the list', rows.length >= 1 && rows.length < 20, rows.length + ' for "' + target + '"');

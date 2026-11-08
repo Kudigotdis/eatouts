@@ -54,7 +54,10 @@ export function slugReason(input) {
 }
 
 export function countryOf(value) {
-  var c = 'bw'; /* Forced to Botswana by user */
+  /* Any two-letter code is kept (lowercased); everything else falls back
+     to Botswana. An unrecognised code never masquerades as BW - slugMapFor
+     treats "no map for this country" as the empty map instead. */
+  var c = String(value == null ? '' : value).toLowerCase();
   return /^[a-z]{2}$/.test(c) ? c : 'bw';
 }
 

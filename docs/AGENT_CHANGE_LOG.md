@@ -3024,3 +3024,38 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Commit: `f6ee43b`
 - Push: PENDING (not pushed)
 - Errors: none
+
+### [2026-11-08 04:02:33] - [Agent: big-pickle] - [Status: UNCOMMITTED - awaiting user approval]
+- Task: Reflect each person's assigned amount and items in the Split the Bill hero, and simplify the split header/group/add-person card.
+- Files changed:
+  - `bill-split.html`: the hero summary now aggregates the person cards (`assignedTotal` from `snap.people[].total` plus `m.assigned` items) instead of showing only the cart item count, so an added person's amount/items roll into the hero as items are assigned while the people count updates immediately. Removed the `hdr-right` / `hdr-cancel` header control (markup, CSS and its now-dead listener); removed the `group-title` "Your group" label (markup + CSS); the add-person card now shows a `+` in `person-avatar` and no longer renders the `person-sub` subtitle.
+- Verified:
+  - Temp jsdom harness: a new person renders `P0.00 for 0 items`; the hero moves from `P160.00 assigned · 4 items across 3 people` to `... across 4 people`; assigning one item updates the hero to `P255.00 assigned · 5 items across 3 people`; 0 window errors.
+  - `node tests/beverages.js` -> BEVERAGES TEST PASSED, 0 window errors.
+  - `npm test` was cut off by the 300s tool timeout after `bakery-directory.js`; every completed suite reported pass and no `FAIL` lines appeared.
+- Not verified:
+  - Real-browser paint of the simplified header/add-person card and the longer hero summary on a narrow phone viewport.
+- Notes:
+  - User requested no commit/push until explicit approval; changes remain uncommitted.
+- Commit: none (awaiting approval)
+- Push: not pushed
+- Errors: none
+
+### [2026-11-08 04:30:42] - [Agent: big-pickle] - [Status: UNCOMMITTED - awaiting user approval]
+- Task: Add a gated Send via WhatsApp action above Save Bill in the Split the Bill footer.
+- Files changed:
+  - `bill-split.html`: added the `send-whatsapp` `wa-action` button directly above `Save Bill`; the click handler calls the parent bridge with the current name/notes; the standalone demo bridge now handles the action.
+  - `index.html`: `summarySignup(title,message,withLogin)` can append a `Log In` action; the inline `EatoutsBillSplitBridge` now exposes `sendWhatsApp(vals)`, which closes the split, prompts guests with Sign Up/Log In, and otherwise opens the WhatsApp contact picker with the full menu or beverage bill.
+  - `js/eatouts-bill-split-bridge.js`: added the `sendWhatsApp` fallback (`auth_required` for guests) and export.
+  - `tests/beverages.js`: added method-exposure, guest-refusal, and signup/login-prompt checks.
+- Verified:
+  - `node tests/beverages.js` -> BEVERAGES TEST PASSED, 0 window errors.
+  - `node tests/inventory.js` -> INVENTORY PASSED (21 checks, 74 pages, 32 screens).
+  - Temp jsdom harness against `bill-split.html` -> footer order is `Send Full Bill to Restaurant | Send via WhatsApp | Save Bill | Cancel Split Bill`; the demo bridge handles the new action; 0 window errors.
+- Not verified:
+  - The signed-in WhatsApp handoff in a real browser (jsdom cannot navigate to wa.me).
+- Notes:
+  - No commit/push per the user's standing instruction.
+- Commit: none (awaiting approval)
+- Push: not pushed
+- Errors: none
