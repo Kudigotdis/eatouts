@@ -3002,3 +3002,22 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Commit: `e42e0ed`
 - Push: `origin/main` (`164f4e9`; this docs line follows in a ledger-only commit)
 - Errors: none
+
+### [2026-11-08 03:11:32] - [Agent: big-pickle] - [Status: IN_PROGRESS]
+- Task: Make Split the Bill use the live cart for every person (not only lines already assigned), and delete the host-page `.bs-close` Done button.
+- Files changed:
+  - `bill-split.html`: `renderPersonMenuTab` now lists every cart line, so a person added after items are in the cart can assign existing units; `+` consumes an unassigned unit or moves one from the largest donor via `moveOneTo`; `-` is disabled at zero; extras editors only show for lines the person holds; the embedded header (Cancel) is no longer hidden.
+  - `index.html`: removed the Done button and its dead `#billSplitHost .bs-close` CSS; the inline `EatoutsBillSplitBridge` now exposes `signedIn()`, `open()` and `close()` and returns `auth_required` from `sharePerson`/`saveSummary` for guests (matching `js/eatouts-bill-split-bridge.js`).
+  - `tests/beverages.js`: split entry selector updated to `[data-act="openBillSplit"][data-from="bev"]`; the removed Done click replaced with `window.closeBillSplit()` and a host `.on` assertion.
+- Verified:
+  - `node tests/beverages.js` -> BEVERAGES TEST PASSED (0 window errors).
+  - Temp jsdom harness against `bill-split.html` -> all 5 cart lines listed per person, `+` assigns an unassigned unit, `-` disabled at zero, and `+` on a fully assigned line moves a unit from the donor; no window errors.
+  - `npm test` -> 84 passed, 3 failed. The 3 failures are pre-existing and outside this change: `tests/wa.js` beverage `waLink` hardcoded flagship number, `tests/back-history.js` bill-split brand-mark/header wiring, `tests/inventory.js` bill-split `PAGE:` banner.
+- Not verified:
+  - Real-browser paint/click of the embedded header and item steppers inside the overlay.
+- Notes:
+  - The earlier `e42e0ed` account-sheet version of `bill-split.html` is not present on this branch; the current file uses a toast for guest share/save refusals.
+  - Not committed: the working tree already contains unrelated staged and unstaged edits (index.html plus many data files), so staging these three files would bundle unrelated work. Awaiting approval.
+- Commit: PENDING
+- Push: PENDING
+- Errors: none
