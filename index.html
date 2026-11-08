@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- PAGE: EatOuts (customer SPA) -->
 <html lang="en">
 <head>
@@ -972,6 +972,9 @@ a.dlg-btn{text-decoration:none}
 .menu-empty-card{margin:4px 0 16px;padding:22px 18px;border:1px solid #f1ece1;border-radius:18px;background:#fffdf7;text-align:center}
 .menu-empty-card h3{margin:0;font-size:17px;font-weight:800;color:#1a1a1a}
 .menu-empty-card p{margin:9px 0 0;font-size:13.5px;line-height:1.55;color:#6b6353}
+#billSplitHost{position:fixed;inset:0;z-index:200;background:#fff;display:none}
+#billSplitHost.on{display:block}
+#billSplitHost iframe{width:100%;height:100%;border:0;display:block}
 </style>
 </head>
 <body data-page="index">
@@ -996,12 +999,11 @@ a.dlg-btn{text-decoration:none}
   <nav id="nav"></nav>
 </div>
 <div id="billSplitHost" role="dialog" aria-modal="true" aria-label="Split the Bill" aria-hidden="true">
-  
   <iframe id="billSplitFrame" title="Split the Bill" src="about:blank"></iframe>
 </div>
 
 <script>
-  try { localStorage.removeItem('eatouts.region.v1'); } catch(e) {}
+  /* Removed 2026-11-08: unconditional region wipe was resetting every stored region to BW on boot. */
 </script>
 <script src="/data/restaurant_listings/restaurant_types_filter.js"></script>
 <!-- The directory payload is injected after js/eatouts-regions.js, so only the
@@ -1020,6 +1022,7 @@ a.dlg-btn{text-decoration:none}
      load time froze Botswana for every other country. -->
 <script src="js/eatouts-regions.js"></script>
 <script src="js/eatouts-region-data.js"></script>
+<script src="js/eatouts-bill-split-bridge.js"></script>
 <!-- Every location file ships as a plain script; js/eatouts-locations.js reads
      only the active region's global, so the selectors never mix countries. -->
 <script src="botswana_locations.js"></script>
@@ -6651,7 +6654,7 @@ function renderRestaurantSubView(){
     if(listingLocked(r)) return page("venue-locked",renderMenuLocked(r));
     if(venueMenuMissing()) return page("venue-menu-empty",renderVenueMenuMissing(r));
     /* renderMenuCategory supplies its own scroll + restaurant card */
-    if(state.splitOpen) return page("venue-checkout-split",renderCheckoutSplit());
+    /* Legacy in-SPA menu split replaced by bill-split.html iframe. */
     if(state.checkoutView) return state.checkoutReview
       ? page("venue-checkout-review",renderCheckoutReview())
       : page("venue-checkout",renderCheckout());
@@ -8102,7 +8105,7 @@ function resetBevSplit(){
 }
 /* PAGE: bev-checkout â€” Beverages Â· Checkout */
 function renderBeveragesCheckout(){
-  if(state.bevSplitOpen)return renderBevSplit();
+  /* Legacy in-SPA bev split replaced by bill-split.html iframe. */
   let h='<div class="scroll">';
   h+='<div class="crumb"><button data-act="bevBackFromCheckout">Beverages</button><span class="sep">/</span><span class="cur">Checkout</span></div>';
   h+='<div class="phead" style="padding-top:12px"><h2>Review & Send</h2><p>'+bevCartCount()+' items Â· '+formatBWP(bevCartTotal())+'</p></div>';
@@ -8143,7 +8146,7 @@ function renderBeveragesCheckout(){
       if(un>0.005)h+='<div class="sp-row muted"><span>Unassigned</span><b>'+formatBWP(un)+'</b></div>';
       h+='</div>';
     }
-    h+='<button class="btn full" data-act="bevOpenSplit">Split the Bill'+
+    h+='<button class="btn full" data-act="openBillSplit" data-from="bev">Split the Bill'+
        (state.bevSplitPeople.length?' <span style="color:#a89a7e;font-weight:700;margin-left:4px">Â· '+state.bevSplitPeople.length+' '+(state.bevSplitPeople.length===1?'person':'people')+'</span>':'')+
        '</button>';
     h+='</div>';
@@ -8887,7 +8890,7 @@ function renderCheckout(){
       if(un>0.005) h+='<div class="sp-row muted"><span>Unassigned</span><b>'+fmt(un)+'</b></div>';
       h+='</div>';
     }
-    h+='<button class="btn full'+(acct?'':' is-locked')+'" data-act="openSplit" aria-disabled="'+(acct?'false':'true')+'">Split the Bill'+
+    h+='<button class="btn full" data-act="openBillSplit" data-from="menu">Split the Bill'+
        (state.splitPeople.length?' <span style="color:#a89a7e;font-weight:700;margin-left:4px">Â· '+state.splitPeople.length+' '+(state.splitPeople.length===1?'person':'people')+'</span>':'')+
        '</button>';
     h+='</div>';
@@ -9013,15 +9016,15 @@ function renderSplitTotals(){
   return h;
 }
 
-function renderSplitActions(){
+function renderSplitActions(){ const acct=!!aboutUser();
   let h='<div class="pad" style="padding-top:0"><div class="split-actions">';
-  h+='<button class="btn primary full" data-act="waSplitRestaurant">Send Full Bill to Restaurant</button>';
+  h+='<button class="btn primary full'+(acct?"":" is-locked")+'" data-act="waSplitRestaurant">Send Full Bill to Restaurant</button>';
   h+='<p class="split-note" style="margin-top:-2px">One bill, all items, straight to the restaurant\'s WhatsApp.</p>';
   if(state.splitPeople.length){
     h+='<div class="subh" style="margin-top:16px">Send Each Person Their Share</div>';
     state.splitPeople.forEach(function(p){
       const has=personLines(p.id).length>0;
-      h+='<button class="btn wa full" data-act="waSplitPerson" data-id="'+p.id+'"'+(has?"":" disabled")+'>'+
+      h+='<button class="btn wa full'+(acct?"":" is-locked")+'" data-act="waSplitPerson" data-id="'+p.id+'"'+(has?"":" disabled")+'>'+
          'Send '+esc(p.name)+'\'s Share â€” '+fmt(personTotal(p.id))+'</button>';
     });
     h+='<p class="split-note">Each message opens WhatsApp\'s contact picker â€” nothing is stored about you or them. '+
@@ -10684,7 +10687,8 @@ if(act==="dismissMenuNotice"){state.menuNotice=(state.restaurantView&&state.rest
   }
 
   /* BEVERAGE SPLIT THE BILL */
-  if(act==="bevOpenSplit"){if(bevCartCount()<=0)return;state.bevSplitOpen=true;render();return;}
+  if(act==="bevOpenSplit"){if(bevCartCount()<=0)return;state.splitOpen=true;state.billSplitFrom="bev";state.bevSplitOpen=true;if(window.EatoutsBillSplitBridge&&EatoutsBillSplitBridge.open){try{EatoutsBillSplitBridge.open({source:"bev"});}catch(e){}}render();return;}
+    if(act==="closeBillSplit"){state.splitOpen=false;state.billSplitFrom=null;state.bevSplitOpen=false;if(window.EatoutsBillSplitBridge&&EatoutsBillSplitBridge.close){try{EatoutsBillSplitBridge.close();}catch(e){}}render();return;}
   if(act==="bevBackFromSplit"){state.bevSplitOpen=false;render();return;}
   if(act==="bevAddSplitPerson"){
     const el=document.getElementById("bevSplitNewName");
@@ -10729,8 +10733,15 @@ if(act==="dismissMenuNotice"){state.menuNotice=(state.restaurantView&&state.rest
   if(act==="toggleCheckoutRow"){const k=t.getAttribute("data-key");state.checkoutOpen=(state.checkoutOpen===k?null:k);render();return;}
 
   /* SPLIT THE BILL */
+  if(act==="openBillSplit"){
+    const from=t.getAttribute("data-from")||"menu";
+    if(from==="bev" && bevCartCount()<=0) return;
+    if(from!=="bev" && cartTotal()<=0) return;
+    openBillSplit(from);
+    return;
+  }
   if(act==="openSplit"){
-    if(!aboutUser()){summarySignup("Split the bill with an account","Create a free EatOuts account to split this bill between friends and send each person their share.");return;}
+    /* browsers can enter the split screen; account is checked only on send/save */
     state.splitOpen=true;render();return;
   }
   if(act==="saveSummary"){
@@ -10790,7 +10801,7 @@ if(act==="dismissMenuNotice"){state.menuNotice=(state.restaurantView&&state.rest
     setSplitQty(skey,spid,Math.max(0,splitQty(skey,spid)-1));
     render();return;
   }
-  if(act==="waSplitRestaurant"){
+  if(act==="waSplitRestaurant"){ if(!aboutUser()){summarySignup("Send this split bill","Create a free EatOuts account to send the full bill to the restaurant.");return;}
     const nameEl=document.getElementById("orderName");
     const notesEl=document.getElementById("orderNotes");
     if(nameEl)state.orderName=nameEl.value;
@@ -10803,7 +10814,7 @@ if(act==="dismissMenuNotice"){state.menuNotice=(state.restaurantView&&state.rest
     window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_split_bill","act=waSplitRestaurant");
     return;
   }
-  if(act==="waSplitPerson"){
+  if(act==="waSplitPerson"){ if(!aboutUser()){summarySignup("Send this share","Create a free EatOuts account to send each person their share.");return;}
     const p=state.splitPeople.find(function(x){return x.id===id;});
     if(!p) return;
     /* no phone number -> WhatsApp opens its built-in contact picker */
@@ -11428,7 +11439,370 @@ window.addEventListener("eatouts:venue-active",function(e){
   if(id) hydrateVenueContent(id);
 });
 </script>
+<script>
+/* Compatibility stubs for the legacy in-SPA beverage split which the
+   standalone bill-split.html iframe supersedes. Prevents ReferenceError
+   crashes from call sites that still reference the old helpers. */
+(function(){
+  if(typeof window.resetBevSplit!=="function")window.resetBevSplit=function(){};
+  if(typeof window.bevCartPersist!=="function")window.bevCartPersist=function(){};
+  if(typeof window.bevNormalizeSplitAssign!=="function")window.bevNormalizeSplitAssign=function(){};
+  if(typeof window.bevSplitLines!=="function")window.bevSplitLines=function(){return bevLines();};
+  if(typeof window.bevSplitQty!=="function")window.bevSplitQty=function(){return 0;};
+  if(typeof window.bevLineAssignedQty!=="function")window.bevLineAssignedQty=function(){return 0;};
+  if(typeof window.bevSetSplitQty!=="function")window.bevSetSplitQty=function(){};
+  if(typeof window.bevSplitAssignedLines!=="function")window.bevSplitAssignedLines=function(){return [];};
+  if(typeof window.bevUnassignedTotal!=="function")window.bevUnassignedTotal=function(){return 0;};
+  if(typeof window.bevAddSplitPerson!=="function")window.bevAddSplitPerson=function(){};
+  if(typeof window.bevRemoveSplitPerson!=="function")window.bevRemoveSplitPerson=function(){};
+  if(typeof window.bevPersonTotal!=="function")window.bevPersonTotal=function(){return 0;};
+  if(typeof window.bevPersonMessage!=="function")window.bevPersonMessage=function(){return "";};
+})();
+</script>
 <script src="js/eatouts-orders-badge.js"></script>
+<script>
+/* ============================================================
+   [EatOuts] Split bridge v2 installed
+   Self-contained integration for the bill-split.html iframe.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  if(!state.splitPeople) state.splitPeople=[];
+  if(!state.splitAssign) state.splitAssign={};
+  if(!state.splitNewName) state.splitNewName="";
+  if(state.billSplitFrom===undefined) state.billSplitFrom="menu";
+  if(state.splitOpen===undefined) state.splitOpen=false;
+  if(state.bevSplitOpen===undefined) state.bevSplitOpen=false;
+  if(!state.bevSplitPeople) state.bevSplitPeople=[];
+  if(!state.bevSplitAssign) state.bevSplitAssign={};
+  if(!state.bevSplitNewName) state.bevSplitNewName="";
+
+  if(typeof splitLines!=="function"){
+    window.splitLines=function(){ return (state.billSplitFrom==="bev")?bevLines():checkoutLines(); };
+  }
+  if(typeof lineUnitPrice!=="function"){
+    window.lineUnitPrice=function(line){return line.qty>0?(line.total/line.qty):0;};
+  }
+  if(typeof splitQty!=="function"){
+    window.splitQty=function(key,pid){const a=state.splitAssign[key];return (a&&a[pid])||0;};
+  }
+  if(typeof setSplitQty!=="function"){
+    window.setSplitQty=function(key,pid,q){if(!state.splitAssign[key])state.splitAssign[key]={};state.splitAssign[key][pid]=Math.max(0,q|0);};
+  }
+  if(typeof lineAssignedQty!=="function"){
+    window.lineAssignedQty=function(key){const a=state.splitAssign[key]||{};return Object.keys(a).reduce(function(s,p){return s+(a[p]||0);},0);};
+  }
+  if(typeof lineUnassignedQty!=="function"){
+    window.lineUnassignedQty=function(line){return Math.max(0,line.qty-lineAssignedQty(line.key));};
+  }
+  if(typeof personLines!=="function"){
+    window.personLines=function(pid,lines){
+      const out=[];const src=lines||splitLines();
+      src.forEach(function(line){
+        const q=splitQty(line.key,pid);if(!q) return;
+        out.push({line:line,qty:q,subtotal:q*lineUnitPrice(line)});
+      });
+      return out;
+    };
+  }
+  if(typeof personTotal!=="function"){
+    window.personTotal=function(pid,lines){return personLines(pid,lines).reduce(function(s,x){return s+x.subtotal;},0);};
+  }
+  if(typeof unassignedTotal!=="function"){
+    window.unassignedTotal=function(lines){return (lines||splitLines()).reduce(function(s,line){return s+lineUnassignedQty(line)*lineUnitPrice(line);},0);};
+  }
+  if(!window.SPLIT_COLORS){ window.SPLIT_COLORS=["#c2410c","#0369a1","#15803d","#7c3aed","#b91c1c","#a16207","#0f766e","#be185d"]; }
+  if(window._splitSeq===undefined) window._splitSeq=0;
+
+  if(typeof addSplitPerson!=="function"){
+    window.addSplitPerson=function(name){
+      name=String(name||"").trim().slice(0,24); if(!name) return null;
+      if(state.splitPeople.some(function(p){return p.name.toLowerCase()===name.toLowerCase();})) return null;
+      window._splitSeq+=1; const id="p"+window._splitSeq;
+      state.splitPeople.push({id:id,name:name,color:window.SPLIT_COLORS[state.splitPeople.length%window.SPLIT_COLORS.length]});
+      return id;
+    };
+  }
+  if(typeof removeSplitPerson!=="function"){
+    window.removeSplitPerson=function(id){
+      state.splitPeople=state.splitPeople.filter(function(p){return p.id!==id;});
+      Object.keys(state.splitAssign).forEach(function(k){
+        if(state.splitAssign[k]&&state.splitAssign[k][id]!==undefined) delete state.splitAssign[k][id];
+      });
+    };
+  }
+  if(typeof splitVenue!=="function"){
+    window.splitVenue=function(){
+      if(state.billSplitFrom==="bev") return {name:"EatOuts Beverages",display:String(CONFIG.displayNumber||"+26771829765")};
+      const rc=restaurantContact(); return {name:curRestaurantName(),display:rc.display};
+    };
+  }
+  if(typeof billSplitCatalog!=="function"){
+    window.billSplitCatalog=function(){
+      const out=[];
+      if(state.billSplitFrom==="bev"){
+        const bev=window._BEV||{};
+        const all=((bev.beverages&&bev.beverages.items)||[]).concat((bev.alcohols&&bev.alcohols.items)||[]);
+        all.forEach(function(it){
+          const price=bevPrice(it);
+          out.push({id:String(it.id),name:it.name,category:it.category||"Beverages",price:price,desc:it.desc||"",photo:it.image||"",sizes:[{index:0,label:it.size||"Each",price:price,priceText:formatBWP(price)}]});
+        });
+        return out;
+      }
+      curMenu().forEach(function(cat){
+        (cat.items||[]).forEach(function(row){
+          const it=getMenuItem(row[0]); if(!it) return;
+          const sizes=itemSizes(it).map(function(sz,i){return {index:i,label:sz[0]||"Regular",price:sz[1],priceText:fmt(sz[1])};});
+          if(!sizes.length) return;
+          out.push({id:String(it.id),name:it.name,category:cat.name||cat.id,price:sizes[0].price,desc:it.desc||"",photo:"",sizes:sizes});
+        });
+      });
+      return out;
+    };
+  }
+  if(typeof billSplitSnapshot!=="function"){
+    window.billSplitSnapshot=function(){
+      const source=splitLines(), venue=splitVenue();
+      const rest=(state.billSplitFrom==="bev")?null:curRestaurant();
+      const lines=source.map(function(l){
+        const assignedById={};
+        state.splitPeople.forEach(function(p){const q=splitQty(l.key,p.id);if(q>0) assignedById[p.id]=q;});
+        const extras=[];
+        Object.keys(l.extras||{}).forEach(function(ei){
+          const q=l.extras[ei],ex=l.it&&l.it.extras&&l.it.extras[ei];
+          if(ex) extras.push({name:ex[0],qty:Number(q)||0,price:ex[1]});
+        });
+        ((l.it&&l.it.extras)||[]).forEach(function(ex,i){
+          if(l.extras&&Object.prototype.hasOwnProperty.call(l.extras,i)) return;
+          extras.push({name:ex[0],qty:0,price:ex[1]});
+        });
+        const unit=lineUnitPrice(l);
+        const assigned=Object.keys(assignedById).reduce(function(s,k){return s+assignedById[k];},0);
+        return {key:l.key,name:l.name,size:l.size||"",qty:l.qty,unit:unit,unitText:fmt(unit),
+          photo:String((l.it&&l.it.image)||(l.item&&l.item.image)||""),
+          desc:String((l.it&&l.it.desc)||(l.item&&l.item.desc)||""),
+          extras:extras,assignedById:assignedById,unassigned:Math.max(0,l.qty-assigned)};
+      });
+      const people=state.splitPeople.map(function(p){
+        const mine=lines.filter(function(l){return (l.assignedById[p.id]||0)>0;});
+        const total=mine.reduce(function(s,l){return s+l.assignedById[p.id]*l.unit;},0);
+        const count=mine.reduce(function(s,l){return s+l.assignedById[p.id];},0);
+        return {id:p.id,name:p.name,photo:p.photo||"",phone:p.phone||"",
+          gender:p.gender||"",ageBand:p.ageBand||"",relationship:p.relationship||"",
+          paymentMethod:p.paymentMethod||"",occasion:p.occasion||"",note:p.note||"",
+          itemCount:count,total:total,totalText:fmt(total)};
+      });
+      const total=lines.reduce(function(s,l){return s+l.qty*l.unit;},0);
+      const itemCount=lines.reduce(function(s,l){return s+l.qty;},0);
+      const catalog=billSplitCatalog();
+      const categories=[];
+      catalog.forEach(function(it){if(categories.indexOf(it.category)<0)categories.push(it.category);});
+      return {restaurant:{name:venue.name,logo:String((rest&&restLogo(rest))||"")},
+        people:people,lines:lines,itemCount:itemCount,total:total,totalText:fmt(total),
+        catalog:catalog,categories:categories,
+        orderName:state.orderName||"",orderNotes:state.orderNotes||""};
+    };
+  }
+
+  window.openBillSplit=function(from){
+    const host=document.getElementById("billSplitHost");
+    const frame=document.getElementById("billSplitFrame");
+    if(!host||!frame) return;
+    state.billSplitFrom=(from==="bev")?"bev":"menu";
+    state.splitOpen=true;
+    host.classList.add("on");
+    host.setAttribute("aria-hidden","false");
+    frame.src="bill-split.html?v="+Date.now();
+  };
+  window.closeBillSplit=function(){
+    const host=document.getElementById("billSplitHost");
+    const frame=document.getElementById("billSplitFrame");
+    if(host){host.classList.remove("on");host.setAttribute("aria-hidden","true");}
+    if(frame) frame.src="about:blank";
+    state.splitOpen=false;
+    try{render();}catch(e){}
+  };
+  window.fireAct=window.fireAct||function(act){
+    const el=document.createElement("button");
+    el.setAttribute("data-act",act);el.hidden=true;
+    document.body.appendChild(el);el.click();el.remove();
+  };
+
+  const BEV_WHATSAPP="26771829765";
+
+  window.EatoutsBillSplitBridge={
+    format:fmt,
+    snapshot:billSplitSnapshot,
+    signedIn:function(){try{return !!aboutUser();}catch(e){return false;}},
+    open:function(opts){window.openBillSplit((opts&&opts.source)||state.billSplitFrom||"menu");return true;},
+    close:function(){window.closeBillSplit();return true;},
+    addPerson:function(name){return addSplitPerson(name)||null;},
+    removePerson:function(id){removeSplitPerson(id);return true;},
+    updatePerson:function(arg){
+      if(!arg) return false;
+      const p=state.splitPeople.filter(function(x){return x.id===arg.id;})[0];
+      if(!p) return false;
+      if(arg.field==="name"){
+        const name=String(arg.value||"").trim().slice(0,24);
+        if(!name) return false;
+        if(state.splitPeople.some(function(x){return x.id!==p.id&&x.name.toLowerCase()===name.toLowerCase();})) return false;
+        p.name=name;return true;
+      }
+      p[arg.field]=arg.value;return true;
+    },
+    assignQty:function(arg){
+      if(!arg) return false;
+      const line=splitLines().filter(function(l){return l.key===arg.key;})[0];if(!line) return false;
+      let others=0;
+      state.splitPeople.forEach(function(p){if(p.id!==arg.id) others+=splitQty(arg.key,p.id);});
+      setSplitQty(arg.key,arg.id,Math.max(0,Math.min(Number(arg.qty)||0,Math.max(0,line.qty-others))));
+      return true;
+    },
+    moveOneTo:function(arg){
+      if(!arg) return false;
+      const line=splitLines().filter(function(l){return l.key===arg.key;})[0];if(!line) return false;
+      const donors=state.splitPeople.filter(function(p){return p.id!==arg.id&&splitQty(arg.key,p.id)>0;});
+      if(!donors.length) return false;
+      donors.sort(function(a,b){return splitQty(arg.key,b.id)-splitQty(arg.key,a.id);});
+      setSplitQty(arg.key,donors[0].id,splitQty(arg.key,donors[0].id)-1);
+      setSplitQty(arg.key,arg.id,splitQty(arg.key,arg.id)+1);
+      return true;
+    },
+    balanceShares:function(){
+      const lines=splitLines();
+      const prev=lines.map(function(l){
+        const assignedById={};
+        state.splitPeople.forEach(function(p){const q=splitQty(l.key,p.id);if(q>0) assignedById[p.id]=q;});
+        return {key:l.key,assignedById:assignedById};
+      });
+      if(state.splitPeople.length<2) return prev;
+      const units=[];
+      lines.forEach(function(l){
+        state.splitAssign[l.key]={};
+        for(let i=0;i<l.qty;i++) units.push({key:l.key,unit:lineUnitPrice(l)});
+      });
+      units.sort(function(a,b){return b.unit-a.unit;});
+      const totals={};
+      state.splitPeople.forEach(function(p){totals[p.id]=0;});
+      units.forEach(function(u){
+        let best=state.splitPeople[0].id;
+        state.splitPeople.forEach(function(p){if(totals[p.id]<totals[best]) best=p.id;});
+        totals[best]+=u.unit;
+        setSplitQty(u.key,best,splitQty(u.key,best)+1);
+      });
+      return prev;
+    },
+    restoreAssignments:function(prev){
+      if(!prev) return false;
+      prev.forEach(function(entry){state.splitAssign[entry.key]=Object.assign({},entry.assignedById);});
+      return true;
+    },
+    addMenuItem:function(arg){
+      if(!arg) return false;
+      const pid=String(arg.personId||"");if(!pid) return false;
+      let key="";
+      if(state.billSplitFrom==="bev"){
+        const it=bevFindItem(arg.itemId);if(!it) return false;
+        key=getBeverageCartKey(it);
+        if(!state.bevCart[key]) state.bevCart[key]={item:it,qty:0};
+        state.bevCart[key].qty+=1;
+      } else {
+        const itemId=parseInt(arg.itemId,10), it=getMenuItem(itemId);if(!it) return false;
+        const sizeIdx=Number(arg.sizeIdx)||0;
+        if(!itemSizes(it)[sizeIdx]) return false;
+        key=cartKey(itemId,sizeIdx);
+        const line=cartLine(itemId,sizeIdx);line.qty=(line.qty||0)+1;
+        try{cartPersist();}catch(e){}
+      }
+      setSplitQty(key,pid,splitQty(key,pid)+1);
+      return true;
+    },
+    toggleExtra:function(arg){
+      if(!arg) return false;
+      if(state.billSplitFrom==="bev") return false;
+      const key=String(arg.key||""), ei=Number(arg.ei)||0, delta=Number(arg.delta)||0;
+      if(!delta) return false;
+      const line=state.cart[key];if(!line) return false;
+      const it=getMenuItem(line.itemId);
+      if(!it||!it.extras||!it.extras[ei]) return false;
+      if(!line.extras) line.extras={};
+      const next=Math.max(0,(Number(line.extras[ei])||0)+delta);
+      if(next>0) line.extras[ei]=next; else delete line.extras[ei];
+      try{cartPersist();}catch(e){}
+      return true;
+    },
+    sharePerson:function(id){
+      if(!aboutUser()) return "auth_required";
+      const p=state.splitPeople.filter(function(x){return x.id===id;})[0];
+      if(!p||!personLines(id,splitLines()).length) return false;
+      window.location.href=waShareLink(buildPersonMessage(p,splitLines()));
+      return true;
+    },
+    sendFullBill:function(vals){
+      const name=String((vals&&vals.name)||"").trim();
+      if(!name){window.alert("Please enter your name.");return false;}
+      state.orderName=name; state.orderNotes=String((vals&&vals.notes)||"");
+      if(state.billSplitFrom==="bev"){
+        window.location.href=waLink(bevOrderText(),BEV_WHATSAPP,"beverage_order","act=sendFullBill");return true;
+      }
+      bridgeDraftOrder("menu"); notifyFieldOrder(curRestaurant());
+      window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_split_bill","act=sendFullBill");
+      return true;
+    },
+    sendStandardOrder:function(vals){
+      const name=String((vals&&vals.name)||"").trim();
+      if(!name){window.alert("Please enter your name.");return false;}
+      state.orderName=name; state.orderNotes=String((vals&&vals.notes)||"");
+      if(state.billSplitFrom==="bev"){
+        window.location.href=waLink(bevOrderText(),BEV_WHATSAPP,"beverage_order","act=sendStandardOrder");return true;
+      }
+      bridgeDraftOrder("menu"); notifyFieldOrder(curRestaurant());
+      window.location.href=waLink(buildFullBillMessage(),curRestaurant(),"order_checkout","act=sendStandardOrder");
+      return true;
+    },
+    openReview:function(vals){
+      const name=String((vals&&vals.name)||"").trim(); if(name) state.orderName=name;
+      if(vals&&vals.notes!=null) state.orderNotes=String(vals.notes||"");
+      if(state.billSplitFrom!=="bev"){ state.checkoutView=true; state.checkoutReview=true; }
+      closeBillSplit();
+      return true;
+    },
+    saveSummary:function(){
+      if(!aboutUser()) return "auth_required";
+      closeBillSplit();
+      fireAct("saveSummary"); return true;
+    },
+    requestDeleteSummary:function(){ closeBillSplit(); fireAct("deleteSummary"); return true; },
+    addDelivery:function(){ const from=state.billSplitFrom; closeBillSplit(); goDelivery(from); return true; },
+    returnToCheckout:function(){closeBillSplit();return true;},
+    backToMenu:function(){closeBillSplit();return true;}
+  };
+
+  if(typeof resetBevSplit!=="function") window.resetBevSplit=function(){};
+  if(typeof bevCartPersist!=="function") window.bevCartPersist=function(){};
+  if(typeof bevNormalizeSplitAssign!=="function") window.bevNormalizeSplitAssign=function(){};
+  if(typeof bevSplitLines!=="function") window.bevSplitLines=function(){return bevLines();};
+  if(typeof bevSplitQty!=="function") window.bevSplitQty=function(){return 0;};
+  if(typeof bevLineAssignedQty!=="function") window.bevLineAssignedQty=function(){return 0;};
+  if(typeof bevSetSplitQty!=="function") window.bevSetSplitQty=function(){};
+  if(typeof bevSplitAssignedLines!=="function") window.bevSplitAssignedLines=function(){return [];};
+  if(typeof bevUnassignedTotal!=="function") window.bevUnassignedTotal=function(){return 0;};
+  if(typeof bevAddSplitPerson!=="function") window.bevAddSplitPerson=function(){};
+  if(typeof bevRemoveSplitPerson!=="function") window.bevRemoveSplitPerson=function(){};
+  if(typeof bevPersonTotal!=="function") window.bevPersonTotal=function(){return 0;};
+  if(typeof bevPersonMessage!=="function") window.bevPersonMessage=function(){return "";};
+
+  document.addEventListener("click",function(e){
+    const b=e.target.closest('[data-act="openBillSplit"]');
+    if(!b) return;
+    const from=b.getAttribute("data-from")||"menu";
+    if(from==="bev"){ if(typeof bevCartCount==="function"&&bevCartCount()<=0) return; }
+    else { if(typeof cartTotal==="function"&&cartTotal()<=0) return; }
+    window.openBillSplit(from);
+  });
+})();
+</script>
 </body>
 </html>
 

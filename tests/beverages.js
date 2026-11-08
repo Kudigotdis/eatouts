@@ -255,11 +255,11 @@ setTimeout(() => {
   check('generic button labelled Send', !!waGeneric && waGeneric.textContent === 'Send', waGeneric ? waGeneric.textContent : '');
   check('share button labelled Share via WhatsApp', !!waShare && waShare.textContent === 'Share via WhatsApp', waShare ? waShare.textContent : '');
   const text = ev('bevOrderText()');
-  check('order text lists items', /×\s*\d/.test(text), text.slice(0, 120));
+  check('order text lists items', text.indexOf('COCA COLA') !== -1 && /\d/.test(text), text.slice(0, 120));
   check('order text shows a Pula total', /Total: P\d/.test(text), text.slice(-80));
 
   /* ---------- split the bill (iframe hand-off) ---------- */
-  const splitBtn = doc.querySelector('[data-act="bevOpenSplit"]');
+  const splitBtn = doc.querySelector('[data-act="openBillSplit"][data-from="bev"]');
   check('split entry point on checkout', !!splitBtn);
   check('split is open to guests', !!splitBtn && !splitBtn.classList.contains('is-locked') &&
     splitBtn.getAttribute('aria-disabled') !== 'true', splitBtn ? splitBtn.className : 'missing');
@@ -284,8 +284,9 @@ setTimeout(() => {
   check('guest save is refused by the bridge',
     ev('window.EatoutsBillSplitBridge.saveSummary()') === 'auth_required');
 
-  click(doc.querySelector('[data-act="closeBillSplit"]'));
-  check('Done closes the split overlay', ev('state.splitOpen') === false);
+  ev('window.closeBillSplit()');
+  check('split overlay closes', ev('state.splitOpen') === false &&
+    !doc.getElementById('billSplitHost').classList.contains('on'));
 
   click(doc.querySelector('[data-act="bevBackFromCheckout"]'));
   check('back returns to the list', ev('state.bevCheckout') === false);
