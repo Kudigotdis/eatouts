@@ -12,6 +12,18 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: <reasoning>
 - Errors: <exact error if any>
 ```
+### [2026-11-09 11:34:39] - [Agent: Big Pickle] - [Status: COMMITTED]
+- Task: Make Botswana the launch region again. The app was opening on South Africa because `localStorage['eatouts.region.v1']` still held `ZA` from an earlier selector tap, and `getActiveRegion()` honours any active stored code; the boot reset in `index.html` had been removed on 2026-11-08, leaving Botswana only as a fallback.
+- Files changed:
+  - `index.html`: launch guard before the region registry and payload injection — copies this tab's `sessionStorage['eatouts.region.session']` (or `BW` when absent) into `eatouts.region.v1`, so every fresh app open is Botswana while a deliberate choice survives the current tab.
+  - `EatOuts-Region.html`: the tap handler records the chosen code in `sessionStorage['eatouts.region.session']` before the existing `setActiveRegion()` + `index.html#restaurants` hand-off.
+  - `tests/directory-region-panels.js`, `tests/directory-region-empty.js`, `tests/region-about.js`: seed the session key beside the existing localStorage seed so the harnesses still boot as ZW/ZA/KE/MU.
+- Commit: cdb1cdc
+- Push: PENDING
+- Tests: `node tests/directory-region-panels.js`, `node tests/directory-region-empty.js`, `node tests/region-about.js`, `node tests/region-selector.js` → PASSED; `npm test` → 87 passed, 0 failed.
+- Notes: Region switching still works for the life of the tab; closing it (or the next launcher new-tab open) returns to Botswana. Deep-opening `venue-about.html` / `search_screen.html` in a fresh tab before `index.html` can still read a prior session's stored code — not covered by this minimal patch.
+- Errors: none.
+
 ### [2026-11-07 00:00:00] - [Agent: cline] - [Status: COMMITTED]
 - Task: Activate Kenya, Mauritius and South Africa as full app regions beside Botswana and Zimbabwe — region-scoped restaurants/menus/locations/currency, a corrected region selector, a cleaned index header, Eish empty states — and fix `venue-about.html` so every restaurant is reachable from a deep link with its description.
 - Root causes fixed:
