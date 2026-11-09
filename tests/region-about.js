@@ -73,7 +73,11 @@ function boot(page, region, link) {
     runScripts: 'dangerously',
     pretendToBeVisual: true,
     virtualConsole: vc,
-    beforeParse(win) { try { win.localStorage.setItem(REGION_KEY, region); } catch (e) {} }
+    beforeParse(win) {
+      try { win.localStorage.setItem(REGION_KEY, region); } catch (e) {}
+      /* index.html launches as Botswana unless this tab already chose a region. */
+      try { win.sessionStorage.setItem('eatouts.region.session', region); } catch (e) {}
+    }
   });
   return { dom, w: dom.window, doc: dom.window.document, errors, bounces };
 }

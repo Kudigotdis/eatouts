@@ -56,6 +56,8 @@ function boot(html, region) {
     virtualConsole: vc,
     beforeParse(window) {
       try { window.localStorage.setItem('eatouts.region.v1', region); } catch (e) {}
+      /* index.html launches as Botswana unless this tab already chose a region. */
+      try { window.sessionStorage.setItem('eatouts.region.session', region); } catch (e) {}
       /* jsdom has no fetch; the page's menu/type/beverage loaders all catch. */
       window.fetch = function () { return Promise.reject(new Error('offline test')); };
     }

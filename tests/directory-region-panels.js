@@ -57,6 +57,8 @@ function boot(html, region, opts) {
     virtualConsole: vc,
     beforeParse(window) {
       try { window.localStorage.setItem('eatouts.region.v1', region); } catch (e) {}
+      /* index.html launches as Botswana unless this tab already chose a region. */
+      try { window.sessionStorage.setItem('eatouts.region.session', region); } catch (e) {}
       /* opts.quota: simulate a full localStorage so the merge write throws the
          way it does on a device that has already stored three regions. */
       if (opts.quota) {

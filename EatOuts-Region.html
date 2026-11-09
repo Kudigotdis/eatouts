@@ -170,6 +170,8 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;backgrou
     if (!btn) return;
     var r = (R && R.get) ? R.get(btn.getAttribute('data-code')) : null;
     if (!r || !r.active) return;
+    /* This tab keeps the choice until it closes; the next app open is Botswana. */
+    try { sessionStorage.setItem('eatouts.region.session', r.code); } catch (e) {}
     if (R.setActiveRegion) R.setActiveRegion(r.code);
     window.location.href = 'index.html#restaurants';
   });

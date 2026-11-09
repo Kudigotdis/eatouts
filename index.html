@@ -1003,7 +1003,15 @@ a.dlg-btn{text-decoration:none}
 </div>
 
 <script>
-  /* Removed 2026-11-08: unconditional region wipe was resetting every stored region to BW on boot. */
+  /* Botswana is the launch region until further notice. A region chosen in the
+     selector lives in sessionStorage for this tab only; a region stored by an
+     earlier session is not carried into this app open. */
+  (function(){
+    try {
+      var session = sessionStorage.getItem('eatouts.region.session');
+      localStorage.setItem('eatouts.region.v1', session || 'BW');
+    } catch (e) {}
+  })();
 </script>
 <script src="/data/restaurant_listings/restaurant_types_filter.js"></script>
 <!-- The directory payload is injected after js/eatouts-regions.js, so only the
