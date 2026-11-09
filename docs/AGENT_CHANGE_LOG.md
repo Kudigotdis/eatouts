@@ -19,7 +19,7 @@ This file is the source of truth for all agent-initiated changes. Every time an 
   - `EatOuts-Region.html`: the tap handler records the chosen code in `sessionStorage['eatouts.region.session']` before the existing `setActiveRegion()` + `index.html#restaurants` hand-off.
   - `tests/directory-region-panels.js`, `tests/directory-region-empty.js`, `tests/region-about.js`: seed the session key beside the existing localStorage seed so the harnesses still boot as ZW/ZA/KE/MU.
 - Commit: cdb1cdc
-- Push: PENDING
+- Push: 504c89a -> origin/main (pushed)
 - Tests: `node tests/directory-region-panels.js`, `node tests/directory-region-empty.js`, `node tests/region-about.js`, `node tests/region-selector.js` → PASSED; `npm test` → 87 passed, 0 failed.
 - Notes: Region switching still works for the life of the tab; closing it (or the next launcher new-tab open) returns to Botswana. Deep-opening `venue-about.html` / `search_screen.html` in a fresh tab before `index.html` can still read a prior session's stored code — not covered by this minimal patch.
 - Errors: none.
