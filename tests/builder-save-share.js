@@ -5,9 +5,9 @@
  * Asserts: the 2-option share popup (venue / contacts) behind the account gate,
  * the floating sign-up gate that replaces confirm(), the save sheet (rename +
  * card thumbnail) writing the snapshot + dates, the "Save draft?" guard on
- * leaving, and the reserve-tab "Create New Event" entry point. Every popup is
- * checked against the shared floating-card contract (420px, plain X, no
- * .fpop-close).
+ * leaving, and the reserve tab no longer offering a "Create New Event" entry.
+ * Every popup is checked against the shared floating-card contract (420px,
+ * plain X, no .fpop-close).
  *
  * Usage:  node tests/builder-save-share.js
  */
@@ -246,8 +246,8 @@ async function next(w, doc, a) {
 function final() {
   /* ================= entry points ================= */
   const idx = fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8');
-  check('the reserve tab offers Create New Event',
-    /data-act="createEvent"/.test(idx) && /Create New Event/.test(idx));
+  check('the reserve tab no longer offers Create New Event',
+    !/data-act="createEvent"/.test(idx) && !/Create New Event/.test(idx));
   check('createEvent opens the builder',
     /act==="createEvent"\)\{location\.href="eatout_event_builder\.html"/.test(idx));
 

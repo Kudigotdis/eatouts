@@ -312,15 +312,11 @@ setTimeout(() => {
   const dupIds = evj('(()=>{const a=window._BEV.beverages.items.map(i=>i.id),b=window._BEV.alcohols.items.map(i=>i.id);return a.length-new Set(a).size+(b.length-new Set(b).size)})()');
   check('item ids are unique', dupIds === 0, dupIds);
 
-  /* ---------- beverage filter bar (explicit header filter button) ---------- */
+  /* ---------- beverage filter bar (active Restaurants tab) ---------- */
   const cbarEl = doc.getElementById('cbar');
   check('beverage filter bar hidden by default', ev('state.bevFilterOpen') === false && !cbarEl.classList.contains('on'));
-  /* the bottom nav only navigates - a 2nd Restaurants tap must not toggle it */
   click(doc.querySelector('[data-tab="restaurants"]'));
-  check('2nd Restaurants tap leaves the beverage filter bar closed',
-    ev('state.bevFilterOpen') === false && !cbarEl.classList.contains('on'), ev('state.bevFilterOpen'));
-  click(doc.getElementById('hdrFilter'));
-  check('header filter button opens the beverage filter bar',
+  check('2nd Restaurants tap opens the beverage filter bar',
     ev('state.bevFilterOpen') === true && cbarEl.classList.contains('on'), ev('state.bevFilterOpen'));
   const controls = cbarEl.querySelector('.rest-filter-controls');
   const townBtn = cbarEl.querySelector('[data-act="openBottleTownFilter"]');

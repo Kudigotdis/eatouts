@@ -656,10 +656,10 @@ img[src*="heart_inactive_icon"]{opacity:.5}
 .menu-view .phead h2{margin-bottom:0}
 .empty{padding:44px 20px;text-align:center;color:#a89a7e;font-size:12.5px;line-height:1.6}
 /* The Eish card: mascot + one line of copy (js/eatouts-empty-notice.js). */
-.empty-notice{padding:30px 22px 40px;text-align:center}
+.empty-notice{padding:30px 22px 40px;text-align:center;font-size:20px}
 .empty-notice img{display:block;width:180px;max-width:64%;height:auto;margin:0 auto 14px}
 .empty-notice-title{font-size:15px;font-weight:900;color:#1a1a1a;margin:0 0 6px;letter-spacing:-.01em}
-.empty-notice p{margin:0;font-size:13.5px;font-weight:700;line-height:1.55;color:#6b6353}
+.empty-notice p{margin:0 auto;width:373px;max-width:100%;font-weight:700;line-height:1.55;color:#6b6353}
 
 /* ---------- PROMO FILTER BAR (rises above nav) ---------- */
 #filter-bar{flex:0 0 auto;background:#ffffff;border-top:1px solid #ece7db;position:relative;display:none}
@@ -987,9 +987,6 @@ a.dlg-btn{text-decoration:none}
       </button>
       <button class="hdr-search" type="button" data-act="openSearchScreen" aria-label="Search EatOuts">
         <img src="assets/icons/search_icon.webp" alt="Search">
-      </button>
-      <button class="hdr-search" type="button" id="hdrFilter" data-act="toggleFilterBar" aria-label="Filters" aria-expanded="false" hidden>
-        <span aria-hidden="true">&#8801;</span>
       </button>
     </div>
   </header>
@@ -4680,6 +4677,14 @@ function startOfWeek(d){
   x.setDate(x.getDate()+diff);
   return x;
 }
+/* The first Monday that falls inside the month. A month whose 1st is not a
+   Monday belongs to the previous month's last week until this date, so week 1
+   is the first full Monday-based week of the month. */
+function firstMondayInMonth(year,monthIndex){
+  const monday=startOfWeek(new Date(year,monthIndex,1));
+  if(monday.getMonth()!==monthIndex) monday.setDate(monday.getDate()+7);
+  return monday;
+}
 function getWeekDays(){
   const monday=state.promoWeekStart||startOfWeek(new Date());
   const arr=[];
@@ -4687,10 +4692,8 @@ function getWeekDays(){
   return arr;
 }
 function weeksInMonth(year,monthIndex){
-  const firstOfMonth=new Date(year,monthIndex,1);
-  const lastOfMonth=new Date(year,monthIndex+1,0);
-  const firstMonday=startOfWeek(firstOfMonth);
-  const lastMonday=startOfWeek(lastOfMonth);
+  const firstMonday=firstMondayInMonth(year,monthIndex);
+  const lastMonday=startOfWeek(new Date(year,monthIndex+1,0));
   const diff=Math.round((lastMonday-firstMonday)/(7*86400000));
   return diff+1;
 }
@@ -4701,8 +4704,7 @@ function weekLabel(){
   const year=anchor?anchor.year:first.getFullYear();
   const monthIndex=anchor?anchor.monthIndex:first.getMonth();
   const month=new Date(year,monthIndex,1).toLocaleString("en",{month:"long"});
-  const firstOfMonth=new Date(year,monthIndex,1);
-  const firstMonday=startOfWeek(firstOfMonth);
+  const firstMonday=firstMondayInMonth(year,monthIndex);
   const diffDays=Math.round((first-firstMonday)/86400000);
   const totalWeeks=weeksInMonth(year,monthIndex);
   const weekNum=Math.max(1,Math.min(totalWeeks,Math.floor(diffDays/7)+1));
@@ -4714,7 +4716,7 @@ function syncPromoMonth(){
   const monday=state.promoWeekStart||startOfWeek(new Date());
   const a=state.promoMonth;
   if(!a){state.promoMonth={year:monday.getFullYear(),monthIndex:monday.getMonth()};return;}
-  const fm=startOfWeek(new Date(a.year,a.monthIndex,1));
+  const fm=firstMondayInMonth(a.year,a.monthIndex);
   const last=addDays(fm,(weeksInMonth(a.year,a.monthIndex)-1)*7);
   if(monday<fm){
     const p=new Date(a.year,a.monthIndex-1,1);
@@ -5780,7 +5782,7 @@ function renderRegionChip(){
   chip.setAttribute("aria-label","Country: "+name+". Change country");
 }
 function directoryYetToListed(label){
-  return emptyNoticeHtml({message: label+' in '+directoryRegionName()+' are yet to be listed. We are onboarding local businesses â€” check back soon.'});
+  return emptyNoticeHtml({message: label+' in '+directoryRegionName()+' are yet to be listed. We are onboarding local businesses. Check back soon.'});
 }
 /** True when the active region ships a restaurant directory but its payload
     never landed (offline, 404, blocked script) â€” the case that used to paint a
@@ -6594,7 +6596,6 @@ function renderHeader(){
     const hdr=document.getElementById("hdr");
     if(state.tab==="about" && state.aboutView==="gallery"){hdr.classList.add("hide");}
     else{hdr.classList.remove("hide");}
-    syncFilterBtn();
   }
 function filterBarKey(){
   if(state.tab==="promos") return state.promoView==="feed"?"promoFilterOpen":null;
@@ -6604,16 +6605,6 @@ function filterBarKey(){
   if(state.restPanel==="catering") return directoryDataAvailable("catering")?"cateringFilterOpen":null;
   if(state.restPanel==="bakery") return directoryDataAvailable("bakery")?"bakeryFilterOpen":null;
   return "restFilterOpen";
-}
-function syncFilterBtn(){
-  const b=document.getElementById("hdrFilter");
-  if(!b) return;
-  const key=filterBarKey();
-  if(!key){b.hidden=true;b.classList.remove("on");b.setAttribute("aria-expanded","false");return;}
-  const on=!!state[key];
-  b.hidden=false;
-  b.classList.toggle("on",on);
-  b.setAttribute("aria-expanded",on?"true":"false");
 }
 function toggleFilterBar(){
   const key=filterBarKey();
@@ -6627,7 +6618,6 @@ function toggleFilterBar(){
     else if(key==="bakeryFilterOpen"){state.bakeryTownPicker=false;state.bakeryAreaPicker=false;state.bakeryTypePicker=false;}
   }
   renderControlBar();
-  syncFilterBtn();
 }
 
 /* PAGE: venue-menu-empty â€” Menu */
@@ -7635,8 +7625,7 @@ function renderPromoWeekPicker(){
   if(!state.promoWeekPicker)return "";
   const w=weekLabel();
   const year=w.year,monthIndex=w.monthIndex;
-  const firstOfMonth=new Date(year,monthIndex,1);
-  const firstMonday=startOfWeek(firstOfMonth);
+  const firstMonday=firstMondayInMonth(year,monthIndex);
   const totalWeeks=w.totalWeeks;
   let h='<div class="fpop-scrim" data-act="closePromoWeekPicker"></div>';
   h+='<div class="fpop week-pop'+(state.promoWeekExpanded?' expanded-open':'')+'" role="dialog" aria-label="Choose week">';
@@ -9147,9 +9136,6 @@ function renderReserveCats(){
   /* no margin-top here: .scroll has no padding, so any top margin renders as a
      white strip between the app bar and the grey .phead band (T10) */
   h+='<div class="phead"><h2>Plan Event</h2></div>';
-  /* T12.9: the reserve tab is the entry point for a brand-new event */
-  h+='<button class="cat-row evcat" data-act="createEvent">'+
-    '<div class="minfo"><div class="cat-name">Create New Event</div></div></button>';
   RESERVE.forEach(c=>{
     h+='<button class="cat-row evcat" data-act="openResCat" data-id="'+c.id+'">'+
       '<div class="minfo"><div class="cat-name">'+esc(c.name)+'</div></div></button>';
@@ -9960,7 +9946,7 @@ function restoreHistory(entry){
 function render(){
   bootEatoutsBridge();
   if(!state.promoWeekStart) state.promoWeekStart = startOfWeek(new Date());
-  if(!state.promoMonth){const d=new Date();state.promoMonth={year:d.getFullYear(),monthIndex:d.getMonth()};}
+  if(!state.promoMonth){const d=state.promoWeekStart;state.promoMonth={year:d.getFullYear(),monthIndex:d.getMonth()};}
   renderViewport();
   /* A navigation re-creates the list, so the row focus/lock is re-applied
      from state - and cleared when the open row is no longer on screen. */
@@ -10002,11 +9988,9 @@ document.addEventListener("click",function(e){try{
   const nav=e.target.closest("[data-tab]");
   if(nav){
     const nextTab=nav.getAttribute("data-tab");
-    /* The bottom nav only navigates. Tapping the tab you are already on used to
-       toggle that tab's filter bar, which made the button look dead; the bars
-       now open from the header filter button (#hdrFilter). At the tab root the
-       tap is a no-op, and from a sub-view it means "back to the root". */
-    if(nextTab===state.tab && tabAtRoot(nextTab)) return;
+    /* Tapping the tab you are already on toggles that page's filter bar; from a
+       sub-view the same tap takes you back to the root instead. */
+    if(nextTab===state.tab && tabAtRoot(nextTab)){toggleFilterBar();return;}
     state.tab=nextTab;
     closeAllRitemAccordions();
     state.restPanel='food';
@@ -10163,10 +10147,6 @@ document.addEventListener("click",function(e){try{
   if(act==="openProfilePhoto"){state.profilePhotoOpen=true;render();return;}
   if(act==="closeProfilePhoto"){if(e.target&&e.target.tagName==="IMG")return;state.profilePhotoOpen=false;render();return;}
   if(act==="customerLogout"){if(window.EatoutsCustomer)EatoutsCustomer.logout().then(function(){state.profileCardOpen=false;state.about=null;state.aboutFeature=null;state.aboutPreview=null;render();});return;}
-
-  /* HEADER */
-  /* The bottom nav only navigates, so this is the explicit filter control. */
-  if(act==="toggleFilterBar"){toggleFilterBar();return;}
 
   /* PROMOS */
   if(act==="pickDay"){state.promoDay=parseInt(t.getAttribute("data-day"),10);state.promoExpanded=null;render();return;}
@@ -10329,8 +10309,7 @@ document.addEventListener("click",function(e){try{
       state.promoWeekStart=startOfWeek(now);
       state.promoDay=now.getDay();
     }else{
-      const firstOfMonth=new Date(y,m-1,1);
-      state.promoWeekStart=startOfWeek(firstOfMonth);
+      state.promoWeekStart=firstMondayInMonth(y,m-1);
       state.promoDay=1;
     }
     state.promoMonthPicker=false;
@@ -10352,8 +10331,7 @@ document.addEventListener("click",function(e){try{
   if(act==="pickPromoWeek"){
     const n=parseInt(t.getAttribute("data-week"),10);
     const a=state.promoMonth||weekLabel();
-    const firstOfMonth=new Date(a.year,a.monthIndex,1);
-    const firstMonday=startOfWeek(firstOfMonth);
+    const firstMonday=firstMondayInMonth(a.year,a.monthIndex);
     state.promoWeekStart=addDays(firstMonday,(n-1)*7);
     state.promoDay=1;
     state.promoWeekPicker=false;state.promoWeekExpanded=null;
@@ -10364,8 +10342,7 @@ document.addEventListener("click",function(e){try{
     const n=parseInt(t.getAttribute("data-week"),10);
     const offset=parseInt(t.getAttribute("data-offset"),10);
     const a=state.promoMonth||weekLabel();
-    const firstOfMonth=new Date(a.year,a.monthIndex,1);
-    const firstMonday=startOfWeek(firstOfMonth);
+    const firstMonday=firstMondayInMonth(a.year,a.monthIndex);
     const monday=addDays(firstMonday,(n-1)*7);
     state.promoWeekStart=monday;
     state.promoDay=PROMO_WEEK_ORDER[offset];

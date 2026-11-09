@@ -128,15 +128,11 @@ check('closeAllRitemAccordions clears restaurant/catering/bakery open state',
   ev('(function(){state.restaurantOpen="r1";state.cateringOpen="c1";state.bakeryOpen="bakery-1";closeAllRitemAccordions();return state.restaurantOpen===null&&state.cateringOpen===null&&state.bakeryOpen===null;})()'));
 
 // 14. T07 — the bakery panel renders the shared filter bar (search + Town | Area | Type)
-const filterTap = () => doc.getElementById('hdrFilter').click();
 ev('state.tab="restaurants"; state.restPanel="bakery"; state.bakeryFilterOpen=false; state.bakeryQuery=""; render();');
 const cbar = doc.getElementById('cbar');
 check('bakery filter bar starts hidden', !cbar.classList.contains('on') && !cbar.querySelector('.rest-filter-controls'));
 doc.querySelector('[data-tab="restaurants"]').click();
-check('2nd Restaurants tap leaves the bakery filter bar closed',
-  ev('state.bakeryFilterOpen') === false && !cbar.classList.contains('on'), ev('state.bakeryFilterOpen'));
-filterTap();
-check('header filter button opens the bakery filter bar',
+check('2nd Restaurants tap opens the bakery filter bar',
   ev('state.bakeryFilterOpen') === true && cbar.classList.contains('on'), ev('state.bakeryFilterOpen'));
 check('bakery bar uses the shared renderFilterBar', !!cbar.querySelector('.rest-filter-controls'));
 check('bakery search input renders', !!cbar.querySelector('#bakerySearch'));
@@ -154,8 +150,8 @@ check('bakery Type options come from js/bakery-types.js',
 check('bakery search filters the list',
   ev('(function(){state.bakeryQuery="zzzznotabakery";var n=filteredBakeries().length;state.bakeryQuery="";return n===0;})()'));
 check('clearing the search restores the list', ev('filteredBakeries().length') > 50, ev('filteredBakeries().length'));
-filterTap();
-check('header filter button hides the bakery filter bar again',
+doc.querySelector('[data-tab="restaurants"]').click();
+check('2nd Restaurants tap hides the bakery filter bar again',
   ev('state.bakeryFilterOpen') === false && !cbar.classList.contains('on'), ev('state.bakeryFilterOpen'));
 
 console.log('');

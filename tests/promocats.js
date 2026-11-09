@@ -357,7 +357,7 @@ setTimeout(() => {
     doc.querySelector('#viewport .cal-title .cal-title-btn').textContent === 'March',
     doc.querySelector('#viewport .cal-title .cal-title-btn') &&
     doc.querySelector('#viewport .cal-title .cal-title-btn').textContent);
-  check('March lands on its first (straddle) week', ev('getWeekDays()[0].getMonth()') === 1,
+  check('March lands on its first Monday', ev('getWeekDays()[0].getMonth()') === 2 && ev('getWeekDays()[0].getDate()') === 2,
     ev('String(getWeekDays()[0])'));
   check('month picker closes after picking', !doc.querySelector('.fpop.month-pop'));
   (function () {
@@ -394,25 +394,32 @@ setTimeout(() => {
 
   /* week picker stays in the labelled month */
   ev('state.promoMonth={year:2026,monthIndex:2};' +
-     'state.promoWeekStart=startOfWeek(new Date(2026,2,1));state.promoDay=1;' +
+     'state.promoWeekStart=firstMondayInMonth(2026,2);state.promoDay=1;' +
      'state.promoMonthPicker=false;state.promoWeekPicker=true;render();');
   const wyHdr = doc.querySelector('.fpop.week-pop .month-year');
   check('week picker header reads March 2026', !!wyHdr && wyHdr.textContent.trim() === 'March 2026',
     wyHdr && wyHdr.textContent);
-  check('week picker lists 6 weeks', doc.querySelectorAll('.fpop.week-pop .week-row').length === 6,
+  check('week picker lists 5 weeks', doc.querySelectorAll('.fpop.week-pop .week-row').length === 5,
     doc.querySelectorAll('.fpop.week-pop .week-row').length);
   check('week picker highlights Week 1 for March',
     !!doc.querySelector('.fpop.week-pop .week-row.on') &&
     doc.querySelector('.fpop.week-pop .week-row.on').textContent.trim() === 'Week 1');
-  const wrow3 = doc.querySelector('.fpop.week-pop .week-row[data-week="3"]');
+  const wrow3 = doc.querySelector('.fpop.week-pop .week-row[data-week="2"]');
   click(wrow3);
   const drows = doc.querySelectorAll('.fpop.week-pop .week-days .day-row');
-  check('week 3 expands to 7 day rows', drows.length === 7, drows.length);
+  check('week 2 expands to 7 day rows', drows.length === 7, drows.length);
   click(drows[0]);
   check('pickDayFromWeek keeps the March label', ev('weekLabel().monthIndex') === 2,
     JSON.stringify(evjSub('weekLabel()')));
-  check('pickDayFromWeek lands on week 3 Monday (Mar 9)',
+  check('pickDayFromWeek lands on week 2 Monday (Mar 9)',
     ev('getWeekDays()[0].getDate()') === 9, ev('String(getWeekDays()[0])'));
+
+  /* November 2026: Mondays 2, 9, 16, 23, 30 -> 9 Nov is week 2, not week 3 */
+  ev('state.promoMonth={year:2026,monthIndex:10};' +
+     'state.promoWeekStart=new Date(2026,10,9);state.promoDay=1;render();');
+  const nov = evjSub('weekLabel()');
+  check('9 Nov 2026 reports Week 2 of 5', nov.weekNum === 2 && nov.totalWeeks === 5,
+    JSON.stringify(nov));
 
   console.log('');
   if (errors.length) { console.log('window errors:'); errors.forEach(e => console.log('  ' + e)); fails += errors.length; }

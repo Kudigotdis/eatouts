@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 /**
- * Bottom nav: tapping the tab you are already on navigates - it does not filter.
+ * Bottom nav: tapping the tab you are already on toggles that page's filter bar.
  *
- * Tapping the already-active nav tab used to toggle that tab's filter bar (the
- * promo feed, the restaurant list, the beverages / catering / bakery panels),
- * so a second tap on Restaurants silently opened a search + filter bar and the
- * button looked broken. The nav now only navigates: at the tab root the tap is
- * a no-op, from a sub-view it returns to the root. The filter bars open from
- * the explicit header filter button (#hdrFilter, data-act="toggleFilterBar").
+ * The header filter button was removed; the bars live on the active tab again:
+ * Promos feed, Restaurants, Catering, Bakeries and Beverages. At the tab root
+ * the tap reveals/hides the bar; from a sub-view it returns to the root.
  *
  * CommonJS on purpose — tests/package.json pins this folder to CommonJS.
  */
@@ -55,63 +52,45 @@ setTimeout(() => {
   const appErrors = errors.filter(e => e.indexOf('missing script') !== 0);
   const cbar = doc.getElementById('cbar');
   const promoBar = doc.getElementById('filter-bar');
-  const filterBtn = doc.getElementById('hdrFilter');
 
-  /* ---------- nav tap on the active tab must not toggle a filter bar ------ */
-  ev('state.tab="promos"; state.promoView="feed"; render();');
+  check('the header no longer has a filter button', !doc.getElementById('hdrFilter'));
+
+  /* ---------- active tab toggles its filter bar ---------- */
+  ev('state.tab="promos"; state.promoView="feed"; state.promoFilterOpen=false; render();');
   click(tab('promos'));
-  check('2nd Promos tap does not open the promo filter bar',
+  check('2nd Promos tap opens the promo filter bar',
+    ev('state.promoFilterOpen') === true && promoBar.classList.contains('on'), ev('state.promoFilterOpen'));
+  click(tab('promos'));
+  check('3rd Promos tap closes the promo filter bar',
     ev('state.promoFilterOpen') === false && !promoBar.classList.contains('on'), ev('state.promoFilterOpen'));
 
-  ev('state.tab="restaurants"; state.restPanel="food"; state.restaurantView=null; render();');
+  ev('state.tab="restaurants"; state.restPanel="food"; state.restaurantView=null; state.restFilterOpen=false; render();');
   click(tab('restaurants'));
-  check('2nd Restaurants tap does not open the food filter bar',
-    ev('state.restFilterOpen') === false && !cbar.classList.contains('on'), ev('state.restFilterOpen'));
+  check('2nd Restaurants tap opens the food filter bar',
+    ev('state.restFilterOpen') === true && cbar.classList.contains('on'), ev('state.restFilterOpen'));
   check('the restaurant list is still on screen',
     doc.querySelectorAll('#viewport .ritem').length > 0, doc.querySelectorAll('#viewport .ritem').length);
+  click(tab('restaurants'));
+  check('3rd Restaurants tap closes the food filter bar',
+    ev('state.restFilterOpen') === false && !cbar.classList.contains('on'), ev('state.restFilterOpen'));
 
   /* the reported sequence: Promos -> Restaurants -> Restaurants */
-  ev('state.tab="promos"; state.promoView="feed"; render();');
+  ev('state.tab="promos"; state.promoView="feed"; state.promoFilterOpen=false; state.restFilterOpen=false; render();');
   click(tab('restaurants'));
   click(tab('restaurants'));
-  check('Promos -> Restaurants -> Restaurants leaves every filter bar closed',
-    ev('state.restFilterOpen') === false && ev('state.promoFilterOpen') === false &&
+  check('Promos -> Restaurants -> Restaurants opens only the restaurant bar',
+    ev('state.restFilterOpen') === true && ev('state.promoFilterOpen') === false &&
     ev('state.bevFilterOpen') === false && ev('state.cateringFilterOpen') === false &&
-    ev('state.bakeryFilterOpen') === false && !cbar.classList.contains('on') &&
+    ev('state.bakeryFilterOpen') === false && cbar.classList.contains('on') &&
     !promoBar.classList.contains('on'),
     JSON.stringify(ev('({rest:state.restFilterOpen,bev:state.bevFilterOpen,catering:state.cateringFilterOpen,bakery:state.bakeryFilterOpen})')));
 
-  /* ---------- the header button is the explicit filter control ----------- */
-  check('header filter button shows on the restaurant list', !!filterBtn && !filterBtn.hidden);
-  click(filterBtn);
-  check('header filter button opens the food filter bar',
-    ev('state.restFilterOpen') === true && cbar.classList.contains('on'), ev('state.restFilterOpen'));
-  check('the open bar is reflected on the button',
-    !!filterBtn && filterBtn.classList.contains('on') && filterBtn.getAttribute('aria-expanded') === 'true');
-  click(filterBtn);
-  check('header filter button closes the food filter bar again',
-    ev('state.restFilterOpen') === false && !cbar.classList.contains('on'), ev('state.restFilterOpen'));
-  check('the button drops its active state',
-    !!filterBtn && !filterBtn.classList.contains('on') && filterBtn.getAttribute('aria-expanded') === 'false');
-
-  click(tab('promos'));
-  check('header filter button shows on the promo feed', !!filterBtn && !filterBtn.hidden);
-  click(filterBtn);
-  check('header filter button opens the promo filter bar',
-    ev('state.promoFilterOpen') === true && promoBar.classList.contains('on'), ev('state.promoFilterOpen'));
-  click(filterBtn);
-  check('header filter button closes the promo filter bar again',
-    ev('state.promoFilterOpen') === false && !promoBar.classList.contains('on'), ev('state.promoFilterOpen'));
-
-  /* ---------- tabs without a filter bar hide the button ------------------- */
+  /* ---------- tabs without a filter bar do nothing extra ------------------ */
   click(tab('gallery'));
-  check('header filter button hides on Gallery', !!filterBtn && filterBtn.hidden);
-  click(tab('about'));
-  check('header filter button hides on About', !!filterBtn && filterBtn.hidden);
-  click(tab('restaurants'));
-  check('header filter button is back on Restaurants', !!filterBtn && !filterBtn.hidden);
+  check('Gallery tab still navigates', ev('state.tab') === 'gallery', ev('state.tab'));
 
   /* ---------- from a sub-view the tab tap still navigates home ------------ */
+  ev('state.tab="restaurants";state.restFilterOpen=false;render();');
   ev('(function(){var r=EatoutsBridge.listing()[0];' +
     'state.restaurantView={id:r.id,brand:EatoutsBridge.brandKeyOf(r),view:"menu",promoId:null};' +
     'EatoutsBridge.setActive(r.id); render(); return true;})()');

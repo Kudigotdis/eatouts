@@ -12,6 +12,22 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: <reasoning>
 - Errors: <exact error if any>
 ```
+### [2026-11-09 12:28:29] - [Agent: Big Pickle] - [Status: IN_PROGRESS]
+- Task: Four UI fixes — 20px Eish notice with a 373px paragraph and no mojibake; restore the active bottom-nav filter toggle and delete the header filter button; count promo weeks from the month's first Monday (9 Nov 2026 = Week 2); remove the reserve tab's "Create New Event" row.
+- Files changed:
+  - `index.html`: `.empty-notice` font 20px, `p` 373px; mojibake `â€”` → full stop; `#hdrFilter` + `syncFilterBtn()` + the `toggleFilterBar` click branch removed; active tab at root calls `toggleFilterBar()`; `firstMondayInMonth()` drives week labels, week counts, month/week/day pickers and `syncPromoMonth`; boot month anchor follows the current week's Monday; reserve `createEvent` row removed (handler kept).
+  - `search_screen.html`: same `.empty-notice` sizing.
+  - `AGENTS.md`: filter-bar golden rule.
+  - `tests/promocats.js`: March first Monday, 5 March weeks, week 2 pick, 9 Nov 2026 = Week 2 of 5.
+  - `tests/nav-active-tap.js`: rewritten for active-tab toggling and the missing header button.
+  - `tests/beverages.js`, `tests/bakery-directory.js`, `tests/catering-directory.js`, `tests/bottle-stores.js`: open the bar with a second nav tap instead of `#hdrFilter`.
+  - `tests/builder-save-share.js`: reserve tab must not offer Create New Event.
+- Commit: PENDING
+- Push: PENDING
+- Tests: targeted suites PASSED; `npm test` → 87 passed, 0 failed.
+- Notes: Weeks now start on the first Monday inside the month; a straddling Mon–Sun week belongs to the month of its Monday. The `createEvent` handler stays so the builder remains reachable elsewhere.
+- Errors: none.
+
 ### [2026-11-09 11:34:39] - [Agent: Big Pickle] - [Status: COMMITTED]
 - Task: Make Botswana the launch region again. The app was opening on South Africa because `localStorage['eatouts.region.v1']` still held `ZA` from an earlier selector tap, and `getActiveRegion()` honours any active stored code; the boot reset in `index.html` had been removed on 2026-11-08, leaving Botswana only as a fallback.
 - Files changed:

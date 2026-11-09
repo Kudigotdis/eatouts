@@ -22,6 +22,7 @@
 - Make the MINIMAL diff required to achieve the goal. 
 - Do NOT refactor unrelated files, change CSS styles, or add new dependencies unless explicitly asked.
 - If you think a file needs changing but I didn't ask for it, ASK ME FIRST before touching it.
+- **GOLDEN RULE — filter bars (2026-11-09):** Do NOT add a filter button to the header. On the Promos feed and the Restaurants panels (`restaurants-pager`, `catering`, `bakeries`, `beverages`), filter bars stay hidden on load and are revealed/hidden by tapping the already-active bottom-nav tab.
 
 ## 3. No Over-Engineering
 - Write the simplest code possible. 
