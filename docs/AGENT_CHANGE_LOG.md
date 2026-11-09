@@ -12,6 +12,16 @@ This file is the source of truth for all agent-initiated changes. Every time an 
 - Notes: <reasoning>
 - Errors: <exact error if any>
 ```
+### [2026-11-09 13:07:08] - [Agent: Big Pickle] - [Status: IN_PROGRESS]
+- Task: Remove the decoded-ellipsis mojibake (`â€¦`) from the four `.csearch` filter-bar placeholders on `index.html`.
+- Files changed:
+  - `index.html`: the restaurant, catering, bakery and bottle-store search placeholders now read "Search restaurants", "Search catering", "Search bakeries" and "Search bottle stores" (no trailing ellipsis).
+- Commit: PENDING
+- Push: PENDING
+- Tests: the four filter-bar suites + `nav-active-tap` PASSED; `npm test` → 87 passed, 0 failed.
+- Notes: Only the `class="csearch"` placeholders were touched. The other `â€¦` sequences (loading messages and "Add a name" inputs) are outside the requested scope.
+- Errors: none.
+
 ### [2026-11-09 12:28:29] - [Agent: Big Pickle] - [Status: COMMITTED]
 - Task: Four UI fixes — 20px Eish notice with a 373px paragraph and no mojibake; restore the active bottom-nav filter toggle and delete the header filter button; count promo weeks from the month's first Monday (9 Nov 2026 = Week 2); remove the reserve tab's "Create New Event" row.
 - Files changed:
