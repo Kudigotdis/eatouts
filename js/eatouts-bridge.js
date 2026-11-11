@@ -206,7 +206,7 @@
 
   function all() {
     var list = DB.byLastActive(db());
-    /* T22 step 3 â€” the region gate. Every directory, menu and promo surface in
+    /* T22 step 3 — the region gate. Every directory, menu and promo surface in
        index.html reads venues through this one function, so filtering here
        covers them all. Records saved before gating carry no `region` and read
        as BW (EatoutsRegions.recordRegion), so nothing disappears today. */
@@ -326,7 +326,7 @@ function brandKeyOf(r) {
     /* Through all(), never DB.byLastActive(): the grouped listing is what
        index.html's Restaurants list renders, so it has to obey the same region
        gate. Reading the database directly let Botswana's seed roster (the
-       flagship, Chicken Licken, The Game Reserveâ€¦) show up under Zimbabwe,
+       flagship, Chicken Licken, The Game Reserve…) show up under Zimbabwe,
        where the ZW payload has no such venue and About bounces back home. */
     var rows = all();
     var byKey = {};
