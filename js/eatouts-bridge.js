@@ -404,7 +404,7 @@ function brandKeyOf(r) {
         name: r.name,
         slug: r.slug,
         types: r.types && r.types.length ? r.types : ['Restaurant'],
-        category: (r.types && r.types.length ? r.types : ['Restaurant']).join(' Â· '),
+        category: (r.types && r.types.length ? r.types : ['Restaurant']).join(' · '),
         location: r.location || {},
         placeLabel: placeLabel(r),
         landmark: r.landmark || '',
@@ -433,7 +433,7 @@ function brandKeyOf(r) {
         name: name,
         slug: g.key,
         types: primaryTypes,
-        category: primaryTypes.join(' Â· '),
+        category: primaryTypes.join(' · '),
         location: primary ? (primary.location || {}) : {},
         placeLabel: placeLabel(primary || {}),
         landmark: primary ? (primary.landmark || '') : '',
@@ -453,14 +453,14 @@ function brandKeyOf(r) {
     });
   }
 
-  /** "Gaborone Â· Kgale View" or "Gaborone Â· Acacia Mall" */
+  /** "Gaborone · Kgale View" or "Gaborone · Acacia Mall" */
   function placeLabel(r) {
     var loc = r.location || {};
     var bits = [];
     if (loc.town) bits.push(loc.town);
     if (loc.area) bits.push(loc.area);
     if (!bits.length && r.landmark) bits.push(r.landmark);
-    return bits.join(' Â· ');
+    return bits.join(' · ');
   }
 
   /**
